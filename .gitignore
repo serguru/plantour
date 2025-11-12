@@ -1,0 +1,82 @@
+# .gitignore for .NET 10 / Visual Studio projects
+
+# Build output
+bin/
+obj/
+/artifacts/
+/publish/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+*.DotSettings.user
+_ReSharper*/
+
+# VS Code
+.vscode/
+
+# NuGet
+packages/
+*.nupkg
+.nuget/
+.dotnet/tools/
+
+# ASP.NET / configuration
+ScaffoldingReadMe.txt
+secrets.json
+appsettings.*
+
+# Test results / coverage
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+
+# Logs
+*.log
+logs/
+
+# Database / local files
+*.mdf
+*.ldf
+*.sqlite
+*.sqlite3
+
+# Node / front-end
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+.Trashes
+
+# Temporary
+*.tmp
+*.temp
+~$*
+
+# Misc binaries/artifacts
+*.dll
+*.exe
+*.pdb
+*.class
+*.cache
+
+# Ignore local env files
+.env
+.env.local
+.env.*.local
+
+# Publish folder (dotnet publish output)
+publish/

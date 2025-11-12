@@ -1,0 +1,161 @@
+=================================
+PlanTour Technical Specifications
+=================================
+
+
+Project Purpose
+===============
+
+Provide travelers with an app to plan, organize, prepare, conduct, store and reuse tours. The app is designed for the Web platform. It can run online as a regular web app and offline as a Progressive Web Application on any OS, including Windows, Android and iOS.
+
+Data
+====
+
+MS SQL is used as a database. Entities that can be reused in different tours are stored in tables that refer to the account and are not available to other accounts. The need to support offline mode significantly affects a way of working with data. The user can loose or restore the Internet connection any time. And the app has to automatically switch from online to offline and back. 
+
+When connected to the Internet, any request to the backend will return full tour data. Once received, the data is saved on the local device. Every time the user makes a change, the application creates a local copy of the data if one does not already exist. The changes are made to this editable copy. After making changes, either immediately or when the connection is restored, the application will detect differences between the original and edited copies of the data. These differences are sent to the backend for synchronization with the database. The backend then sends the fresh data to the application for local storage. The edited copy is deleted.
+
+Internet connection debounsing?
+
+
+Features
+========
+
+Users can create a new tour from scratch, copy an old one, or use a tour template provided by the site. It will also be possible to load a new tour from an external file.
+
+A user can invite their family or friends to join the tour by sharing a secure join code with them. If they want to find travel companions, they can post the invitation to the PlanTour Facebook group and then send the secure join code privately.
+
+Users will be able to plan their tour step by step, keep all tour related data in one place, check the things packed in the suitcase against the checklist, take notes during the trip, estimate expenses, etc. A nice feature would be the ability to print a label with the owner's name and address in case the suitcase gets lost and insert this label into a special outer pocket of the suitcase.
+
+The main part of the tour is a collection of itineraries for planning activities. An itinerary is a time period during which participants can stay in the same place or move. As a rule, this is a time period associated with the same event: lunch in a restaurant, a sightseeing, an overnight stay in a hotel, a flight. The starting and ending points of the itinerary can have an address or GPS coordinates. This will allow you to export itinerary data to Google Maps and get directions. The sequence of routes may refer to an excursion.
+
+Each itinerary includes details that allow participants to prepare for and safely enjoy that portion of the tour. Itineraries can run in parallel if different participants are not together. For example, adults can visit a casino while their children play in a supervised children's area. Each itinerary can have associated data, such as a list of items purchased in a store or a list of photos taken during the tour.
+
+Users can create todo lists and associate certain todos with itineraries.
+
+Participants can take travel notes as rich text containing videos, audios and photos. If no Internet connection is available media files are kept on the device. When a tour is saved to the server all blobs must be saved to the user provided cloud storage and only links to those blobs are saved to the tour.
+
+The search function should allow users to search for occurrences of text throughout the tour. For example, this could help you determine which suitcase the red dress was packed in.
+
+The tour should be presented to the user in a way that makes it easy for them to read, analyze, and change the data of the tour. This is probably a graphical representation of the sequence of periods with the ability to quickly get the details of the period and change them.
+
+
+System architecture
+====================
+
+All data except files are stored in MS SQL database. The database guarantees 100% data consistency. REST-based server API is for core business logic. The Angular-based browser client application is designed for online use. The Android and iOS client applications are designed for online and offline use.
+
+User files such as videos or photos are not stored with the tour data. Only links to files stored, for example, in the cloud, are saved. The user must provide the system with all necessary data, such as logins and passwords, to access these files. In offline mode, local file paths should be used.
+
+
+Data processing
+===============
+
+There are two modes of working with tour data: online and offline. Each time the user requests data from the server while online, it returns the full tour in JSON format. For offline-capable apps, this JSON is saved locally immediately upon receipt. If the device loses internet connection, the client app will automatically switch to working with the latest local copy of the tour. 
+
+If the user edited the data while offline, the changes are saved locally. Once the connection is restored those changes can be saved to the remote database. In this case, the user will have to click the "Save" button. The client app will send all the modified tour data as JSON to the server. The server will determine what has changed and make the appropriate changes to the database. 
+
+If a user with a modified copy of a local tour requests a fresh copy from the server, the application will warn the user that the changes will be lost and will prompt the user to save them first. If the user declines this prompt, the old modified copy will be replaced by the new one. If the user agrees, the old copy will be saved to the server first and then a fresh copy will be received back.
+
+
+Tour properties
+================
+
+Participants
+Activities
+Participants Group
+Documents
+Cities to visit
+Attractions
+Excursions
+Contacts related to the tour
+Things with you
+Suitcases or other storage places
+Accomodations 
+Restaurants 
+Shops
+Transport ?
+Itineraries
+Notes
+AI answers to questions
+Paths to files
+Expenses
+Dishes
+ToDos
+Consumables
+
+Lists
+=====
+
+There will be a main menu item "Lists" with submenus to navigate to lists related pages. Normally one page serves for one list. If lists are related, for example, suitcases and clothes, they can be presented on the same page. Normally a list is pesented as a grid and modal forms are used to edit data. One or more rows can be selected for actions, for example deleting or copying. 
+
+A component PlanTourGrid should be created as a base component for all the app grids. A built in toolbar should serve for grid related actions like add, update or delete a row.
+
+General design
+==============
+
+The web application should be responsive and work well on both large and small screens. The first release of the Plan Tour project will not have mobile applications. However, the web application must be designed in such a way that it can be used from smartphones. For example, on large screens the grid may display normally, but on small screens it should be displayed so that the row takes up the entire screen and appears like a form.
+
+If a page has a lot of empty space an image like a travel collage can be used to fill that space. An example is the RBC login page, which displays a landscape to the left of the login form.
+
+The main toolbar will show a Plan Tour log and a list of menu items with subitems. This toolbar can be docked to one of the edges of the screen or hidden. If it is hidden then a traditional menu icon is presented in the top corner. The toolbar is not scrollable, the main content is scrolling under the toolbar. ???
+
+Entities
+========
+
+People: Name, Age, Sex
+Company Types: Hotel, Restaurant, Car rent
+Companies: Name, Company Type, Description
+Contact Types: Address, Phone, Email, Website
+Contacts: Contact Type, Content
+
+Place Types: Country, City, Village, River, Lake, Airport, Bus station, Camping, Attraction
+Places: PLace Type, Description
+
+Thing Types: Clothes, Shoes, Tools, Medications, Electronics
+Things: Thing Type, Description
+
+Luggage Types: Suitcase, Backpack, Bag, Box
+Luggage: Luggage Type, Description
+
+Activity Types: Sightseeing, Swimming, Playing Voleyball, Dancing, Fishing, Excursion
+Activity: Activity Type, Description
+
+Document Types: Passport, Licence, Credit Card
+Documents: Document Type, Description
+
+Accomodation Type: Hotel, Friend Home, Tent, Ship, Boat
+Accomodations: Accomodation Type, Description
+
+Link Types: City info, My Photos, My Videos, Accomodations
+Links: Link Type, URL, Description
+
+Tour Types: Cruise, Bus excursion, Car travel, Hiking, Fishing
+Archived tours: Tour Type, Content as json
+Tours: Tour Type, Short Description
+
+
+
+
+
+
+
+
+
+
+
+
+File Paths:
+
+
+Tour related entities
+=====================
+Itineraries
+    Start and End Places
+    Activities
+   
+Notes
+Todos
+Participants
+Helpers
+
