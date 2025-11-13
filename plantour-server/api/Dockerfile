@@ -8,19 +8,19 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["pack-api.csproj", "."]
-RUN dotnet restore "./pack-api.csproj"
+COPY ["plantour.csproj", "."]
+RUN dotnet restore "./plantour.csproj"
 COPY . .
 WORKDIR "/src/."
-RUN dotnet build "./pack-api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./plantour.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./pack-api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./plantour.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
 # At container start set ASPNETCORE_URLS to use the runtime $PORT (falls back to 8080)
-ENTRYPOINT ["sh", "-c", "export ASPNETCORE_URLS=\"http://*:${PORT:-8080}\" && exec dotnet pack-api.dll"]
+ENTRYPOINT ["sh", "-c", "export ASPNETCORE_URLS=\"http://*:${PORT:-8080}\" && exec dotnet plantour.dll"]
