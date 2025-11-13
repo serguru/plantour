@@ -1,0 +1,1 @@
+Add a method getWeather to the users service. Take the api url from the environment. Send an http get request to /weatherforecast endpoint. Return the result as a JSON object
