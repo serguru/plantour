@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Users } from '../../../services/users';
 import { ButtonModule } from 'primeng/button';
 import { map } from 'rxjs';
@@ -10,20 +10,17 @@ import { map } from 'rxjs';
   styleUrl: './login.scss',
 })
 export class Login {
+  items = signal<string[]>([]);
 
-items: string[] = [];
+  constructor(private readonly usersService: Users) {
 
-constructor(private readonly usersService: Users) {
-  
-}
+  }
 
-click() {
-  this.usersService.getWeather()
-  .pipe(
-    map(data => data.map(item => JSON.stringify(item)))
-  )
-  .subscribe(x => 
-    this.items = x);
-}
-
+  click() {
+    this.usersService.getWeather()
+      .pipe(
+        map(data => data.map(item => JSON.stringify(item)))
+      )
+      .subscribe(x => this.items.set(x));
+  }
 }
