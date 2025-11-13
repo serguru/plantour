@@ -1,0 +1,2 @@
+﻿In /Infrastructure/Supabase/ generate all the necesary code to use Supabase provided users managenment system including sign up, sign in, sign out, password reset, and user profile management. Use best practices for security and error handling.
+

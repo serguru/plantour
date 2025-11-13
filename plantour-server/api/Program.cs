@@ -1,5 +1,7 @@
 namespace pack_api
 {
+    using pack_api.Infrastructure.Exceptions;
+
     public class Program
     {
         public static void Main(string[] args)
@@ -47,6 +49,9 @@ namespace pack_api
 
             // Ensure CORS runs before other middleware that might handle requests
             app.UseCors("DefaultCorsPolicy");
+
+            // Centralized exception handling middleware (must come early in pipeline)
+            app.UseCustomExceptionHandler();
 
             app.UseHttpsRedirection();
 
