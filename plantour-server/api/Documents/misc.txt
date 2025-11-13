@@ -1,2 +1,2 @@
-﻿In /Infrastructure/Supabase/ generate all the necesary code to use Supabase provided users managenment system including sign up, sign in, sign out, password reset, and user profile management. Use best practices for security and error handling.
+﻿In /Infrastructure/Supabase/ and, if needed, other project's files generate all the necessary code to use Supabase provided JWT based users managenment system including sign up, sign in, sign out, password reset, and user profile management. Explain how do I limit access to endpoints only for authenticated users.
 
