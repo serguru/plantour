@@ -1,2 +1,2 @@
-﻿In /Infrastructure/Supabase/ and, if needed, other project's files generate all the necessary code to use Supabase provided JWT based users managenment system including sign up, sign in, sign out, password reset, and user profile management. Explain how do I limit access to endpoints only for authenticated users.
+﻿Generate all the necessary code to use Supabase provided JWT based users managenment system including sign up, sign in with password, sign in with magic link, sign out, password reset, JWT management, and user profile management. Explain how do I authorize access to controllers endpoints for authenticated users.
 
