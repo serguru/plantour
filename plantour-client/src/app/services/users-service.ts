@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
-export class Users {
+export class UsersService {
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
@@ -18,4 +18,11 @@ export class Users {
   getWeather(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/weatherforecast`);
   }
+
+  getProfile(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/api/profile/me`);
+  }
+
+
+
 }

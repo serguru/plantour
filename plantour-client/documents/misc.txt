@@ -1,1 +1,3 @@
 Add a method getWeather to the users service. Take the api url from the environment. Send an http get request to /weatherforecast endpoint. Return the result as a JSON object
+
+Read open files AuthController.cs and ProfileController.cs. Determine endpoints. Generate interceptor to add auth JWT token to requests. Build standalone components with code, scss and html in separate files, one per endpoint. In components implement reactive forms. Use PrimeNG for UI. Add rotes for each component. Put components each in its own folder. Put those folders to src/app/components/users.

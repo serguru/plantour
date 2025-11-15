@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { UsersService } from './services/users-service';
 
 @Component({
   selector: 'app-root',
@@ -9,5 +10,16 @@ import { RouterOutlet } from '@angular/router';
 })
 export class App {
   protected readonly title = signal('plantour-client');
+  protected readonly profile = signal<string>('');
+
+
+  constructor(private readonly usersService: UsersService) {
+    
+    
+  }
+
+  getProfile = () => {
+      this.usersService.getProfile().subscribe(p => this.profile.set(JSON.stringify(p)))
+  }
 }
 
