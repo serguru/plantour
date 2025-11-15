@@ -3,7 +3,6 @@ import { provideRouter } from '@angular/router';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 import { routes } from './app-routes';
 import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeuix/themes/aura';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { jwtInterceptor } from './interceptors/jwt-interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -19,12 +18,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     provideRouter(routes),
     provideAnimationsAsync(),
-    providePrimeNG({
-      theme: {
-        preset: Aura
-      },
-      ripple: true
-    }),
     provideHttpClient(
       withInterceptors([jwtInterceptor])
     ),
