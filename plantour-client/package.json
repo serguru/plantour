@@ -1,6 +1,6 @@
 {
-    "name": "plantour",
-    "version": "20.0.0",
+    "name": "plantour-client",
+    "version": "0.0.1",
     "scripts": {
         "ng": "ng",
         "start": "ng serve --open --port 4203",
