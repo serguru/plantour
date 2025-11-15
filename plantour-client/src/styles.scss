@@ -1,1 +1,4 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'styles/sakai/base.css';
+@use 'styles/sakai/layout/layout.scss';
+@use 'primeicons/primeicons.css';
+@use 'styles/sakai/demo/demo.scss';
