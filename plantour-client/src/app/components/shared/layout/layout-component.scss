@@ -1,0 +1,95 @@
+/* ───────────────────────── Toolbar ───────────────────────── */
+.top-toolbar {
+  height: 56px;
+  background-color: var(--surface-0);
+  border-bottom: 1px solid var(--surface-border);
+
+  .left-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .logo {
+      height: 32px;
+    }
+
+    .app-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .dynamic-menu {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: 1.5rem;
+
+      li {
+        list-style: none;
+      }
+    }
+  }
+
+  .right-section {
+    margin-left: auto;
+
+    .right-menu {
+      display: flex;
+      gap: 0.5rem;
+
+      li {
+        list-style: none;
+      }
+    }
+  }
+}
+
+/* ───────────────────────── Panels + Splitter ───────────────────────── */
+.main-splitter {
+  height: calc(100vh - 56px);
+}
+
+.left-panel {
+  background: var(--surface-100);
+
+  .modules-panel {
+    padding: 1rem;
+
+    ul {
+      padding: 0;
+      margin: 0;
+
+      li {
+        list-style: none;
+        margin-bottom: 0.5rem;
+
+        a {
+          display: flex;
+          gap: 0.6rem;
+          padding: 0.6rem;
+          border-radius: 6px;
+          text-decoration: none;
+          color: var(--text-color);
+          transition: background 0.2s;
+
+          &:hover {
+            background: var(--surface-hover);
+          }
+
+          &.active {
+            background: var(--primary-100);
+            color: var(--primary-700);
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
+}
+
+.right-panel {
+  background: var(--surface-0);
+
+  .content-container {
+    padding: 1.5rem;
+  }
+}
