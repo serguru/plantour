@@ -1,0 +1,37 @@
+<p-card>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <h2>Register</h2>
+
+    <div class="field">
+      <label>Email</label>
+      <input pInputText formControlName="email">
+    </div>
+
+    <div class="field">
+      <label>First Name</label>
+      <input pInputText formControlName="first_name">
+    </div>
+
+    <div class="field">
+      <label>Last Name</label>
+      <input pInputText formControlName="last_name">
+    </div>
+
+    <div class="field">
+      <label>Phone</label>
+      <input pInputText formControlName="phone">
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <input pPassword formControlName="password">
+    </div>
+
+    <div class="field">
+      <label>Confirm Password</label>
+      <input pPassword formControlName="confirm_password">
+    </div>
+
+    <button pButton type="submit" label="Register" [disabled]="submitting()"></button>
+  </form>
+</p-card>
