@@ -1,0 +1,79 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [dismissableMask]="false"
+  [closable]="true"
+  [closeOnEscape]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
+  [style]="{ width: '400px', maxWidth: '95vw' }"
+  (onHide)="onDialogHide()"
+>
+  <ng-template pTemplate="header">
+    {{ state?.title || 'Confirmation' }}
+  </ng-template>
+
+  <div class="dialog-content">
+    <p class="dialog-message">
+      {{ state?.message }}
+    </p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <!-- YES / NO / CANCEL -->
+    <ng-container *ngIf="state?.type === 'yes-no-cancel'">
+      <button
+        pButton
+        type="button"
+        class="p-button-text"
+        (click)="onAction('cancel')"
+      >
+        {{ state?.cancelLabel || 'Cancel' }}
+      </button>
+
+      <span class="footer-spacer"></span>
+
+      <button
+        pButton
+        type="button"
+        class="p-button-secondary"
+        (click)="onAction('no')"
+      >
+        {{ state?.noLabel || 'No' }}
+      </button>
+
+      <button
+        pButton
+        type="button"
+        class="p-button-primary"
+        (click)="onAction('yes')"
+      >
+        {{ state?.yesLabel || 'Yes' }}
+      </button>
+    </ng-container>
+
+    <!-- OK / CANCEL -->
+    <ng-container *ngIf="state?.type === 'ok-cancel'">
+      <button
+        pButton
+        type="button"
+        class="p-button-text"
+        (click)="onAction('cancel')"
+      >
+        {{ state?.cancelLabel || 'Cancel' }}
+      </button>
+
+      <span class="footer-spacer"></span>
+
+      <button
+        pButton
+        type="button"
+        class="p-button-primary"
+        (click)="onAction('ok')"
+      >
+        {{ state?.okLabel || 'Ok' }}
+      </button>
+    </ng-container>
+  </ng-template>
+</p-dialog>
