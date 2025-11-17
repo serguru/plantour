@@ -14,9 +14,9 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        var supabaseUrl = builder.Configuration["Supabase:SUPABASE_URL"];
-        var supabaseAnonKey = builder.Configuration["Supabase:SUPABASE_ANON_KEY"];
-        var supabaseJwtSecret = builder.Configuration["Supabase:SUPABASE_JWT_SECRET"];
+        var supabaseUrl = builder.Configuration["SUPABASE_URL"];
+        var supabaseAnonKey = builder.Configuration["SUPABASE_ANON_KEY"];
+        var supabaseJwtSecret = builder.Configuration["SUPABASE_JWT_SECRET"];
 
         if (string.IsNullOrEmpty(supabaseUrl) ||
             string.IsNullOrEmpty(supabaseAnonKey) ||

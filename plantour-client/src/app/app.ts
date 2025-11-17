@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { UsersService } from './services/users-service';
 
@@ -11,12 +11,7 @@ import { UsersService } from './services/users-service';
 export class App {
   protected readonly title = signal('plantour-client');
   protected readonly profile = signal<string>('');
-
-
-  constructor(private readonly usersService: UsersService) {
-    
-    
-  }
+  public usersService = inject(UsersService);
 
   getProfile = () => {
       this.usersService.getProfile().subscribe(p => this.profile.set(JSON.stringify(p)))

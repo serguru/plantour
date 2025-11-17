@@ -31,9 +31,7 @@ namespace Plantour.Auth.Controllers
             if (session == null) return Unauthorized();
             return Ok(new
             {
-                accessToken = session.AccessToken,
-                expiresAt = session.ExpiresAt(),
-                user = _auth.GetCurrentUser()
+                token = session.AccessToken,
             });
         }
 

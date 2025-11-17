@@ -1,3 +1,25 @@
 Add a method getWeather to the users service. Take the api url from the environment. Send an http get request to /weatherforecast endpoint. Return the result as a JSON object
 
 Read open files AuthController.cs and ProfileController.cs. Determine endpoints. Generate interceptor to add auth JWT token to requests. Build standalone components with code, scss and html in separate files, one per endpoint. In components implement reactive forms. Use PrimeNG for UI. Add rotes for each component. Put components each in its own folder. Put those folders to src/app/components/users.
+
+Generate an Angular 20 login reactive form. Inject "UsersService" with login method. Use PrimeNG for UI. Use all the necessary tricks to make the UI great for mobile devices first. Use separet code, html and scss fies. Name component LoginComponent.
+
+With zone.js:
+=====================
+let a = 1;
+let b = 2;
+
+get sum(): any {
+    return this.a + this.b;
+}
+
+{{sum}} in html shows 3
+
+a = 2;
+
+{{sum}} in html shows 4
+=====================
+
+Rewrite this code without zone.js
+
+
