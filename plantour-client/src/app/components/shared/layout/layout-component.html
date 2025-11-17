@@ -1,0 +1,63 @@
+<p-toolbar class="top-toolbar">
+
+  <div class="left-section">
+    <button
+      pButton
+      icon="pi pi-bars"
+      class="p-button-text"
+      (click)="leftPanelVisible.set(!leftPanelVisible())"
+    ></button>
+
+    <img src="assets/plantour-logo.png" class="logo" />
+    <span class="app-title">Plantour</span>
+
+    <ul class="dynamic-menu">
+      <li *ngFor="let item of topMenuItems()">
+        <button pButton class="p-button-text small-btn" [icon]="item.icon">
+          {{ item.label }}
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="right-section">
+    <ul class="right-menu">
+      <li *ngFor="let item of rightMenu">
+        <button pButton class="p-button-text small-btn">
+          <i [class]="item.icon"></i>
+          <span *ngIf="item.badge" class="p-badge">{{ item.badge }}</span>
+          {{ item.label }}
+        </button>
+      </li>
+    </ul>
+  </div>
+
+</p-toolbar>
+
+
+<p-splitter class="main-splitter">
+
+  <ng-template pTemplate="start">
+    <div class="left-panel" *ngIf="leftPanelVisible()">
+      <ul>
+        <li *ngFor="let mod of modules">
+          <a [routerLink]="mod.route"
+             routerLinkActive="active"
+             (click)="selectModule(mod.route)">
+            <i [class]="mod.icon"></i>
+            <span>{{ mod.label }}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="end">
+    <div class="right-panel">
+      <div class="content-container">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </ng-template>
+
+</p-splitter>

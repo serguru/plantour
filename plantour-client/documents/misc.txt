@@ -4,11 +4,27 @@ Read open files AuthController.cs and ProfileController.cs. Determine endpoints.
 
 Generate an Angular 20 login reactive form. Inject "UsersService" with login method. Use PrimeNG for UI. Use all the necessary tricks to make the UI great for mobile devices first. Use separet code, html and scss fies. Name component LoginComponent.
 
-
-
-
 Generate an Angular 20 MessagesService. Use PrimeNG for UI. 
 Inclide ShowInfo, ShowError, ShowWarning messages based on Toasts.
 Imclude modal Yes, No, Cancel dialog and Ok, Camcel dialog. Hit Esc should cancel.
 Use standalone components with code, scss and html in separate files.
+
+Generate an Angular 20 LayoutComponent. Use PrimeNG for UI. 
+Use standalone components with code, scss and html in separate files. zone.js is used. 
+The toolbar is on the top. There are two panels under the toolbar: left one is functional modules panel and the right one is a content panel. There is a splitter component between them.
+
+The toolbar contains left to right:
+- button wih a sandvich icon to toggle the left panel (and the splitter) visible/hidden; 
+- Plantour logo pic
+- Plantour official name
+- Menu items group 1 - dynamic set of menu items corresponding to a functional module selected in the list located in the functional modules panel
+- Menu items group 2 - right aligned static set of menu items which are about users management, notifications, help system and legal documentation (like Privacy Policy) 
+
+Take into account this LayoutComponent will be under "dashboard" route and from within it should be other nested routes corresponding to what fuctional module is selected in the functional modules panel. As for now there will be three functional modules: List of travelers, List of things, List of trips. Do no implemeте them, just create stub components and put their captions - links to the functional modules panel. Use appropriate PrimeNG icons. Explain what should be done tp make icons working.
+Do not use Sidebar or Drawer PrimeNG compomemts to implement the functional modules panel.
+Do not use 'travelers' | 'things' | 'trips' type. Use string instead.
+
+
+
+
 

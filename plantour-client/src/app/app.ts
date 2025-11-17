@@ -3,8 +3,8 @@ import { RouterOutlet } from '@angular/router';
 import { UsersService } from './services/users-service';
 import { MessagesService } from './services/messages-service';
 import { ButtonModule } from 'primeng/button';
-import { ToastContainerComponent } from './components/shared/toast-container-component/toast-container-component';
-import { ModalDialogComponent } from './components/shared/modal-dialog-component/modal-dialog-component';
+import { ModalDialogComponent } from './components/shared/modal-dialog/modal-dialog-component';
+import { ToastContainerComponent } from './components/shared/toast-container/toast-container-component';
 
 
 @Component({
