@@ -57,5 +57,6 @@ Read 3 files I sent to you. This is your LayoutComponent. It needs a number of e
 Inspect Sakai landing page. Generate a similar landing page component welcoming to the Plantour portal. Explain to the visitor the project's goal: "Provide travelers with an app to plan, organize, prepare, conduct, store and reuse tours". Make it less official. Include Get started button redirecting to "/dashboard". At the end of the page include a section with Company, Legal etc. similar to Sakai. Do not include any toolbar. Include Features presenting in сards Travelers, Things and Trips features.
 Use standalone components with code, scss and html in separate files. Use PrimeNG for UI. Give me a zip to download.
 
-
+Посылаю тебе два компрнента: App и LayoutComponent. Перенеси toolbar из LayoutComponent в App. Перенеси код, относящийся к статичному правому меню из LayoutComponent в App. Убери из LayoutComponent код для динамического меню. Вместо этого создай сервис, который позволит любому компоненту, включая child компоненты, встраивать своё меню в App Toolbar. Для LayoutComponent создай список меню для тулбара App состоящий из одного пункта. Этот пункт должен будет скрывать или делать видимой правую панель и сплиттер (сейчас ркализовано в LayoutComponent). У LayoutComponent есть child компненты. App тулбар должен получать консолидированное меню, состоящее из пунктов, созданных LayoutComponent плюс пункты меню, созданные выбранным на левой панели child компонентом.
+Дай пример использования этого сервиса. Дай Zip для сквчивания.
 

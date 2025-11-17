@@ -1,61 +1,57 @@
-import { Component, inject, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { UsersService } from './services/users-service';
-import { MessagesService } from './services/messages-service';
+import { Component, inject } from '@angular/core';
+import { RouterLink, RouterOutlet, Router, NavigationStart } from '@angular/router';
+
+import { ToolbarModule } from 'primeng/toolbar';
+import { MenubarModule } from 'primeng/menubar';
+import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
-import { ModalDialogComponent } from './components/shared/modal-dialog/modal-dialog-component';
+import { MenuItem } from 'primeng/api';
+
 import { ToastContainerComponent } from './components/shared/toast-container/toast-container-component';
+import { ModalDialogComponent } from './components/shared/modal-dialog/modal-dialog-component';
+import { ToolbarMenuService } from './services/toolbar-menu.service';
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ButtonModule, ToastContainerComponent, ModalDialogComponent],
+  standalone: true,
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    ToolbarModule,
+    MenubarModule,
+    MenuModule,
+    ButtonModule,
+    ToastContainerComponent,
+    ModalDialogComponent
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('plantour-client');
-  protected readonly profile = signal<string>('');
-  public usersService = inject(UsersService);
-  public mwessagesService = inject(MessagesService);
+  private toolbarMenu = inject(ToolbarMenuService);
+  private router = inject(Router);
 
-  async delete() {
-    const result = await this.mwessagesService.openYesNoCancel({
-      title: 'Delete item',
-      message: 'Do you really want to delete this item?'
-    });
-
-    if (result === 'yes') {
-      // perform delete
-      this.mwessagesService.showInfo('Deleted', 'Item was deleted.');
-    } else if (result === 'no') {
-      this.mwessagesService.showInfo('Skipped', 'Item was not deleted.');
+constructor() {
+  this.router.events.subscribe(event => {
+    if (event instanceof NavigationStart) {
+      this.toolbarMenu.clearChildItems();
     }
-    // result === 'cancel' -> user escaped/closed dialog
-  }
+  });
+}  
 
-  async delete1() {
-    const result = await this.mwessagesService.openOkCancel({
-      title: 'Delete item',
-      message: 'Do you really want to delete this item?'
-    });
+  /** Consolidated menu: layout + active child component menu */
+  mainMenu = this.toolbarMenu.allMenu;
 
-    if (result === 'ok') {
-      // perform delete
-      this.mwessagesService.showInfo('Deleted', 'Item was deleted.');
-    } else if (result === 'cancel') {
-      this.mwessagesService.showInfo('Skipped', 'Item was not deleted.');
-    }
-    // result === 'cancel' -> user escaped/closed dialog
-  }
+  /** Static right-aligned menu (moved from LayoutComponent) */
+  rightMenu: MenuItem[] = [
+    { label: 'Notifications', icon: 'pi pi-bell' },
+    { label: 'Help', icon: 'pi pi-question-circle' },
+    { label: 'Privacy', icon: 'pi pi-file' },
+    { label: 'User', icon: 'pi pi-user' }
+  ];
 
-
-  show = () => {
-    this.delete1();
-  }
-
-  getProfile = () => {
-    this.usersService.getProfile().subscribe(p => this.profile.set(JSON.stringify(p)))
+  navigateHome() {
+    this.router.navigateByUrl('/');
   }
 }
-

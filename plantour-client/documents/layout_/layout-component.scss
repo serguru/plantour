@@ -1,0 +1,105 @@
+/* Toolbar */
+.top-toolbar {
+  border-bottom: 1px solid var(--surface-border) !important;
+  border-top: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+
+  display: flex;
+  align-items: center !important;
+  padding: 0 !important;
+  height: 56px;
+
+  .left-section,
+  .right-section {
+    display: flex;
+    align-items: center;
+  }
+
+  .logo {
+    height: 32px;
+    display: block;
+  }
+
+  .app-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-right: 1rem;
+  }
+
+  .dynamic-menu {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+
+    .p-menubar-root-list {
+      display: flex;
+      gap: 0.5rem;
+    }
+  }
+
+  .right-section {
+    margin-left: auto;
+  }
+}
+
+/* Main layout */
+.main-content {
+  height: calc(100vh - 56px);
+}
+
+.main-splitter {
+  height: 100%;
+  transition: opacity 0.3s ease;
+
+  .p-splitter-panel {
+    border: none !important;
+    border-radius: 0 !important;
+  }
+}
+
+.left-panel {
+  border: none !important;
+  border-bottom: 1px solid var(--surface-border) !important;
+  border-radius: 0 !important;
+  height: 100%;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+
+  &.hidden {
+    transform: translateX(-20px);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .modules-list {
+    height: 100%;
+    border: none !important;
+
+    .p-listbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.4rem 0.75rem;
+    }
+
+    .p-listbox-item.p-highlight {
+      background: var(--primary-100);
+      color: var(--primary-900);
+    }
+  }
+}
+
+.right-panel {
+  border: none !important;
+  border-bottom: 1px solid var(--surface-border) !important;
+  border-radius: 0 !important;
+
+  .content-container {
+    padding: 1.5rem;
+    height: 100%;
+  }
+}
+
+.right-panel-full {
+  height: 100%;
+}

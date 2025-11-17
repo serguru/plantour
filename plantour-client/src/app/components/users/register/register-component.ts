@@ -27,33 +27,4 @@ import { finalize } from 'rxjs';
   styleUrls: ['./register-component.scss']
 })
 export class RegisterComponent {
-  fb = inject(FormBuilder);
-  users = inject(UsersService);
-  router = inject(Router);
-
-  submitting = signal(false);
-
-  form = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    first_name: ['', Validators.required],
-    last_name: ['', Validators.required],
-    phone: ['', Validators.required],
-    password: ['', Validators.required],
-    confirm_password: ['', Validators.required]
-  });
-
-  submit() {
-    if (this.form.invalid) return;
-    if (this.form.value.password !== this.form.value.confirm_password) {
-      return;
-    }
-    this.submitting.set(true);
-    this.users.register(this.form.value)
-      .pipe(
-        finalize(() => this.submitting.set(false))
-      )
-      .subscribe(() => {
-        // this.router.navigateByUrl('/login');
-      });
-  }
 }
