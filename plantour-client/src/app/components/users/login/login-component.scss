@@ -1,0 +1,55 @@
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem;
+  min-height: 100vh;
+  align-items: center;
+
+  p-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 0 0.5rem;
+  }
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.7rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  label {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  input,
+  p-password {
+    width: 100%;
+  }
+}
+
+.submit-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.p-card-ex {
+  border-color: black;
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--p-inputtext-border-color);
+  // margin-bottom: '30%'
+}
