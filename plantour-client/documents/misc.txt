@@ -24,7 +24,31 @@ Take into account this LayoutComponent will be under "dashboard" route and from 
 Do not use Sidebar or Drawer PrimeNG compomemts to implement the functional modules panel.
 Do not use 'travelers' | 'things' | 'trips' type. Use string instead.
 
+Read 3 files I sent to you. This is your LayoutComponent. It needs a number of enchancements.
+
+1) The toolbar should have only bottom border
+2) The left panel shold not have the left border
+3) The roght panel shold not have the right border
+4) The default splitter position should be 25% of the screen width
+5) The splitter position should be saved in the local storage and restored when necessary
+6) Find the appropriate PrimeNG control for the list in the left panel and implement it. Include the currently selected item higlight as well as keyboard navigation.
+7) Use Menu control for dynamic (left aligned) menu 
+8) Transform the right aligned menu group to one menu sandvich icon with submenu items
+9) The left panel toggle button should have show/hide icons and show/hide left panel AND splitter. The splitter position should be restored while switched to visible
+10) Make sure the toolbar content vertically cenetered.
+
+
+1) The toolbar has no borders at all and it must have the bottom border
+2) The left panel still has the left border and it must have only the bottom border
+3) The right panel still has the right border and it must have only the bottom border
+4) do not use rounded corners for left and right panels
+5) The dynamic menu items group now is vertical submenus and I need them as menu horizontal items
+5) The toolbar content is not vertically centered, it is shifted bottom
 
 
 
+
+1) Add responsive adjustments
+2) Add smooth animation when showing/hiding left panel
+3) Fix a bug: when the left panel item is clicked the router should navigate to the corresponding child component
 
