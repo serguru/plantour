@@ -1,0 +1,56 @@
+<p-toolbar class="top-toolbar">
+  <div class="left-section">
+    <button pButton class="p-button-text toggle-button"
+      [icon]="leftPanelVisible() ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"
+      (click)="toggleLeftPanel()" type="button"></button>
+
+
+    <a routerLink="/" class="logo-link">
+      <img src="assets/plantour-logo.png" class="logo" />
+    </a>
+
+    <span class="app-title">Plantour</span>
+
+    <p-menubar [model]="topMenuItems()" class="dynamic-menu"></p-menubar>
+  </div>
+
+  <div class="right-section">
+    <p-menu #rightMenuPopup [model]="rightMenu" [popup]="true"></p-menu>
+
+    <button pButton type="button" class="p-button-text" icon="pi pi-bars"
+      (click)="rightMenuPopup.toggle($event)"></button>
+  </div>
+</p-toolbar>
+
+<div class="main-content">
+  <p-splitter *ngIf="leftPanelVisible()" class="main-splitter" [panelSizes]="[25, 75]"
+    stateStorage="local" stateKey="plantour-main-splitter">
+    <ng-template pTemplate>
+      <div class="left-panel" [ngClass]="{ 'hidden': !leftPanelVisible() }">
+        <p-listbox [options]="modules" [(ngModel)]="selectedModuleRoute" optionLabel="label"
+          optionValue="route" class="modules-list">
+          <ng-template let-item pTemplate="item">
+            <div class="module-item">
+              <i [class]="item.icon"></i>
+              <span>{{ item.label }}</span>
+            </div>
+          </ng-template>
+        </p-listbox>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate>
+      <div class="right-panel">
+        <div class="content-container">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    </ng-template>
+  </p-splitter>
+
+  <div *ngIf="!leftPanelVisible()" class="right-panel right-panel-full">
+    <div class="content-container">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

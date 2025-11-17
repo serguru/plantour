@@ -1,9 +1,37 @@
+<p-toolbar class="top-toolbar">
+  <div class="left-section">
+    <a routerLink="/" class="logo-link">
+      <img src="assets/plantour-logo.png" class="logo" />
+    </a>
 
-<!-- {{usersService.userInfo}} -->
+    <span class="app-title">Plantour</span>
+
+    <!-- Consolidated dynamic menu: Layout + active child component -->
+    <p-menubar
+      [model]="mainMenu()"
+      class="dynamic-menu">
+    </p-menubar>
+  </div>
+
+  <div class="right-section">
+    <!-- Static right-aligned menu moved from LayoutComponent -->
+    <p-menu
+      #rightMenuPopup
+      [model]="rightMenu"
+      [popup]="true">
+    </p-menu>
+
+    <button
+      pButton
+      type="button"
+      class="p-button-text"
+      icon="pi pi-bars"
+      (click)="rightMenuPopup.toggle($event)">
+    </button>
+  </div>
+</p-toolbar>
 
 <app-toast-container></app-toast-container>
 <app-modal-dialog></app-modal-dialog>
-
-<!-- <p-button (click)="show()">Show</p-button> -->
 
 <router-outlet></router-outlet>
