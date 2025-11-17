@@ -52,3 +52,10 @@ Read 3 files I sent to you. This is your LayoutComponent. It needs a number of e
 2) Add smooth animation when showing/hiding left panel
 3) Fix a bug: when the left panel item is clicked the router should navigate to the corresponding child component
 
+
+
+Inspect Sakai landing page. Generate a similar landing page component welcoming to the Plantour portal. Explain to the visitor the project's goal: "Provide travelers with an app to plan, organize, prepare, conduct, store and reuse tours". Make it less official. Include Get started button redirecting to "/dashboard". At the end of the page include a section with Company, Legal etc. similar to Sakai. Do not include any toolbar. Include Features presenting in сards Travelers, Things and Trips features.
+Use standalone components with code, scss and html in separate files. Use PrimeNG for UI. Give me a zip to download.
+
+
+

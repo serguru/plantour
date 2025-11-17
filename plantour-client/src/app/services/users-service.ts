@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { jwtDecode } from 'jwt-decode';
 
@@ -54,14 +54,14 @@ export class UsersService {
 
     const user_metadata = jwtDecode<any>(localStorage.getItem("token")!).user_metadata;
 
-    let {email, first_name, last_name} = user_metadata;
+    let { email, first_name, last_name } = user_metadata;
 
     email = (email).trim();
     first_name = (first_name).trim();
     last_name = (last_name).trim();
 
     const result = first_name && last_name ? `${first_name} ${last_name}` : (
-     first_name || last_name || email
+      first_name || last_name || email
     );
 
     return result;
@@ -75,5 +75,9 @@ export class UsersService {
           localStorage.setItem("token", r.token)
         }
         ))
+  }
+
+  register(data: any): Observable<any> {
+    return of(true);
   }
 }
