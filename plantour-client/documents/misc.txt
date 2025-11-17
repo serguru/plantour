@@ -4,22 +4,11 @@ Read open files AuthController.cs and ProfileController.cs. Determine endpoints.
 
 Generate an Angular 20 login reactive form. Inject "UsersService" with login method. Use PrimeNG for UI. Use all the necessary tricks to make the UI great for mobile devices first. Use separet code, html and scss fies. Name component LoginComponent.
 
-With zone.js:
-=====================
-let a = 1;
-let b = 2;
 
-get sum(): any {
-    return this.a + this.b;
-}
 
-{{sum}} in html shows 3
 
-a = 2;
-
-{{sum}} in html shows 4
-=====================
-
-Rewrite this code without zone.js
-
+Generate an Angular 20 MessagesService. Use PrimeNG for UI. 
+Inclide ShowInfo, ShowError, ShowWarning messages based on Toasts.
+Imclude modal Yes, No, Cancel dialog and Ok, Camcel dialog. Hit Esc should cancel.
+Use standalone components with code, scss and html in separate files.
 
