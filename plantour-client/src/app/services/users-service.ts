@@ -78,6 +78,10 @@ export class UsersService {
   }
 
   register(data: any): Observable<any> {
-    return of(true);
+    return this.http.post<string>(`${this.apiUrl}/api/auth/signup`, data)
+      .pipe(
+        tap((r: any) => {
+        }
+        ))
   }
 }

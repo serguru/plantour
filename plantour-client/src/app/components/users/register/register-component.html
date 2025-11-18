@@ -1,1 +1,56 @@
-<div>!!!</div>
+<div class="register-wrapper">
+  <p-card header="Register">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <div class="field">
+        <label>Email *</label>
+        <input pInputText formControlName="email" />
+        <div class="error" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+          Email is required and must be valid
+        </div>
+      </div>
+
+      <div class="field">
+        <label>First Name *</label>
+        <input pInputText formControlName="firstName" />
+        <div class="error" *ngIf="form.get('firstName')?.invalid && form.get('firstName')?.touched">
+          First name is required
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Last Name *</label>
+        <input pInputText formControlName="lastName" />
+        <div class="error" *ngIf="form.get('lastName')?.invalid && form.get('lastName')?.touched">
+          Last name is required
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Phone</label>
+        <input pInputText formControlName="phone" />
+      </div>
+
+      <div class="field">
+        <label>Password *</label>
+        <p-password formControlName="password"></p-password>
+        <div class="error" *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+          Password is required
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Confirm Password *</label>
+        <p-password formControlName="confirmPassword"></p-password>
+        <div class="error" *ngIf="form.errors?.['mismatch'] && form.get('confirmPassword')?.touched">
+          Passwords do not match
+        </div>
+      </div>
+
+      <div class="actions">
+        <button pButton label="Register" [disabled]="registering() || form.invalid"></button>
+      </div>
+
+    </form>
+  </p-card>
+</div>

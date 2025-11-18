@@ -1,0 +1,22 @@
+
+.register-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.field {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.actions {
+  margin-top: 20px;
+}
