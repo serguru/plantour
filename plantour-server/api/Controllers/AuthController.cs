@@ -19,6 +19,11 @@ namespace Plantour.Auth.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp([FromBody] SignUpRequest dto)
         {
+            if (_auth.GetUserByEmail(dto.Email) != null)
+            {
+                return BadRequest(new { error = $"A user with email address {dto.Email} already exists" });
+            }
+
             var user = await _auth.SignUpAsync(dto.Email, dto.Password, dto.Metadata);
             if (user == null) return BadRequest(new { error = "signup_failed" });
             return Ok(new { user.Id, user.Email, user.UserMetadata });

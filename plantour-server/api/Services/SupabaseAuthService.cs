@@ -6,12 +6,28 @@ using System.Threading.Tasks;
 
 namespace Plantour.Services;
 
+public interface ISupabaseAuthService
+{
+    Task<Session?> LoginWithPasswordAsync(string email, string password);
+    Task<bool> SendMagicLinkAsync(string email);
+    Task<User?> SignUpAsync(string email, string password, Dictionary<string, object>? metadata = null);
+    Task<bool> ResetPasswordAsync(string email);
+    Task LogoutAsync();
+    Task UpdateProfileAsync(Dictionary<string, object> newMetadata);
+    string? GetAccessToken();
+    User? GetCurrentUser();
+
+    User? GetUserByEmail(string email);
+}
+
+
 public class SupabaseAuthService : ISupabaseAuthService, IDisposable
 {
     private readonly Supabase.Client _client;
+    private readonly AdminClient _clientAdmin;
     private bool _initialized = false;
 
-    public SupabaseAuthService(string supabaseUrl, string supabaseAnonKey)
+    public SupabaseAuthService(string supabaseUrl, string supabaseAnonKey, string supabaseServiceRoleKey)
     {
         var options = new SupabaseOptions
         {
@@ -20,6 +36,19 @@ public class SupabaseAuthService : ISupabaseAuthService, IDisposable
         };
 
         _client = new Supabase.Client(supabaseUrl, supabaseAnonKey, options);
+
+        var options1 = new ClientOptions
+        {
+            AutoRefreshToken = true,
+            Url = $"{supabaseUrl}/auth/v1",
+            Headers = new Dictionary<string, string>
+            {
+                { "apikey", supabaseServiceRoleKey },
+                { "Authorization", $"Bearer {supabaseServiceRoleKey}" }
+            }
+        };
+
+        _clientAdmin = new AdminClient(supabaseServiceRoleKey, options1);
     }
 
     // Initialize the client once (safe for DI singleton)
@@ -73,7 +102,7 @@ public class SupabaseAuthService : ISupabaseAuthService, IDisposable
         if (_client.Auth.CurrentUser == null)
             throw new InvalidOperationException("No logged-in user (update requires a session).");
 
-//        var updateOptions = new UserUpdateOptions { Data = newMetadata };
+        //        var updateOptions = new UserUpdateOptions { Data = newMetadata };
         var updateOptions = new UserAttributes { Data = newMetadata };
         await _client.Auth.Update(updateOptions);
     }
@@ -86,6 +115,12 @@ public class SupabaseAuthService : ISupabaseAuthService, IDisposable
     public User? GetCurrentUser()
     {
         return _client.Auth.CurrentUser;
+    }
+
+    public User? GetUserByEmail(string email)
+    {
+        var list = _clientAdmin.ListUsers(email).Result;
+        return list?.Users.FirstOrDefault();
     }
 
     public void Dispose()
