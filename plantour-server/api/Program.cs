@@ -37,7 +37,7 @@ public class Program
         }
 
         builder.Services.AddSingleton<ISupabaseAuthService>(sp =>
-            new SupabaseAuthService(supabaseUrl!, supabaseAnonKey!)
+            new SupabaseAuthService(supabaseUrl!, supabaseAnonKey!, supabaseServiceRoleKey!)
         );
 
         // Configure Authentication: validate Supabase JWT locally
