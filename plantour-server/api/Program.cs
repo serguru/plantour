@@ -17,6 +17,7 @@ public class Program
         var supabaseUrl = builder.Configuration["SUPABASE_URL"];
         var supabaseAnonKey = builder.Configuration["SUPABASE_ANON_KEY"];
         var supabaseJwtSecret = builder.Configuration["SUPABASE_JWT_SECRET"];
+        var supabaseServiceRoleKey = builder.Configuration["SUPABASE_SERVICE_ROLE_KEY"];
 
         if (string.IsNullOrEmpty(supabaseUrl))
         {
@@ -29,6 +30,10 @@ public class Program
         if (string.IsNullOrEmpty(supabaseJwtSecret))
         {
             throw new Exception("Supabase configuration is missing. Please add SUPABASE_JWT_SECRET to appsettings or environment variables.");
+        }
+        if (string.IsNullOrEmpty(supabaseServiceRoleKey))
+        {
+            throw new Exception("Supabase configuration is missing. Please add SUPABASE_SERVICE_ROLE_KEY to appsettings or environment variables.");
         }
 
         builder.Services.AddSingleton<ISupabaseAuthService>(sp =>
