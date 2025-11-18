@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Plantour.Infrastructure.Dtos;
 using Plantour.Services;
-using System.Threading.Tasks;
+using Supabase.Gotrue;
 
 namespace Plantour.Auth.Controllers
 {
@@ -19,13 +19,28 @@ namespace Plantour.Auth.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp([FromBody] SignUpRequest dto)
         {
-            if (_auth.GetUserByEmail(dto.Email) != null)
+            User? user = _auth.GetUserByEmail(dto.Email);
+            if (user != null)
             {
-                return BadRequest(new { error = $"A user with email address {dto.Email} already exists" });
+                string message = $"A user with email address {dto.Email} already exists";
+
+                bool email_verified = user.UserMetadata != null &&
+                                      user.UserMetadata.ContainsKey("email_verified") &&
+                                      user.UserMetadata["email_verified"] is bool ev &&
+                                      ev;
+
+                if (!email_verified)
+                {
+                    message += ". Please follow the link in the email sent to you to confirm your registration.";
+                }
+                return BadRequest(new { error = message });
             }
 
-            var user = await _auth.SignUpAsync(dto.Email, dto.Password, dto.Metadata);
-            if (user == null) return BadRequest(new { error = "signup_failed" });
+            user = await _auth.SignUpAsync(dto.Email, dto.Password, dto.Metadata);
+            if (user == null) 
+            {
+                return BadRequest(new { error = "Null user returned" });
+            }
             return Ok(new { user.Id, user.Email, user.UserMetadata });
         }
 
