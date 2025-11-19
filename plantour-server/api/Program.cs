@@ -1,10 +1,13 @@
 namespace Plantour;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Plantour.Infrastructure.Exceptions;
+using Plantour.Models;
+using Plantour.Repositories;
 using Plantour.Services;
 using System.Text;
 
@@ -13,6 +16,18 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+
+        var connectionString = builder.Configuration["PlantourDb"];
+
+        builder.Services.AddDbContext<PlantourContext>(options =>
+            options.UseNpgsql(connectionString));
+
+
+        builder.Services.AddScoped<ITourRepository, TourRepository>();
+        builder.Services.AddScoped<IJsonPatchManager, JsonPatchManager>();
+        builder.Services.AddScoped<ITourService, TourService>();
+
 
         var supabaseUrl = builder.Configuration["SUPABASE_URL"];
         var supabaseAnonKey = builder.Configuration["SUPABASE_ANON_KEY"];

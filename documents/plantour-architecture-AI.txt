@@ -1,0 +1,289 @@
+Plantour project architecture
+===============================
+
+Plantour is to provide travelers with an app to plan, organize, prepare, conduct, store, and reuse tours – alone or with others – across devices, with safe data storage and reasonable offline support.
+
+1. High-Level System Overview
+===============================
+
+- Web Client (Angular PWA)
+
+   * Browser-based application (desktop + mobile).
+   * Installable PWA with offline capabilities.
+   * Uses IndexedDB for local storage and an internal “change queue” for offline edits.
+
+- Plantour API (ASP.NET / C#)
+
+   * Stateless REST API.
+   * Business logic: tour lifecycle, invites, collaboration rules, reporting.
+   * Uses Supabase PostgreSQL as the primary database.
+   * Integrates with Supabase Auth for identity and authentication.
+
+- Supabase PostgreSQL
+
+   * Stores:
+     * Domain data in JSONB (tours, itineraries, notes, packing lists, etc.).
+     * Relational data (users, invitations, roles, settings, audit info).
+
+   * Acts as the single source of truth for all tour data.
+
+
+2. Data Model Strategy
+=======================
+
+Key principles:
+
+- Small JSON documents instead of one huge document. Each logical entity is stored as its own JSONB document in its own table.
+
+- JSONB + relational where appropriate:
+  * JSONB for flexible, evolving tour structures.
+  * Relational columns for stable, query-heavy fields (e.g., owner id, created_at, tour status).
+
+- Versioning and timestamps:
+  * Each JSONB document has:
+    * `version` (monotonically increasing integer)
+    * `updated_at` (server timestamp)
+  * These are used for conflict detection and client synchronization.
+
+
+3. User & Authentication Model
+=======================
+
+- Identity provider: Supabase Auth.
+  * Users sign up and log in via Supabase.
+  * The client receives a Supabase JWT.
+
+- API authentication:
+  * Angular PWA attaches the Supabase JWT to all API calls.
+  * Plantour API validates the JWT and extracts the user id (subject).
+
+- Authorization:
+
+  * PostgreSQL stores:
+    * plantour user profile (linked to Supabase user id),
+    * tour ownership,
+    * participant list and roles (owner / editor / viewer).
+
+  * API enforces:
+    * only invited users can access a tour,
+    * write operations restricted by role.
+
+
+4. Offline & Synchronization Model
+====================================
+
+- Local storage on the client
+
+    * IndexedDB is used to store:
+
+    * cached tours and related documents (JSON),
+    * a local queue of pending changes (“change queue”).
+
+    * The Angular PWA:
+
+    * loads tours from API when online and caches them locally,
+    * uses the cached copy when offline.
+
+- Change representation: JSON Patch
+
+    * All client changes are represented as JSON Patch (RFC6902) operations:
+
+    * Individual operations (`add`, `remove`, `replace`, etc.), or small arrays of operations.
+    * Each “change set” includes `baseVersion` (the document version the client saw when creating the patch).
+
+    * The server never compares full old vs new documents.
+    It only applies clearly defined patch operations to the current server document.
+
+- Online behavior
+
+    1. User edits data on the client:
+
+    * Client generates JSON Patch + `baseVersion`.
+    * Client sends the patch to the API entity-specific endpoints.
+    * Client updates its local copy after changes confirmed or immediatelly in offline.
+
+
+    2. API:
+
+    * Loads the current document (with `version`).
+    * Checks `baseVersion` against current `version`.
+    * Attempts to apply the patch using the defined merge rules.
+
+    * On success:
+        * Stores the updated document with `version + 1` and new `updated_at`.
+        * Returns updated document + new version to the client.
+
+    * On failure (patch not applicable, structure changed too much, etc.):
+        * Does not modify the document.
+        * Logs the failure (including patch, versions, reason) for later analysis.
+        * Returns a warning to notify a user about a patch related issue.
+
+    3. Client on error:
+
+    * Informs the user that local changes could not be synced.
+    * Clears its pending patches for that document.
+    * Reloads the latest version of the tour from the API, overwriting local state for that tour.
+
+- Offline behavior
+
+    * When offline:
+    * Client still allows editing.
+
+    * Each edit:
+        * updates the local JSON data in IndexedDB,
+        * appends a patch + `baseVersion` to the local change queue (per document).
+
+    * When connectivity is restored:
+        * Client sends queued patches to the API in order.
+
+        * On success:
+            * Applies server responses and aligns local versions.
+
+        * On failure:
+            * Applies the same recovery flow as in online mode: clear queue for that document, reload tour from server.
+
+- Conflict handling strategy
+
+* All conflicts are resolved automatically; users are never asked to manually resolve merges.
+
+    * Strategy goals:
+    * minimize data loss,
+    * preserve as many user edits as reasonably possible,
+    * keep the data model consistent.
+
+    * The exact merge rules are codified in the server logic (e.g., behavior when a patch references a deleted node, how arrays are merged, etc.).
+
+    * If a patch cannot be safely applied even with best-effort rules, it is rejected and logged; the client refreshes from server.
+
+
+5. API Design Principles
+========================
+
+* RESTful style, resource-oriented:
+
+  * `/api/tours`
+  * `/api/tours/{tourId}`
+  * `/api/tours/{tourId}/itineraries`
+  * `/api/itineraries/{itineraryId}`
+  * `/api/media-links`, etc.
+
+* Operations:
+
+  * Standard CRUD with JSON payloads for creation and full load.
+  * Patch endpoints that accept JSON Patch + `baseVersion` for updates.
+
+* Security:
+
+  * JWT-based authentication (Supabase JWT).
+  * Authorization enforced per resource (tour membership, role).
+
+* Performance optimizations:
+
+  * Endpoints to fetch:
+    * full tour (for initial load or reset),
+    * incremental changes since a given version (optional future optimization).
+
+  * Pagination for lists where relevant (past tours, templates, etc.).
+
+
+6. Media Handling
+===================
+
+* Media files are never stored in JSON or IndexedDB. Only URLs and metadata are.
+
+* Users can:
+  * upload media to a designated storage
+  * link media objects to specific tour periods (itineraries, notes, etc.).
+
+
+7. Deployment & Infrastructure
+==============================
+
+- Core stack
+
+* Frontend (Angular PWA):
+  * Built and deployed as a static site.
+  * Hosted on a static hosting platform (e.g., Render static site, Supabase storage hosting, or similar).
+
+* Backend (Plantour API):
+  * ASP.NET application deployed as a Docker container.
+  * Configured with environment variables.
+
+* Database:
+  * Supabase PostgreSQL with JSONB support.
+  * Database first approach is used.
+
+* Background processing:
+  * A Render Worker is used to read change requests from the PostgeSQL queue table and apply patches to JSONB objects. 
+
+- CI/CD
+
+* Source code hosted in GitHub.
+
+* CI pipeline:
+  * build frontend,
+  * build backend,
+  * deploy to staging, then to production.
+
+* Automated deployments to Render on main branch merges.
+
+8. Observability, Logging, and Maintenance
+===========================================
+
+* Logging:
+
+  * Centralized structured logs from API and background worker.
+
+  * Special attention to:
+    * failed patch applications,
+    * sync conflicts,
+    * API errors.
+
+* Monitoring & metrics:
+  * Basic health checks on API and worker.
+
+  * Metrics for:
+    * number of tours,
+    * number of active users,
+    * sync failures,
+    * API latencies.
+
+* Error tracking:
+  * Client-side error reporting for critical UI failures.
+  * Server-side exception tracking.
+
+* Data evolution:
+  * Schema and JSON structure changes managed via:
+    * backward-compatible JSON keys where possible,
+    * versioned API endpoints if needed.
+
+* Backups:
+  * Rely on Supabase backup capabilities.
+  * Periodic verification that backups are restorable.
+
+9. Future Extensions
+====================
+
+The architecture is intentionally designed to be extensible:
+
+* Separate microservices (later, if needed) for:
+  * full-text search,
+  * analytics,
+  * notifications,
+  * template marketplace.
+
+* Native mobile apps:
+  * can reuse the same REST API, data model, and JSON Patch protocol.
+  * can maintain their own local storage and change queues.
+
+* Collaboration and real-time features:
+
+  * WebSockets could be added later for:
+    * presence indicators (“who is viewing/editing this tour now”),
+    * near real-time updates
+
+
+--------------------------------------
+Authors: Sergey Chernyshov and ChatGPT
+Vancouver, BC Canada
+November 2025
