@@ -23,6 +23,8 @@ public class Program
             options.UseNpgsql(connectionString));
 
         builder.Services.AddScoped<IJsonPatchService, JsonPatchService>();
+        builder.Services.AddScoped<ITourRepository, TourRepository>();
+        builder.Services.AddScoped<ITourService, TourService>();
 
 
         var supabaseUrl = builder.Configuration["SUPABASE_URL"];
