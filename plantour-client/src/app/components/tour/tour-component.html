@@ -1,0 +1,20 @@
+<div class="tour-container" [formGroup]="form">
+  <h2>Tour Editor</h2>
+
+  <div class="form-field">
+    <label for="tour-id">Id</label>
+    <input id="tour-id" type="text" formControlName="id" readonly />
+  </div>
+
+  <div class="form-field">
+    <label for="tour-name">Name</label>
+    <input id="tour-name" type="text" formControlName="name" />
+  </div>
+
+  <button type="button" (click)="submit()" [disabled]="form.invalid">
+    Submit
+  </button>
+
+  <h3>Patch Queue State (debug)</h3>
+  <pre>{{ queueState() | json }}</pre>
+</div>

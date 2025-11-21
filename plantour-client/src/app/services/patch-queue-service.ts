@@ -1,107 +1,127 @@
 import { Injectable } from '@angular/core';
-import { openDB, IDBPDatabase } from 'idb';
 import { HttpClient } from '@angular/common/http';
-import { v4 as uuidv4 } from 'uuid';
-import { JsonPatchOperation, QueuedPatch } from '../models/json-patch-operation-model';
-import { JsonPatchService } from './json-patch-service';
+import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { JsonPatchOperation } from './json-patch-operation';
 
-@Injectable({ providedIn: 'root' })
+export type PatchStatus = 'pending' | 'processing' | 'sent' | 'error';
+
+export interface PatchQueueItem {
+  tourId: string;
+  operations: JsonPatchOperation[];
+  status: PatchStatus;
+  createdAt: Date;
+  lastError?: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
 export class PatchQueueService {
-  private db!: IDBPDatabase;
-  private readonly DB_NAME = 'plantour-sync';
-  private readonly STORE = 'patches';
-  private syncInProgress = false;
+  private readonly apiUrl = environment.apiUrl;
 
-  constructor(
-    private http: HttpClient,
-    private patchBuilder: JsonPatchService
-  ) {
-    this.initDB().then(() => this.processQueue());
-    this.setupTriggers();
+  private readonly queue: PatchQueueItem[] = [];
+  private readonly queueSubject = new BehaviorSubject<PatchQueueItem[]>([]);
+  private processing = false;
+
+  constructor(private readonly http: HttpClient) {}
+
+  /** Подписка на состояние очереди (для дебага/ UI) */
+  get queue$() {
+    return this.queueSubject.asObservable();
   }
 
-  /** Initialize IndexedDB */
-  private async initDB() {
-    this.db = await openDB(this.DB_NAME, 1, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains('patches')) {
-          db.createObjectStore('patches', { keyPath: 'id' });
-        }
-      }
-    });
-  }
+  /** Добавить патч в очередь */
+  enqueueTourPatch(tourId: string, operations: JsonPatchOperation[]): void {
+    if (!operations || operations.length === 0) {
+      return;
+    }
 
-  /** Queue a patch */
-  async enqueue(endpoint: string, expectedVersion: number, operations: JsonPatchOperation[]) {
-    const patch: QueuedPatch = {
-      id: uuidv4(),
-      endpoint,
-      expectedVersion,
+    const item: PatchQueueItem = {
+      tourId,
       operations,
-      createdAt: Date.now()
+      status: 'pending',
+      createdAt: new Date()
     };
 
-    await this.db.put(this.STORE, patch);
-    this.processQueue();
+    this.queue.push(item);
+    this.emitQueue();
+
+    // немедленно попробовать отправить
+    this.processNext();
   }
 
-  /** Try to process the queue */
-  async processQueue() {
-    if (this.syncInProgress) return;
+  private emitQueue(): void {
+    this.queueSubject.next([...this.queue]);
+  }
 
-    this.syncInProgress = true;
+  private processNext(): void {
+    if (this.processing) {
+      return;
+    }
 
-    try {
-      const tx = this.db.transaction(this.STORE, 'readwrite');
-      const store = tx.store;
+    const next = this.queue.find(q => q.status === 'pending');
+    if (!next) {
+      return;
+    }
 
-      let cursor = await store.openCursor();
+    this.processing = true;
+    next.status = 'processing';
+    this.emitQueue();
 
-      while (cursor) {
-        const patch = cursor.value as QueuedPatch;
+    console.log('PatchQueueService: sending patch', next);
 
-        try {
-          await this.http.post(patch.endpoint, {
-            expectedVersion: patch.expectedVersion,
-            operations: patch.operations
-          }).toPromise();
+    this.http.post(
+      `${this.apiUrl}/api/tours/${next.tourId}/patch`,
+      next.operations
+    ).subscribe({
+      next: () => {
+        next.status = 'sent';
+        this.processing = false;
+        this.emitQueue();
+        console.log('PatchQueueService: patch sent successfully', next);
+        this.processNext();
+      },
+      error: (err) => {
+        console.error('PatchQueueService: error sending patch', err);
 
-          await cursor.delete();
-        } catch (error) {
-          break; // stop processing
+        const status = err?.status;
+
+        // 1) временные ошибки: сеть, 5xx → retry
+        if (status === 0 || (status >= 500 && status < 600)) {
+          next.status = 'pending';
+          next.lastError = 'Transient error, will retry';
+          this.processing = false;
+          this.emitQueue();
+
+          setTimeout(() => this.processNext(), 3000);
+          return;
         }
 
-        cursor = await cursor.continue();
+        // 2) конфликт версий
+        if (status === 409) {
+          next.status = 'error';
+          next.lastError = 'Version conflict reported by server (409). Patch will not be retried.';
+          this.processing = false;
+          this.emitQueue();
+          return;
+        }
+
+        // 3) плохой патч / некорректные данные: 400/422
+        if (status === 400 || status === 422) {
+          next.status = 'error';
+          next.lastError = 'Invalid patch or bad request (400/422). Patch is considered dead.';
+          this.processing = false;
+          this.emitQueue();
+          return;
+        }
+
+        // 4) прочие ошибки
+        next.status = 'error';
+        next.lastError = err?.message ?? 'Unknown error';
+        this.processing = false;
+        this.emitQueue();
       }
-
-      await tx.done;
-    } finally {
-      this.syncInProgress = false;
-    }
-  }
-
-  /** Create patch and immediately enqueue */
-  createAndQueuePatch(
-    endpoint: string,
-    expectedVersion: number,
-    original: any,
-    updated: any
-  ) {
-    const ops = this.patchBuilder.buildPatch(original, updated);
-    return this.enqueue(endpoint, expectedVersion, ops);
-  }
-
-  /** Set up automatic triggers */
-  private setupTriggers() {
-    // Retry when connection restored
-    window.addEventListener('online', () => this.processQueue());
-
-    // Retry when user returns to the tab
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) this.processQueue();
     });
-
-    // Retry every 10 seconds
-    setInterval(() => this.processQueue(), 10000);
   }
 }
