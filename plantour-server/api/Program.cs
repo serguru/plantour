@@ -7,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Plantour.Infrastructure.Exceptions;
 using Plantour.Models;
-using Plantour.Repositories;
 using Plantour.Services;
 using System.Text;
 
@@ -23,10 +22,7 @@ public class Program
         builder.Services.AddDbContext<PlantourContext>(options =>
             options.UseNpgsql(connectionString));
 
-
-        builder.Services.AddScoped<ITourRepository, TourRepository>();
-        builder.Services.AddScoped<IJsonPatchManager, JsonPatchManager>();
-        builder.Services.AddScoped<ITourService, TourService>();
+        builder.Services.AddScoped<IJsonPatchService, JsonPatchService>();
 
 
         var supabaseUrl = builder.Configuration["SUPABASE_URL"];

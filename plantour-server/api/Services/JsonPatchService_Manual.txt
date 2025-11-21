@@ -1,0 +1,168 @@
+
+JsonPatchService (универсальный EF сервис — обновленная документация)
+====================================================================
+
+Назначение
+----------
+Сервис применяет JSON Patch (add/remove/replace) к JSONB-объектам в любых таблицах PostgreSQL.
+Он использует Optimistic Concurrency Control (OCC) через поле `version` и обновляет только одну строку.
+
+Требования к таблицам
+---------------------
+Каждая таблица, поддерживаемая сервисом, должна иметь одинаковую структуру:
+
+    id UUID PRIMARY KEY
+    version INT NOT NULL
+    json_object JSONB NOT NULL
+
+Пример таблицы:
+
+    CREATE TABLE tours (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        version int NOT NULL DEFAULT 1,
+        json_object jsonb NOT NULL
+    );
+
+Маппинг entity → table
+----------------------
+Сервис содержит встроенный маппинг:
+
+    private readonly IReadOnlyDictionary<string, string> _entityToTable =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "tour", "tours" }
+        };
+
+Для добавления новых таблиц:
+
+    { "city", "cities" }
+    { "packing_item", "packing_items" }
+
+Регистрация в DI
+----------------
+В `Program.cs`:
+
+    builder.Services.AddScoped<IJsonPatchService, JsonPatchService>();
+
+Дополнительная DI‑регистрация не требуется (маппинг встроен в сервис).
+
+Формат JSON Patch запроса
+-------------------------
+Клиент передаёт:
+
+    {
+      "entity": "tour",
+      "id": "UUID",
+      "baseVersion": 3,
+      "operations": [
+        { "op": "replace", "path": "/name", "value": "New Name" },
+        { "op": "add", "path": "/items/-", "value": { "title": "Stop A" } },
+        { "op": "remove", "path": "/obsoleteField" }
+      ]
+    }
+
+Поддерживаемые операции:
+* add  
+* replace  
+* remove  
+
+Пути используют формат JSON Pointer:
+* /name
+* /items/0/title
+* /items/-  (append)
+
+Алгоритм работы сервиса
+------------------------
+1. Проверяет, что entity существует в маппинге.
+2. SELECT json_object, version FROM {table} WHERE id = @id.
+3. Если строка не найдена → `NotFound`.
+4. Если версия в БД ≠ baseVersion → `VersionMismatch`.
+5. Парсит json_object в JsonNode.
+6. Применяет patch операции (add/remove/replace).
+7. Формирует новый JSON.
+8. Выполняет OCC update:
+
+       UPDATE {table}
+       SET json_object = @json::jsonb,
+           version = version + 1
+       WHERE id = @id AND version = @baseVersion
+       RETURNING version;
+
+9. Если UPDATE не затронул строк → `VersionMismatch`.
+10. Возвращает новый JSON и новую версию.
+
+Коды возврата
+-------------
+Success  
+InvalidEntity  
+NotFound  
+VersionMismatch  
+InvalidPatch  
+JsonError  
+DatabaseError  
+UnknownError  
+
+Пример использования в контроллере
+----------------------------------
+
+    [HttpPost("patch")]
+    public async Task<IActionResult> Patch(
+        [FromBody] JsonPatchRequest request,
+        [FromServices] IJsonPatchService service)
+    {
+        var result = await service.ApplyPatchAsync(request);
+
+        return result.Code switch
+        {
+            JsonPatchApplyResultCode.Success =>
+                Ok(new { result.NewVersion, result.NewData }),
+
+            JsonPatchApplyResultCode.NotFound =>
+                NotFound(result.Message),
+
+            JsonPatchApplyResultCode.VersionMismatch =>
+                Conflict(result.Message),
+
+            _ =>
+                BadRequest(result.Message)
+        };
+    }
+
+Как клиент должен обрабатывать VersionMismatch
+----------------------------------------------
+1. Выполнить GET объекта.
+2. Получить актуальный JSON и version.
+3. Применить изменения заново.
+4. Отправить новый PATCH.
+
+Добавление новой таблицы
+------------------------
+Если есть новая таблица:
+
+    CREATE TABLE cities (
+        id uuid PRIMARY KEY,
+        version int NOT NULL,
+        json_object jsonb NOT NULL
+    );
+
+добавьте:
+
+    { "city", "cities" }
+
+в `_entityToTable`.
+
+Пример JSON Patch для новой таблицы
+-----------------------------------
+
+    {
+      "entity": "city",
+      "id": "UUID",
+      "baseVersion": 2,
+      "operations": [
+        { "op": "replace", "path": "/name", "value": "Vienna" },
+        { "op": "add", "path": "/tags/-", "value": "capital" }
+      ]
+    }
+
+Сервис автоматически применит патч.
+

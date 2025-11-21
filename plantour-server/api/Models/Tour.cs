@@ -6,31 +6,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Plantour.Models;
 
-[Table("tour", Schema = "plantour")]
+[Table("tours", Schema = "plantour")]
 public partial class Tour
 {
     [Key]
     [Column("id")]
     public Guid Id { get; set; }
 
-    [Column("name")]
-    public string Name { get; set; } = null!;
-
-    [Column("status")]
-    public string Status { get; set; } = null!;
-
-    [Column("start_date")]
-    public DateOnly? StartDate { get; set; }
-
-    [Column("end_date")]
-    public DateOnly? EndDate { get; set; }
-
-    [Column("tour_data", TypeName = "jsonb")]
-    public string TourData { get; set; } = null!;
-
     [Column("version")]
     public int Version { get; set; }
 
-    [Column("created_at")]
-    public DateTime CreatedAt { get; set; }
+    [Column("json_object", TypeName = "jsonb")]
+    public string JsonObject { get; set; } = null!;
 }
