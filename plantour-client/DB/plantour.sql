@@ -4,88 +4,101 @@ create schema plantour;
 
 set search_path to plantour, public;
 
--- create table currencies (
---     id bigint primary key,
---     name varchar(50) not null unique,
---     character text,
---     notes text
--- );
+create table currencies (
+    id uuid not null primary key default gen_random_uuid(),
+    name varchar(50) not null unique,
+    character text,
+    notes text
+);
 
--- insert into currencies (id, name, character) values
--- (1,'USD','$'),
--- (2,'CAD','$'),
--- (3,'EUR','€'),
--- (4,'GBP','£'),
--- (5,'JPY','¥'),
--- (6,'CNY','¥');  
+insert into currencies (name, character) values
+('USD','$'),
+('CAD','$'),
+('EUR','€'),
+('GBP','£'),
+('JPY','¥'),
+('CNY','¥');  
 
--- create table unit_categories (
---     id bigint primary key,
---     name varchar(50) not null unique,
---     notes text
--- );
+create table unit_categories (
+    id uuid not null primary key default gen_random_uuid(),
+    name varchar(50) not null unique,
+    notes text
+);
 
--- insert into unit_categories (id, name) values
--- (1, 'weight'),
--- (2, 'volume'),
--- (3, 'length');
+-- Units of measurement table
+create table units (
+    id uuid not null primary key default gen_random_uuid(),
+    unit_category_id uuid not null references unit_categories(id),
+    name varchar(50) not null unique,
+    abbreviation varchar(10) not null unique
+);
 
--- -- Units of measurement table
--- create table units (
---     id bigint primary key,
---     unit_category_id bigint not null references unit_categories(id),
---     name varchar(50) not null unique,
---     abbreviation varchar(10) not null unique
--- );
+DO $$
+DECLARE
+    data jsonb := '[
+        {"weight": ["kg", "g", "lb", "oz"]},
+        {"volume": ["L", "ml"]},
+        {"length": ["m", "cm", "in"]}
+    ]';
 
+    category jsonb;
+    category_name text;
+    units jsonb;
+    unit text;
 
--- -- Insert common units
--- insert into units (id, unit_category_id, name, abbreviation) values
--- (1, 1, 'Kilogram', 'kg'),
--- (2, 1, 'Gram', 'g'),
--- (3, 1, 'Pound', 'lb'),
--- (4, 1, 'Ounce', 'oz'),
--- (5, 2, 'Liter', 'L'),
--- (6, 2, 'Milliliter', 'ml'),
--- (7, 3, 'Meter', 'm'),
--- (8, 3, 'Centimeter', 'cm'),
--- (9, 3, 'Inch', 'in');
+    category_id uuid;
+    unit_id uuid;
 
+BEGIN
+    -- цикл по внешнему массиву
+    FOR category IN SELECT * FROM jsonb_array_elements(data)
+    LOOP
+        -- key = имя категории, value = массив единиц
+        category_name := (SELECT key FROM jsonb_object_keys(category) AS key LIMIT 1);
+        units := category -> category_name;
 
--- create schema pack;
+        -- генерируем uuid категории
+        category_id := gen_random_uuid();
 
--- -- Set search path to the pack schema
--- set search_path to pack, public;
+        -- вставляем категорию
+        INSERT INTO unit_categories (id, name)
+        VALUES (category_id, category_name);
 
--- create table trip_status (
---     id bigint primary key,
---     name varchar(100) not null unique,
---     notes text
--- );
+        -- цикл по внутреннему массиву единиц
+        FOR unit IN SELECT jsonb_array_elements_text(units)
+        LOOP
+            unit_id := gen_random_uuid();
 
--- insert into trip_status (id, name) values
--- (1, 'Planning'),
--- (2, 'Active'),
--- (3, 'Completed'),
--- (4, 'Archived');
+            INSERT INTO units (id, unit_category_id, name, abbreviation)
+            VALUES (unit_id, category_id, unit, unit);
+        END LOOP;
+    END LOOP;
 
--- create table packing_status (
---     id bigint primary key,
---     name varchar(100) not null unique,
---     notes text
--- );
+END $$;
 
--- insert into packing_status (id, name) values
--- (1, 'Planning'),
--- (2, 'Active'),
--- (3, 'Completed'),
--- (4, 'Verified');
+create table trip_status (
+    id uuid not null primary key default gen_random_uuid(),
+    name varchar(100) not null unique,
+    notes text
+);
 
--- Pack users table
--- create table pack_users (
---     id bigserial primary key,
---     plantour_user_id uuid not null unique references auth.users(id) on delete cascade
--- );
+insert into trip_status (name) values
+('Planning'),
+('Active'),
+('Completed'),
+('Archived');
+
+create table packing_status (
+    id uuid not null primary key default gen_random_uuid(),
+    name varchar(100) not null unique,
+    notes text
+);
+
+insert into packing_status (name) values
+('Planning'),
+('Active'),
+('Completed'),
+('Verified');
 
 -- Travelers table
 -- Contains admins and participants
@@ -103,160 +116,227 @@ create table travelers (
     email varchar(255) null check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     phone varchar(50),
     notes text,
-    -- null for admins, not null for participants
-    participant_code varchar(10) null,
     
-    constraint ch_travelers_participant check (
-        admin_id is not null and participant_code is not null and user_id is null
+    constraint ch_travelers_admin_user check (
+        admin_id is not null and user_id is null
         or
-        admin_id is null and participant_code is null and user_id is not null
+        admin_id is null and user_id is not null
     )    
 );
 create index idx_travelers_admin_id on travelers(admin_id);
+create index idx_travelers_user_id on travelers(user_id);
 
+-------------------------------------------
 -- Categories for traveler's things
-create table thing_categories_j (
+-- dictionary
+create table thing_categories (
     id uuid not null primary key default  gen_random_uuid(),
     traveler_id uuid not null references travelers(id) on delete cascade,
-    version integer not null default 1 check (version > 0),
-    json_object jsonb not null
+    name varchar(100) not null
 );
-create index thing_categories_j_traveler_id on thing_categories_j(traveler_id);
+create unique index thing_categories_traveler_id_name on thing_categories(traveler_id, name);
 
 -- Traveler's things
-create table things_j (
+-- dictionary
+create table things (
     id uuid not null primary key default  gen_random_uuid(),
-    category_id uuid not null references thing_categories_j(id) on delete cascade,
-    version integer not null default 1 check (version > 0),
-    json_object jsonb not null
+    category_id uuid not null references thing_categories(id) on delete cascade,
 
-    -- short_description varchar(200) not null,
-    -- description text,
-    -- brand varchar(100),
-    -- model varchar(100),
-    -- color varchar(50),
+    short_description varchar(200) not null,
+    description text,
+    brand varchar(100),
+    model varchar(100),
+    color varchar(50),
     
-    -- -- Weight and dimensions
-    -- weight_value decimal(10,3),
-    -- weight_unit_id bigint references shared.units(id),
-    -- length_value decimal(10,2),
-    -- width_value decimal(10,2),
-    -- height_value decimal(10,2),
-    -- dimension_unit_id bigint references shared.units(id),
+    -- Weight and dimensions
+    weight_value decimal(10,3),
+    weight_unit_id uuid references units(id),
+    length_value decimal(10,2),
+    width_value decimal(10,2),
+    height_value decimal(10,2),
+    dimension_unit_id uuid references units(id),
     
-    -- -- Purchase info
-    -- purchase_date date,
-    -- purchase_price decimal(10,2),
-    -- purchase_currency_id bigint null references shared.currencies(id)
+    -- Purchase info
+    purchase_date date,
+    purchase_price decimal(10,2),
+    purchase_currency_id uuid null references currencies(id)
 );
-create index idx_things_j_category_id on things_j(category_id);
+create index idx_things_category_id on things(category_id);
 
 -- Categories for traveler's packages
-create table package_categories_j (
+-- dictionary
+create table package_categories (
     id uuid not null primary key default  gen_random_uuid(),
     traveler_id uuid not null references travelers(id) on delete cascade,
-    version integer not null default 1 check (version > 0),
-    json_object jsonb not null
+    name varchar(50) not null unique,
+    notes text
 );
-create index idx_package_categories_j_traveler_id on thing_categories_j(traveler_id);
+create index idx_package_categories_traveler_id on thing_categories(traveler_id);
 
 -- Traveler's packaging
-create table packages_j (
+-- dictionary
+create table packages (
     id uuid not null primary key default  gen_random_uuid(),
-    category_id uuid not null references package_categories_j(id) on delete cascade,
+    category_id uuid not null references package_categories(id) on delete cascade,
 
     -- Nested package support
-    parent_package_id uuid null references packages_j(id) on delete set null,
+    parent_package_id uuid null references packages(id) on delete set null,
 
-    version integer not null default 1 check (version > 0),
-    json_object jsonb not null
-
-    -- short_description varchar(200) not null,
-    -- description text,
-    -- brand varchar(100),
-    -- model varchar(100),
-    -- color varchar(50),
+    short_description varchar(200) not null,
+    description text,
+    brand varchar(100),
+    model varchar(100),
+    color varchar(50),
     
-    -- empty_weight_value decimal(10,3),
-    -- weight_unit_id bigint references shared.units(id),
-    -- capacity_value decimal(10,2),
-    -- capacity_unit_id bigint references shared.units(id),
-    -- length_value decimal(10,2),
-    -- width_value decimal(10,2),
-    -- height_value decimal(10,2),
-    -- dimension_unit_id bigint references shared.units(id),
-    
+    empty_weight_value decimal(10,3),
+    weight_unit_id uuid references units(id),
+    capacity_value decimal(10,2),
+    capacity_unit_id uuid references units(id),
+    length_value decimal(10,2),
+    width_value decimal(10,2),
+    height_value decimal(10,2),
+    dimension_unit_id uuid references units(id),
 );
-create index idx_packages_j_category_id on packages_j(category_id);
-create index idx_packages_j_parent_package_id on packages_j(parent_package_id);
-
+create index idx_packages_category_id on packages(category_id);
+create index idx_packages_parent_package_id on packages(parent_package_id);
 
 -- Trips table
-create table trips_j (
+create table trips (
 
     id uuid not null primary key default  gen_random_uuid(),
     user_id uuid not null references travelers(user_id) on delete cascade,
-    version integer not null default 1 check (version > 0),
-    json_object jsonb not null
 
-
-    -- id bigserial primary key,
-    -- pack_user_id bigint not null references pack_users(id) on delete cascade,
-    -- trip_status_id bigint not null references trip_status(id) on delete cascade,
-    -- short_description varchar(200) not null,  
-    -- description text,
-    -- start_date date,
-    -- end_date date,
-    -- require_weight boolean default false,
-    -- constraint ch_trips_start_before_end check (
-    --     start_date is null 
-    --     or end_date is null 
-    --     or start_date <= end_date
-    -- )
+    --trip_status_id uuid null references trip_status(id) on delete set null,
+    trip_status varchar(100) null,
+    
+    short_description varchar(200) not null,  
+    description text,
+    start_date date,
+    end_date date,
+    require_weight boolean default false,
+    constraint ch_trips_start_before_end check (
+        start_date is null 
+        or end_date is null 
+        or start_date <= end_date
+    )
 );
-create index idx_trips_j_user_id on trips_j(user_id);
+create index idx_trips_user_id on trips(user_id);
 
-create table trip_travelers_j (
+create table communication_type (
     id uuid not null primary key default gen_random_uuid(),
-    trip_id uuid not null references trips_j(id) on delete cascade,
+    name varchar(100) not null unique,
+    notes text
+);
+
+insert into communication_type (name) values
+('in person'),
+('phone'),
+('email'),
+('SMS'),
+('WhatsApp'),
+('Telegram');
+
+create table invitations (
+    id uuid not null primary key default gen_random_uuid(),
+
+    trip_id uuid not null references trips(id) on delete cascade,
+
+    inviter_id uuid not null
+        references travelers(id) on delete cascade,
+
+    invitee_id uuid
+        references travelers(id) on delete set null,
+
+    invite_token text not null unique,
+    access_code varchar(8) not null unique,
+
+    first_name varchar(100),
+    last_name varchar(100),
+    email varchar(255),
+    phone varchar(50),
+
+    created_at timestamptz not null default now(),
+    expires_at timestamptz not null,
+
+    accepted_at timestamptz,
+    refused_at timestamptz,
+    sent_at timestamptz,
+
+    communication_type varchar(100),
+    notes text,
+
+    constraint ch_invitations_dates check (
+
+        /* 1. Expiration must always be after creation */
+        expires_at > created_at
+
+        /* 2. If invitation was sent → sent_at must not be earlier than creation */
+        and (
+            sent_at is null
+            or sent_at >= created_at
+        )
+
+        /* 3. If invitation was accepted → accepted_at must:
+              - be after creation,
+              - be before expiration,
+              - be after sent_at (if sent_at exists)
+        */
+        and (
+            accepted_at is null
+            or (
+                accepted_at >= created_at
+                and accepted_at <= expires_at
+                and (
+                    sent_at is null
+                    or accepted_at >= sent_at
+                )
+            )
+        )
+
+        /* 4. If invitation was refused → refused_at must:
+              - be after creation,
+              - be before expiration,
+              - be after sent_at (if sent_at exists)
+        */
+        and (
+            refused_at is null
+            or (
+                refused_at >= created_at
+                and refused_at <= expires_at
+                and (
+                    sent_at is null
+                    or refused_at >= sent_at
+                )
+            )
+        )
+
+        /* 5. accepted_at and refused_at cannot both exist */
+        and not (
+            accepted_at is not null
+            and refused_at is not null
+        )
+    )
+);
+
+create table trip_travelers (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_id uuid not null references trips(id) on delete cascade,
     traveler_id uuid not null references travelers(id) on delete cascade,
-    version integer not null default 1 check (version > 0),
-    json_object jsonb not null
-
-
-    -- id bigserial primary key,
-    -- trip_id bigint not null references trips(id) on delete cascade,
-    -- traveler_id bigint not null references travelers(id) on delete cascade,
-    -- responsible_traveler_id bigint references travelers(id), -- who is responsible for this packing
-    -- packing_status_id bigint not null references packing_status(id) on delete cascade,
-    -- start_date date,
-    -- end_date date,
-    -- packing_data jsonb not null default '{}',
-    -- unique(trip_id, traveler_id),
-    -- constraint ch_traveler_trip_things_start_before_end check (
-    --     start_date is null 
-    --     or end_date is null 
-    --     or start_date <= end_date
-    -- )
+    access_code varchar(8) not null,
 );
-create index idx_trip_travelers_j_trip_id on trip_travelers_j(trip_id);
-create index idx_trip_travelers_j_traveler_id on trip_travelers_j(traveler_id);
-create unique index idx_trip_travelers_j_traveler_id_trip_id on trip_travelers_j(trip_id,traveler_id);
+create unique index idx_trip_travelers_trip_id_traveler_id on trip_travelers(trip_id, traveler_id);
 
-create table trip_things_j (
+create table trip_things (
     id uuid not null primary key default gen_random_uuid(),
-    trip_traveler_id uuid not null references trip_travelers_j(id) on delete cascade,
-    thing_id uuid not null references things_j(id) on delete cascade,
-    package_id uuid null references packages_j(id) on delete set null,
+    trip_traveler_id uuid not null references trip_travelers(id) on delete cascade,
+    -- thing_id uuid not null references things(id) on delete cascade,
+    -- package_id uuid null references packages(id) on delete set null,
+    -- json contains thing and package data
     version integer not null default 1 check (version > 0),
     json_object jsonb not null
 );
-create index idx_trip_things_j_trip_traveler_id on trip_things_j(trip_traveler_id);
-create index idx_trip_things_j_trip_thing_id on trip_things_j(thing_id);
-create index idx_trip_things_j_package_id on trip_things_j(package_id);
-create unique index idx_trip_things_j_trip_traveler_id_thing_id on trip_things_j(trip_traveler_id,thing_id);
+create index idx_trip_things_trip_traveler_id on trip_things(trip_traveler_id);
 
--- packages_j → package_categories_j → travelers
 create or replace function raise_integrity_error(msg text)
 returns void as $$
 begin
@@ -272,7 +352,7 @@ declare
 begin
     -- Категория пакета
     select traveler_id into cat_trav
-    from package_categories_j
+    from package_categories
     where id = new.category_id;
 
     if cat_trav is null then
@@ -282,8 +362,8 @@ begin
     -- Проверка nested-package (parent_package_id)
     if new.parent_package_id is not null then
         select pc.traveler_id into parent_cat_trav
-        from packages_j p
-        join package_categories_j pc on pc.id = p.category_id
+        from packages p
+        join package_categories pc on pc.id = p.category_id
         where p.id = new.parent_package_id;
 
         if parent_cat_trav is distinct from cat_trav then
@@ -296,18 +376,18 @@ end;
 $$ language plpgsql;
 
 create trigger trg_packages_same_traveler
-before insert or update on packages_j
+before insert or update on packages
 for each row execute function trg_packages_same_traveler();
 
 
--- things_j → thing_categories_j → travelers
+-- things → thing_categories → travelers
 create or replace function trg_things_same_traveler()
 returns trigger as $$
 declare
     cat_trav uuid;
 begin
     select traveler_id into cat_trav
-    from thing_categories_j
+    from thing_categories
     where id = new.category_id;
 
     if cat_trav is null then
@@ -319,10 +399,10 @@ end;
 $$ language plpgsql;
 
 create trigger trg_things_same_traveler
-before insert or update on things_j
+before insert or update on things
 for each row execute function trg_things_same_traveler();
 
--- trip_travelers_j → travelers, trips_j
+-- trip_travelers → travelers, trips
 create or replace function trg_trip_travelers_valid()
 returns trigger as $$
 declare
@@ -341,10 +421,10 @@ end;
 $$ language plpgsql;
 
 create trigger trg_trip_travelers_valid
-before insert or update on trip_travelers_j
+before insert or update on trip_travelers
 for each row execute function trg_trip_travelers_valid();
 
--- trip_things_j → thing, package, trip_traveler → один traveler
+-- trip_things → thing, package, trip_traveler → один traveler
 create or replace function trg_trip_things_same_traveler()
 returns trigger as $$
 declare
@@ -354,7 +434,7 @@ declare
 begin
     -- Traveler of trip_traveler
     select traveler_id into tt_trav
-    from trip_travelers_j
+    from trip_travelers
     where id = new.trip_traveler_id;
 
     if tt_trav is null then
@@ -363,8 +443,8 @@ begin
 
     -- Traveler of thing
     select tc.traveler_id into thing_trav
-    from things_j t
-    join thing_categories_j tc on tc.id = t.category_id
+    from things t
+    join thing_categories tc on tc.id = t.category_id
     where t.id = new.thing_id;
 
     if thing_trav is null then
@@ -378,8 +458,8 @@ begin
     -- Traveler of package (nullable)
     if new.package_id is not null then
         select pc.traveler_id into pkg_trav
-        from packages_j p
-        join package_categories_j pc on pc.id = p.category_id
+        from packages p
+        join package_categories pc on pc.id = p.category_id
         where p.id = new.package_id;
 
         if pkg_trav is null then
@@ -396,5 +476,5 @@ end;
 $$ language plpgsql;
 
 create trigger trg_trip_things_same_traveler
-before insert or update on trip_things_j
+before insert or update on trip_things
 for each row execute function trg_trip_things_same_traveler();
