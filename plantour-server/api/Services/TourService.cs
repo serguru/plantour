@@ -95,12 +95,16 @@ public class TourService : ITourService
 
         // 3. Если не удалось — вернуть null / ошибка
         if (!result.IsSuccess || result.NewData == null)
+        {
             return null;
+        }
 
         // 4. Преобразуем результат JSON → TourJsonModel
         var model = result.NewData.Deserialize<TourJsonModel>();
         if (model == null)
+        {
             return null;
+        }
 
         // 5. Возвращаем DTO
         return new TourResponseDto

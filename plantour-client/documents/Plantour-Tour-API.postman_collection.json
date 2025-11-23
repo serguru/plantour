@@ -1,0 +1,93 @@
+{
+  "info": {
+    "name": "Plantour Tour API",
+    "_postman_id": "b0a8c0e9-3d46-4bf9-bc52-532a7cb89d93",
+    "description": "Collection for testing Tour CRUD + JSON Patch via JsonPatchService",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Tour",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"My First Tour\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:7028/api/tours",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "7028",
+          "path": ["api", "tours"]
+        }
+      }
+    },
+    {
+      "name": "Get All Tours",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:7028/api/tours",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "7028",
+          "path": ["api", "tours"]
+        }
+      }
+    },
+    {
+      "name": "Get Tour by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:7028/api/tours/{{tourId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "7028",
+          "path": ["api", "tours", "{{tourId}}"]
+        }
+      }
+    },
+    {
+      "name": "Patch Tour (JsonPatchService)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"entity\": \"tour\",\n  \"id\": \"{{tourId}}\",\n  \"baseVersion\": {{version}},\n  \"operations\": [\n    {\n      \"op\": \"replace\",\n      \"path\": \"/name\",\n      \"value\": \"Updated Name\"\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:7028/api/tours/patch",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "7028",
+          "path": ["api", "tours", "patch"]
+        }
+      }
+    },
+    {
+      "name": "Delete Tour",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:7028/api/tours/{{tourId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "7028",
+          "path": ["api", "tours", "{{tourId}}"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "tourId", "value": "" },
+    { "key": "version", "value": "0" }
+  ]
+}

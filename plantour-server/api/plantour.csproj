@@ -42,6 +42,7 @@
 	<ItemGroup>
 		<Folder Include="Documents\" />
 		<Folder Include="Infrastructure\Exceptions\" />
+		<Folder Include="DB\" />
 	</ItemGroup>
 
 </Project>
