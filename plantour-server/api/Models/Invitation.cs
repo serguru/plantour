@@ -22,7 +22,7 @@ public partial class Invitation
     public Guid InviterId { get; set; }
 
     [Column("invitee_id")]
-    public Guid? InviteeId { get; set; }
+    public Guid InviteeId { get; set; }
 
     [Column("invite_token")]
     public string InviteToken { get; set; } = null!;
@@ -46,6 +46,13 @@ public partial class Invitation
     [Column("phone")]
     [StringLength(50)]
     public string? Phone { get; set; }
+
+    [Column("subject")]
+    [StringLength(200)]
+    public string Subject { get; set; } = null!;
+
+    [Column("message")]
+    public string Message { get; set; } = null!;
 
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }
@@ -74,7 +81,7 @@ public partial class Invitation
 
     [ForeignKey("InviteeId")]
     [InverseProperty("InvitationInvitees")]
-    public virtual Traveler? Invitee { get; set; }
+    public virtual Traveler Invitee { get; set; } = null!;
 
     [ForeignKey("InviterId")]
     [InverseProperty("InvitationInviters")]

@@ -40,7 +40,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Documents\" />
 		<Folder Include="Infrastructure\Exceptions\" />
 		<Folder Include="DB\" />
 		<Folder Include="Models\" />

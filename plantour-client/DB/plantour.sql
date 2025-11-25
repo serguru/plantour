@@ -351,7 +351,7 @@ create table invitations (
 
     trip_id uuid not null references trips(id) on delete cascade,
     inviter_id uuid not null references travelers(id) on delete cascade,
-    invitee_id uuid references travelers(id) on delete set null,
+    invitee_id uuid not null references travelers(id) on delete cascade,
 
     invite_token text not null unique,
     access_code varchar(8) not null unique,
@@ -360,6 +360,9 @@ create table invitations (
     last_name varchar(100),
     email varchar(255),
     phone varchar(50),
+
+    subject varchar(200) not null,
+    message text not null,
 
     created_at timestamptz not null default now(),
     expires_at timestamptz not null,

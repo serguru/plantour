@@ -9,6 +9,7 @@ using Plantour.Infrastructure.Exceptions;
 using Plantour.Models;
 using Plantour.Services;
 using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 
 public class Program
 {
@@ -16,18 +17,16 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-
         var connectionString = builder.Configuration["PlantourDb"];
 
         builder.Services.AddDbContext<PlantourContext>(options =>
             options.UseNpgsql(connectionString));
 
-
-
         var supabaseUrl = builder.Configuration["SUPABASE_URL"];
         var supabaseAnonKey = builder.Configuration["SUPABASE_ANON_KEY"];
         var supabaseJwtSecret = builder.Configuration["SUPABASE_JWT_SECRET"];
         var supabaseServiceRoleKey = builder.Configuration["SUPABASE_SERVICE_ROLE_KEY"];
+        var plantourJwtSecret = builder.Configuration["PLANTOUR_JWT_SECRET"];
 
         if (string.IsNullOrEmpty(supabaseUrl))
         {
@@ -45,10 +44,20 @@ public class Program
         {
             throw new Exception("Supabase configuration is missing. Please add SUPABASE_SERVICE_ROLE_KEY to appsettings or environment variables.");
         }
+        if (string.IsNullOrEmpty(plantourJwtSecret))
+        {
+            throw new Exception("Plantour configuration is missing. Please add PLANTOUR_JWT_SECRET to appsettings or environment variables.");
+        }
 
         builder.Services.AddSingleton<ISupabaseAuthService>(sp =>
             new SupabaseAuthService(supabaseUrl!, supabaseAnonKey!, supabaseServiceRoleKey!)
         );
+
+        // register IHttpContextAccessor for PlantourAuthService to resolve CurrentUser
+        builder.Services.AddHttpContextAccessor();
+
+        // Register PlantourAuthService
+        builder.Services.AddScoped<IPlantourAuthService, PlantourAuthService>();
 
         // Configure Authentication: validate Supabase JWT locally
         builder.Services.AddAuthentication(options =>
@@ -59,74 +68,101 @@ public class Program
         .AddJwtBearer(options =>
         {
             options.RequireHttpsMetadata = false;
-            //options.SaveToken = false; // we don't store tokens in server's auth properties
 
             // Basic validation using Supabase JWT secret (HS256)
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = false,      // set true if you want to verify issuer (supabase URL)
-                ValidateAudience = false,    // set true if you want to verify audience
+                ValidateIssuer = false,
+                ValidateAudience = false,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(supabaseJwtSecret!)),
-
-                // If your tokens include the role claim under a different name, set RoleClaimType appropriately:
                 RoleClaimType = "role"
             };
 
-            // Optional: If you want to inspect the incoming token before standard validation
-            // options.Events = new JwtBearerEvents { OnMessageReceived = ctx => { ... } };
+            // Intercept incoming token: if it's a Plantour participant token (signed with PLANTOUR_JWT_SECRET)
+            // and contains embedded admin_token claim, replace the token with that admin_token so the normal Supabase validation runs.
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = ctx =>
+                {
+                    var authHeader = ctx.Request.Headers["Authorization"].FirstOrDefault();
+                    var incomingToken = authHeader?.Split(' ').Last();
+
+                    if (string.IsNullOrEmpty(incomingToken))
+                        return Task.CompletedTask;
+
+                    var handler = new JwtSecurityTokenHandler();
+                    JwtSecurityToken? jwt = null;
+                    try
+                    {
+                        jwt = handler.ReadJwtToken(incomingToken);
+                    }
+                    catch
+                    {
+                        // Not a JWT we can parse -> proceed, standard validation will handle it
+                        return Task.CompletedTask;
+                    }
+
+                    var isPlantourParticipant = jwt.Claims.Any(c => c.Type == "plantour_participant");
+                    if (!isPlantourParticipant)
+                        return Task.CompletedTask;
+
+                    var plantourKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(plantourJwtSecret!));
+                    var validationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = plantourKey
+                    };
+
+                    try
+                    {
+                        var principal = handler.ValidateToken(incomingToken, validationParameters, out var validatedToken);
+
+                        var adminTokenClaim = principal.Claims.FirstOrDefault(c => c.Type == "admin_token")?.Value;
+                        var tripTravelerIdClaim = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+
+                        if (!string.IsNullOrEmpty(tripTravelerIdClaim) && Guid.TryParse(tripTravelerIdClaim, out var ttId))
+                        {
+                            ctx.HttpContext.Items["Plantour.TripTravelerId"] = ttId;
+                        }
+
+                        if (!string.IsNullOrEmpty(adminTokenClaim))
+                        {
+                            // Swap token so rest of pipeline validates using Supabase JWT secret
+                            ctx.Token = adminTokenClaim;
+                        }
+                        else
+                        {
+                            // If there is no admin_token embedded authentication will not succeed.
+                            ctx.Token = null;
+                        }
+                    }
+                    catch
+                    {
+                        ctx.Token = null;
+                    }
+
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         // Add Authorization
         builder.Services.AddAuthorization(options =>
         {
-            // Example policy which requires claim "role" equals "admin"
             options.AddPolicy("RequireAdminRole", policy =>
             {
                 policy.RequireClaim("role", "admin");
             });
         });
 
-
-        //builder.Services.AddEndpointsApiExplorer();
-        //builder.Services.AddSwaggerGen(options =>
-        //{
-        //    // Define the security scheme: JWT Bearer
-        //    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-        //    {
-        //        Name = "Authorization",
-        //        Type = SecuritySchemeType.Http,
-        //        Scheme = "Bearer",
-        //        BearerFormat = "JWT",
-        //        In = ParameterLocation.Header,
-        //        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below. Example: \"Bearer 12345abcdef\""
-        //    });
-        //    // Other Swagger options...
-        //    // Apply the security requirement globally
-        //    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-        //    {
-        //        {
-        //            new OpenApiSecurityScheme
-        //            {
-        //                Reference = new OpenApiReference
-        //                {
-        //                    Type = ReferenceType.SecurityScheme,
-        //                    Id = "Bearer" // Must match the name defined in AddSecurityDefinition
-        //                }
-        //            },
-        //            new string[] {} // Required scopes (empty for basic JWT)
-        //        }
-        //    });
-
-
-        //});
-
         // Add services to the container.
         builder.Services.AddControllers();
 
-        // CORS: read allowed origins from env/config key "ALLOWED_ORIGINS" (semicolon-separated).
-        // If not set, falls back to AllowAnyOrigin (useful for development).
         var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?
             .Split(';', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
 
@@ -150,13 +186,8 @@ public class Program
             });
         });
 
-
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-        //builder.Services.AddOpenApi();
-
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
 
         // Repositories DI
         builder.Services.AddScoped(typeof(Plantour.Repositories.Interfaces.IRepository<,>), typeof(Plantour.Repositories.GenericRepository<,>));
@@ -178,25 +209,17 @@ public class Program
 
         builder.Services.AddScoped<ITripService, TripService>();
 
-
-
-
         var app = builder.Build();
 
-        // Ensure CORS runs before other middleware that might handle requests
         app.UseCors("DefaultCorsPolicy");
 
-        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
-            //app.MapOpenApi();
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI();
         }
 
-
-        // Centralized exception handling middleware (must come early in pipeline)
         app.UseCustomExceptionHandler();
 
         app.UseHttpsRedirection();
