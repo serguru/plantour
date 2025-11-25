@@ -72,7 +72,7 @@ namespace Plantour.Auth.Controllers
         // This endpoint demonstrates signing out using the server-side client instance
         // (useful for server processes that keep a session).
         [HttpPost("signout")]
-        public async Task<IActionResult> SignOut()
+        public new async Task<IActionResult> SignOut()
         {
             await _auth.LogoutAsync();
             return Ok(new { message = "signed_out" });

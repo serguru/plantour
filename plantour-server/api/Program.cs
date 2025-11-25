@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Plantour.Infrastructure.Exceptions;
+using Plantour.Models;
 using Plantour.Services;
 using System.Text;
 
@@ -18,8 +19,8 @@ public class Program
 
         var connectionString = builder.Configuration["PlantourDb"];
 
-        //builder.Services.AddDbContext<PlantourContext>(options =>
-        //    options.UseNpgsql(connectionString));
+        builder.Services.AddDbContext<PlantourContext>(options =>
+            options.UseNpgsql(connectionString));
 
 
 
@@ -156,6 +157,30 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+
+        // Repositories DI
+        builder.Services.AddScoped(typeof(Plantour.Repositories.Interfaces.IRepository<,>), typeof(Plantour.Repositories.GenericRepository<,>));
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.ICommunicationTypeRepository, Plantour.Repositories.CommunicationTypeRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.ICurrencyRepository, Plantour.Repositories.CurrencyRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.IInvitationRepository, Plantour.Repositories.InvitationRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.IPackingStatusRepository, Plantour.Repositories.PackingStatusRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.ITravelerRepository, Plantour.Repositories.TravelerRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.ITravelerPackageRepository, Plantour.Repositories.TravelerPackageRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.ITravelerPackageCategoryRepository, Plantour.Repositories.TravelerPackageCategoryRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.ITravelerThingRepository, Plantour.Repositories.TravelerThingRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.ITravelerThingCategoryRepository, Plantour.Repositories.TravelerThingCategoryRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.ITripRepository, Plantour.Repositories.TripRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.ITripStatusRepository, Plantour.Repositories.TripStatusRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.ITripTravelerRepository, Plantour.Repositories.TripTravelerRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.ITripTravelerThingRepository, Plantour.Repositories.TripTravelerThingRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.IUnitRepository, Plantour.Repositories.UnitRepository>();
+        builder.Services.AddScoped<Plantour.Repositories.Interfaces.IUnitCategoryRepository, Plantour.Repositories.UnitCategoryRepository>();
+
+        builder.Services.AddScoped<ITripService, TripService>();
+
+
+
+
         var app = builder.Build();
 
         // Ensure CORS runs before other middleware that might handle requests
@@ -175,7 +200,7 @@ public class Program
         app.UseCustomExceptionHandler();
 
         app.UseHttpsRedirection();
-        
+
         app.UseAuthentication();
         app.UseAuthorization();
 
