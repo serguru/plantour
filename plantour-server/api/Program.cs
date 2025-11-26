@@ -209,6 +209,9 @@ public class Program
 
         builder.Services.AddScoped<ITripService, TripService>();
 
+        // Register CommunicationService for external communications (invitations, emails, etc.)
+        builder.Services.AddScoped<ICommunicationService, CommunicationService>();
+
         var app = builder.Build();
 
         app.UseCors("DefaultCorsPolicy");

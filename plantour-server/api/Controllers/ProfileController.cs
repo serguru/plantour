@@ -13,15 +13,15 @@ public class ProfileController : ControllerBase
 {
     private readonly ISupabaseAuthService _authService;
 
-    public ProfileController(ISupabaseAuthService authService)
+    public ProfileController(ISupabaseAuthService auth, ICommunicationService communication)
     {
-        _authService = authService;
+        _authService = auth;
     }
 
     // Get info from validated JWT
     [HttpGet("me")]
     [Authorize] // only valid tokens accepted
-    public IActionResult GetMe()
+    public async Task<IActionResult> GetMe()
     {
         var user_metadata = User.FindFirst("user_metadata")?.Value;
         return Ok(user_metadata);

@@ -11,7 +11,7 @@ namespace Plantour.Auth.Controllers
     {
         private readonly ISupabaseAuthService _auth;
 
-        public AuthController(ISupabaseAuthService auth)
+        public AuthController(ISupabaseAuthService auth, ICommunicationService communication)
         {
             _auth = auth;
         }
