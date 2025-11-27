@@ -34,7 +34,7 @@ with admin_row as (
     )
     values (
         gen_random_uuid(),
-        '846b5e67-4ff9-4ae9-9566-1c8553f6290c', -- admin user_id
+        'user_362ybfielSXPgOrFzIlSyiIumEP', -- admin user_id from Clerk
         null,
         'AdminJohn', 'Root',
         'admin@example.com',
