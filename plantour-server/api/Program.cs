@@ -1,5 +1,3 @@
-namespace Plantour;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +8,8 @@ using Plantour.Models;
 using Plantour.Services;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+
+namespace Plantour;
 
 public class Program
 {
@@ -22,36 +22,26 @@ public class Program
         builder.Services.AddDbContext<PlantourContext>(options =>
             options.UseNpgsql(connectionString));
 
-        var supabaseUrl = builder.Configuration["SUPABASE_URL"];
-        var supabaseAnonKey = builder.Configuration["SUPABASE_ANON_KEY"];
-        var supabaseJwtSecret = builder.Configuration["SUPABASE_JWT_SECRET"];
-        var supabaseServiceRoleKey = builder.Configuration["SUPABASE_SERVICE_ROLE_KEY"];
+        // Clerk configuration
+        var clerkApiUrl = builder.Configuration["Clerk:ApiUrl"];
+        var clerkApiKey = builder.Configuration["Clerk:ApiKey"];
+
         var plantourJwtSecret = builder.Configuration["PLANTOUR_JWT_SECRET"];
 
-        if (string.IsNullOrEmpty(supabaseUrl))
+        if (string.IsNullOrEmpty(clerkApiKey))
         {
-            throw new Exception("Supabase configuration is missing. Please add SUPABASE_URL to appsettings or environment variables.");
-        }
-        if (string.IsNullOrEmpty(supabaseAnonKey))
-        {
-            throw new Exception("Supabase configuration is missing. Please add SUPABASE_ANON_KEY to appsettings or environment variables.");
-        }
-        if (string.IsNullOrEmpty(supabaseJwtSecret))
-        {
-            throw new Exception("Supabase configuration is missing. Please add SUPABASE_JWT_SECRET to appsettings or environment variables.");
-        }
-        if (string.IsNullOrEmpty(supabaseServiceRoleKey))
-        {
-            throw new Exception("Supabase configuration is missing. Please add SUPABASE_SERVICE_ROLE_KEY to appsettings or environment variables.");
+            throw new Exception("Clerk configuration is missing. Please add Clerk:ApiKey to appsettings or environment variables.");
         }
         if (string.IsNullOrEmpty(plantourJwtSecret))
         {
             throw new Exception("Plantour configuration is missing. Please add PLANTOUR_JWT_SECRET to appsettings or environment variables.");
         }
 
-        builder.Services.AddSingleton<ISupabaseAuthService>(sp =>
-            new SupabaseAuthService(supabaseUrl!, supabaseAnonKey!, supabaseServiceRoleKey!)
-        );
+        // register ClerkAuthService via typed HttpClient
+        builder.Services.AddHttpClient<IClerkAuthService, ClerkAuthService>(client =>
+        {
+            client.BaseAddress = new Uri(clerkApiUrl);
+        });
 
         // register IHttpContextAccessor for PlantourAuthService to resolve CurrentUser
         builder.Services.AddHttpContextAccessor();
@@ -59,7 +49,7 @@ public class Program
         // Register PlantourAuthService
         builder.Services.AddScoped<IPlantourAuthService, PlantourAuthService>();
 
-        // Configure Authentication: validate Supabase JWT locally
+        // Configure Authentication
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -69,19 +59,15 @@ public class Program
         {
             options.RequireHttpsMetadata = false;
 
-            // Basic validation using Supabase JWT secret (HS256)
+            // We do not set issuer signing key here — we validate admin tokens explicitly against Clerk in OnTokenValidated.
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = false,
                 ValidateAudience = false,
                 ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(supabaseJwtSecret!)),
-                RoleClaimType = "role"
+                ValidateIssuerSigningKey = false // we will validate via Clerk admin verify endpoint
             };
 
-            // Intercept incoming token: if it's a Plantour participant token (signed with PLANTOUR_JWT_SECRET)
-            // and contains embedded admin_token claim, replace the token with that admin_token so the normal Supabase validation runs.
             options.Events = new JwtBearerEvents
             {
                 OnMessageReceived = ctx =>
@@ -100,7 +86,7 @@ public class Program
                     }
                     catch
                     {
-                        // Not a JWT we can parse -> proceed, standard validation will handle it
+                        // Not a JWT we can parse -> proceed, validation will handle it
                         return Task.CompletedTask;
                     }
 
@@ -108,6 +94,7 @@ public class Program
                     if (!isPlantourParticipant)
                         return Task.CompletedTask;
 
+                    // Validate Plantour token (signed with PLANTOUR_JWT_SECRET)
                     var plantourKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(plantourJwtSecret!));
                     var validationParameters = new TokenValidationParameters
                     {
@@ -132,12 +119,12 @@ public class Program
 
                         if (!string.IsNullOrEmpty(adminTokenClaim))
                         {
-                            // Swap token so rest of pipeline validates using Supabase JWT secret
+                            // Swap token so the normal pipeline will validate the admin token (Clerk)
                             ctx.Token = adminTokenClaim;
                         }
                         else
                         {
-                            // If there is no admin_token embedded authentication will not succeed.
+                            // No admin token -> we cannot authenticate as admin
                             ctx.Token = null;
                         }
                     }
@@ -147,6 +134,45 @@ public class Program
                     }
 
                     return Task.CompletedTask;
+                },
+                OnTokenValidated = async ctx =>
+                {
+                    // Try to obtain raw token from the validated SecurityToken (if available)
+                    string? token = null;
+                    if (ctx.SecurityToken is JwtSecurityToken jt)
+                    {
+                        token = jt.RawData;
+                    }
+
+                    // Fallback: read Authorization header (Bearer ...)
+                    if (string.IsNullOrEmpty(token))
+                    {
+                        var authHeader = ctx.Request.Headers["Authorization"].FirstOrDefault();
+                        if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            token = authHeader.Substring("Bearer ".Length).Trim();
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(token))
+                    {
+                        ctx.Fail("No token present");
+                        return;
+                    }
+
+                    // Resolve IClerkAuthService from DI and validate token via Clerk
+                    var clerk = ctx.HttpContext.RequestServices.GetService(typeof(IClerkAuthService)) as IClerkAuthService;
+                    if (clerk == null)
+                    {
+                        ctx.Fail("Clerk service unavailable");
+                        return;
+                    }
+
+                    var valid = await clerk.ValidateTokenAsync(token);
+                    if (!valid)
+                    {
+                        ctx.Fail("Invalid Clerk token");
+                    }
                 }
             };
         });
@@ -160,7 +186,7 @@ public class Program
             });
         });
 
-        // Add services to the container.
+        // Add controllers and other services
         builder.Services.AddControllers();
 
         var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?
@@ -189,7 +215,7 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        // Repositories DI
+        // Repositories DI (kept unchanged)
         builder.Services.AddScoped(typeof(Plantour.Repositories.Interfaces.IRepository<,>), typeof(Plantour.Repositories.GenericRepository<,>));
         builder.Services.AddScoped<Plantour.Repositories.Interfaces.ICommunicationTypeRepository, Plantour.Repositories.CommunicationTypeRepository>();
         builder.Services.AddScoped<Plantour.Repositories.Interfaces.ICurrencyRepository, Plantour.Repositories.CurrencyRepository>();

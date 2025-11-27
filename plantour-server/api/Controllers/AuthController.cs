@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Plantour.Infrastructure.Dtos;
 using Plantour.Services;
-using Supabase.Gotrue;
+using System.Threading.Tasks;
 
 namespace Plantour.Auth.Controllers
 {
@@ -9,9 +9,9 @@ namespace Plantour.Auth.Controllers
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly ISupabaseAuthService _auth;
+        private readonly IClerkAuthService _auth;
 
-        public AuthController(ISupabaseAuthService auth, ICommunicationService communication)
+        public AuthController(IClerkAuthService auth)
         {
             _auth = auth;
         }
@@ -19,40 +19,30 @@ namespace Plantour.Auth.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp([FromBody] SignUpRequest dto)
         {
-            User? user = _auth.GetUserByEmail(dto.Email);
-            if (user != null)
+            // Check if a user with this email already exists in Clerk
+            if (await _auth.UserExistsAsync(dto.Email))
             {
-                string message = $"A user with email address {dto.Email} already exists";
-
-                bool email_verified = user.UserMetadata != null &&
-                                      user.UserMetadata.ContainsKey("email_verified") &&
-                                      user.UserMetadata["email_verified"] is bool ev &&
-                                      ev;
-
-                if (!email_verified)
-                {
-                    message += ". Please follow the link in the email sent to you to confirm your registration.";
-                }
+                var message = $"A user with email address {dto.Email} already exists";
                 return BadRequest(new { error = message });
             }
 
-            user = await _auth.SignUpAsync(dto.Email, dto.Password, dto.Metadata);
-            if (user == null) 
+            // Attempt to create user in Clerk
+            var created = await _auth.SignUpAsync(dto.Email, dto.Password, dto.Metadata);
+            if (!created)
             {
-                return BadRequest(new { error = "Null user returned" });
+                return BadRequest(new { error = "Sign up failed" });
             }
-            return Ok(new { user.Id, user.Email, user.UserMetadata });
+
+            // Return minimal response (avoid exposing Clerk internals)
+            return Ok(new { message = "signup_requested" });
         }
 
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn([FromBody] LoginRequest dto)
         {
-            var session = await _auth.LoginWithPasswordAsync(dto.Email, dto.Password);
-            if (session == null) return Unauthorized();
-            return Ok(new
-            {
-                token = session.AccessToken,
-            });
+            var token = await _auth.SignInAsync(dto.Email, dto.Password);
+            if (string.IsNullOrEmpty(token)) return Unauthorized();
+            return Ok(new { token });
         }
 
         [HttpPost("magic-link")]
@@ -69,12 +59,16 @@ namespace Plantour.Auth.Controllers
             return Ok(new { message = "If the email exists, a reset link was sent." });
         }
 
-        // This endpoint demonstrates signing out using the server-side client instance
-        // (useful for server processes that keep a session).
         [HttpPost("signout")]
         public new async Task<IActionResult> SignOut()
         {
-            await _auth.LogoutAsync();
+            // Optionally read Authorization header to revoke a specific token
+            var authHeader = Request.Headers["Authorization"].ToString();
+            string? token = null;
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+                token = authHeader.Substring("Bearer ".Length).Trim();
+
+            await _auth.SignOutAsync(token);
             return Ok(new { message = "signed_out" });
         }
     }

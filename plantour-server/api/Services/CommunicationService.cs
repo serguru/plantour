@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Plantour.Models;
 using Plantour.Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace Plantour.Services
 {
@@ -19,7 +15,7 @@ namespace Plantour.Services
         /// - validate trip exists and caller is the trip owner
         /// - validate invitee traveler has email, first_name and last_name
         /// - create TripTraveler entry with access code
-        /// - generate participant token (embedding admin supabase token when available)
+        /// - generate participant token (embedding admin clerk token when available)
         /// - create an Invitation record with subject and message containing two links:
         ///     1) link with one-time participant token (auto-registration)
         ///     2) link for entering access code
@@ -33,8 +29,9 @@ namespace Plantour.Services
     {
         private readonly PlantourContext _db;
         private readonly IPlantourAuthService _plantourAuth;
-        private readonly ISupabaseAuthService _supabase;
+        private readonly IClerkAuthService _clerk;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpAccessor;
         private readonly PlantourAuthService? _unusedForDI; // keep DI signature compatibility if necessary
 
         /// <summary>
@@ -43,14 +40,16 @@ namespace Plantour.Services
         public CommunicationService(
             PlantourContext db,
             IPlantourAuthService plantourAuth,
-            ISupabaseAuthService supabase,
+            IClerkAuthService clerk,
             IConfiguration configuration,
+            IHttpContextAccessor httpContextAccessor,
             PlantourAuthService? unusedForDI = null)
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
             _plantourAuth = plantourAuth ?? throw new ArgumentNullException(nameof(plantourAuth));
-            _supabase = supabase ?? throw new ArgumentNullException(nameof(supabase));
+            _clerk = clerk ?? throw new ArgumentNullException(nameof(clerk));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _httpAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _unusedForDI = unusedForDI;
         }
 
@@ -67,7 +66,7 @@ namespace Plantour.Services
             }
             catch (Exception e)
             {
-                throw new Exception("!"+e.Message);
+                throw new Exception("!" + e.Message);
             }
 
             if (trip == null)
@@ -110,12 +109,44 @@ namespace Plantour.Services
             await _db.TripTravelers.AddAsync(tripTraveler);
             await _db.SaveChangesAsync();
 
-            // Get admin supabase token to embed if available
-            var adminSupabaseToken = _supabase.GetAccessToken();
+            // Try to obtain current admin token to embed (read Authorization header first,
+            // fallback to Clerk service CurrentUser if it exposes a token).
+            string? adminClerkToken = null;
 
-            // Generate participant token via PlantourAuthService (embeds admin token if provided).
+            try
+            {
+                var authHeader = _httpAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
+                    adminClerkToken = authHeader.Substring("Bearer ".Length).Trim();
+                }
+            }
+            catch
+            {
+                // ignore reading header failures - fallback attempts follow
+            }
+
+            if (string.IsNullOrEmpty(adminClerkToken))
+            {
+                // Attempt to read token from IClerkAuthService.CurrentUser if implementation stores it (optional).
+                try
+                {
+                    var currentClerkUser = _clerk.GetType().GetProperty("CurrentUser")?.GetValue(_clerk);
+                    var jwtProp = currentClerkUser?.GetType().GetProperty("ClerkJwt");
+                    if (jwtProp != null)
+                    {
+                        adminClerkToken = jwtProp.GetValue(currentClerkUser) as string;
+                    }
+                }
+                catch
+                {
+                    // ignore reflection failures; embedding admin token is optional
+                }
+            }
+
+            // Generate participant token via PlantourAuthService (embeds admin clerk token if provided).
             // This token is used as one-time link for auto-registration/login.
-            var participantToken = await _plantourAuth.GenerateParticipantTokenAsync(tripTraveler, adminSupabaseToken);
+            var participantToken = await _plantourAuth.GenerateParticipantTokenAsync(tripTraveler, adminClerkToken);
 
             // Compose subject and message
             var frontendBase = _configuration["PLANTOUR_FRONTEND_URL"]?.TrimEnd('/') ?? "https://app.plantour.local";

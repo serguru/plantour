@@ -17,7 +17,8 @@ public partial class Traveler
     public Guid Id { get; set; }
 
     [Column("user_id")]
-    public Guid? UserId { get; set; }
+    [StringLength(100)]
+    public string? UserId { get; set; }
 
     [Column("admin_id")]
     public Guid? AdminId { get; set; }

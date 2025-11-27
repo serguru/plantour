@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Plantour.Models;
 using Plantour.Utils;
-using Supabase.Gotrue;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -11,48 +10,34 @@ using Microsoft.Extensions.Configuration;
 
 namespace Plantour.Services;
 
+/// <summary>
+/// Plantour authentication helper - coordinates participant tokens and admin (Clerk) users.
+/// </summary>
 public interface IPlantourAuthService
 {
     /// <summary>
-    /// Current user context. Contains the admin supabase user (if available) and the current Plantour traveler/trip-traveler (if participant).
+    /// Current user context. Contains the admin clerk user (if available) and the current Plantour traveler/trip-traveler (if participant).
     /// </summary>
     PlantourCurrentUser CurrentUser { get; }
 
-    /// <summary>
-    /// Register a new participant traveler and attach to the given trip (creates TripTraveler with access code).
-    /// Returns the created access code.
-    /// </summary>
-    Task<string> RegisterParticipantAsync(Guid adminTravelerId, Guid tripId, string? email = null, string? firstName = null, string? lastName = null, string? phone = null, string? adminSupabaseToken = null);
+    Task<string> RegisterParticipantAsync(Guid adminTravelerId, Guid tripId, string? email = null, string? firstName = null, string? lastName = null, string? phone = null, string? adminClerkToken = null);
 
-    /// <summary>
-    /// Login using an access code. If adminSupabaseToken is provided it will be embedded into participant token.
-    /// Returns JWT (Plantour token) that contains embedded admin token (under claim "admin_token").
-    /// </summary>
-    Task<string> LoginWithAccessCodeAsync(string accessCode, string? adminSupabaseToken = null);
+    Task<string> LoginWithAccessCodeAsync(string accessCode, string? adminClerkToken = null);
 
-    /// <summary>
-    /// Regenerate access code for given TripTraveler and return new code.
-    /// </summary>
     Task<string> ResetAccessCodeAsync(Guid tripTravelerId);
 
-    /// <summary>
-    /// Generate a new Plantour JWT for specified TripTraveler (optionally embedding adminSupabaseToken).
-    /// </summary>
-    Task<string> GenerateParticipantTokenAsync(TripTraveler tripTraveler, string? adminSupabaseToken = null);
+    Task<string> GenerateParticipantTokenAsync(TripTraveler tripTraveler, string? adminClerkToken = null);
 
-    /// <summary>
-    /// Generate an access code and persist it for the TripTraveler entity.
-    /// </summary>
     Task<string> GenerateAccessCodeAsync(Guid tripTravelerId);
 }
 
-/// <summary>
-/// Container for current caller info resolved by PlantourAuthService.
-/// </summary>
 public sealed class PlantourCurrentUser
 {
-    /// <summary>Supabase admin user (decoded or null if not available).</summary>
-    public User? AdminSupabaseUser { get; set; }
+    /// <summary>Clerk admin user id (string) if available.</summary>
+    public string? AdminClerkUserId { get; set; }
+
+    /// <summary>Admin email (if available).</summary>
+    public string? AdminEmail { get; set; }
 
     /// <summary>Plantour traveler record (if present).</summary>
     public Traveler? Traveler { get; set; }
@@ -67,7 +52,7 @@ public sealed class PlantourCurrentUser
 public class PlantourAuthService : IPlantourAuthService
 {
     private readonly PlantourContext _db;
-    private readonly ISupabaseAuthService _supabase;
+    private readonly IClerkAuthService _clerk;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IConfiguration _configuration;
     private readonly string _plantourJwtSecret;
@@ -75,17 +60,16 @@ public class PlantourAuthService : IPlantourAuthService
 
     public PlantourCurrentUser CurrentUser { get; private set; } = new PlantourCurrentUser();
 
-    public PlantourAuthService(PlantourContext db, ISupabaseAuthService supabase, IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
+    public PlantourAuthService(PlantourContext db, IClerkAuthService clerk, IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
     {
         _db = db;
-        _supabase = supabase;
+        _clerk = clerk;
         _httpContextAccessor = httpContextAccessor;
         _configuration = configuration;
 
         _plantourJwtSecret = configuration["PLANTOUR_JWT_SECRET"] ?? throw new InvalidOperationException("PLANTOUR_JWT_SECRET is required in configuration.");
 
         // Resolve current user from HttpContext when service is constructed in request scope.
-        // It's acceptable to call async resolution synchronously here as it's a small DB fetch.
         ResolveCurrentUserFromContextAsync().ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
@@ -108,49 +92,41 @@ public class PlantourAuthService : IPlantourAuthService
             CurrentUser.IsParticipant = false;
         }
 
-        // Try to get supabase current user from SupabaseAuthService
-        var supUser = _supabase.GetCurrentUser();
-        if (supUser != null)
+        // Try to resolve Clerk admin user id & email (from IClerkAuthService.CurrentUser or from claims)
+        string? clerkUserId = _clerk.CurrentUser?.ClerkUserId;
+        string? clerkEmail = _clerk.CurrentUser?.Email;
+
+        if (string.IsNullOrEmpty(clerkUserId))
         {
-            CurrentUser.AdminSupabaseUser = supUser;
-            // try to map to traveler record for admin (if exists)
-            if (Guid.TryParse(supUser.Id, out var supId))
+            var httpUser = ctx.User;
+            if (httpUser?.Identity?.IsAuthenticated == true)
             {
-                var adminTraveler = await _db.Travelers.FirstOrDefaultAsync(t => t.UserId == supId);
+                clerkUserId = httpUser.FindFirst("sub")?.Value ?? httpUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                clerkEmail = httpUser.FindFirst("email")?.Value;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(clerkUserId))
+        {
+            CurrentUser.AdminClerkUserId = clerkUserId;
+            CurrentUser.AdminEmail = clerkEmail;
+
+            try
+            {
+                var adminTraveler = await _db.Travelers.FirstOrDefaultAsync(t => t.UserId == clerkUserId);
                 if (adminTraveler != null)
                 {
                     CurrentUser.Traveler ??= adminTraveler;
                 }
             }
-        }
-        else
-        {
-            // if no supabase client user, try to read some claims from HttpContext.User (may be present after middleware swap)
-            var httpUser = ctx.User;
-            if (httpUser?.Identity?.IsAuthenticated == true)
+            catch
             {
-                var sub = httpUser.FindFirst("sub")?.Value;
-                var email = httpUser.FindFirst("email")?.Value;
-                if (!string.IsNullOrEmpty(sub) || !string.IsNullOrEmpty(email))
-                {
-                    try
-                    {
-                        CurrentUser.AdminSupabaseUser = new User
-                        {
-                            Id = sub,
-                            Email = email
-                        };
-                    }
-                    catch
-                    {
-                        // ignore if User construction is not compatible; admin user is optional here
-                    }
-                }
+                // ignore mapping errors if DB schema differs
             }
         }
     }
 
-    public async Task<string> RegisterParticipantAsync(Guid adminTravelerId, Guid tripId, string? email = null, string? firstName = null, string? lastName = null, string? phone = null, string? adminSupabaseToken = null)
+    public async Task<string> RegisterParticipantAsync(Guid adminTravelerId, Guid tripId, string? email = null, string? firstName = null, string? lastName = null, string? phone = null, string? adminClerkToken = null)
     {
         // Create traveler entry (participant linked to admin)
         var traveler = new Traveler
@@ -210,46 +186,92 @@ public class PlantourAuthService : IPlantourAuthService
         return await GenerateAccessCodeAsync(tripTravelerId);
     }
 
-    public async Task<string> LoginWithAccessCodeAsync(string accessCode, string? adminSupabaseToken = null)
+    public async Task<string> LoginWithAccessCodeAsync(string accessCode, string? adminClerkToken = null)
     {
         var tt = await _db.TripTravelers.Include(x => x.Traveler).FirstOrDefaultAsync(x => x.AccessCode == accessCode);
         if (tt == null)
             throw new KeyNotFoundException("Invalid access code.");
 
         // If adminSupabaseToken provided, optionally validate format and embed it into plantour token
-        string participantToken = await GenerateParticipantTokenAsync(tt, adminSupabaseToken);
+        string participantToken = await GenerateParticipantTokenAsync(tt, adminClerkToken);
 
         return participantToken;
     }
 
-    public async Task<string> GenerateParticipantTokenAsync(TripTraveler tripTraveler, string? adminSupabaseToken = null)
+    public async Task<string> GenerateParticipantTokenAsync(TripTraveler tripTraveler, string? adminClerkToken = null)
     {
-        // Build participant token (signed with PLANTOUR_JWT_SECRET). It includes a claim "admin_token" containing the admin's supabase token (if provided).
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_plantourJwtSecret));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var keyBytes = Encoding.UTF8.GetBytes(_plantourJwtSecret);
+        var signingKey = new SymmetricSecurityKey(keyBytes);
+        var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+
+        EncryptingCredentials? encryptingCredentials = null;
+        var encSecret = _configuration["PLANTOUR_JWT_ENC_SECRET"];
+        if (!string.IsNullOrEmpty(encSecret))
+        {
+            var encKeyBytes = Encoding.UTF8.GetBytes(encSecret);
+            var encKey = new SymmetricSecurityKey(encKeyBytes);
+            encryptingCredentials = new EncryptingCredentials(encKey, SecurityAlgorithms.Aes256KW, SecurityAlgorithms.Aes256CbcHmacSha512);
+        }
 
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, tripTraveler.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim("plantour_participant", "1"),
             new Claim("trip_id", tripTraveler.TripId.ToString()),
-            new Claim("traveler_id", tripTraveler.TravelerId.ToString()),
-            new Claim("admin_traveler_id", tripTraveler.Traveler?.AdminId?.ToString() ?? string.Empty)
+            new Claim("traveler_id", tripTraveler.TravelerId.ToString())
         };
 
-        if (!string.IsNullOrEmpty(adminSupabaseToken))
+        if (tripTraveler.Traveler != null && tripTraveler.Traveler.AdminId != Guid.Empty)
         {
-            claims.Add(new Claim("admin_token", adminSupabaseToken));
+            claims.Add(new Claim("admin_traveler_id", tripTraveler.Traveler.AdminId.ToString()));
         }
+        else if (!string.IsNullOrEmpty(CurrentUser?.AdminClerkUserId))
+        {
+            claims.Add(new Claim("admin_clerk_user_id", CurrentUser.AdminClerkUserId));
+        }
+
+        if (!string.IsNullOrEmpty(adminClerkToken))
+        {
+            claims.Add(new Claim("admin_token", adminClerkToken));
+        }
+
+        var issuer = _configuration["PLANTOUR_TOKEN_ISSUER"] ?? "plantour";
+        var audience = _configuration["PLANTOUR_TOKEN_AUDIENCE"] ?? "plantour-participants";
 
         var expiresInDays = 7;
         if (int.TryParse(_configuration["PLANTOUR_TOKEN_EXP_DAYS"], out var configuredDays))
             expiresInDays = configuredDays;
 
-        var token = new JwtSecurityToken(
-            claims: claims,
-            expires: DateTime.UtcNow.AddDays(expiresInDays),
-            signingCredentials: creds);
+        var now = DateTime.UtcNow;
+        var expires = now.AddDays(expiresInDays);
+
+        SecurityToken token;
+        if (encryptingCredentials != null)
+        {
+            var identity = new ClaimsIdentity(claims);
+            token = _jwtHandler.CreateJwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                subject: identity,
+                notBefore: now,
+                expires: expires,
+                issuedAt: now,
+                signingCredentials: signingCredentials,
+                encryptingCredentials: encryptingCredentials
+            );
+        }
+        else
+        {
+            token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: claims,
+                notBefore: now,
+                expires: expires,
+                signingCredentials: signingCredentials
+            );
+        }
 
         return _jwtHandler.WriteToken(token);
     }

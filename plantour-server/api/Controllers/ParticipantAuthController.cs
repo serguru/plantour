@@ -30,7 +30,6 @@ public class ParticipantAuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        // If an admin Supabase token is present in the incoming Authorization header, pass it for embedding.
         var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
         var adminToken = authHeader?.Split(' ').Last();
 
@@ -71,10 +70,10 @@ public class ParticipantAuthController : ControllerBase
                 u.TripTraveler.TravelerId,
                 u.TripTraveler.AccessCode
             },
-            adminSupabaseUser = u.AdminSupabaseUser == null ? null : new
+            adminClerkUser = string.IsNullOrEmpty(u.AdminClerkUserId) ? null : new
             {
-                u.AdminSupabaseUser.Id,
-                u.AdminSupabaseUser.Email
+                ClerkUserId = u.AdminClerkUserId,
+                Email = u.AdminEmail
             }
         });
     }

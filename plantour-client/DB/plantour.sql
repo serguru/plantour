@@ -128,7 +128,7 @@ insert into packing_status (name) values
 create table travelers (
     id uuid not null primary key default gen_random_uuid(),
 
-    user_id uuid null unique references auth.users(id) on delete set null,
+    user_id varchar(100) null unique,
     admin_id uuid null references travelers(id) on delete cascade,
 
     first_name varchar(100),
