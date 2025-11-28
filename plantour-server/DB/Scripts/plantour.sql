@@ -122,30 +122,19 @@ insert into packing_status (name) values
 
 
 -----------------------------------------------------------------------
--- TRAVELERS
+-- USERS
 -----------------------------------------------------------------------
 
-create table travelers (
+create table users (
     id uuid not null primary key default gen_random_uuid(),
-
-    user_id varchar(100) null unique,
-    admin_id uuid null references travelers(id) on delete cascade,
-
+    email varchar(255) not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    password_hash bytea null,
+    password_salt bytea null,
     first_name varchar(100),
     last_name varchar(100),
-    email varchar(255) null check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     phone varchar(50),
-    notes text,
-
-    constraint ch_travelers_admin_user check (
-        (admin_id is not null and user_id is null)
-        or
-        (admin_id is null and user_id is not null)
-    )
+    notes text
 );
-
-create index idx_travelers_admin_id on travelers(admin_id);
-create index idx_travelers_user_id on travelers(user_id);
 
 
 -----------------------------------------------------------------------
