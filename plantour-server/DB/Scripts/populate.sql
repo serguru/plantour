@@ -8,18 +8,18 @@ set search_path to plantour, public;
 -- CLEAN UP TEST DATA (DO NOT TOUCH REFERENCE TABLES)
 ---------------------------------------------------------------------
 
-truncate table trip_traveler_things restart identity cascade;
-truncate table trip_travelers restart identity cascade;
+truncate table trip_user_things restart identity cascade;
+truncate table trip_users restart identity cascade;
 truncate table invitations restart identity cascade;
 
-truncate table traveler_things restart identity cascade;
-truncate table traveler_thing_categories restart identity cascade;
+truncate table user_things restart identity cascade;
+truncate table user_thing_categories restart identity cascade;
 
-truncate table traveler_packages restart identity cascade;
-truncate table traveler_package_categories restart identity cascade;
+truncate table user_packages restart identity cascade;
+truncate table user_package_categories restart identity cascade;
 
 truncate table trips restart identity cascade;
-truncate table travelers restart identity cascade;
+truncate table users restart identity cascade;
 
 
 ---------------------------------------------------------------------
@@ -28,7 +28,7 @@ truncate table travelers restart identity cascade;
 
 -- Create admin
 with admin_row as (
-    insert into travelers (
+    insert into users (
         id, user_id, admin_id,
         first_name, last_name, email, phone, notes
     )
@@ -45,7 +45,7 @@ with admin_row as (
 )
 
 -- Create 2 participants assigned to this admin
-insert into travelers (
+insert into users (
     id, user_id, admin_id,
     first_name, last_name, email, phone, notes
 )
@@ -71,13 +71,13 @@ cross join (
 ---------------------------------------------------------------------
 
 with tc as (
-    select id from travelers
+    select id from users
 ),
 categories as (
-    insert into traveler_thing_categories (id, traveler_id, name)
+    insert into user_thing_categories (id, user_id, name)
     select gen_random_uuid(), id, c
     from tc cross join (values ('Clothes'), ('Electronics')) v(c)
-    returning id, traveler_id, name
+    returning id, user_id, name
 ),
 clothes as (
     select id as category_id from categories where name = 'Clothes'
@@ -86,7 +86,7 @@ electronics as (
     select id as category_id from categories where name = 'Electronics'
 )
 
-insert into traveler_things (
+insert into user_things (
     id, category_id, short_description, description, brand, model, color
 )
 select gen_random_uuid(), c.category_id, 'T-Shirt', 'Basic cotton T-Shirt', 'H&M', 'Classic', 'White'
@@ -107,13 +107,13 @@ from electronics e;
 ---------------------------------------------------------------------
 
 with tp as (
-    select id from travelers
+    select id from users
 ),
 pc as (
-    insert into traveler_package_categories (id, traveler_id, name)
+    insert into user_package_categories (id, user_id, name)
     select gen_random_uuid(), id, c
     from tp cross join (values ('Backpack'), ('Suitcase')) v(c)
-    returning id, traveler_id, name
+    returning id, user_id, name
 ),
 backpacks as (
     select id as category_id from pc where name = 'Backpack'
@@ -122,7 +122,7 @@ suitcases as (
     select id as category_id from pc where name = 'Suitcase'
 )
 
-insert into traveler_packages (
+insert into user_packages (
     id, category_id, short_description, description, brand, model, color
 )
 select gen_random_uuid(), b.category_id, 'Daypack', 'Small daypack', 'Osprey', 'Daylite', 'Red'
@@ -136,7 +136,7 @@ from suitcases s;
 -- CREATE 3 SAMPLE TRIPS (each owned by admin)
 ---------------------------------------------------------------------
 
-with admin_id as ( select id from travelers where user_id is not null limit 1 )
+with admin_id as ( select id from users where user_id is not null limit 1 )
 insert into trips (
     id, owner_id, trip_status_id, short_description, description, start_date, end_date, require_weight
 )
@@ -165,9 +165,9 @@ with trip_list as (
     select id from trips
 ),
 trav_list as (
-    select id from travelers
+    select id from users
 )
-insert into trip_travelers (id, trip_id, traveler_id, access_code)
+insert into trip_users (id, trip_id, user_id, access_code)
 select
     gen_random_uuid(),
     tr.id,
@@ -182,25 +182,25 @@ cross join trav_list tv;
 ---------------------------------------------------------------------
 
 with tt as (
-    select tt.id as trip_traveler_id, tt.traveler_id
-    from trip_travelers tt
+    select tt.id as trip_user_id, tt.user_id
+    from trip_users tt
 ),
 things as (
-    select th.id as traveler_thing_id, c.traveler_id
-    from traveler_things th
-    join traveler_thing_categories c on c.id = th.category_id
+    select th.id as user_thing_id, c.user_id
+    from user_things th
+    join user_thing_categories c on c.id = th.category_id
 )
-insert into trip_traveler_things (
-    id, trip_traveler_id, traveler_thing_id, traveler_package_id, packing_status_id
+insert into trip_user_things (
+    id, trip_user_id, user_thing_id, user_package_id, packing_status_id
 )
 select
     gen_random_uuid(),
-    tt.trip_traveler_id,
-    th.traveler_thing_id,
+    tt.trip_user_id,
+    th.user_thing_id,
     null,
     (select id from packing_status where name = 'Planning')
 from tt
-join things th on th.traveler_id = tt.traveler_id;
+join things th on th.user_id = tt.user_id;
 
 
 ---------------------------------------------------------------------

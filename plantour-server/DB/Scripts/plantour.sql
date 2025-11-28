@@ -136,43 +136,53 @@ create table users (
     notes text
 );
 
-CREATE TABLE IF NOT EXISTS plantour.refresh_tokens (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id uuid NOT NULL,
-    token varchar(500) NOT NULL,
-    expires_at timestamp with time zone NOT NULL,
-    created_at timestamp with time zone NOT NULL DEFAULT now(),
-    revoked_at timestamp with time zone NULL,
-    replaced_by_token varchar(500) NULL,
-    CONSTRAINT fk_refresh_tokens_user FOREIGN KEY (user_id) 
-        REFERENCES plantour.users(id) ON DELETE CASCADE
+create table admins_participants (
+    id uuid not null primary key default gen_random_uuid(),
+    admin_id uuid not null references users(id) on delete cascade,
+    participant_id uuid not null references users(id) on delete cascade,
+    access_code varchar(8) not null unique
+);
+create index idx_admins_participants_admin_id on admins_participants(admin_id);
+create index idx_admins_participants_participant_id on admins_participants(participant_id);
+
+
+create table refresh_tokens (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid not null,
+    token varchar(500) not null,
+    expires_at timestamp with time zone not null,
+    created_at timestamp with time zone not null default now(),
+    revoked_at timestamp with time zone null,
+    replaced_by_token varchar(500) null,
+    constraint fk_refresh_tokens_user foreign key (user_id) 
+        references plantour.users(id) on delete cascade
 );
 
-CREATE INDEX idx_refresh_tokens_user_id ON plantour.refresh_tokens(user_id);
-CREATE INDEX idx_refresh_tokens_token ON plantour.refresh_tokens(token);
+create index idx_refresh_tokens_user_id on refresh_tokens(user_id);
+create index idx_refresh_tokens_token on refresh_tokens(token);
 
 -----------------------------------------------------------------------
--- TRAVELER THING CATEGORIES
+-- USER THING CATEGORIES
 -----------------------------------------------------------------------
 
-create table traveler_thing_categories (
+create table user_thing_categories (
     id uuid not null primary key default gen_random_uuid(),
-    traveler_id uuid not null references travelers(id) on delete cascade,
+    user_id uuid not null references users(id) on delete cascade,
     name varchar(100) not null
 );
 
-create unique index idx_traveler_thing_categories_traveler_id_name
-    on traveler_thing_categories(traveler_id, name);
+create unique index idx_user_thing_categories_user_id_name
+    on user_thing_categories(user_id, name);
 
 
 -----------------------------------------------------------------------
--- TRAVELER THINGS
+-- USER THINGS
 -----------------------------------------------------------------------
 
-create table traveler_things (
+create table user_things (
     id uuid not null primary key default gen_random_uuid(),
 
-    category_id uuid not null references traveler_thing_categories(id) on delete cascade,
+    category_id uuid not null references user_thing_categories(id) on delete cascade,
 
     short_description varchar(200) not null,
     description text,
@@ -217,33 +227,33 @@ create table traveler_things (
     )
 );
 
-create index idx_traveler_things_category_id on traveler_things(category_id);
+create index idx_user_things_category_id on user_things(category_id);
 
 
 -----------------------------------------------------------------------
--- TRAVELER PACKAGE CATEGORIES
+-- USER PACKAGE CATEGORIES
 -----------------------------------------------------------------------
 
-create table traveler_package_categories (
+create table user_package_categories (
     id uuid not null primary key default gen_random_uuid(),
-    traveler_id uuid not null references travelers(id) on delete cascade,
+    user_id uuid not null references users(id) on delete cascade,
     name varchar(50) not null,
     notes text
 );
 
-create unique index idx_traveler_package_categories_traveler_id_name
-    on traveler_package_categories(traveler_id, name);
+create unique index idx_user_package_categories_user_id_name
+    on user_package_categories(user_id, name);
 
 
 -----------------------------------------------------------------------
--- TRAVELER PACKAGES
+-- USER PACKAGES
 -----------------------------------------------------------------------
 
-create table traveler_packages (
+create table user_packages (
     id uuid not null primary key default gen_random_uuid(),
 
-    category_id uuid not null references traveler_package_categories(id) on delete cascade,
-    parent_package_id uuid references traveler_packages(id) on delete set null,
+    category_id uuid not null references user_package_categories(id) on delete cascade,
+    parent_package_id uuid references user_packages(id) on delete set null,
 
     short_description varchar(200) not null,
     description text,
@@ -294,8 +304,8 @@ create table traveler_packages (
     )
 );
 
-create index idx_traveler_packages_category_id on traveler_packages(category_id);
-create index idx_traveler_packages_parent_package_id on traveler_packages(parent_package_id);
+create index idx_user_packages_category_id on user_packages(category_id);
+create index idx_user_packages_parent_package_id on user_packages(parent_package_id);
 
 
 -----------------------------------------------------------------------
@@ -305,7 +315,7 @@ create index idx_traveler_packages_parent_package_id on traveler_packages(parent
 create table trips (
     id uuid not null primary key default gen_random_uuid(),
 
-    owner_id uuid not null references travelers(id) on delete cascade,
+    owner_id uuid not null references users(id) on delete cascade,
     trip_status_id uuid references trip_status(id) on delete set null,
 
     short_description varchar(200) not null,
@@ -353,8 +363,8 @@ create table invitations (
     id uuid not null primary key default gen_random_uuid(),
 
     trip_id uuid not null references trips(id) on delete cascade,
-    inviter_id uuid not null references travelers(id) on delete cascade,
-    invitee_id uuid not null references travelers(id) on delete cascade,
+    inviter_id uuid not null references users(id) on delete cascade,
+    invitee_id uuid not null references users(id) on delete cascade,
 
     invite_token text not null unique,
     access_code varchar(8) not null unique,
@@ -409,39 +419,39 @@ create table invitations (
 
 
 -----------------------------------------------------------------------
--- TRIP TRAVELERS
+-- TRIP USERS
 -----------------------------------------------------------------------
 
-create table trip_travelers (
+create table trip_users (
     id uuid not null primary key default gen_random_uuid(),
 
     trip_id uuid not null references trips(id) on delete cascade,
-    traveler_id uuid not null references travelers(id) on delete cascade,
+    user_id uuid not null references users(id) on delete cascade,
 
     access_code varchar(8) not null unique
 );
 
-create unique index idx_trip_travelers_trip_id_traveler_id
-    on trip_travelers(trip_id, traveler_id);
+create unique index idx_trip_users_trip_id_user_id
+    on trip_users(trip_id, user_id);
 
 
 -----------------------------------------------------------------------
--- TRIP TRAVELER THINGS
+-- TRIP USER THINGS
 -----------------------------------------------------------------------
 
-create table trip_traveler_things (
+create table trip_user_things (
     id uuid not null primary key default gen_random_uuid(),
 
-    trip_traveler_id uuid not null references trip_travelers(id) on delete cascade,
-    traveler_thing_id uuid not null references traveler_things(id) on delete cascade,
-    traveler_package_id uuid references traveler_packages(id) on delete set null,
+    trip_user_id uuid not null references trip_users(id) on delete cascade,
+    user_thing_id uuid not null references user_things(id) on delete cascade,
+    user_package_id uuid references user_packages(id) on delete set null,
 
     packing_status_id uuid references packing_status(id) on delete set null,
     packed_at timestamptz
 );
 
-create unique index idx_trip_traveler_trip_traveler_id_traveler_thing_id
-    on trip_traveler_things(trip_traveler_id, traveler_thing_id);
+create unique index idx_trip_user_trip_user_id_user_thing_id
+    on trip_user_things(trip_user_id, user_thing_id);
 
 
 -----------------------------------------------------------------------
@@ -479,7 +489,7 @@ end;
 $$;
 
 
-create or replace function trg_check_traveler_things_units()
+create or replace function trg_check_user_things_units()
 returns trigger
 language plpgsql
 as $$
@@ -498,13 +508,13 @@ begin
 end;
 $$;
 
-create trigger trg_traveler_things_units
-before insert or update on traveler_things
+create trigger trg_user_things_units
+before insert or update on user_things
 for each row
-execute function trg_check_traveler_things_units();
+execute function trg_check_user_things_units();
 
 
-create or replace function trg_check_traveler_packages_units()
+create or replace function trg_check_user_packages_units()
 returns trigger
 language plpgsql
 as $$
@@ -528,118 +538,118 @@ begin
 end;
 $$;
 
-create trigger trg_traveler_packages_units
-before insert or update on traveler_packages
+create trigger trg_user_packages_units
+before insert or update on user_packages
 for each row
-execute function trg_check_traveler_packages_units();
+execute function trg_check_user_packages_units();
 
 
 -----------------------------------------------------------------------
--- FUNCTIONS + TRIGGERS (TRAVELER CONSISTENCY)
+-- FUNCTIONS + TRIGGERS (USER CONSISTENCY)
 -----------------------------------------------------------------------
 
-create or replace function get_traveler_id_for_thing(_thing_id uuid)
+create or replace function get_user_id_for_thing(_thing_id uuid)
 returns uuid
 language sql
 as $$
-    select ttc.traveler_id
-    from traveler_things tt
-    join traveler_thing_categories ttc on ttc.id = tt.category_id
+    select ttc.user_id
+    from user_things tt
+    join user_thing_categories ttc on ttc.id = tt.category_id
     where tt.id = _thing_id
 $$;
 
 
-create or replace function get_traveler_id_for_package(_package_id uuid)
+create or replace function get_user_id_for_package(_package_id uuid)
 returns uuid
 language sql
 as $$
-    select tpc.traveler_id
-    from traveler_packages tp
-    join traveler_package_categories tpc on tpc.id = tp.category_id
+    select tpc.user_id
+    from user_packages tp
+    join user_package_categories tpc on tpc.id = tp.category_id
     where tp.id = _package_id
 $$;
 
 
-create or replace function get_traveler_id_for_trip_traveler(_trip_traveler_id uuid)
+create or replace function get_user_id_for_trip_user(_trip_user_id uuid)
 returns uuid
 language sql
 as $$
-    select traveler_id
-    from trip_travelers
-    where id = _trip_traveler_id
+    select user_id
+    from trip_users
+    where id = _trip_user_id
 $$;
 
 
-create or replace function check_same_traveler(
-    tt_traveler uuid,
-    thing_traveler uuid,
-    package_traveler uuid
+create or replace function check_same_user(
+    tt_user uuid,
+    thing_user uuid,
+    package_user uuid
 )
 returns void
 language plpgsql
 as $$
 begin
-    -- traveler_thing_id must belong to same traveler
-    if thing_traveler is not null and thing_traveler <> tt_traveler then
-        raise exception 'traveler_thing_id belongs to traveler %, but trip_traveler is for traveler %',
-            thing_traveler, tt_traveler;
+    -- user_thing_id must belong to same user
+    if thing_user is not null and thing_user <> tt_user then
+        raise exception 'user_thing_id belongs to user %, but trip_user is for user %',
+            thing_user, tt_user;
     end if;
 
-    -- traveler_package_id must belong to same traveler
-    if package_traveler is not null and package_traveler <> tt_traveler then
-        raise exception 'traveler_package_id belongs to traveler %, but trip_traveler is for traveler %',
-            package_traveler, tt_traveler;
+    -- user_package_id must belong to same user
+    if package_user is not null and package_user <> tt_user then
+        raise exception 'user_package_id belongs to user %, but trip_user is for user %',
+            package_user, tt_user;
     end if;
 end;
 $$;
 
 
-create or replace function trg_check_trip_traveler_things()
+create or replace function trg_check_trip_user_things()
 returns trigger
 language plpgsql
 as $$
 declare
-    tt_traveler uuid;
-    thing_traveler uuid;
-    package_traveler uuid;
+    tt_user uuid;
+    thing_user uuid;
+    package_user uuid;
 begin
-    -- owner of trip_traveler
-    tt_traveler := get_traveler_id_for_trip_traveler(NEW.trip_traveler_id);
+    -- owner of trip_user
+    tt_user := get_user_id_for_trip_user(NEW.trip_user_id);
 
-    -- owner of traveler_thing
-    thing_traveler := get_traveler_id_for_thing(NEW.traveler_thing_id);
+    -- owner of user_thing
+    thing_user := get_user_id_for_thing(NEW.user_thing_id);
 
-    -- owner of traveler_package (nullable)
-    if NEW.traveler_package_id is not null then
-        package_traveler := get_traveler_id_for_package(NEW.traveler_package_id);
+    -- owner of user_package (nullable)
+    if NEW.user_package_id is not null then
+        package_user := get_user_id_for_package(NEW.user_package_id);
     end if;
 
     -- Check consistency
-    perform check_same_traveler(tt_traveler, thing_traveler, package_traveler);
+    perform check_same_user(tt_user, thing_user, package_user);
 
     return NEW;
 end;
 $$;
 
 
-create trigger trg_trip_traveler_things_check
-before insert or update on trip_traveler_things
+create trigger trg_trip_user_things_check
+before insert or update on trip_user_things
 for each row
-execute function trg_check_trip_traveler_things();
+execute function trg_check_trip_user_things();
 
 
-create or replace function get_trip_dates(_trip_traveler_id uuid)
+create or replace function get_trip_dates(_trip_user_id uuid)
 returns table(start_date date, end_date date)
 language sql
 as $$
     select t.start_date, t.end_date
-    from trip_travelers tt
+    from trip_users tt
     join trips t on t.id = tt.trip_id
-    where tt.id = _trip_traveler_id
+    where tt.id = _trip_user_id
 $$;
 
 
-create or replace function trg_check_trip_traveler_things_packing()
+create or replace function trg_check_trip_user_things_packing()
 returns trigger
 language plpgsql
 as $$
@@ -664,7 +674,7 @@ begin
     --------------------------------------------------------------------
     select start_date, end_date
     into trip_start, trip_end
-    from get_trip_dates(NEW.trip_traveler_id);
+    from get_trip_dates(NEW.trip_user_id);
 
     --------------------------------------------------------------------
     -- Rule 1: Planning / Active prohibit packed_at
@@ -714,7 +724,7 @@ begin
 end;
 $$;
 
-create trigger trg_trip_traveler_things_packing_check
-before insert or update on trip_traveler_things
+create trigger trg_trip_user_things_packing_check
+before insert or update on trip_user_things
 for each row
-execute function trg_check_trip_traveler_things_packing();
+execute function trg_check_trip_user_things_packing();

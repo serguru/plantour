@@ -1,10 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.Models;
 
 [Table("refresh_tokens", Schema = "plantour")]
-public class RefreshToken
+[Index("Token", Name = "idx_refresh_tokens_token")]
+[Index("UserId", Name = "idx_refresh_tokens_user_id")]
+public partial class RefreshToken
 {
     [Key]
     [Column("id")]
@@ -31,9 +36,6 @@ public class RefreshToken
     public string? ReplacedByToken { get; set; }
 
     [ForeignKey("UserId")]
+    [InverseProperty("RefreshTokens")]
     public virtual User User { get; set; } = null!;
-
-    public bool IsExpired => DateTime.UtcNow >= ExpiresAt;
-    public bool IsRevoked => RevokedAt != null;
-    public bool IsActive => !IsRevoked && !IsExpired;
 }
