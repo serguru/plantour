@@ -136,6 +136,20 @@ create table users (
     notes text
 );
 
+CREATE TABLE IF NOT EXISTS plantour.refresh_tokens (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id uuid NOT NULL,
+    token varchar(500) NOT NULL,
+    expires_at timestamp with time zone NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    revoked_at timestamp with time zone NULL,
+    replaced_by_token varchar(500) NULL,
+    CONSTRAINT fk_refresh_tokens_user FOREIGN KEY (user_id) 
+        REFERENCES plantour.users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_refresh_tokens_user_id ON plantour.refresh_tokens(user_id);
+CREATE INDEX idx_refresh_tokens_token ON plantour.refresh_tokens(token);
 
 -----------------------------------------------------------------------
 -- TRAVELER THING CATEGORIES

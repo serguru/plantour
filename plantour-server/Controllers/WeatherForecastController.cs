@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace plantour_server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    //[AllowAnonymous]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries =
