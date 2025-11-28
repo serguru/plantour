@@ -1,18 +1,16 @@
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using plantour_server.Authorization;
 using plantour_server.Models;
 using plantour_server.Services;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-
-builder.Services.AddControllers(options => { var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build(); options.Filters.Add(new AuthorizeFilter(policy)); });
-
+builder.Services.AddControllers();
 
 // Configure JWT settings
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -48,7 +46,14 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+// Configure Authorization
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.Requirements.Add(new AdminRequirement()));
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, AdminAuthorizationHandler>();
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();

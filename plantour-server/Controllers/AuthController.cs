@@ -16,9 +16,11 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
+    #region Admin Endpoints
+
     [AllowAnonymous]
-    [HttpPost("signup")]
-    public async Task<ActionResult<AuthResponse>> SignUp([FromBody] SignUpRequest request)
+    [HttpPost("admin/signup")]
+    public async Task<ActionResult<AuthResponse>> SignUpAdmin([FromBody] SignUpRequest request)
     {
         try
         {
@@ -36,8 +38,8 @@ public class AuthController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("signin")]
-    public async Task<ActionResult<AuthResponse>> SignIn([FromBody] SignInRequest request)
+    [HttpPost("admin/signin")]
+    public async Task<ActionResult<AuthResponse>> SignInAdmin([FromBody] SignInRequest request)
     {
         try
         {
@@ -54,9 +56,55 @@ public class AuthController : ControllerBase
         }
     }
 
+    #endregion
+
+    #region Participant Endpoints
+
+    [Authorize]
+    [HttpPost("participant/signup")]
+    public async Task<ActionResult<ParticipantAuthResponse>> SignUpParticipant([FromBody] SignUpParticipantRequest request)
+    {
+        try
+        {
+            var response = await _authService.SignUpParticipantAsync(request);
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred during participant sign up", details = ex.Message });
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpPost("participant/signin")]
+    public async Task<ActionResult<ParticipantAuthResponse>> SignInParticipant([FromBody] SignInParticipantRequest request)
+    {
+        try
+        {
+            var response = await _authService.SignInParticipantAsync(request);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred during participant sign in", details = ex.Message });
+        }
+    }
+
+    #endregion
+
+    #region Common Endpoints
+
     [AllowAnonymous]
     [HttpPost("refresh")]
-    public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
+    public async Task<ActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
         try
         {
@@ -96,4 +144,6 @@ public class AuthController : ControllerBase
         var isValid = await _authService.ValidateTokenAsync(token);
         return Ok(new { isValid });
     }
+
+    #endregion
 }

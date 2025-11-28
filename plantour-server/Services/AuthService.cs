@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using plantour_server.DTOs;
 using plantour_server.Models;
+using plantour_server.Utils;
 
 namespace plantour_server.Services;
 
@@ -20,6 +21,8 @@ public class AuthService : IAuthService
         _context = context;
         _jwtSettings = jwtSettings.Value;
     }
+
+    #region Admin Authentication
 
     public async Task<AuthResponse> SignUpAsync(SignUpRequest request)
     {
@@ -47,8 +50,8 @@ public class AuthService : IAuthService
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        // Generate tokens
-        return await GenerateAuthResponse(user);
+        // Generate admin tokens
+        return await GenerateAdminAuthResponse(user);
     }
 
     public async Task<AuthResponse> SignInAsync(SignInRequest request)
@@ -66,11 +69,127 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("Invalid email or password");
         }
 
-        // Generate tokens
-        return await GenerateAuthResponse(user);
+        // Generate admin tokens
+        return await GenerateAdminAuthResponse(user);
     }
 
-    public async Task<AuthResponse> RefreshTokenAsync(string refreshToken)
+    #endregion
+
+    #region Participant Authentication
+
+    public async Task<ParticipantAuthResponse> SignUpParticipantAsync(SignUpParticipantRequest request)
+    {
+        // Verify admin exists
+        var admin = await _context.Users.FindAsync(request.AdminId);
+        if (admin == null)
+        {
+            throw new InvalidOperationException("Admin not found");
+        }
+
+        // Check if user already exists
+        if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+        {
+            throw new InvalidOperationException("User with this email already exists");
+        }
+
+        // Create participant user
+        byte[]? passwordHash = null;
+        byte[]? passwordSalt = null;
+
+        if (!string.IsNullOrEmpty(request.Password))
+        {
+            CreatePasswordHash(request.Password, out passwordHash, out passwordSalt);
+        }
+
+        var participant = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = request.Email,
+            PasswordHash = passwordHash,
+            PasswordSalt = passwordSalt,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Phone = request.Phone
+        };
+
+        _context.Users.Add(participant);
+
+        // Generate unique access code
+        var accessCode = await AccessCodeGenerator.GenerateUniqueAsync(async code =>
+            await _context.AdminsParticipants.AnyAsync(ap => ap.AccessCode == code) ||
+            await _context.TripUsers.AnyAsync(tu => tu.AccessCode == code) ||
+            await _context.Invitations.AnyAsync(i => i.AccessCode == code)
+        );
+
+        // Create admin-participant relationship
+        var adminParticipant = new AdminsParticipant
+        {
+            Id = Guid.NewGuid(),
+            AdminId = request.AdminId,
+            ParticipantId = participant.Id,
+            AccessCode = accessCode
+        };
+
+        _context.AdminsParticipants.Add(adminParticipant);
+        await _context.SaveChangesAsync();
+
+        // Generate participant tokens
+        return await GenerateParticipantAuthResponse(participant, admin, accessCode);
+    }
+
+    public async Task<ParticipantAuthResponse> SignInParticipantAsync(SignInParticipantRequest request)
+    {
+        // Find admin-participant relationship by access code
+        var adminParticipant = await _context.AdminsParticipants
+            .Include(ap => ap.Participant)
+            .Include(ap => ap.Admin)
+            .FirstOrDefaultAsync(ap => ap.AccessCode == request.AccessCode);
+
+        if (adminParticipant == null)
+        {
+            throw new UnauthorizedAccessException("Invalid access code");
+        }
+
+        var participant = adminParticipant.Participant;
+        var admin = adminParticipant.Admin;
+
+        // If participant has password, verify it
+        if (participant.PasswordHash != null && participant.PasswordSalt != null)
+        {
+            if (string.IsNullOrEmpty(request.Password))
+            {
+                throw new UnauthorizedAccessException("Password is required for this participant");
+            }
+
+            if (!VerifyPasswordHash(request.Password, participant.PasswordHash, participant.PasswordSalt))
+            {
+                throw new UnauthorizedAccessException("Invalid password");
+            }
+        }
+
+        // Generate participant tokens
+        return await GenerateParticipantAuthResponse(participant, admin, request.AccessCode);
+    }
+
+    public async Task<string> GenerateAccessCodeAsync(Guid adminId, Guid participantId)
+    {
+        // Verify relationship exists
+        var relationship = await _context.AdminsParticipants
+            .FirstOrDefaultAsync(ap => ap.AdminId == adminId && ap.ParticipantId == participantId);
+
+        if (relationship == null)
+        {
+            throw new InvalidOperationException("Admin-Participant relationship not found");
+        }
+
+        return relationship.AccessCode;
+    }
+
+    #endregion
+
+    #region Token Management
+
+    public async Task<object> RefreshTokenAsync(string refreshToken)
     {
         var token = await _context.RefreshTokens
             .Include(rt => rt.User)
@@ -84,10 +203,31 @@ public class AuthService : IAuthService
         // Revoke old token
         token.RevokedAt = DateTime.UtcNow;
 
-        // Generate new tokens
-        var response = await GenerateAuthResponse(token.User);
-        token.ReplacedByToken = response.RefreshToken;
+        // Decode the old token to determine role
+        var handler = new JwtSecurityTokenHandler();
+        var oldAccessToken = token.Token; // This is refresh token, we need to check user's role from DB
 
+        // Check if user is in admin-participant relationship as participant
+        var participantRelationship = await _context.AdminsParticipants
+            .Include(ap => ap.Admin)
+            .FirstOrDefaultAsync(ap => ap.ParticipantId == token.UserId);
+
+        object response;
+        if (participantRelationship != null)
+        {
+            // Generate new participant tokens
+            response = await GenerateParticipantAuthResponse(
+                token.User,
+                participantRelationship.Admin,
+                participantRelationship.AccessCode);
+        }
+        else
+        {
+            // Generate new admin tokens
+            response = await GenerateAdminAuthResponse(token.User);
+        }
+
+        token.ReplacedByToken = refreshToken;
         await _context.SaveChangesAsync();
 
         return response;
@@ -134,9 +274,13 @@ public class AuthService : IAuthService
         }
     }
 
-    private async Task<AuthResponse> GenerateAuthResponse(User user)
+    #endregion
+
+    #region Token Generation
+
+    private async Task<AuthResponse> GenerateAdminAuthResponse(User user)
     {
-        var accessToken = GenerateAccessToken(user);
+        var accessToken = GenerateAdminAccessToken(user);
         var refreshToken = await GenerateRefreshToken(user.Id);
 
         return new AuthResponse
@@ -151,26 +295,106 @@ public class AuthService : IAuthService
         };
     }
 
-    private string GenerateAccessToken(User user)
+    private async Task<ParticipantAuthResponse> GenerateParticipantAuthResponse(
+        User participant, User admin, string accessCode)
+    {
+        var accessToken = GenerateParticipantAccessToken(participant, admin, accessCode);
+        var refreshToken = await GenerateRefreshToken(participant.Id);
+
+        return new ParticipantAuthResponse
+        {
+            ParticipantId = participant.Id,
+            Email = participant.Email,
+            FirstName = participant.FirstName,
+            LastName = participant.LastName,
+            AccessCode = accessCode,
+            AdminId = admin.Id,
+            AdminEmail = admin.Email,
+            AdminFirstName = admin.FirstName,
+            AdminLastName = admin.LastName,
+            AccessToken = accessToken,
+            RefreshToken = refreshToken.Token,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
+            Role = PlantourRoles.Participant
+        };
+    }
+
+    private string GenerateAdminAccessToken(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(PlantourClaims.UserId, user.Id.ToString()),
+            new Claim(PlantourClaims.Email, user.Email),
+            new Claim(PlantourClaims.Role, PlantourRoles.Admin),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
         if (!string.IsNullOrEmpty(user.FirstName))
         {
-            claims.Add(new Claim(ClaimTypes.GivenName, user.FirstName));
+            claims.Add(new Claim(PlantourClaims.FirstName, user.FirstName));
         }
 
         if (!string.IsNullOrEmpty(user.LastName))
         {
-            claims.Add(new Claim(ClaimTypes.Surname, user.LastName));
+            claims.Add(new Claim(PlantourClaims.LastName, user.LastName));
+        }
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
+            Issuer = _jwtSettings.Issuer,
+            Audience = _jwtSettings.Audience,
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(key),
+                SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
+    }
+
+    private string GenerateParticipantAccessToken(User participant, User admin, string accessCode)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
+
+        var claims = new List<Claim>
+        {
+            new Claim(PlantourClaims.UserId, participant.Id.ToString()),
+            new Claim(PlantourClaims.ParticipantId, participant.Id.ToString()),
+            new Claim(PlantourClaims.Email, participant.Email),
+            new Claim(PlantourClaims.Role, PlantourRoles.Participant),
+            new Claim(PlantourClaims.AccessCode, accessCode),
+            
+            // Admin information embedded in participant token
+            new Claim(PlantourClaims.AdminId, admin.Id.ToString()),
+            new Claim($"{PlantourClaims.AdminId}_email", admin.Email),
+
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+        if (!string.IsNullOrEmpty(participant.FirstName))
+        {
+            claims.Add(new Claim(PlantourClaims.FirstName, participant.FirstName));
+        }
+
+        if (!string.IsNullOrEmpty(participant.LastName))
+        {
+            claims.Add(new Claim(PlantourClaims.LastName, participant.LastName));
+        }
+
+        if (!string.IsNullOrEmpty(admin.FirstName))
+        {
+            claims.Add(new Claim($"{PlantourClaims.AdminId}_first_name", admin.FirstName));
+        }
+
+        if (!string.IsNullOrEmpty(admin.LastName))
+        {
+            claims.Add(new Claim($"{PlantourClaims.AdminId}_last_name", admin.LastName));
         }
 
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -205,6 +429,10 @@ public class AuthService : IAuthService
         return refreshToken;
     }
 
+    #endregion
+
+    #region Password Helpers
+
     private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
     {
         using var hmac = new HMACSHA512();
@@ -218,4 +446,6 @@ public class AuthService : IAuthService
         var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
         return computedHash.SequenceEqual(storedHash);
     }
+
+    #endregion
 }

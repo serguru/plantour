@@ -5,7 +5,8 @@ namespace plantour_server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [AllowAnonymous]
+    //[AllowAnonymous]
+    [Authorize]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries =
