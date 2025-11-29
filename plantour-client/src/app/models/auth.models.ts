@@ -9,6 +9,7 @@ export interface AccessToken {
   role: string;
   accessCode?: string;
   adminId?: string;
+  exp: number;
 }
 
 

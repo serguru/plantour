@@ -5,13 +5,6 @@ import { environment } from '../../environments/environment';
 import { jwtDecode } from 'jwt-decode';
 import { AccessToken } from '../models/auth.models';
 
-interface JwtClaims {
-  sub: string;
-  email: string;
-  exp: number;
-  iat: number;
-  [key: string]: any; // allows custom claims
-}
 
 @Injectable({
   providedIn: 'root',
@@ -41,31 +34,11 @@ export class UsersService {
   }
 
   get isAuthenticated(): boolean {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     if (!token) {
       return false;
     }
     return !this.isTokenExpired(token);
-  }
-
-  get userInfo(): any {
-    if (!this.isAuthenticated) {
-      return "No authenticated user";
-    }
-
-    const user_metadata = jwtDecode<any>(localStorage.getItem("token")!).user_metadata;
-
-    let { email, first_name, last_name } = user_metadata;
-
-    email = (email).trim();
-    first_name = (first_name).trim();
-    last_name = (last_name).trim();
-
-    const result = first_name && last_name ? `${first_name} ${last_name}` : (
-      first_name || last_name || email
-    );
-
-    return result;
   }
 
   loginAdmin(email: string, password: string): Observable<any> {

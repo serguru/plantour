@@ -6,6 +6,7 @@ import { ThingsComponent } from './components/dictionaries/things/things-compone
 import { RegisterComponent } from './components/users/register/register-component';
 import { LandingComponent } from './components/shared/landing/landing-component';
 import { LoginParticipantComponent } from './components/users/login-participant/login-participant-component';
+import { authGuard, adminGuard } from './services/auth-guard';
 
 export const routes: Routes = [
   {
@@ -27,8 +28,13 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: LayoutComponent,
+    canActivate: [authGuard],
     children: [
-      { path: 'travelers', component: TravelersComponent },
+      { 
+        path: 'travelers', 
+        component: TravelersComponent,
+        canActivate: [adminGuard]
+      },
       { path: 'things', component: ThingsComponent },
 
       { path: '', redirectTo: 'travelers', pathMatch: 'full' }
