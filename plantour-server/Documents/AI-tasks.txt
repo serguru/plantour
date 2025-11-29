@@ -1,0 +1,1 @@
+﻿Добавь в проект, если её еще нет, возможность различать, в каком качестве работает текущий юзер: Админ, Участник или public. Объясни, как мне разграничить доступ к endpoints: "Admin only", "Participant only", "Admin and Participant", or public access. Дай подробную инструкцию в current_user.md файле.

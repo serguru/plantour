@@ -1,4 +1,3 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -6,11 +5,16 @@ using Microsoft.IdentityModel.Tokens;
 using plantour_server.Authorization;
 using plantour_server.Models;
 using plantour_server.Services;
+using PlantourApi.Authorization;
+using PlantourApi.Models;
+using System.Text;
+using PlantourApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 
 // Configure JWT settings
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -50,10 +54,20 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy =>
-        policy.Requirements.Add(new AdminRequirement()));
+        policy.Requirements.Add(new UserRoleRequirement(UserRole.Admin)));
+
+    options.AddPolicy("ParticipantOnly", policy =>
+        policy.Requirements.Add(new UserRoleRequirement(UserRole.Participant)));
+
+    options.AddPolicy("AdminAndParticipant", policy =>
+        policy.Requirements.Add(new UserRoleRequirement(UserRole.Admin, UserRole.Participant)));
+
+    options.AddPolicy("Public", policy =>
+        policy.Requirements.Add(new UserRoleRequirement(UserRole.Public, UserRole.Participant, UserRole.Admin)));
 });
 
-builder.Services.AddSingleton<IAuthorizationHandler, AdminAuthorizationHandler>();
+// Register authorization handlers
+builder.Services.AddSingleton<IAuthorizationHandler, UserRoleHandler>();
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -85,6 +99,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAngularClient");
 
+app.UseMiddleware<CurrentUserMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
