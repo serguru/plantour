@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { jwtDecode } from 'jwt-decode';
+import { AccessToken } from '../models/auth.models';
 
 interface JwtClaims {
   sub: string;
@@ -67,12 +68,22 @@ export class UsersService {
     return result;
   }
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post<string>(`${this.apiUrl}/api/auth/signin`, { email, password })
+  loginAdmin(email: string, password: string): Observable<any> {
+    return this.http.post<string>(`${this.apiUrl}/api/auth/admin/signin`, { email, password })
       .pipe(
         tap((r: any) => {
-          let a = jwtDecode(r.token);
-          localStorage.setItem("token", r.token)
+          let a = jwtDecode(r.accessToken);
+          localStorage.setItem("accessToken", r.accessToken);
+        }
+        ))
+  }
+
+  loginParticipant(accessCode: string): Observable<any> {
+    return this.http.post<string>(`${this.apiUrl}/api/auth/participant/signin`, { accessCode })
+      .pipe(
+        tap((r: any) => {
+          let a = jwtDecode(r.accessToken);
+          localStorage.setItem("accessToken", r.accessToken);
         }
         ))
   }
@@ -84,4 +95,15 @@ export class UsersService {
         }
         ))
   }
+
+
+  currentUser(): AccessToken | null {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      return null;
+    }
+    return jwtDecode<AccessToken>(token);
+  }
+
+
 }

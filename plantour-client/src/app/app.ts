@@ -10,6 +10,7 @@ import { MenuItem } from 'primeng/api';
 import { ToastContainerComponent } from './components/shared/toast-container/toast-container-component';
 import { ModalDialogComponent } from './components/shared/modal-dialog/modal-dialog-component';
 import { ToolbarMenuService } from './services/toolbar-menu.service';
+import { UsersService } from './services/users-service';
 
 
 @Component({
@@ -30,6 +31,7 @@ import { ToolbarMenuService } from './services/toolbar-menu.service';
 })
 export class App {
   private toolbarMenu = inject(ToolbarMenuService);
+  private usersService = inject(UsersService);
   private router = inject(Router);
 
 constructor() {
@@ -53,5 +55,22 @@ constructor() {
 
   navigateHome() {
     this.router.navigateByUrl('/');
+  }
+
+  get currentUserText(): string {
+    const user = this.usersService.currentUser();
+    if (!user) {
+      return "No current user";
+    }
+
+    let result: string = user.role;
+
+    if (user.last_name && user.first_name) {
+      result =  `${result} ${user.first_name} ${user.last_name}`;
+    } else {
+      result =  `${result} with email ${user.email}`;
+    }
+
+    return result;
   }
 }

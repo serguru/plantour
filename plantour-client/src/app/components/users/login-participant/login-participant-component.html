@@ -1,0 +1,26 @@
+<div class="login-wrapper">
+  <p-card [styleClass]="'p-card-ex'">
+    <h2 class="title">Login</h2>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+
+      <div class="field">
+        <label for="accessCode">Access Code</label>
+        <input id="accessCode" pInputText type="text" formControlName="accessCode" />
+        <p-message *ngIf="form.controls.accessCode.touched && form.controls.accessCode.invalid"
+          severity="error" text="Enter an access code 8 characters long">
+        </p-message>
+      </div>
+
+      <p-message *ngIf="errorMessage()" severity="error" [text]="errorMessage()">
+      </p-message>
+
+      <div class="submit-center">
+        <p-button type="submit" label="Login" [disabled]="submitting()">
+        </p-button>
+
+      </div>
+
+    </form>
+  </p-card>
+</div>

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 namespace plantour_server.Models;
 
 public static class PlantourClaims
@@ -10,6 +12,10 @@ public static class PlantourClaims
     public const string AdminId = "admin_id";
     public const string ParticipantId = "participant_id";
     public const string AccessCode = "access_code";
+    public const string Subject = "subject";
+    public const string Expires = "expires";
+    public const string Issuer = "issuer";
+    public const string Audience = "audience";
 }
 
 public static class PlantourRoles

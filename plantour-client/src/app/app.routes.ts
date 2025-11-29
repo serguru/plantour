@@ -5,7 +5,7 @@ import { TravelersComponent } from './components/dictionaries/travelers/traveler
 import { ThingsComponent } from './components/dictionaries/things/things-component';
 import { RegisterComponent } from './components/users/register/register-component';
 import { LandingComponent } from './components/shared/landing/landing-component';
-import { TourComponent } from './components/tour/tour-component';
+import { LoginParticipantComponent } from './components/users/login-participant/login-participant-component';
 
 export const routes: Routes = [
   {
@@ -21,12 +21,15 @@ export const routes: Routes = [
     component: LoginComponent
   },
   {
+    path: "login-participant",
+    component: LoginParticipantComponent
+  },
+  {
     path: 'dashboard',
     component: LayoutComponent,
     children: [
       { path: 'travelers', component: TravelersComponent },
       { path: 'things', component: ThingsComponent },
-      { path: 'tour', component: TourComponent },
 
       { path: '', redirectTo: 'travelers', pathMatch: 'full' }
     ]

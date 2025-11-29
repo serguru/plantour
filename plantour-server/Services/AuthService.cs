@@ -153,20 +153,6 @@ public class AuthService : IAuthService
         var participant = adminParticipant.Participant;
         var admin = adminParticipant.Admin;
 
-        // If participant has password, verify it
-        if (participant.PasswordHash != null && participant.PasswordSalt != null)
-        {
-            if (string.IsNullOrEmpty(request.Password))
-            {
-                throw new UnauthorizedAccessException("Password is required for this participant");
-            }
-
-            if (!VerifyPasswordHash(request.Password, participant.PasswordHash, participant.PasswordSalt))
-            {
-                throw new UnauthorizedAccessException("Invalid password");
-            }
-        }
-
         // Generate participant tokens
         return await GenerateParticipantAuthResponse(participant, admin, request.AccessCode);
     }
@@ -303,7 +289,7 @@ public class AuthService : IAuthService
 
         return new ParticipantAuthResponse
         {
-            ParticipantId = participant.Id,
+            UserId = participant.Id,
             Email = participant.Email,
             FirstName = participant.FirstName,
             LastName = participant.LastName,
@@ -319,35 +305,32 @@ public class AuthService : IAuthService
         };
     }
 
+    private List<Claim>  GenerateUserClaims(User user)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(PlantourClaims.UserId, user.Id.ToString()),
+            new Claim(PlantourClaims.Email, user.Email),
+            new Claim(PlantourClaims.FirstName, user.FirstName ?? ""),
+            new Claim(PlantourClaims.LastName, user.LastName ?? ""),
+            new Claim(PlantourClaims.Expires, DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes).ToString()),
+            new Claim(PlantourClaims.Issuer,  _jwtSettings.Issuer),
+            new Claim(PlantourClaims.Audience,  _jwtSettings.Audience)
+        };
+        return claims;
+    }
+
     private string GenerateAdminAccessToken(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
 
-        var claims = new List<Claim>
-        {
-            new Claim(PlantourClaims.UserId, user.Id.ToString()),
-            new Claim(PlantourClaims.Email, user.Email),
-            new Claim(PlantourClaims.Role, PlantourRoles.Admin),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-        if (!string.IsNullOrEmpty(user.FirstName))
-        {
-            claims.Add(new Claim(PlantourClaims.FirstName, user.FirstName));
-        }
-
-        if (!string.IsNullOrEmpty(user.LastName))
-        {
-            claims.Add(new Claim(PlantourClaims.LastName, user.LastName));
-        }
+        var claims = GenerateUserClaims(user);
+        claims.Add(new Claim(PlantourClaims.Role, PlantourRoles.Admin));
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
-            Issuer = _jwtSettings.Issuer,
-            Audience = _jwtSettings.Audience,
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature)
@@ -362,47 +345,14 @@ public class AuthService : IAuthService
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
 
-        var claims = new List<Claim>
-        {
-            new Claim(PlantourClaims.UserId, participant.Id.ToString()),
-            new Claim(PlantourClaims.ParticipantId, participant.Id.ToString()),
-            new Claim(PlantourClaims.Email, participant.Email),
-            new Claim(PlantourClaims.Role, PlantourRoles.Participant),
-            new Claim(PlantourClaims.AccessCode, accessCode),
-            
-            // Admin information embedded in participant token
-            new Claim(PlantourClaims.AdminId, admin.Id.ToString()),
-            new Claim($"{PlantourClaims.AdminId}_email", admin.Email),
-
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-        if (!string.IsNullOrEmpty(participant.FirstName))
-        {
-            claims.Add(new Claim(PlantourClaims.FirstName, participant.FirstName));
-        }
-
-        if (!string.IsNullOrEmpty(participant.LastName))
-        {
-            claims.Add(new Claim(PlantourClaims.LastName, participant.LastName));
-        }
-
-        if (!string.IsNullOrEmpty(admin.FirstName))
-        {
-            claims.Add(new Claim($"{PlantourClaims.AdminId}_first_name", admin.FirstName));
-        }
-
-        if (!string.IsNullOrEmpty(admin.LastName))
-        {
-            claims.Add(new Claim($"{PlantourClaims.AdminId}_last_name", admin.LastName));
-        }
+        var claims = GenerateUserClaims(participant);
+        claims.Add(new Claim(PlantourClaims.Role, PlantourRoles.Participant));
+        claims.Add(new Claim(PlantourClaims.AccessCode, accessCode));
+        claims.Add(new Claim(PlantourClaims.AdminId, admin.Id.ToString()));
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
-            Issuer = _jwtSettings.Issuer,
-            Audience = _jwtSettings.Audience,
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature)

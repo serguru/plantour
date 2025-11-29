@@ -12,7 +12,7 @@ import { MessageModule } from 'primeng/message';
 import { catchError, finalize, tap } from 'rxjs';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-login-participant',
   standalone: true,
   imports: [
     CommonModule,
@@ -23,10 +23,10 @@ import { catchError, finalize, tap } from 'rxjs';
     CardModule,
     MessageModule,
   ],
-  templateUrl: './login-component.html',
-  styleUrl: './login-component.scss',
+  templateUrl: './login-participant-component.html',
+  styleUrl: './login-participant-component.scss',
 })
-export class LoginComponent {
+export class LoginParticipantComponent {
   private fb = inject(FormBuilder);
   private usersService = inject(UsersService);
   private router = inject(Router);
@@ -35,8 +35,7 @@ export class LoginComponent {
   errorMessage = signal('');
 
   form = this.fb.group({
-    email: ['weblinksapp@gmail.com', [Validators.required, Validators.email]],
-    password: ['Binary_09', Validators.required],
+    accessCode: ['QBJ3XM9L', [Validators.required, Validators.minLength(8), Validators.maxLength(8)]],  
   });
 
   submit() {
@@ -48,9 +47,9 @@ export class LoginComponent {
 
     this.submitting.set(true);
 
-    const { email, password } = this.form.value;
+    const { accessCode } = this.form.value;
 
-    this.usersService.loginAdmin(email!, password!)
+    this.usersService.loginParticipant(accessCode!)
       .pipe(
         finalize(() => {
           this.submitting.set(false);
