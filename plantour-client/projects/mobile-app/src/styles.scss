@@ -1,4 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Import PrimeNG icons */
+@import 'primeicons/primeicons.css';
+
 :root {
   /* ---------------------------------------
      🎯 PRIMARY UI FONTS (GLOBAL TYPOGRAPHY)
@@ -65,15 +69,32 @@
   --letter-spacing-ui: 0.15px;
 }
 
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 html,
 body {
-    font-family: var( --font-ui)    
+  font-family: var(--font-ui);
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 p-button {
-    font-family: var( --font-button);
+  font-family: var(--font-button);
 }
 
 .semi-bold-text {
-    font-weight: 500;
+  font-weight: 500;
+}
+
+/* Ensure smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
