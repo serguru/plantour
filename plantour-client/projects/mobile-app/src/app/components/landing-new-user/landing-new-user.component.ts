@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { UsersService } from 'shared-lib';
 
 @Component({
   selector: 'app-landing-new-user',
@@ -12,6 +13,8 @@ import { CardModule } from 'primeng/card';
   styleUrl: './landing-new-user.component.scss'
 })
 export class LandingNewUserComponent {
+
+  private usersService = inject(UsersService);
   
   features = [
     {
@@ -46,7 +49,10 @@ export class LandingNewUserComponent {
     }
   ];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    const two = this.usersService.get2();
+    console.log('UsersService get2() returned:', two);
+  }
 
   onSignUp(): void {
     // TODO: Stub - Navigate to sign up page
