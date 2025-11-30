@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
-import { AccessToken } from '../models/auth.models';
+import { AccessToken, SignUpRequest } from '../models/auth.models';
 import { ENVIRONMENT, EnvironmentConfig } from '../environment.token';
 
 
@@ -70,8 +70,8 @@ export class UsersService {
         ))
   }
 
-  register(data: any): Observable<any> {
-    return this.http.post<string>(`${this.apiUrl}/api/auth/signup`, data)
+  registerAdmin(data: SignUpRequest): Observable<any> {
+    return this.http.post<string>(`${this.apiUrl}/api/auth/admin/signup`, data)
       .pipe(
         tap((r: any) => {
         }

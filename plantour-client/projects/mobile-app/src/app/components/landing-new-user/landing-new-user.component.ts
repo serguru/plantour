@@ -55,10 +55,7 @@ export class LandingNewUserComponent {
   }
 
   onSignUp(): void {
-    // TODO: Stub - Navigate to sign up page
-    // This should navigate to the registration form where new users can create an account
-    console.log('Navigate to sign up page');
-    alert('Sign up functionality - to be implemented');
+    this.router.navigate(['register']);
   }
 
   onLogin(): void {

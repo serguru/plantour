@@ -1,0 +1,131 @@
+<div class="register-container">
+  <!-- Header with Back Button and Logo -->
+  <header class="register-header">
+    <button class="back-button" (click)="onBack()" aria-label="Go back">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+    
+    <div class="logo-container" (click)="onLogoClick()">
+      <img src="plantour-logo.png" alt="Plantour Logo" class="logo-image" />
+    </div>
+  </header>
+
+  <!-- Registration Form Section -->
+  <section class="register-content">
+    <div class="register-card">
+      <h1 class="register-title">Create Account</h1>
+      <p class="register-subtitle">Join Plantour and start organizing your trips</p>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        <!-- Email -->
+        <div class="form-field">
+          <label for="email" class="field-label">Email <span class="required">*</span></label>
+          <input 
+            pInputText 
+            id="email" 
+            type="email"
+            formControlName="email" 
+            placeholder="your.email@example.com"
+            [class.p-invalid]="isFieldInvalid('email')"
+            class="input-field" />
+          <small class="error-message" *ngIf="isFieldInvalid('email')">
+            {{ getFieldError('email') }}
+          </small>
+        </div>
+
+        <!-- First Name -->
+        <div class="form-field">
+          <label for="firstName" class="field-label">First Name</label>
+          <input 
+            pInputText 
+            id="firstName" 
+            formControlName="firstName" 
+            placeholder="Enter your first name"
+            [class.p-invalid]="isFieldInvalid('firstName')"
+            class="input-field" />
+          <small class="error-message" *ngIf="isFieldInvalid('firstName')">
+            {{ getFieldError('firstName') }}
+          </small>
+        </div>
+
+        <!-- Last Name -->
+        <div class="form-field">
+          <label for="lastName" class="field-label">Last Name</label>
+          <input 
+            pInputText 
+            id="lastName" 
+            formControlName="lastName" 
+            placeholder="Enter your last name"
+            [class.p-invalid]="isFieldInvalid('lastName')"
+            class="input-field" />
+          <small class="error-message" *ngIf="isFieldInvalid('lastName')">
+            {{ getFieldError('lastName') }}
+          </small>
+        </div>
+
+        <!-- Password -->
+        <div class="form-field">
+          <label for="password" class="field-label">Password <span class="required">*</span></label>
+          <p-password 
+            id="password" 
+            formControlName="password" 
+            placeholder="Enter your password"
+            [toggleMask]="true"
+            [feedback]="false"
+            [class.p-invalid]="isFieldInvalid('password')"
+            styleClass="password-input">
+          </p-password>
+          <small class="error-message" *ngIf="isFieldInvalid('password')">
+            {{ getFieldError('password') }}
+          </small>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-field">
+          <label for="confirmPassword" class="field-label">Confirm Password <span class="required">*</span></label>
+          <p-password 
+            id="confirmPassword" 
+            formControlName="confirmPassword" 
+            placeholder="Confirm your password"
+            [toggleMask]="true"
+            [feedback]="false"
+            [class.p-invalid]="isConfirmPasswordInvalid()"
+            styleClass="password-input">
+          </p-password>
+          <small class="error-message" *ngIf="isConfirmPasswordInvalid()">
+            {{ getConfirmPasswordError() }}
+          </small>
+        </div>
+
+        <!-- Error Message -->
+        <div class="alert-error" *ngIf="errorMessage">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Submit Button -->
+        <div class="button-container">
+          <p-button 
+            type="submit" 
+            label="Create Account" 
+            icon="pi pi-user-plus"
+            [loading]="isLoading"
+            [disabled]="isLoading"
+            styleClass="submit-button">
+          </p-button>
+        </div>
+
+        <!-- Sign In Link -->
+        <div class="signin-prompt">
+          Already registered? 
+          <button type="button" class="link-button" (click)="onSignIn()">Sign In here.</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="register-footer">
+    <p class="footer-text">&copy; 2025 Plantour. Your travel companion.</p>
+  </footer>
+</div>
