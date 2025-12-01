@@ -63,7 +63,7 @@ export class Toolbar implements OnInit, OnDestroy {
       {
         label: 'Sign In',
         icon: 'pi pi-sign-in',
-        command: () => this.navigateTo('/signin')
+        command: () => this.navigateTo('/sign-in')
       },
     ];
   }

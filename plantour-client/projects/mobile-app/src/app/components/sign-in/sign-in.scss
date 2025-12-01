@@ -1,0 +1,243 @@
+
+/* ====================================
+   CONTENT
+   ==================================== */
+.signin-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color) 100%);
+}
+
+.signin-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 450px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.signin-title {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4DB8C4;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+}
+
+.signin-subtitle {
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  color: #666666;
+  margin: 0 0 2rem 0;
+  text-align: center;
+}
+
+/* ====================================
+   FORM
+   ==================================== */
+.signin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field-label {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333333;
+}
+
+.required {
+  color: #e74c3c;
+}
+
+.input-field {
+  font-family: var(--font-ui);
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+
+  &:focus {
+    border-color: #4DB8C4;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(77, 184, 196, 0.1);
+  }
+
+  &.p-invalid {
+    border-color: #e74c3c;
+  }
+
+  &::placeholder {
+    color: #999999;
+  }
+}
+
+::ng-deep .password-input {
+  width: 100%;
+
+  .p-password-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+
+    &:focus {
+      border-color: #4DB8C4;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(77, 184, 196, 0.1);
+    }
+  }
+
+  &.p-invalid .p-password-input {
+    border-color: #e74c3c;
+  }
+}
+
+.error-message {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  color: #e74c3c;
+  margin-top: 0.25rem;
+}
+
+.alert-error {
+  background: #ffe6e6;
+  color: #e74c3c;
+  padding: 1rem;
+  border-radius: 10px;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-left: 4px solid #e74c3c;
+
+  i {
+    font-size: 1.25rem;
+  }
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+}
+
+::ng-deep .submit-button .p-button {
+  background: linear-gradient(135deg, #4DB8C4 0%, #3A9AA8 100%);
+  border: none;
+  font-family: var(--font-button);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(77, 184, 196, 0.3);
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(77, 184, 196, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.register-prompt {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  text-align: center;
+  color: #666666;
+  margin-top: 0.5rem;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #4DB8C4;
+  font-family: var(--font-button);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #3A9AA8;
+  }
+}
+
+/* ====================================
+   ANIMATIONS
+   ==================================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ====================================
+   RESPONSIVE ADJUSTMENTS
+   ==================================== */
+
+/* Small phones (up to 360px) */
+@media (max-width: 360px) {
+  .signin-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .signin-title {
+    font-size: 1.75rem;
+  }
+
+  .signin-subtitle {
+    font-size: 0.9rem;
+  }
+}
+
+/* Larger phones and tablets (min 600px) */
+@media (min-width: 600px) {
+  .signin-content {
+    padding: 3rem 2rem;
+  }
+
+  .signin-card {
+    padding: 3rem 2.5rem;
+  }
+
+  .signin-title {
+    font-size: 2.25rem;
+  }
+}

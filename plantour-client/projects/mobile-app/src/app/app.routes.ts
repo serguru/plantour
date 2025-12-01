@@ -17,6 +17,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/register-user/register-user').then(m => m.RegisterUserComponent)
   },
   {
+    path: 'sign-in',
+    loadComponent: () => import('./components/sign-in/sign-in').then(m => m.SignInComponent)
+  },
+  {
     path: 'landing-registered',
     loadComponent: () => import('./components/landing-registered-user/landing-registered-user.component').then(m => m.LandingRegisteredUserComponent)
   },

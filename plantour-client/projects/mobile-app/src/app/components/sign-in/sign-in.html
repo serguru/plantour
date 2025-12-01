@@ -1,0 +1,49 @@
+<!-- Sign In Form Section -->
+<section class="signin-content">
+  <div class="signin-card">
+    <h1 class="signin-title">Sign In</h1>
+    <p class="signin-subtitle">Welcome back to Plantour</p>
+
+    <form [formGroup]="signInForm" (ngSubmit)="onSubmit()" class="signin-form">
+      <!-- Email -->
+      <div class="form-field">
+        <label for="email" class="field-label">Email <span class="required">*</span></label>
+        <input pInputText id="email" type="email" formControlName="email" placeholder="your.email@example.com"
+          [class.p-invalid]="isFieldInvalid('email')" class="input-field" />
+        <small class="error-message" *ngIf="isFieldInvalid('email')">
+          {{ getFieldError('email') }}
+        </small>
+      </div>
+
+      <!-- Password -->
+      <div class="form-field">
+        <label for="password" class="field-label">Password <span class="required">*</span></label>
+        <p-password id="password" formControlName="password" placeholder="Enter your password" [toggleMask]="true"
+          [feedback]="false" [class.p-invalid]="isFieldInvalid('password')" styleClass="password-input">
+        </p-password>
+        <small class="error-message" *ngIf="isFieldInvalid('password')">
+          {{ getFieldError('password') }}
+        </small>
+      </div>
+
+      <!-- Error Message -->
+      <div class="alert-error" *ngIf="errorMessage">
+        <i class="pi pi-exclamation-triangle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Submit Button -->
+      <div class="button-container">
+        <p-button type="submit" label="Sign In" icon="pi pi-sign-in" [loading]="isLoading"
+          [disabled]="isLoading" styleClass="submit-button">
+        </p-button>
+      </div>
+
+      <!-- Register Link -->
+      <div class="register-prompt">
+        Don't have an account?
+        <button type="button" class="link-button" (click)="onRegister()">Register here.</button>
+      </div>
+    </form>
+  </div>
+</section>

@@ -53,11 +53,8 @@ export class LandingNewUserComponent {
     this.router.navigate(['register']);
   }
 
-  onLogin(): void {
-    // TODO: Stub - Navigate to login page
-    // This should navigate to the login form for existing users
-    console.log('Navigate to login page');
-    alert('Login functionality - to be implemented');
+  onSignIn(): void {
+    this.router.navigate(['sign-in']);
   }
 
   scrollToFeatures(): void {
