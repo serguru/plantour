@@ -19,10 +19,6 @@ export class UsersService {
     this.apiUrl = environment.apiUrl;
   }
 
-  get2(): number {
-    return 2;
-  }
-
   getWeather(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/weatherforecast`);
   }
@@ -60,12 +56,16 @@ export class UsersService {
         ))
   }
 
+  writeTokensToStorage(accessToken: string, refreshToken: string): void {
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+  }
+
   loginParticipant(accessCode: string): Observable<any> {
     return this.http.post<string>(`${this.apiUrl}/api/auth/participant/signin`, { accessCode })
       .pipe(
         tap((r: any) => {
-          let a = jwtDecode(r.accessToken);
-          localStorage.setItem("accessToken", r.accessToken);
+          this.writeTokensToStorage(r.accessToken, r.refreshToken);
         }
         ))
   }
@@ -74,10 +74,10 @@ export class UsersService {
     return this.http.post<string>(`${this.apiUrl}/api/auth/admin/signup`, data)
       .pipe(
         tap((r: any) => {
+          this.writeTokensToStorage(r.accessToken, r.refreshToken);
         }
         ))
   }
-
 
   currentUser(): AccessToken | null {
     const token = localStorage.getItem("accessToken");
@@ -87,5 +87,17 @@ export class UsersService {
     return jwtDecode<AccessToken>(token);
   }
 
+ get currentUserText(): string {
+    const user = this.currentUser();
+    if (!user) {
+      return "Profile";
+    }
+
+    if (user.last_name && user.first_name) {
+      return `${user.first_name} ${user.last_name}`;
+    }
+    
+    return `${user.email}`;
+  } 
 
 }

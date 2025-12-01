@@ -5,7 +5,9 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
-import { UsersService, SignUpRequest } from 'shared-lib';
+import { UsersService, SignUpRequest, MessagesService } from 'shared-lib';
+import { catchError, finalize } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-register-user',
@@ -26,17 +28,21 @@ export class RegisterUserComponent {
   errorMessage = '';
 
   private usersService = inject(UsersService);
+  private messagesService = inject(MessagesService);
+
+
+
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private location = inject(Location);
 
   constructor() {
     this.registerForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      firstName: [''],
-      lastName: [''],
-      password: ['', [Validators.required]],
-      confirmPassword: ['', [Validators.required]]
+      email: ['serguru@gmail.com', [Validators.required, Validators.email]],
+      firstName: ['S'],
+      lastName: ['C'],
+      password: ['Binary_09', [Validators.required]],
+      confirmPassword: ['Binary_09', [Validators.required]]
     }, { validators: this.passwordMatchValidator.bind(this) });
   }
 
@@ -67,15 +73,21 @@ export class RegisterUserComponent {
       lastName: this.registerForm.value.lastName || undefined
     };
 
-    this.usersService.registerAdmin(signUpData).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.router.navigate(['']);
-      },
-      error: (error) => {
-        this.isLoading = false;
+    this.usersService.registerAdmin(signUpData).pipe(
+      catchError((error) => {
         this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
         console.error('Registration error:', error);
+        return of(null);
+      }),
+      finalize(() => {
+        this.isLoading = false;
+      })
+    ).subscribe({
+      next: (result) => {
+        if (result !== null) {
+          this.router.navigate(['']);
+        }
+        this.messagesService.showInfo('Registration successful', 'You are now signed in with your new account');
       }
     });
   }

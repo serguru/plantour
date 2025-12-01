@@ -73,14 +73,40 @@ builder.Services.AddSingleton<IAuthorizationHandler, UserRoleHandler>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Configure CORS for Angular client
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowAngularClient", policy =>
+//    {
+//        policy.WithOrigins("https://localhost:7028", "http://localhost:4200")
+//              .AllowAnyMethod()
+//              .AllowAnyHeader()
+//              .AllowCredentials();
+//    });
+//});
+
+// Configure CORS for Angular client
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngularClient", policy =>
+    options.AddPolicy("AllowOrigins", policy =>
     {
-        policy.WithOrigins("https://localhost:7028", "http://localhost:4200")
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+        if (builder.Environment.IsDevelopment())
+        {
+            // Allow all origins in development
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        }
+        else
+        {
+            // Use configured origins in production
+            var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
+                ?? Array.Empty<string>();
+
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        }
     });
 });
 
@@ -97,7 +123,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAngularClient");
+app.UseCors("AllowOrigins");
 
 app.UseMiddleware<CurrentUserMiddleware>();
 app.UseAuthentication();

@@ -50,8 +50,6 @@ export class LandingNewUserComponent {
   ];
 
   constructor(private router: Router) {
-    const two = this.usersService.get2();
-    console.log('UsersService get2() returned:', two);
   }
 
   onSignUp(): void {
