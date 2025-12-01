@@ -1,6 +1,6 @@
 .landing-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4DB8C4 0%, #3A9AA8 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color) 100%);
   color: #ffffff;
   overflow-x: hidden;
 }

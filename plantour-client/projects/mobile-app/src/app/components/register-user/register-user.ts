@@ -37,10 +37,10 @@ export class RegisterUserComponent {
       lastName: [''],
       password: ['', [Validators.required]],
       confirmPassword: ['', [Validators.required]]
-    }, { validators: this.passwordMatchValidator });
+    }, { validators: this.passwordMatchValidator.bind(this) });
   }
 
-  passwordMatchValidator(form: FormGroup) {
+  private passwordMatchValidator(form: FormGroup) {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
     

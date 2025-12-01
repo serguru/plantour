@@ -1,0 +1,31 @@
+<div class="toolbar">
+  <div class="toolbar-left">
+    <button 
+      *ngIf="navigationState.showBackButton"
+      pButton
+      icon="pi pi-arrow-left"
+      class="p-button-text p-button-rounded back-button"
+      (click)="onBackClick()"
+      aria-label="Back">
+    </button>
+  </div>
+  
+  <div class="toolbar-center" (click)="onLogoClick()">
+    <div class="logo-container">
+      <img src="assets/plantour-logo.png" alt="Plantour Logo" class="logo-image" />
+      <span class="app-title">Plantour</span>
+    </div>
+  </div>
+  
+  <div class="toolbar-right">
+    <button 
+      pButton 
+      icon="pi pi-bars"
+      class="p-button-text p-button-rounded menu-button"
+      (click)="menu.toggle($event)"
+      aria-label="Menu">
+    </button>
+    <p-menu #menu [model]="menuItems" [popup]="true" styleClass="toolbar-popup-menu"></p-menu>
+  </div>
+</div>
+
