@@ -16,18 +16,20 @@
 
       <div class="cta-buttons">
         <p-button 
-          label="Get Started" 
-          icon="pi pi-arrow-right"
-          iconPos="right"
+          label="Sign Up" 
+          icon="pi pi-user-plus"
+          iconPos="left"
           (onClick)="onSignUp()"
           styleClass="cta-primary">
         </p-button>
         
         <p-button 
           label="Sign In" 
+          icon="pi pi-sign-in"
+          iconPos="left"
           (onClick)="onLogin()"
-          styleClass="cta-secondary"
-          [outlined]="true">
+          styleClass="cta-primary"
+          [outlined]="false">
         </p-button>
       </div>
 
