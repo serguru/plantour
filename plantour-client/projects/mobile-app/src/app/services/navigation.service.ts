@@ -39,10 +39,22 @@ export class NavigationService {
     if (currentUrl === '/' || currentUrl === '') {
       state.showBackButton = false;
     }
+    // Landing registered user page - no back button
+    else if (currentUrl.startsWith('/landing-registered')) {
+      state.showBackButton = false;
+    }
     // Register page - back to landing
     else if (currentUrl.startsWith('/register')) {
       state.showBackButton = true;
       state.backPath = '/';
+    }
+    // Travelers, Things, Packs, Trips - back to landing-registered
+    else if (currentUrl.startsWith('/travelers') || 
+             currentUrl.startsWith('/things') || 
+             currentUrl.startsWith('/packs') || 
+             currentUrl.startsWith('/trips')) {
+      state.showBackButton = true;
+      state.backPath = '/landing-registered';
     }
     // Edit forms - back to list (this will be expanded as routes are added)
     else if (currentUrl.includes('/edit/')) {

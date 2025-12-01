@@ -1,14 +1,40 @@
 import { Routes } from '@angular/router';
-import { authGuard, adminGuard, participantGuard } from 'shared-lib';
+import { authGuard, adminGuard, participantGuard, landingNewUserGuard, landingRegisteredUserGuard } from 'shared-lib';
 
 export const routes: Routes = [
   {
     path: '',
+    canMatch: [landingNewUserGuard],
     loadComponent: () => import('./components/landing-new-user/landing-new-user.component').then(m => m.LandingNewUserComponent)
+  },
+  {
+    path: '',
+    canMatch: [landingRegisteredUserGuard],
+    loadComponent: () => import('./components/landing-registered-user/landing-registered-user.component').then(m => m.LandingRegisteredUserComponent)
   },
   {
     path: 'register',
     loadComponent: () => import('./components/register-user/register-user').then(m => m.RegisterUserComponent)
+  },
+  {
+    path: 'landing-registered',
+    loadComponent: () => import('./components/landing-registered-user/landing-registered-user.component').then(m => m.LandingRegisteredUserComponent)
+  },
+  {
+    path: 'travelers',
+    loadComponent: () => import('./components/travelers/travelers.component').then(m => m.TravelersComponent)
+  },
+  {
+    path: 'things',
+    loadComponent: () => import('./components/things/things.component').then(m => m.ThingsComponent)
+  },
+  {
+    path: 'packs',
+    loadComponent: () => import('./components/packs/packs.component').then(m => m.PacksComponent)
+  },
+  {
+    path: 'trips',
+    loadComponent: () => import('./components/trips/trips.component').then(m => m.TripsComponent)
   }
   // ,
   // {

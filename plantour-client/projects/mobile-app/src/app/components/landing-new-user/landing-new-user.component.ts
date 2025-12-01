@@ -1,9 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { UsersService } from 'shared-lib';
 
 @Component({
   selector: 'app-landing-new-user',
@@ -13,8 +12,6 @@ import { UsersService } from 'shared-lib';
   styleUrl: './landing-new-user.component.scss'
 })
 export class LandingNewUserComponent {
-
-  private usersService = inject(UsersService);
   
   features = [
     {
