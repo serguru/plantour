@@ -1,5 +1,6 @@
 export * from './services/users-service';
 export * from './services/messages-service';
+export * from './services/user-package-service';
 export * from './environment.token';
 export * from './interceptors/jwt.interceptor';
 export * from './guards/auth-guard';
