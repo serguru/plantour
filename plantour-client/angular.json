@@ -53,6 +53,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/desktop-app/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/shared-lib/assets",
+                "output": "/assets"
               }
             ],
             "styles": [
@@ -111,6 +116,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/desktop-app/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/shared-lib/assets",
+                "output": "/assets"
               }
             ],
             "styles": [
@@ -144,6 +154,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/mobile-app/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/shared-lib/assets",
+                "output": "/assets"
               }
             ],
             "styles": [
@@ -202,6 +217,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/mobile-app/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/shared-lib/assets",
+                "output": "/assets"
               }
             ],
             "styles": [
