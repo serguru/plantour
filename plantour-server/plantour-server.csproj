@@ -73,6 +73,7 @@
 
   <ItemGroup>
     <Folder Include="Documents\" />
+    <Folder Include="Repositories\" />
   </ItemGroup>
 
 </Project>

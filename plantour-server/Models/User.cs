@@ -61,8 +61,8 @@ public partial class User
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 
     [InverseProperty("User")]
-    public virtual ICollection<UserPackageCategory> UserPackageCategories { get; set; } = new List<UserPackageCategory>();
+    public virtual ICollection<UserPackage> UserPackages { get; set; } = new List<UserPackage>();
 
     [InverseProperty("User")]
-    public virtual ICollection<UserThingCategory> UserThingCategories { get; set; } = new List<UserThingCategory>();
+    public virtual ICollection<UserThing> UserThings { get; set; } = new List<UserThing>();
 }

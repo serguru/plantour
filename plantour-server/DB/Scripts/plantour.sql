@@ -122,6 +122,51 @@ insert into packing_status (name) values
 
 
 -----------------------------------------------------------------------
+-- USER PACKAGE CATEGORIES
+-----------------------------------------------------------------------
+
+create table package_categories (
+    id uuid not null primary key default gen_random_uuid(),
+    name varchar(50) not null unique,
+    notes text
+);
+
+insert into package_categories (name) values
+('Suitcase'),
+('Bag'),
+('Backpack'),
+('Plastic bag'),
+('Wrapper'),
+('Carry on'),
+('Box');
+
+create table thing_categories (
+    id uuid not null primary key default gen_random_uuid(),
+    name varchar(50) not null unique,
+    notes text
+);
+
+insert into package_categories (name) values
+('Accessories'),
+('Baby & Kids'),
+('Clothing'),
+('Documents'),
+('Electronics'),
+('Emergency & First Aid'),
+('Footwear'),
+('Food & Snacks'),
+('Health & Hygiene'),
+('Laundry'),
+('Medicine'),
+('Outdoor & Sports'),
+('Personal Care'),
+('Pets'),
+('Toiletries'),
+('Travel Essentials');
+
+
+
+-----------------------------------------------------------------------
 -- USERS
 -----------------------------------------------------------------------
 
@@ -162,27 +207,14 @@ create index idx_refresh_tokens_user_id on refresh_tokens(user_id);
 create index idx_refresh_tokens_token on refresh_tokens(token);
 
 -----------------------------------------------------------------------
--- USER THING CATEGORIES
------------------------------------------------------------------------
-
-create table user_thing_categories (
-    id uuid not null primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
-    name varchar(100) not null
-);
-
-create unique index idx_user_thing_categories_user_id_name
-    on user_thing_categories(user_id, name);
-
-
------------------------------------------------------------------------
 -- USER THINGS
 -----------------------------------------------------------------------
 
 create table user_things (
     id uuid not null primary key default gen_random_uuid(),
 
-    category_id uuid not null references user_thing_categories(id) on delete cascade,
+    user_id uuid not null references users(id) on delete cascade,
+    category_id uuid null references thing_categories(id) on delete cascade,
 
     short_description varchar(200) not null,
     description text,
@@ -231,28 +263,13 @@ create index idx_user_things_category_id on user_things(category_id);
 
 
 -----------------------------------------------------------------------
--- USER PACKAGE CATEGORIES
------------------------------------------------------------------------
-
-create table user_package_categories (
-    id uuid not null primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
-    name varchar(50) not null,
-    notes text
-);
-
-create unique index idx_user_package_categories_user_id_name
-    on user_package_categories(user_id, name);
-
-
------------------------------------------------------------------------
 -- USER PACKAGES
 -----------------------------------------------------------------------
 
 create table user_packages (
     id uuid not null primary key default gen_random_uuid(),
-
-    category_id uuid not null references user_package_categories(id) on delete cascade,
+    user_id uuid not null references users(id) on delete cascade,
+    category_id uuid null references package_categories(id) on delete set null,
     parent_package_id uuid references user_packages(id) on delete set null,
 
     short_description varchar(200) not null,
@@ -436,6 +453,25 @@ create unique index idx_trip_users_trip_id_user_id
 
 
 -----------------------------------------------------------------------
+-- TRIP USER PACKAGES
+-----------------------------------------------------------------------
+
+create table trip_user_packages (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_user_id uuid not null references trip_users(id) on delete cascade,
+    user_package_id uuid references user_packages(id) on delete set null,
+    packing_status_id uuid references packing_status(id) on delete set null,
+    packed_at timestamptz,
+    label varchar(100),
+    packing_list_included boolean not null default(false)
+);
+
+create unique index idx_trip_user_packages_trip_user_id_user_package_id
+    on trip_user_packages(trip_user_id, user_package_id);
+
+
+
+-----------------------------------------------------------------------
 -- TRIP USER THINGS
 -----------------------------------------------------------------------
 
@@ -444,8 +480,8 @@ create table trip_user_things (
 
     trip_user_id uuid not null references trip_users(id) on delete cascade,
     user_thing_id uuid not null references user_things(id) on delete cascade,
-    user_package_id uuid references user_packages(id) on delete set null,
-
+    trip_user_package_id uuid references trip_user_packages(id) on delete set null,
+    qty integer not null check(qty > 0) default 1,
     packing_status_id uuid references packing_status(id) on delete set null,
     packed_at timestamptz
 );
@@ -552,9 +588,8 @@ create or replace function get_user_id_for_thing(_thing_id uuid)
 returns uuid
 language sql
 as $$
-    select ttc.user_id
+    select tt.user_id
     from user_things tt
-    join user_thing_categories ttc on ttc.id = tt.category_id
     where tt.id = _thing_id
 $$;
 
@@ -563,9 +598,8 @@ create or replace function get_user_id_for_package(_package_id uuid)
 returns uuid
 language sql
 as $$
-    select tpc.user_id
+    select tp.user_id
     from user_packages tp
-    join user_package_categories tpc on tpc.id = tp.category_id
     where tp.id = _package_id
 $$;
 

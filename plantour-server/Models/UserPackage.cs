@@ -15,8 +15,11 @@ public partial class UserPackage
     [Column("id")]
     public Guid Id { get; set; }
 
+    [Column("user_id")]
+    public Guid UserId { get; set; }
+
     [Column("category_id")]
-    public Guid CategoryId { get; set; }
+    public Guid? CategoryId { get; set; }
 
     [Column("parent_package_id")]
     public Guid? ParentPackageId { get; set; }
@@ -75,7 +78,7 @@ public partial class UserPackage
 
     [ForeignKey("CategoryId")]
     [InverseProperty("UserPackages")]
-    public virtual UserPackageCategory Category { get; set; } = null!;
+    public virtual PackageCategory? Category { get; set; }
 
     [ForeignKey("DimensionUnitId")]
     [InverseProperty("UserPackageDimensionUnits")]
@@ -89,7 +92,11 @@ public partial class UserPackage
     public virtual UserPackage? ParentPackage { get; set; }
 
     [InverseProperty("UserPackage")]
-    public virtual ICollection<TripUserThing> TripUserThings { get; set; } = new List<TripUserThing>();
+    public virtual ICollection<TripUserPackage> TripUserPackages { get; set; } = new List<TripUserPackage>();
+
+    [ForeignKey("UserId")]
+    [InverseProperty("UserPackages")]
+    public virtual User User { get; set; } = null!;
 
     [ForeignKey("WeightUnitId")]
     [InverseProperty("UserPackageWeightUnits")]

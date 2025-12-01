@@ -14,8 +14,11 @@ public partial class UserThing
     [Column("id")]
     public Guid Id { get; set; }
 
+    [Column("user_id")]
+    public Guid UserId { get; set; }
+
     [Column("category_id")]
-    public Guid CategoryId { get; set; }
+    public Guid? CategoryId { get; set; }
 
     [Column("short_description")]
     [StringLength(200)]
@@ -70,7 +73,7 @@ public partial class UserThing
 
     [ForeignKey("CategoryId")]
     [InverseProperty("UserThings")]
-    public virtual UserThingCategory Category { get; set; } = null!;
+    public virtual ThingCategory? Category { get; set; }
 
     [ForeignKey("DimensionUnitId")]
     [InverseProperty("UserThingDimensionUnits")]
@@ -82,6 +85,10 @@ public partial class UserThing
 
     [InverseProperty("UserThing")]
     public virtual ICollection<TripUserThing> TripUserThings { get; set; } = new List<TripUserThing>();
+
+    [ForeignKey("UserId")]
+    [InverseProperty("UserThings")]
+    public virtual User User { get; set; } = null!;
 
     [ForeignKey("WeightUnitId")]
     [InverseProperty("UserThingWeightUnits")]

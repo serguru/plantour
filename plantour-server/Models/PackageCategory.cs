@@ -6,16 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.Models;
 
-[Table("user_package_categories", Schema = "plantour")]
-[Index("UserId", "Name", Name = "idx_user_package_categories_user_id_name", IsUnique = true)]
-public partial class UserPackageCategory
+[Table("package_categories", Schema = "plantour")]
+[Index("Name", Name = "package_categories_name_key", IsUnique = true)]
+public partial class PackageCategory
 {
     [Key]
     [Column("id")]
     public Guid Id { get; set; }
-
-    [Column("user_id")]
-    public Guid UserId { get; set; }
 
     [Column("name")]
     [StringLength(50)]
@@ -23,10 +20,6 @@ public partial class UserPackageCategory
 
     [Column("notes")]
     public string? Notes { get; set; }
-
-    [ForeignKey("UserId")]
-    [InverseProperty("UserPackageCategories")]
-    public virtual User User { get; set; } = null!;
 
     [InverseProperty("Category")]
     public virtual ICollection<UserPackage> UserPackages { get; set; } = new List<UserPackage>();

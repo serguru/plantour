@@ -22,5 +22,8 @@ public partial class PackingStatus
     public string? Notes { get; set; }
 
     [InverseProperty("PackingStatus")]
+    public virtual ICollection<TripUserPackage> TripUserPackages { get; set; } = new List<TripUserPackage>();
+
+    [InverseProperty("PackingStatus")]
     public virtual ICollection<TripUserThing> TripUserThings { get; set; } = new List<TripUserThing>();
 }

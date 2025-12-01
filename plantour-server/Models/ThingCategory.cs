@@ -6,24 +6,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.Models;
 
-[Table("user_thing_categories", Schema = "plantour")]
-[Index("UserId", "Name", Name = "idx_user_thing_categories_user_id_name", IsUnique = true)]
-public partial class UserThingCategory
+[Table("thing_categories", Schema = "plantour")]
+[Index("Name", Name = "thing_categories_name_key", IsUnique = true)]
+public partial class ThingCategory
 {
     [Key]
     [Column("id")]
     public Guid Id { get; set; }
 
-    [Column("user_id")]
-    public Guid UserId { get; set; }
-
     [Column("name")]
-    [StringLength(100)]
+    [StringLength(50)]
     public string Name { get; set; } = null!;
 
-    [ForeignKey("UserId")]
-    [InverseProperty("UserThingCategories")]
-    public virtual User User { get; set; } = null!;
+    [Column("notes")]
+    public string? Notes { get; set; }
 
     [InverseProperty("Category")]
     public virtual ICollection<UserThing> UserThings { get; set; } = new List<UserThing>();

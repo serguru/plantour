@@ -20,8 +20,11 @@ public partial class TripUserThing
     [Column("user_thing_id")]
     public Guid UserThingId { get; set; }
 
-    [Column("user_package_id")]
-    public Guid? UserPackageId { get; set; }
+    [Column("trip_user_package_id")]
+    public Guid? TripUserPackageId { get; set; }
+
+    [Column("qty")]
+    public int Qty { get; set; }
 
     [Column("packing_status_id")]
     public Guid? PackingStatusId { get; set; }
@@ -37,9 +40,9 @@ public partial class TripUserThing
     [InverseProperty("TripUserThings")]
     public virtual TripUser TripUser { get; set; } = null!;
 
-    [ForeignKey("UserPackageId")]
+    [ForeignKey("TripUserPackageId")]
     [InverseProperty("TripUserThings")]
-    public virtual UserPackage? UserPackage { get; set; }
+    public virtual TripUserPackage? TripUserPackage { get; set; }
 
     [ForeignKey("UserThingId")]
     [InverseProperty("TripUserThings")]
