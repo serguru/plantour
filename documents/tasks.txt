@@ -17,3 +17,7 @@
 
 Смотри plantour-server и plantour-client проекты. Напиши Angular service для управления юзерами. Этот сервис должен иметь методы, соответствующие AuthController endpoints. Сохраняй полученный token на локальном компе под одним и тем же именем для Админов и для Участников. Т.е. приложение клиент может рабоатать только как Админ, или только как участник, но не как Админ и Участник одновременно. Добавь методы для получения и использования CurrentUser объекта из token. В файл users-management.md добавь отчет на русском языке о том, что было сделано и как этим пользоваться.
 
+
+Смотри plantour-server\Controllers\UserPackageController.cs, GetAll() endpoint. В сервис plantour-client\projects\shared-lib\src\services\user-package-service.ts добавь метод для вызова GetAll() endpoint. Используй RxJs. Получи apiUrl также как это сделано в plantour-client\projects\shared-lib\src\services\users-service.ts
+
+Смотри \plantour-client\projects\mobile-app\src\app\components\packs -> PacksComponent. Этот компонент будет содержать список упаковок пользователя. Модель смотри что возвращает plantour-server\Controllers\UserPackageController.cs -> GetAll(). На OnInit вызови plantour-client\projects\shared-lib\src\services\user-package-service.ts -> getAll(). Полученный список покажи используя p-listbox PrimeNG control. 
