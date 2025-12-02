@@ -10,30 +10,48 @@
       <div *ngIf="isLoading" class="loading-container">
         <i class="pi pi-spin pi-spinner"></i> Loading...
       </div>
-      <form *ngIf="!isLoading" (ngSubmit)="onSubmit()">
+      <form *ngIf="!isLoading" [formGroup]="packForm" (ngSubmit)="onSubmit()">
         <div class="form-field">
-          <label for="shortDescription">Short Description *</label>
+          <label for="shortDescription">Short Description <span class="required">*</span></label>
           <input 
             pInputText 
             id="shortDescription" 
-            [(ngModel)]="shortDescription" 
-            name="shortDescription"
-            [maxlength]="200"
-            required
-            [disabled]="isSubmitting"
+            formControlName="shortDescription"
+            placeholder="Enter pack description"
+            [class.p-invalid]="isFieldInvalid('shortDescription')"
           />
+          <small class="error-message" *ngIf="isFieldInvalid('shortDescription')">
+            {{ getFieldError('shortDescription') }}
+          </small>
         </div>
 
         <div class="form-field">
           <label for="description">Description</label>
           <textarea 
             id="description" 
-            [(ngModel)]="description" 
-            name="description"
+            formControlName="description"
             rows="5"
-            [disabled]="isSubmitting"
+            placeholder="Enter detailed description (optional)"
             class="form-textarea"
+            [class.p-invalid]="isFieldInvalid('description')"
           ></textarea>
+          <small class="error-message" *ngIf="isFieldInvalid('description')">
+            {{ getFieldError('description') }}
+          </small>
+        </div>
+
+        <div class="form-field">
+          <label for="category">Category</label>
+          <p-select
+            id="category"
+            formControlName="categoryId"
+            [options]="categories"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select a category (optional)"
+            [showClear]="true"
+            [style]="{'width': '100%'}"
+          />
         </div>
 
         <div class="form-actions">
@@ -41,6 +59,7 @@
             label="Cancel" 
             icon="pi pi-times" 
             severity="secondary"
+            type="button"
             (onClick)="onCancel()"
             [disabled]="isSubmitting"
           ></p-button>

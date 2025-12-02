@@ -45,6 +45,10 @@
     margin-bottom: 0.5rem;
     font-weight: 500;
     color: var(--text-color, #333);
+
+    .required {
+      color: var(--red-500, #ef4444);
+    }
   }
   
   input, textarea {
@@ -58,6 +62,7 @@
     font-family: inherit;
     font-size: 1rem;
     resize: vertical;
+    width: 100%;
 
     &:focus {
       outline: none;
@@ -65,10 +70,16 @@
       box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
     }
 
-    &:disabled {
-      background-color: var(--surface-100, #f3f4f6);
-      cursor: not-allowed;
+    &.p-invalid {
+      border-color: var(--red-500, #ef4444);
     }
+  }
+
+  .error-message {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--red-500, #ef4444);
+    font-size: 0.875rem;
   }
 }
 

@@ -23,13 +23,13 @@ public class UserPackageService : IUserPackageService
         var userPackages = await _repository.GetAllAsync();
         var dtos = _mapper.ToDtos(userPackages);
         
-        var categories = await _categoryRepository.GetAllAsync();
-        var categoriesLookup = _mapper.ToCategoryLookups(categories);
+        // var categories = await _categoryRepository.GetAllAsync();
+        // var categoriesLookup = _mapper.ToCategoryLookups(categories);
         
-        foreach (var dto in dtos)
-        {
-            dto.CategoriesLookup = categoriesLookup;
-        }
+        // foreach (var dto in dtos)
+        // {
+        //     dto.CategoriesLookup = categoriesLookup;
+        // }
         
         return dtos;
     }
@@ -41,10 +41,6 @@ public class UserPackageService : IUserPackageService
             return null;
             
         var dto = _mapper.ToDto(userPackage);
-        
-        var categories = await _categoryRepository.GetAllAsync();
-        dto.CategoriesLookup = _mapper.ToCategoryLookups(categories);
-        
         return dto;
     }
 
@@ -55,9 +51,6 @@ public class UserPackageService : IUserPackageService
         
         var created = await _repository.AddAsync(userPackage);
         var dto = _mapper.ToDto(created);
-        
-        var categories = await _categoryRepository.GetAllAsync();
-        dto.CategoriesLookup = _mapper.ToCategoryLookups(categories);
         
         return dto;
     }

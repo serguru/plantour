@@ -1,17 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
+import { Select } from 'primeng/select';
 import { NavigationService } from '../../../services/navigation.service';
 import { UserPackageService, UsersService, MessagesService } from 'shared-lib';
 
 @Component({
   selector: 'app-add-pack',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardModule, InputTextModule, ButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, Select],
   templateUrl: './add-pack.component.html',
   styleUrl: './add-pack.component.scss'
 })
@@ -21,20 +22,29 @@ export class AddPackComponent implements OnInit {
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
 
-  shortDescription: string = '';
-  description: string = '';
-  categoryId: string | null = null;
+  packForm: FormGroup;
   categories: any[] = [];
   isSubmitting: boolean = false;
+  isLoadingCategories: boolean = true;
+
+  constructor() {
+    this.packForm = this.fb.group({
+      shortDescription: ['', [Validators.required, Validators.maxLength(200)]],
+      description: [''],
+      categoryId: [null]
+    });
+  }
 
   ngOnInit(): void {
     this.navigationService.setCustomBackPath('/packs', true);
+//    this.loadCategories();
   }
 
   onSubmit(): void {
-    if (!this.shortDescription || !this.shortDescription.trim()) {
-      this.messagesService.showError('Short description is required');
+    if (this.packForm.invalid) {
+      this.packForm.markAllAsTouched();
       return;
     }
 
@@ -46,11 +56,12 @@ export class AddPackComponent implements OnInit {
 
     this.isSubmitting = true;
 
+    const formValue = this.packForm.value;
     const request = {
       userId: currentUser.user_id,
-      categoryId: this.categoryId || null,
-      shortDescription: this.shortDescription.trim(),
-      description: this.description?.trim() || null
+      categoryId: formValue.categoryId || null,
+      shortDescription: formValue.shortDescription.trim(),
+      description: formValue.description?.trim() || null
     };
 
     this.userPackageService.add(request).subscribe({
@@ -68,5 +79,22 @@ export class AddPackComponent implements OnInit {
 
   onCancel(): void {
     this.router.navigate(['/packs']);
+  }
+
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.packForm.get(fieldName);
+    return !!(field && field.invalid && field.touched);
+  }
+
+  getFieldError(fieldName: string): string {
+    const field = this.packForm.get(fieldName);
+    if (field?.hasError('required') && field?.touched) {
+      return 'This field is required';
+    }
+    if (field?.hasError('maxlength') && field?.touched) {
+      const maxLength = field.errors?.['maxlength'].requiredLength;
+      return `Maximum ${maxLength} characters allowed`;
+    }
+    return '';
   }
 }

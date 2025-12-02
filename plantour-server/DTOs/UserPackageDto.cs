@@ -8,5 +8,4 @@ public class UserPackageDto
     public string? CategoryName { get; set; }
     public string ShortDescription { get; set; } = null!;
     public string? Description { get; set; }
-    public List<CategoryLookupDto> CategoriesLookup { get; set; } = new();
 }

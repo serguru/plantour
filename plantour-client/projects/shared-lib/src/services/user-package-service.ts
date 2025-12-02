@@ -55,6 +55,16 @@ export class UserPackageService {
     );
   }
 
+  getCategories(): Observable<any[]> {
+    // Get categories from any existing package or create empty request
+    return this.http.get<any>(`${this.apiUrl}/api/UserPackage`).pipe(
+      tap(packages => {
+        // Store packages
+        this.userPackagesSubject.next(packages);
+      })
+    );
+  }
+
   getUserPackages(): any[] {
     return this.userPackagesSubject.value;
   }
