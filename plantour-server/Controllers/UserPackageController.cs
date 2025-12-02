@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using plantour_server.DbModels;
 using plantour_server.DTOs;
-using plantour_server.Repositories;
+using plantour_server.Services;
 
 namespace plantour_server.Controllers;
 
@@ -9,11 +8,11 @@ namespace plantour_server.Controllers;
 [Route("api/[controller]")]
 public class UserPackageController : ControllerBase
 {
-    private readonly UserPackageRepository _repository;
+    private readonly IUserPackageService _service;
 
-    public UserPackageController(UserPackageRepository repository)
+    public UserPackageController(IUserPackageService service)
     {
-        _repository = repository;
+        _service = service;
     }
 
     [HttpGet]
@@ -21,15 +20,7 @@ public class UserPackageController : ControllerBase
     {
         try
         {
-            var userPackages = await _repository.GetAllAsync();
-            var dtos = userPackages.Select(up => new UserPackageDto
-            {
-                Id = up.Id,
-                UserId = up.UserId,
-                CategoryId = up.CategoryId,
-                ShortDescription = up.ShortDescription,
-                Description = up.Description
-            });
+            var dtos = await _service.GetAllAsync();
             return Ok(dtos);
         }
         catch (Exception ex)
@@ -43,20 +34,11 @@ public class UserPackageController : ControllerBase
     {
         try
         {
-            var userPackage = await _repository.GetByIdAsync(id);
-            if (userPackage == null)
+            var dto = await _service.GetByIdAsync(id);
+            if (dto == null)
             {
                 return NotFound(new { message = "User package not found" });
             }
-
-            var dto = new UserPackageDto
-            {
-                Id = userPackage.Id,
-                UserId = userPackage.UserId,
-                CategoryId = userPackage.CategoryId,
-                ShortDescription = userPackage.ShortDescription,
-                Description = userPackage.Description
-            };
 
             return Ok(dto);
         }
@@ -71,26 +53,7 @@ public class UserPackageController : ControllerBase
     {
         try
         {
-            var userPackage = new UserPackage
-            {
-                Id = Guid.NewGuid(),
-                UserId = request.UserId,
-                CategoryId = request.CategoryId,
-                ShortDescription = request.ShortDescription,
-                Description = request.Description
-            };
-
-            var created = await _repository.AddAsync(userPackage);
-
-            var dto = new UserPackageDto
-            {
-                Id = created.Id,
-                UserId = created.UserId,
-                CategoryId = created.CategoryId,
-                ShortDescription = created.ShortDescription,
-                Description = created.Description
-            };
-
+            var dto = await _service.AddAsync(request);
             return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
         }
         catch (Exception ex)
@@ -104,28 +67,11 @@ public class UserPackageController : ControllerBase
     {
         try
         {
-            var userPackage = await _repository.GetByIdAsync(id);
-            if (userPackage == null)
+            var updated = await _service.UpdateAsync(id, request);
+            if (!updated)
             {
                 return NotFound(new { message = "User package not found" });
             }
-
-            if (request.CategoryId.HasValue)
-            {
-                userPackage.CategoryId = request.CategoryId;
-            }
-
-            if (!string.IsNullOrEmpty(request.ShortDescription))
-            {
-                userPackage.ShortDescription = request.ShortDescription;
-            }
-
-            if (request.Description != null)
-            {
-                userPackage.Description = request.Description;
-            }
-
-            await _repository.UpdateAsync(userPackage);
 
             return NoContent();
         }
@@ -140,13 +86,11 @@ public class UserPackageController : ControllerBase
     {
         try
         {
-            var exists = await _repository.ExistsAsync(id);
-            if (!exists)
+            var deleted = await _service.DeleteAsync(id);
+            if (!deleted)
             {
                 return NotFound(new { message = "User package not found" });
             }
-
-            await _repository.DeleteAsync(id);
 
             return NoContent();
         }

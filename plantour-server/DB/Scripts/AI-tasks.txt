@@ -20,3 +20,5 @@
 
  
 Создай generic репозиторий GenericRepository<T> в папке Repositories. Создай UserPackageRepository там же. Включи в него CRUD для UserPackage.
+
+Рефактор UserPackageController. Не вызывай UserPackageRepository из контнроллера. Создай Services/UserPackageService. В сервисе используй UserPackageRepository. Переделай вызовы Add, Edit и другие в UserPackageController с репозитория на сервис. Используй Riok.Mapperly для маппинга.

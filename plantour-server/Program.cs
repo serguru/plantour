@@ -72,6 +72,7 @@ builder.Services.AddSingleton<IAuthorizationHandler, UserRoleHandler>();
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserPackageService, UserPackageService>();
 
 // Register repositories
 builder.Services.AddScoped<plantour_server.Repositories.UserPackageRepository>();
