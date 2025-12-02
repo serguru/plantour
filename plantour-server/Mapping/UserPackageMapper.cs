@@ -16,7 +16,4 @@ public partial class UserPackageMapper
     
     public partial void UpdateEntity(UpdateUserPackageRequest request, UserPackage entity);
     
-    public partial CategoryLookupDto ToCategoryLookup(PackageCategory category);
-    
-    public partial List<CategoryLookupDto> ToCategoryLookups(IEnumerable<PackageCategory> categories);
 }
