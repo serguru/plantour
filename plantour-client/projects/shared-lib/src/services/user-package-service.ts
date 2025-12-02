@@ -24,6 +24,37 @@ export class UserPackageService {
     );
   }
 
+  getById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/api/UserPackage/${id}`);
+  }
+
+  add(request: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/api/UserPackage`, request).pipe(
+      tap(() => {
+        // Refresh the list after adding
+        this.getAll().subscribe();
+      })
+    );
+  }
+
+  update(id: string, request: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/api/UserPackage/${id}`, request).pipe(
+      tap(() => {
+        // Refresh the list after updating
+        this.getAll().subscribe();
+      })
+    );
+  }
+
+  delete(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/api/UserPackage/${id}`).pipe(
+      tap(() => {
+        // Refresh the list after deleting
+        this.getAll().subscribe();
+      })
+    );
+  }
+
   getUserPackages(): any[] {
     return this.userPackagesSubject.value;
   }

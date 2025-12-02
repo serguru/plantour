@@ -57,8 +57,15 @@ export class PacksComponent implements OnInit {
     });
 
     if (result === 'ok') {
-      // TODO: Add actual delete logic here
-      console.log('Delete pack:', pack);
+      this.userPackageService.delete(pack.id).subscribe({
+        next: () => {
+          this.messagesService.showInfo('Pack deleted successfully');
+        },
+        error: (error) => {
+          console.error('Error deleting pack:', error);
+          this.messagesService.showError('Failed to delete pack');
+        }
+      });
     }
   }
 }

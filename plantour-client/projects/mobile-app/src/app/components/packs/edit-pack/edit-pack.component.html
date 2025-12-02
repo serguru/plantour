@@ -7,7 +7,52 @@
       </div>
     </ng-template>
     <div class="content">
-      <p>Edit pack form will be here</p>
+      <div *ngIf="isLoading" class="loading-container">
+        <i class="pi pi-spin pi-spinner"></i> Loading...
+      </div>
+      <form *ngIf="!isLoading" (ngSubmit)="onSubmit()">
+        <div class="form-field">
+          <label for="shortDescription">Short Description *</label>
+          <input 
+            pInputText 
+            id="shortDescription" 
+            [(ngModel)]="shortDescription" 
+            name="shortDescription"
+            [maxlength]="200"
+            required
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="description">Description</label>
+          <textarea 
+            id="description" 
+            [(ngModel)]="description" 
+            name="description"
+            rows="5"
+            [disabled]="isSubmitting"
+            class="form-textarea"
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <p-button 
+            label="Cancel" 
+            icon="pi pi-times" 
+            severity="secondary"
+            (onClick)="onCancel()"
+            [disabled]="isSubmitting"
+          ></p-button>
+          <p-button 
+            label="Update" 
+            icon="pi pi-check" 
+            type="submit"
+            [disabled]="isSubmitting"
+            [loading]="isSubmitting"
+          ></p-button>
+        </div>
+      </form>
     </div>
   </p-card>
 </div>

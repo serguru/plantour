@@ -25,3 +25,47 @@
 .content {
   padding: 1rem;
 }
+
+.form-field {
+  margin-bottom: 1.5rem;
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-color, #333);
+  }
+  
+  input, textarea {
+    width: 100%;
+  }
+
+  .form-textarea {
+    padding: 0.75rem;
+    border: 1px solid var(--surface-border, #ddd);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color, #3b82f6);
+      box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+    }
+
+    &:disabled {
+      background-color: var(--surface-100, #f3f4f6);
+      cursor: not-allowed;
+    }
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-border, #e5e7eb);
+}
