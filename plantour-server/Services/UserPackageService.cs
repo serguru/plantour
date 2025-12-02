@@ -5,97 +5,74 @@ using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
-public class UserPackageService : IUserPackageService
+public class UserPackageService : BaseService, IUserPackageService
 {
-    private readonly UserPackageRepository _repository;
-    private readonly PackageCategoryRepository _categoryRepository;
+    private readonly UserPackageRepository _userPackageRepository;
+    private readonly PackageCategoryRepository _packageCategoryRepository;
     private readonly UserPackageMapper _mapper;
 
-    public UserPackageService(UserPackageRepository repository, PackageCategoryRepository categoryRepository)
+    public UserPackageService(
+        UserPackageRepository userPackageRepository,
+        PackageCategoryRepository packageCategoryRepository,
+        IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
     {
-        _repository = repository;
-        _categoryRepository = categoryRepository;
+        _userPackageRepository = userPackageRepository;
+        _packageCategoryRepository = packageCategoryRepository;
         _mapper = new UserPackageMapper();
     }
 
     public async Task<IEnumerable<UserPackageDto>> GetAllAsync()
     {
-        var userPackages = await _repository.GetAllAsync();
-        var dtos = _mapper.ToDtos(userPackages);
-        
-        // var categories = await _categoryRepository.GetAllAsync();
-        // var categoriesLookup = _mapper.ToCategoryLookups(categories);
-        
-        // foreach (var dto in dtos)
-        // {
-        //     dto.CategoriesLookup = categoriesLookup;
-        // }
-        
-        return dtos;
+        var entities = await _userPackageRepository.GetAllAsync();
+        return _mapper.ToDtos(entities);
     }
 
     public async Task<UserPackageDto?> GetByIdAsync(Guid id)
     {
-        var userPackage = await _repository.GetByIdAsync(id);
-        if (userPackage == null)
-            return null;
-            
-        var dto = _mapper.ToDto(userPackage);
-        return dto;
+        var entity = await _userPackageRepository.GetByIdAsync(id);
+        return entity != null ? _mapper.ToDto(entity) : null;
     }
 
     public async Task<UserPackageDto> AddAsync(CreateUserPackageRequest request)
     {
-        var userPackage = _mapper.ToEntity(request);
-        userPackage.Id = Guid.NewGuid();
-        
-        var created = await _repository.AddAsync(userPackage);
-        var dto = _mapper.ToDto(created);
-        
-        return dto;
+        var entity = _mapper.ToEntity(request);
+        await _userPackageRepository.AddAsync(entity);
+        return _mapper.ToDto(entity);
     }
 
-    public async Task<bool> UpdateAsync(Guid id, UpdateUserPackageRequest request)
+    public async Task<bool> UpdateAsync(UpdateUserPackageRequest request)
     {
-        var userPackage = await _repository.GetByIdAsync(id);
-        if (userPackage == null)
+        var entity = await _userPackageRepository.GetByIdAsync(request.PackageId);
+        if (entity == null)
         {
             return false;
         }
-
-        if (request.CategoryId.HasValue)
-        {
-            userPackage.CategoryId = request.CategoryId;
-        }
-
-        if (!string.IsNullOrEmpty(request.ShortDescription))
-        {
-            userPackage.ShortDescription = request.ShortDescription;
-        }
-
-        if (request.Description != null)
-        {
-            userPackage.Description = request.Description;
-        }
-
-        await _repository.UpdateAsync(userPackage);
+        
+        _mapper.UpdateEntity(request, entity);
+        await _userPackageRepository.UpdateAsync(entity);
         return true;
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var exists = await _repository.ExistsAsync(id);
-        if (!exists)
+        var entity = await _userPackageRepository.GetByIdAsync(id);
+        if (entity == null)
         {
             return false;
         }
-
-        await _repository.DeleteAsync(id);
+        
+        await _userPackageRepository.DeleteAsync(id);
         return true;
     }
 
-    public async Task<bool> ExistsAsync(Guid id)
+    public async Task<IEnumerable<PackageCategoryDto>> GetAllPackageCategoriesAsync()
     {
-        return await _repository.ExistsAsync(id);
+        var categories = await _packageCategoryRepository.GetAllAsync();
+        return categories.Select(c => new PackageCategoryDto
+        {
+            Id = c.Id,
+            Name = c.Name,
+            Notes = c.Notes
+        });
     }
 }

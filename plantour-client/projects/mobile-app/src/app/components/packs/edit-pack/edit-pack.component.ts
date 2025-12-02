@@ -42,12 +42,19 @@ export class EditPackComponent implements OnInit {
     this.navigationService.setCustomBackPath('/packs', true);
     
     this.packageId = this.route.snapshot.paramMap.get('id') || '';
+
     if (this.packageId) {
       this.loadPackage();
     } else {
       this.messagesService.showError('Package ID not found');
       this.router.navigate(['/packs']);
+      return;
     }
+
+    this.userPackageService.getAllCategories().subscribe(categories =>
+      this.categories = categories
+    );
+
   }
 
   private loadPackage(): void {
@@ -58,7 +65,6 @@ export class EditPackComponent implements OnInit {
           description: pack.description || '',
           categoryId: pack.categoryId || null
         });
-        this.categories = pack.categoriesLookup || [];
         this.isLoading = false;
       },
       error: (error) => {
@@ -79,12 +85,13 @@ export class EditPackComponent implements OnInit {
 
     const formValue = this.packForm.value;
     const request = {
+      packageId: this.packageId,
       categoryId: formValue.categoryId || null,
       shortDescription: formValue.shortDescription.trim(),
       description: formValue.description?.trim() || null
     };
 
-    this.userPackageService.update(this.packageId, request).subscribe({
+    this.userPackageService.update(request).subscribe({
       next: () => {
         this.messagesService.showInfo('Pack updated successfully');
         this.router.navigate(['/packs']);

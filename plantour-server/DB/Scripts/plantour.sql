@@ -145,7 +145,7 @@ create table thing_categories (
     notes text
 );
 
-insert into package_categories (name) values
+insert into thing_categories (name) values
 ('Accessories'),
 ('Baby & Kids'),
 ('Clothing'),

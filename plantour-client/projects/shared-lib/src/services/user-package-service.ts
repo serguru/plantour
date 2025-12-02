@@ -1,75 +1,70 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../environment.token';
+
+export interface UserPackageDto {
+  id: string;
+  userId: string;
+  categoryId?: string | null;
+  categoryName?: string | null;
+  shortDescription: string;
+  description?: string | null;
+}
+
+export interface CreateUserPackageRequest {
+  categoryId?: string | null;
+  shortDescription: string;
+  description?: string | null;
+}
+
+export interface UpdateUserPackageRequest {
+  packageId: string;
+  categoryId?: string | null;
+  shortDescription: string;
+  description?: string | null;
+}
+
+export interface PackageCategoryDto {
+  id: string;
+  name: string;
+  notes?: string | null;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserPackageService {
   private apiUrl: string;
-  private userPackagesSubject = new BehaviorSubject<any[]>([]);
-  userPackages$ = this.userPackagesSubject.asObservable();
 
   constructor(
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    this.apiUrl = environment.apiUrl;
+    this.apiUrl = `${environment.apiUrl}/api/userpackage`;
   }
 
-  getAll(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/api/UserPackage`).pipe(
-      tap(packages => this.userPackagesSubject.next(packages))
-    );
+  getAll(): Observable<UserPackageDto[]> {
+    return this.http.get<UserPackageDto[]>(this.apiUrl);
   }
 
-  getById(id: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/api/UserPackage/${id}`);
+  getById(id: string): Observable<UserPackageDto> {
+    return this.http.get<UserPackageDto>(`${this.apiUrl}/${id}`);
   }
 
-  add(request: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/api/UserPackage`, request).pipe(
-      tap(() => {
-        // Refresh the list after adding
-        this.getAll().subscribe();
-      })
-    );
+  add(request: CreateUserPackageRequest): Observable<UserPackageDto> {
+    return this.http.post<UserPackageDto>(this.apiUrl, request);
   }
 
-  update(id: string, request: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/api/UserPackage/${id}`, request).pipe(
-      tap(() => {
-        // Refresh the list after updating
-        this.getAll().subscribe();
-      })
-    );
+  update(request: UpdateUserPackageRequest): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}`, request);
   }
 
-  delete(id: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/api/UserPackage/${id}`).pipe(
-      tap(() => {
-        // Refresh the list after deleting
-        this.getAll().subscribe();
-      })
-    );
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  getCategories(): Observable<any[]> {
-    // Get categories from any existing package or create empty request
-    return this.http.get<any>(`${this.apiUrl}/api/UserPackage`).pipe(
-      tap(packages => {
-        // Store packages
-        this.userPackagesSubject.next(packages);
-      })
-    );
-  }
-
-  getUserPackages(): any[] {
-    return this.userPackagesSubject.value;
-  }
-
-  setUserPackages(packages: any[]): void {
-    this.userPackagesSubject.next(packages);
+  getAllCategories(): Observable<PackageCategoryDto[]> {
+    return this.http.get<PackageCategoryDto[]>(`${this.apiUrl}/categories`);
   }
 }

@@ -27,7 +27,6 @@ export class AddPackComponent implements OnInit {
   packForm: FormGroup;
   categories: any[] = [];
   isSubmitting: boolean = false;
-  isLoadingCategories: boolean = true;
 
   constructor() {
     this.packForm = this.fb.group({
@@ -39,11 +38,13 @@ export class AddPackComponent implements OnInit {
 
   ngOnInit(): void {
     this.navigationService.setCustomBackPath('/packs', true);
-//    this.loadCategories();
+    this.userPackageService.getAllCategories().subscribe(categories =>
+      this.categories = categories
+    );
   }
 
   onSubmit(): void {
-    if (this.packForm.invalid) {
+      if(this.packForm.invalid) {
       this.packForm.markAllAsTouched();
       return;
     }

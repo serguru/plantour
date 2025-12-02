@@ -19,9 +19,9 @@
       </div>
     </ng-template>
     <div class="content">
-      @if ((userPackages$ | async) && (userPackages$ | async)!.length > 0) {
+      @if (userPackages && userPackages!.length > 0) {
         <p-listbox 
-          [options]="(userPackages$ | async)!" 
+          [options]="userPackages!" 
           [(ngModel)]="selectedPack"
           optionLabel="shortDescription"
           [listStyle]="{'max-height': '60vh'}"

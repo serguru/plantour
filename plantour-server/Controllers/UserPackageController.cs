@@ -62,12 +62,12 @@ public class UserPackageController : ControllerBase
         }
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> Update(Guid id, [FromBody] UpdateUserPackageRequest request)
+    [HttpPut]
+    public async Task<ActionResult> Update([FromBody] UpdateUserPackageRequest request)
     {
         try
         {
-            var updated = await _service.UpdateAsync(id, request);
+            var updated = await _service.UpdateAsync(request);
             if (!updated)
             {
                 return NotFound(new { message = "User package not found" });
@@ -99,4 +99,19 @@ public class UserPackageController : ControllerBase
             return StatusCode(500, new { message = "An error occurred while deleting the user package", details = ex.Message });
         }
     }
+
+    [HttpGet("categories")]
+    public async Task<ActionResult<IEnumerable<PackageCategoryDto>>> GetAllCategories()
+    {
+        try
+        {
+            var dtos = await _service.GetAllPackageCategoriesAsync();
+            return Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while retrieving categories", details = ex.Message });
+        }
+    }
+
 }

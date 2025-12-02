@@ -3,51 +3,87 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
-public class UserPackageRepository : GenericRepository<UserPackage>
+public class UserPackageRepository : BaseRepository
 {
-    public UserPackageRepository(PlantourContext context) : base(context)
+
+    private readonly DbSet<UserPackage> _dbSet;
+    private readonly PlantourContext _context;
+
+    public UserPackageRepository(PlantourContext context, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
     {
+        _dbSet = context.Set<UserPackage>();
+        _context = context;
     }
 
-    public override async Task<UserPackage?> GetByIdAsync(Guid id)
+    public async Task<UserPackage?> GetByIdAsync(Guid id)
     {
+        if (CurrentUser == null)
+        {
+            return null;
+        }
         return await _dbSet
-            .Include(up => up.User)
-            .Include(up => up.Category)
-            .Include(up => up.TripUserPackages)
-            .FirstOrDefaultAsync(up => up.Id == id);
+            .Include(x => x.Category)
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == CurrentUser.UserId);
     }
 
-    public override async Task<IEnumerable<UserPackage>> GetAllAsync()
+    public async Task<UserPackage?> GetByDescriptionAsync(string description)
     {
+        if (CurrentUser == null)
+        {
+            return null;
+        }
         return await _dbSet
-            .Include(up => up.User)
-            .Include(up => up.Category)
+            .FirstOrDefaultAsync(x => x.ShortDescription == description && x.UserId == CurrentUser.UserId);
+    }
+
+    public async Task<IEnumerable<UserPackage>> GetAllAsync()
+    {
+        if (CurrentUser == null)
+        {
+            return Array.Empty<UserPackage>();
+        }
+
+        return await _dbSet
+            .Include(x => x.Category)
+            .Where(x => x.UserId == CurrentUser.UserId)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<UserPackage>> GetByUserIdAsync(Guid userId)
+    public virtual async Task AddAsync(UserPackage entity)
     {
-        return await _dbSet
-            .Include(up => up.Category)
-            .Include(up => up.TripUserPackages)
-            .Where(up => up.UserId == userId)
-            .ToListAsync();
+        if (CurrentUser == null)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+        var existingEntity = await GetByDescriptionAsync(entity.ShortDescription);
+        if (existingEntity != null)
+        {
+            throw new InvalidOperationException("Package with the same description already exists");
+        }
+        _context.UserPackages.Add(entity);
+        await _context.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<UserPackage>> GetByCategoryIdAsync(Guid categoryId)
+    public virtual async Task UpdateAsync(UserPackage entity)
     {
-        return await _dbSet
-            .Include(up => up.User)
-            .Include(up => up.TripUserPackages)
-            .Where(up => up.CategoryId == categoryId)
-            .ToListAsync();
+        var existingEntity = await GetByIdAsync(entity.Id);
+        if (existingEntity == null || existingEntity.UserId != CurrentUser!.UserId)
+        {
+            throw new InvalidOperationException("User package not found or access denied");
+        }
+        _context.UserPackages.Attach(entity);
+        _context.Entry(entity).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
     }
 
-    public async Task<UserPackage?> GetByUserAndDescriptionAsync(Guid userId, string shortDescription)
+    public virtual async Task DeleteAsync(Guid id)
     {
-        return await _dbSet
-            .Include(up => up.Category)
-            .FirstOrDefaultAsync(up => up.UserId == userId && up.ShortDescription == shortDescription);
+        var entity = await GetByIdAsync(id);
+        if (entity == null || entity.UserId != CurrentUser!.UserId)
+        {
+            return;
+        }
+        _context.UserPackages.Remove(entity);
+        await _context.SaveChangesAsync();
     }
 }

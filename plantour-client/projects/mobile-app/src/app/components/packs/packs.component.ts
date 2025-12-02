@@ -6,7 +6,7 @@ import { CardModule } from 'primeng/card';
 import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
 import { NavigationService } from '../../services/navigation.service';
-import { UserPackageService, MessagesService } from 'shared-lib';
+import { MessagesService, UserPackageService } from 'shared-lib';
 
 @Component({
   selector: 'app-packs',
@@ -20,8 +20,8 @@ export class PacksComponent implements OnInit {
   private userPackageService = inject(UserPackageService);
   private messagesService = inject(MessagesService);
   private router = inject(Router);
-  
-  userPackages$ = this.userPackageService.userPackages$;
+
+  userPackages: any[] = [];
   selectedPack: any = null;
 
   ngOnInit(): void {
@@ -33,6 +33,7 @@ export class PacksComponent implements OnInit {
     this.userPackageService.getAll().subscribe({
       next: (packages) => {
         // packages are automatically updated in the service
+        this.userPackages = packages;
       },
       error: (error) => {
         console.error('Error loading user packages:', error);
@@ -59,6 +60,7 @@ export class PacksComponent implements OnInit {
     if (result === 'ok') {
       this.userPackageService.delete(pack.id).subscribe({
         next: () => {
+          this.loadUserPackages();
           this.messagesService.showInfo('Pack deleted successfully');
         },
         error: (error) => {
