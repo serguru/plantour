@@ -31,24 +31,18 @@ public class UserRoleHandler : AuthorizationHandler<UserRoleRequirement>
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext == null)
         {
-            context.Fail();
             return Task.CompletedTask;
         }
 
         var currentUser = httpContext.Items["CurrentUser"] as CurrentUser;
         if (currentUser == null)
         {
-            context.Fail();
             return Task.CompletedTask;
         }
 
         if (Array.IndexOf(requirement.AllowedRoles, currentUser.Role) >= 0)
         {
             context.Succeed(requirement);
-        }
-        else
-        {
-            context.Fail();
         }
 
         return Task.CompletedTask;

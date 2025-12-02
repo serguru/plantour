@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { UsersService, MessagesService } from 'shared-lib';
 import { catchError, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { EMPTY, of } from 'rxjs';
 
 @Component({
   selector: 'app-sign-in',
@@ -55,17 +55,15 @@ export class SignInComponent {
     this.usersService.loginAdmin(email, password).pipe(
       catchError((error) => {
         this.errorMessage = error.error?.message || 'Sign in failed. Please try again.';
-        console.error('Sign in error:', error);
-        return of(null);
+        //console.error('Sign in error:', error);
+        return EMPTY;
       }),
       finalize(() => {
         this.isLoading = false;
       })
     ).subscribe({
       next: (result) => {
-        if (result !== null) {
-          this.router.navigate(['']);
-        }
+        this.router.navigate(['']);
         this.messagesService.showInfo('Sign in successful', 'Welcome back!');
       }
     });

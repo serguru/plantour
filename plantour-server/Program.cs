@@ -60,7 +60,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ParticipantOnly", policy =>
         policy.Requirements.Add(new UserRoleRequirement(UserRole.Participant)));
 
-    options.AddPolicy("AdminAndParticipant", policy =>
+    options.AddPolicy("AdminOrParticipant", policy =>
         policy.Requirements.Add(new UserRoleRequirement(UserRole.Admin, UserRole.Participant)));
 
     options.AddPolicy("Public", policy =>
@@ -125,7 +125,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+// Only redirect to HTTPS in production
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors("AllowOrigins");
 

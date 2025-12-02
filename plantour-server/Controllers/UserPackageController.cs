@@ -7,11 +7,9 @@ using PlantourApi.Extensions;
 
 namespace plantour_server.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/[controller]")]
-// [Authorize(Policy = "AdminAndParticipant")]
-[AllowAnonymous]
+[Authorize(Policy = "AdminOrParticipant")]
 public class UserPackageController : ControllerBase
 {
     private readonly IUserPackageRepository _userPackageRepository;

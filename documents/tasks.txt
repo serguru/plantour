@@ -21,3 +21,5 @@
 Смотри plantour-server\Controllers\UserPackageController.cs, GetAll() endpoint. В сервис plantour-client\projects\shared-lib\src\services\user-package-service.ts добавь метод для вызова GetAll() endpoint. Используй RxJs. Получи apiUrl также как это сделано в plantour-client\projects\shared-lib\src\services\users-service.ts
 
 Смотри \plantour-client\projects\mobile-app\src\app\components\packs -> PacksComponent. Этот компонент будет содержать список упаковок пользователя. Модель смотри что возвращает plantour-server\Controllers\UserPackageController.cs -> GetAll(). На OnInit вызови plantour-client\projects\shared-lib\src\services\user-package-service.ts -> getAll(). Полученный список покажи используя p-listbox PrimeNG control. 
+
+Plantour на телефоне в режиме отладки перестал поСЫЛАТЬ  запросы на сервер - локальный комп. ПОчему?

@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
   // Put development API endpoints and feature flags here
-  apiUrl: 'https://localhost:7095',
+  apiUrl: 'http://192.168.4.32:5217',
 };
