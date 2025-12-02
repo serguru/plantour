@@ -76,6 +76,7 @@ builder.Services.AddScoped<IUserPackageService, UserPackageService>();
 
 // Register repositories
 builder.Services.AddScoped<plantour_server.Repositories.UserPackageRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.PackageCategoryRepository>();
 
 // Configure CORS for Angular client
 builder.Services.AddCors(options =>

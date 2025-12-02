@@ -7,6 +7,7 @@ namespace plantour_server.Mapping;
 [Mapper]
 public partial class UserPackageMapper
 {
+    [MapProperty(nameof(UserPackage.Category.Name), nameof(UserPackageDto.CategoryName))]
     public partial UserPackageDto ToDto(UserPackage entity);
     
     public partial IEnumerable<UserPackageDto> ToDtos(IEnumerable<UserPackage> entities);
@@ -14,4 +15,8 @@ public partial class UserPackageMapper
     public partial UserPackage ToEntity(CreateUserPackageRequest request);
     
     public partial void UpdateEntity(UpdateUserPackageRequest request, UserPackage entity);
+    
+    public partial CategoryLookupDto ToCategoryLookup(PackageCategory category);
+    
+    public partial List<CategoryLookupDto> ToCategoryLookups(IEnumerable<PackageCategory> categories);
 }
