@@ -73,10 +73,13 @@ builder.Services.AddSingleton<IAuthorizationHandler, UserRoleHandler>();
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserPackageService, UserPackageService>();
+builder.Services.AddScoped<IUserThingService, UserThingService>();
 
 // Register repositories
 builder.Services.AddScoped<plantour_server.Repositories.UserPackageRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.PackageCategoryRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.UserThingRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
 
 // Configure CORS for Angular client
 builder.Services.AddCors(options =>
