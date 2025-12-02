@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace plantour_server.Models;
+namespace plantour_server.DbModels;
 
 [Table("trips", Schema = "plantour")]
 [Index("OwnerId", Name = "idx_trips_owner_id")]

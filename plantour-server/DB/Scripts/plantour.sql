@@ -211,117 +211,29 @@ create index idx_refresh_tokens_token on refresh_tokens(token);
 
 create table user_things (
     id uuid not null primary key default gen_random_uuid(),
-
     user_id uuid not null references users(id) on delete cascade,
-    category_id uuid null references thing_categories(id) on delete cascade,
-
+    category_id uuid null references thing_categories(id) on delete set null,
     short_description varchar(200) not null,
-    description text,
-    brand varchar(100),
-    model varchar(100),
-    color varchar(50),
-
-    weight_value decimal(10,3),
-    weight_unit_id uuid references units(id),
-
-    length_value decimal(10,2),
-    width_value decimal(10,2),
-    height_value decimal(10,2),
-    dimension_unit_id uuid references units(id),
-
-    purchase_date date,
-    purchase_price decimal(10,2),
-    purchase_currency_id uuid references currencies(id),
-
-    -- weight_value <-> weight_unit_id
-    constraint ch_things_weight_value_unit check (
-        (weight_value is null and weight_unit_id is null)
-        or
-        (weight_value is not null and weight_unit_id is not null)
-    ),
-
-    -- all dimensions must be NULL or all NOT NULL with unit
-    constraint ch_things_dimension_value_unit check (
-        (
-            length_value is null
-            and width_value is null
-            and height_value is null
-            and dimension_unit_id is null
-        )
-        or
-        (
-            length_value is not null
-            and width_value is not null
-            and height_value is not null
-            and dimension_unit_id is not null
-        )
-    )
+    description text
 );
 
 create index idx_user_things_category_id on user_things(category_id);
+create unique index idx_user_things_user_id_short_description on user_things(user_id, short_description);
 
 
 -----------------------------------------------------------------------
 -- USER PACKAGES
 -----------------------------------------------------------------------
-
 create table user_packages (
     id uuid not null primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
     category_id uuid null references package_categories(id) on delete set null,
-    parent_package_id uuid references user_packages(id) on delete set null,
-
     short_description varchar(200) not null,
-    description text,
-    brand varchar(100),
-    model varchar(100),
-    color varchar(50),
-
-    empty_weight_value decimal(10,3),
-    weight_unit_id uuid references units(id),
-
-    capacity_value decimal(10,2),
-    capacity_unit_id uuid references units(id),
-
-    length_value decimal(10,2),
-    width_value decimal(10,2),
-    height_value decimal(10,2),
-    dimension_unit_id uuid references units(id),
-
-    -- empty_weight_value <-> weight_unit_id
-    constraint ch_packages_weight_value_unit check (
-        (empty_weight_value is null and weight_unit_id is null)
-        or
-        (empty_weight_value is not null and weight_unit_id is not null)
-    ),
-
-    -- all dimensions NULL or all NOT NULL
-    constraint ch_packages_dimension_value_unit check (
-        (
-            length_value is null
-            and width_value is null
-            and height_value is null
-            and dimension_unit_id is null
-        )
-        or
-        (
-            length_value is not null
-            and width_value is not null
-            and height_value is not null
-            and dimension_unit_id is not null
-        )
-    ),
-
-    -- capacity_value <-> capacity_unit_id
-    constraint ch_packages_capacity_value_unit check (
-        (capacity_value is null and capacity_unit_id is null)
-        or
-        (capacity_value is not null and capacity_unit_id is not null)
-    )
+    description text
 );
 
 create index idx_user_packages_category_id on user_packages(category_id);
-create index idx_user_packages_parent_package_id on user_packages(parent_package_id);
+create unique index idx_user_packages_user_id_short_description on user_packages(user_id, short_description);
 
 
 -----------------------------------------------------------------------
@@ -459,15 +371,18 @@ create table trip_user_packages (
     id uuid not null primary key default gen_random_uuid(),
     trip_user_id uuid not null references trip_users(id) on delete cascade,
     user_package_id uuid references user_packages(id) on delete set null,
+    parent_package_id uuid references trip_user_packages(id) on delete set null,
+
     packing_status_id uuid references packing_status(id) on delete set null,
     packed_at timestamptz,
     label varchar(100),
-    packing_list_included boolean not null default(false)
+    packing_list_included boolean not null default(false),
+    weight_value decimal(10,3),
+    weight_unit_id uuid references units(id)
 );
 
 create unique index idx_trip_user_packages_trip_user_id_user_package_id
     on trip_user_packages(trip_user_id, user_package_id);
-
 
 
 -----------------------------------------------------------------------

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace plantour_server.Models;
+namespace plantour_server.DbModels;
 
 [Table("units", Schema = "plantour")]
 [Index("Abbreviation", Name = "units_abbreviation_key", IsUnique = true)]
@@ -26,22 +26,10 @@ public partial class Unit
     [StringLength(10)]
     public string Abbreviation { get; set; } = null!;
 
+    [InverseProperty("WeightUnit")]
+    public virtual ICollection<TripUserPackage> TripUserPackages { get; set; } = new List<TripUserPackage>();
+
     [ForeignKey("UnitCategoryId")]
     [InverseProperty("Units")]
     public virtual UnitCategory UnitCategory { get; set; } = null!;
-
-    [InverseProperty("CapacityUnit")]
-    public virtual ICollection<UserPackage> UserPackageCapacityUnits { get; set; } = new List<UserPackage>();
-
-    [InverseProperty("DimensionUnit")]
-    public virtual ICollection<UserPackage> UserPackageDimensionUnits { get; set; } = new List<UserPackage>();
-
-    [InverseProperty("WeightUnit")]
-    public virtual ICollection<UserPackage> UserPackageWeightUnits { get; set; } = new List<UserPackage>();
-
-    [InverseProperty("DimensionUnit")]
-    public virtual ICollection<UserThing> UserThingDimensionUnits { get; set; } = new List<UserThing>();
-
-    [InverseProperty("WeightUnit")]
-    public virtual ICollection<UserThing> UserThingWeightUnits { get; set; } = new List<UserThing>();
 }

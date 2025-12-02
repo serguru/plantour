@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using plantour_server.Authorization;
 using plantour_server.Models;
-using plantour_server.Repositories;
+using plantour_server.DbModels;
 using plantour_server.Services;
 using PlantourApi.Authorization;
 using PlantourApi.Models;
@@ -72,21 +72,6 @@ builder.Services.AddSingleton<IAuthorizationHandler, UserRoleHandler>();
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
-
-// Register repositories
-builder.Services.AddScoped<IUserPackageRepository, UserPackageRepository>();
-
-// Configure CORS for Angular client
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowAngularClient", policy =>
-//    {
-//        policy.WithOrigins("https://localhost:7028", "http://localhost:4200")
-//              .AllowAnyMethod()
-//              .AllowAnyHeader()
-//              .AllowCredentials();
-//    });
-//});
 
 // Configure CORS for Angular client
 builder.Services.AddCors(options =>

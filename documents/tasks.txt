@@ -23,3 +23,7 @@
 Смотри \plantour-client\projects\mobile-app\src\app\components\packs -> PacksComponent. Этот компонент будет содержать список упаковок пользователя. Модель смотри что возвращает plantour-server\Controllers\UserPackageController.cs -> GetAll(). На OnInit вызови plantour-client\projects\shared-lib\src\services\user-package-service.ts -> getAll(). Полученный список покажи используя p-listbox PrimeNG control. 
 
 Plantour на телефоне в режиме отладки перестал поСЫЛАТЬ  запросы на сервер - локальный комп. ПОчему?
+
+
+В компонент PacksComponent нужно добавить возможности добавления, редактирования и удаления упаковок. Над списком упаковок добавь Add кнопку с icon, выровняй вправо. При нажатии на эту кнопку переходи на компонент AddPackComponent (создай пока как заглушку). Когда юзер селектирует строку в p-listbox справа в этой строке должны появиться две icon кнопки: Edit и Delete. При нажатии на Edit переходи на компонент EditPackComponent (создай пока как заглушку). Помести новые компоненты в plantour-client\projects\mobile-app\src\app\components\packs, каждый в собственной подпапке. При нажатии на Delete покажи confirmation dialog, смотри plantour-client\projects\shared-lib\src\services\messages-service.ts, актуальный код Delete пока не добавляй. 
+userPackages: any[] сейчас хранится в PacksComponent, а должен быть в UserPackageService и shared между соответствующими компонентами.

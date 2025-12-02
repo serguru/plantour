@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace plantour_server.Models;
+namespace plantour_server.DbModels;
 
 [Table("unit_categories", Schema = "plantour")]
 [Index("Name", Name = "unit_categories_name_key", IsUnique = true)]

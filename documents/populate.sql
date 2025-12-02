@@ -190,89 +190,143 @@ VALUES
 -- USER THINGS (4 per user = 20 rows)
 -- ====================================================================
 INSERT INTO user_things (
-    id, user_id, category_id, short_description, description
+    id, user_id, category_id,
+    short_description, description,
+    brand, model, color,
+    weight_value, weight_unit_id,
+    length_value, width_value, height_value, dimension_unit_id,
+    purchase_date, purchase_price, purchase_currency_id
 )
 VALUES
     -- Admin things
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'), (SELECT id FROM thing_categories WHERE name = 'Clothing'),'Admin T-shirt', 'Basic cotton T-shirt'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'), (SELECT id FROM thing_categories WHERE name = 'Electronics'), 'Laptop', '14-inch ultrabook'),
-
+    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+        (SELECT id FROM thing_categories WHERE name = 'Clothing'),
+        'Admin T-shirt', 'Basic cotton T-shirt', 'Uniqlo', 'U100', 'Blue',
+        0.200, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        NULL, NULL, NULL, NULL,
+        '2024-05-01', 15.00, (SELECT id FROM currencies WHERE name = 'USD')),
+    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+        (SELECT id FROM thing_categories WHERE name = 'Electronics'),
+        'Laptop', '14-inch ultrabook', 'Dell', 'XPS 14', 'Silver',
+        1.300, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        32.0, 22.0, 2.0, (SELECT id FROM units WHERE abbreviation = 'cm'),
+        '2023-11-15', 1500.00, (SELECT id FROM currencies WHERE name = 'USD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Travel Essentials'),
-        'Travel adapter', 'Universal travel adapter'),
-
+        'Travel adapter', 'Universal travel adapter', 'Anker', 'T-500', 'Black',
+        0.150, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        NULL, NULL, NULL, NULL,
+        '2022-08-10', 25.00, (SELECT id FROM currencies WHERE name = 'CAD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Toiletries'),
-        'Toiletry bag', 'Bag with basic toiletries'),
+        'Toiletry bag', 'Bag with basic toiletries', 'Muji', 'TB-01', 'Gray',
+        0.400, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        20.0, 12.0, 8.0, (SELECT id FROM units WHERE abbreviation = 'cm'),
+        '2023-04-20', 40.00, (SELECT id FROM currencies WHERE name = 'CAD')),
 
     -- Alice things
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Clothing'),
-        'Dress', 'Summer dress'),
-
+        'Dress', 'Summer dress', 'Zara', 'ZD-01', 'Red',
+        0.300, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        NULL, NULL, NULL, NULL,
+        '2024-06-01', 60.00, (SELECT id FROM currencies WHERE name = 'CAD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Footwear'),
-        'Running shoes', 'Lightweight running shoes'),
-
+        'Running shoes', 'Lightweight running shoes', 'Nike', 'AirRun', 'White',
+        0.700, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        28.0, 10.0, 12.0, (SELECT id FROM units WHERE abbreviation = 'cm'),
+        '2023-09-10', 120.00, (SELECT id FROM currencies WHERE name = 'CAD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Health & Hygiene'),
-        'Hand sanitizer', 'Travel-size hand sanitizer'),
-
+        'Hand sanitizer', 'Travel-size hand sanitizer', 'Purell', 'HS-50', 'Clear',
+        0.050, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        NULL, NULL, NULL, NULL,
+        '2024-01-05', 5.00, (SELECT id FROM currencies WHERE name = 'CAD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Documents'),
-        'Passport', 'Canadian passport'),
+        'Passport', 'Canadian passport', NULL, NULL, 'Burgundy',
+        NULL, NULL,
+        NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL),
 
     -- Bob things
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Outdoor & Sports'),
-        'Hiking poles', 'Collapsible hiking poles'),
-
+        'Hiking poles', 'Collapsible hiking poles', 'Black Diamond', 'Trail', 'Black',
+        0.600, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        65.0, 10.0, 10.0, (SELECT id FROM units WHERE abbreviation = 'cm'),
+        '2023-07-15', 90.00, (SELECT id FROM currencies WHERE name = 'USD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Emergency & First Aid'),
-        'First aid kit', 'Compact first aid kit'),
-
+        'First aid kit', 'Compact first aid kit', 'Deuter', 'FAK-01', 'Red',
+        0.350, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        18.0, 12.0, 6.0, (SELECT id FROM units WHERE abbreviation = 'cm'),
+        '2022-05-10', 35.00, (SELECT id FROM currencies WHERE name = 'USD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Food & Snacks'),
-        'Trail mix', 'Resealable bag of trail mix'),
-
+        'Trail mix', 'Resealable bag of trail mix', NULL, NULL, 'Multi',
+        0.200, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        NULL, NULL, NULL, NULL,
+        '2024-03-20', 8.00, (SELECT id FROM currencies WHERE name = 'CAD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Accessories'),
-        'Sunglasses', 'Polarized sunglasses'),
+        'Sunglasses', 'Polarized sunglasses', 'Ray-Ban', 'RB-01', 'Black',
+        0.080, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        NULL, NULL, NULL, NULL,
+        '2023-06-30', 180.00, (SELECT id FROM currencies WHERE name = 'USD')),
 
     -- Carol things
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Electronics'),
-        'Camera', 'Mirrorless camera body'),
-
+        'Camera', 'Mirrorless camera body', 'Sony', 'A7C', 'Black',
+        0.500, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        12.0, 7.0, 6.0, (SELECT id FROM units WHERE abbreviation = 'cm'),
+        '2022-11-22', 1900.00, (SELECT id FROM currencies WHERE name = 'USD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Travel Essentials'),
-        'Luggage lock', 'TSA-approved lock'),
-
+        'Luggage lock', 'TSA-approved lock', 'Samsonite', 'LK-01', 'Black',
+        0.050, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        NULL, NULL, NULL, NULL,
+        '2023-02-18', 12.00, (SELECT id FROM currencies WHERE name = 'CAD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Toiletries'),
-        'Travel toothbrush', 'Foldable toothbrush'),
-
+        'Travel toothbrush', 'Foldable toothbrush', NULL, NULL, 'White',
+        0.030, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        NULL, NULL, NULL, NULL,
+        '2024-02-01', 4.00, (SELECT id FROM currencies WHERE name = 'CAD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Medicine'),
-        'Pain reliever', 'Small bottle of ibuprofen'),
+        'Pain reliever', 'Small bottle of ibuprofen', NULL, NULL, 'White',
+        0.080, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        NULL, NULL, NULL, NULL,
+        '2024-01-20', 10.00, (SELECT id FROM currencies WHERE name = 'CAD')),
 
     -- Dave things
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Clothing'),
-        'Jeans', 'Regular fit jeans'),
-
+        'Jeans', 'Regular fit jeans', 'Levi''s', '501', 'Dark blue',
+        0.700, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        NULL, NULL, NULL, NULL,
+        '2023-09-05', 80.00, (SELECT id FROM currencies WHERE name = 'CAD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Footwear'),
-        'Sandals', 'Lightweight sandals'),
-
+        'Sandals', 'Lightweight sandals', 'Teva', 'T-01', 'Brown',
+        0.400, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        27.0, 10.0, 9.0, (SELECT id FROM units WHERE abbreviation = 'cm'),
+        '2024-04-01', 70.00, (SELECT id FROM currencies WHERE name = 'CAD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Travel Essentials'),
-        'Power bank', '10,000 mAh power bank'),
-
+        'Power bank', '10,000 mAh power bank', 'Anker', 'PB-10k', 'Black',
+        0.250, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        NULL, NULL, NULL, NULL,
+        '2023-08-10', 50.00, (SELECT id FROM currencies WHERE name = 'USD')),
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
         (SELECT id FROM thing_categories WHERE name = 'Personal Care'),
-        'Comb', 'Small travel comb');
+        'Comb', 'Small travel comb', NULL, NULL, 'Black',
+        0.020, (SELECT id FROM units WHERE abbreviation = 'kg'),
+        NULL, NULL, NULL, NULL,
+        '2024-03-01', 3.00, (SELECT id FROM currencies WHERE name = 'CAD'));
 
 
 -- ====================================================================

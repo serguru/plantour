@@ -1,4 +1,4 @@
-﻿namespace plantour_server.Models;
+﻿namespace plantour_server.DbModels;
 
 public partial class RefreshToken
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace plantour_server.Models;
+namespace plantour_server.DbModels;
 
 public partial class PlantourContext : DbContext
 {
@@ -165,11 +165,17 @@ public partial class PlantourContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("trip_user_packages_packing_status_id_fkey");
 
+            entity.HasOne(d => d.ParentPackage).WithMany(p => p.InverseParentPackage)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("trip_user_packages_parent_package_id_fkey");
+
             entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserPackages).HasConstraintName("trip_user_packages_trip_user_id_fkey");
 
             entity.HasOne(d => d.UserPackage).WithMany(p => p.TripUserPackages)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("trip_user_packages_user_package_id_fkey");
+
+            entity.HasOne(d => d.WeightUnit).WithMany(p => p.TripUserPackages).HasConstraintName("trip_user_packages_weight_unit_id_fkey");
         });
 
         modelBuilder.Entity<TripUserThing>(entity =>
@@ -223,21 +229,11 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            entity.HasOne(d => d.CapacityUnit).WithMany(p => p.UserPackageCapacityUnits).HasConstraintName("user_packages_capacity_unit_id_fkey");
-
             entity.HasOne(d => d.Category).WithMany(p => p.UserPackages)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_packages_category_id_fkey");
 
-            entity.HasOne(d => d.DimensionUnit).WithMany(p => p.UserPackageDimensionUnits).HasConstraintName("user_packages_dimension_unit_id_fkey");
-
-            entity.HasOne(d => d.ParentPackage).WithMany(p => p.InverseParentPackage)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("user_packages_parent_package_id_fkey");
-
             entity.HasOne(d => d.User).WithMany(p => p.UserPackages).HasConstraintName("user_packages_user_id_fkey");
-
-            entity.HasOne(d => d.WeightUnit).WithMany(p => p.UserPackageWeightUnits).HasConstraintName("user_packages_weight_unit_id_fkey");
         });
 
         modelBuilder.Entity<UserThing>(entity =>
@@ -247,16 +243,10 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
             entity.HasOne(d => d.Category).WithMany(p => p.UserThings)
-                .OnDelete(DeleteBehavior.Cascade)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_things_category_id_fkey");
 
-            entity.HasOne(d => d.DimensionUnit).WithMany(p => p.UserThingDimensionUnits).HasConstraintName("user_things_dimension_unit_id_fkey");
-
-            entity.HasOne(d => d.PurchaseCurrency).WithMany(p => p.UserThings).HasConstraintName("user_things_purchase_currency_id_fkey");
-
             entity.HasOne(d => d.User).WithMany(p => p.UserThings).HasConstraintName("user_things_user_id_fkey");
-
-            entity.HasOne(d => d.WeightUnit).WithMany(p => p.UserThingWeightUnits).HasConstraintName("user_things_weight_unit_id_fkey");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using plantour_server.Models;
+using plantour_server.DbModels;
 
 namespace plantour_server.Extensions;
 

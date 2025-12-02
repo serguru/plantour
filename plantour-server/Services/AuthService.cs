@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using plantour_server.DTOs;
 using plantour_server.Models;
+using plantour_server.DbModels;
 using plantour_server.Utils;
 
 namespace plantour_server.Services;

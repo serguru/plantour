@@ -37,6 +37,14 @@ export const routes: Routes = [
     loadComponent: () => import('./components/packs/packs.component').then(m => m.PacksComponent)
   },
   {
+    path: 'packs/add',
+    loadComponent: () => import('./components/packs/add-pack/add-pack.component').then(m => m.AddPackComponent)
+  },
+  {
+    path: 'packs/edit/:id',
+    loadComponent: () => import('./components/packs/edit-pack/edit-pack.component').then(m => m.EditPackComponent)
+  },
+  {
     path: 'trips',
     loadComponent: () => import('./components/trips/trips.component').then(m => m.TripsComponent)
   }
