@@ -73,6 +73,9 @@ builder.Services.AddSingleton<IAuthorizationHandler, UserRoleHandler>();
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Register repositories
+builder.Services.AddScoped<plantour_server.Repositories.UserPackageRepository>();
+
 // Configure CORS for Angular client
 builder.Services.AddCors(options =>
 {
