@@ -13,6 +13,7 @@ export interface UserThingDto {
 }
 
 export interface CreateUserThingRequest {
+  userId: string;
   categoryId?: string | null;
   shortDescription: string;
   description?: string | null;

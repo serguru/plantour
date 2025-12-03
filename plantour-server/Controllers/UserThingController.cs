@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using plantour_server.DTOs;
 using plantour_server.Services;
@@ -6,6 +7,7 @@ namespace plantour_server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+
 public class UserThingController : ControllerBase
 {
     private readonly IUserThingService _service;
