@@ -10,7 +10,6 @@ public static class PlantourClaims
     public const string LastName = "last_name";
     public const string Role = "role";
     public const string AdminId = "admin_id";
-    public const string ParticipantId = "participant_id";
     public const string AccessCode = "access_code";
     public const string Subject = "subject";
     public const string Expires = "expires";

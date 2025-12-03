@@ -24,47 +24,39 @@ public class CurrentUserMiddleware
         {
             var token = authHeader.Substring("Bearer ".Length).Trim();
 
-            try
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+
+            // Extract user information from JWT claims using PlantourClaims constants
+            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.UserId)?.Value;
+
+            if (Guid.TryParse(userIdClaim, out var userId))
             {
-                var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(token);
+                currentUser.UserId = userId;
+                currentUser.Email = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.Email)?.Value;
+                currentUser.FirstName = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.FirstName)?.Value;
+                currentUser.LastName = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.LastName)?.Value;
 
-                // Extract user information from JWT claims using PlantourClaims constants
-                var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.UserId)?.Value;
-                var emailClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.Email)?.Value;
-                var firstNameClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.FirstName)?.Value;
-                var lastNameClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.LastName)?.Value;
                 var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.Role)?.Value;
-                var participantIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.ParticipantId)?.Value;
 
-                if (Guid.TryParse(userIdClaim, out var userId))
+                // Determine role based on PlantourRoles constants
+                if (roleClaim == PlantourRoles.Admin)
                 {
-                    currentUser.UserId = userId;
-                    currentUser.Email = emailClaim;
-                    currentUser.FirstName = firstNameClaim;
-                    currentUser.LastName = lastNameClaim;
-
-                    // Determine role based on PlantourRoles constants
-                    if (roleClaim == PlantourRoles.Admin)
+                    currentUser.Role = UserRole.Admin;
+                }
+                else
+                {
+                    var adminIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.AdminId)?.Value;
+                    if (roleClaim == PlantourRoles.Participant && Guid.TryParse(adminIdClaim, out var adminId))
                     {
-                        currentUser.Role = UserRole.Admin;
-                    }
-                    else if (roleClaim == PlantourRoles.Participant && Guid.TryParse(participantIdClaim, out var participantId))
-                    {
-                        currentUser.ParticipantId = participantId;
+                        currentUser.AdminId = adminId;
                         currentUser.Role = UserRole.Participant;
                     }
                 }
             }
-            catch
-            {
-                // Token parsing failed, keep as Public
-            }
         }
 
-        // Store CurrentUser in HttpContext.Items
         context.Items["CurrentUser"] = currentUser;
-
         await _next(context);
     }
 }

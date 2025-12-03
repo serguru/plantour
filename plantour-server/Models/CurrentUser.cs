@@ -3,7 +3,7 @@ namespace PlantourApi.Models;
 public class CurrentUser
 {
     public Guid? UserId { get; set; }
-    public Guid? ParticipantId { get; set; }
+    public Guid? AdminId { get; set; }
     public UserRole Role { get; set; }
     public string? Email { get; set; }
     public string? FirstName { get; set; }
