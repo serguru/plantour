@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using plantour_server.Attributes;
 using plantour_server.DTOs;
 using plantour_server.Services;
 
@@ -18,8 +19,8 @@ public class AuthController : ControllerBase
 
     #region Admin Endpoints
 
-    [AllowAnonymous]
     [HttpPost("admin/signup")]
+    [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> SignUpAdmin([FromBody] SignUpRequest request)
     {
         try
@@ -37,8 +38,8 @@ public class AuthController : ControllerBase
         }
     }
 
-    [AllowAnonymous]
     [HttpPost("admin/signin")]
+    [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> SignInAdmin([FromBody] SignInRequest request)
     {
         try
@@ -60,8 +61,8 @@ public class AuthController : ControllerBase
 
     #region Participant Endpoints
 
-    [Authorize]
     [HttpPost("participant/signup")]
+    [AdminOnly]
     public async Task<ActionResult<AuthResponse>> SignUpParticipant([FromBody] SignUpParticipantRequest request)
     {
         try
@@ -79,8 +80,12 @@ public class AuthController : ControllerBase
         }
     }
 
-    [AllowAnonymous]
+    // PER52212636 request number for closing accounts
+
+
+
     [HttpPost("participant/signin")]
+    [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> SignInParticipant([FromBody] SignInParticipantRequest request)
     {
         try

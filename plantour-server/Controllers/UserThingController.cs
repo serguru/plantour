@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using plantour_server.Attributes;
 using plantour_server.DTOs;
 using plantour_server.Services;
 
@@ -18,6 +19,7 @@ public class UserThingController : ControllerBase
     }
 
     [HttpGet]
+    [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<UserThingDto>>> GetAll()
     {
         try
@@ -32,6 +34,7 @@ public class UserThingController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AdminOrParticipant]
     public async Task<ActionResult<UserThingDto>> GetById(Guid id)
     {
         try
@@ -51,6 +54,7 @@ public class UserThingController : ControllerBase
     }
 
     [HttpPost]
+    [AdminOrParticipant]
     public async Task<ActionResult<UserThingDto>> Add([FromBody] CreateUserThingRequest request)
     {
         try
@@ -65,6 +69,7 @@ public class UserThingController : ControllerBase
     }
 
     [HttpPut]
+    [AdminOrParticipant]
     public async Task<ActionResult> Update([FromBody] UpdateUserThingRequest request)
     {
         try
@@ -84,6 +89,7 @@ public class UserThingController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [AdminOrParticipant]
     public async Task<ActionResult> Delete(Guid id)
     {
         try
@@ -103,6 +109,7 @@ public class UserThingController : ControllerBase
     }
 
     [HttpGet("categories")]
+    [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<ThingCategoryDto>>> GetAllCategories()
     {
         try

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using plantour_server.Attributes;
 using plantour_server.DTOs;
 using plantour_server.Services;
 
@@ -16,6 +17,7 @@ public class UserPackageController : ControllerBase
     }
 
     [HttpGet]
+    [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<UserPackageDto>>> GetAll()
     {
         try
@@ -30,6 +32,7 @@ public class UserPackageController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AdminOrParticipant]
     public async Task<ActionResult<UserPackageDto>> GetById(Guid id)
     {
         try
@@ -49,6 +52,7 @@ public class UserPackageController : ControllerBase
     }
 
     [HttpPost]
+    [AdminOrParticipant]
     public async Task<ActionResult<UserPackageDto>> Add([FromBody] CreateUserPackageRequest request)
     {
         try
@@ -63,6 +67,7 @@ public class UserPackageController : ControllerBase
     }
 
     [HttpPut]
+    [AdminOrParticipant]
     public async Task<ActionResult> Update([FromBody] UpdateUserPackageRequest request)
     {
         try
@@ -82,6 +87,7 @@ public class UserPackageController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [AdminOrParticipant]
     public async Task<ActionResult> Delete(Guid id)
     {
         try
@@ -101,6 +107,7 @@ public class UserPackageController : ControllerBase
     }
 
     [HttpGet("categories")]
+    [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<PackageCategoryDto>>> GetAllCategories()
     {
         try

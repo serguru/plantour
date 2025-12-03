@@ -67,7 +67,7 @@ public class TripRepository : BaseRepository
 
     }
 
-    public virtual async Task AddAsync(Trip entity)
+    public async Task AddAsync(Trip entity)
     {
         if (CurrentUser == null || !CurrentUser.IsAdmin)
         {
@@ -77,7 +77,7 @@ public class TripRepository : BaseRepository
         await _context.SaveChangesAsync();
     }
 
-    public virtual async Task UpdateAsync(Trip entity)
+    public async Task UpdateAsync(Trip entity)
     {
         if (CurrentUser == null || !CurrentUser.IsAdmin)
         {
@@ -93,7 +93,7 @@ public class TripRepository : BaseRepository
         await _context.SaveChangesAsync();
     }
 
-    public virtual async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
         if (CurrentUser == null || !CurrentUser.IsAdmin)
         {
