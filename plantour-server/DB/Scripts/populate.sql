@@ -31,7 +31,7 @@ ON CONFLICT (name) DO NOTHING;
 INSERT INTO users (email, password_hash, password_salt, first_name, last_name, phone, notes)
 VALUES
     (
-        'admin@plantour.test',
+        'serguru@gmail.com',
         '\x35c846498f41a7ed1513b765c264ab222f7c3b015163fc07c78f6af00554436d2bb8f3d105a848584a0103f228132affc301505136188d50194e14f9a32d0f64',
         '\x727465da121430b0bf747ea4a4cc3c21f458c61b824b15d354fc8e10adb5d2a7e82a3aa26363d48178341995f078275e2d5b3c5df70536c6af73a6dff32e15b7',
         'Admin',
@@ -84,13 +84,13 @@ INSERT INTO admins_participants (id, admin_id, participant_id, access_code)
 VALUES
     (
         gen_random_uuid(),
-        (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
         'ALC12345'
     ),
     (
         gen_random_uuid(),
-        (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
         'BOB54321'
     );
@@ -101,9 +101,9 @@ VALUES
 -- ====================================================================
 INSERT INTO refresh_tokens (id, user_id, token, expires_at, created_at, revoked_at, replaced_by_token)
 VALUES
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         'admin-token-1', now() + interval '30 days', now() - interval '1 day', NULL, NULL),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         'admin-token-2', now() + interval '60 days', now(), NULL, NULL),
 
     (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
@@ -133,13 +133,13 @@ VALUES
 INSERT INTO user_packages (id, user_id, category_id, short_description, description)
 VALUES
     -- Admin packages
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM package_categories WHERE name = 'Suitcase'),
         'Admin large suitcase', 'Primary checked suitcase for admin'),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM package_categories WHERE name = 'Backpack'),
         'Admin carry-on backpack', 'Carry-on backpack with electronics'),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM package_categories WHERE name = 'Bag'),
         'Admin day bag', 'Small shoulder bag for daily use'),
 
@@ -196,15 +196,15 @@ INSERT INTO user_things (
 )
 VALUES
     -- Admin things
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'), (SELECT id FROM thing_categories WHERE name = 'Clothing'),'Admin T-shirt', 'Basic cotton T-shirt'),
+    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'), (SELECT id FROM thing_categories WHERE name = 'Clothing'),'Admin T-shirt', 'Basic cotton T-shirt'),
 
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'), (SELECT id FROM thing_categories WHERE name = 'Electronics'), 'Laptop', '14-inch ultrabook'),
+    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'), (SELECT id FROM thing_categories WHERE name = 'Electronics'), 'Laptop', '14-inch ultrabook'),
 
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM thing_categories WHERE name = 'Travel Essentials'),
         'Travel adapter', 'Universal travel adapter'),
 
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM thing_categories WHERE name = 'Toiletries'),
         'Toiletry bag', 'Bag with basic toiletries'),
 
@@ -288,7 +288,7 @@ INSERT INTO trips (
 VALUES
     (
         gen_random_uuid(),
-        (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM trip_status WHERE name = 'Planning'),
         'Hawaii family vacation',
         'Two-week beach vacation with family in Hawaii',
@@ -296,7 +296,7 @@ VALUES
     ),
     (
         gen_random_uuid(),
-        (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM trip_status WHERE name = 'Active'),
         'Weekend ski trip',
         'Skiing weekend in Whistler',
@@ -339,71 +339,58 @@ VALUES
 -- ====================================================================
 -- TRIP USERS (participants for trips)
 -- ====================================================================
-INSERT INTO trip_users (id, trip_id, user_id, access_code)
+INSERT INTO trip_users (id, trip_id, user_id)
 VALUES
     -- Hawaii family vacation
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Hawaii family vacation'),
-        (SELECT id FROM users WHERE email = 'admin@plantour.test'),
-        'HAWADM01'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com')),
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Hawaii family vacation'),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        'HAWALC01'),
+        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test')),
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Hawaii family vacation'),
-        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        'HAWBOB01'),
+        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test')),
 
     -- Weekend ski trip
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Weekend ski trip'),
-        (SELECT id FROM users WHERE email = 'admin@plantour.test'),
-        'SKIADM01'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com')),
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Weekend ski trip'),
-        (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        'SKICAR01'),
+        (SELECT id FROM users WHERE email = 'carol.tester@plantour.test')),
 
     -- Business conference Toronto
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Business conference Toronto'),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        'TORALC01'),
+        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test')),
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Business conference Toronto'),
-        (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        'TORDAV01'),
+        (SELECT id FROM users WHERE email = 'dave.tester@plantour.test')),
 
     -- Hiking Rockies
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Hiking Rockies'),
-        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        'ROKBOB01'),
+        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test')),
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Hiking Rockies'),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        'ROKALC01'),
+        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test')),
 
     -- Photography tour Europe
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Photography tour Europe'),
-        (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        'EUROCAR1'),
+        (SELECT id FROM users WHERE email = 'carol.tester@plantour.test')),
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Photography tour Europe'),
-        (SELECT id FROM users WHERE email = 'admin@plantour.test'),
-        'EUROADM1'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com')),
 
     -- Road trip USA west coast
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Road trip USA west coast'),
-        (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        'USA1DAV1'),
+        (SELECT id FROM users WHERE email = 'dave.tester@plantour.test')),
     (gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Road trip USA west coast'),
-        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        'USA1BOB1');
+        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'));
 
 
 -- ====================================================================
@@ -424,7 +411,7 @@ VALUES
     (
         gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Hawaii family vacation'),
-        (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
         'invite-token-hawaii-alice',
         'INVHWA01',
@@ -443,7 +430,7 @@ VALUES
     (
         gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Hawaii family vacation'),
-        (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
         'invite-token-hawaii-bob',
         'INVHWB01',
@@ -462,7 +449,7 @@ VALUES
     (
         gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Weekend ski trip'),
-        (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
         'invite-token-ski-dave',
         'INVSKD01',
@@ -481,7 +468,7 @@ VALUES
     (
         gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Weekend ski trip'),
-        (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
         'invite-token-ski-carol',
         'INVSKC01',
@@ -576,7 +563,7 @@ VALUES
     (
         gen_random_uuid(),
         (SELECT id FROM trips WHERE short_description = 'Hawaii family vacation'),
-        (SELECT id FROM users WHERE email = 'admin@plantour.test'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
         'invite-token-hawaii-carol',
         'INVHWC01',

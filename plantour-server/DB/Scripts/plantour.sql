@@ -352,11 +352,8 @@ create table invitations (
 
 create table trip_users (
     id uuid not null primary key default gen_random_uuid(),
-
     trip_id uuid not null references trips(id) on delete cascade,
-    user_id uuid not null references users(id) on delete cascade,
-
-    access_code varchar(8) not null unique
+    user_id uuid not null references users(id) on delete cascade
 );
 
 create unique index idx_trip_users_trip_id_user_id

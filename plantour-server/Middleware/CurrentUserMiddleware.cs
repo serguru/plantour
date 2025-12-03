@@ -51,6 +51,7 @@ public class CurrentUserMiddleware
                     {
                         currentUser.AdminId = adminId;
                         currentUser.Role = UserRole.Participant;
+                        currentUser.AccessCode = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.AccessCode)?.Value;   
                     }
                 }
             }
