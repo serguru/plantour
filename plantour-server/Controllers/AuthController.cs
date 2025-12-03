@@ -62,7 +62,7 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpPost("participant/signup")]
-    public async Task<ActionResult<ParticipantAuthResponse>> SignUpParticipant([FromBody] SignUpParticipantRequest request)
+    public async Task<ActionResult<AuthResponse>> SignUpParticipant([FromBody] SignUpParticipantRequest request)
     {
         try
         {
@@ -81,7 +81,7 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("participant/signin")]
-    public async Task<ActionResult<ParticipantAuthResponse>> SignInParticipant([FromBody] SignInParticipantRequest request)
+    public async Task<ActionResult<AuthResponse>> SignInParticipant([FromBody] SignInParticipantRequest request)
     {
         try
         {

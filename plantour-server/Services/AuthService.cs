@@ -78,7 +78,7 @@ public class AuthService : IAuthService
 
     #region Participant Authentication
 
-    public async Task<ParticipantAuthResponse> SignUpParticipantAsync(SignUpParticipantRequest request)
+    public async Task<AuthResponse> SignUpParticipantAsync(SignUpParticipantRequest request)
     {
         // Verify admin exists
         var admin = await _context.Users.FindAsync(request.AdminId);
@@ -138,7 +138,7 @@ public class AuthService : IAuthService
         return await GenerateParticipantAuthResponse(participant, admin, accessCode);
     }
 
-    public async Task<ParticipantAuthResponse> SignInParticipantAsync(SignInParticipantRequest request)
+    public async Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request)
     {
         // Find admin-participant relationship by access code
         var adminParticipant = await _context.AdminsParticipants
@@ -272,37 +272,21 @@ public class AuthService : IAuthService
 
         return new AuthResponse
         {
-            UserId = user.Id,
-            Email = user.Email,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
             AccessToken = accessToken,
             RefreshToken = refreshToken.Token,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes)
         };
     }
 
-    private async Task<ParticipantAuthResponse> GenerateParticipantAuthResponse(
+    private async Task<AuthResponse> GenerateParticipantAuthResponse(
         User participant, User admin, string accessCode)
     {
         var accessToken = GenerateParticipantAccessToken(participant, admin, accessCode);
         var refreshToken = await GenerateRefreshToken(participant.Id);
 
-        return new ParticipantAuthResponse
+        return new AuthResponse
         {
-            UserId = participant.Id,
-            Email = participant.Email,
-            FirstName = participant.FirstName,
-            LastName = participant.LastName,
-            AccessCode = accessCode,
-            AdminId = admin.Id,
-            AdminEmail = admin.Email,
-            AdminFirstName = admin.FirstName,
-            AdminLastName = admin.LastName,
             AccessToken = accessToken,
             RefreshToken = refreshToken.Token,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
-            Role = PlantourRoles.Participant
         };
     }
 

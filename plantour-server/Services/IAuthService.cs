@@ -9,8 +9,8 @@ public interface IAuthService
     Task<AuthResponse> SignInAsync(SignInRequest request);
 
     // Participant authentication
-    Task<ParticipantAuthResponse> SignUpParticipantAsync(SignUpParticipantRequest request);
-    Task<ParticipantAuthResponse> SignInParticipantAsync(SignInParticipantRequest request);
+    Task<AuthResponse> SignUpParticipantAsync(SignUpParticipantRequest request);
+    Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request);
 
     // Token management
     Task<object> RefreshTokenAsync(string refreshToken);

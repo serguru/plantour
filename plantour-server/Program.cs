@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using plantour_server.Authorization;
+//using plantour_server.Authorization;
 using plantour_server.Models;
 using plantour_server.DbModels;
 using plantour_server.Services;
