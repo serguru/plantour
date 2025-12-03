@@ -70,6 +70,9 @@ builder.Services.AddAuthorization(options =>
 // Register authorization handlers
 builder.Services.AddSingleton<IAuthorizationHandler, UserRoleHandler>();
 
+// Register AutoMapper
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserPackageService, UserPackageService>();

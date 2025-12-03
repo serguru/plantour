@@ -1,6 +1,6 @@
+using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
-using plantour_server.Mapping;
 using plantour_server.Repositories;
 
 namespace plantour_server.Services;
@@ -9,35 +9,36 @@ public class UserPackageService : BaseService, IUserPackageService
 {
     private readonly UserPackageRepository _userPackageRepository;
     private readonly PackageCategoryRepository _packageCategoryRepository;
-    private readonly UserPackageMapper _mapper;
+    private readonly IMapper _mapper;
 
     public UserPackageService(
         UserPackageRepository userPackageRepository,
         PackageCategoryRepository packageCategoryRepository,
-        IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        IMapper mapper) : base(httpContextAccessor)
     {
         _userPackageRepository = userPackageRepository;
         _packageCategoryRepository = packageCategoryRepository;
-        _mapper = new UserPackageMapper();
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<UserPackageDto>> GetAllAsync()
     {
         var entities = await _userPackageRepository.GetAllAsync();
-        return _mapper.ToDtos(entities);
+        return _mapper.Map<IEnumerable<UserPackageDto>>(entities);
     }
 
     public async Task<UserPackageDto?> GetByIdAsync(Guid id)
     {
         var entity = await _userPackageRepository.GetByIdAsync(id);
-        return entity != null ? _mapper.ToDto(entity) : null;
+        return entity != null ? _mapper.Map<UserPackageDto>(entity) : null;
     }
 
     public async Task<UserPackageDto> AddAsync(CreateUserPackageRequest request)
     {
-        var entity = _mapper.ToEntity(request);
+        var entity = _mapper.Map<UserPackage>(request);
         await _userPackageRepository.AddAsync(entity);
-        return _mapper.ToDto(entity);
+        return _mapper.Map<UserPackageDto>(entity);
     }
 
     public async Task<bool> UpdateAsync(UpdateUserPackageRequest request)
@@ -48,7 +49,7 @@ public class UserPackageService : BaseService, IUserPackageService
             return false;
         }
         
-        _mapper.UpdateEntity(request, entity);
+        _mapper.Map(request, entity);
         await _userPackageRepository.UpdateAsync(entity);
         return true;
     }

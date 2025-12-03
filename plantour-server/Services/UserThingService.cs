@@ -1,6 +1,6 @@
+using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
-using plantour_server.Mapping;
 using plantour_server.Repositories;
 
 namespace plantour_server.Services;
@@ -9,35 +9,36 @@ public class UserThingService : BaseService, IUserThingService
 {
     private readonly UserThingRepository _userThingRepository;
     private readonly ThingCategoryRepository _thingCategoryRepository;
-    private readonly UserThingMapper _mapper;
+    private readonly IMapper _mapper;
 
     public UserThingService(
         UserThingRepository userThingRepository,
         ThingCategoryRepository thingCategoryRepository,
-        IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        IMapper mapper) : base(httpContextAccessor)
     {
         _userThingRepository = userThingRepository;
         _thingCategoryRepository = thingCategoryRepository;
-        _mapper = new UserThingMapper();
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<UserThingDto>> GetAllAsync()
     {
         var entities = await _userThingRepository.GetAllAsync();
-        return _mapper.ToDtos(entities);
+        return _mapper.Map<IEnumerable<UserThingDto>>(entities);
     }
 
     public async Task<UserThingDto?> GetByIdAsync(Guid id)
     {
         var entity = await _userThingRepository.GetByIdAsync(id);
-        return entity != null ? _mapper.ToDto(entity) : null;
+        return entity != null ? _mapper.Map<UserThingDto>(entity) : null;
     }
 
     public async Task<UserThingDto> AddAsync(CreateUserThingRequest request)
     {
-        var entity = _mapper.ToEntity(request);
+        var entity = _mapper.Map<UserThing>(request);
         await _userThingRepository.AddAsync(entity);
-        return _mapper.ToDto(entity);
+        return _mapper.Map<UserThingDto>(entity);
     }
 
     public async Task<bool> UpdateAsync(UpdateUserThingRequest request)
@@ -48,7 +49,7 @@ public class UserThingService : BaseService, IUserThingService
             return false;
         }
         
-        _mapper.UpdateEntity(request, entity);
+        _mapper.Map(request, entity);
         await _userThingRepository.UpdateAsync(entity);
         return true;
     }
