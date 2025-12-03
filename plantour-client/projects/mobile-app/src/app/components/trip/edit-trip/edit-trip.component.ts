@@ -31,15 +31,15 @@ export class EditTripComponent implements OnInit {
 
   constructor() {
     this.tripForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(200)]],
+      shortDescription: ['', [Validators.required, Validators.maxLength(200)]],
       description: [''],
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required]
+      startDate: [''],
+      endDate: ['']
     });
   }
 
   ngOnInit(): void {
-    this.navigationService.setCustomBackPath('/trip', true);
+    this.navigationService.setCustomBackPath('/trips', true);
     
     this.tripId = this.route.snapshot.paramMap.get('id') || '';
 
@@ -47,7 +47,7 @@ export class EditTripComponent implements OnInit {
       this.loadTrip();
     } else {
       this.messagesService.showError('Trip ID not found');
-      this.router.navigate(['/trip']);
+      this.router.navigate(['/trips']);
       return;
     }
   }
@@ -56,7 +56,7 @@ export class EditTripComponent implements OnInit {
     this.tripService.getById(this.tripId).subscribe({
       next: (trip) => {
         this.tripForm.patchValue({
-          name: trip.name || '',
+          shortDescription: trip.shortDescription || '',
           description: trip.description || '',
           startDate: trip.startDate ? new Date(trip.startDate) : '',
           endDate: trip.endDate ? new Date(trip.endDate) : ''
@@ -66,7 +66,7 @@ export class EditTripComponent implements OnInit {
       error: (error) => {
         console.error('Error loading trip:', error);
         this.messagesService.showError('Failed to load trip');
-        this.router.navigate(['/trip']);
+        this.router.navigate(['/trips']);
       }
     });
   }
@@ -81,17 +81,17 @@ export class EditTripComponent implements OnInit {
 
     const formValue = this.tripForm.value;
     const request = {
-      id: this.tripId,
-      name: formValue.name.trim(),
+      tripId: this.tripId,
+      shortDescription: formValue.shortDescription.trim(),
       description: formValue.description?.trim() || null,
-      startDate: this.formatDate(formValue.startDate),
-      endDate: this.formatDate(formValue.endDate)
+      startDate: formValue.startDate ? this.tripService.formatDate(formValue.startDate) : null,
+      endDate: formValue.endDate ? this.tripService.formatDate(formValue.endDate) : null
     };
 
     this.tripService.update(request).subscribe({
       next: () => {
         this.messagesService.showInfo('Trip updated successfully');
-        this.router.navigate(['/trip']);
+        this.router.navigate(['/trips']);
       },
       error: (error) => {
         console.error('Error updating trip:', error);
@@ -102,14 +102,10 @@ export class EditTripComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/trip']);
+    this.router.navigate(['/trips']);
   }
 
-  private formatDate(date: Date | string): string {
-    if (!date) return '';
-    const d = new Date(date);
-    return d.toISOString();
-  }
+  
 
   isFieldInvalid(fieldName: string): boolean {
     const field = this.tripForm.get(fieldName);

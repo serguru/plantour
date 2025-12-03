@@ -23,13 +23,13 @@
         <p-listbox 
           [options]="trips!" 
           [(ngModel)]="selectedTrip"
-          optionLabel="name"
+          optionLabel="shortDescription"
           [listStyle]="{'max-height': '60vh'}"
           styleClass="w-full">
           <ng-template let-trip pTemplate="item">
             <div class="trip-item">
               <div class="trip-main">
-                <div class="trip-title">{{ trip.name }}</div>
+                <div class="trip-title">{{ trip.shortDescription }}</div>
                 @if (trip.description) {
                   <div class="trip-subtitle">{{ trip.description }}</div>
                 }

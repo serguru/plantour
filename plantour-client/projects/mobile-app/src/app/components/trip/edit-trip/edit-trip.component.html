@@ -12,16 +12,16 @@
       </div>
       <form *ngIf="!isLoading" [formGroup]="tripForm" (ngSubmit)="onSubmit()">
         <div class="form-field">
-          <label for="name">Name <span class="required">*</span></label>
+          <label for="shortDescription">Name <span class="required">*</span></label>
           <input 
             pInputText 
-            id="name" 
-            formControlName="name"
+            id="shortDescription" 
+            formControlName="shortDescription"
             placeholder="Enter trip name"
-            [class.p-invalid]="isFieldInvalid('name')"
+            [class.p-invalid]="isFieldInvalid('shortDescription')"
           />
-          <small class="error-message" *ngIf="isFieldInvalid('name')">
-            {{ getFieldError('name') }}
+          <small class="error-message" *ngIf="isFieldInvalid('shortDescription')">
+            {{ getFieldError('shortDescription') }}
           </small>
         </div>
 
@@ -41,7 +41,7 @@
         </div>
 
         <div class="form-field">
-          <label for="startDate">Start Date <span class="required">*</span></label>
+          <label for="startDate">Start Date</label>
           <p-datepicker
             id="startDate"
             formControlName="startDate"
@@ -57,7 +57,7 @@
         </div>
 
         <div class="form-field">
-          <label for="endDate">End Date <span class="required">*</span></label>
+          <label for="endDate">End Date</label>
           <p-datepicker
             id="endDate"
             formControlName="endDate"

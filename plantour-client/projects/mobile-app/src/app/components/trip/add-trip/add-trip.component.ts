@@ -28,15 +28,15 @@ export class AddTripComponent implements OnInit {
 
   constructor() {
     this.tripForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(200)]],
+      shortDescription: ['', [Validators.required, Validators.maxLength(200)]],
       description: [''],
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required]
+      startDate: [''],
+      endDate: ['']
     });
   }
 
   ngOnInit(): void {
-    this.navigationService.setCustomBackPath('/trip', true);
+    this.navigationService.setCustomBackPath('/trips', true);
   }
 
   onSubmit(): void {
@@ -49,16 +49,17 @@ export class AddTripComponent implements OnInit {
 
     const formValue = this.tripForm.value;
     const request = {
-      name: formValue.name.trim(),
+      ownerId: '00000000-0000-0000-0000-000000000000', // Will be set by server from auth context
+      shortDescription: formValue.shortDescription.trim(),
       description: formValue.description?.trim() || null,
-      startDate: this.formatDate(formValue.startDate),
-      endDate: this.formatDate(formValue.endDate)
+      startDate: formValue.startDate ? this.tripService.formatDate(formValue.startDate) : null,
+      endDate: formValue.endDate ? this.tripService.formatDate(formValue.endDate) : null
     };
 
     this.tripService.add(request).subscribe({
       next: () => {
         this.messagesService.showInfo('Trip created successfully');
-        this.router.navigate(['/trip']);
+        this.router.navigate(['/trips']);
       },
       error: (error) => {
         console.error('Error creating trip:', error);
@@ -69,15 +70,9 @@ export class AddTripComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/trip']);
+    this.router.navigate(['/trips']);
   }
-
-  private formatDate(date: Date | string): string {
-    if (!date) return '';
-    const d = new Date(date);
-    return d.toISOString();
-  }
-
+  
   isFieldInvalid(fieldName: string): boolean {
     const field = this.tripForm.get(fieldName);
     return !!(field && field.invalid && field.touched);

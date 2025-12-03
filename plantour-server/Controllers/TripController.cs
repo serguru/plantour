@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using plantour_server.DTOs;
 using plantour_server.Services;
 using plantour_server.Attributes;
+using Microsoft.AspNetCore.Authorization;
 
 namespace plantour_server.Controllers;
 
@@ -67,7 +68,8 @@ public class TripController : ControllerBase
     }
 
     [HttpPut]
-    [AdminOnly]
+    //[AdminOnly]
+    [AllowAnonymous]
     public async Task<ActionResult> Update([FromBody] UpdateTripRequest request)
     {
         try

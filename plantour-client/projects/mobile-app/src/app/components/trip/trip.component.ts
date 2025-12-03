@@ -41,17 +41,17 @@ export class TripComponent implements OnInit {
   }
 
   onAddTrip(): void {
-    this.router.navigate(['/trip/add']);
+    this.router.navigate(['/trips/add']);
   }
 
   onEditTrip(trip: any): void {
-    this.router.navigate(['/trip/edit', trip.id]);
+    this.router.navigate(['/trips/edit', trip.id]);
   }
 
   async onDeleteTrip(trip: any): Promise<void> {
     const result = await this.messagesService.openOkCancel({
       title: 'Delete Trip',
-      message: `Are you sure you want to delete "${trip.name}"?`,
+      message: `Are you sure you want to delete "${trip.shortDescription}"?`,
       okLabel: 'Delete',
       cancelLabel: 'Cancel'
     });

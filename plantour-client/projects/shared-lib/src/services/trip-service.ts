@@ -3,33 +3,47 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../environment.token';
 
-export interface TripDto {
+export interface TripStatusDto {
   id: string;
   name: string;
-  startDate: string;
-  endDate: string;
+}
+
+export interface TripDto {
+  id: string;
+  ownerId: string;
+  tripStatusId?: string | null;
+  shortDescription: string;
   description?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  requireWeight?: boolean | null;
+  tripStatus?: TripStatusDto | null;
 }
 
 export interface CreateTripRequest {
-  name: string;
-  startDate: string;
-  endDate: string;
+  ownerId: string;
+  tripStatusId?: string | null;
+  shortDescription: string;
   description?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  requireWeight?: boolean | null;
 }
 
 export interface UpdateTripRequest {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
+  tripId: string;
+  tripStatusId?: string | null;
+  shortDescription: string;
   description?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  requireWeight?: boolean | null;
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class r {
+export class TripService {
   private apiUrl: string;
 
   constructor(
@@ -37,6 +51,15 @@ export class r {
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
     this.apiUrl = `${environment.apiUrl}/api/trip`;
+  }
+
+  public formatDate(date: Date | string): string {
+    if (!date) return '';
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   getAll(): Observable<TripDto[]> {

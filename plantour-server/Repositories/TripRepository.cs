@@ -73,6 +73,9 @@ public class TripRepository : BaseRepository
         {
             throw new InvalidOperationException("Access denied");
         }
+
+        entity.Id = Guid.NewGuid();
+        entity.OwnerId = CurrentUser!.UserId!.Value;
         _context.Trips.Add(entity);
         await _context.SaveChangesAsync();
     }
