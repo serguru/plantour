@@ -8,7 +8,7 @@ namespace plantour_server.Attributes
     {
         public AdminOrParticipantAttribute()
         {
-            Policy = $"{UserRole.Admin},{UserRole.Participant}";
+            Policy = "AdminOrParticipant";
         }
     }
 }

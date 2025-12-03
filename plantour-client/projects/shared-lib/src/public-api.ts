@@ -9,3 +9,4 @@ export * from './components/modal-dialog/modal-dialog-component';
 export * from './components/toast-container/toast-container-component';
 export * from './services/user-package-service';
 export * from './services/user-thing-service';
+export * from './services/trip-service';

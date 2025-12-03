@@ -77,12 +77,14 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserPackageService, UserPackageService>();
 builder.Services.AddScoped<IUserThingService, UserThingService>();
+builder.Services.AddScoped<ITripService, TripService>();
 
 // Register repositories
 builder.Services.AddScoped<plantour_server.Repositories.UserPackageRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.PackageCategoryRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.UserThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();
 
 // Configure CORS for Angular client
 builder.Services.AddCors(options =>

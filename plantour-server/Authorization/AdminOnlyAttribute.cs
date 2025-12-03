@@ -8,7 +8,7 @@ namespace plantour_server.Attributes
     {
         public AdminOnlyAttribute()
         {
-            Policy = $"{UserRole.Admin}";
+            Policy = "AdminOnly";
         }
     }
 }

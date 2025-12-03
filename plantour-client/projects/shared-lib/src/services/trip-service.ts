@@ -1,0 +1,61 @@
+import { Injectable, Inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { ENVIRONMENT, EnvironmentConfig } from '../environment.token';
+
+export interface TripDto {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  description?: string | null;
+}
+
+export interface CreateTripRequest {
+  name: string;
+  startDate: string;
+  endDate: string;
+  description?: string | null;
+}
+
+export interface UpdateTripRequest {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  description?: string | null;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class r {
+  private apiUrl: string;
+
+  constructor(
+    private http: HttpClient,
+    @Inject(ENVIRONMENT) private environment: EnvironmentConfig
+  ) {
+    this.apiUrl = `${environment.apiUrl}/api/trip`;
+  }
+
+  getAll(): Observable<TripDto[]> {
+    return this.http.get<TripDto[]>(this.apiUrl);
+  }
+
+  getById(id: string): Observable<TripDto> {
+    return this.http.get<TripDto>(`${this.apiUrl}/${id}`);
+  }
+
+  add(request: CreateTripRequest): Observable<TripDto> {
+    return this.http.post<TripDto>(this.apiUrl, request);
+  }
+
+  update(request: UpdateTripRequest): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}`, request);
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+}

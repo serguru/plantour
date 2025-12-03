@@ -8,7 +8,7 @@ namespace plantour_server.Attributes
     {
         public ParticipantOnlyAttribute()
         {
-            Policy = $"{UserRole.Participant}";
+            Policy = "ParticipantOnly";
         }
     }
 }
