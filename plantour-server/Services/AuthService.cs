@@ -117,9 +117,7 @@ public class AuthService : IAuthService
 
         // Generate unique access code
         var accessCode = await AccessCodeGenerator.GenerateUniqueAsync(async code =>
-            await _context.AdminsParticipants.AnyAsync(ap => ap.AccessCode == code) ||
-            await _context.TripUsers.AnyAsync(tu => tu.AccessCode == code) ||
-            await _context.Invitations.AnyAsync(i => i.AccessCode == code)
+            await _context.AdminsParticipants.AnyAsync(ap => ap.AccessCode == code)
         );
 
         // Create admin-participant relationship

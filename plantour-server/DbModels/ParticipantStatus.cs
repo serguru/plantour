@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("currencies", Schema = "plantour")]
-[Index("Name", Name = "currencies_name_key", IsUnique = true)]
-public partial class Currency
+[Table("participant_status", Schema = "plantour")]
+[Index("Name", Name = "participant_status_name_key", IsUnique = true)]
+public partial class ParticipantStatus
 {
     [Key]
     [Column("id")]
@@ -18,9 +18,9 @@ public partial class Currency
     [StringLength(50)]
     public string Name { get; set; } = null!;
 
-    [Column("character")]
-    public string? Character { get; set; }
-
     [Column("notes")]
     public string? Notes { get; set; }
+
+    [InverseProperty("ParticipantStatus")]
+    public virtual ICollection<AdminsParticipant> AdminsParticipants { get; set; } = new List<AdminsParticipant>();
 }

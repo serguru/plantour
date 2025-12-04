@@ -45,19 +45,13 @@ public partial class User
     [InverseProperty("Participant")]
     public virtual ICollection<AdminsParticipant> AdminsParticipantParticipants { get; set; } = new List<AdminsParticipant>();
 
-    [InverseProperty("Invitee")]
-    public virtual ICollection<Invitation> InvitationInvitees { get; set; } = new List<Invitation>();
-
-    [InverseProperty("Inviter")]
-    public virtual ICollection<Invitation> InvitationInviters { get; set; } = new List<Invitation>();
-
     [InverseProperty("User")]
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
     [InverseProperty("User")]
     public virtual ICollection<TripUser> TripUsers { get; set; } = new List<TripUser>();
 
-    [InverseProperty("Owner")]
+    [InverseProperty("User")]
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 
     [InverseProperty("User")]

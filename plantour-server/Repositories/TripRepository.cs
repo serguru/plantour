@@ -25,7 +25,7 @@ public class TripRepository : BaseRepository
         {
             return await _dbSet
                 .Include(x => x.TripStatus)
-                .FirstOrDefaultAsync(x => x.Id == id && x.OwnerId == CurrentUser.UserId);
+                .FirstOrDefaultAsync(x => x.Id == id && x.UserId == CurrentUser.UserId);
         }
 
         if (CurrentUser.IsParticipant)
@@ -33,7 +33,7 @@ public class TripRepository : BaseRepository
             return await _dbSet
                 .Include(x => x.TripStatus)
                 .Include(x => x.TripUsers)
-                .FirstOrDefaultAsync(x => x.Id == id && x.OwnerId == CurrentUser.AdminId && x.TripUsers.Any(y => y.UserId == CurrentUser.UserId));
+                .FirstOrDefaultAsync(x => x.Id == id && x.UserId == CurrentUser.AdminId && x.TripUsers.Any(y => y.UserId == CurrentUser.UserId));
         }
 
         return null;
@@ -50,7 +50,7 @@ public class TripRepository : BaseRepository
         {
             return await _dbSet
                 .Include(x => x.TripStatus)
-                .Where(x => x.OwnerId == CurrentUser.UserId)
+                .Where(x => x.UserId == CurrentUser.UserId)
                 .ToListAsync();
         }
 
@@ -59,7 +59,7 @@ public class TripRepository : BaseRepository
             return await _dbSet
                 .Include(x => x.TripStatus)
                 .Include(x => x.TripUsers)
-                .Where(x => x.OwnerId == CurrentUser.AdminId && x.TripUsers.Any(y => y.UserId == CurrentUser.UserId))
+                .Where(x => x.UserId == CurrentUser.AdminId && x.TripUsers.Any(y => y.UserId == CurrentUser.UserId))
                 .ToListAsync();
         }
 
@@ -75,7 +75,7 @@ public class TripRepository : BaseRepository
         }
 
         entity.Id = Guid.NewGuid();
-        entity.OwnerId = CurrentUser!.UserId!.Value;
+        entity.UserId = CurrentUser!.UserId!.Value;
         _context.Trips.Add(entity);
         await _context.SaveChangesAsync();
     }

@@ -1,652 +1,218 @@
 set search_path to plantour, public;
 
 BEGIN;
-
--- ====================================================================
--- Ensure thing_categories baseline demo data (idempotent)
--- ====================================================================
-INSERT INTO thing_categories (name, notes) VALUES
-    ('Accessories', 'Belts, hats, sunglasses, jewelry'),
-    ('Baby & Kids', 'Items for children and infants'),
-    ('Clothing', 'General clothing items'),
-    ('Documents', 'Passports, IDs, tickets'),
-    ('Electronics', 'Phones, cameras, chargers'),
-    ('Emergency & First Aid', 'Medical and emergency items'),
-    ('Footwear', 'Shoes, sandals, boots'),
-    ('Food & Snacks', 'Non-perishable snacks and food'),
-    ('Health & Hygiene', 'Soap, shampoo, sanitizer'),
-    ('Laundry', 'Laundry bags, detergent'),
-    ('Medicine', 'Prescription and OTC medicines'),
-    ('Outdoor & Sports', 'Outdoor and sports gear'),
-    ('Personal Care', 'Misc personal-care items'),
-    ('Pets', 'Pet-related items'),
-    ('Toiletries', 'Toothbrush, toothpaste, etc.'),
-    ('Travel Essentials', 'Adapters, locks, tags')
-ON CONFLICT (name) DO NOTHING;
-
-
--- ====================================================================
--- USERS (1 admin + 2 participants + 2 extra users)
--- ====================================================================
-INSERT INTO users (email, password_hash, password_salt, first_name, last_name, phone, notes)
-VALUES
-    (
-        'serguru@gmail.com',
-        '\x35c846498f41a7ed1513b765c264ab222f7c3b015163fc07c78f6af00554436d2bb8f3d105a848584a0103f228132affc301505136188d50194e14f9a32d0f64',
-        '\x727465da121430b0bf747ea4a4cc3c21f458c61b824b15d354fc8e10adb5d2a7e82a3aa26363d48178341995f078275e2d5b3c5df70536c6af73a6dff32e15b7',
-        'Admin',
-        'User',
-        '+1-604-000-0000',
-        'Primary admin test user'
-    ),
-    (
-        'alice.participant@plantour.test',
-        NULL,
-        NULL,
-        'Alice',
-        'Participant',
-        '+1-604-000-0001',
-        'First participant linked to admin'
-    ),
-    (
-        'bob.participant@plantour.test',
-        NULL,
-        NULL,
-        'Bob',
-        'Participant',
-        '+1-604-000-0002',
-        'Second participant linked to admin'
-    ),
-    (
-        'carol.tester@plantour.test',
-        NULL,
-        NULL,
-        'Carol',
-        'Tester',
-        '+1-604-000-0003',
-        'Extra test user'
-    ),
-    (
-        'dave.tester@plantour.test',
-        NULL,
-        NULL,
-        'Dave',
-        'Tester',
-        '+1-604-000-0004',
-        'Extra test user'
-    );
-
-
--- ====================================================================
--- ADMINS / PARTICIPANTS LINKS
--- ====================================================================
-INSERT INTO admins_participants (id, admin_id, participant_id, access_code)
-VALUES
-    (
-        gen_random_uuid(),
-        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        'ALC12345'
-    ),
-    (
-        gen_random_uuid(),
-        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        'BOB54321'
-    );
-
-
--- ====================================================================
--- REFRESH TOKENS (multiple per user)
--- ====================================================================
-INSERT INTO refresh_tokens (id, user_id, token, expires_at, created_at, revoked_at, replaced_by_token)
-VALUES
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        'admin-token-1', now() + interval '30 days', now() - interval '1 day', NULL, NULL),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        'admin-token-2', now() + interval '60 days', now(), NULL, NULL),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        'alice-token-1', now() + interval '15 days', now() - interval '2 days', NULL, NULL),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        'alice-token-2', now() + interval '45 days', now(), NULL, NULL),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        'bob-token-1', now() + interval '20 days', now() - interval '3 days', NULL, NULL),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        'bob-token-2', now() + interval '40 days', now(), NULL, NULL),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        'carol-token-1', now() + interval '25 days', now(), NULL, NULL),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        'carol-token-2', now() + interval '55 days', now(), NULL, NULL),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        'dave-token-1', now() + interval '10 days', now() - interval '1 day', NULL, NULL),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        'dave-token-2', now() + interval '35 days', now(), NULL, NULL);
-
-
--- ====================================================================
--- USER PACKAGES (3 per user = 15 rows)
--- ====================================================================
-INSERT INTO user_packages (id, user_id, category_id, short_description, description)
-VALUES
-    -- Admin packages
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM package_categories WHERE name = 'Suitcase'),
-        'Admin large suitcase', 'Primary checked suitcase for admin'),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM package_categories WHERE name = 'Backpack'),
-        'Admin carry-on backpack', 'Carry-on backpack with electronics'),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM package_categories WHERE name = 'Bag'),
-        'Admin day bag', 'Small shoulder bag for daily use'),
-
-    -- Alice packages
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        (SELECT id FROM package_categories WHERE name = 'Suitcase'),
-        'Alice medium suitcase', 'Checked suitcase for Alice'),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        (SELECT id FROM package_categories WHERE name = 'Backpack'),
-        'Alice backpack', 'Backpack with clothes and snacks'),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        (SELECT id FROM package_categories WHERE name = 'Carry on'),
-        'Alice carry-on', 'Small carry-on roller'),
-
-    -- Bob packages
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        (SELECT id FROM package_categories WHERE name = 'Backpack'),
-        'Bob hiking backpack', 'Backpack for outdoor trips'),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        (SELECT id FROM package_categories WHERE name = 'Bag'),
-        'Bob gym bag', 'Sports and gym items'),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        (SELECT id FROM package_categories WHERE name = 'Box'),
-        'Bob equipment box', 'Hard box for fragile gear'),
-
-    -- Carol packages
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        (SELECT id FROM package_categories WHERE name = 'Suitcase'),
-        'Carol suitcase', 'Test suitcase for Carol'),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        (SELECT id FROM package_categories WHERE name = 'Plastic bag'),
-        'Carol plastic bag', 'Simple plastic bag for small items'),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        (SELECT id FROM package_categories WHERE name = 'Backpack'),
-        'Carol laptop backpack', 'Backpack for laptop and documents'),
-
-    -- Dave packages
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        (SELECT id FROM package_categories WHERE name = 'Bag'),
-        'Dave messenger bag', 'Cross-body messenger bag'),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        (SELECT id FROM package_categories WHERE name = 'Backpack'),
-        'Dave travel backpack', 'Backpack for weekend trips'),
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        (SELECT id FROM package_categories WHERE name = 'Wrapper'),
-        'Dave gift wrapper', 'Wrapper for gifts and souvenirs');
-
-
--- ====================================================================
--- USER THINGS (4 per user = 20 rows)
--- ====================================================================
-INSERT INTO user_things (
-    id, user_id, category_id, short_description, description
-)
-VALUES
-    -- Admin things
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'), (SELECT id FROM thing_categories WHERE name = 'Clothing'),'Admin T-shirt', 'Basic cotton T-shirt'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'), (SELECT id FROM thing_categories WHERE name = 'Electronics'), 'Laptop', '14-inch ultrabook'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM thing_categories WHERE name = 'Travel Essentials'),
-        'Travel adapter', 'Universal travel adapter'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM thing_categories WHERE name = 'Toiletries'),
-        'Toiletry bag', 'Bag with basic toiletries'),
-
-    -- Alice things
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Clothing'),
-        'Dress', 'Summer dress'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Footwear'),
-        'Running shoes', 'Lightweight running shoes'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Health & Hygiene'),
-        'Hand sanitizer', 'Travel-size hand sanitizer'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Documents'),
-        'Passport', 'Canadian passport'),
-
-    -- Bob things
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Outdoor & Sports'),
-        'Hiking poles', 'Collapsible hiking poles'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Emergency & First Aid'),
-        'First aid kit', 'Compact first aid kit'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Food & Snacks'),
-        'Trail mix', 'Resealable bag of trail mix'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Accessories'),
-        'Sunglasses', 'Polarized sunglasses'),
-
-    -- Carol things
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Electronics'),
-        'Camera', 'Mirrorless camera body'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Travel Essentials'),
-        'Luggage lock', 'TSA-approved lock'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Toiletries'),
-        'Travel toothbrush', 'Foldable toothbrush'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Medicine'),
-        'Pain reliever', 'Small bottle of ibuprofen'),
-
-    -- Dave things
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Clothing'),
-        'Jeans', 'Regular fit jeans'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Footwear'),
-        'Sandals', 'Lightweight sandals'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Travel Essentials'),
-        'Power bank', '10,000 mAh power bank'),
-
-    (gen_random_uuid(), (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        (SELECT id FROM thing_categories WHERE name = 'Personal Care'),
-        'Comb', 'Small travel comb');
-
-
--- ====================================================================
--- TRIPS (6 trips with different owners and statuses)
--- ====================================================================
-INSERT INTO trips (
-    id, owner_id, trip_status_id,
-    short_description, description,
-    start_date, end_date, require_weight
-)
-VALUES
-    (
-        gen_random_uuid(),
-        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM trip_status WHERE name = 'Planning'),
-        'Hawaii family vacation',
-        'Two-week beach vacation with family in Hawaii',
-        '2026-02-01', '2026-02-14', TRUE
-    ),
-    (
-        gen_random_uuid(),
-        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM trip_status WHERE name = 'Active'),
-        'Weekend ski trip',
-        'Skiing weekend in Whistler',
-        '2026-01-15', '2026-01-18', TRUE
-    ),
-    (
-        gen_random_uuid(),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        (SELECT id FROM trip_status WHERE name = 'Completed'),
-        'Business conference Toronto',
-        'Conference trip to Toronto with meetings and networking',
-        '2025-09-10', '2025-09-15', FALSE
-    ),
-    (
-        gen_random_uuid(),
-        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        (SELECT id FROM trip_status WHERE name = 'Planning'),
-        'Hiking Rockies',
-        'Multi-day hiking trip in the Rockies',
-        '2026-07-01', '2026-07-10', TRUE
-    ),
-    (
-        gen_random_uuid(),
-        (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        (SELECT id FROM trip_status WHERE name = 'Archived'),
-        'Photography tour Europe',
-        'Train and car photography tour across Europe',
-        '2024-05-01', '2024-05-20', FALSE
-    ),
-    (
-        gen_random_uuid(),
-        (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        (SELECT id FROM trip_status WHERE name = 'Planning'),
-        'Road trip USA west coast',
-        'Road trip along the west coast of the USA',
-        '2026-08-05', '2026-08-25', TRUE
-    );
-
-
--- ====================================================================
--- TRIP USERS (participants for trips)
--- ====================================================================
-INSERT INTO trip_users (id, trip_id, user_id)
-VALUES
-    -- Hawaii family vacation
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Hawaii family vacation'),
-        (SELECT id FROM users WHERE email = 'serguru@gmail.com')),
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Hawaii family vacation'),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test')),
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Hawaii family vacation'),
-        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test')),
-
-    -- Weekend ski trip
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Weekend ski trip'),
-        (SELECT id FROM users WHERE email = 'serguru@gmail.com')),
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Weekend ski trip'),
-        (SELECT id FROM users WHERE email = 'carol.tester@plantour.test')),
-
-    -- Business conference Toronto
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Business conference Toronto'),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test')),
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Business conference Toronto'),
-        (SELECT id FROM users WHERE email = 'dave.tester@plantour.test')),
-
-    -- Hiking Rockies
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Hiking Rockies'),
-        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test')),
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Hiking Rockies'),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test')),
-
-    -- Photography tour Europe
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Photography tour Europe'),
-        (SELECT id FROM users WHERE email = 'carol.tester@plantour.test')),
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Photography tour Europe'),
-        (SELECT id FROM users WHERE email = 'serguru@gmail.com')),
-
-    -- Road trip USA west coast
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Road trip USA west coast'),
-        (SELECT id FROM users WHERE email = 'dave.tester@plantour.test')),
-    (gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Road trip USA west coast'),
-        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'));
-
-
--- ====================================================================
--- INVITATIONS (10 sample invitations)
--- ====================================================================
-INSERT INTO invitations (
-    id,
-    trip_id, inviter_id, invitee_id,
-    invite_token, access_code,
-    first_name, last_name, email, phone,
-    subject, message,
-    created_at, expires_at, accepted_at, refused_at, sent_at,
-    communication_type_id,
-    notes
-)
-VALUES
-    -- Accepted email invitation for Hawaii trip
-    (
-        gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Hawaii family vacation'),
-        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        'invite-token-hawaii-alice',
-        'INVHWA01',
-        'Alice', 'Participant', 'alice.participant@plantour.test', '+1-604-000-0001',
-        'Join our Hawaii family vacation',
-        'Hi Alice, please join our Hawaii trip. All details are in Plantour.',
-        '2025-01-01 10:00:00+00',
-        '2025-12-31 23:59:59+00',
-        '2025-01-05 12:00:00+00',
-        NULL,
-        '2025-01-01 11:00:00+00',
-        (SELECT id FROM communication_types WHERE name = 'email'),
-        'Invitation accepted via email'
-    ),
-    -- Accepted email invitation for Hawaii trip - Bob
-    (
-        gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Hawaii family vacation'),
-        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        'invite-token-hawaii-bob',
-        'INVHWB01',
-        'Bob', 'Participant', 'bob.participant@plantour.test', '+1-604-000-0002',
-        'Join our Hawaii family vacation',
-        'Hi Bob, we are going to Hawaii, join us in Plantour.',
-        '2025-01-02 09:00:00+00',
-        '2025-12-31 23:59:59+00',
-        '2025-01-07 15:00:00+00',
-        NULL,
-        '2025-01-02 09:30:00+00',
-        (SELECT id FROM communication_types WHERE name = 'email'),
-        'Invitation accepted via email'
-    ),
-    -- Refused WhatsApp invitation for Ski trip
-    (
-        gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Weekend ski trip'),
-        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        'invite-token-ski-dave',
-        'INVSKD01',
-        'Dave', 'Tester', 'dave.tester@plantour.test', '+1-604-000-0004',
-        'Weekend ski trip to Whistler',
-        'Dave, we are planning a ski weekend in Whistler.',
-        '2025-01-10 08:00:00+00',
-        '2025-02-10 23:59:59+00',
-        NULL,
-        '2025-01-12 10:00:00+00',
-        '2025-01-10 08:05:00+00',
-        (SELECT id FROM communication_types WHERE name = 'WhatsApp'),
-        'Invitation refused due to schedule conflict'
-    ),
-    -- Pending SMS invitation for Ski trip
-    (
-        gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Weekend ski trip'),
-        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        'invite-token-ski-carol',
-        'INVSKC01',
-        'Carol', 'Tester', 'carol.tester@plantour.test', '+1-604-000-0003',
-        'Ski weekend invite',
-        'Carol, join us for skiing this winter.',
-        '2025-01-11 09:00:00+00',
-        '2025-02-11 23:59:59+00',
-        NULL,
-        NULL,
-        '2025-01-11 09:10:00+00',
-        (SELECT id FROM communication_types WHERE name = 'SMS'),
-        'Invitation sent, awaiting response'
-    ),
-    -- Accepted phone invitation for Business conference
-    (
-        gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Business conference Toronto'),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        'invite-token-toronto-dave',
-        'INVTOR01',
-        'Dave', 'Tester', 'dave.tester@plantour.test', '+1-604-000-0004',
-        'Business conference in Toronto',
-        'Dave, would you like to join the Toronto conference trip?',
-        '2025-04-01 14:00:00+00',
-        '2025-09-01 23:59:59+00',
-        '2025-04-03 10:00:00+00',
-        NULL,
-        '2025-04-01 15:00:00+00',
-        (SELECT id FROM communication_types WHERE name = 'phone'),
-        'Accepted after phone call'
-    ),
-    -- Refused email invitation for Hiking Rockies
-    (
-        gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Hiking Rockies'),
-        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        'invite-token-rockies-carol',
-        'INVROK01',
-        'Carol', 'Tester', 'carol.tester@plantour.test', '+1-604-000-0003',
-        'Hiking trip in the Rockies',
-        'Carol, join us for a hiking adventure in the Rockies.',
-        '2025-05-01 12:00:00+00',
-        '2026-06-01 23:59:59+00',
-        NULL,
-        '2025-05-05 09:00:00+00',
-        '2025-05-01 12:15:00+00',
-        (SELECT id FROM communication_types WHERE name = 'email'),
-        'Refused, not interested in long hikes'
-    ),
-    -- Accepted Telegram invitation for Road trip
-    (
-        gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Road trip USA west coast'),
-        (SELECT id FROM users WHERE email = 'dave.tester@plantour.test'),
-        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        'invite-token-roadtrip-bob',
-        'INVUSA01',
-        'Bob', 'Participant', 'bob.participant@plantour.test', '+1-604-000-0002',
-        'Road trip along the west coast',
-        'Bob, road trip from Vancouver to San Diego, are you in?',
-        '2025-06-01 08:00:00+00',
-        '2026-08-01 23:59:59+00',
-        '2025-06-02 10:00:00+00',
-        NULL,
-        '2025-06-01 08:05:00+00',
-        (SELECT id FROM communication_types WHERE name = 'Telegram'),
-        'Accepted, planning routes together'
-    ),
-    -- Pending in-person invitation for Photography tour
-    (
-        gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Photography tour Europe'),
-        (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        'invite-token-europe-alice',
-        'INVEUR01',
-        'Alice', 'Participant', 'alice.participant@plantour.test', '+1-604-000-0001',
-        'Photography tour across Europe',
-        'Alice, I am planning a photography tour in Europe.',
-        '2024-01-10 18:00:00+00',
-        '2024-06-01 23:59:59+00',
-        NULL,
-        NULL,
-        NULL,
-        (SELECT id FROM communication_types WHERE name = 'in person'),
-        'Discussed in person, no final decision yet'
-    ),
-    -- Accepted SMS invitation for Hawaii trip for Carol
-    (
-        gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Hawaii family vacation'),
-        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        'invite-token-hawaii-carol',
-        'INVHWC01',
-        'Carol', 'Tester', 'carol.tester@plantour.test', '+1-604-000-0003',
-        'Extra seat for Hawaii trip',
-        'Carol, we have one more seat for Hawaii, join us.',
-        '2025-01-03 13:00:00+00',
-        '2025-12-31 23:59:59+00',
-        '2025-01-04 09:00:00+00',
-        NULL,
-        '2025-01-03 13:10:00+00',
-        (SELECT id FROM communication_types WHERE name = 'SMS'),
-        'Accepted quickly after SMS'
-    ),
-    -- Refused email invitation for Business conference
-    (
-        gen_random_uuid(),
-        (SELECT id FROM trips WHERE short_description = 'Business conference Toronto'),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        (SELECT id FROM users WHERE email = 'carol.tester@plantour.test'),
-        'invite-token-toronto-carol',
-        'INVTOR02',
-        'Carol', 'Tester', 'carol.tester@plantour.test', '+1-604-000-0003',
-        'Conference in Toronto',
-        'Carol, do you want to join the Toronto conference?',
-        '2025-03-01 11:00:00+00',
-        '2025-09-01 23:59:59+00',
-        NULL,
-        '2025-03-05 08:00:00+00',
-        '2025-03-01 11:05:00+00',
-        (SELECT id FROM communication_types WHERE name = 'email'),
-        'Refused due to other projects'
-    );
-
-
--- ====================================================================
--- TRIP USER PACKAGES
--- Map some user_packages into trip_user_packages (approx. 20 rows)
--- ====================================================================
-INSERT INTO trip_user_packages (
-    id, trip_user_id, user_package_id, parent_package_id,
-    packing_status_id, packed_at, label, packing_list_included,
-    weight_value, weight_unit_id
-)
-SELECT
-    gen_random_uuid(),
-    tu.id,
-    up.id,
-    NULL,
-    (SELECT id FROM packing_status WHERE name = 'Planning'),
-    NULL,
-    u.first_name || ' - ' || up.short_description,
-    FALSE,
-    NULL,
-    NULL
-FROM trip_users tu
-JOIN users u ON u.id = tu.user_id
-JOIN user_packages up ON up.user_id = u.id
-WHERE up.short_description LIKE '%suitcase'
-   OR up.short_description LIKE '%backpack'
-LIMIT 20;
-
-
--- ====================================================================
--- TRIP USER THINGS
--- Map some user_things into trip_user_things (approx. 30 rows)
--- ====================================================================
-INSERT INTO trip_user_things (
-    id, trip_user_id, user_thing_id, trip_user_package_id,
-    qty, packing_status_id, packed_at
-)
-SELECT
-    gen_random_uuid(),
-    tu.id,
-    ut.id,
-    NULL,
-    1,
-    (SELECT id FROM packing_status WHERE name = 'Planning'),
-    NULL
-FROM trip_users tu
-JOIN users u ON u.id = tu.user_id
-JOIN user_things ut ON ut.user_id = u.id
-LIMIT 30;
-
-
+-- RESET ALL TABLES
+TRUNCATE trip_user_things CASCADE;
+TRUNCATE trip_user_packages CASCADE;
+TRUNCATE trip_users CASCADE;
+TRUNCATE invitations CASCADE;
+TRUNCATE trips CASCADE;
+TRUNCATE user_packages CASCADE;
+TRUNCATE user_things CASCADE;
+TRUNCATE refresh_tokens CASCADE;
+TRUNCATE admins_participants CASCADE;
+TRUNCATE users CASCADE;
+TRUNCATE participant_status CASCADE;
+TRUNCATE thing_categories CASCADE;
+TRUNCATE package_categories CASCADE;
+TRUNCATE packing_status CASCADE;
+TRUNCATE trip_status CASCADE;
+TRUNCATE units CASCADE;
+TRUNCATE communication_types CASCADE;
+INSERT INTO communication_types (id,name) VALUES ('00000000-0000-0000-0000-000000000001','in person');
+INSERT INTO communication_types (id,name) VALUES ('00000000-0000-0000-0000-000000000002','phone');
+INSERT INTO communication_types (id,name) VALUES ('00000000-0000-0000-0000-000000000003','email');
+INSERT INTO communication_types (id,name) VALUES ('00000000-0000-0000-0000-000000000004','SMS');
+INSERT INTO communication_types (id,name) VALUES ('00000000-0000-0000-0000-000000000005','WhatsApp');
+INSERT INTO communication_types (id,name) VALUES ('00000000-0000-0000-0000-000000000006','Telegram');
+INSERT INTO units (id,name) VALUES ('00000000-0000-0000-0000-000000000007','pcs');
+INSERT INTO units (id,name) VALUES ('00000000-0000-0000-0000-000000000008','kg');
+INSERT INTO units (id,name) VALUES ('00000000-0000-0000-0000-000000000009','g');
+INSERT INTO units (id,name) VALUES ('00000000-0000-0000-0000-000000000010','lb');
+INSERT INTO units (id,name) VALUES ('00000000-0000-0000-0000-000000000011','oz');
+INSERT INTO units (id,name) VALUES ('00000000-0000-0000-0000-000000000012','L');
+INSERT INTO units (id,name) VALUES ('00000000-0000-0000-0000-000000000013','ml');
+INSERT INTO units (id,name) VALUES ('00000000-0000-0000-0000-000000000014','m');
+INSERT INTO units (id,name) VALUES ('00000000-0000-0000-0000-000000000015','cm');
+INSERT INTO units (id,name) VALUES ('00000000-0000-0000-0000-000000000016','in');
+INSERT INTO trip_status (id,name) VALUES ('00000000-0000-0000-0000-000000000017','Planning');
+INSERT INTO trip_status (id,name) VALUES ('00000000-0000-0000-0000-000000000018','Active');
+INSERT INTO trip_status (id,name) VALUES ('00000000-0000-0000-0000-000000000019','Completed');
+INSERT INTO trip_status (id,name) VALUES ('00000000-0000-0000-0000-000000000020','Archived');
+INSERT INTO packing_status (id,name) VALUES ('00000000-0000-0000-0000-000000000021','Planning');
+INSERT INTO packing_status (id,name) VALUES ('00000000-0000-0000-0000-000000000022','Active');
+INSERT INTO packing_status (id,name) VALUES ('00000000-0000-0000-0000-000000000023','Completed');
+INSERT INTO packing_status (id,name) VALUES ('00000000-0000-0000-0000-000000000024','Verified');
+INSERT INTO package_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000025','Suitcase');
+INSERT INTO package_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000026','Bag');
+INSERT INTO package_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000027','Backpack');
+INSERT INTO package_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000028','Plastic bag');
+INSERT INTO package_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000029','Wrapper');
+INSERT INTO package_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000030','Carry on');
+INSERT INTO package_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000031','Box');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000032','Accessories');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000033','Baby & Kids');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000034','Clothing');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000035','Documents');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000036','Electronics');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000037','Emergency & First Aid');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000038','Footwear');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000039','Food & Snacks');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000040','Health & Hygiene');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000041','Laundry');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000042','Medicine');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000043','Outdoor & Sports');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000044','Personal Care');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000045','Pets');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000046','Toiletries');
+INSERT INTO thing_categories (id,name) VALUES ('00000000-0000-0000-0000-000000000047','Travel Essentials');
+INSERT INTO participant_status (id,name) VALUES ('00000000-0000-0000-0000-000000000048','Planned');
+INSERT INTO participant_status (id,name) VALUES ('00000000-0000-0000-0000-000000000049','Invited');
+INSERT INTO participant_status (id,name) VALUES ('00000000-0000-0000-0000-000000000050','Active');
+INSERT INTO participant_status (id,name) VALUES ('00000000-0000-0000-0000-000000000051','Excluded');
+INSERT INTO users (id,email,password_hash,password_salt,first_name,last_name) VALUES ('00000000-0000-0000-0000-000000009001','admin@example.com','\x35c846498f41a7ed1513b765c264ab222f7c3b015163fc07c78f6af00554436d2bb8f3d105a848584a0103f228132affc301505136188d50194e14f9a32d0f64','\x727465da121430b0bf747ea4a4cc3c21f458c61b824b15d354fc8e10adb5d2a7e82a3aa26363d48178341995f078275e2d5b3c5df70536c6af73a6dff32e15b7','Admin','User');
+INSERT INTO users (id,email,first_name,last_name) VALUES ('00000000-0000-0000-0000-000000009002','participant0@example.com','P0','User');
+INSERT INTO users (id,email,first_name,last_name) VALUES ('00000000-0000-0000-0000-000000009003','participant1@example.com','P1','User');
+INSERT INTO admins_participants (id,admin_id,participant_id,participant_status_id,access_code) VALUES ('00000000-0000-0000-0000-000000000052','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000009002','00000000-0000-0000-0000-000000000050','c880b3a9');
+INSERT INTO admins_participants (id,admin_id,participant_id,participant_status_id,access_code) VALUES ('00000000-0000-0000-0000-000000000053','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000009003','00000000-0000-0000-0000-000000000050','3d5035f9');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000054','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000032','Thing 0','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000055','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000033','Thing 1','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000056','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000034','Thing 2','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000057','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000035','Thing 3','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000058','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000036','Thing 4','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000059','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000037','Thing 5','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000060','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000038','Thing 6','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000061','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000039','Thing 7','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000062','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000040','Thing 8','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000063','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000041','Thing 9','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000064','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000042','Thing 10','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000065','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000043','Thing 11','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000066','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000044','Thing 12','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000067','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000045','Thing 13','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000068','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000046','Thing 14','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000069','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000047','Thing 15','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000070','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000032','Thing 16','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000071','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000033','Thing 17','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000072','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000034','Thing 18','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_things (id,user_id,category_id,name,units_id) VALUES ('00000000-0000-0000-0000-000000000073','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000035','Thing 19','00000000-0000-0000-0000-000000000007');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000074','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000025','Package 0');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000075','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000026','Package 1');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000076','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000027','Package 2');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000077','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000028','Package 3');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000078','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000029','Package 4');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000079','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000030','Package 5');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000080','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000031','Package 6');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000081','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000025','Package 7');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000082','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000026','Package 8');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000083','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000027','Package 9');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000084','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000028','Package 10');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000085','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000029','Package 11');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000086','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000030','Package 12');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000087','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000031','Package 13');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000088','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000025','Package 14');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000089','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000026','Package 15');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000090','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000027','Package 16');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000091','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000028','Package 17');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000092','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000029','Package 18');
+INSERT INTO user_packages (id,user_id,category_id,name) VALUES ('00000000-0000-0000-0000-000000000093','00000000-0000-0000-0000-000000009001','00000000-0000-0000-0000-000000000030','Package 19');
+INSERT INTO trips (id,user_id,name,trip_status,start_date,end_date) VALUES ('00000000-0000-0000-0000-000000000094','00000000-0000-0000-0000-000000009001','Trip 0','Planning','2025-12-04','2025-12-07');
+INSERT INTO trips (id,user_id,name,trip_status,start_date,end_date) VALUES ('00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000009001','Trip 1','Planning','2025-12-05','2025-12-09');
+INSERT INTO trips (id,user_id,name,trip_status,start_date,end_date) VALUES ('00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-000000009001','Trip 2','Planning','2025-12-06','2025-12-11');
+INSERT INTO trips (id,user_id,name,trip_status,start_date,end_date) VALUES ('00000000-0000-0000-0000-000000000097','00000000-0000-0000-0000-000000009001','Trip 3','Planning','2025-12-07','2025-12-13');
+INSERT INTO trips (id,user_id,name,trip_status,start_date,end_date) VALUES ('00000000-0000-0000-0000-000000000098','00000000-0000-0000-0000-000000009001','Trip 4','Planning','2025-12-08','2025-12-15');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000099','00000000-0000-0000-0000-000000000094','00000000-0000-0000-0000-000000009001');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000100','00000000-0000-0000-0000-000000000094','00000000-0000-0000-0000-000000009002');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000101','00000000-0000-0000-0000-000000000094','00000000-0000-0000-0000-000000009003');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000102','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000009001');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000103','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000009002');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000104','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000009003');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000105','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-000000009001');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000106','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-000000009002');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000107','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-000000009003');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000108','00000000-0000-0000-0000-000000000097','00000000-0000-0000-0000-000000009001');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000109','00000000-0000-0000-0000-000000000097','00000000-0000-0000-0000-000000009002');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000110','00000000-0000-0000-0000-000000000097','00000000-0000-0000-0000-000000009003');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000111','00000000-0000-0000-0000-000000000098','00000000-0000-0000-0000-000000009001');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000112','00000000-0000-0000-0000-000000000098','00000000-0000-0000-0000-000000009002');
+INSERT INTO trip_users (id,trip_id,user_id) VALUES ('00000000-0000-0000-0000-000000000113','00000000-0000-0000-0000-000000000098','00000000-0000-0000-0000-000000009003');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000114','00000000-0000-0000-0000-000000000099','GenericCat','TripPack 0','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000115','00000000-0000-0000-0000-000000000100','GenericCat','TripPack 1','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000116','00000000-0000-0000-0000-000000000101','GenericCat','TripPack 2','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000117','00000000-0000-0000-0000-000000000102','GenericCat','TripPack 3','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000118','00000000-0000-0000-0000-000000000103','GenericCat','TripPack 4','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000119','00000000-0000-0000-0000-000000000104','GenericCat','TripPack 5','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000120','00000000-0000-0000-0000-000000000105','GenericCat','TripPack 6','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000121','00000000-0000-0000-0000-000000000106','GenericCat','TripPack 7','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000122','00000000-0000-0000-0000-000000000107','GenericCat','TripPack 8','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000123','00000000-0000-0000-0000-000000000108','GenericCat','TripPack 9','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000124','00000000-0000-0000-0000-000000000109','GenericCat','TripPack 10','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000125','00000000-0000-0000-0000-000000000110','GenericCat','TripPack 11','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000126','00000000-0000-0000-0000-000000000111','GenericCat','TripPack 12','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000127','00000000-0000-0000-0000-000000000112','GenericCat','TripPack 13','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000128','00000000-0000-0000-0000-000000000113','GenericCat','TripPack 14','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000129','00000000-0000-0000-0000-000000000099','GenericCat','TripPack 15','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000130','00000000-0000-0000-0000-000000000100','GenericCat','TripPack 16','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000131','00000000-0000-0000-0000-000000000101','GenericCat','TripPack 17','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000132','00000000-0000-0000-0000-000000000102','GenericCat','TripPack 18','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000133','00000000-0000-0000-0000-000000000103','GenericCat','TripPack 19','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000134','00000000-0000-0000-0000-000000000104','GenericCat','TripPack 20','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000135','00000000-0000-0000-0000-000000000105','GenericCat','TripPack 21','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000136','00000000-0000-0000-0000-000000000106','GenericCat','TripPack 22','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000137','00000000-0000-0000-0000-000000000107','GenericCat','TripPack 23','Planning');
+INSERT INTO trip_user_packages (id,trip_user_id,category,name,packing_status) VALUES ('00000000-0000-0000-0000-000000000138','00000000-0000-0000-0000-000000000108','GenericCat','TripPack 24','Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000139','00000000-0000-0000-0000-000000000099','00000000-0000-0000-0000-000000000114','TUT 0','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000140','00000000-0000-0000-0000-000000000100','00000000-0000-0000-0000-000000000115','TUT 1','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000141','00000000-0000-0000-0000-000000000101','00000000-0000-0000-0000-000000000116','TUT 2','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000142','00000000-0000-0000-0000-000000000102','00000000-0000-0000-0000-000000000117','TUT 3','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000143','00000000-0000-0000-0000-000000000103','00000000-0000-0000-0000-000000000118','TUT 4','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000144','00000000-0000-0000-0000-000000000104','00000000-0000-0000-0000-000000000119','TUT 5','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000145','00000000-0000-0000-0000-000000000105','00000000-0000-0000-0000-000000000120','TUT 6','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000146','00000000-0000-0000-0000-000000000106','00000000-0000-0000-0000-000000000121','TUT 7','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000147','00000000-0000-0000-0000-000000000107','00000000-0000-0000-0000-000000000122','TUT 8','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000148','00000000-0000-0000-0000-000000000108','00000000-0000-0000-0000-000000000123','TUT 9','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000149','00000000-0000-0000-0000-000000000109','00000000-0000-0000-0000-000000000124','TUT 10','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000150','00000000-0000-0000-0000-000000000110','00000000-0000-0000-0000-000000000125','TUT 11','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000151','00000000-0000-0000-0000-000000000111','00000000-0000-0000-0000-000000000126','TUT 12','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000152','00000000-0000-0000-0000-000000000112','00000000-0000-0000-0000-000000000127','TUT 13','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000153','00000000-0000-0000-0000-000000000113','00000000-0000-0000-0000-000000000128','TUT 14','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000154','00000000-0000-0000-0000-000000000099','00000000-0000-0000-0000-000000000129','TUT 15','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000155','00000000-0000-0000-0000-000000000100','00000000-0000-0000-0000-000000000130','TUT 16','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000156','00000000-0000-0000-0000-000000000101','00000000-0000-0000-0000-000000000131','TUT 17','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000157','00000000-0000-0000-0000-000000000102','00000000-0000-0000-0000-000000000132','TUT 18','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000158','00000000-0000-0000-0000-000000000103','00000000-0000-0000-0000-000000000133','TUT 19','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000159','00000000-0000-0000-0000-000000000104','00000000-0000-0000-0000-000000000134','TUT 20','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000160','00000000-0000-0000-0000-000000000105','00000000-0000-0000-0000-000000000135','TUT 21','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000161','00000000-0000-0000-0000-000000000106','00000000-0000-0000-0000-000000000136','TUT 22','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000162','00000000-0000-0000-0000-000000000107','00000000-0000-0000-0000-000000000137','TUT 23','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000163','00000000-0000-0000-0000-000000000108','00000000-0000-0000-0000-000000000138','TUT 24','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000164','00000000-0000-0000-0000-000000000109','00000000-0000-0000-0000-000000000114','TUT 25','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000165','00000000-0000-0000-0000-000000000110','00000000-0000-0000-0000-000000000115','TUT 26','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000166','00000000-0000-0000-0000-000000000111','00000000-0000-0000-0000-000000000116','TUT 27','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000167','00000000-0000-0000-0000-000000000112','00000000-0000-0000-0000-000000000117','TUT 28','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000168','00000000-0000-0000-0000-000000000113','00000000-0000-0000-0000-000000000118','TUT 29','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000169','00000000-0000-0000-0000-000000000099','00000000-0000-0000-0000-000000000119','TUT 30','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000170','00000000-0000-0000-0000-000000000100','00000000-0000-0000-0000-000000000120','TUT 31','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000171','00000000-0000-0000-0000-000000000101','00000000-0000-0000-0000-000000000121','TUT 32','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000172','00000000-0000-0000-0000-000000000102','00000000-0000-0000-0000-000000000122','TUT 33','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000173','00000000-0000-0000-0000-000000000103','00000000-0000-0000-0000-000000000123','TUT 34','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000174','00000000-0000-0000-0000-000000000104','00000000-0000-0000-0000-000000000124','TUT 35','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000175','00000000-0000-0000-0000-000000000105','00000000-0000-0000-0000-000000000125','TUT 36','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000176','00000000-0000-0000-0000-000000000106','00000000-0000-0000-0000-000000000126','TUT 37','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000177','00000000-0000-0000-0000-000000000107','00000000-0000-0000-0000-000000000127','TUT 38','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000178','00000000-0000-0000-0000-000000000108','00000000-0000-0000-0000-000000000128','TUT 39','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000179','00000000-0000-0000-0000-000000000109','00000000-0000-0000-0000-000000000129','TUT 40','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000180','00000000-0000-0000-0000-000000000110','00000000-0000-0000-0000-000000000130','TUT 41','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000181','00000000-0000-0000-0000-000000000111','00000000-0000-0000-0000-000000000131','TUT 42','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000182','00000000-0000-0000-0000-000000000112','00000000-0000-0000-0000-000000000132','TUT 43','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000183','00000000-0000-0000-0000-000000000113','00000000-0000-0000-0000-000000000133','TUT 44','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000184','00000000-0000-0000-0000-000000000099','00000000-0000-0000-0000-000000000134','TUT 45','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000185','00000000-0000-0000-0000-000000000100','00000000-0000-0000-0000-000000000135','TUT 46','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000186','00000000-0000-0000-0000-000000000101','00000000-0000-0000-0000-000000000136','TUT 47','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000187','00000000-0000-0000-0000-000000000102','00000000-0000-0000-0000-000000000137','TUT 48','GenericThing','pcs',1,'Planning');
+INSERT INTO trip_user_things (id,trip_user_id,trip_user_package_id,name,category,units,value,packing_status) VALUES ('00000000-0000-0000-0000-000000000188','00000000-0000-0000-0000-000000000103','00000000-0000-0000-0000-000000000138','TUT 49','GenericThing','pcs',1,'Planning');
+INSERT INTO invitations (id,trip_id,token,subject,message,created_at,expires_at) VALUES ('00000000-0000-0000-0000-000000000189','00000000-0000-0000-0000-000000000094','TOKEN0','Invite 0','Message 0','2025-12-04T05:08:43.870336','2026-01-03T05:08:43.870343');
+INSERT INTO invitations (id,trip_id,token,subject,message,created_at,expires_at) VALUES ('00000000-0000-0000-0000-000000000190','00000000-0000-0000-0000-000000000095','TOKEN1','Invite 1','Message 1','2025-12-04T05:08:43.870351','2026-01-03T05:08:43.870353');
+INSERT INTO invitations (id,trip_id,token,subject,message,created_at,expires_at) VALUES ('00000000-0000-0000-0000-000000000191','00000000-0000-0000-0000-000000000096','TOKEN2','Invite 2','Message 2','2025-12-04T05:08:43.870357','2026-01-03T05:08:43.870358');
+INSERT INTO invitations (id,trip_id,token,subject,message,created_at,expires_at) VALUES ('00000000-0000-0000-0000-000000000192','00000000-0000-0000-0000-000000000097','TOKEN3','Invite 3','Message 3','2025-12-04T05:08:43.870362','2026-01-03T05:08:43.870363');
+INSERT INTO invitations (id,trip_id,token,subject,message,created_at,expires_at) VALUES ('00000000-0000-0000-0000-000000000193','00000000-0000-0000-0000-000000000098','TOKEN4','Invite 4','Message 4','2025-12-04T05:08:43.870367','2026-01-03T05:08:43.870368');
 COMMIT;

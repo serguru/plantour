@@ -15,13 +15,13 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<CommunicationType> CommunicationTypes { get; set; }
 
-    public virtual DbSet<Currency> Currencies { get; set; }
-
     public virtual DbSet<Invitation> Invitations { get; set; }
 
     public virtual DbSet<PackageCategory> PackageCategories { get; set; }
 
     public virtual DbSet<PackingStatus> PackingStatuses { get; set; }
+
+    public virtual DbSet<ParticipantStatus> ParticipantStatuses { get; set; }
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
@@ -38,8 +38,6 @@ public partial class PlantourContext : DbContext
     public virtual DbSet<TripUserThing> TripUserThings { get; set; }
 
     public virtual DbSet<Unit> Units { get; set; }
-
-    public virtual DbSet<UnitCategory> UnitCategories { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -58,18 +56,13 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Admin).WithMany(p => p.AdminsParticipantAdmins).HasConstraintName("admins_participants_admin_id_fkey");
 
             entity.HasOne(d => d.Participant).WithMany(p => p.AdminsParticipantParticipants).HasConstraintName("admins_participants_participant_id_fkey");
+
+            entity.HasOne(d => d.ParticipantStatus).WithMany(p => p.AdminsParticipants).HasConstraintName("admins_participants_participant_status_id_fkey");
         });
 
         modelBuilder.Entity<CommunicationType>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("communication_types_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-        });
-
-        modelBuilder.Entity<Currency>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("currencies_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
@@ -80,14 +73,6 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
-
-            entity.HasOne(d => d.CommunicationType).WithMany(p => p.Invitations)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("invitations_communication_type_id_fkey");
-
-            entity.HasOne(d => d.Invitee).WithMany(p => p.InvitationInvitees).HasConstraintName("invitations_invitee_id_fkey");
-
-            entity.HasOne(d => d.Inviter).WithMany(p => p.InvitationInviters).HasConstraintName("invitations_inviter_id_fkey");
 
             entity.HasOne(d => d.Trip).WithMany(p => p.Invitations).HasConstraintName("invitations_trip_id_fkey");
         });
@@ -106,6 +91,13 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
+        modelBuilder.Entity<ParticipantStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("participant_status_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
         modelBuilder.Entity<RefreshToken>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("refresh_tokens_pkey");
@@ -113,7 +105,7 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens).HasConstraintName("fk_refresh_tokens_user");
+            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens).HasConstraintName("refresh_tokens_user_id_fkey");
         });
 
         modelBuilder.Entity<ThingCategory>(entity =>
@@ -128,13 +120,10 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("trips_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.RequireWeight).HasDefaultValue(false);
 
-            entity.HasOne(d => d.Owner).WithMany(p => p.Trips).HasConstraintName("trips_owner_id_fkey");
-
-            entity.HasOne(d => d.TripStatus).WithMany(p => p.Trips)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("trips_trip_status_id_fkey");
+            entity.HasOne(d => d.User).WithMany(p => p.Trips)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("trips_user_id_fkey");
         });
 
         modelBuilder.Entity<TripStatus>(entity =>
@@ -161,21 +150,11 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            entity.HasOne(d => d.PackingStatus).WithMany(p => p.TripUserPackages)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("trip_user_packages_packing_status_id_fkey");
-
             entity.HasOne(d => d.ParentPackage).WithMany(p => p.InverseParentPackage)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("trip_user_packages_parent_package_id_fkey");
 
             entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserPackages).HasConstraintName("trip_user_packages_trip_user_id_fkey");
-
-            entity.HasOne(d => d.UserPackage).WithMany(p => p.TripUserPackages)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("trip_user_packages_user_package_id_fkey");
-
-            entity.HasOne(d => d.WeightUnit).WithMany(p => p.TripUserPackages).HasConstraintName("trip_user_packages_weight_unit_id_fkey");
         });
 
         modelBuilder.Entity<TripUserThing>(entity =>
@@ -183,35 +162,17 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("trip_user_things_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.Qty).HasDefaultValue(1);
-
-            entity.HasOne(d => d.PackingStatus).WithMany(p => p.TripUserThings)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("trip_user_things_packing_status_id_fkey");
 
             entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserThings).HasConstraintName("trip_user_things_trip_user_id_fkey");
 
             entity.HasOne(d => d.TripUserPackage).WithMany(p => p.TripUserThings)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("trip_user_things_trip_user_package_id_fkey");
-
-            entity.HasOne(d => d.UserThing).WithMany(p => p.TripUserThings).HasConstraintName("trip_user_things_user_thing_id_fkey");
         });
 
         modelBuilder.Entity<Unit>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("units_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-
-            entity.HasOne(d => d.UnitCategory).WithMany(p => p.Units)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("units_unit_category_id_fkey");
-        });
-
-        modelBuilder.Entity<UnitCategory>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("unit_categories_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
@@ -229,9 +190,7 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            entity.HasOne(d => d.Category).WithMany(p => p.UserPackages)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("user_packages_category_id_fkey");
+            entity.HasOne(d => d.Category).WithMany(p => p.UserPackages).HasConstraintName("user_packages_category_id_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserPackages).HasConstraintName("user_packages_user_id_fkey");
         });
@@ -242,9 +201,9 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            entity.HasOne(d => d.Category).WithMany(p => p.UserThings)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("user_things_category_id_fkey");
+            entity.HasOne(d => d.Category).WithMany(p => p.UserThings).HasConstraintName("user_things_category_id_fkey");
+
+            entity.HasOne(d => d.Units).WithMany(p => p.UserThings).HasConstraintName("user_things_units_id_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserThings).HasConstraintName("user_things_user_id_fkey");
         });

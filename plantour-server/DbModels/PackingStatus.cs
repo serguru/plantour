@@ -15,15 +15,9 @@ public partial class PackingStatus
     public Guid Id { get; set; }
 
     [Column("name")]
-    [StringLength(100)]
+    [StringLength(50)]
     public string Name { get; set; } = null!;
 
     [Column("notes")]
     public string? Notes { get; set; }
-
-    [InverseProperty("PackingStatus")]
-    public virtual ICollection<TripUserPackage> TripUserPackages { get; set; } = new List<TripUserPackage>();
-
-    [InverseProperty("PackingStatus")]
-    public virtual ICollection<TripUserThing> TripUserThings { get; set; } = new List<TripUserThing>();
 }

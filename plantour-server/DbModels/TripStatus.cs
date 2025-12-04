@@ -15,12 +15,9 @@ public partial class TripStatus
     public Guid Id { get; set; }
 
     [Column("name")]
-    [StringLength(100)]
+    [StringLength(50)]
     public string Name { get; set; } = null!;
 
     [Column("notes")]
     public string? Notes { get; set; }
-
-    [InverseProperty("TripStatus")]
-    public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 }

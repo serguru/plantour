@@ -15,12 +15,9 @@ public partial class CommunicationType
     public Guid Id { get; set; }
 
     [Column("name")]
-    [StringLength(100)]
+    [StringLength(50)]
     public string Name { get; set; } = null!;
 
     [Column("notes")]
     public string? Notes { get; set; }
-
-    [InverseProperty("CommunicationType")]
-    public virtual ICollection<Invitation> Invitations { get; set; } = new List<Invitation>();
 }

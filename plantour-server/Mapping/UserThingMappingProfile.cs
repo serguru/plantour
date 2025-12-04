@@ -17,7 +17,6 @@ public class UserThingMappingProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.UserId, opt => opt.Ignore())
             .ForMember(dest => dest.Category, opt => opt.Ignore())
-            .ForMember(dest => dest.TripUserThings, opt => opt.Ignore())
             .ForMember(dest => dest.User, opt => opt.Ignore());
     }
 }

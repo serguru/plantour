@@ -13,15 +13,15 @@ public class TripMappingProfile : Profile
         
         CreateMap<CreateTripRequest, Trip>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Owner, opt => opt.Ignore())
+            .ForMember(dest => dest.User, opt => opt.Ignore())
             .ForMember(dest => dest.TripStatus, opt => opt.Ignore())
             .ForMember(dest => dest.TripUsers, opt => opt.Ignore())
             .ForMember(dest => dest.Invitations, opt => opt.Ignore());
         
         CreateMap<UpdateTripRequest, Trip>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.OwnerId, opt => opt.Ignore())
-            .ForMember(dest => dest.Owner, opt => opt.Ignore())
+            .ForMember(dest => dest.UserId, opt => opt.Ignore())
+            .ForMember(dest => dest.User, opt => opt.Ignore())
             .ForMember(dest => dest.TripStatus, opt => opt.Ignore())
             .ForMember(dest => dest.TripUsers, opt => opt.Ignore())
             .ForMember(dest => dest.Invitations, opt => opt.Ignore());

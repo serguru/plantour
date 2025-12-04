@@ -26,14 +26,14 @@ public class UserThingRepository : BaseRepository
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == CurrentUser.UserId);
     }
 
-    public async Task<UserThing?> GetByDescriptionAsync(string description)
+    public async Task<UserThing?> GetByNameAsync(string name)
     {
         if (CurrentUser == null)
         {
             return null;
         }
         return await _dbSet
-            .FirstOrDefaultAsync(x => x.ShortDescription == description && x.UserId == CurrentUser.UserId);
+            .FirstOrDefaultAsync(x => x.Name == name && x.UserId == CurrentUser.UserId);
     }
 
     public async Task<IEnumerable<UserThing>> GetAllAsync()
@@ -55,7 +55,7 @@ public class UserThingRepository : BaseRepository
         {
             throw new InvalidOperationException("Access denied");
         }
-        var existingEntity = await GetByDescriptionAsync(entity.ShortDescription);
+        var existingEntity = await GetByNameAsync(entity.Name);
         if (existingEntity != null)
         {
             throw new InvalidOperationException("Thing with the same description already exists");

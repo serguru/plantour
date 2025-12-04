@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("refresh_tokens", Schema = "plantour")]
-[Index("Token", Name = "idx_refresh_tokens_token")]
 [Index("UserId", Name = "idx_refresh_tokens_user_id")]
 public partial class RefreshToken
 {

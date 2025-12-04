@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("trip_user_things", Schema = "plantour")]
-[Index("TripUserId", "UserThingId", Name = "idx_trip_user_trip_user_id_user_thing_id", IsUnique = true)]
+[Index("TripUserId", Name = "idx_trip_user_things_trip_user_id")]
 public partial class TripUserThing
 {
     [Key]
@@ -17,24 +17,31 @@ public partial class TripUserThing
     [Column("trip_user_id")]
     public Guid TripUserId { get; set; }
 
-    [Column("user_thing_id")]
-    public Guid UserThingId { get; set; }
+    [Column("category")]
+    [StringLength(50)]
+    public string? Category { get; set; }
+
+    [Column("name")]
+    [StringLength(200)]
+    public string Name { get; set; } = null!;
+
+    [Column("units")]
+    [StringLength(50)]
+    public string? Units { get; set; }
+
+    [Column("value")]
+    [Precision(10, 3)]
+    public decimal? Value { get; set; }
 
     [Column("trip_user_package_id")]
     public Guid? TripUserPackageId { get; set; }
 
-    [Column("qty")]
-    public int Qty { get; set; }
-
-    [Column("packing_status_id")]
-    public Guid? PackingStatusId { get; set; }
+    [Column("packing_status")]
+    [StringLength(50)]
+    public string? PackingStatus { get; set; }
 
     [Column("packed_at")]
     public DateTime? PackedAt { get; set; }
-
-    [ForeignKey("PackingStatusId")]
-    [InverseProperty("TripUserThings")]
-    public virtual PackingStatus? PackingStatus { get; set; }
 
     [ForeignKey("TripUserId")]
     [InverseProperty("TripUserThings")]
@@ -43,8 +50,4 @@ public partial class TripUserThing
     [ForeignKey("TripUserPackageId")]
     [InverseProperty("TripUserThings")]
     public virtual TripUserPackage? TripUserPackage { get; set; }
-
-    [ForeignKey("UserThingId")]
-    [InverseProperty("TripUserThings")]
-    public virtual UserThing UserThing { get; set; } = null!;
 }

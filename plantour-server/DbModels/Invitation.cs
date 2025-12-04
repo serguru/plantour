@@ -7,8 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("invitations", Schema = "plantour")]
-[Index("AccessCode", Name = "invitations_access_code_key", IsUnique = true)]
-[Index("InviteToken", Name = "invitations_invite_token_key", IsUnique = true)]
+[Index("Token", Name = "invitations_token_key", IsUnique = true)]
 public partial class Invitation
 {
     [Key]
@@ -18,18 +17,8 @@ public partial class Invitation
     [Column("trip_id")]
     public Guid TripId { get; set; }
 
-    [Column("inviter_id")]
-    public Guid InviterId { get; set; }
-
-    [Column("invitee_id")]
-    public Guid InviteeId { get; set; }
-
-    [Column("invite_token")]
-    public string InviteToken { get; set; } = null!;
-
-    [Column("access_code")]
-    [StringLength(8)]
-    public string AccessCode { get; set; } = null!;
+    [Column("token")]
+    public string Token { get; set; } = null!;
 
     [Column("first_name")]
     [StringLength(100)]
@@ -69,23 +58,12 @@ public partial class Invitation
     [Column("sent_at")]
     public DateTime? SentAt { get; set; }
 
-    [Column("communication_type_id")]
-    public Guid? CommunicationTypeId { get; set; }
+    [Column("communication_type")]
+    [StringLength(50)]
+    public string? CommunicationType { get; set; }
 
     [Column("notes")]
     public string? Notes { get; set; }
-
-    [ForeignKey("CommunicationTypeId")]
-    [InverseProperty("Invitations")]
-    public virtual CommunicationType? CommunicationType { get; set; }
-
-    [ForeignKey("InviteeId")]
-    [InverseProperty("InvitationInvitees")]
-    public virtual User Invitee { get; set; } = null!;
-
-    [ForeignKey("InviterId")]
-    [InverseProperty("InvitationInviters")]
-    public virtual User Inviter { get; set; } = null!;
 
     [ForeignKey("TripId")]
     [InverseProperty("Invitations")]

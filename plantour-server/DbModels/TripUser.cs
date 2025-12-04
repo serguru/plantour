@@ -8,7 +8,6 @@ namespace plantour_server.DbModels;
 
 [Table("trip_users", Schema = "plantour")]
 [Index("TripId", "UserId", Name = "idx_trip_users_trip_id_user_id", IsUnique = true)]
-[Index("AccessCode", Name = "trip_users_access_code_key", IsUnique = true)]
 public partial class TripUser
 {
     [Key]
@@ -20,10 +19,6 @@ public partial class TripUser
 
     [Column("user_id")]
     public Guid UserId { get; set; }
-
-    [Column("access_code")]
-    [StringLength(8)]
-    public string AccessCode { get; set; } = null!;
 
     [ForeignKey("TripId")]
     [InverseProperty("TripUsers")]

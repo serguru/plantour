@@ -14,14 +14,12 @@ public class UserPackageMappingProfile : Profile
         CreateMap<CreateUserPackageRequest, UserPackage>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Category, opt => opt.Ignore())
-            .ForMember(dest => dest.TripUserPackages, opt => opt.Ignore())
             .ForMember(dest => dest.User, opt => opt.Ignore());
         
         CreateMap<UpdateUserPackageRequest, UserPackage>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.UserId, opt => opt.Ignore())
             .ForMember(dest => dest.Category, opt => opt.Ignore())
-            .ForMember(dest => dest.TripUserPackages, opt => opt.Ignore())
             .ForMember(dest => dest.User, opt => opt.Ignore());
     }
 }
