@@ -46,26 +46,6 @@
                     </span>
                   }
                 </div>
-                @if (selectedTrip?.id === trip.id) {
-                  <div class="trip-actions">
-                    <p-button 
-                      icon="pi pi-pencil" 
-                      [rounded]="true"
-                      [text]="true"
-                      (onClick)="onEditTrip(trip); $event.stopPropagation()"
-                      severity="secondary"
-                      [attr.aria-label]="'Edit trip'">
-                    </p-button>
-                    <p-button 
-                      icon="pi pi-trash" 
-                      [rounded]="true"
-                      [text]="true"
-                      (onClick)="onDeleteTrip(trip); $event.stopPropagation()"
-                      severity="danger"
-                      [attr.aria-label]="'Delete trip'">
-                    </p-button>
-                  </div>
-                }
               </div>
             </div>
           </ng-template>

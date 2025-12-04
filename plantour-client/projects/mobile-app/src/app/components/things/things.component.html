@@ -43,26 +43,6 @@
                     <span class="thing-badge">{{ thing.categoryName }}</span>
                   }
                 </div>
-                @if (selectedThing?.id === thing.id) {
-                  <div class="thing-actions">
-                    <p-button 
-                      icon="pi pi-pencil" 
-                      [rounded]="true"
-                      [text]="true"
-                      (onClick)="onEditThing(thing); $event.stopPropagation()"
-                      severity="secondary"
-                      [attr.aria-label]="'Edit thing'">
-                    </p-button>
-                    <p-button 
-                      icon="pi pi-trash" 
-                      [rounded]="true"
-                      [text]="true"
-                      (onClick)="onDeleteThing(thing); $event.stopPropagation()"
-                      severity="danger"
-                      [attr.aria-label]="'Delete thing'">
-                    </p-button>
-                  </div>
-                }
               </div>
             </div>
           </ng-template>

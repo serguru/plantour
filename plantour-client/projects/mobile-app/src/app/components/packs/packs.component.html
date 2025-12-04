@@ -45,26 +45,6 @@
                     <span class="pack-info">{{ pack.emptyWeightValue }} {{ pack.weightUnitName }}</span>
                   }
                 </div>
-                @if (selectedPack?.id === pack.id) {
-                  <div class="pack-actions">
-                    <p-button 
-                      icon="pi pi-pencil" 
-                      [rounded]="true"
-                      [text]="true"
-                      (onClick)="onEditPack(pack); $event.stopPropagation()"
-                      severity="secondary"
-                      [attr.aria-label]="'Edit pack'">
-                    </p-button>
-                    <p-button 
-                      icon="pi pi-trash" 
-                      [rounded]="true"
-                      [text]="true"
-                      (onClick)="onDeletePack(pack); $event.stopPropagation()"
-                      severity="danger"
-                      [attr.aria-label]="'Delete pack'">
-                    </p-button>
-                  </div>
-                }
               </div>
             </div>
           </ng-template>
