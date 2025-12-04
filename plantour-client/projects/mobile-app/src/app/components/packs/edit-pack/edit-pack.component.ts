@@ -6,7 +6,6 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
-import { NavigationService } from '../../../services/navigation.service';
 import { UserPackageService, MessagesService } from 'shared-lib';
 
 @Component({
@@ -17,7 +16,6 @@ import { UserPackageService, MessagesService } from 'shared-lib';
   styleUrl: './edit-pack.component.scss'
 })
 export class EditPackComponent implements OnInit {
-  private navigationService = inject(NavigationService);
   private userPackageService = inject(UserPackageService);
   private messagesService = inject(MessagesService);
   private router = inject(Router);
@@ -39,7 +37,6 @@ export class EditPackComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.navigationService.setCustomBackPath('/packs', true);
     
     this.packageId = this.route.snapshot.paramMap.get('id') || '';
 

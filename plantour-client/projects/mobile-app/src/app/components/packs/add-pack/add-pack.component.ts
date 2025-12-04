@@ -6,7 +6,6 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
-import { NavigationService } from '../../../services/navigation.service';
 import { UserPackageService, UsersService, MessagesService } from 'shared-lib';
 
 @Component({
@@ -17,7 +16,6 @@ import { UserPackageService, UsersService, MessagesService } from 'shared-lib';
   styleUrl: './add-pack.component.scss'
 })
 export class AddPackComponent implements OnInit {
-  private navigationService = inject(NavigationService);
   private userPackageService = inject(UserPackageService);
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
@@ -37,7 +35,6 @@ export class AddPackComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.navigationService.setCustomBackPath('/packs', true);
     this.userPackageService.getAllCategories().subscribe(categories =>
       this.categories = categories
     );

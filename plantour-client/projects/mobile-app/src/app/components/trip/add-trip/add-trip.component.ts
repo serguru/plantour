@@ -6,7 +6,6 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
-import { NavigationService } from '../../../services/navigation.service';
 import { TripService, MessagesService } from 'shared-lib';
 
 @Component({
@@ -17,7 +16,6 @@ import { TripService, MessagesService } from 'shared-lib';
   styleUrl: './add-trip.component.scss'
 })
 export class AddTripComponent implements OnInit {
-  private navigationService = inject(NavigationService);
   private tripService = inject(TripService);
   private messagesService = inject(MessagesService);
   private router = inject(Router);
@@ -36,7 +34,6 @@ export class AddTripComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.navigationService.setCustomBackPath('/trips', true);
   }
 
   onSubmit(): void {

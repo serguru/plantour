@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
-import { NavigationService } from '../../services/navigation.service';
 import { MessagesService, TripService } from 'shared-lib';
 
 @Component({
@@ -16,7 +15,6 @@ import { MessagesService, TripService } from 'shared-lib';
   styleUrl: './trip.component.scss'
 })
 export class TripComponent implements OnInit {
-  private navigationService = inject(NavigationService);
   private tripService = inject(TripService);
   private messagesService = inject(MessagesService);
   private router = inject(Router);
@@ -25,7 +23,6 @@ export class TripComponent implements OnInit {
   selectedTrip: any = null;
 
   ngOnInit(): void {
-    this.navigationService.setCustomBackPath('/landing-registered', true);
     this.loadTrips();
   }
 

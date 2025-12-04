@@ -1,17 +1,6 @@
 <div class="toolbar">
   <div class="toolbar-left">
-    <button 
-      *ngIf="navigationState.showBackButton"
-      pButton
-      icon="pi pi-arrow-left"
-      class="p-button-text p-button-rounded back-button"
-      (click)="onBackClick()"
-      aria-label="Back">
-    </button>
-  </div>
-  
-  <div class="toolbar-center" (click)="onLogoClick()">
-    <div class="logo-container">
+    <div class="logo-container" (click)="onLogoClick()">
       <img src="assets/plantour-logo.png" alt="Plantour Logo" class="logo-image" />
       <span class="app-title">Plantour</span>
     </div>

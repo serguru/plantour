@@ -30,3 +30,12 @@ userPackages: any[] сейчас хранится в PacksComponent, а долж
 
 
 Смотри plantour-server\Controllers\UserPackageController.cs. Добавь код в plantour-client\projects\mobile-app для Add, Update и Delete UserPackages. Сначала добавь необходимые методы в plantour-client\projects\shared-lib\src\services\user-package-service.ts. Смотри существующие компоненты в  plantour-client\projects\mobile-app\src\app\components\packs и подпапках. Добавь в эти компоненты  Add, Update и Delete функции используя UserPackageService.
+
+Создай механизм для динамического управления набором кнопок с иконками, которые появляются в середине тулбара в зависимости от того, какой компонент загружен в router-outlet. При нажатии на такую кнопку выполняется команда в контексте текущего компонента. Когда компонент уходит из router-outlet он должен убрать свои кнопки из тулбара. 
+
+
+
+Создай в plantour-client\projects\shared-lib\src\services новый ToolBarService для добавления и удаления команд на тулбаре. Создай абстрактный класс ToolbarAware - предок для компонентов, который будет использовать ToolBarService для добавления и удаления команд. Наследуй все route related, в том числе уже существующие, компоненты в plantour-client\projects\mobile-app, от ToolbarAware.
+
+Сервис plantour-client\projects\mobile-app\src\app\services\navigation.service.ts удалить. Кнопку "Back", использующую этот сервис, удалить из всего кода.
+

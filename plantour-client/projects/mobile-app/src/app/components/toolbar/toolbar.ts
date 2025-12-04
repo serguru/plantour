@@ -5,7 +5,6 @@ import { Subject, takeUntil } from 'rxjs';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
-import { NavigationService, NavigationState } from '../../services/navigation.service';
 import { UsersService } from 'shared-lib';
 
 @Component({
@@ -19,10 +18,6 @@ export class Toolbar implements OnInit, OnDestroy {
  
   private destroy$ = new Subject<void>();
   
-  navigationState: NavigationState = {
-    showBackButton: false,
-    backPath: '/'
-  };
 
   get menuItems(): MenuItem[] {
     return [
@@ -69,25 +64,15 @@ export class Toolbar implements OnInit, OnDestroy {
   }
 
   constructor(
-    private navigationService: NavigationService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.navigationService.navigationState$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(state => {
-        this.navigationState = state;
-      });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  onBackClick(): void {
-    this.navigationService.navigateBack();
   }
 
   onLogoClick(): void {
