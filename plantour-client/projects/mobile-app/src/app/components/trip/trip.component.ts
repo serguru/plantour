@@ -31,11 +31,27 @@ export class TripComponent extends ToolbarAware implements OnInit {
   private setupToolbarButtons(): void {
     this.setToolbarButtons([
       {
+        id: 'add-trip',
         icon: 'pi pi-plus',
         tooltip: 'Add Trip',
         command: () => this.onAddTrip()
       },
       {
+        id: 'edit-trip',
+        icon: 'pi pi-pencil',
+        tooltip: 'Edit Trip',
+        command: () => this.onEditSelectedTrip(),
+        disabled: true
+      },
+      {
+        id: 'delete-trip',
+        icon: 'pi pi-trash',
+        tooltip: 'Delete Trip',
+        command: () => this.onDeleteSelectedTrip(),
+        disabled: true
+      },
+      {
+        id: 'refresh-trips',
         icon: 'pi pi-refresh',
         tooltip: 'Refresh',
         command: () => this.loadTrips()
@@ -54,12 +70,61 @@ export class TripComponent extends ToolbarAware implements OnInit {
     });
   }
 
+  onSelectionChange(): void {
+    const hasSelection = this.selectedTrip != null;
+    
+    this.updateToolbarButtons({
+      'edit-trip': { 
+        disabled: !hasSelection,
+        tooltip: hasSelection ? `Edit "${this.selectedTrip?.shortDescription}"` : 'Edit Trip'
+      },
+      'delete-trip': { 
+        disabled: !hasSelection,
+        tooltip: hasSelection ? `Delete "${this.selectedTrip?.shortDescription}"` : 'Delete Trip'
+      }
+    });
+  }
+
   onAddTrip(): void {
     this.router.navigate(['/trips/add']);
   }
 
+  onEditSelectedTrip(): void {
+    if (this.selectedTrip) {
+      this.router.navigate(['/trips/edit', this.selectedTrip.id]);
+    }
+  }
+
   onEditTrip(trip: any): void {
     this.router.navigate(['/trips/edit', trip.id]);
+  }
+
+  async onDeleteSelectedTrip(): Promise<void> {
+    if (!this.selectedTrip) {
+      return;
+    }
+
+    const result = await this.messagesService.openOkCancel({
+      title: 'Delete Trip',
+      message: `Are you sure you want to delete "${this.selectedTrip.shortDescription}"?`,
+      okLabel: 'Delete',
+      cancelLabel: 'Cancel'
+    });
+
+    if (result === 'ok') {
+      this.tripService.delete(this.selectedTrip.id).subscribe({
+        next: () => {
+          this.selectedTrip = null;
+          this.onSelectionChange();
+          this.loadTrips();
+          this.messagesService.showInfo('Trip deleted successfully');
+        },
+        error: (error) => {
+          console.error('Error deleting trip:', error);
+          this.messagesService.showError('Failed to delete trip');
+        }
+      });
+    }
   }
 
   async onDeleteTrip(trip: any): Promise<void> {
@@ -73,6 +138,10 @@ export class TripComponent extends ToolbarAware implements OnInit {
     if (result === 'ok') {
       this.tripService.delete(trip.id).subscribe({
         next: () => {
+          if (this.selectedTrip?.id === trip.id) {
+            this.selectedTrip = null;
+            this.onSelectionChange();
+          }
           this.loadTrips();
           this.messagesService.showInfo('Trip deleted successfully');
         },

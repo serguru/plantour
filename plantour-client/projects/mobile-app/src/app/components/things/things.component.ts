@@ -31,11 +31,27 @@ export class ThingsComponent extends ToolbarAware implements OnInit {
   private setupToolbarButtons(): void {
     this.setToolbarButtons([
       {
+        id: 'add-thing',
         icon: 'pi pi-plus',
         tooltip: 'Add Thing',
         command: () => this.onAddThing()
       },
       {
+        id: 'edit-thing',
+        icon: 'pi pi-pencil',
+        tooltip: 'Edit Thing',
+        command: () => this.onEditSelectedThing(),
+        disabled: true // Initially disabled until something is selected
+      },
+      {
+        id: 'delete-thing',
+        icon: 'pi pi-trash',
+        tooltip: 'Delete Thing',
+        command: () => this.onDeleteSelectedThing(),
+        disabled: true // Initially disabled until something is selected
+      },
+      {
+        id: 'refresh-things',
         icon: 'pi pi-refresh',
         tooltip: 'Refresh',
         command: () => this.loadUserThings()
@@ -46,7 +62,6 @@ export class ThingsComponent extends ToolbarAware implements OnInit {
   private loadUserThings(): void {
     this.userThingService.getAll().subscribe({
       next: (things) => {
-        // things are automatically updated in the service
         this.userThings = things;
       },
       error: (error) => {
@@ -55,12 +70,62 @@ export class ThingsComponent extends ToolbarAware implements OnInit {
     });
   }
 
+  onSelectionChange(): void {
+    // Update toolbar buttons based on selection state
+    const hasSelection = this.selectedThing != null;
+    
+    this.updateToolbarButtons({
+      'edit-thing': { 
+        disabled: !hasSelection,
+        tooltip: hasSelection ? `Edit "${this.selectedThing?.shortDescription}"` : 'Edit Thing'
+      },
+      'delete-thing': { 
+        disabled: !hasSelection,
+        tooltip: hasSelection ? `Delete "${this.selectedThing?.shortDescription}"` : 'Delete Thing'
+      }
+    });
+  }
+
   onAddThing(): void {
     this.router.navigate(['/things/add']);
   }
 
+  onEditSelectedThing(): void {
+    if (this.selectedThing) {
+      this.router.navigate(['/things/edit', this.selectedThing.id]);
+    }
+  }
+
   onEditThing(thing: any): void {
     this.router.navigate(['/things/edit', thing.id]);
+  }
+
+  async onDeleteSelectedThing(): Promise<void> {
+    if (!this.selectedThing) {
+      return;
+    }
+
+    const result = await this.messagesService.openOkCancel({
+      title: 'Delete Thing',
+      message: `Are you sure you want to delete "${this.selectedThing.shortDescription}"?`,
+      okLabel: 'Delete',
+      cancelLabel: 'Cancel'
+    });
+
+    if (result === 'ok') {
+      this.userThingService.delete(this.selectedThing.id).subscribe({
+        next: () => {
+          this.selectedThing = null;
+          this.onSelectionChange(); // Update toolbar state
+          this.loadUserThings();
+          this.messagesService.showInfo('Thing deleted successfully');
+        },
+        error: (error) => {
+          console.error('Error deleting thing:', error);
+          this.messagesService.showError('Failed to delete thing');
+        }
+      });
+    }
   }
 
   async onDeleteThing(thing: any): Promise<void> {
@@ -74,6 +139,10 @@ export class ThingsComponent extends ToolbarAware implements OnInit {
     if (result === 'ok') {
       this.userThingService.delete(thing.id).subscribe({
         next: () => {
+          if (this.selectedThing?.id === thing.id) {
+            this.selectedThing = null;
+            this.onSelectionChange(); // Update toolbar state
+          }
           this.loadUserThings();
           this.messagesService.showInfo('Thing deleted successfully');
         },

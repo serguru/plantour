@@ -1,7 +1,7 @@
 # Dynamic Toolbar Button Mechanism
 
 ## Overview
-A dynamic toolbar button management system has been implemented that allows components to add and remove buttons in the toolbar based on the currently active route.
+A dynamic toolbar button management system has been implemented that allows components to add and remove buttons in the toolbar based on the currently active route. **Buttons are reactive and respond to component state changes.**
 
 ## Architecture
 
@@ -10,6 +10,7 @@ A centralized service that manages toolbar buttons:
 
 ```typescript
 export interface ToolbarButton {
+  id?: string;            // Unique identifier for reactive updates
   icon: string;           // PrimeNG icon class
   label?: string;         // Optional button label
   tooltip?: string;       // Optional tooltip text
@@ -23,6 +24,8 @@ export interface ToolbarButton {
 - `clearButtons()` - Remove all buttons
 - `getButtons()` - Get current buttons
 - `buttons$` - Observable stream of button changes
+- `updateButton(buttonId, updates)` - **Update a specific button** ⭐
+- `updateButtons(updates)` - **Update multiple buttons at once** ⭐
 
 ### 2. ToolbarAware (`mobile-app/src/app/components/toolbar-aware.ts`)
 An abstract base class for components that want to add toolbar buttons:
@@ -32,13 +35,13 @@ abstract class ToolbarAware implements OnDestroy {
   protected toolbarService = inject(ToolbarService);
   
   // Automatically clears buttons when component is destroyed
-  ngOnDestroy(): void {
-    this.toolbarService.clearButtons();
-  }
+  ngOnDestroy(): void
   
   // Helper methods for derived components
   protected setToolbarButtons(buttons: ToolbarButton[]): void
   protected clearToolbarButtons(): void
+  protected updateToolbarButton(buttonId: string, updates: Partial<ToolbarButton>): void ⭐
+  protected updateToolbarButtons(updates: { [buttonId: string]: Partial<ToolbarButton> }): void ⭐
 }
 ```
 
@@ -63,163 +66,188 @@ The toolbar component subscribes to button changes and displays them in the cent
 
 ## Implementation Examples
 
-### ThingsComponent
-Adds "Add Thing" and "Refresh" buttons:
+### ThingsComponent - Reactive Buttons ⭐
+
+**Step 1: Setup buttons with IDs**
 
 ```typescript
-export class ThingsComponent extends ToolbarAware implements OnInit {
-  ngOnInit(): void {
-    this.loadUserThings();
-    this.setupToolbarButtons();
-  }
+private setupToolbarButtons(): void {
+  this.setToolbarButtons([
+    {
+      id: 'add-thing',
+      icon: 'pi pi-plus',
+      tooltip: 'Add Thing',
+      command: () => this.onAddThing()
+    },
+    {
+      id: 'edit-thing',          // ID allows reactive updates
+      icon: 'pi pi-pencil',
+      tooltip: 'Edit Thing',
+      command: () => this.onEditSelectedThing(),
+      disabled: true             // Initially disabled
+    },
+    {
+      id: 'delete-thing',
+      icon: 'pi pi-trash',
+      tooltip: 'Delete Thing',
+      command: () => this.onDeleteSelectedThing(),
+      disabled: true
+    },
+    {
+      id: 'refresh-things',
+      icon: 'pi pi-refresh',
+      tooltip: 'Refresh',
+      command: () => this.loadUserThings()
+    }
+  ]);
+}
+```
 
-  private setupToolbarButtons(): void {
-    this.setToolbarButtons([
-      {
-        icon: 'pi pi-plus',
-        tooltip: 'Add Thing',
-        command: () => this.onAddThing()
-      },
-      {
-        icon: 'pi pi-refresh',
-        tooltip: 'Refresh',
-        command: () => this.loadUserThings()
-      }
-    ]);
+**Step 2: React to component state changes**
+
+```typescript
+onSelectionChange(): void {
+  const hasSelection = this.selectedThing != null;
+  
+  // Update button states reactively
+  this.updateToolbarButtons({
+    'edit-thing': { 
+      disabled: !hasSelection,
+      tooltip: hasSelection ? `Edit "${this.selectedThing?.shortDescription}"` : 'Edit Thing'
+    },
+    'delete-thing': { 
+      disabled: !hasSelection,
+      tooltip: hasSelection ? `Delete "${this.selectedThing?.shortDescription}"` : 'Delete Thing'
+    }
+  });
+}
+```
+
+**Step 3: Connect to UI**
+
+```html
+<p-listbox 
+  [options]="userThings!" 
+  [(ngModel)]="selectedThing"
+  (onChange)="onSelectionChange()"    <!-- Triggers button updates -->
+  optionLabel="shortDescription">
+```
+
+**Step 4: Commands execute in component context**
+
+```typescript
+onEditSelectedThing(): void {
+  if (this.selectedThing) {
+    // Button "knows" which item is selected via component context
+    this.router.navigate(['/things/edit', this.selectedThing.id]);
   }
 }
 ```
 
-### PacksComponent
-Adds "Add Pack" and "Refresh" buttons:
+## How Reactive Buttons Work
+
+### Data Flow
+```
+1. User selects item in listbox
+   ↓
+2. (onChange) event fires
+   ↓
+3. onSelectionChange() is called
+   ↓
+4. Component calls updateToolbarButtons()
+   ↓
+5. ToolbarService updates BehaviorSubject
+   ↓
+6. Toolbar component receives update via buttons$
+   ↓
+7. Angular updates DOM
+   ↓
+8. Buttons visually change state (enabled/disabled, new tooltips)
+```
+
+### Context Awareness via Closures
 
 ```typescript
-export class PacksComponent extends ToolbarAware implements OnInit {
-  private setupToolbarButtons(): void {
-    this.setToolbarButtons([
-      {
-        icon: 'pi pi-plus',
-        tooltip: 'Add Pack',
-        command: () => this.onAddPack()
-      },
-      {
-        icon: 'pi pi-refresh',
-        tooltip: 'Refresh',
-        command: () => this.loadUserPackages()
-      }
-    ]);
-  }
+// Arrow function captures component context
+command: () => this.onEditSelectedThing()
+//            ^^^^ 'this' refers to component instance
+
+// Inside onEditSelectedThing():
+if (this.selectedThing) {
+  // Has access to selectedThing from component scope
+  this.router.navigate(['/things/edit', this.selectedThing.id]);
 }
 ```
 
-### TripComponent
-Adds "Add Trip" and "Refresh" buttons:
-
-```typescript
-export class TripComponent extends ToolbarAware implements OnInit {
-  private setupToolbarButtons(): void {
-    this.setToolbarButtons([
-      {
-        icon: 'pi pi-plus',
-        tooltip: 'Add Trip',
-        command: () => this.onAddTrip()
-      },
-      {
-        icon: 'pi pi-refresh',
-        tooltip: 'Refresh',
-        command: () => this.loadTrips()
-      }
-    ]);
-  }
-}
-```
-
-### TravelersComponent
-Adds "Add Traveler" button:
-
-```typescript
-export class TravelersComponent extends ToolbarAware implements OnInit {
-  private setupToolbarButtons(): void {
-    this.setToolbarButtons([
-      {
-        icon: 'pi pi-user-plus',
-        tooltip: 'Add Traveler',
-        command: () => console.log('Add traveler clicked')
-      }
-    ]);
-  }
-}
-```
+The command function is a closure that captures the component's `this` context, giving it access to:
+- `this.selectedThing` - currently selected item
+- `this.router` - injected services
+- All component methods and properties
 
 ## Updated Components
 
-All routed components have been updated to extend `ToolbarAware`:
+All routed components have been updated with reactive buttons:
 
-1. ✅ **ThingsComponent** - /things
-2. ✅ **PacksComponent** - /packs  
-3. ✅ **TripComponent** - /trips
-4. ✅ **TravelersComponent** - /travelers
-5. ✅ **LandingNewUserComponent** - / (new user)
-6. ✅ **LandingRegisteredUserComponent** - / (registered user)
-7. ✅ **SignInComponent** - /sign-in
-8. ✅ **RegisterUserComponent** - /register
-
-## Lifecycle Management
-
-**Automatic Cleanup:** When a component is destroyed (navigating away), the `ToolbarAware.ngOnDestroy()` automatically clears its buttons from the toolbar.
-
-**No Memory Leaks:** The toolbar component subscribes to `ToolbarService.buttons$` and properly unsubscribes using `takeUntil(destroy$)`.
-
-## Styling
-
-Dynamic buttons are styled with the `.dynamic-button` class:
-
-```scss
-.dynamic-button {
-  color: white !important;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-  }
-}
-```
-
-The buttons appear in the center section of the toolbar with flexbox layout:
-
-```scss
-.toolbar-center {
-  flex: 0 1 auto;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  justify-content: center;
-}
-```
-
-## Testing
-
-To test the mechanism:
-
-1. Navigate to `/things` - observe "Add" and "Refresh" buttons appear
-2. Navigate to `/packs` - observe buttons change to "Add Pack" and "Refresh"
-3. Navigate to `/trips` - observe buttons change to "Add Trip" and "Refresh"
-4. Navigate to `/travelers` - observe only "Add Traveler" button appears
-5. Navigate to landing pages or auth pages - observe no buttons (or different buttons if configured)
+1. ✅ **ThingsComponent** - Add, Edit, Delete, Refresh (Edit/Delete react to selection)
+2. ✅ **PacksComponent** - Add, Edit, Delete, Refresh (Edit/Delete react to selection)  
+3. ✅ **TripComponent** - Add, Edit, Delete, Refresh (Edit/Delete react to selection)
+4. ✅ **TravelersComponent** - Add Traveler
+5. ✅ **LandingNewUserComponent** - (no buttons)
+6. ✅ **LandingRegisteredUserComponent** - (no buttons)
+7. ✅ **SignInComponent** - (no buttons)
+8. ✅ **RegisterUserComponent** - (no buttons)
 
 ## Benefits
 
-1. **Decoupled:** Components don't need to know about toolbar implementation
-2. **Type-Safe:** TypeScript interfaces ensure correct button configuration
-3. **Automatic Cleanup:** No manual cleanup needed, handled by base class
-4. **Flexible:** Each component can define its own buttons with custom actions
-5. **Context-Aware:** Buttons execute commands in the context of the active component
-6. **Reusable:** The pattern can be easily extended to other components
+1. **Reactive State Management**: Buttons automatically sync with component state
+2. **Context-Aware Commands**: Button commands execute in component context with full access to component data
+3. **Type-Safe**: TypeScript ensures correct button configuration
+4. **Automatic Cleanup**: No manual cleanup needed, handled by base class
+5. **Dynamic Tooltips**: Tooltips update with contextual information (e.g., selected item name)
+6. **Error Prevention**: Buttons disabled when action is not possible
+7. **Clean Code**: Declarative button updates instead of imperative DOM manipulation
+8. **Performance**: BehaviorSubject efficiently manages subscriptions and updates
 
-## Future Enhancements
+## Testing
 
-Possible improvements:
-- Button grouping/sections
-- Button badges (e.g., notification counts)
-- Conditional button visibility based on permissions
-- Button state management (loading, disabled)
-- Button animations
+Navigate through the application:
+
+1. Go to `/things` - Click an item to see Edit/Delete buttons become enabled
+2. Deselect - Buttons become disabled again
+3. Select different items - Tooltips update with item names
+4. Same behavior in `/packs` and `/trips`
+
+## Advanced Scenarios
+
+### Multiple conditions
+```typescript
+onSelectionChange(): void {
+  const hasSelection = this.selectedThing != null;
+  const canEdit = hasSelection && this.hasEditPermission();
+  
+  this.updateToolbarButtons({
+    'edit-thing': { 
+      disabled: !canEdit,
+      tooltip: canEdit ? `Edit "${this.selectedThing?.shortDescription}"` : 'No permission'
+    }
+  });
+}
+```
+
+### Dynamic icons
+```typescript
+this.updateToolbarButton('toggle-archive', { 
+  icon: isArchived ? 'pi pi-inbox' : 'pi pi-archive',
+  tooltip: isArchived ? 'Unarchive' : 'Archive'
+});
+```
+
+### Loading states
+```typescript
+onDataLoading(loading: boolean): void {
+  this.updateToolbarButton('refresh', { 
+    disabled: loading,
+    icon: loading ? 'pi pi-spin pi-spinner' : 'pi pi-refresh'
+  });
+}
+```
