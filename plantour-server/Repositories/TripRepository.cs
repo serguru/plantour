@@ -49,7 +49,6 @@ public class TripRepository : BaseRepository
         if (CurrentUser.IsAdmin)
         {
             return await _dbSet
-                .Include(x => x.TripStatus)
                 .Where(x => x.UserId == CurrentUser.UserId)
                 .ToListAsync();
         }
@@ -57,7 +56,6 @@ public class TripRepository : BaseRepository
         if (CurrentUser.IsParticipant)
         {
             return await _dbSet
-                .Include(x => x.TripStatus)
                 .Include(x => x.TripUsers)
                 .Where(x => x.UserId == CurrentUser.AdminId && x.TripUsers.Any(y => y.UserId == CurrentUser.UserId))
                 .ToListAsync();
