@@ -4,20 +4,23 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import { MenuItem } from 'primeng/api';
-import { UsersService } from 'shared-lib';
+import { UsersService, ToolbarService, ToolbarButton } from 'shared-lib';
 
 @Component({
   selector: 'app-toolbar',
-  imports: [CommonModule, MenuModule, ButtonModule],
+  imports: [CommonModule, MenuModule, ButtonModule, TooltipModule],
   templateUrl: './toolbar.html',
   styleUrl: './toolbar.scss',
 })
 export class Toolbar implements OnInit, OnDestroy {
   private usersService = inject(UsersService);
+  private toolbarService = inject(ToolbarService);
  
   private destroy$ = new Subject<void>();
   
+  dynamicButtons: ToolbarButton[] = [];
 
   get menuItems(): MenuItem[] {
     return [
@@ -68,6 +71,11 @@ export class Toolbar implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.toolbarService.buttons$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(buttons => {
+        this.dynamicButtons = buttons;
+      });
   }
 
   ngOnDestroy(): void {

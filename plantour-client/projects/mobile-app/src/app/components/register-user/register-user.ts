@@ -8,6 +8,7 @@ import { PasswordModule } from 'primeng/password';
 import { UsersService, SignUpRequest, MessagesService } from 'shared-lib';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { ToolbarAware } from '../toolbar-aware';
 
 @Component({
   selector: 'app-register-user',
@@ -22,7 +23,7 @@ import { of } from 'rxjs';
   templateUrl: './register-user.html',
   styleUrl: './register-user.scss',
 })
-export class RegisterUserComponent {
+export class RegisterUserComponent extends ToolbarAware {
   registerForm: FormGroup;
   isLoading = false;
   errorMessage = '';
@@ -37,6 +38,7 @@ export class RegisterUserComponent {
   private location = inject(Location);
 
   constructor() {
+    super();
     this.registerForm = this.fb.group({
       email: ['serguru@gmail.com', [Validators.required, Validators.email]],
       firstName: ['S'],

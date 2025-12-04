@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { ToolbarAware } from '../toolbar-aware';
 
 @Component({
   selector: 'app-landing-registered-user',
@@ -11,7 +12,7 @@ import { CardModule } from 'primeng/card';
   templateUrl: './landing-registered-user.component.html',
   styleUrl: './landing-registered-user.component.scss'
 })
-export class LandingRegisteredUserComponent {
+export class LandingRegisteredUserComponent extends ToolbarAware {
 
   // Stub data for user statistics
   userData = {
@@ -26,7 +27,9 @@ export class LandingRegisteredUserComponent {
     }
   };
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    super();
+  }
 
   navigateToTravelers(): void {
     this.router.navigate(['/travelers']);

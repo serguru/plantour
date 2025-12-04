@@ -18,6 +18,16 @@
   gap: 0.5rem;
 }
 
+.toolbar-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
 .toolbar-right {
   flex: 0 0 auto;
   min-width: 50px;
@@ -60,6 +70,14 @@
 }
 
 .menu-button {
+  color: white !important;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+.dynamic-button {
   color: white !important;
 
   &:hover {

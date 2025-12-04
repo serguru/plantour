@@ -8,6 +8,7 @@ import { PasswordModule } from 'primeng/password';
 import { UsersService, MessagesService } from 'shared-lib';
 import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY, of } from 'rxjs';
+import { ToolbarAware } from '../toolbar-aware';
 
 @Component({
   selector: 'app-sign-in',
@@ -22,7 +23,7 @@ import { EMPTY, of } from 'rxjs';
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.scss',
 })
-export class SignInComponent {
+export class SignInComponent extends ToolbarAware {
   signInForm: FormGroup;
   isLoading = false;
   errorMessage = '';
@@ -34,6 +35,7 @@ export class SignInComponent {
   private location = inject(Location);
 
   constructor() {
+    super();
     this.signInForm = this.fb.group({
       email: ['serguru@gmail.com', [Validators.required, Validators.email]],
       password: ['Binary_09', [Validators.required]]

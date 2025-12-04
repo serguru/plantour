@@ -6,6 +6,7 @@ import { CardModule } from 'primeng/card';
 import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
 import { MessagesService, TripService } from 'shared-lib';
+import { ToolbarAware } from '../toolbar-aware';
 
 @Component({
   selector: 'app-trip',
@@ -14,7 +15,7 @@ import { MessagesService, TripService } from 'shared-lib';
   templateUrl: './trip.component.html',
   styleUrl: './trip.component.scss'
 })
-export class TripComponent implements OnInit {
+export class TripComponent extends ToolbarAware implements OnInit {
   private tripService = inject(TripService);
   private messagesService = inject(MessagesService);
   private router = inject(Router);
@@ -24,6 +25,22 @@ export class TripComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadTrips();
+    this.setupToolbarButtons();
+  }
+
+  private setupToolbarButtons(): void {
+    this.setToolbarButtons([
+      {
+        icon: 'pi pi-plus',
+        tooltip: 'Add Trip',
+        command: () => this.onAddTrip()
+      },
+      {
+        icon: 'pi pi-refresh',
+        tooltip: 'Refresh',
+        command: () => this.loadTrips()
+      }
+    ]);
   }
 
   private loadTrips(): void {

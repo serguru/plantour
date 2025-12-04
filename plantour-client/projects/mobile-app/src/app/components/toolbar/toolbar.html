@@ -6,6 +6,21 @@
     </div>
   </div>
   
+  <div class="toolbar-center">
+    @for (button of dynamicButtons; track $index) {
+      <button 
+        pButton 
+        [icon]="button.icon"
+        [label]="button.label || ''"
+        [pTooltip]="button.tooltip || ''"
+        [disabled]="button.disabled || false"
+        class="p-button-text p-button-rounded dynamic-button"
+        (click)="button.command()"
+        [attr.aria-label]="button.tooltip || button.label || 'Action'">
+      </button>
+    }
+  </div>
+  
   <div class="toolbar-right">
     <button 
       pButton 

@@ -6,6 +6,7 @@ import { CardModule } from 'primeng/card';
 import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
 import { MessagesService, UserThingService } from 'shared-lib';
+import { ToolbarAware } from '../toolbar-aware';
 
 @Component({
   selector: 'app-things',
@@ -14,7 +15,7 @@ import { MessagesService, UserThingService } from 'shared-lib';
   templateUrl: './things.component.html',
   styleUrl: './things.component.scss'
 })
-export class ThingsComponent implements OnInit {
+export class ThingsComponent extends ToolbarAware implements OnInit {
   private userThingService = inject(UserThingService);
   private messagesService = inject(MessagesService);
   private router = inject(Router);
@@ -24,6 +25,22 @@ export class ThingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserThings();
+    this.setupToolbarButtons();
+  }
+
+  private setupToolbarButtons(): void {
+    this.setToolbarButtons([
+      {
+        icon: 'pi pi-plus',
+        tooltip: 'Add Thing',
+        command: () => this.onAddThing()
+      },
+      {
+        icon: 'pi pi-refresh',
+        tooltip: 'Refresh',
+        command: () => this.loadUserThings()
+      }
+    ]);
   }
 
   private loadUserThings(): void {
