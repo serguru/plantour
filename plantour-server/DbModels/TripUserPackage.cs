@@ -32,6 +32,9 @@ public partial class TripUserPackage
     [StringLength(100)]
     public string? Label { get; set; }
 
+    [Column("notes")]
+    public string? Notes { get; set; }
+
     [Column("packing_status")]
     [StringLength(50)]
     public string? PackingStatus { get; set; }

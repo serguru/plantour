@@ -36,5 +36,5 @@ userPackages: any[] сейчас хранится в PacksComponent, а долж
 
 Создай в plantour-client\projects\shared-lib\src\services новый ToolBarService для добавления и удаления кнопок на тулбаре. Создай в plantour-client\projects\mobile-app\src\app\components абстрактный класс ToolbarAware - предок для компонентов, который будет использовать ToolBarService для добавления и удаления кнопок. Наследуй все компоненты в plantour-client\projects\mobile-app, для которых предусмотрен route, от ToolbarAware. Подтверди, что все работает, примером использования нового механизма.
 
-
+Смотри 
 

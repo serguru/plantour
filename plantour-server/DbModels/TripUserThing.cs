@@ -33,6 +33,9 @@ public partial class TripUserThing
     [Precision(10, 3)]
     public decimal? Value { get; set; }
 
+    [Column("notes")]
+    public string? Notes { get; set; }
+
     [Column("trip_user_package_id")]
     public Guid? TripUserPackageId { get; set; }
 

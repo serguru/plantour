@@ -20,6 +20,9 @@ public partial class TripUser
     [Column("user_id")]
     public Guid UserId { get; set; }
 
+    [Column("notes")]
+    public string? Notes { get; set; }
+
     [ForeignKey("TripId")]
     [InverseProperty("TripUsers")]
     public virtual Trip Trip { get; set; } = null!;

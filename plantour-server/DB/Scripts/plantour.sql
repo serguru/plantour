@@ -264,7 +264,8 @@ create table invitations (
 create table trip_users (
     id uuid not null primary key default gen_random_uuid(),
     trip_id uuid not null references trips(id) on delete cascade,
-    user_id uuid not null references users(id) on delete cascade
+    user_id uuid not null references users(id) on delete cascade,
+    notes text
 );
 create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, user_id);
 
@@ -279,7 +280,7 @@ create table trip_user_packages (
     category varchar(50),       -- to be copied from user_packages 
     name varchar(200) not null, -- to be copied from user_packages
     label varchar(100),
-
+    notes text,
     packing_status varchar(50),
     packed_at timestamptz,
     packing_list_included boolean not null default(false),
@@ -294,14 +295,12 @@ create index idx_trip_user_packages_trip_user_id on trip_user_packages(trip_user
 create table trip_user_things (
     id uuid not null primary key default gen_random_uuid(),
     trip_user_id uuid not null references trip_users(id) on delete cascade,
-
     category varchar(50),       -- to be copied from user_things 
     name varchar(200) not null, -- to be copied from user_things 
     units varchar(50), -- pcs if null
     value decimal(10,3) check(value > 0), -- 1 if null
-
+    notes text,
     trip_user_package_id uuid references trip_user_packages(id) on delete set null,
-
     packing_status varchar(50),
     packed_at timestamptz
 );

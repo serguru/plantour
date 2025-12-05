@@ -8,7 +8,7 @@ namespace plantour_server.DbModels;
 
 [Table("user_packages", Schema = "plantour")]
 [Index("CategoryId", Name = "idx_user_packages_category_id")]
-[Index("UserId", "Name", Name = "idx_user_packages_user_id_short_description", IsUnique = true)]
+[Index("UserId", "Name", Name = "idx_user_packages_user_id_name", IsUnique = true)]
 public partial class UserPackage
 {
     [Key]
