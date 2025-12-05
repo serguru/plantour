@@ -11,7 +11,7 @@ import { UserPackageService, MessagesService } from 'shared-lib';
 @Component({
   selector: 'app-edit-pack',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, Select],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule],
   templateUrl: './edit-pack.component.html',
   styleUrl: './edit-pack.component.scss'
 })

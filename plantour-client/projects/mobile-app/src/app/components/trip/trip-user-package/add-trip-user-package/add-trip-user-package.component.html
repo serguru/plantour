@@ -1,0 +1,117 @@
+<div class="page-container">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <i class="pi pi-plus"></i>
+        <h2>Add Trip Package</h2>
+      </div>
+    </ng-template>
+    <div class="content">
+      <form [formGroup]="packageForm" (ngSubmit)="onSubmit()">
+        <div class="form-field">
+          <label for="name">Name <span class="required">*</span></label>
+          <input 
+            pInputText 
+            id="name" 
+            formControlName="name"
+            placeholder="Enter package name"
+            [class.p-invalid]="isFieldInvalid('name')"
+          />
+          <small class="error-message" *ngIf="isFieldInvalid('name')">
+            {{ getFieldError('name') }}
+          </small>
+        </div>
+
+        <div class="form-field">
+          <label for="label">Label</label>
+          <input 
+            pInputText 
+            id="label" 
+            formControlName="label"
+            placeholder="Enter label (optional)"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="notes">Notes</label>
+          <textarea 
+            id="notes" 
+            formControlName="notes"
+            rows="3"
+            placeholder="Enter notes (optional)"
+            class="form-textarea"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="weightValue">Weight</label>
+            <p-inputNumber
+              id="weightValue"
+              formControlName="weightValue"
+              [min]="0"
+              [maxFractionDigits]="2"
+              placeholder="Enter weight"
+              [style]="{'width': '100%'}"
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="weightUnit">Weight Unit</label>
+            <p-select
+              id="weightUnit"
+              formControlName="weightUnit"
+              [options]="weightUnits"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select unit"
+              [style]="{'width': '100%'}"
+            />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="packingStatus">Packing Status</label>
+          <p-select
+            id="packingStatus"
+            formControlName="packingStatus"
+            [options]="packingStatuses"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select packing status"
+            [style]="{'width': '100%'}"
+          />
+        </div>
+
+        <div class="form-field">
+          <div class="checkbox-field">
+            <p-checkbox 
+              formControlName="packingListIncluded" 
+              [binary]="true"
+              inputId="packingListIncluded"
+            />
+            <label for="packingListIncluded">Include in packing list</label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <p-button 
+            label="Cancel" 
+            icon="pi pi-times" 
+            severity="secondary"
+            type="button"
+            (onClick)="onCancel()"
+            [disabled]="isSubmitting"
+          ></p-button>
+          <p-button 
+            label="Create" 
+            icon="pi pi-check" 
+            type="submit"
+            [disabled]="isSubmitting"
+            [loading]="isSubmitting"
+          ></p-button>
+        </div>
+      </form>
+    </div>
+  </p-card>
+</div>

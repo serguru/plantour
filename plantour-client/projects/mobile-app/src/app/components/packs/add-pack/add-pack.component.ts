@@ -11,7 +11,7 @@ import { UserPackageService, UsersService, MessagesService } from 'shared-lib';
 @Component({
   selector: 'app-add-pack',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, Select],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule],
   templateUrl: './add-pack.component.html',
   styleUrl: './add-pack.component.scss'
 })

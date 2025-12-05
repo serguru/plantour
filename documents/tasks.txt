@@ -38,8 +38,9 @@ userPackages: any[] сейчас хранится в PacksComponent, а долж
 
 Изучи SQL скрипт ниже. Этот скрипт создаёт PostgesSQL БД и добавляет в нее данные. Твоя задача заполнить таблицы тестовыми данными. Не изменяй никакие существующие данные, только читай существующие и добавляй новые. Используй реальные названия entities т.е. "Жёлтый чемодан" вместо "Test1". Верни мне ссылку на файл с результатом для скачивания.
 
-Смотри компоненты в папке plantour-client\projects\mobile-app\src\app\components\trip\trip-user-thing и ее подпапках. Эти компоненты созданы для работы с вещами путешествия используя plantour-server\Controllers\TripUserThingController.cs. Создай похожий набор компонентов в папке 
-plantour-client\projects\mobile-app\src\app\components\trip\trip-user-package.
-Используй plantour-server\Controllers\TripUserPackageController.cs .
-
 Смотри plantour-client\projects\shared-lib\src\services\trip-user-thing-service.ts. Этот сервис работает с plantour-server\Controllers\TripUserThingController.cs. Создай новый похожий trip-user-package-service, который будет использовать endpoints из plantour-server\Controllers\TripUserPackageController.cs. 
+
+Смотри компоненты в папке plantour-client\projects\mobile-app\src\app\components\trip\trip-user-thing и ее подпапках. Эти компоненты созданы для работы с вещами путешествия используя plantour-client\projects\shared-lib\src\services\trip-user-thing-service.ts. Создай похожий набор компонентов, включая Add и Edit компоненты в подпапках, в папке plantour-client\projects\mobile-app\src\app\components\trip\trip-user-package.
+Используй plantour-client\projects\shared-lib\src\services\trip-user-package-service.ts.
+
+

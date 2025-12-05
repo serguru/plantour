@@ -77,6 +77,18 @@ export const routes: Routes = [
     loadComponent: () => import('./components/trip/trip-user-thing/edit-trip-user-thing/edit-trip-user-thing.component').then(m => m.EditTripUserThingComponent)
   },
   {
+    path: 'trips/:id/packages',
+    loadComponent: () => import('./components/trip/trip-user-package/trip-user-package.component').then(m => m.TripUserPackageComponent)
+  },
+  {
+    path: 'trips/:id/packages/add',
+    loadComponent: () => import('./components/trip/trip-user-package/add-trip-user-package/add-trip-user-package.component').then(m => m.AddTripUserPackageComponent)
+  },
+  {
+    path: 'trips/:id/packages/edit/:packageId',
+    loadComponent: () => import('./components/trip/trip-user-package/edit-trip-user-package/edit-trip-user-package.component').then(m => m.EditTripUserPackageComponent)
+  },
+  {
     path: '**',
     redirectTo: ''
   }
