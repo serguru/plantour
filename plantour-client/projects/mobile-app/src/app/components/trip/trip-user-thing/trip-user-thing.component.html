@@ -1,0 +1,55 @@
+<div class="page-container">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-left">
+          <i class="pi pi-box"></i>
+          <h2>Trip Things</h2>
+        </div>
+      </div>
+    </ng-template>
+    <div class="content">
+      @if (tripUserThings && tripUserThings!.length > 0) {
+        <p-listbox 
+          [options]="tripUserThings!" 
+          [(ngModel)]="selectedThing"
+          (onChange)="onSelectionChange()"
+          optionLabel="name"
+          [listStyle]="{'max-height': '60vh'}"
+          styleClass="w-full">
+          <ng-template let-thing pTemplate="item">
+            <div class="thing-item">
+              <div class="thing-main">
+                <div class="thing-title">{{ thing.name }}</div>
+                @if (thing.notes) {
+                  <div class="thing-subtitle">
+                    {{ thing.notes }}
+                  </div>
+                }
+              </div>
+              <div class="thing-details">
+                <div class="thing-info-section">
+                  @if (thing.category) {
+                    <span class="thing-badge">{{ thing.category }}</span>
+                  }
+                  @if (thing.packingStatus) {
+                    <span class="thing-badge status-{{ thing.packingStatus }}">{{ thing.packingStatus }}</span>
+                  }
+                  @if (thing.value && thing.units) {
+                    <span class="thing-info">{{ thing.value }} {{ thing.units }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </p-listbox>
+      } @else {
+        <div class="empty-state">
+          <i class="pi pi-box"></i>
+          <p>No things for this trip yet</p>
+          <p class="hint">Things will appear here once added to this trip</p>
+        </div>
+      }
+    </div>
+  </p-card>
+</div>

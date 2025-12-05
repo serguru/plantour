@@ -23,6 +23,7 @@
         <p-listbox 
           [options]="trips!" 
           [(ngModel)]="selectedTrip"
+          (onChange)="onSelectionChange()"
           optionLabel="shortDescription"
           [listStyle]="{'max-height': '60vh'}"
           styleClass="w-full">

@@ -51,6 +51,13 @@ export class TripComponent extends ToolbarAware implements OnInit {
         disabled: true
       },
       {
+        id: 'view-things',
+        icon: 'pi pi-box',
+        tooltip: 'View Things',
+        command: () => this.onViewThings(),
+        disabled: true
+      },
+      {
         id: 'refresh-trips',
         icon: 'pi pi-refresh',
         tooltip: 'Refresh',
@@ -81,6 +88,10 @@ export class TripComponent extends ToolbarAware implements OnInit {
       'delete-trip': { 
         disabled: !hasSelection,
         tooltip: hasSelection ? `Delete "${this.selectedTrip?.shortDescription}"` : 'Delete Trip'
+      },
+      'view-things': { 
+        disabled: !hasSelection,
+        tooltip: hasSelection ? `View Things for "${this.selectedTrip?.shortDescription}"` : 'View Things'
       }
     });
   }
@@ -97,6 +108,12 @@ export class TripComponent extends ToolbarAware implements OnInit {
 
   onEditTrip(trip: any): void {
     this.router.navigate(['/trips/edit', trip.id]);
+  }
+
+  onViewThings(): void {
+    if (this.selectedTrip) {
+      this.router.navigate(['/trips', this.selectedTrip.id, 'things']);
+    }
   }
 
   async onDeleteSelectedTrip(): Promise<void> {
