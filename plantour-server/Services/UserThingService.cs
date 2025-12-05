@@ -5,7 +5,7 @@ using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
-public class UserThingService : BaseService, IUserThingService
+public class UserThingService : IUserThingService
 {
     private readonly UserThingRepository _userThingRepository;
     private readonly ThingCategoryRepository _thingCategoryRepository;
@@ -14,8 +14,7 @@ public class UserThingService : BaseService, IUserThingService
     public UserThingService(
         UserThingRepository userThingRepository,
         ThingCategoryRepository thingCategoryRepository,
-        IHttpContextAccessor httpContextAccessor,
-        IMapper mapper) : base(httpContextAccessor)
+        IMapper mapper)
     {
         _userThingRepository = userThingRepository;
         _thingCategoryRepository = thingCategoryRepository;

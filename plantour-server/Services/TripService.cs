@@ -5,15 +5,14 @@ using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
-public class TripService : BaseService, ITripService
+public class TripService : ITripService
 {
     private readonly TripRepository _tripRepository;
     private readonly IMapper _mapper;
 
     public TripService(
         TripRepository tripRepository,
-        IHttpContextAccessor httpContextAccessor,
-        IMapper mapper) : base(httpContextAccessor)
+        IMapper mapper)
     {
         _tripRepository = tripRepository;
         _mapper = mapper;
