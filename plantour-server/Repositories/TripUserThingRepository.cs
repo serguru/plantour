@@ -38,7 +38,7 @@ public class TripUserThingRepository : BaseRepository
             .ToListAsync();
     }
 
-    public async Task AddAsync(TripUserThing entity)
+    public async Task AddAsync(Guid tripId, TripUserThing entity)
     {
         if (CurrentUser == null)
         {
@@ -46,14 +46,15 @@ public class TripUserThingRepository : BaseRepository
         }
 
         var tripUser = await _context.TripUsers
-            .FirstOrDefaultAsync(x => x.Id == entity.TripUserId && x.UserId == CurrentUser.UserId);
-
+            .FirstOrDefaultAsync(x => x.TripId == tripId && x.UserId == CurrentUser.UserId); 
+            
         if (tripUser == null)
         {
             throw new InvalidOperationException("Access denied");
         }
 
         entity.Id = Guid.NewGuid();
+        entity.TripUserId = tripUser.Id;
         _context.TripUserThings.Add(entity);
         await _context.SaveChangesAsync();
     }

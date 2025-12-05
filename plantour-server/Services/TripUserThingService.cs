@@ -33,7 +33,7 @@ public class TripUserThingService : ITripUserThingService
     public async Task<TripUserThingDto> AddAsync(CreateTripUserThingRequest request)
     {
         var entity = _mapper.Map<TripUserThing>(request);
-        await _tripUserThingRepository.AddAsync(entity);
+        await _tripUserThingRepository.AddAsync(request.TripId, entity);
         return _mapper.Map<TripUserThingDto>(entity);
     }
 

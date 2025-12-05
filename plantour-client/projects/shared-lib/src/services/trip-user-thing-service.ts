@@ -17,7 +17,7 @@ export interface TripUserThingDto {
 }
 
 export interface CreateTripUserThingRequest {
-  tripUserId: string;
+  tripId: string;
   category?: string | null;
   name: string;
   notes?: string | null;
@@ -30,7 +30,7 @@ export interface CreateTripUserThingRequest {
 
 export interface UpdateTripUserThingRequest {
   id: string;
-  tripUserId: string;
+  //tripId: string;
   category?: string | null;
   name: string;
   notes?: string | null;

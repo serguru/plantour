@@ -69,6 +69,14 @@ export const routes: Routes = [
     loadComponent: () => import('./components/trip/trip-user-thing/trip-user-thing.component').then(m => m.TripUserThingComponent)
   },
   {
+    path: 'trips/:id/things/add',
+    loadComponent: () => import('./components/trip/trip-user-thing/add-trip-user-thing/add-trip-user-thing.component').then(m => m.AddTripUserThingComponent)
+  },
+  {
+    path: 'trips/:id/things/edit/:thingId',
+    loadComponent: () => import('./components/trip/trip-user-thing/edit-trip-user-thing/edit-trip-user-thing.component').then(m => m.EditTripUserThingComponent)
+  },
+  {
     path: '**',
     redirectTo: ''
   }
