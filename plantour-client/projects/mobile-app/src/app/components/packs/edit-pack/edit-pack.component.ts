@@ -24,15 +24,13 @@ export class EditPackComponent implements OnInit {
 
   packageId: string = '';
   packForm: FormGroup;
-  categories: any[] = [];
   isSubmitting: boolean = false;
   isLoading: boolean = true;
 
   constructor() {
     this.packForm = this.fb.group({
       shortDescription: ['', [Validators.required, Validators.maxLength(200)]],
-      description: [''],
-      categoryId: [null]
+      description: ['']
     });
   }
 
@@ -48,9 +46,6 @@ export class EditPackComponent implements OnInit {
       return;
     }
 
-    this.userPackageService.getAllCategories().subscribe(categories =>
-      this.categories = categories
-    );
 
   }
 
@@ -59,8 +54,7 @@ export class EditPackComponent implements OnInit {
       next: (pack) => {
         this.packForm.patchValue({
           shortDescription: pack.shortDescription || '',
-          description: pack.description || '',
-          categoryId: pack.categoryId || null
+          description: pack.description || ''
         });
         this.isLoading = false;
       },
@@ -83,7 +77,6 @@ export class EditPackComponent implements OnInit {
     const formValue = this.packForm.value;
     const request = {
       packageId: this.packageId,
-      categoryId: formValue.categoryId || null,
       shortDescription: formValue.shortDescription.trim(),
       description: formValue.description?.trim() || null
     };

@@ -7,8 +7,6 @@ public class CreateUserPackageRequest
     [Required]
     public Guid UserId { get; set; }
     
-    public Guid? CategoryId { get; set; }
-    
     [Required]
     [StringLength(200)]
     public string ShortDescription { get; set; } = null!;

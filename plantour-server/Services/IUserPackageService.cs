@@ -9,5 +9,4 @@ public interface IUserPackageService
     Task<UserPackageDto> AddAsync(CreateUserPackageRequest request);
     Task<bool> UpdateAsync(UpdateUserPackageRequest request);
     Task<bool> DeleteAsync(Guid id);
-    Task<IEnumerable<PackageCategoryDto>> GetAllPackageCategoriesAsync();
 }

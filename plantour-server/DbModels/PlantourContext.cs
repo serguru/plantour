@@ -17,8 +17,6 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Invitation> Invitations { get; set; }
 
-    public virtual DbSet<PackageCategory> PackageCategories { get; set; }
-
     public virtual DbSet<PackingStatus> PackingStatuses { get; set; }
 
     public virtual DbSet<ParticipantStatus> ParticipantStatuses { get; set; }
@@ -75,13 +73,6 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.Trip).WithMany(p => p.Invitations).HasConstraintName("invitations_trip_id_fkey");
-        });
-
-        modelBuilder.Entity<PackageCategory>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("package_categories_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
         modelBuilder.Entity<PackingStatus>(entity =>
@@ -189,8 +180,6 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("user_packages_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-
-            entity.HasOne(d => d.Category).WithMany(p => p.UserPackages).HasConstraintName("user_packages_category_id_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserPackages).HasConstraintName("user_packages_user_id_fkey");
         });

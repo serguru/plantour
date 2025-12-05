@@ -25,11 +25,6 @@ export interface UpdateUserPackageRequest {
   description?: string | null;
 }
 
-export interface PackageCategoryDto {
-  id: string;
-  name: string;
-  notes?: string | null;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -64,7 +59,7 @@ export class UserPackageService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  getAllCategories(): Observable<PackageCategoryDto[]> {
-    return this.http.get<PackageCategoryDto[]>(`${this.apiUrl}/categories`);
-  }
+  // getAllCategories(): Observable<PackageCategoryDto[]> {
+  //   return this.http.get<PackageCategoryDto[]>(`${this.apiUrl}/categories`);
+  // }
 }

@@ -22,7 +22,6 @@ public class UserPackageRepository : BaseRepository
             return null;
         }
         return await _dbSet
-            .Include(x => x.Category)
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == CurrentUser.UserId);
     }
 
@@ -44,7 +43,6 @@ public class UserPackageRepository : BaseRepository
         }
 
         return await _dbSet
-            .Include(x => x.Category)
             .Where(x => x.UserId == CurrentUser.UserId)
             .ToListAsync();
     }

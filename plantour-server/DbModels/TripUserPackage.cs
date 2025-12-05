@@ -20,10 +20,6 @@ public partial class TripUserPackage
     [Column("trip_user_id")]
     public Guid TripUserId { get; set; }
 
-    [Column("category")]
-    [StringLength(50)]
-    public string? Category { get; set; }
-
     [Column("name")]
     [StringLength(200)]
     public string Name { get; set; } = null!;

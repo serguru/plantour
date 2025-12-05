@@ -82,7 +82,6 @@ builder.Services.AddScoped<ITripUserThingService, TripUserThingService>();
 
 // Register repositories
 builder.Services.AddScoped<plantour_server.Repositories.UserPackageRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.PackageCategoryRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.UserThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();

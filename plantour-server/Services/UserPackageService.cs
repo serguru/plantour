@@ -8,16 +8,13 @@ namespace plantour_server.Services;
 public class UserPackageService : IUserPackageService
 {
     private readonly UserPackageRepository _userPackageRepository;
-    private readonly PackageCategoryRepository _packageCategoryRepository;
     private readonly IMapper _mapper;
 
     public UserPackageService(
         UserPackageRepository userPackageRepository,
-        PackageCategoryRepository packageCategoryRepository,
         IMapper mapper)
     {
         _userPackageRepository = userPackageRepository;
-        _packageCategoryRepository = packageCategoryRepository;
         _mapper = mapper;
     }
 
@@ -63,16 +60,5 @@ public class UserPackageService : IUserPackageService
         
         await _userPackageRepository.DeleteAsync(id);
         return true;
-    }
-
-    public async Task<IEnumerable<PackageCategoryDto>> GetAllPackageCategoriesAsync()
-    {
-        var categories = await _packageCategoryRepository.GetAllAsync();
-        return categories.Select(c => new PackageCategoryDto
-        {
-            Id = c.Id,
-            Name = c.Name,
-            Notes = c.Notes
-        });
     }
 }

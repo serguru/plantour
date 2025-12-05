@@ -106,19 +106,4 @@ public class UserPackageController : ControllerBase
         }
     }
 
-    [HttpGet("categories")]
-    [AdminOrParticipant]
-    public async Task<ActionResult<IEnumerable<PackageCategoryDto>>> GetAllCategories()
-    {
-        try
-        {
-            var dtos = await _service.GetAllPackageCategoriesAsync();
-            return Ok(dtos);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving categories", details = ex.Message });
-        }
-    }
-
 }

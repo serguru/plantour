@@ -5,7 +5,6 @@ namespace plantour_server.DTOs;
 public class UpdateUserPackageRequest
 {
     public Guid PackageId { get; set; }
-    public Guid? CategoryId { get; set; }
     
     public string ShortDescription { get; set; } = null!;
     

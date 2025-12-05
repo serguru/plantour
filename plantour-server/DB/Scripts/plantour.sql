@@ -69,23 +69,6 @@ insert into packing_status (name) values
 ('Verified');
 
 
------------------------------------------------------------------------
--- USER PACKAGE CATEGORIES
------------------------------------------------------------------------
-create table package_categories (
-    id uuid not null primary key default gen_random_uuid(),
-    name varchar(50) not null unique,
-    notes text
-);
-insert into package_categories (name) values
-('Suitcase'),
-('Bag'),
-('Backpack'),
-('Plastic bag'),
-('Wrapper'),
-('Carry on'),
-('Box');
-
 create table thing_categories (
     id uuid not null primary key default gen_random_uuid(),
     name varchar(50) not null unique,
@@ -176,11 +159,9 @@ create unique index idx_user_things_user_id_name on user_things(user_id, name);
 create table user_packages (
     id uuid not null primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
-    category_id uuid null references package_categories(id),
     name varchar(200) not null,
     description text
 );
-create index idx_user_packages_category_id on user_packages(category_id);
 create unique index idx_user_packages_user_id_name on user_packages(user_id, name);
 
 -----------------------------------------------------------------------
@@ -276,8 +257,6 @@ create table trip_user_packages (
     id uuid not null primary key default gen_random_uuid(),
     parent_package_id uuid references trip_user_packages(id) on delete set null,
     trip_user_id uuid not null references trip_users(id) on delete cascade,
-    
-    category varchar(50),       -- to be copied from user_packages 
     name varchar(200) not null, -- to be copied from user_packages
     label varchar(100),
     notes text,

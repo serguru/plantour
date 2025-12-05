@@ -23,21 +23,16 @@ export class AddPackComponent implements OnInit {
   private fb = inject(FormBuilder);
 
   packForm: FormGroup;
-  categories: any[] = [];
   isSubmitting: boolean = false;
 
   constructor() {
     this.packForm = this.fb.group({
       shortDescription: ['', [Validators.required, Validators.maxLength(200)]],
-      description: [''],
-      categoryId: [null]
+      description: ['']
     });
   }
 
   ngOnInit(): void {
-    this.userPackageService.getAllCategories().subscribe(categories =>
-      this.categories = categories
-    );
   }
 
   onSubmit(): void {
@@ -57,7 +52,6 @@ export class AddPackComponent implements OnInit {
     const formValue = this.packForm.value;
     const request = {
       userId: currentUser.user_id,
-      categoryId: formValue.categoryId || null,
       shortDescription: formValue.shortDescription.trim(),
       description: formValue.description?.trim() || null
     };
