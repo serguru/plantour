@@ -79,6 +79,7 @@ builder.Services.AddScoped<IUserPackageService, UserPackageService>();
 builder.Services.AddScoped<IUserThingService, UserThingService>();
 builder.Services.AddScoped<ITripService, TripService>();
 builder.Services.AddScoped<ITripUserThingService, TripUserThingService>();
+builder.Services.AddScoped<ITripUserPackageService, TripUserPackageService>();
 
 // Register repositories
 builder.Services.AddScoped<plantour_server.Repositories.UserPackageRepository>();
@@ -86,6 +87,7 @@ builder.Services.AddScoped<plantour_server.Repositories.UserThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripUserThingRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripUserPackageRepository>();
 
 
 // Configure CORS for Angular client
