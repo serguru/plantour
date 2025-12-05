@@ -8,7 +8,7 @@
         </div>
         <div class="header-right">
           <p-button 
-            [icon]="showToolbar ? 'pi pi-times' : 'pi pi-sliders-h'" 
+            [icon]="showToolbar ? 'pi pi-chevron-up' : 'pi pi-sliders-h'" 
             (onClick)="toggleToolbar()" 
             [text]="true" 
             severity="secondary">
@@ -18,7 +18,7 @@
     </ng-template>
     <div class="content">
       @if (showToolbar) {
-        <div class="toolbar-panel">
+        <div class="toolbar-panel" @slideDown>
           <div class="category-group">
             <label for="category-dropdown">Category</label>
             <p-select 
@@ -33,6 +33,40 @@
               </ng-template>
               <ng-template let-category pTemplate="selectedItem">
                 {{ category }}
+              </ng-template>
+            </p-select>
+          </div>
+          <div class="package-group">
+            <label for="package-dropdown">Package</label>
+            <p-select 
+              id="package-dropdown"
+              [options]="packageNames" 
+              [(ngModel)]="selectedPackageName" 
+              placeholder="All packages"
+              [showClear]="true"
+              styleClass="package-dropdown">
+              <ng-template let-packageName pTemplate="item">
+                {{ packageName }}
+              </ng-template>
+              <ng-template let-packageName pTemplate="selectedItem">
+                {{ packageName }}
+              </ng-template>
+            </p-select>
+          </div>
+          <div class="status-group">
+            <label for="status-dropdown">Status</label>
+            <p-select 
+              id="status-dropdown"
+              [options]="packingStatuses" 
+              [(ngModel)]="selectedPackingStatus" 
+              placeholder="All statuses"
+              [showClear]="true"
+              styleClass="status-dropdown">
+              <ng-template let-status pTemplate="item">
+                {{ status }}
+              </ng-template>
+              <ng-template let-status pTemplate="selectedItem">
+                {{ status }}
               </ng-template>
             </p-select>
           </div>

@@ -46,13 +46,9 @@
   border: 1px solid var(--surface-border, #e5e7eb);
   
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 1rem;
-
-  @media (min-width: 768px) {
-    flex-direction: row;
-    align-items: center;
-  }
+  align-items: center;
 
   .category-group {
     display: flex;
@@ -67,6 +63,40 @@
     }
 
     ::ng-deep .category-dropdown {
+      min-width: 150px;
+    }
+  }
+
+  .package-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    > label {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-color, #333);
+      min-width: 60px;
+    }
+
+    ::ng-deep .package-dropdown {
+      min-width: 150px;
+    }
+  }
+
+  .status-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    > label {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-color, #333);
+      min-width: 60px;
+    }
+
+    ::ng-deep .status-dropdown {
       min-width: 150px;
     }
   }

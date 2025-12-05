@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 import { CardModule } from 'primeng/card';
 import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
@@ -16,7 +17,19 @@ import { ToolbarAware } from '../../toolbar-aware';
   standalone: true,
   imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule, RadioButtonModule, InputTextModule, Select],
   templateUrl: './trip-user-thing.component.html',
-  styleUrl: './trip-user-thing.component.scss'
+  styleUrl: './trip-user-thing.component.scss',
+  animations: [
+    trigger('slideDown', [
+      transition(':enter', [
+        style({ height: '0', opacity: 0, overflow: 'hidden' }),
+        animate('300ms ease-out', style({ height: '*', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        style({ height: '*', opacity: 1, overflow: 'hidden' }),
+        animate('300ms ease-in', style({ height: '0', opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class TripUserThingComponent extends ToolbarAware implements OnInit {
   private tripUserThingService = inject(TripUserThingService);
@@ -32,6 +45,8 @@ export class TripUserThingComponent extends ToolbarAware implements OnInit {
   sortOrder: 'asc' | 'desc' | 'none' = 'none';
   filterText: string = '';
   selectedCategory: string | null = null;
+  selectedPackageName: string | null = null;
+  selectedPackingStatus: string | null = null;
 
   get categories(): string[] {
     const uniqueCategories = new Set<string>();
@@ -49,6 +64,38 @@ export class TripUserThingComponent extends ToolbarAware implements OnInit {
     return ['(No Category)', ...sortedCategories];
   }
 
+  get packageNames(): string[] {
+    const uniquePackageNames = new Set<string>();
+    
+    this.tripUserThings.forEach(thing => {
+      if (thing.packageName) {
+        uniquePackageNames.add(thing.packageName);
+      }
+    });
+    
+    const sortedPackageNames = Array.from(uniquePackageNames).sort((a, b) => 
+      a.toLowerCase().localeCompare(b.toLowerCase())
+    );
+    
+    return ['(No Package)', ...sortedPackageNames];
+  }
+
+  get packingStatuses(): string[] {
+    const uniquePackingStatuses = new Set<string>();
+    
+    this.tripUserThings.forEach(thing => {
+      if (thing.packingStatus) {
+        uniquePackingStatuses.add(thing.packingStatus);
+      }
+    });
+    
+    const sortedPackingStatuses = Array.from(uniquePackingStatuses).sort((a, b) => 
+      a.toLowerCase().localeCompare(b.toLowerCase())
+    );
+    
+    return ['(No Status)', ...sortedPackingStatuses];
+  }
+
   get sortedThings(): TripUserThingDto[] {
     let result = this.tripUserThings;
     
@@ -58,6 +105,24 @@ export class TripUserThingComponent extends ToolbarAware implements OnInit {
         result = result.filter(thing => !thing.category);
       } else {
         result = result.filter(thing => thing.category === this.selectedCategory);
+      }
+    }
+    
+    // Apply packageName filter
+    if (this.selectedPackageName !== null) {
+      if (this.selectedPackageName === '(No Package)') {
+        result = result.filter(thing => !thing.packageName);
+      } else {
+        result = result.filter(thing => thing.packageName === this.selectedPackageName);
+      }
+    }
+    
+    // Apply packingStatus filter
+    if (this.selectedPackingStatus !== null) {
+      if (this.selectedPackingStatus === '(No Status)') {
+        result = result.filter(thing => !thing.packingStatus);
+      } else {
+        result = result.filter(thing => thing.packingStatus === this.selectedPackingStatus);
       }
     }
     
