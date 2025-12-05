@@ -11,6 +11,8 @@ public class TripUserThingDto
     public string? Units { get; set; }
     public decimal? Value { get; set; }
     public Guid? TripUserPackageId { get; set; }
+    public string? PackageName { get; set; }
+    public string? PackageLabel { get; set; }
     public string? PackingStatus { get; set; }
     public DateTime? PackedAt { get; set; }
 }

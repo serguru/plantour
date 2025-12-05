@@ -12,6 +12,8 @@ export interface TripUserThingDto {
   units?: string | null;
   value?: number | null;
   tripUserPackageId?: string | null;
+  packageName?: string | null;
+  packageLabel?: string | null;
   packingStatus?: string | null;
   packedAt?: string | null;
 }

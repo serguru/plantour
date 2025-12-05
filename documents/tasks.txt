@@ -44,3 +44,4 @@ userPackages: any[] сейчас хранится в PacksComponent, а долж
 Используй plantour-client\projects\shared-lib\src\services\trip-user-package-service.ts.
 
 
+Смотри компонент plantour-client\projects\mobile-app\src\app\components\trip\trip-user-thing\trip-user-thing.component.ts. Этот компонент показывает список вещей из массива tripUserThings. Добавь icon кнопку на том же уровне, что "TripThings", выровняй вправо. Эта кнопка будет показывать/скрывать панель инструментов под TripThings и над списком вещей. Добавь на панель группу Sort из трех горизонтальных радиокнопок "Asc", "Desc", "None". Добавь в код компонента getter sortedThings, который будет сортировать tripUserThings в зависимости от нажатой радиокнопки. Показывай в UI список из sortedThings, а не из tripUserThings.
