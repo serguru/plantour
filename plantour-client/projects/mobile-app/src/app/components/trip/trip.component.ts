@@ -90,19 +90,19 @@ export class TripComponent extends ToolbarAware implements OnInit {
     this.updateToolbarButtons({
       'edit-trip': { 
         disabled: !hasSelection,
-        tooltip: hasSelection ? `Edit "${this.selectedTrip?.shortDescription}"` : 'Edit Trip'
+        tooltip: hasSelection ? `Edit "${this.selectedTrip?.name}"` : 'Edit Trip'
       },
       'delete-trip': { 
         disabled: !hasSelection,
-        tooltip: hasSelection ? `Delete "${this.selectedTrip?.shortDescription}"` : 'Delete Trip'
+        tooltip: hasSelection ? `Delete "${this.selectedTrip?.name}"` : 'Delete Trip'
       },
       'view-things': { 
         disabled: !hasSelection,
-        tooltip: hasSelection ? `View Things for "${this.selectedTrip?.shortDescription}"` : 'View Things'
+        tooltip: hasSelection ? `View Things for "${this.selectedTrip?.name}"` : 'View Things'
       },
       'view-packages': { 
         disabled: !hasSelection,
-        tooltip: hasSelection ? `View Packages for "${this.selectedTrip?.shortDescription}"` : 'View Packages'
+        tooltip: hasSelection ? `View Packages for "${this.selectedTrip?.name}"` : 'View Packages'
       }
     });
   }
@@ -140,7 +140,7 @@ export class TripComponent extends ToolbarAware implements OnInit {
 
     const result = await this.messagesService.openOkCancel({
       title: 'Delete Trip',
-      message: `Are you sure you want to delete "${this.selectedTrip.shortDescription}"?`,
+      message: `Are you sure you want to delete "${this.selectedTrip.name}"?`,
       okLabel: 'Delete',
       cancelLabel: 'Cancel'
     });
@@ -164,7 +164,7 @@ export class TripComponent extends ToolbarAware implements OnInit {
   async onDeleteTrip(trip: any): Promise<void> {
     const result = await this.messagesService.openOkCancel({
       title: 'Delete Trip',
-      message: `Are you sure you want to delete "${trip.shortDescription}"?`,
+      message: `Are you sure you want to delete "${trip.name}"?`,
       okLabel: 'Delete',
       cancelLabel: 'Cancel'
     });

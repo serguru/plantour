@@ -22,15 +22,16 @@ export class EditTripComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
 
-  tripId: string = '';
+  id: string = '';
   tripForm: FormGroup;
   isSubmitting: boolean = false;
   isLoading: boolean = true;
 
   constructor() {
     this.tripForm = this.fb.group({
-      shortDescription: ['', [Validators.required, Validators.maxLength(200)]],
+      name: ['', [Validators.required, Validators.maxLength(200)]],
       description: [''],
+      tripStatus: [''],
       startDate: [''],
       endDate: ['']
     });
@@ -38,9 +39,9 @@ export class EditTripComponent implements OnInit {
 
   ngOnInit(): void {
     
-    this.tripId = this.route.snapshot.paramMap.get('id') || '';
+    this.id = this.route.snapshot.paramMap.get('id') || '';
 
-    if (this.tripId) {
+    if (this.id) {
       this.loadTrip();
     } else {
       this.messagesService.showError('Trip ID not found');
@@ -50,11 +51,12 @@ export class EditTripComponent implements OnInit {
   }
 
   private loadTrip(): void {
-    this.tripService.getById(this.tripId).subscribe({
+    this.tripService.getById(this.id).subscribe({
       next: (trip) => {
         this.tripForm.patchValue({
-          shortDescription: trip.shortDescription || '',
+          name: trip.name || '',
           description: trip.description || '',
+          tripStatus: trip.tripStatus || '',
           startDate: trip.startDate ? new Date(trip.startDate) : '',
           endDate: trip.endDate ? new Date(trip.endDate) : ''
         });
@@ -78,8 +80,8 @@ export class EditTripComponent implements OnInit {
 
     const formValue = this.tripForm.value;
     const request = {
-      tripId: this.tripId,
-      shortDescription: formValue.shortDescription.trim(),
+      id: this.id,
+      name: formValue.name.trim(),
       description: formValue.description?.trim() || null,
       startDate: formValue.startDate ? this.tripService.formatDate(formValue.startDate) : null,
       endDate: formValue.endDate ? this.tripService.formatDate(formValue.endDate) : null

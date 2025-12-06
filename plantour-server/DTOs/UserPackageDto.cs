@@ -4,6 +4,6 @@ public class UserPackageDto
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public string ShortDescription { get; set; } = null!;
+    public string name { get; set; } = null!;
     public string? Description { get; set; }
 }

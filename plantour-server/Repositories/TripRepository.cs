@@ -24,15 +24,12 @@ public class TripRepository : BaseRepository
         if (CurrentUser.IsAdmin)
         {
             return await _dbSet
-                .Include(x => x.TripStatus)
                 .FirstOrDefaultAsync(x => x.Id == id && x.UserId == CurrentUser.UserId);
         }
 
         if (CurrentUser.IsParticipant)
         {
             return await _dbSet
-                .Include(x => x.TripStatus)
-                .Include(x => x.TripUsers)
                 .FirstOrDefaultAsync(x => x.Id == id && x.UserId == CurrentUser.AdminId && x.TripUsers.Any(y => y.UserId == CurrentUser.UserId));
         }
 

@@ -29,7 +29,7 @@ export class EditPackComponent implements OnInit {
 
   constructor() {
     this.packForm = this.fb.group({
-      shortDescription: ['', [Validators.required, Validators.maxLength(200)]],
+      name: ['', [Validators.required, Validators.maxLength(200)]],
       description: ['']
     });
   }
@@ -53,7 +53,7 @@ export class EditPackComponent implements OnInit {
     this.userPackageService.getById(this.packageId).subscribe({
       next: (pack) => {
         this.packForm.patchValue({
-          shortDescription: pack.shortDescription || '',
+          name: pack.name || '',
           description: pack.description || ''
         });
         this.isLoading = false;
@@ -77,7 +77,7 @@ export class EditPackComponent implements OnInit {
     const formValue = this.packForm.value;
     const request = {
       packageId: this.packageId,
-      shortDescription: formValue.shortDescription.trim(),
+      name: formValue.name.trim(),
       description: formValue.description?.trim() || null
     };
 

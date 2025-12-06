@@ -21,8 +21,7 @@ public class UserThingRepository : BaseRepository
         {
             return null;
         }
-        return await _dbSet
-            .Include(x => x.Category)
+        return await _dbSet     
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == CurrentUser.UserId);
     }
 
@@ -44,7 +43,6 @@ public class UserThingRepository : BaseRepository
         }
 
         return await _dbSet
-            .Include(x => x.Category)
             .Where(x => x.UserId == CurrentUser.UserId)
             .ToListAsync();
     }

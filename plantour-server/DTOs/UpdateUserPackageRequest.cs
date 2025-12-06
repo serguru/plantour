@@ -6,7 +6,7 @@ public class UpdateUserPackageRequest
 {
     public Guid PackageId { get; set; }
     
-    public string ShortDescription { get; set; } = null!;
+    public string name { get; set; } = null!;
     
     public string? Description { get; set; }
 }

@@ -2,42 +2,32 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../environment.token';
-
-export interface TripStatusDto {
-  id: string;
-  name: string;
-}
+import { TripStatusDto } from './lookup-service';
 
 export interface TripDto {
   id: string;
-  ownerId: string;
-  tripStatusId?: string | null;
-  shortDescription: string;
+  tripStatus?: string | null;
+  name: string;
   description?: string | null;
   startDate?: string | null;
   endDate?: string | null;
-  requireWeight?: boolean | null;
-  tripStatus?: TripStatusDto | null;
 }
 
 export interface CreateTripRequest {
-  ownerId: string;
-  tripStatusId?: string | null;
-  shortDescription: string;
+  tripStatus?: string | null;
+  name: string;
   description?: string | null;
   startDate?: string | null;
   endDate?: string | null;
-  requireWeight?: boolean | null;
 }
 
 export interface UpdateTripRequest {
-  tripId: string;
-  tripStatusId?: string | null;
-  shortDescription: string;
+  id: string;
+  tripStatus?: string | null;
+  name: string;
   description?: string | null;
   startDate?: string | null;
   endDate?: string | null;
-  requireWeight?: boolean | null;
 }
 
 @Injectable({

@@ -24,13 +24,13 @@
           [options]="trips!" 
           [(ngModel)]="selectedTrip"
           (onChange)="onSelectionChange()"
-          optionLabel="shortDescription"
+          optionLabel="name"
           [listStyle]="{'max-height': '60vh'}"
           styleClass="w-full">
           <ng-template let-trip pTemplate="item">
             <div class="trip-item">
               <div class="trip-main">
-                <div class="trip-title">{{ trip.shortDescription }}</div>
+                <div class="trip-title">{{ trip.name }}</div>
                 @if (trip.description) {
                   <div class="trip-subtitle">{{ trip.description }}</div>
                 }

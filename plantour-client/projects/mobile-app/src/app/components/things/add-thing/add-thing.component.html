@@ -1,0 +1,94 @@
+<div class="page-container">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <i class="pi pi-plus"></i>
+        <h2>Add Thing</h2>
+      </div>
+    </ng-template>
+    <div class="content">
+      <form [formGroup]="thingForm" (ngSubmit)="onSubmit()">
+        <div class="form-field">
+          <label for="name">Name <span class="required">*</span></label>
+          <input 
+            pInputText 
+            id="name" 
+            formControlName="name"
+            placeholder="Enter thing name"
+            [class.p-invalid]="isFieldInvalid('name')"
+          />
+          <small class="error-message" *ngIf="isFieldInvalid('name')">
+            {{ getFieldError('name') }}
+          </small>
+        </div>
+
+        <div class="form-field">
+          <label for="category">Category</label>
+          <p-select
+            id="category"
+            formControlName="category"
+            [options]="categories"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select category"
+            [showClear]="true"
+            styleClass="w-full"
+          ></p-select>
+        </div>
+
+        <div class="form-field">
+          <label for="value">Value</label>
+          <input 
+            pInputText 
+            id="value" 
+            formControlName="value"
+            placeholder="Enter value"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="units">Units</label>
+          <p-select
+            id="units"
+            formControlName="units"
+            [options]="units"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select units"
+            [showClear]="true"
+            styleClass="w-full"
+          ></p-select>
+        </div>
+
+        <div class="form-field">
+          <label for="notes">Notes</label>
+          <textarea 
+            id="notes" 
+            formControlName="notes"
+            rows="5"
+            placeholder="Enter notes (optional)"
+            class="form-textarea"
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <p-button 
+            label="Cancel" 
+            icon="pi pi-times" 
+            severity="secondary"
+            type="button"
+            (onClick)="onCancel()"
+            [disabled]="isSubmitting"
+          ></p-button>
+          <p-button 
+            label="Create" 
+            icon="pi pi-check" 
+            type="submit"
+            [disabled]="isSubmitting"
+            [loading]="isSubmitting"
+          ></p-button>
+        </div>
+      </form>
+    </div>
+  </p-card>
+</div>

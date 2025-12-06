@@ -9,16 +9,16 @@
     <div class="content">
       <form [formGroup]="tripForm" (ngSubmit)="onSubmit()">
         <div class="form-field">
-          <label for="shortDescription">Name <span class="required">*</span></label>
+          <label for="name">Name <span class="required">*</span></label>
           <input 
             pInputText 
-            id="shortDescription" 
-            formControlName="shortDescription"
+            id="name" 
+            formControlName="name"
             placeholder="Enter trip name"
-            [class.p-invalid]="isFieldInvalid('shortDescription')"
+            [class.p-invalid]="isFieldInvalid('name')"
           />
-          <small class="error-message" *ngIf="isFieldInvalid('shortDescription')">
-            {{ getFieldError('shortDescription') }}
+          <small class="error-message" *ngIf="isFieldInvalid('name')">
+            {{ getFieldError('name') }}
           </small>
         </div>
 

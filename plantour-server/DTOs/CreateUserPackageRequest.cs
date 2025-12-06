@@ -9,7 +9,7 @@ public class CreateUserPackageRequest
     
     [Required]
     [StringLength(200)]
-    public string ShortDescription { get; set; } = null!;
+    public string name { get; set; } = null!;
     
     public string? Description { get; set; }
 }

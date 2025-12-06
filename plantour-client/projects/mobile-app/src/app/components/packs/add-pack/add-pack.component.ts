@@ -27,7 +27,7 @@ export class AddPackComponent implements OnInit {
 
   constructor() {
     this.packForm = this.fb.group({
-      shortDescription: ['', [Validators.required, Validators.maxLength(200)]],
+      name: ['', [Validators.required, Validators.maxLength(200)]],
       description: ['']
     });
   }
@@ -52,7 +52,7 @@ export class AddPackComponent implements OnInit {
     const formValue = this.packForm.value;
     const request = {
       userId: currentUser.user_id,
-      shortDescription: formValue.shortDescription.trim(),
+      name: formValue.name.trim(),
       description: formValue.description?.trim() || null
     };
 

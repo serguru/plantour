@@ -8,20 +8,20 @@ export interface UserPackageDto {
   userId: string;
   categoryId?: string | null;
   categoryName?: string | null;
-  shortDescription: string;
+  name: string;
   description?: string | null;
 }
 
 export interface CreateUserPackageRequest {
   categoryId?: string | null;
-  shortDescription: string;
+  name: string;
   description?: string | null;
 }
 
 export interface UpdateUserPackageRequest {
   packageId: string;
   categoryId?: string | null;
-  shortDescription: string;
+  name: string;
   description?: string | null;
 }
 

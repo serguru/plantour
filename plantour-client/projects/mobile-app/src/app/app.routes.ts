@@ -41,6 +41,18 @@ export const routes: Routes = [
     loadComponent: () => import('./components/packs/edit-pack/edit-pack.component').then(m => m.EditPackComponent)
   },
   {
+    path: 'things',
+    loadComponent: () => import('./components/things/things.component').then(m => m.ThingsComponent)
+  },
+  {
+    path: 'things/add',
+    loadComponent: () => import('./components/things/add-thing/add-thing.component').then(m => m.AddThingComponent)
+  },
+  {
+    path: 'things/edit/:id',
+    loadComponent: () => import('./components/things/edit-thing/edit-thing.component').then(m => m.EditThingComponent)
+  },
+  {
     path: 'trips',
     loadComponent: () => import('./components/trip/trip.component').then(m => m.TripComponent)
   },

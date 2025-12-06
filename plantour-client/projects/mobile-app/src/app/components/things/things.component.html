@@ -1,0 +1,58 @@
+<div class="page-container">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-left">
+          <i class="pi pi-box"></i>
+          <h2>Things</h2>
+        </div>
+        <div class="header-right">
+          <p-button 
+            icon="pi pi-plus" 
+            [rounded]="true"
+            [text]="true"
+            (onClick)="onAddThing()"
+            severity="primary"
+            [attr.aria-label]="'Add thing'">
+          </p-button>
+        </div>
+      </div>
+    </ng-template>
+    <div class="content">
+      @if (userThings && userThings!.length > 0) {
+        <p-listbox 
+          [options]="userThings!" 
+          [(ngModel)]="selectedThing"
+          (onChange)="onSelectionChange()"
+          optionLabel="name"
+          [listStyle]="{'max-height': '60vh'}"
+          styleClass="w-full">
+          <ng-template let-thing pTemplate="item">
+            <div class="thing-item">
+              <div class="thing-main">
+                <div class="thing-title">{{ thing.name }}</div>
+                @if (thing.category) {
+                  <div class="thing-subtitle">{{ thing.category }}</div>
+                }
+              </div>
+              <div class="thing-details">
+                @if (thing.value && thing.units) {
+                  <span class="thing-info">{{ thing.value }} {{ thing.units }}</span>
+                }
+                @if (thing.notes) {
+                  <div class="thing-notes">{{ thing.notes }}</div>
+                }
+              </div>
+            </div>
+          </ng-template>
+        </p-listbox>
+      } @else {
+        <div class="empty-state">
+          <i class="pi pi-box"></i>
+          <p>No things yet</p>
+          <p class="hint">Start adding your things to track your items</p>
+        </div>
+      }
+    </div>
+  </p-card>
+</div>

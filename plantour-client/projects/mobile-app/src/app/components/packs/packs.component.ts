@@ -76,11 +76,11 @@ export class PacksComponent extends ToolbarAware implements OnInit {
     this.updateToolbarButtons({
       'edit-pack': { 
         disabled: !hasSelection,
-        tooltip: hasSelection ? `Edit "${this.selectedPack?.shortDescription}"` : 'Edit Pack'
+        tooltip: hasSelection ? `Edit "${this.selectedPack?.name}"` : 'Edit Pack'
       },
       'delete-pack': { 
         disabled: !hasSelection,
-        tooltip: hasSelection ? `Delete "${this.selectedPack?.shortDescription}"` : 'Delete Pack'
+        tooltip: hasSelection ? `Delete "${this.selectedPack?.name}"` : 'Delete Pack'
       }
     });
   }
@@ -106,7 +106,7 @@ export class PacksComponent extends ToolbarAware implements OnInit {
 
     const result = await this.messagesService.openOkCancel({
       title: 'Delete Pack',
-      message: `Are you sure you want to delete "${this.selectedPack.shortDescription}"?`,
+      message: `Are you sure you want to delete "${this.selectedPack.name}"?`,
       okLabel: 'Delete',
       cancelLabel: 'Cancel'
     });
@@ -130,7 +130,7 @@ export class PacksComponent extends ToolbarAware implements OnInit {
   async onDeletePack(pack: any): Promise<void> {
     const result = await this.messagesService.openOkCancel({
       title: 'Delete Pack',
-      message: `Are you sure you want to delete "${pack.shortDescription}"?`,
+      message: `Are you sure you want to delete "${pack.name}"?`,
       okLabel: 'Delete',
       cancelLabel: 'Cancel'
     });

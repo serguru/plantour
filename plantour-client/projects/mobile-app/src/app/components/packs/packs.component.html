@@ -23,13 +23,13 @@
         <p-listbox 
           [options]="userPackages!" 
           [(ngModel)]="selectedPack"
-          optionLabel="shortDescription"
+          optionLabel="name"
           [listStyle]="{'max-height': '60vh'}"
           styleClass="w-full">
           <ng-template let-pack pTemplate="item">
             <div class="pack-item">
               <div class="pack-main">
-                <div class="pack-title">{{ pack.shortDescription }}</div>
+                <div class="pack-title">{{ pack.name }}</div>
                 @if (pack.brand || pack.model) {
                   <div class="pack-subtitle">
                     {{ pack.brand }}{{ pack.brand && pack.model ? ' ' : '' }}{{ pack.model }}

@@ -26,7 +26,8 @@ export class AddTripComponent implements OnInit {
 
   constructor() {
     this.tripForm = this.fb.group({
-      shortDescription: ['', [Validators.required, Validators.maxLength(200)]],
+      name: ['', [Validators.required, Validators.maxLength(200)]],
+      tripStatus: [''],
       description: [''],
       startDate: [''],
       endDate: ['']
@@ -46,8 +47,7 @@ export class AddTripComponent implements OnInit {
 
     const formValue = this.tripForm.value;
     const request = {
-      ownerId: '00000000-0000-0000-0000-000000000000', // Will be set by server from auth context
-      shortDescription: formValue.shortDescription.trim(),
+      name: formValue.name.trim(),
       description: formValue.description?.trim() || null,
       startDate: formValue.startDate ? this.tripService.formatDate(formValue.startDate) : null,
       endDate: formValue.endDate ? this.tripService.formatDate(formValue.endDate) : null
