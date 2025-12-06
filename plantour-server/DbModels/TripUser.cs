@@ -9,7 +9,6 @@ namespace plantour_server.DbModels;
 [Table("trip_users", Schema = "plantour")]
 [Index("TripId", "Email", Name = "idx_trip_users_trip_id_email", IsUnique = true)]
 [Index("TripId", "AdminParticipantId", Name = "idx_trip_users_trip_id_user_id", IsUnique = true)]
-[Index("AccessCode", Name = "trip_users_access_code_key", IsUnique = true)]
 public partial class TripUser
 {
     [Key]
@@ -25,10 +24,6 @@ public partial class TripUser
     [Column("participant_status")]
     [StringLength(50)]
     public string? ParticipantStatus { get; set; }
-
-    [Column("access_code")]
-    [StringLength(8)]
-    public string AccessCode { get; set; } = null!;
 
     [Column("email")]
     [StringLength(255)]

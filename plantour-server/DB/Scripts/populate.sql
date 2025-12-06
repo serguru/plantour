@@ -426,7 +426,6 @@ INSERT INTO trip_users (
     trip_id,
     admin_participant_id,
     participant_status,
-    access_code,
     email,
     first_name,
     last_name,
@@ -443,7 +442,6 @@ VALUES
               AND email = 'alice.participant@plantour.test'
         ),
         'Active',
-        'ALCWH001',
         'alice.participant@plantour.test',
         'Alice',
         'Participant',
@@ -458,7 +456,6 @@ VALUES
               AND email = 'bob.participant@plantour.test'
         ),
         'Invited',
-        'BOBWH001',
         'bob.participant@plantour.test',
         'Bob',
         'Participant',
@@ -475,7 +472,6 @@ VALUES
               AND email = 'alice.participant@plantour.test'
         ),
         'Active',
-        'ALCSEA01',
         'alice.participant@plantour.test',
         'Alice',
         'Participant',
