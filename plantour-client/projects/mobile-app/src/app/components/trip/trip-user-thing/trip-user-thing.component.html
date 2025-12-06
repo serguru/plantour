@@ -17,102 +17,17 @@
       </div>
     </ng-template>
     <div class="content">
-      @if (showToolbar) {
-        <div class="toolbar-panel" @slideDown>
-          <div class="category-group">
-            <label for="category-dropdown">Category</label>
-            <p-select 
-              id="category-dropdown"
-              [options]="categories" 
-              [(ngModel)]="selectedCategory" 
-              placeholder="All categories"
-              [showClear]="true"
-              styleClass="category-dropdown">
-              <ng-template let-category pTemplate="item">
-                {{ category }}
-              </ng-template>
-              <ng-template let-category pTemplate="selectedItem">
-                {{ category }}
-              </ng-template>
-            </p-select>
-          </div>
-          <div class="package-group">
-            <label for="package-dropdown">Package</label>
-            <p-select 
-              id="package-dropdown"
-              [options]="packageNames" 
-              [(ngModel)]="selectedPackageName" 
-              placeholder="All packages"
-              [showClear]="true"
-              styleClass="package-dropdown">
-              <ng-template let-packageName pTemplate="item">
-                {{ packageName }}
-              </ng-template>
-              <ng-template let-packageName pTemplate="selectedItem">
-                {{ packageName }}
-              </ng-template>
-            </p-select>
-          </div>
-          <div class="status-group">
-            <label for="status-dropdown">Status</label>
-            <p-select 
-              id="status-dropdown"
-              [options]="packingStatuses" 
-              [(ngModel)]="selectedPackingStatus" 
-              placeholder="All statuses"
-              [showClear]="true"
-              styleClass="status-dropdown">
-              <ng-template let-status pTemplate="item">
-                {{ status }}
-              </ng-template>
-              <ng-template let-status pTemplate="selectedItem">
-                {{ status }}
-              </ng-template>
-            </p-select>
-          </div>
-          <div class="sort-group">
-            <label>Sort</label>
-            <div class="radio-buttons">
-              <div class="radio-item">
-                <p-radioButton 
-                  name="sort" 
-                  value="asc" 
-                  [(ngModel)]="sortOrder" 
-                  inputId="sort-asc">
-                </p-radioButton>
-                <label for="sort-asc">Asc</label>
-              </div>
-              <div class="radio-item">
-                <p-radioButton 
-                  name="sort" 
-                  value="desc" 
-                  [(ngModel)]="sortOrder" 
-                  inputId="sort-desc">
-                </p-radioButton>
-                <label for="sort-desc">Desc</label>
-              </div>
-              <div class="radio-item">
-                <p-radioButton 
-                  name="sort" 
-                  value="none" 
-                  [(ngModel)]="sortOrder" 
-                  inputId="sort-none">
-                </p-radioButton>
-                <label for="sort-none">None</label>
-              </div>
-            </div>
-          </div>
-          <div class="filter-group">
-            <label for="filter-input">Filter</label>
-            <input 
-              id="filter-input"
-              type="text" 
-              pInputText 
-              [(ngModel)]="filterText" 
-              placeholder="Search by name or notes..." />
-          </div>
-        </div>
-      }
+      <app-things-utils
+        [showToolbar]="showToolbar"
+        [categories]="categories"
+        [packageNames]="packageNames"
+        [packingStatuses]="packingStatuses"
+        [(selectedCategory)]="selectedCategory"
+        [(selectedPackageName)]="selectedPackageName"
+        [(selectedPackingStatus)]="selectedPackingStatus"
+        [(sortOrder)]="sortOrder"
+        [(filterText)]="filterText">
+      </app-things-utils>
       @if (sortedThings && sortedThings!.length > 0) {
         <p-listbox 
           [options]="sortedThings!" 

@@ -2,34 +2,18 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { trigger, state, style, transition, animate } from '@angular/animations';
 import { CardModule } from 'primeng/card';
 import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { InputTextModule } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { MessagesService, TripUserThingService, TripUserThingDto } from 'shared-lib';
+import { MessagesService, TripUserThingService, TripUserThingDto, ThingsUtilsComponent } from 'shared-lib';
 import { ToolbarAware } from '../../toolbar-aware';
 
 @Component({
   selector: 'app-trip-user-thing',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule, RadioButtonModule, InputTextModule, Select],
+  imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule, ThingsUtilsComponent],
   templateUrl: './trip-user-thing.component.html',
-  styleUrl: './trip-user-thing.component.scss',
-  animations: [
-    trigger('slideDown', [
-      transition(':enter', [
-        style({ height: '0', opacity: 0, overflow: 'hidden' }),
-        animate('300ms ease-out', style({ height: '*', opacity: 1 }))
-      ]),
-      transition(':leave', [
-        style({ height: '*', opacity: 1, overflow: 'hidden' }),
-        animate('300ms ease-in', style({ height: '0', opacity: 0 }))
-      ])
-    ])
-  ]
+  styleUrl: './trip-user-thing.component.scss'
 })
 export class TripUserThingComponent extends ToolbarAware implements OnInit {
   private tripUserThingService = inject(TripUserThingService);
