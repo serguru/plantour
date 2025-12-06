@@ -78,6 +78,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserPackageService, UserPackageService>();
 builder.Services.AddScoped<IUserThingService, UserThingService>();
 builder.Services.AddScoped<ITripService, TripService>();
+builder.Services.AddScoped<ITripUserService, TripUserService>();
 builder.Services.AddScoped<ITripUserThingService, TripUserThingService>();
 builder.Services.AddScoped<ITripUserPackageService, TripUserPackageService>();
 builder.Services.AddScoped<ILookupsService, LookupsService>();
@@ -88,6 +89,7 @@ builder.Services.AddScoped<plantour_server.Repositories.UserPackageRepository>()
 builder.Services.AddScoped<plantour_server.Repositories.UserThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripUserRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripUserThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripUserPackageRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.LookupsRepository>();
