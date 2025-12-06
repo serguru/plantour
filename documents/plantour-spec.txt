@@ -132,7 +132,7 @@ Links: Link Type, URL, Description
 
 Tour Types: Cruise, Bus excursion, Car travel, Hiking, Fishing
 Archived tours: Tour Type, Content as json
-Tours: Tour Type, Short Description
+Tours: Tour Type, Name
 
 
 

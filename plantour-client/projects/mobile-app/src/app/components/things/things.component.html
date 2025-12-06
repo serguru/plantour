@@ -8,6 +8,12 @@
         </div>
         <div class="header-right">
           <p-button 
+            [icon]="showToolbar ? 'pi pi-chevron-up' : 'pi pi-sliders-h'" 
+            (onClick)="toggleToolbar()" 
+            [text]="true" 
+            severity="secondary">
+          </p-button>
+          <p-button 
             icon="pi pi-plus" 
             [rounded]="true"
             [text]="true"
@@ -19,9 +25,16 @@
       </div>
     </ng-template>
     <div class="content">
-      @if (userThings && userThings!.length > 0) {
+      <app-things-utils
+        [showToolbar]="showToolbar"
+        [categories]="categories"
+        [(selectedCategory)]="selectedCategory"
+        [(sortOrder)]="sortOrder"
+        [(filterText)]="filterText">
+      </app-things-utils>
+      @if (sortedThings && sortedThings!.length > 0) {
         <p-listbox 
-          [options]="userThings!" 
+          [options]="sortedThings!" 
           [(ngModel)]="selectedThing"
           (onChange)="onSelectionChange()"
           optionLabel="name"
@@ -30,7 +43,7 @@
           <ng-template let-thing pTemplate="item">
             <div class="thing-item">
               <div class="thing-main">
-                <div class="thing-title">{{ thing.name }}</div>
+                <div class="thing-title" [innerHTML]="highlightText(thing.name)"></div>
                 @if (thing.category) {
                   <div class="thing-subtitle">{{ thing.category }}</div>
                 }
@@ -40,7 +53,7 @@
                   <span class="thing-info">{{ thing.value }} {{ thing.units }}</span>
                 }
                 @if (thing.notes) {
-                  <div class="thing-notes">{{ thing.notes }}</div>
+                  <div class="thing-notes" [innerHTML]="highlightText(thing.notes)"></div>
                 }
               </div>
             </div>

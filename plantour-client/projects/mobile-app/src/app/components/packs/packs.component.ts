@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
-import { MessagesService, UserPackageService } from 'shared-lib';
+import { MessagesService, UserPackageDto, UserPackageService } from 'shared-lib';
 import { ToolbarAware } from '../toolbar-aware';
 
 @Component({
@@ -20,8 +20,8 @@ export class PacksComponent extends ToolbarAware implements OnInit {
   private messagesService = inject(MessagesService);
   private router = inject(Router);
 
-  userPackages: any[] = [];
-  selectedPack: any = null;
+  userPackages: UserPackageDto[] = [];
+  selectedPack: UserPackageDto | null = null;
 
   ngOnInit(): void {
     this.loadUserPackages();

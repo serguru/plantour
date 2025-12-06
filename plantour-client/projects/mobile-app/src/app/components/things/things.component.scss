@@ -39,6 +39,7 @@
   padding: 1rem;
   flex: 1;
   overflow: auto;
+  position: relative;
 }
 
 .thing-item {
@@ -52,6 +53,12 @@
       font-weight: 600;
       font-size: 1rem;
       color: var(--text-color);
+
+      ::ng-deep mark {
+        background-color: #fef08a;
+        font-weight: 700;
+        padding: 0 0.125rem;
+      }
     }
 
     .thing-subtitle {
@@ -82,6 +89,12 @@
       font-size: 0.875rem;
       color: var(--text-color-secondary);
       font-style: italic;
+
+      ::ng-deep mark {
+        background-color: #fef08a;
+        font-weight: 600;
+        padding: 0 0.125rem;
+      }
     }
   }
 }

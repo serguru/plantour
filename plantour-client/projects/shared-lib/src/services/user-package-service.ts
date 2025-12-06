@@ -6,8 +6,6 @@ import { ENVIRONMENT, EnvironmentConfig } from '../environment.token';
 export interface UserPackageDto {
   id: string;
   userId: string;
-  categoryId?: string | null;
-  categoryName?: string | null;
   name: string;
   description?: string | null;
 }
@@ -20,7 +18,6 @@ export interface CreateUserPackageRequest {
 
 export interface UpdateUserPackageRequest {
   packageId: string;
-  categoryId?: string | null;
   name: string;
   description?: string | null;
 }
