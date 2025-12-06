@@ -1,5 +1,6 @@
 @if (showToolbar) {
 <div class="toolbar-panel" @slideDown>
+  @if (categories) {
   <div class="category-group">
     <label for="category-dropdown">Category</label>
     <p-select id="category-dropdown" [options]="categories" [ngModel]="selectedCategory"
@@ -13,6 +14,7 @@
       </ng-template>
     </p-select>
   </div>
+  }
   @if (packageNames) {
   <div class="package-group">
     <label for="package-dropdown">Package</label>

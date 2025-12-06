@@ -26,7 +26,7 @@ import { Select } from 'primeng/select';
   ]
 })
 export class ThingsUtilsComponent {
-  @Input() categories: string[] = [];
+  @Input() categories: string[]  | null = null;
   @Input() packageNames: string[] | null = null;
   @Input() packingStatuses: string[] | null = null;
   @Input() showToolbar: boolean = false;
