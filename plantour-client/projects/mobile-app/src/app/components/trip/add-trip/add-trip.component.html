@@ -23,6 +23,20 @@
         </div>
 
         <div class="form-field">
+          <label for="tripStatus">Status</label>
+          <p-select
+            id="tripStatus"
+            formControlName="tripStatus"
+            [options]="tripStatuses"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select status"
+            [showClear]="true"
+            styleClass="w-full"
+          ></p-select>
+        </div>
+
+        <div class="form-field">
           <label for="description">Description</label>
           <textarea 
             id="description" 

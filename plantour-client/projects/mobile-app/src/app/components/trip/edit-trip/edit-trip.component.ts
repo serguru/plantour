@@ -6,17 +6,24 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
-import { TripService, MessagesService } from 'shared-lib';
+import { Select } from 'primeng/select';
+import { TripService, MessagesService, LookupService } from 'shared-lib';
+
+interface TripStatusDto {
+  id: string;
+  name: string;
+}
 
 @Component({
   selector: 'app-edit-trip',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, DatePickerModule],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, DatePickerModule, Select],
   templateUrl: './edit-trip.component.html',
   styleUrl: './edit-trip.component.scss'
 })
 export class EditTripComponent implements OnInit {
   private tripService = inject(TripService);
+  private lookupService = inject(LookupService);
   private messagesService = inject(MessagesService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -26,12 +33,13 @@ export class EditTripComponent implements OnInit {
   tripForm: FormGroup;
   isSubmitting: boolean = false;
   isLoading: boolean = true;
+  tripStatuses: TripStatusDto[] = [];
 
   constructor() {
     this.tripForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(200)]],
       description: [''],
-      tripStatus: [''],
+      tripStatus: [null],
       startDate: [''],
       endDate: ['']
     });
@@ -42,12 +50,24 @@ export class EditTripComponent implements OnInit {
     this.id = this.route.snapshot.paramMap.get('id') || '';
 
     if (this.id) {
+      this.loadLookups();
       this.loadTrip();
     } else {
       this.messagesService.showError('Trip ID not found');
       this.router.navigate(['/trips']);
       return;
     }
+  }
+
+  private loadLookups(): void {
+    this.lookupService.getTripStatuses().subscribe({
+      next: (tripStatuses) => {
+        this.tripStatuses = tripStatuses;
+      },
+      error: (error) => {
+        console.error('Error loading trip statuses:', error);
+      }
+    });
   }
 
   private loadTrip(): void {
@@ -82,6 +102,7 @@ export class EditTripComponent implements OnInit {
     const request = {
       id: this.id,
       name: formValue.name.trim(),
+      tripStatus: formValue.tripStatus || null,
       description: formValue.description?.trim() || null,
       startDate: formValue.startDate ? this.tripService.formatDate(formValue.startDate) : null,
       endDate: formValue.endDate ? this.tripService.formatDate(formValue.endDate) : null

@@ -6,28 +6,36 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
-import { TripService, MessagesService } from 'shared-lib';
+import { Select } from 'primeng/select';
+import { TripService, MessagesService, LookupService } from 'shared-lib';
+
+interface TripStatusDto {
+  id: string;
+  name: string;
+}
 
 @Component({
   selector: 'app-add-trip',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, DatePickerModule],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, DatePickerModule, Select],
   templateUrl: './add-trip.component.html',
   styleUrl: './add-trip.component.scss'
 })
 export class AddTripComponent implements OnInit {
   private tripService = inject(TripService);
+  private lookupService = inject(LookupService);
   private messagesService = inject(MessagesService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
   tripForm: FormGroup;
   isSubmitting: boolean = false;
+  tripStatuses: TripStatusDto[] = [];
 
   constructor() {
     this.tripForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(200)]],
-      tripStatus: [''],
+      tripStatus: [null],
       description: [''],
       startDate: [''],
       endDate: ['']
@@ -35,6 +43,18 @@ export class AddTripComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadLookups();
+  }
+
+  private loadLookups(): void {
+    this.lookupService.getTripStatuses().subscribe({
+      next: (tripStatuses) => {
+        this.tripStatuses = tripStatuses;
+      },
+      error: (error) => {
+        console.error('Error loading trip statuses:', error);
+      }
+    });
   }
 
   onSubmit(): void {
@@ -48,6 +68,7 @@ export class AddTripComponent implements OnInit {
     const formValue = this.tripForm.value;
     const request = {
       name: formValue.name.trim(),
+      tripStatus: formValue.tripStatus || null,
       description: formValue.description?.trim() || null,
       startDate: formValue.startDate ? this.tripService.formatDate(formValue.startDate) : null,
       endDate: formValue.endDate ? this.tripService.formatDate(formValue.endDate) : null
