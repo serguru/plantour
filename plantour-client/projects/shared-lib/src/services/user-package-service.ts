@@ -11,7 +11,6 @@ export interface UserPackageDto {
 }
 
 export interface CreateUserPackageRequest {
-  categoryId?: string | null;
   name: string;
   description?: string | null;
 }
@@ -21,7 +20,6 @@ export interface UpdateUserPackageRequest {
   name: string;
   description?: string | null;
 }
-
 
 @Injectable({
   providedIn: 'root',

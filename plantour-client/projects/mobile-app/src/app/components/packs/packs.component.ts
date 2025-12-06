@@ -5,13 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
-import { MessagesService, UserPackageDto, UserPackageService } from 'shared-lib';
+import { MessagesService, UserPackageDto, UserPackageService, ThingsUtilsComponent } from 'shared-lib';
 import { ToolbarAware } from '../toolbar-aware';
 
 @Component({
   selector: 'app-packs',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule],
+  imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule, ThingsUtilsComponent],
   templateUrl: './packs.component.html',
   styleUrl: './packs.component.scss'
 })
@@ -22,6 +22,58 @@ export class PacksComponent extends ToolbarAware implements OnInit {
 
   userPackages: UserPackageDto[] = [];
   selectedPack: UserPackageDto | null = null;
+  showToolbar: boolean = false;
+  sortOrder: 'asc' | 'desc' | 'none' = 'none';
+  filterText: string = '';
+
+  get sortedPacks(): UserPackageDto[] {
+    let result = this.userPackages;
+    
+    // Apply text filter
+    if (this.filterText.trim()) {
+      const filterLower = this.filterText.toLowerCase();
+      result = result.filter(pack => 
+        pack.name.toLowerCase().includes(filterLower) ||
+        (pack.description && pack.description.toLowerCase().includes(filterLower))
+      );
+    }
+    
+    // Apply sort
+    if (this.sortOrder !== 'none') {
+      result = [...result].sort((a, b) => {
+        const nameA = a.name.toLowerCase();
+        const nameB = b.name.toLowerCase();
+        
+        if (this.sortOrder === 'asc') {
+          return nameA.localeCompare(nameB);
+        } else {
+          return nameB.localeCompare(nameA);
+        }
+      });
+    }
+    
+    return result;
+  }
+
+  highlightText(text: string): string {
+    if (!this.filterText.trim() || !text) {
+      return text;
+    }
+    
+    const filterLower = this.filterText.toLowerCase();
+    const textLower = text.toLowerCase();
+    const index = textLower.indexOf(filterLower);
+    
+    if (index === -1) {
+      return text;
+    }
+    
+    const before = text.substring(0, index);
+    const match = text.substring(index, index + this.filterText.length);
+    const after = text.substring(index + this.filterText.length);
+    
+    return `${before}<mark>${match}</mark>${after}`;
+  }
 
   ngOnInit(): void {
     this.loadUserPackages();
@@ -151,5 +203,9 @@ export class PacksComponent extends ToolbarAware implements OnInit {
         }
       });
     }
+  }
+
+  toggleToolbar(): void {
+    this.showToolbar = !this.showToolbar;
   }
 }

@@ -8,6 +8,12 @@
         </div>
         <div class="header-right">
           <p-button 
+            [icon]="showToolbar ? 'pi pi-chevron-up' : 'pi pi-sliders-h'" 
+            (onClick)="toggleToolbar()" 
+            [text]="true" 
+            severity="secondary">
+          </p-button>
+          <p-button 
             icon="pi pi-plus" 
             [rounded]="true"
             [text]="true"
@@ -19,17 +25,24 @@
       </div>
     </ng-template>
     <div class="content">
-      @if (userPackages && userPackages!.length > 0) {
+      <app-things-utils
+        [showToolbar]="showToolbar"
+        [categories]="[]"
+        [(sortOrder)]="sortOrder"
+        [(filterText)]="filterText">
+      </app-things-utils>
+      @if (sortedPacks && sortedPacks!.length > 0) {
         <p-listbox 
-          [options]="userPackages!" 
+          [options]="sortedPacks!" 
           [(ngModel)]="selectedPack"
+          (onChange)="onSelectionChange()"
           optionLabel="name"
           [listStyle]="{'max-height': '60vh'}"
           styleClass="w-full">
           <ng-template let-pack pTemplate="item">
             <div class="pack-item">
               <div class="pack-main">
-                <div class="pack-title">{{ pack.name }}</div>
+                <div class="pack-title" [innerHTML]="highlightText(pack.name)"></div>
                 @if (pack.brand || pack.model) {
                   <div class="pack-subtitle">
                     {{ pack.brand }}{{ pack.brand && pack.model ? ' ' : '' }}{{ pack.model }}
