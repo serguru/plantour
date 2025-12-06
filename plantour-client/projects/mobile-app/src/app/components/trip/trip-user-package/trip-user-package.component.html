@@ -6,12 +6,28 @@
           <i class="pi pi-briefcase"></i>
           <h2>Trip Packages</h2>
         </div>
+        <div class="header-right">
+          <p-button 
+            [icon]="showToolbar ? 'pi pi-chevron-up' : 'pi pi-sliders-h'" 
+            (onClick)="toggleToolbar()" 
+            [text]="true" 
+            severity="secondary">
+          </p-button>
+        </div>
       </div>
     </ng-template>
     <div class="content">
-      @if (tripUserPackages && tripUserPackages!.length > 0) {
+      <app-things-utils
+        [showToolbar]="showToolbar"
+        [categories]="[]"
+        [packingStatuses]="packingStatuses"
+        [(selectedPackingStatus)]="selectedPackingStatus"
+        [(sortOrder)]="sortOrder"
+        [(filterText)]="filterText">
+      </app-things-utils>
+      @if (sortedPackages && sortedPackages!.length > 0) {
         <p-listbox 
-          [options]="tripUserPackages!" 
+          [options]="sortedPackages!" 
           [(ngModel)]="selectedPackage"
           (onChange)="onSelectionChange()"
           optionLabel="name"
@@ -20,15 +36,13 @@
           <ng-template let-package pTemplate="item">
             <div class="package-item">
               <div class="package-main">
-                <div class="package-title">{{ package.name }}</div>
+                <div class="package-title" [innerHTML]="highlightText(package.name)"></div>
                 @if (package.label) {
-                  <div class="package-subtitle">
-                    {{ package.label }}
+                  <div class="package-subtitle" [innerHTML]="highlightText(package.label)">
                   </div>
                 }
                 @if (package.notes) {
-                  <div class="package-subtitle">
-                    {{ package.notes }}
+                  <div class="package-subtitle" [innerHTML]="highlightText(package.notes)">
                   </div>
                 }
               </div>

@@ -5,13 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
-import { MessagesService, TripUserPackageService, TripUserPackageDto } from 'shared-lib';
+import { MessagesService, TripUserPackageService, TripUserPackageDto, ThingsUtilsComponent } from 'shared-lib';
 import { ToolbarAware } from '../../toolbar-aware';
 
 @Component({
   selector: 'app-trip-user-package',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule],
+  imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule, ThingsUtilsComponent],
   templateUrl: './trip-user-package.component.html',
   styleUrl: './trip-user-package.component.scss'
 })
@@ -25,6 +25,85 @@ export class TripUserPackageComponent extends ToolbarAware implements OnInit {
   tripUserId: string = '';
   tripUserPackages: TripUserPackageDto[] = [];
   selectedPackage: TripUserPackageDto | null = null;
+  showToolbar: boolean = false;
+  sortOrder: 'asc' | 'desc' | 'none' = 'none';
+  filterText: string = '';
+  selectedPackingStatus: string | null = null;
+
+  get packingStatuses(): string[] {
+    const uniquePackingStatuses = new Set<string>();
+    
+    this.tripUserPackages.forEach(pkg => {
+      if (pkg.packingStatus) {
+        uniquePackingStatuses.add(pkg.packingStatus);
+      }
+    });
+    
+    const sortedPackingStatuses = Array.from(uniquePackingStatuses).sort((a, b) => 
+      a.toLowerCase().localeCompare(b.toLowerCase())
+    );
+    
+    return ['(No Status)', ...sortedPackingStatuses];
+  }
+
+  get sortedPackages(): TripUserPackageDto[] {
+    let result = this.tripUserPackages;
+    
+    // Apply packingStatus filter
+    if (this.selectedPackingStatus !== null) {
+      if (this.selectedPackingStatus === '(No Status)') {
+        result = result.filter(pkg => !pkg.packingStatus);
+      } else {
+        result = result.filter(pkg => pkg.packingStatus === this.selectedPackingStatus);
+      }
+    }
+    
+    // Apply text filter
+    if (this.filterText.trim()) {
+      const filterLower = this.filterText.toLowerCase();
+      result = result.filter(pkg => 
+        pkg.name.toLowerCase().includes(filterLower) ||
+        (pkg.label && pkg.label.toLowerCase().includes(filterLower)) ||
+        (pkg.notes && pkg.notes.toLowerCase().includes(filterLower))
+      );
+    }
+    
+    // Apply sort
+    if (this.sortOrder !== 'none') {
+      result = [...result].sort((a, b) => {
+        const nameA = a.name.toLowerCase();
+        const nameB = b.name.toLowerCase();
+        
+        if (this.sortOrder === 'asc') {
+          return nameA.localeCompare(nameB);
+        } else {
+          return nameB.localeCompare(nameA);
+        }
+      });
+    }
+    
+    return result;
+  }
+
+  highlightText(text: string): string {
+    if (!this.filterText.trim() || !text) {
+      return text;
+    }
+    
+    const filterLower = this.filterText.toLowerCase();
+    const textLower = text.toLowerCase();
+    const index = textLower.indexOf(filterLower);
+    
+    if (index === -1) {
+      return text;
+    }
+    
+    const before = text.substring(0, index);
+    const match = text.substring(index, index + this.filterText.length);
+    const after = text.substring(index + this.filterText.length);
+    
+    return `${before}<mark>${match}</mark>${after}`;
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -136,5 +215,9 @@ export class TripUserPackageComponent extends ToolbarAware implements OnInit {
         });
       }
     });
+  }
+
+  toggleToolbar(): void {
+    this.showToolbar = !this.showToolbar;
   }
 }

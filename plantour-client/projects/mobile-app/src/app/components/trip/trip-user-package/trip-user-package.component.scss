@@ -36,6 +36,7 @@
 
 .content {
   padding: 1rem;
+  position: relative;
 }
 
 .package-item {
@@ -54,11 +55,23 @@
       font-size: 1rem;
       font-weight: 600;
       color: var(--text-color, #333);
+
+      ::ng-deep mark {
+        background-color: #fef08a;
+        font-weight: 700;
+        padding: 0 0.125rem;
+      }
     }
     
     .package-subtitle {
       font-size: 0.875rem;
       color: var(--text-color-secondary, #666);
+
+      ::ng-deep mark {
+        background-color: #fef08a;
+        font-weight: 600;
+        padding: 0 0.125rem;
+      }
     }
   }
   
