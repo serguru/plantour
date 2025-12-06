@@ -49,9 +49,6 @@ public partial class User
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
     [InverseProperty("User")]
-    public virtual ICollection<TripUser> TripUsers { get; set; } = new List<TripUser>();
-
-    [InverseProperty("User")]
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 
     [InverseProperty("User")]

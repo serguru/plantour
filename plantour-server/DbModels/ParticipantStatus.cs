@@ -20,7 +20,4 @@ public partial class ParticipantStatus
 
     [Column("notes")]
     public string? Notes { get; set; }
-
-    [InverseProperty("ParticipantStatus")]
-    public virtual ICollection<AdminsParticipant> AdminsParticipants { get; set; } = new List<AdminsParticipant>();
 }

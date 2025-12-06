@@ -21,7 +21,7 @@ public class TripUserPackageRepository : BaseRepository
             return null;
         }
         return await _dbSet
-            .FirstOrDefaultAsync(x => x.Id == id && x.TripUser.UserId == CurrentUser.UserId);
+            .FirstOrDefaultAsync(x => x.Id == id && x.TripUser.Trip.UserId == CurrentUser.UserId);
     }
 
     public async Task<IEnumerable<TripUserPackage>> GetAllAsync(Guid tripId)
@@ -32,7 +32,7 @@ public class TripUserPackageRepository : BaseRepository
         }
 
         return await _dbSet
-            .Where(x => x.TripUser.TripId == tripId && x.TripUser.UserId == CurrentUser.UserId)
+            .Where(x => x.TripUser.TripId == tripId && x.TripUser.Trip.UserId == CurrentUser.UserId)
             .ToListAsync();
     }
 
@@ -44,7 +44,7 @@ public class TripUserPackageRepository : BaseRepository
         }
 
         var tripUser = await _context.TripUsers
-            .FirstOrDefaultAsync(x => x.TripId == tripId && x.UserId == CurrentUser.UserId); 
+            .FirstOrDefaultAsync(x => x.TripId == tripId && x.Trip.UserId == CurrentUser.UserId); 
             
         if (tripUser == null)
         {

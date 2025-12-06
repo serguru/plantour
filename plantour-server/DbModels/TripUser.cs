@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("trip_users", Schema = "plantour")]
-[Index("TripId", "UserId", Name = "idx_trip_users_trip_id_user_id", IsUnique = true)]
+[Index("TripId", "Email", Name = "idx_trip_users_trip_id_email", IsUnique = true)]
+[Index("TripId", "AdminParticipantId", Name = "idx_trip_users_trip_id_user_id", IsUnique = true)]
+[Index("AccessCode", Name = "trip_users_access_code_key", IsUnique = true)]
 public partial class TripUser
 {
     [Key]
@@ -17,11 +19,39 @@ public partial class TripUser
     [Column("trip_id")]
     public Guid TripId { get; set; }
 
-    [Column("user_id")]
-    public Guid UserId { get; set; }
+    [Column("admin_participant_id")]
+    public Guid AdminParticipantId { get; set; }
+
+    [Column("participant_status")]
+    [StringLength(50)]
+    public string? ParticipantStatus { get; set; }
+
+    [Column("access_code")]
+    [StringLength(8)]
+    public string AccessCode { get; set; } = null!;
+
+    [Column("email")]
+    [StringLength(255)]
+    public string Email { get; set; } = null!;
+
+    [Column("first_name")]
+    [StringLength(100)]
+    public string? FirstName { get; set; }
+
+    [Column("last_name")]
+    [StringLength(100)]
+    public string? LastName { get; set; }
+
+    [Column("phone")]
+    [StringLength(50)]
+    public string? Phone { get; set; }
 
     [Column("notes")]
     public string? Notes { get; set; }
+
+    [ForeignKey("AdminParticipantId")]
+    [InverseProperty("TripUsers")]
+    public virtual AdminsParticipant AdminParticipant { get; set; } = null!;
 
     [ForeignKey("TripId")]
     [InverseProperty("TripUsers")]
@@ -32,8 +62,4 @@ public partial class TripUser
 
     [InverseProperty("TripUser")]
     public virtual ICollection<TripUserThing> TripUserThings { get; set; } = new List<TripUserThing>();
-
-    [ForeignKey("UserId")]
-    [InverseProperty("TripUsers")]
-    public virtual User User { get; set; } = null!;
 }

@@ -54,8 +54,6 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Admin).WithMany(p => p.AdminsParticipantAdmins).HasConstraintName("admins_participants_admin_id_fkey");
 
             entity.HasOne(d => d.Participant).WithMany(p => p.AdminsParticipantParticipants).HasConstraintName("admins_participants_participant_id_fkey");
-
-            entity.HasOne(d => d.ParticipantStatus).WithMany(p => p.AdminsParticipants).HasConstraintName("admins_participants_participant_status_id_fkey");
         });
 
         modelBuilder.Entity<CommunicationType>(entity =>
@@ -130,9 +128,9 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            entity.HasOne(d => d.Trip).WithMany(p => p.TripUsers).HasConstraintName("trip_users_trip_id_fkey");
+            entity.HasOne(d => d.AdminParticipant).WithMany(p => p.TripUsers).HasConstraintName("trip_users_admin_participant_id_fkey");
 
-            entity.HasOne(d => d.User).WithMany(p => p.TripUsers).HasConstraintName("trip_users_user_id_fkey");
+            entity.HasOne(d => d.Trip).WithMany(p => p.TripUsers).HasConstraintName("trip_users_trip_id_fkey");
         });
 
         modelBuilder.Entity<TripUserPackage>(entity =>

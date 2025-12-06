@@ -122,10 +122,16 @@ create table admins_participants (
     id uuid not null primary key default gen_random_uuid(),
     admin_id uuid not null references users(id) on delete cascade,
     participant_id uuid not null references users(id) on delete cascade,
-    participant_status_id uuid references participant_status(id),
-    access_code varchar(8) not null unique
+    participant_status varchar(50),
+    access_code varchar(8) not null unique,
+    email varchar(255) not null check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    first_name varchar(100),
+    last_name varchar(100),
+    phone varchar(50),
+    notes text
 );
-create unique index idx_admins_participants on admins_participants(admin_id, participant_id);
+create unique index idx_admins_participants_admin_id_participant_id on admins_participants(admin_id, participant_id);
+create unique index idx_admins_participants_email_admin_id_email on admins_participants(admin_id, email);
 
 create table refresh_tokens (
     id uuid primary key default gen_random_uuid(),
@@ -245,10 +251,17 @@ create table invitations (
 create table trip_users (
     id uuid not null primary key default gen_random_uuid(),
     trip_id uuid not null references trips(id) on delete cascade,
-    user_id uuid not null references users(id) on delete cascade,
+    admin_participant_id uuid not null references admins_participants(id) on delete cascade,
+    participant_status varchar(50),
+    access_code varchar(8) not null unique,
+    email varchar(255) not null check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    first_name varchar(100),
+    last_name varchar(100),
+    phone varchar(50),
     notes text
 );
-create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, user_id);
+create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, admin_participant_id);
+create unique index idx_trip_users_trip_id_email on trip_users(trip_id, email);
 
 -----------------------------------------------------------------------
 -- TRIP USER PACKAGES
@@ -341,18 +354,30 @@ VALUES
 -- ====================================================================
 -- ADMINS / PARTICIPANTS LINKS
 -- ====================================================================
-INSERT INTO admins_participants (id, admin_id, participant_id, access_code)
+INSERT INTO admins_participants (id, admin_id, participant_id, access_code, email, first_name, last_name, phone, notes)
 VALUES
     (
         gen_random_uuid(),
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        'ALC12345'
+        'ALC12345',
+        'alice.participant@plantour.test',
+        'Alice',
+        'Participant',
+        '+1-604-000-0001',
+        'First participant linked to admin'
+
     ),
     (
         gen_random_uuid(),
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        'BOB54321'
+        'BOB54321',
+        'bob.participant@plantour.test',
+        'Bob',
+        'Participant',
+        '+1-604-000-0002',
+        'Second participant linked to admin'
+
     );
 

@@ -30,7 +30,7 @@ public class TripRepository : BaseRepository
         if (CurrentUser.IsParticipant)
         {
             return await _dbSet
-                .FirstOrDefaultAsync(x => x.Id == id && x.UserId == CurrentUser.AdminId && x.TripUsers.Any(y => y.UserId == CurrentUser.UserId));
+                .FirstOrDefaultAsync(x => x.Id == id && x.UserId == CurrentUser.AdminId && x.TripUsers.Any(y => y.Trip.UserId == CurrentUser.UserId));
         }
 
         return null;
@@ -54,7 +54,7 @@ public class TripRepository : BaseRepository
         {
             return await _dbSet
                 .Include(x => x.TripUsers)
-                .Where(x => x.UserId == CurrentUser.AdminId && x.TripUsers.Any(y => y.UserId == CurrentUser.UserId))
+                .Where(x => x.UserId == CurrentUser.AdminId && x.TripUsers.Any(y => y.Trip.UserId == CurrentUser.UserId))
                 .ToListAsync();
         }
 
