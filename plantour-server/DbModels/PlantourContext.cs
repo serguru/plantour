@@ -190,10 +190,6 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            entity.HasOne(d => d.Category).WithMany(p => p.UserThings).HasConstraintName("user_things_category_id_fkey");
-
-            entity.HasOne(d => d.Units).WithMany(p => p.UserThings).HasConstraintName("user_things_units_id_fkey");
-
             entity.HasOne(d => d.User).WithMany(p => p.UserThings).HasConstraintName("user_things_user_id_fkey");
         });
 

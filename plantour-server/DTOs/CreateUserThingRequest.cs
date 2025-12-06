@@ -4,14 +4,14 @@ namespace plantour_server.DTOs;
 
 public class CreateUserThingRequest
 {
-    [Required]
-    public Guid UserId { get; set; }
-    
-    public Guid? CategoryId { get; set; }
-    
-    [Required]
-    [StringLength(200)]
-    public string ShortDescription { get; set; } = null!;
-    
-    public string? Description { get; set; }
+    public string? Category { get; set; }
+
+    public string Name { get; set; } = null!;
+
+    public string? Units { get; set; }
+    public decimal? Value { get; set; }
+
+    public string? Notes { get; set; }
+
+
 }

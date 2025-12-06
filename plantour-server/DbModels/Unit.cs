@@ -17,7 +17,4 @@ public partial class Unit
     [Column("name")]
     [StringLength(50)]
     public string Name { get; set; } = null!;
-
-    [InverseProperty("Units")]
-    public virtual ICollection<UserThing> UserThings { get; set; } = new List<UserThing>();
 }

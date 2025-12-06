@@ -1,8 +1,6 @@
-
 set search_path to plantour, public;
 
-begin;
-
+BEGIN;
 
 -- USER THINGS
 INSERT INTO user_things (user_id, category, name, units, value, notes) VALUES

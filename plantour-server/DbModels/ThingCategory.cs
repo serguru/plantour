@@ -20,7 +20,4 @@ public partial class ThingCategory
 
     [Column("notes")]
     public string? Notes { get; set; }
-
-    [InverseProperty("Category")]
-    public virtual ICollection<UserThing> UserThings { get; set; } = new List<UserThing>();
 }

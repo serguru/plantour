@@ -29,18 +29,6 @@ export const routes: Routes = [
     loadComponent: () => import('./components/travelers/travelers.component').then(m => m.TravelersComponent)
   },
   {
-    path: 'things',
-    loadComponent: () => import('./components/things/things.component').then(m => m.ThingsComponent)
-  },
-  {
-    path: 'things/add',
-    loadComponent: () => import('./components/things/add-thing/add-thing.component').then(m => m.AddThingComponent)
-  },
-  {
-    path: 'things/edit/:id',
-    loadComponent: () => import('./components/things/edit-thing/edit-thing.component').then(m => m.EditThingComponent)
-  },
-  {
     path: 'packs',
     loadComponent: () => import('./components/packs/packs.component').then(m => m.PacksComponent)
   },

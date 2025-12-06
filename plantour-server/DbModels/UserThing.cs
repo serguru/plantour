@@ -7,8 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("user_things", Schema = "plantour")]
-[Index("CategoryId", Name = "idx_user_things_category_id")]
-[Index("UserId", "Name", Name = "idx_user_things_user_id_name", IsUnique = true)]
+[Index("UserId", Name = "idx_user_things_user_id")]
 public partial class UserThing
 {
     [Key]
@@ -18,26 +17,24 @@ public partial class UserThing
     [Column("user_id")]
     public Guid UserId { get; set; }
 
-    [Column("category_id")]
-    public Guid? CategoryId { get; set; }
+    [Column("category")]
+    [StringLength(50)]
+    public string? Category { get; set; }
 
     [Column("name")]
     [StringLength(200)]
     public string Name { get; set; } = null!;
 
-    [Column("description")]
-    public string? Description { get; set; }
+    [Column("units")]
+    [StringLength(50)]
+    public string? Units { get; set; }
 
-    [Column("units_id")]
-    public Guid? UnitsId { get; set; }
+    [Column("value")]
+    [Precision(10, 3)]
+    public decimal? Value { get; set; }
 
-    [ForeignKey("CategoryId")]
-    [InverseProperty("UserThings")]
-    public virtual ThingCategory? Category { get; set; }
-
-    [ForeignKey("UnitsId")]
-    [InverseProperty("UserThings")]
-    public virtual Unit? Units { get; set; }
+    [Column("notes")]
+    public string? Notes { get; set; }
 
     [ForeignKey("UserId")]
     [InverseProperty("UserThings")]

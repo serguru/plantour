@@ -144,14 +144,13 @@ create index idx_refresh_tokens_user_id on refresh_tokens(user_id);
 create table user_things (
     id uuid not null primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
-    category_id uuid null references thing_categories(id),
+    category varchar(50),
     name varchar(200) not null,
-    description text,
-    units_id uuid references units(id) -- pcs if null
+    units varchar(50),
+    value decimal(10,3) check(value > 0), -- 1 if null
+    notes text
 );
-create index idx_user_things_category_id on user_things(category_id);
-create unique index idx_user_things_user_id_name on user_things(user_id, name);
-
+create index idx_user_things_user_id on user_things(user_id);
 
 -----------------------------------------------------------------------
 -- USER PACKAGES
@@ -163,6 +162,7 @@ create table user_packages (
     description text
 );
 create unique index idx_user_packages_user_id_name on user_packages(user_id, name);
+
 
 -----------------------------------------------------------------------
 -- TRIPS
@@ -274,8 +274,8 @@ create index idx_trip_user_packages_trip_user_id on trip_user_packages(trip_user
 create table trip_user_things (
     id uuid not null primary key default gen_random_uuid(),
     trip_user_id uuid not null references trip_users(id) on delete cascade,
-    category varchar(50),       -- to be copied from user_things 
-    name varchar(200) not null, -- to be copied from user_things 
+    category varchar(50),      
+    name varchar(200) not null,
     units varchar(50), -- pcs if null
     value decimal(10,3) check(value > 0), -- 1 if null
     notes text,
@@ -285,4 +285,74 @@ create table trip_user_things (
 );
 create index idx_trip_user_things_trip_user_id on trip_user_things(trip_user_id);
 
+
+-- ====================================================================
+-- USERS (1 admin + 2 participants + 2 extra users)
+-- ====================================================================
+INSERT INTO users (email, password_hash, password_salt, first_name, last_name, phone, notes)
+VALUES
+    (
+        'serguru@gmail.com',
+        '\x35c846498f41a7ed1513b765c264ab222f7c3b015163fc07c78f6af00554436d2bb8f3d105a848584a0103f228132affc301505136188d50194e14f9a32d0f64',
+        '\x727465da121430b0bf747ea4a4cc3c21f458c61b824b15d354fc8e10adb5d2a7e82a3aa26363d48178341995f078275e2d5b3c5df70536c6af73a6dff32e15b7',
+        'Admin',
+        'User',
+        '+1-604-000-0000',
+        'Primary admin test user'
+    ),
+    (
+        'alice.participant@plantour.test',
+        NULL,
+        NULL,
+        'Alice',
+        'Participant',
+        '+1-604-000-0001',
+        'First participant linked to admin'
+    ),
+    (
+        'bob.participant@plantour.test',
+        NULL,
+        NULL,
+        'Bob',
+        'Participant',
+        '+1-604-000-0002',
+        'Second participant linked to admin'
+    ),
+    (
+        'carol.tester@plantour.test',
+        NULL,
+        NULL,
+        'Carol',
+        'Tester',
+        '+1-604-000-0003',
+        'Extra test user'
+    ),
+    (
+        'dave.tester@plantour.test',
+        NULL,
+        NULL,
+        'Dave',
+        'Tester',
+        '+1-604-000-0004',
+        'Extra test user'
+    );
+
+
+-- ====================================================================
+-- ADMINS / PARTICIPANTS LINKS
+-- ====================================================================
+INSERT INTO admins_participants (id, admin_id, participant_id, access_code)
+VALUES
+    (
+        gen_random_uuid(),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
+        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
+        'ALC12345'
+    ),
+    (
+        gen_random_uuid(),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
+        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
+        'BOB54321'
+    );
 

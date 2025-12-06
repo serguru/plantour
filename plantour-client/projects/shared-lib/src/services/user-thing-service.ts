@@ -6,30 +6,28 @@ import { ENVIRONMENT, EnvironmentConfig } from '../environment.token';
 export interface UserThingDto {
   id: string;
   userId: string;
-  categoryId?: string | null;
-  categoryName?: string | null;
-  shortDescription: string;
-  description?: string | null;
+  category?: string | null;
+  name: string;
+  notes?: string | null;
+  units?: string | null;
+  value?: string | null;
 }
 
 export interface CreateUserThingRequest {
-  userId: string;
-  categoryId?: string | null;
-  shortDescription: string;
-  description?: string | null;
+  category?: string | null;
+  name: string;
+  notes?: string | null;
+  units?: string | null;
+  value?: string | null;
 }
 
 export interface UpdateUserThingRequest {
-  thingId: string;
-  categoryId?: string | null;
-  shortDescription: string;
-  description?: string | null;
-}
-
-export interface ThingCategoryDto {
   id: string;
+  category?: string | null;
   name: string;
   notes?: string | null;
+  units?: string | null;
+  value?: string | null;
 }
 
 @Injectable({
@@ -65,7 +63,4 @@ export class UserThingService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  getAllCategories(): Observable<ThingCategoryDto[]> {
-    return this.http.get<ThingCategoryDto[]>(`${this.apiUrl}/categories`);
-  }
 }

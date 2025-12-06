@@ -42,7 +42,7 @@ public class UserThingService : IUserThingService
 
     public async Task<bool> UpdateAsync(UpdateUserThingRequest request)
     {
-        var entity = await _userThingRepository.GetByIdAsync(request.ThingId);
+        var entity = await _userThingRepository.GetByIdAsync(request.Id);
         if (entity == null)
         {
             return false;

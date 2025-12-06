@@ -24,3 +24,5 @@
 Рефактор UserPackageController. Не вызывай UserPackageRepository из контнроллера. Создай Services/UserPackageService. В сервисе используй UserPackageRepository. Переделай вызовы Add, Edit и другие в UserPackageController с репозитория на сервис. Используй Riok.Mapperly для маппинга.
 
 Добаавь в UserPackageDto поле CategoryName. Заполняй это поле значением Name из PackageCategory, соответствующим UserPackageDto.CategoryId. Добавь в UserPackageDto список категорий из PackageCategory. Назови его CategoriesLookup. Включи в него Id и Name. Не забудь переделать mappinng соответственно.
+
+Нужно создать сервис, который вернет клиенту полный набор lookups. Создай repository Repositories/LookupsRepository и включи в него только методы для чтения следующих сущностей: PackingStatus, CommunicationType, ThingCategory, TripStatus, ParticipantStatus, Unit. Создай Services/LookupsService и включи в него единственный метод GetAllLookups, который вернет все lookups из Repositories/LookupsRepository  . Создай контролер LookupsController с единственной  endpoint для GetAllLookups.

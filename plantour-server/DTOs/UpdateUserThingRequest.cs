@@ -4,10 +4,17 @@ namespace plantour_server.DTOs;
 
 public class UpdateUserThingRequest
 {
-    public Guid ThingId { get; set; }
-    public Guid? CategoryId { get; set; }
-    
-    public string ShortDescription { get; set; } = null!;
-    
-    public string? Description { get; set; }
+    public Guid Id { get; set; }
+
+    public string? Category { get; set; }
+
+    public string Name { get; set; } = null!;
+
+    public string? Units { get; set; }
+    public decimal? Value { get; set; }
+
+    public string? Notes { get; set; }
+
+
+
 }
