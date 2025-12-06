@@ -1,0 +1,74 @@
+<div class="page-container">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-left">
+          <i class="pi pi-users"></i>
+          <h2>Participants</h2>
+        </div>
+        <div class="header-right">
+          <p-button 
+            [icon]="showToolbar ? 'pi pi-chevron-up' : 'pi pi-sliders-h'" 
+            (onClick)="toggleToolbar()" 
+            [text]="true" 
+            severity="secondary">
+          </p-button>
+          <p-button 
+            icon="pi pi-plus" 
+            [rounded]="true"
+            [text]="true"
+            (onClick)="onAddParticipant()"
+            severity="primary"
+            [attr.aria-label]="'Add participant'">
+          </p-button>
+        </div>
+      </div>
+    </ng-template>
+    <div class="content">
+      <app-things-utils
+        [showToolbar]="showToolbar"
+        [packingStatuses]="participantStatusNames"
+        [(selectedPackingStatus)]="selectedParticipantStatus"
+        [(sortOrder)]="sortOrder"
+        [(filterText)]="filterText">
+      </app-things-utils>
+      @if (sortedParticipants && sortedParticipants!.length > 0) {
+        <p-listbox 
+          [options]="sortedParticipants!" 
+          [(ngModel)]="selectedParticipant"
+          (onChange)="onSelectionChange()"
+          optionLabel="email"
+          [listStyle]="{'max-height': '60vh'}"
+          styleClass="w-full">
+          <ng-template let-participant pTemplate="item">
+            <div class="participant-item">
+              <div class="participant-main">
+                <div class="participant-title" [innerHTML]="highlightText(participant.email)"></div>
+                @if (participant.firstName || participant.lastName) {
+                  <div class="participant-subtitle" [innerHTML]="highlightText((participant.firstName || '') + ' ' + (participant.lastName || ''))"></div>
+                }
+              </div>
+              <div class="participant-details">
+                @if (participant.participantStatus) {
+                  <span class="participant-info">{{ getParticipantStatusName(participant.participantStatus) }}</span>
+                }
+                @if (participant.phone) {
+                  <div class="participant-phone" [innerHTML]="highlightText(participant.phone)"></div>
+                }
+                @if (participant.notes) {
+                  <div class="participant-notes" [innerHTML]="highlightText(participant.notes)"></div>
+                }
+              </div>
+            </div>
+          </ng-template>
+        </p-listbox>
+      } @else {
+        <div class="empty-state">
+          <i class="pi pi-users"></i>
+          <p>No participants yet</p>
+          <p class="hint">Start adding participants to manage them</p>
+        </div>
+      }
+    </div>
+  </p-card>
+</div>

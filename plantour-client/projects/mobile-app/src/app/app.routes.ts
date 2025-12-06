@@ -89,6 +89,18 @@ export const routes: Routes = [
     loadComponent: () => import('./components/trip/trip-user-package/edit-trip-user-package/edit-trip-user-package.component').then(m => m.EditTripUserPackageComponent)
   },
   {
+    path: 'admins-participant',
+    loadComponent: () => import('./components/admins-participant/admins-participant.component').then(m => m.AdminsParticipantComponent)
+  },
+  {
+    path: 'admins-participant/add',
+    loadComponent: () => import('./components/admins-participant/add-admins-participant/add-admins-participant.component').then(m => m.AddAdminsParticipantComponent)
+  },
+  {
+    path: 'admins-participant/edit/:id',
+    loadComponent: () => import('./components/admins-participant/edit-admins-participant/edit-admins-participant.component').then(m => m.EditAdminsParticipantComponent)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

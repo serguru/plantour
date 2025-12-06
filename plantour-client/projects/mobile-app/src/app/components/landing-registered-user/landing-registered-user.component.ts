@@ -32,7 +32,7 @@ export class LandingRegisteredUserComponent extends ToolbarAware {
   }
 
   navigateToTravelers(): void {
-    this.router.navigate(['/travelers']);
+    this.router.navigate(['/admins-participant']);
   }
 
   navigateToThings(): void {
