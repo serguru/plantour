@@ -253,7 +253,6 @@ create table trip_users (
     trip_id uuid not null references trips(id) on delete cascade,
     admin_participant_id uuid not null references admins_participants(id) on delete cascade,
     participant_status varchar(50),
-    access_code varchar(8) not null unique,
     email varchar(255) not null check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     first_name varchar(100),
     last_name varchar(100),
