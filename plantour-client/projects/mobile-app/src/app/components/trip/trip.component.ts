@@ -65,6 +65,13 @@ export class TripComponent extends ToolbarAware implements OnInit {
         disabled: true
       },
       {
+        id: 'view-users',
+        icon: 'pi pi-users',
+        tooltip: 'View Users',
+        command: () => this.onViewUsers(),
+        disabled: true
+      },
+      {
         id: 'refresh-trips',
         icon: 'pi pi-refresh',
         tooltip: 'Refresh',
@@ -103,6 +110,10 @@ export class TripComponent extends ToolbarAware implements OnInit {
       'view-packages': { 
         disabled: !hasSelection,
         tooltip: hasSelection ? `View Packages for "${this.selectedTrip?.name}"` : 'View Packages'
+      },
+      'view-users': { 
+        disabled: !hasSelection,
+        tooltip: hasSelection ? `View Users for "${this.selectedTrip?.name}"` : 'View Users'
       }
     });
   }
@@ -130,6 +141,12 @@ export class TripComponent extends ToolbarAware implements OnInit {
   onViewPackages(): void {
     if (this.selectedTrip) {
       this.router.navigate(['/trips', this.selectedTrip.id, 'packages']);
+    }
+  }
+
+  onViewUsers(): void {
+    if (this.selectedTrip) {
+      this.router.navigate(['/trips', this.selectedTrip.id, 'users']);
     }
   }
 

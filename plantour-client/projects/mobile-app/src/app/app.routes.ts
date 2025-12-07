@@ -89,6 +89,18 @@ export const routes: Routes = [
     loadComponent: () => import('./components/trip/trip-user-package/edit-trip-user-package/edit-trip-user-package.component').then(m => m.EditTripUserPackageComponent)
   },
   {
+    path: 'trips/:id/users',
+    loadComponent: () => import('./components/trip/trip-user/trip-user.component').then(m => m.TripUserComponent)
+  },
+  {
+    path: 'trips/:id/users/add',
+    loadComponent: () => import('./components/trip/trip-user/add-trip-user/add-trip-user.component').then(m => m.AddTripUserComponent)
+  },
+  {
+    path: 'trips/:id/users/edit/:userId',
+    loadComponent: () => import('./components/trip/trip-user/edit-trip-user/edit-trip-user.component').then(m => m.EditTripUserComponent)
+  },
+  {
     path: 'admins-participant',
     loadComponent: () => import('./components/admins-participant/admins-participant.component').then(m => m.AdminsParticipantComponent)
   },

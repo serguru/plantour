@@ -16,3 +16,4 @@ export * from './services/trip-user-thing-service';
 export * from './services/trip-user-package-service';
 export * from './services/toolbar-service';
 export * from './services/admins-participant-service';
+export * from './services/trip-user-service';

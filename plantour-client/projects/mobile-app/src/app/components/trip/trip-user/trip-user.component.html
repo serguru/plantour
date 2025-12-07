@@ -1,0 +1,75 @@
+<div class="page-container">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-left">
+          <i class="pi pi-users"></i>
+          <h2>Trip Users</h2>
+        </div>
+        <div class="header-right">
+          <p-button 
+            [icon]="showToolbar ? 'pi pi-chevron-up' : 'pi pi-sliders-h'" 
+            (onClick)="toggleToolbar()" 
+            [text]="true" 
+            severity="secondary">
+          </p-button>
+          <p-button 
+            icon="pi pi-plus" 
+            [rounded]="true"
+            [text]="true"
+            (onClick)="onAddTripUser()"
+            severity="primary"
+            [attr.aria-label]="'Add trip user'">
+          </p-button>
+        </div>
+      </div>
+    </ng-template>
+    <div class="content">
+      <app-things-utils
+        [showToolbar]="showToolbar"
+        [categories]="[]"
+        [packingStatuses]="participantStatusNames"
+        [(selectedPackingStatus)]="selectedParticipantStatus"
+        [(sortOrder)]="sortOrder"
+        [(filterText)]="filterText">
+      </app-things-utils>
+      @if (sortedTripUsers && sortedTripUsers!.length > 0) {
+        <p-listbox 
+          [options]="sortedTripUsers!" 
+          [(ngModel)]="selectedTripUser"
+          (onChange)="onSelectionChange()"
+          optionLabel="email"
+          [listStyle]="{'max-height': '60vh'}"
+          styleClass="w-full">
+          <ng-template let-tripUser pTemplate="item">
+            <div class="trip-user-item">
+              <div class="trip-user-main">
+                <div class="trip-user-title" [innerHTML]="highlightText(tripUser.email)"></div>
+                @if (tripUser.firstName || tripUser.lastName) {
+                  <div class="trip-user-subtitle" [innerHTML]="highlightText((tripUser.firstName || '') + ' ' + (tripUser.lastName || ''))"></div>
+                }
+              </div>
+              <div class="trip-user-details">
+                @if (tripUser.participantStatus) {
+                  <span class="trip-user-info">{{ getParticipantStatusName(tripUser.participantStatus) }}</span>
+                }
+                @if (tripUser.phone) {
+                  <div class="trip-user-phone" [innerHTML]="highlightText(tripUser.phone)"></div>
+                }
+                @if (tripUser.notes) {
+                  <div class="trip-user-notes" [innerHTML]="highlightText(tripUser.notes)"></div>
+                }
+              </div>
+            </div>
+          </ng-template>
+        </p-listbox>
+      } @else {
+        <div class="empty-state">
+          <i class="pi pi-users"></i>
+          <p>No trip users yet</p>
+          <p class="hint">Start adding users to this trip</p>
+        </div>
+      }
+    </div>
+  </p-card>
+</div>
