@@ -7,11 +7,12 @@ import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
 import { MessagesService, TripUserPackageService, TripUserPackageDto, ThingsUtilsComponent } from 'shared-lib';
 import { ToolbarAware } from '../../toolbar-aware';
+import { ContentLayoutComponent } from '../../layouts/content-layout.component';
 
 @Component({
   selector: 'app-trip-user-package',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule, ThingsUtilsComponent],
+  imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule, ThingsUtilsComponent, ContentLayoutComponent],
   templateUrl: './trip-user-package.component.html',
   styleUrl: './trip-user-package.component.scss'
 })

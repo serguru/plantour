@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import { TripService, MessagesService, LookupService } from 'shared-lib';
+import { ContentLayoutComponent } from '../../layouts/content-layout.component';
 
 interface TripStatusDto {
   id: string;
@@ -17,7 +18,7 @@ interface TripStatusDto {
 @Component({
   selector: 'app-edit-trip',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, DatePickerModule, Select],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, DatePickerModule, Select, ContentLayoutComponent],
   templateUrl: './edit-trip.component.html',
   styleUrl: './edit-trip.component.scss'
 })

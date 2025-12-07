@@ -7,11 +7,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { TripUserService, MessagesService, LookupService, ParticipantStatusDto } from 'shared-lib';
+import { ContentLayoutComponent } from '../../../layouts/content-layout.component';
 
 @Component({
   selector: 'app-add-trip-user',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, Select],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, Select, ContentLayoutComponent],
   templateUrl: './add-trip-user.component.html',
   styleUrl: './add-trip-user.component.scss'
 })

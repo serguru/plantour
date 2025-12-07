@@ -1,66 +1,68 @@
-<div class="page-container">
-  <p-card>
-    <ng-template pTemplate="header">
-      <div class="card-header">
-        <div class="header-left">
-          <i class="pi pi-briefcase"></i>
-          <h2>Packs</h2>
+<app-content-layout>
+  <div class="page-container">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <div class="header-left">
+            <i class="pi pi-briefcase"></i>
+            <h2>Packs</h2>
+          </div>
+          <div class="header-right">
+            <p-button 
+              [icon]="showToolbar ? 'pi pi-chevron-up' : 'pi pi-sliders-h'" 
+              (onClick)="toggleToolbar()" 
+              [text]="true" 
+              severity="secondary">
+            </p-button>
+          </div>
         </div>
-        <div class="header-right">
-          <p-button 
-            [icon]="showToolbar ? 'pi pi-chevron-up' : 'pi pi-sliders-h'" 
-            (onClick)="toggleToolbar()" 
-            [text]="true" 
-            severity="secondary">
-          </p-button>
-        </div>
-      </div>
-    </ng-template>
-    <div class="content">
-      <app-things-utils
-        [showToolbar]="showToolbar"
-        [(sortOrder)]="sortOrder"
-        [(filterText)]="filterText">
-      </app-things-utils>
-      @if (sortedPacks && sortedPacks!.length > 0) {
-        <p-listbox 
-          [options]="sortedPacks!" 
-          [(ngModel)]="selectedPack"
-          (onChange)="onSelectionChange()"
-          optionLabel="name"
-          [listStyle]="{'max-height': '60vh'}"
-          styleClass="w-full">
-          <ng-template let-pack pTemplate="item">
-            <div class="pack-item">
-              <div class="pack-main">
-                <div class="pack-title" [innerHTML]="highlightText(pack.name)"></div>
-                @if (pack.brand || pack.model) {
-                  <div class="pack-subtitle">
-                    {{ pack.brand }}{{ pack.brand && pack.model ? ' ' : '' }}{{ pack.model }}
-                  </div>
-                }
-              </div>
-              <div class="pack-details">
-                <div class="pack-info-section">
-                  @if (pack.categoryName) {
-                    <span class="pack-badge">{{ pack.categoryName }}</span>
-                  }
-                  @if (pack.emptyWeightValue && pack.weightUnitName) {
-                    <span class="pack-info">{{ pack.emptyWeightValue }} {{ pack.weightUnitName }}</span>
+      </ng-template>
+      <div class="content">
+        <app-things-utils
+          [showToolbar]="showToolbar"
+          [(sortOrder)]="sortOrder"
+          [(filterText)]="filterText">
+        </app-things-utils>
+        @if (sortedPacks && sortedPacks!.length > 0) {
+          <p-listbox 
+            [options]="sortedPacks!" 
+            [(ngModel)]="selectedPack"
+            (onChange)="onSelectionChange()"
+            optionLabel="name"
+            [listStyle]="{'max-height': '60vh'}"
+            styleClass="w-full">
+            <ng-template let-pack pTemplate="item">
+              <div class="pack-item">
+                <div class="pack-main">
+                  <div class="pack-title" [innerHTML]="highlightText(pack.name)"></div>
+                  @if (pack.brand || pack.model) {
+                    <div class="pack-subtitle">
+                      {{ pack.brand }}{{ pack.brand && pack.model ? ' ' : '' }}{{ pack.model }}
+                    </div>
                   }
                 </div>
+                <div class="pack-details">
+                  <div class="pack-info-section">
+                    @if (pack.categoryName) {
+                      <span class="pack-badge">{{ pack.categoryName }}</span>
+                    }
+                    @if (pack.emptyWeightValue && pack.weightUnitName) {
+                      <span class="pack-info">{{ pack.emptyWeightValue }} {{ pack.weightUnitName }}</span>
+                    }
+                  </div>
+                </div>
               </div>
-            </div>
-          </ng-template>
-        </p-listbox>
-      } @else {
-        <div class="empty-state">
-          <i class="pi pi-briefcase"></i>
-          <p>No packs yet</p>
-          <p class="hint">Start adding your packs to organize your travel gear</p>
-        </div>
-      }
-    </div>
-  </p-card>
-</div>
+            </ng-template>
+          </p-listbox>
+        } @else {
+          <div class="empty-state">
+            <i class="pi pi-briefcase"></i>
+            <p>No packs yet</p>
+            <p class="hint">Start adding your packs to organize your travel gear</p>
+          </div>
+        }
+      </div>
+    </p-card>
+  </div>
+</app-content-layout>
 

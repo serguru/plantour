@@ -7,11 +7,13 @@ import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
 import { MessagesService, TripUserService, TripUserDto, ThingsUtilsComponent, LookupService, ParticipantStatusDto } from 'shared-lib';
 import { ToolbarAware } from '../../toolbar-aware';
+import { ContentLayoutComponent } from '../../layouts/content-layout.component';
 
 @Component({
   selector: 'app-trip-user',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule, ThingsUtilsComponent],
+  imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule, ThingsUtilsComponent,
+      ContentLayoutComponent],
   templateUrl: './trip-user.component.html',
   styleUrl: './trip-user.component.scss'
 })

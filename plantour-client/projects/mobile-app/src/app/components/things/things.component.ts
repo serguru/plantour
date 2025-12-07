@@ -7,11 +7,12 @@ import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
 import { MessagesService, UserThingService, UserThingDto, ThingsUtilsComponent } from 'shared-lib';
 import { ToolbarAware } from '../toolbar-aware';
+import { ContentLayoutComponent } from '../layouts/content-layout.component';
 
 @Component({
   selector: 'app-things',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule, ThingsUtilsComponent],
+  imports: [CommonModule, FormsModule, CardModule, ListboxModule, ButtonModule, ThingsUtilsComponent, ContentLayoutComponent],
   templateUrl: './things.component.html',
   styleUrl: './things.component.scss'
 })

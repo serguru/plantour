@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { UserThingService, MessagesService, LookupService } from 'shared-lib';
+import { ContentLayoutComponent } from '../../layouts/content-layout.component';
 
 interface ThingCategoryDto {
   id: string;
@@ -22,7 +23,7 @@ interface UnitDto {
 @Component({
   selector: 'app-add-thing',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, Select],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, Select, ContentLayoutComponent],
   templateUrl: './add-thing.component.html',
   styleUrl: './add-thing.component.scss'
 })

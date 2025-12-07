@@ -7,11 +7,13 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { UserPackageService, UsersService, MessagesService } from 'shared-lib';
+import { ContentLayoutComponent } from '../../layouts/content-layout.component';
 
 @Component({
   selector: 'app-add-pack',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule,
+      ContentLayoutComponent],
   templateUrl: './add-pack.component.html',
   styleUrl: './add-pack.component.scss'
 })

@@ -9,11 +9,12 @@ import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TripUserPackageService, MessagesService, UsersService } from 'shared-lib';
+import { ContentLayoutComponent } from '../../../layouts/content-layout.component';
 
 @Component({
   selector: 'app-add-trip-user-package',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, InputNumberModule, ButtonModule, Select, CheckboxModule],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, InputNumberModule, ButtonModule, Select, CheckboxModule, ContentLayoutComponent],
   templateUrl: './add-trip-user-package.component.html',
   styleUrl: './add-trip-user-package.component.scss'
 })

@@ -7,11 +7,13 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { UserPackageService, MessagesService } from 'shared-lib';
+import { ContentLayoutComponent } from '../../layouts/content-layout.component';
 
 @Component({
   selector: 'app-edit-pack',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule,
+      ContentLayoutComponent],
   templateUrl: './edit-pack.component.html',
   styleUrl: './edit-pack.component.scss'
 })

@@ -7,11 +7,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { AdminsParticipantService, MessagesService, LookupService, ParticipantStatusDto } from 'shared-lib';
+import { ContentLayoutComponent } from '../../layouts/content-layout.component';
 
 @Component({
   selector: 'app-add-admins-participant',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, Select],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, Select, ContentLayoutComponent],
   templateUrl: './add-admins-participant.component.html',
   styleUrl: './add-admins-participant.component.scss'
 })
