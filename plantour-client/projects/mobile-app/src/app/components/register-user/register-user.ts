@@ -9,6 +9,7 @@ import { UsersService, SignUpRequest, MessagesService } from 'shared-lib';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ToolbarAware } from '../toolbar-aware';
+import { ContentLayoutComponent } from '../layouts/content-layout.component';
 
 @Component({
   selector: 'app-register-user',
@@ -18,7 +19,8 @@ import { ToolbarAware } from '../toolbar-aware';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    PasswordModule
+    PasswordModule,
+    ContentLayoutComponent
   ],
   templateUrl: './register-user.html',
   styleUrl: './register-user.scss',
