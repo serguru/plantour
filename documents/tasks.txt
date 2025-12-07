@@ -79,3 +79,13 @@ ControlsWrapperComponent: например, это может быть набо�
 Сейчас demo компонент определяет стили для списков и controls. Перенеси стили для списков в list-wrapper и стили для controls в controls-wrapper. Это нужно для того, чтобы списки и формы в приложении выглядели максимально одинаково. Компоненты, которые будут строиться на основе page-wrapper, list-wrapper и controls-wrapper должны использовать стили из этих компонентов и использовать собственные стили только для оригинальных случаев, напрмер, для определения внешнего вида элемента списка с индивидуальным контентом.
 
 
+Создай в plantour-client\projects\mobile-app\src\app\components ReactiveForms компонент SignInComponent для sign in юзеров. Оберни контент этого компонента следующим образом: 
+<app-content-layout>
+    <app-page-wrapper> 
+        <app-list-wrapper>
+            SignInComponent content here
+        </app-list-wrapper>
+    </app-page-wrapper 
+</app-content-layout>
+Смотри plantour-client\projects\mobile-app\src\app\components\page-wrapper-demo\page-wrapper-demo.ts для примера. Максимально используй стили, определённые в app-page-wrapper и app-controls-wrapper. Используй оригинальные стили только в том случае, если требуемый стиль в app-page-wrapper и app-controls-wrapper не найден. Не забудь про валидацию полей в форме. Используй plantour-client\projects\shared-lib\src\services\users-service.ts для sign in. Используй plantour-client\projects\shared-lib\src\services\messages-service.ts для сообщений. 
+

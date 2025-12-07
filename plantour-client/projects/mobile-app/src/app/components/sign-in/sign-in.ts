@@ -7,9 +7,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { UsersService, MessagesService } from 'shared-lib';
 import { catchError, finalize } from 'rxjs/operators';
-import { EMPTY, of } from 'rxjs';
+import { EMPTY } from 'rxjs';
 import { ToolbarAware } from '../toolbar-aware';
 import { ContentLayoutComponent } from '../layouts/content-layout.component';
+import { PageWrapper } from '../page-wrapper/page-wrapper';
+import { ListWrapper } from '../page-wrapper/list-wrapper/list-wrapper';
+import { ControlsWrapper } from '../page-wrapper/controls-wrapper/controls-wrapper';
 
 @Component({
   selector: 'app-sign-in',
@@ -20,7 +23,10 @@ import { ContentLayoutComponent } from '../layouts/content-layout.component';
     ButtonModule,
     InputTextModule,
     PasswordModule,
-    ContentLayoutComponent
+    ContentLayoutComponent,
+    PageWrapper,
+    ListWrapper,
+    ControlsWrapper
   ],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.scss',
@@ -39,36 +45,37 @@ export class SignInComponent extends ToolbarAware {
   constructor() {
     super();
     this.signInForm = this.fb.group({
-      email: ['serguru@gmail.com', [Validators.required, Validators.email]],
-      password: ['Binary_09', [Validators.required]]
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
   onSubmit(): void {
     if (this.signInForm.invalid) {
       this.signInForm.markAllAsTouched();
+      this.messagesService.showWarning('Validation Error', 'Please fill in all required fields correctly.');
       return;
     }
 
     this.isLoading = true;
     this.errorMessage = '';
 
-    const email = this.signInForm.value.email;
-    const password = this.signInForm.value.password;
+    const { email, password } = this.signInForm.value;
 
     this.usersService.loginAdmin(email, password).pipe(
       catchError((error) => {
-        this.errorMessage = error.error?.message || 'Sign in failed. Please try again.';
-        //console.error('Sign in error:', error);
+        const errorMsg = error.error?.message || 'Sign in failed. Please check your credentials and try again.';
+        this.errorMessage = errorMsg;
+        this.messagesService.showError('Sign In Failed', errorMsg);
         return EMPTY;
       }),
       finalize(() => {
         this.isLoading = false;
       })
     ).subscribe({
-      next: (result) => {
+      next: () => {
+        this.messagesService.showInfo('Sign In Successful', 'Welcome back!');
         this.router.navigate(['']);
-        this.messagesService.showInfo('Sign in successful', 'Welcome back!');
       }
     });
   }
@@ -87,11 +94,17 @@ export class SignInComponent extends ToolbarAware {
 
   getFieldError(fieldName: string): string {
     const field = this.signInForm.get(fieldName);
-    if (field?.hasError('required') && field?.touched) {
+    if (!field || !field.touched) return '';
+
+    if (field.hasError('required')) {
       return 'This field is required';
     }
-    if (field?.hasError('email') && field?.touched) {
-      return 'Please enter a valid email';
+    if (field.hasError('email')) {
+      return 'Please enter a valid email address';
+    }
+    if (field.hasError('minlength')) {
+      const minLength = field.errors?.['minlength']?.requiredLength;
+      return `Password must be at least ${minLength} characters`;
     }
     return '';
   }

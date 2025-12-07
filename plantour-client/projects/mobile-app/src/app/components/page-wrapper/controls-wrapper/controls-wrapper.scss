@@ -7,7 +7,7 @@
   ::ng-deep form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: rem;
   }
 
   // Form field styling
@@ -47,10 +47,12 @@
     }
 
     .error-message {
-      color: var(--red-500);
+      color: var(--error-color);
       font-size: 0.875rem;
     }
+
   }
+
 
   // Form actions styling
   ::ng-deep .form-actions {
