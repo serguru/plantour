@@ -113,6 +113,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/admins-participant/edit-admins-participant/edit-admins-participant.component').then(m => m.EditAdminsParticipantComponent)
   },
   {
+    path: 'test-layout',
+    loadComponent: () => import('./components/test-layout/test-layout.component').then(m => m.TestLayoutComponent)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

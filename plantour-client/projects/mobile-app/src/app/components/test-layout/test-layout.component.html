@@ -1,0 +1,39 @@
+<app-content-layout>
+  <div class="page-container">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <div class="header-left">
+            <i class="pi pi-layout"></i>
+            <h2>Content Layout Test</h2>
+          </div>
+        </div>
+      </ng-template>
+      
+      <div class="content">
+        <p>Этот компонент тестирует ContentLayoutComponent.</p>
+        <p>Контейнер выравнивается вверх и не уходит за нижнюю кромку экрана.</p>
+        <p>Если контент не умещается, появляется вертикальная прокрутка внутри контейнера.</p>
+        
+        <div class="test-section">
+          <h3>Тестовый контент с множеством элементов:</h3>
+          <div class="items-container">
+            <div class="item" *ngFor="let item of items">
+              <p-card>
+                <div class="item-content">
+                  <i class="pi pi-box"></i>
+                  <span>Элемент №{{ item }}</span>
+                </div>
+              </p-card>
+            </div>
+          </div>
+        </div>
+
+        <div class="buttons-section">
+          <p-button label="Кнопка 1" icon="pi pi-check"></p-button>
+          <p-button label="Кнопка 2" icon="pi pi-times" severity="secondary"></p-button>
+        </div>
+      </div>
+    </p-card>
+  </div>
+</app-content-layout>

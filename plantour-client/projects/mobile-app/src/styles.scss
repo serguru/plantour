@@ -7,6 +7,7 @@
 
   --primary-color: #3A9AA8;
   --primary-color-light: #4DB8C4;
+  --content-container-background-color: #ffffff;
   /* ---------------------------------------
      🎯 PRIMARY UI FONTS (GLOBAL TYPOGRAPHY)
      --------------------------------------- */
@@ -84,7 +85,8 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
-  overflow-x: hidden;
+  height: 100%;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

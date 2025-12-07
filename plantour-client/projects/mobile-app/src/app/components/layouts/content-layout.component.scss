@@ -1,0 +1,21 @@
+.content-layout-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--primary-color);
+  box-sizing: border-box;
+  padding-bottom: 1rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
