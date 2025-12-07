@@ -11,7 +11,6 @@ import { EMPTY } from 'rxjs';
 import { ToolbarAware } from '../toolbar-aware';
 import { ContentLayoutComponent } from '../layouts/content-layout.component';
 import { PageWrapper } from '../page-wrapper/page-wrapper';
-import { ListWrapper } from '../page-wrapper/list-wrapper/list-wrapper';
 import { ControlsWrapper } from '../page-wrapper/controls-wrapper/controls-wrapper';
 
 @Component({
@@ -25,7 +24,6 @@ import { ControlsWrapper } from '../page-wrapper/controls-wrapper/controls-wrapp
     PasswordModule,
     ContentLayoutComponent,
     PageWrapper,
-    ListWrapper,
     ControlsWrapper
   ],
   templateUrl: './sign-in.html',
