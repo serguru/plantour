@@ -117,6 +117,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/test-layout/test-layout.component').then(m => m.TestLayoutComponent)
   },
   {
+    path: 'page-wrapper-demo',
+    loadComponent: () => import('./components/page-wrapper-demo/page-wrapper-demo').then(m => m.PageWrapperDemo)
+  },
+  {
     path: '**',
     redirectTo: ''
   }
