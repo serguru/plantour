@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
+import { CrudService } from './crud-service';
 
 export interface TripUserDto {
   id: string;
@@ -41,13 +42,14 @@ export interface UpdateTripUserRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class TripUserService {
+export class TripUserService extends CrudService<TripUserDto, CreateTripUserRequest, UpdateTripUserRequest> {
   private apiUrl: string;
 
   constructor(
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
+    super();
     this.apiUrl = `${environment.apiUrl}/api/tripuser`;
   }
 
