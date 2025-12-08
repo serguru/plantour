@@ -7,9 +7,12 @@
           <label for="email">Email <span class="required">*</span></label>
           <input pInputText id="email" type="email" formControlName="email" placeholder="your.email@example.com"
             [class.p-invalid]="isFieldInvalid('email')" />
-          <small class="error-message" *ngIf="isFieldInvalid('email')">
+          @if (isFieldInvalid('email')) {
+          <small class="error-message">
             {{ getFieldError('email') }}
           </small>
+
+          }
         </div>
 
         <!-- Password Field -->
@@ -18,16 +21,20 @@
           <p-password id="password" formControlName="password" placeholder="Enter your password" [toggleMask]="true"
             [feedback]="false" [class.p-invalid]="isFieldInvalid('password')" styleClass="w-full">
           </p-password>
-          <small class="error-message" *ngIf="isFieldInvalid('password')">
+          @if (isFieldInvalid('password')) {
+          <small class="error-message">
             {{ getFieldError('password') }}
           </small>
+          }
         </div>
 
         <!-- Error Message -->
-        <div class="error-alert" *ngIf="errorMessage">
+        @if (errorMessage) {
+        <div class="error-alert">
           <i class="pi pi-exclamation-triangle"></i>
           <span>{{ errorMessage }}</span>
         </div>
+        }
 
         <!-- Form Actions -->
         <div class="form-actions">
