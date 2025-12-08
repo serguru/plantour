@@ -7,11 +7,14 @@
     .feature-select {
       flex-shrink: 0;
       width: 90px;
+      display: flex;
+      align-items: center;
     }
 
     .dynamic-controls {
       flex: 1;
       display: flex;
+      align-items: center;
       gap: 0.5rem;
       min-width: 0;
 

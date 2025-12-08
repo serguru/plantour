@@ -164,21 +164,6 @@ export class ListActionsComponent implements OnInit, OnChanges {
     return null;
   }
 
-  getSelectedFeatureIcon(): string {
-    const feature = this.featureOptions.find(f => f.value === this.selectedFeature);
-    return feature?.icon || 'pi pi-filter';
-  }
-
-  getSelectedFeatureLabel(): string {
-    const feature = this.featureOptions.find(f => f.value === this.selectedFeature);
-    return feature?.label || '';
-  }
-
-  getSelectedFeatureHasFilter(): boolean {
-    const feature = this.featureOptions.find(f => f.value === this.selectedFeature);
-    return feature?.hasFilter || false;
-  }
-
   isFeatureActive(featureValue: string): boolean {
     if (featureValue.startsWith('lookup_')) {
       const index = parseInt(featureValue.split('_')[1]);
