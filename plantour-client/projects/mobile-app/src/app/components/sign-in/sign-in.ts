@@ -43,8 +43,8 @@ export class SignInComponent extends ToolbarAware {
   constructor() {
     super();
     this.signInForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
+      email: ['serguru@gmail.com', [Validators.required, Validators.email]],
+      password: ['Binary_09', [Validators.required]]
     });
   }
 
@@ -105,7 +105,7 @@ export class SignInComponent extends ToolbarAware {
   }
 
   onSignUp(): void {
-    this.router.navigate(['/register']);
+    this.router.navigate(['/sign-up']);
   }
 
 }

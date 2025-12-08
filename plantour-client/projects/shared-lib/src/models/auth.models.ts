@@ -19,7 +19,6 @@ export interface SignUpRequest {
   password: string;
   firstName?: string;
   lastName?: string;
-  phone?: string;
 }
 
 export interface SignInRequest {

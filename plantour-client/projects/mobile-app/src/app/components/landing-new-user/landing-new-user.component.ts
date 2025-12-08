@@ -52,7 +52,7 @@ export class LandingNewUserComponent extends ToolbarAware {
   }
 
   onSignUp(): void {
-    this.router.navigate(['register']);
+    this.router.navigate(['sign-up']);
   }
 
   onSignIn(): void {

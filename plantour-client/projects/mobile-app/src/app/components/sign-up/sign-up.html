@@ -1,0 +1,90 @@
+<app-content-layout>
+  <app-page-wrapper pageIcon="pi pi-user-plus" pageTitle="Sign Up">
+    <app-controls-wrapper>
+      <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
+        <!-- Email Field -->
+        <div class="form-field">
+          <label for="email">Email <span class="required">*</span></label>
+          <input pInputText id="email" type="email" formControlName="email" placeholder="your.email@example.com"
+            [class.p-invalid]="isFieldInvalid('email')" />
+          @if (isFieldInvalid('email')) {
+          <small class="error-message">
+            {{ getFieldError('email') }}
+          </small>
+
+          }
+        </div>
+
+        <!-- First Name Field -->
+        <div class="form-field">
+          <label for="firstName">First Name</label>
+          <input pInputText id="firstName" type="text" formControlName="firstName" placeholder="Enter your first name"
+            [class.p-invalid]="isFieldInvalid('firstName')" />
+          @if (isFieldInvalid('firstName')) {
+          <small class="error-message">
+            {{ getFieldError('firstName') }}
+          </small>
+          }
+        </div>
+
+        <!-- Last Name Field -->
+        <div class="form-field">
+          <label for="lastName">Last Name</label>
+          <input pInputText id="lastName" type="text" formControlName="lastName" placeholder="Enter your last name"
+            [class.p-invalid]="isFieldInvalid('lastName')" />
+          @if (isFieldInvalid('lastName')) {
+          <small class="error-message">
+            {{ getFieldError('lastName') }}
+          </small>
+          }
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-field">
+          <label for="password">Password <span class="required">*</span></label>
+          <p-password id="password" formControlName="password" placeholder="Enter your password" [toggleMask]="true"
+            [feedback]="false" [class.p-invalid]="isFieldInvalid('password')" styleClass="w-full">
+          </p-password>
+          @if (isFieldInvalid('password')) {
+          <small class="error-message">
+            {{ getFieldError('password') }}
+          </small>
+          }
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div class="form-field">
+          <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+          <p-password id="confirmPassword" formControlName="confirmPassword" placeholder="Confirm your password" [toggleMask]="true"
+            [feedback]="false" [class.p-invalid]="isConfirmPasswordInvalid()" styleClass="w-full">
+          </p-password>
+          @if (isConfirmPasswordInvalid()) {
+          <small class="error-message">
+            {{ getConfirmPasswordError() }}
+          </small>
+          }
+        </div>
+
+        <!-- Error Message -->
+        @if (errorMessage) {
+        <div class="error-alert">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+        }
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <p-button type="submit" label="Sign Up" icon="pi pi-user-plus" [loading]="isLoading"
+            [disabled]="isLoading || signUpForm.invalid">
+          </p-button>
+        </div>
+        <div class="pale-prompt">
+          Already have an account?
+          <button type="button" class="link-button" (click)="onSignIn()">Sign In here</button>
+        </div>
+
+      </form>
+    </app-controls-wrapper>
+  </app-page-wrapper>
+</app-content-layout>
