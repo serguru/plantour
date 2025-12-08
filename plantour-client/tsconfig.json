@@ -11,11 +11,6 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "experimentalDecorators": true,
-    "paths": {
-      "shared-lib": [
-        "./projects/shared-lib/src/public-api"
-      ]
-    },
     "importHelpers": true,
     "target": "ES2022",
     "module": "preserve"
@@ -30,22 +25,10 @@
   "files": [],
   "references": [
     {
-      "path": "./projects/shared-lib/tsconfig.lib.json"
+      "path": "./tsconfig.app.json"
     },
     {
-      "path": "./projects/shared-lib/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/desktop-app/tsconfig.app.json"
-    },
-    {
-      "path": "./projects/desktop-app/tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/mobile-app/tsconfig.app.json"
-    },
-    {
-      "path": "./projects/mobile-app/tsconfig.spec.json"
+      "path": "./tsconfig.spec.json"
     }
   ]
 }

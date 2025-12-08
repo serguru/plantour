@@ -3,8 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "m": "ng serve mobile-app --host 0.0.0.0 --port 4202 --open",
-    "d": "ng serve desktop-app --port 4203 --open",
+    "m": "ng serve --host 0.0.0.0 --port 4202 --open",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"

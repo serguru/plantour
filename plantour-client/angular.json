@@ -3,53 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "shared-lib": {
-      "projectType": "library",
-      "schematics": {
-        "@schematics/angular:component": {
-          "skipTests": true
-        },
-        "@schematics/angular:service": {
-          "skipTests": true
-        },
-        "@schematics/angular:interceptor": {
-          "skipTests": true
-        },
-        "@schematics/angular:guard": {
-          "skipTests": true
-        },
-        "@schematics/angular:directive": {
-          "skipTests": true
-        },
-        "@schematics/angular:module": {
-          "skipTests": true
-        }
-      },
-      "root": "projects/shared-lib",
-      "sourceRoot": "projects/shared-lib/src",
-      "prefix": "lib",
-      "architect": {
-        "build": {
-          "builder": "@angular/build:ng-packagr",
-          "configurations": {
-            "production": {
-              "tsConfig": "projects/shared-lib/tsconfig.lib.prod.json"
-            },
-            "development": {
-              "tsConfig": "projects/shared-lib/tsconfig.lib.json"
-            }
-          },
-          "defaultConfiguration": "production"
-        },
-        "test": {
-          "builder": "@angular/build:karma",
-          "options": {
-            "tsConfig": "projects/shared-lib/tsconfig.spec.json"
-          }
-        }
-      }
-    },
-    "desktop-app": {
+    "plantour-app": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -72,32 +26,27 @@
           "skipTests": true
         }
       },
-      "root": "projects/desktop-app",
-      "sourceRoot": "projects/desktop-app/src",
+      "root": "",
+      "sourceRoot": "src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "projects/desktop-app/src/main.ts",
+            "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
             ],
-            "tsConfig": "projects/desktop-app/tsconfig.app.json",
+            "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "projects/desktop-app/public"
-              },
-              {
-                "glob": "**/*",
-                "input": "projects/shared-lib/assets",
-                "output": "/assets"
+                "input": "public"
               }
             ],
             "styles": [
-              "projects/desktop-app/src/styles.scss"
+              "src/styles.scss"
             ]
           },
           "configurations": {
@@ -128,10 +77,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "desktop-app:build:production"
+              "buildTarget": "plantour-app:build:production"
             },
             "development": {
-              "buildTarget": "desktop-app:build:development"
+              "buildTarget": "plantour-app:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -146,138 +95,16 @@
               "zone.js",
               "zone.js/testing"
             ],
-            "tsConfig": "projects/desktop-app/tsconfig.spec.json",
+            "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "projects/desktop-app/public"
-              },
-              {
-                "glob": "**/*",
-                "input": "projects/shared-lib/assets",
-                "output": "/assets"
+                "input": "public"
               }
             ],
             "styles": [
-              "projects/desktop-app/src/styles.scss"
-            ]
-          }
-        }
-      }
-    },
-    "mobile-app": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "skipTests": true,
-          "style": "scss"
-        },
-        "@schematics/angular:service": {
-          "skipTests": true
-        },
-        "@schematics/angular:interceptor": {
-          "skipTests": true
-        },
-        "@schematics/angular:guard": {
-          "skipTests": true
-        },
-        "@schematics/angular:directive": {
-          "skipTests": true
-        },
-        "@schematics/angular:module": {
-          "skipTests": true
-        }
-      },
-      "root": "projects/mobile-app",
-      "sourceRoot": "projects/mobile-app/src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular/build:application",
-          "options": {
-            "browser": "projects/mobile-app/src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
-            "tsConfig": "projects/mobile-app/tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "projects/mobile-app/public"
-              },
-              {
-                "glob": "**/*",
-                "input": "projects/shared-lib/assets",
-                "output": "/assets"
-              }
-            ],
-            "styles": [
-              "projects/mobile-app/src/styles.scss"
-            ]
-          },
-          "configurations": {
-            "production": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
-                }
-              ],
-              "outputHashing": "all"
-            },
-            "development": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true
-            }
-          },
-          "defaultConfiguration": "production"
-        },
-        "serve": {
-          "builder": "@angular/build:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "mobile-app:build:production"
-            },
-            "development": {
-              "buildTarget": "mobile-app:build:development"
-            }
-          },
-          "defaultConfiguration": "development"
-        },
-        "extract-i18n": {
-          "builder": "@angular/build:extract-i18n"
-        },
-        "test": {
-          "builder": "@angular/build:karma",
-          "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
-            "tsConfig": "projects/mobile-app/tsconfig.spec.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "projects/mobile-app/public"
-              },
-              {
-                "glob": "**/*",
-                "input": "projects/shared-lib/assets",
-                "output": "/assets"
-              }
-            ],
-            "styles": [
-              "projects/mobile-app/src/styles.scss"
+              "src/styles.scss"
             ]
           }
         }

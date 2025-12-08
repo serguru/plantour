@@ -1,0 +1,20 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div class="header-left">
+      <i [class]="pageIcon"></i>
+      <h2>{{ pageTitle }}</h2>
+    </div>
+    "@if(actions.length > 0){
+    <div class="header-right">
+      @for(action of actions; track action) {
+      <p-button [icon]="action.icon" [rounded]="true" [text]="true" (onClick)="action.action()"
+        [severity]="action.severity || 'secondary'" [attr.aria-label]="action.label || ''">
+      </p-button>
+      }
+    </div>
+    }"
+  </div>
+  <div class="page-content">
+    <ng-content></ng-content>
+  </div>
+</div>
