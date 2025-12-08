@@ -11,7 +11,8 @@
           "style": "scss"
         },
         "@schematics/angular:service": {
-          "skipTests": true
+          "skipTests": true,
+          "path": "src/app/services"
         },
         "@schematics/angular:interceptor": {
           "skipTests": true
