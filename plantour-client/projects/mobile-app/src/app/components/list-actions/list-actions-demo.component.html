@@ -1,0 +1,49 @@
+<div class="demo-container">
+  <h1>List Actions Component Demo</h1>
+
+  <!-- List Actions Component -->
+  <app-list-actions
+    [data]="originalData"
+    [configuration]="configuration"
+    (dataChanged)="onDataChanged($event)">
+  </app-list-actions>
+
+  <!-- Results Display -->
+  <div class="results-section">
+    <h2>Results ({{ filteredData.length }} of {{ originalData.length }} items)</h2>
+    
+    <p-table [value]="filteredData" styleClass="p-datatable-striped">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Age</th>
+          <th>Status</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.name }}</td>
+          <td>{{ item.category }}</td>
+          <td>{{ item.age }}</td>
+          <td>
+            <span [class]="'status-badge status-' + item.status.toLowerCase()">
+              {{ item.status }}
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center">No items match the current filters</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Raw Data Display -->
+  <div class="raw-data-section">
+    <h3>Filtered Data (JSON)</h3>
+    <pre>{{ filteredData | json }}</pre>
+  </div>
+</div>

@@ -1,0 +1,97 @@
+<div class="list-actions-container">
+  <div class="controls-row">
+    <!-- Feature Selection -->
+    <div class="feature-select">
+      <p-select
+        [(ngModel)]="selectedFeature"
+        [options]="featureOptions"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        styleClass="feature-select-dropdown">
+        <ng-template #selectedItem let-option>
+          <div class="feature-item selected" *ngIf="option">
+            <div class="icon-wrapper">
+              <i [class]="option.icon" [class.my-icon]="isFeatureActive(option.value)"></i>
+            </div>
+          </div>
+        </ng-template>
+        <!-- <ng-template let-option #item>
+          <div class="feature-item dropdown">
+            <div class="icon-wrapper" [class.has-active-filter]="isFeatureActive(option.value)">
+              <i [class]="option.icon"></i>
+            </div>
+          </div>
+        </ng-template> -->
+        <ng-template let-option #item>
+          <div class="feature-item dropdown">
+            <div class="icon-wrapper" >
+              <i [class]="option.icon" [class.my-icon]="isFeatureActive(option.value)"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-select>
+    </div>
+
+    <!-- Dynamic Controls -->
+    <div class="dynamic-controls">
+      <!-- Lookup Filter -->
+      <ng-container *ngIf="selectedFeature.startsWith('lookup_')">
+        <p-select
+          [options]="getLookupOptions(getSelectedLookupProperty()?.property || '')"
+          [(ngModel)]="lookupValues[getSelectedLookupProperty()?.property || '']"
+          [placeholder]="'Select ' + (getSelectedLookupProperty()?.property || '')"
+          [showClear]="true"
+          (onChange)="onLookupChange()"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+          styleClass="w-full">
+        </p-select>
+      </ng-container>
+
+      <!-- Text Filter -->
+      <ng-container *ngIf="selectedFeature === 'filter_text'">
+        <input
+          type="text"
+          pInputText
+          [(ngModel)]="filterText"
+          (ngModelChange)="onFilterChange()"
+          placeholder="Enter text to filter..."
+          class="w-full" />
+      </ng-container>
+
+      <!-- Sorting -->
+      <ng-container *ngIf="selectedFeature === 'sorting'">
+        <p-select
+          [options]="sortableProperties"
+          [(ngModel)]="sortBy"
+          [placeholder]="'Sort by'"
+          (onChange)="onSortChange()"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+          styleClass="w-full sort-by">
+        </p-select>
+        
+        <p-select
+          [options]="sortOrderOptions"
+          [(ngModel)]="sortOrder"
+          (onChange)="onSortChange()"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+          styleClass="w-full sort-order">
+        </p-select>
+      </ng-container>
+    </div>
+
+    <!-- Reset Button -->
+    <button 
+      type="button" 
+      class="reset-btn"
+      (click)="resetFilters()">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+</div>

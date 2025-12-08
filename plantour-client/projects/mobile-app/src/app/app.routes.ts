@@ -121,6 +121,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/page-wrapper-demo/page-wrapper-demo').then(m => m.PageWrapperDemo)
   },
   {
+    path: 'list-actions-demo',
+    loadComponent: () => import('./components/list-actions/list-actions-demo.component').then(m => m.ListActionsDemoComponent)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

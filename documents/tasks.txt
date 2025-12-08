@@ -91,3 +91,73 @@ ControlsWrapperComponent: например, это может быть набо�
 
 Создай в plantour-client\projects\mobile-app\src\app\components\sign-up новый компонент SignUpComponent. Сделай клон компонента plantour-client\projects\mobile-app\src\app\components\sign-in и внеси в него мимнимально необходимые изменения, чтобы обеспечить sign up функциональность. Используй сервис plantour-client\projects\shared-lib\src\services\trip-service.ts и метод registerAdmin для регистрации юзера. Сделай пароль, подтверждение пароля и проверку их совпадения. Не используй *ngIf, используй @if в html.
 Используй классы из plantour-client\projects\mobile-app\src\styles.scss. Добавляй классы на уровне компонента только если подходящий класс не найден в styles.scss. 
+
+
+
+В plantour-client\projects\mobile-app\src\app\components\list-actions создай новый компонент ListActionsComponent. Этот компонент будет служить для фильтрации и/или сортировки входного списка и возврашать фильтрованный / сортированный массив.
+
+Компонент получает как @Input:
+
+1) массив объектов для обработки
+пример:
+{
+    "name": "Tom",
+    "category": "Engineer",
+    "age": "30",
+    "status": "active"
+},{
+    "name": "Alice",
+    "category": "Doctor",
+    "age": "26",
+    "status": "invited"
+},
+Это лишь пример, реальные данные могут быть какими угодно.
+
+2) Объект - конфигурацию. Пример: 
+{
+    "property": "name",
+    "config": {
+        "lookup": "false",
+        "filter": "true",
+        "sorting": "text",
+    }
+},{
+    "property": "category",
+    "config": {
+        "lookup": "true",
+        "lookup-list": "['Engineer','Doctor','Scientist']"
+        "filter": "true",
+        "sorting": "string",
+    }
+},{
+    "property": "age",
+    "config": {
+        "lookup": "false",
+        "filter": "false",
+        "sorting": "number",
+    }
+
+},{
+    "property": "status",
+    "config": {
+        "lookup": "true",
+        "lookup-list": "['Active','Invited','Banned']"
+        "filter": "true",
+        "sorting": "none",
+    }
+}
+
+Что должен уметь компонент
+
+- используя PrimeBG Accordion component должен представить горизонтально controls для задания условий обработки входного спсика. Для каждого lookup это будет PrimeNG select, если есть хоть одно свойство в конфигурации, которое требует фильтрации - input для ввода строки фильтрации,  если есть хоть одно свойство в конфигурации, которое требует сортировки - два select, один для выбора поля сортировки, второй для выбора  из "asc", "desc", "none". При сортирвке нужно принимать в внимание тип свойства "string" или "number". Сортировка может выполняться только по одному свойству.
+
+- условия фильтрации должны объединяться по and 
+
+- сравнения строк case insensitive
+
+- предоставить возможность для consumer подписаться на событие изменения юзером условий обработки входного списка и получить обработанный список
+
+Создай тестовый компонент для демонстрации работы ListActionsComponent
+
+
+Убери секцию Instructions из demo. Добавь вертикальную прокрутку чтобы я мог видеть результаты

@@ -285,6 +285,22 @@ html {
   height: 100%;
 }
 
+.page-wrapper {
+  width: 94vw;
+}
+
+@media (min-width: 600px) {
+  .page-wrapper {
+    width: 66vw;
+  }
+}
+
+@media (min-width: 1200px) {
+  .page-wrapper {
+    width: 50vw;
+  }
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -369,4 +385,9 @@ html {
   text-align: center;
   color: #666666;
   margin-top: 0.5rem;
+}
+
+.p-dropdown-panel {
+  font-weight: 900;
+  font-size: 2.2em;
 }
