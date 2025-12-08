@@ -105,8 +105,7 @@ export class RegisterUserComponent extends ToolbarAware {
   }
 
   onSignIn(): void {
-    // TODO: Navigate to sign in page when implemented
-    console.log('Navigate to sign in page');
+    this.router.navigate(['/sign-in']);
   }
 
   getFieldError(fieldName: string): string {

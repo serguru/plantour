@@ -44,7 +44,7 @@ export class SignInComponent extends ToolbarAware {
     super();
     this.signInForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required]]
     });
   }
 
@@ -86,10 +86,6 @@ export class SignInComponent extends ToolbarAware {
     this.router.navigate(['']);
   }
 
-  onRegister(): void {
-    this.router.navigate(['/register']);
-  }
-
   getFieldError(fieldName: string): string {
     const field = this.signInForm.get(fieldName);
     if (!field || !field.touched) return '';
@@ -100,10 +96,6 @@ export class SignInComponent extends ToolbarAware {
     if (field.hasError('email')) {
       return 'Please enter a valid email address';
     }
-    if (field.hasError('minlength')) {
-      const minLength = field.errors?.['minlength']?.requiredLength;
-      return `Password must be at least ${minLength} characters`;
-    }
     return '';
   }
 
@@ -111,4 +103,9 @@ export class SignInComponent extends ToolbarAware {
     const field = this.signInForm.get(fieldName);
     return !!(field && field.invalid && field.touched);
   }
+
+  onSignUp(): void {
+    this.router.navigate(['/register']);
+  }
+
 }

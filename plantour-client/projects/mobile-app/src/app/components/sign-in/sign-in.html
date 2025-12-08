@@ -31,12 +31,15 @@
 
         <!-- Form Actions -->
         <div class="form-actions">
-          <p-button type="button" label="Register" icon="pi pi-user-plus" severity="secondary" (onClick)="onRegister()">
-          </p-button>
           <p-button type="submit" label="Sign In" icon="pi pi-sign-in" [loading]="isLoading"
             [disabled]="isLoading || signInForm.invalid">
           </p-button>
         </div>
+        <div class="pale-prompt">
+          Not registered?
+          <button type="button" class="link-button" (click)="onSignUp()">Sign Up here</button>
+        </div>
+
       </form>
     </app-controls-wrapper>
   </app-page-wrapper>
