@@ -1,20 +1,28 @@
 <app-content-layout>
-    <div class="page-header">
-      <div class="header-left">
-        <i class="pi pi-sign-in"></i>
-        <h2>Base list</h2>
-      </div>
+  <div class="page-header">
+    <div class="header-left">
+      <i class="pi" [class]="entityIcon"></i>
+      <h2>{{title}}</h2>
     </div>
+    <div class="header-right">
+      @if (listNotEmpty) {
+      @if(!listToolsShown) {<i class="pi pi-filter"></i>}
+      @if(listToolsShown) {<i class="pi pi-filter-slash"></i>}
+      }
+      <i class="pi pi-plus"></i>
+      <i class="pi pi-pencil"></i>
+      <i class="pi pi-trash"></i>
+    </div>
+  </div>
 
-
-        <div class="controls-wrapper">
-            @if (entities) {
-            @for(e of entitiesJson; track e) {
-            <div>
-                <h3>{{e}}</h3>
-            </div>
-            }
-            }
-
-        </div>
+  @if (processedEntities && processedEntities!.length > 0) {
+  <p-listbox [options]="processedEntities!" [(ngModel)]="selected" optionLabel="name"
+    [listStyle]="{'max-height': '60vh'}" styleClass="w-full">
+  </p-listbox>
+  } @else {
+  <div class="empty-state">
+    <i class="pi" [class]="entityIcon"></i>
+    <p>No rows yet</p>
+  </div>
+  }
 </app-content-layout>

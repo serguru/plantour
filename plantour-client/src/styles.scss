@@ -182,100 +182,6 @@ html {
   }
 }
 
-.list-wrapper {
-  padding: 1rem;
-  flex: 1;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
-  // Empty state styling
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1rem;
-    text-align: center;
-    color: var(--text-color-secondary);
-
-    i {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-      opacity: 0.3;
-    }
-
-    p {
-      margin: 0.5rem 0;
-      font-size: 1rem;
-
-      &.hint {
-        font-size: 0.875rem;
-        opacity: 0.7;
-      }
-    }
-  }
-
-  // List container
-  .item-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  // List item styling
-  .list-item {
-    padding: 1rem;
-    border: 1px solid var(--surface-200);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: white;
-
-    &:hover {
-      background: var(--surface-50);
-      border-color: var(--primary-color);
-    }
-
-    &.selected {
-      background: var(--primary-color-light);
-      border-color: var(--primary-color);
-      color: white;
-
-      .item-category,
-      .item-description,
-      .item-subtitle {
-        color: rgba(255, 255, 255, 0.9);
-      }
-    }
-
-    .item-main {
-      margin-bottom: 0.5rem;
-
-      .item-title {
-        font-weight: 600;
-        font-size: 1rem;
-        margin-bottom: 0.25rem;
-      }
-
-      .item-subtitle,
-      .item-category {
-        font-size: 0.875rem;
-        color: var(--text-color-secondary);
-      }
-    }
-
-    .item-description,
-    .item-details {
-      font-size: 0.875rem;
-      color: var(--text-color-secondary);
-      font-style: italic;
-    }
-  }
-}
-
-
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -284,15 +190,14 @@ html {
   background-color: var(--form-header-background-color);
   color: white;
   flex-shrink: 0;
+    i {
+      font-size: 1.5rem;
+    }
 
   .header-left {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-
-    i {
-      font-size: 1.5rem;
-    }
 
     h2 {
       margin: 0;
@@ -304,10 +209,9 @@ html {
 
   .header-right {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.5rem;
   }
 }
-
 
 .error-alert {
   background: var(--red-50, #ffe6e6);

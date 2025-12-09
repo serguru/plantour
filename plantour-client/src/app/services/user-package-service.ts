@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService } from './crud-service';
 
@@ -37,7 +37,8 @@ export class UserPackageService extends CrudService<UserPackageDto, CreateUserPa
   }
 
   getAll(): Observable<UserPackageDto[]> {
-    return this.http.get<UserPackageDto[]>(this.apiUrl);
+//    return this.http.get<UserPackageDto[]>(this.apiUrl);
+    return of([]);
   }
 
   getById(id: string): Observable<UserPackageDto> {

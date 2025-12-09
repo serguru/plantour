@@ -2,35 +2,39 @@ import { Component } from '@angular/core';
 import { CrudService } from '../../services/crud-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentLayoutComponent } from "../layouts/content-layout.component";
-
+import { ListboxModule } from 'primeng/listbox';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-generic-list',
   standalone: true,
-  imports: [ContentLayoutComponent],
+  imports: [
+    ContentLayoutComponent,
+    FormsModule,
+    ListboxModule
+  ],
   templateUrl: './base-list.html',
   styleUrl: './base-list.scss',
 })
 export abstract class BaseListComponent<T, TA, TU> {
 
-  entities: T[] = [];
+  entities: T[] | null = null;
   selected: T | null = null;
+  title: string | null = null;
+  entityIcon: string = "pi-box";
+  listToolsShown: boolean = false;
 
-constructor(
+  constructor(
     protected service: CrudService<T, TA, TU>,
     protected router: Router,
     protected route: ActivatedRoute
-  ) {}
-
-  get entitiesJson() {
-    return this.entities.map(x => JSON.stringify(x));
-  }
+  ) { }
 
   ngOnInit() {
-    this.reload();
+    this.getAll();
   }
 
-  reload() {
+  getAll() {
     this.service.getAll().subscribe(list => this.entities = list);
   }
 
@@ -47,9 +51,15 @@ constructor(
   delete() {
     if (!this.selected) return;
     const id = (this.selected as any).id;
-    this.service.delete(id).subscribe(() => this.reload());
+    this.service.delete(id).subscribe(() => this.getAll());
   }
 
+  get processedEntities(): T[] {
+    return this.entities || [];
+  }
 
+  get listNotEmpty(): boolean {
+    return (this.entities?.length ?? 0) > 0;
+  }
 
 }
