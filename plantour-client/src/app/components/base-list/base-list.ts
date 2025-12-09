@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { CrudService } from '../../services/crud-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentLayoutComponent } from "../layouts/content-layout.component";
-import { ControlsWrapper } from "../page-wrapper/controls-wrapper/controls-wrapper";
+
 
 @Component({
   selector: 'app-generic-list',
   standalone: true,
-  imports: [ContentLayoutComponent, ControlsWrapper],
+  imports: [ContentLayoutComponent],
   templateUrl: './base-list.html',
   styleUrl: './base-list.scss',
 })

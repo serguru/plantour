@@ -9,7 +9,6 @@ import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 import { ToolbarAware } from '../toolbar-aware';
 import { ContentLayoutComponent } from '../layouts/content-layout.component';
-import { ControlsWrapper } from '../page-wrapper/controls-wrapper/controls-wrapper';
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
 
@@ -22,8 +21,7 @@ import { MessagesService } from '../../services/messages-service';
     ButtonModule,
     InputTextModule,
     PasswordModule,
-    ContentLayoutComponent,
-    ControlsWrapper
+    ContentLayoutComponent
   ],
   templateUrl: './sign-up.html',
   styleUrl: './sign-up.scss',
