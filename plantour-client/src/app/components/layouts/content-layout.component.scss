@@ -20,3 +20,37 @@
   width: 100%;
   height: 100%;
 }
+
+
+.page-wrapper {
+  background: var(--content-container-background-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  //height: 100%;
+}
+
+.page-wrapper {
+  width: 94vw;
+}
+
+@media (min-width: 600px) {
+  .page-wrapper {
+    width: 40vw;
+  }
+}
+
+@media (min-width: 1200px) {
+  .page-wrapper {
+    width: 30vw;
+  }
+}
+
+.page-content {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}

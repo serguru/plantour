@@ -8,7 +8,8 @@
       "schematics": {
         "@schematics/angular:component": {
           "skipTests": true,
-          "style": "scss"
+          "style": "scss",
+          "path": "src/app/components"
         },
         "@schematics/angular:service": {
           "skipTests": true,
@@ -41,6 +42,7 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
+              "src/assets", 
               {
                 "glob": "**/*",
                 "input": "public"

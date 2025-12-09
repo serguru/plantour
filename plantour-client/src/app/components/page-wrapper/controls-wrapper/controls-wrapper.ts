@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-controls-wrapper',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './controls-wrapper.html',
   styleUrl: './controls-wrapper.scss',

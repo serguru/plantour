@@ -1,5 +1,10 @@
 <app-content-layout>
-  <app-page-wrapper pageIcon="pi pi-sign-in" pageTitle="Sign In">
+    <div class="page-header">
+      <div class="header-left">
+        <i class="pi pi-sign-in"></i>
+        <h2>Sign In</h2>
+      </div>
+    </div>
     <app-controls-wrapper>
       <form [formGroup]="signInForm" (ngSubmit)="onSubmit()">
         <!-- Email Field -->
@@ -49,5 +54,4 @@
 
       </form>
     </app-controls-wrapper>
-  </app-page-wrapper>
 </app-content-layout>
