@@ -1,0 +1,21 @@
+See BaseListComponent. It has a p-listbox element to show processedEntities of generic type T[]. A real entities passed to this component, will be different. Foe example it can be
+[
+{
+"name": "Alice"
+},
+{
+"name": "Bob"
+}
+]
+
+or
+[
+{
+"color": "Red"
+},
+{
+"color": "Blue"
+}
+]
+
+I need a solution to apply different templates inside p-listbox depending on T. The BaseListComponent must be built in the other component and a servive and a template must be passed in it.

@@ -1,26 +1,45 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CrudService } from '../../services/crud-service';
+import { CreateUserPackageRequest, UpdateUserPackageRequest, UserPackageDto, UserPackageService } from '../../services/user-package-service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
-import { UserPackageDto, CreateUserPackageRequest, UpdateUserPackageRequest, UserPackageService } from '../../services/user-package-service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { ContentLayoutComponent } from "../layouts/content-layout.component";
-import { ListboxModule } from 'primeng/listbox';
-import { FormsModule } from '@angular/forms';
+import { PropertyConfig } from '../list-actions/list-actions.component';
+
 
 @Component({
   selector: 'app-packs',
-  standalone: true,
-  imports: [ContentLayoutComponent, ListboxModule, FormsModule],
-  templateUrl: '../base-list/base-list.html',
-  styleUrl: '../base-list/base-list.scss',
+  imports: [
+    BaseListComponent
+  ],
+  templateUrl: './packs.html',
+  styleUrl: './packs.scss',
 })
-export class PacksComponent extends BaseListComponent<UserPackageDto, CreateUserPackageRequest, UpdateUserPackageRequest>{
-  
-constructor(
-    service: UserPackageService,
-    router: Router,
-    route: ActivatedRoute
+export class PacksComponent {
+  service: CrudService<UserPackageDto, CreateUserPackageRequest, UpdateUserPackageRequest>;
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
   ) {
-    super(service, router, route);
-    this.title = "Packs";
+    this.service = inject(UserPackageService);
   }
+
+
+  get packages(): UserPackageDto[] {
+    return (this.service as UserPackageService).packages;
+  }
+
+
+  // Configuration
+  configuration: PropertyConfig[] = [
+    {
+      property: 'name',
+      icon: 'pi pi-user',
+      config: {
+        lookup: false,
+        filter: true,
+        sorting: 'text'
+      }
+    }
+  ];
+
 }

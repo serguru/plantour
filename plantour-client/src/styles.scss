@@ -210,6 +210,9 @@ html {
   .header-right {
     display: flex;
     gap: 0.5rem;
+    i {
+      cursor: pointer;
+    }
   }
 }
 
@@ -270,4 +273,21 @@ html {
     height: 48px;
     display: flex;
     align-items: center;
+}
+
+.list-item {
+  padding: 0.5rem;
+}
+
+.list-name {
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.p-listbox {
+    min-height: 100px;
+}
+
+.p-listbox .p-listbox-list-container {
+    max-height: none !important;
 }

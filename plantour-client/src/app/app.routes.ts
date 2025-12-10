@@ -93,6 +93,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/list-actions/list-actions-demo.component').then(m => m.ListActionsDemoComponent)
   },
   {
+    path: 'base-list-test',
+    loadComponent: () => import('./components/base-list-test/base-list-test.component').then(m => m.BaseListTestComponent)
+  },
+  {
     path: 'packs',
     loadComponent: () => import('./components/packs/packs').then(m => m.PacksComponent)
   },

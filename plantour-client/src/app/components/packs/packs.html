@@ -1,0 +1,9 @@
+<app-generic-list [service]="service" [listActionsConfiguration]="configuration" [itemTemplate]="packTemplate" title="Packs" entityIcon="pi-shopping-cart">
+</app-generic-list>
+
+<ng-template #packTemplate let-item>
+    <div class="list-item">
+        <span class="list-name" [innerHTML]="item.name"></span>
+    </div>
+    <!-- <textarea readonly rows="4" cols="50">{{ item.description }}</textarea> -->
+</ng-template>

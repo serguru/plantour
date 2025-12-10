@@ -9,9 +9,9 @@ export interface PropertyConfig {
   icon?: string;
   config: {
     lookup?: boolean;
-    'lookup-list'?: string[];
+    lookupList?: string[];
     filter?: boolean;
-    sorting?: 'text' | 'string' | 'number' | 'none';
+    sorting?: 'string' | 'number' | 'none';
   };
 }
 
@@ -35,7 +35,7 @@ interface SortOption {
 export class ListActionsComponent implements OnInit, OnChanges {
   @Input() data: any[] = [];
   @Input() configuration: PropertyConfig[] = [];
-  @Output() dataChanged = new EventEmitter<any[]>();
+  @Output() dataChanged = new EventEmitter<any>();
 
   lookupProperties: PropertyConfig[] = [];
   hasFilterableProperties = false;
@@ -269,7 +269,10 @@ export class ListActionsComponent implements OnInit, OnChanges {
       }
     }
 
-    this.dataChanged.emit(result);
+    this.dataChanged.emit({
+      "data": JSON.parse(JSON.stringify(result)),
+      "filterText": this.filterText
+    });
   }
 
   resetFilters(): void {

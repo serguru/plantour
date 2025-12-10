@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService } from './crud-service';
 
@@ -27,6 +27,7 @@ export interface UpdateUserPackageRequest {
 })
 export class UserPackageService extends CrudService<UserPackageDto, CreateUserPackageRequest, UpdateUserPackageRequest> {
   private apiUrl: string;
+  public packages: UserPackageDto[] = [];
 
   constructor(
     private http: HttpClient,
@@ -37,8 +38,9 @@ export class UserPackageService extends CrudService<UserPackageDto, CreateUserPa
   }
 
   getAll(): Observable<UserPackageDto[]> {
-//    return this.http.get<UserPackageDto[]>(this.apiUrl);
-    return of([]);
+    return this.http.get<UserPackageDto[]>(this.apiUrl).pipe(
+      tap(packages => this.packages = packages)
+    );
   }
 
   getById(id: string): Observable<UserPackageDto> {

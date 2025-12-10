@@ -6,8 +6,8 @@
     </div>
     <div class="header-right">
       @if (listNotEmpty) {
-      @if(!listToolsShown) {<i class="pi pi-filter"></i>}
-      @if(listToolsShown) {<i class="pi pi-filter-slash"></i>}
+      @if(!listToolsShown) {<i class="pi pi-filter" (click)="showListActions()"></i>}
+      @if(listToolsShown) {<i class="pi pi-filter-slash" (click)="hideListActions()"></i>}
       }
       <i class="pi pi-plus"></i>
       <i class="pi pi-pencil"></i>
@@ -15,9 +15,17 @@
     </div>
   </div>
 
-  @if (processedEntities && processedEntities!.length > 0) {
-  <p-listbox [options]="processedEntities!" [(ngModel)]="selected" optionLabel="name"
-    [listStyle]="{'max-height': '60vh'}" styleClass="w-full">
+  @if (entities && entities!.length > 0) {
+  @if (listToolsShown) {
+  <app-list-actions [data]="entities!" [configuration]="listActionsConfiguration"
+    (dataChanged)="onEntitiesChanged($event)">
+  </app-list-actions>
+  }
+
+  <p-listbox [options]="processedEntities!" [(ngModel)]="selected">
+    <ng-template pTemplate="item" let-item>
+      <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
+    </ng-template>
   </p-listbox>
   } @else {
   <div class="empty-state">
