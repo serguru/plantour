@@ -1,289 +1,369 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
+import { PanelModule } from 'primeng/panel';
 
-export interface PropertyConfig {
-  property: string;
-  icon?: string;
-  config: {
-    lookup?: boolean;
-    lookupList?: string[];
-    filter?: boolean;
-    sorting?: 'string' | 'number' | 'none';
-  };
+export type SortType = 'string' | 'number' | 'none';
+
+export interface ListActionsPropertyConfig {
+  filter?: boolean;
+  sorting?: SortType;
+  lookupList?: string[];
+  lookupIcon?: string; // PrimeIcons name without 'pi-'
 }
 
-interface SortOption {
+export interface ListActionsConfigItem {
+  property: string;
+  config: ListActionsPropertyConfig;
+}
+
+type ModeType = 'lookup' | 'filter' | 'sort';
+
+interface ModeOption {
+  type: ModeType;
   label: string;
-  value: string;
+  icon: string;
+  property?: string;
 }
 
 @Component({
   selector: 'app-list-actions',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    Select,
-    InputTextModule
-  ],
+  imports: [CommonModule, FormsModule, SelectModule, InputTextModule, ButtonModule, PanelModule],
   templateUrl: './list-actions.component.html',
-  styleUrls: ['./list-actions.component.scss']
+  styleUrl: './list-actions.component.scss'
 })
-export class ListActionsComponent implements OnInit, OnChanges {
-  @Input() data: any[] = [];
-  @Input() configuration: PropertyConfig[] = [];
-  @Output() dataChanged = new EventEmitter<any>();
+export class ListActionsComponent implements OnChanges {
+  @Input() items: any[] = [];
+  @Input() config: ListActionsConfigItem[] = [];
 
-  lookupProperties: PropertyConfig[] = [];
-  hasFilterableProperties = false;
-  hasSortableProperties = false;
-  sortableProperties: SortOption[] = [];
+  /**
+   * Emits a new processed list (filtered, sorted, with highlighted matches)
+   * every time user changes any condition.
+   */
+  @Output() listChanged = new EventEmitter<any[]>();
 
-  lookupValues: { [key: string]: any } = {};
+  modeOptions: ModeOption[] = [];
+  selectedMode: ModeOption | null = null;
+
+  /**
+   * Active lookup filters: property -> selected value
+   */
+  lookupValues: Record<string, string | null> = {};
+
+  /**
+   * Text filter (applied to all properties with filter = true)
+   */
   filterText = '';
-  sortBy = '';
-  sortOrder: 'asc' | 'desc' | 'none' = 'none';
-  selectedFeature: string = '';
-  featureOptions: Array<{ label: string; value: string; icon: string; hasFilter: boolean }> = [];
 
-  sortOrderOptions: SortOption[] = [
-    { label: '—', value: 'none' },
-    { label: '↑', value: 'asc' },
-    { label: '↓', value: 'desc' }
+  /**
+   * Sorting
+   */
+  sortField: string | null = null;
+  sortDirection: 'asc' | 'desc' | 'none' = 'none';
+
+  /**
+   * Metadata derived from config
+   */
+  filterableProperties: string[] = [];
+  sortableProperties: { label: string; value: string }[] = [];
+  sortDirectionOptions = [
+    { label: 'Ascending', value: 'asc' },
+    { label: 'Descending', value: 'desc' },
+    { label: 'None', value: 'none' }
   ];
 
-  ngOnInit(): void {
-    this.processConfiguration();
-  }
+  lookupConfigByProp: Record<string, ListActionsPropertyConfig> = {};
+
+  /**
+   * Last processed list for local display (e.g. item count)
+   */
+  currentResult: any[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['configuration'] && !changes['configuration'].firstChange) {
-      this.processConfiguration();
+    if (changes['config']) {
+      this.normalizeConfig();
+      this.buildMetadata();
+      this.buildModeOptions();
     }
-    if (changes['data'] || changes['configuration']) {
-      this.applyFiltersAndSort();
+
+    if (changes['items']) {
+      // always work from latest @Input items
     }
+
+    this.applyAll();
   }
 
-  private processConfiguration(): void {
-    this.lookupProperties = this.configuration.filter(
-      config => config.config.lookup === true
-    );
+  /**
+   * Normalizes configuration:
+   * - converts 'true'/'false' to booleans
+   * - converts 'text' to 'string'
+   * - parses lookup-list from string to array if needed
+   */
+  private normalizeConfig(): void {
+    this.config = (this.config || []).map((c) => {
+      const normalized: ListActionsConfigItem = {
+        property: c.property,
+        config: { ...(c.config || {}) }
+      };
 
-    this.hasFilterableProperties = this.configuration.some(
-      config => config.config.filter === true
-    );
+      // normalize filter
+      const rawFilter: any = (c.config as any)?.filter;
+      if (rawFilter !== undefined) {
+        if (typeof rawFilter === 'string') {
+          normalized.config.filter = rawFilter.toLowerCase() === 'true';
+        } else {
+          normalized.config.filter = !!rawFilter;
+        }
+      }
 
-    this.hasSortableProperties = this.configuration.some(
-      config => config.config.sorting && config.config.sorting !== 'none'
-    );
+      // normalize sorting
+      const rawSorting: any = (c.config as any)?.sorting;
+      if (rawSorting) {
+        const v = String(rawSorting).toLowerCase();
+        if (v === 'text' || v === 'string') {
+          normalized.config.sorting = 'string';
+        } else if (v === 'number') {
+          normalized.config.sorting = 'number';
+        } else {
+          normalized.config.sorting = 'none';
+        }
+      } else {
+        normalized.config.sorting = 'none';
+      }
 
-    this.sortableProperties = this.configuration
-      .filter(config => config.config.sorting && config.config.sorting !== 'none')
-      .map(config => ({
-        label: this.capitalizeFirst(config.property),
-        value: config.property
-      }));
+      // normalize lookup list (may come as "['A','B']" string)
+      const rawLookupList: any = (c.config as any)['lookup-list'] ?? (c.config as any)?.lookupList;
+      if (rawLookupList) {
+        if (Array.isArray(rawLookupList)) {
+          normalized.config.lookupList = rawLookupList.map((x) => String(x));
+        } else if (typeof rawLookupList === 'string') {
+          const trimmed = rawLookupList.trim();
+          const withoutBrackets = trimmed.replace(/^\[/, '').replace(/\]$/, '');
+          const items = withoutBrackets
+            .split(',')
+            .map((part) => part.trim())
+            .filter((part) => !!part)
+            .map((part) => part.replace(/^['"]/, '').replace(/['"]$/, ''));
+          normalized.config.lookupList = items;
+        }
+      }
 
-    // Initialize sortBy with first sortable property if not set
-    if (this.hasSortableProperties && !this.sortBy && this.sortableProperties.length > 0) {
-      this.sortBy = this.sortableProperties[0].value;
-    }
+      // normalize lookup icon (may come as 'lookup-icon')
+      const rawLookupIcon: any = (c.config as any)['lookup-icon'] ?? (c.config as any)?.lookupIcon;
+      if (rawLookupIcon) {
+        normalized.config.lookupIcon = String(rawLookupIcon);
+      }
 
-    this.lookupProperties.forEach(prop => {
-      if (!this.lookupValues[prop.property]) {
-        this.lookupValues[prop.property] = null;
+      return normalized;
+    });
+  }
+
+  private buildMetadata(): void {
+    this.filterableProperties = this.config
+      .filter((c) => !!c.config.filter)
+      .map((c) => c.property);
+
+    this.sortableProperties = this.config
+      .filter((c) => c.config.sorting && c.config.sorting !== 'none')
+      .map((c) => ({ label: c.property, value: c.property }));
+
+    this.lookupConfigByProp = {};
+    this.lookupValues = {};
+
+    this.config.forEach((c) => {
+      this.lookupConfigByProp[c.property] = c.config;
+      if (c.config.lookupList && c.config.lookupList.length) {
+        this.lookupValues[c.property] = null;
+      }
+    });
+  }
+
+  private buildModeOptions(): void {
+    const options: ModeOption[] = [];
+
+    // 1. lookup icons first
+    this.config.forEach((c) => {
+      if (c.config.lookupList && c.config.lookupList.length && c.config.lookupIcon) {
+        options.push({
+          type: 'lookup',
+          label: c.property,
+          property: c.property,
+          icon: `pi pi-${c.config.lookupIcon}`
+        });
       }
     });
 
-    // Build feature options for the select
-    this.featureOptions = [];
-    
-    this.lookupProperties.forEach((prop, index) => {
-      this.featureOptions.push({
-        label: this.capitalizeFirst(prop.property),
-        value: `lookup_${index}`,
-        icon: prop.icon || 'pi pi-filter',
-        hasFilter: this.isLookupFilterActive(prop.property)
-      });
-    });
-
-    if (this.hasFilterableProperties) {
-      this.featureOptions.push({
-        label: 'Filter Text',
-        value: 'filter_text',
-        icon: 'pi pi-search',
-        hasFilter: this.filterText !== null && this.filterText !== ''
+    // 2. filter icon (if at least one filterable property)
+    if (this.filterableProperties.length) {
+      options.push({
+        type: 'filter',
+        label: 'Filter',
+        icon: 'pi pi-filter'
       });
     }
 
-    if (this.hasSortableProperties) {
-      this.featureOptions.push({
-        label: 'Sorting',
-        value: 'sorting',
-        icon: 'pi pi-sort-alt',
-        hasFilter: this.sortOrder !== 'none'
+    // 3. sort icon (if at least one sortable property)
+    if (this.sortableProperties.length) {
+      options.push({
+        type: 'sort',
+        label: 'Sort',
+        icon: 'pi pi-sort-alt'
       });
     }
 
-    // Select first feature by default
-    if (this.featureOptions.length > 0 && !this.selectedFeature) {
-      this.selectedFeature = this.featureOptions[0].value;
+    this.modeOptions = options;
+    if (!this.selectedMode && this.modeOptions.length) {
+      this.selectedMode = this.modeOptions[0];
     }
   }
 
-  private isLookupFilterActive(property: string): boolean {
-    return this.lookupValues[property] !== null && 
-           this.lookupValues[property] !== undefined && 
-           this.lookupValues[property] !== '';
-  }
-
-  updateFeatureFilterStatus(): void {
-    this.featureOptions = this.featureOptions.map(option => {
-      if (option.value.startsWith('lookup_')) {
-        const index = parseInt(option.value.split('_')[1]);
-        const prop = this.lookupProperties[index];
-        return { ...option, hasFilter: this.isLookupFilterActive(prop.property) };
-      } else if (option.value === 'filter_text') {
-        return { ...option, hasFilter: this.filterText !== null && this.filterText !== '' };
-      } else if (option.value === 'sorting') {
-        return { ...option, hasFilter: this.sortOrder !== 'none' };
-      }
-      return option;
-    });
-  }
-
-  getSelectedLookupProperty(): PropertyConfig | null {
-    if (this.selectedFeature.startsWith('lookup_')) {
-      const index = parseInt(this.selectedFeature.split('_')[1]);
-      return this.lookupProperties[index];
+  getLookupOptions(property: string) {
+    const conf = this.lookupConfigByProp[property];
+    if (!conf?.lookupList) {
+      return [];
     }
-    return null;
+    return conf.lookupList.map((v) => ({ label: v, value: v }));
   }
 
-  isFeatureActive(featureValue: string): boolean {
-    if (featureValue.startsWith('lookup_')) {
-      const index = parseInt(featureValue.split('_')[1]);
-      const prop = this.lookupProperties[index];
-      return this.isLookupFilterActive(prop.property);
-    } else if (featureValue === 'filter_text') {
-      return this.filterText !== null && this.filterText !== '';
-    } else if (featureValue === 'sorting') {
-      return this.sortOrder !== 'none';
-    }
-    return false;
+  onLookupChange(property: string): void {
+    this.applyAll();
   }
 
-  private capitalizeFirst(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  getLookupOptions(property: string): any[] {
-    const config = this.configuration.find(c => c.property === property);
-    if (config && config.config['lookup-list']) {
-      return config.config['lookup-list'].map(value => ({
-        label: value,
-        value: value
-      }));
-    }
-    return [];
-  }
-
-  onLookupChange(): void {
-    this.updateFeatureFilterStatus();
-    this.applyFiltersAndSort();
-  }
-
-  onFilterChange(): void {
-    this.updateFeatureFilterStatus();
-    this.applyFiltersAndSort();
+  onFilterTextChange(): void {
+    this.applyAll();
   }
 
   onSortChange(): void {
-    this.updateFeatureFilterStatus();
-    this.applyFiltersAndSort();
+    this.applyAll();
   }
 
-  private applyFiltersAndSort(): void {
-    let result = [...this.data];
-
-    // Apply lookup filters
-    Object.keys(this.lookupValues).forEach(key => {
-      const value = this.lookupValues[key];
-      if (value !== null && value !== undefined && value !== '') {
-        result = result.filter(item => {
-          const itemValue = item[key];
-          if (typeof itemValue === 'string' && typeof value === 'string') {
-            return itemValue.toLowerCase() === value.toLowerCase();
-          }
-          return itemValue == value;
-        });
-      }
-    });
-
-    // Apply text filter
-    if (this.filterText && this.filterText.trim() !== '') {
-      const filterLower = this.filterText.toLowerCase();
-      const filterableProps = this.configuration
-        .filter(config => config.config.filter === true)
-        .map(config => config.property);
-
-      result = result.filter(item => {
-        return filterableProps.some(prop => {
-          const value = item[prop];
-          if (value !== null && value !== undefined) {
-            return String(value).toLowerCase().includes(filterLower);
-          }
-          return false;
-        });
-      });
-    }
-
-    // Apply sorting
-    if (this.sortBy && this.sortOrder !== 'none') {
-      const sortConfig = this.configuration.find(c => c.property === this.sortBy);
-      if (sortConfig) {
-        const sortType = sortConfig.config.sorting;
-        result.sort((a, b) => {
-          const aVal = a[this.sortBy];
-          const bVal = b[this.sortBy];
-
-          let comparison = 0;
-          
-          if (sortType === 'number') {
-            const aNum = Number(aVal);
-            const bNum = Number(bVal);
-            comparison = aNum - bNum;
-          } else {
-            // string or text
-            const aStr = String(aVal || '').toLowerCase();
-            const bStr = String(bVal || '').toLowerCase();
-            comparison = aStr.localeCompare(bStr);
-          }
-
-          return this.sortOrder === 'asc' ? comparison : -comparison;
-        });
-      }
-    }
-
-    this.dataChanged.emit({
-      "data": JSON.parse(JSON.stringify(result)),
-      "filterText": this.filterText
-    });
-  }
-
-  resetFilters(): void {
-    Object.keys(this.lookupValues).forEach(key => {
-      this.lookupValues[key] = null;
+  resetAll(): void {
+    Object.keys(this.lookupValues).forEach((prop) => {
+      this.lookupValues[prop] = null;
     });
     this.filterText = '';
-    this.sortBy = this.sortableProperties.length > 0 ? this.sortableProperties[0].value : '';
-    this.sortOrder = 'none';
-    this.selectedFeature = this.featureOptions.length > 0 ? this.featureOptions[0].value : '';
-    this.updateFeatureFilterStatus();
-    this.applyFiltersAndSort();
+    this.sortField = null;
+    this.sortDirection = 'none';
+    this.applyAll();
+  }
+
+  private applyAll(): void {
+    if (!Array.isArray(this.items)) {
+      this.currentResult = [];
+      this.listChanged.emit([]);
+      return;
+    }
+
+    // 1. filtering (lookup + text)
+    let working = this.items.filter(
+      (item) => this.matchesLookup(item) && this.matchesTextFilter(item)
+    );
+
+    // 2. sorting
+    working = this.sortItems(working);
+
+    // 3. highlight matches in filterable properties
+    const projected = this.highlightResults(working);
+
+    this.currentResult = projected;
+    this.listChanged.emit(projected);
+  }
+
+  private matchesLookup(item: any): boolean {
+    for (const prop of Object.keys(this.lookupValues)) {
+      const expected = this.lookupValues[prop];
+      if (expected !== null && expected !== undefined && expected !== '') {
+        const actual = item?.[prop];
+        if (String(actual) !== String(expected)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private matchesTextFilter(item: any): boolean {
+    const query = this.filterText?.trim();
+    if (!query) {
+      return true;
+    }
+    const lowerQuery = query.toLowerCase();
+
+    // "OR" across filterable properties, but combined with lookup by AND (via applyAll)
+    return this.filterableProperties.some((prop) => {
+      const value = item?.[prop];
+      if (value === null || value === undefined) {
+        return false;
+      }
+      const text = String(value).toLowerCase();
+      return text.includes(lowerQuery);
+    });
+  }
+
+  private sortItems(items: any[]): any[] {
+    if (!this.sortField || this.sortDirection === 'none') {
+      return [...items];
+    }
+
+    const configItem = this.config.find((c) => c.property === this.sortField);
+    const sortType: SortType = configItem?.config.sorting || 'string';
+    const direction = this.sortDirection === 'asc' ? 1 : -1;
+
+    return [...items].sort((a, b) => {
+      const va = a?.[this.sortField!];
+      const vb = b?.[this.sortField!];
+
+      if (sortType === 'number') {
+        const na = parseFloat(va);
+        const nb = parseFloat(vb);
+        if (isNaN(na) && isNaN(nb)) {
+          return 0;
+        }
+        if (isNaN(na)) {
+          return -1 * direction;
+        }
+        if (isNaN(nb)) {
+          return 1 * direction;
+        }
+        return (na - nb) * direction;
+      }
+
+      const sa = (va ?? '').toString().toLowerCase();
+      const sb = (vb ?? '').toString().toLowerCase();
+      return sa.localeCompare(sb) * direction;
+    });
+  }
+
+  private highlightResults(items: any[]): any[] {
+    const query = this.filterText?.trim();
+    if (!query) {
+      return items.map((i) => ({ ...i }));
+    }
+
+    return items.map((item) => {
+      const clone: any = { ...item };
+      this.filterableProperties.forEach((prop) => {
+        const value = item?.[prop];
+        if (value === null || value === undefined) {
+          return;
+        }
+        const asString = String(value);
+        clone[prop] = this.highlightMatch(asString, query);
+      });
+      return clone;
+    });
+  }
+
+  private highlightMatch(value: string, query: string): string {
+    if (!query) {
+      return value;
+    }
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escaped, 'gi');
+    return value.replace(regex, (match) => `<mark>${match}</mark>`);
   }
 }

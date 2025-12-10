@@ -5,7 +5,7 @@ import { ContentLayoutComponent } from "../layouts/content-layout.component";
 import { ListboxModule } from 'primeng/listbox';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ListActionsComponent, PropertyConfig } from '../list-actions/list-actions.component';
+import { ListActionsComponent  } from '../list-actions/list-actions.component';
 
 @Component({
   selector: 'app-generic-list',
@@ -26,12 +26,12 @@ export class BaseListComponent<T, TA, TU> implements OnInit {
   @Input() itemTemplate!: TemplateRef<any>;
   @Input() title: string | null = null;
   @Input() entityIcon: string | null = null;
-  @Input() listActionsConfiguration: PropertyConfig[] = [];
+  @Input() listActionsConfiguration: any[] = [];
 
   entities: T[] | null = null;
   selected: T | null = null;
   processedEntities: T[] | null = null;
-  private filterText: string | null = null;
+  //private filterText: string | null = null;
 
   listToolsShown: boolean = false;
 
@@ -69,9 +69,7 @@ export class BaseListComponent<T, TA, TU> implements OnInit {
   }
 
   onEntitiesChanged(response: any): void {
-    response.data.forEach((x: any) => x.name = this.highlightText((x as any).name));
-    this.processedEntities = response.data;
-    this.filterText = response.filterText;
+    this.processedEntities = response;
   }
 
   showListActions() {
@@ -82,25 +80,25 @@ export class BaseListComponent<T, TA, TU> implements OnInit {
     this.listToolsShown = false;
   }
 
-  highlightText(text: string): string {
-    if (!this.filterText?.trim() || !text) {
-      return text;
-    }
+  // highlightText(text: string): string {
+  //   if (!this.filterText?.trim() || !text) {
+  //     return text;
+  //   }
 
-    const filterLower = this.filterText.toLowerCase();
-    const textLower = text.toLowerCase();
-    const index = textLower.indexOf(filterLower);
+  //   const filterLower = this.filterText.toLowerCase();
+  //   const textLower = text.toLowerCase();
+  //   const index = textLower.indexOf(filterLower);
 
-    if (index === -1) {
-      return text;
-    }
+  //   if (index === -1) {
+  //     return text;
+  //   }
 
-    const before = text.substring(0, index);
-    const match = text.substring(index, index + this.filterText.length);
-    const after = text.substring(index + this.filterText.length);
+  //   const before = text.substring(0, index);
+  //   const match = text.substring(index, index + this.filterText.length);
+  //   const after = text.substring(index + this.filterText.length);
 
-    return `${before}<mark>${match}</mark>${after}`;
-  }
+  //   return `${before}<mark>${match}</mark>${after}`;
+  // }
 
 
 

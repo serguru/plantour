@@ -1,97 +1,110 @@
-<div class="list-actions-container">
-  <div class="controls-row">
-    <!-- Feature Selection -->
-    <div class="feature-select">
+<p-panel class="list-actions-panel" [toggleable]="false">
+  <ng-template pTemplate="header">
+    <span>List actions</span>
+  </ng-template>
+
+  <div class="list-actions-content">
+    <!-- Left section: mode selector (lookup icons, filter, sort) -->
+    <div class="section section-left">
       <p-select
-        [(ngModel)]="selectedFeature"
-        [options]="featureOptions"
+        [options]="modeOptions"
+        [(ngModel)]="selectedMode"
         optionLabel="label"
-        optionValue="value"
-        appendTo="body"
-        styleClass="feature-select-dropdown">
-        <ng-template #selectedItem let-option>
-          <div class="feature-item selected" *ngIf="option">
-            <div class="icon-wrapper">
-              <i [class]="option.icon" [class.my-icon]="isFeatureActive(option.value)"></i>
-            </div>
+        [showClear]="false"
+        [ngModelOptions]="{ standalone: true }"
+      >
+        <ng-template pTemplate="selectedItem" let-option>
+          <div class="mode-option selected">
+            <i [ngClass]="option.icon"></i>
           </div>
         </ng-template>
-        <!-- <ng-template let-option #item>
-          <div class="feature-item dropdown">
-            <div class="icon-wrapper" [class.has-active-filter]="isFeatureActive(option.value)">
-              <i [class]="option.icon"></i>
-            </div>
-          </div>
-        </ng-template> -->
-        <ng-template let-option #item>
-          <div class="feature-item dropdown">
-            <div class="icon-wrapper" >
-              <i [class]="option.icon" [class.my-icon]="isFeatureActive(option.value)"></i>
-            </div>
+
+        <ng-template pTemplate="item" let-option>
+          <div class="mode-option">
+            <i [ngClass]="option.icon"></i>
+            <span class="mode-label" *ngIf="option.type === 'lookup'">
+              {{ option.property }}
+            </span>
+            <span class="mode-label" *ngIf="option.type !== 'lookup'">
+              {{ option.label }}
+            </span>
           </div>
         </ng-template>
       </p-select>
     </div>
 
-    <!-- Dynamic Controls -->
-    <div class="dynamic-controls">
-      <!-- Lookup Filter -->
-      <ng-container *ngIf="selectedFeature.startsWith('lookup_')">
-        <p-select
-          [options]="getLookupOptions(getSelectedLookupProperty()?.property || '')"
-          [(ngModel)]="lookupValues[getSelectedLookupProperty()?.property || '']"
-          [placeholder]="'Select ' + (getSelectedLookupProperty()?.property || '')"
-          [showClear]="true"
-          (onChange)="onLookupChange()"
-          optionLabel="label"
-          optionValue="value"
-          appendTo="body"
-          styleClass="w-full">
-        </p-select>
-      </ng-container>
+    <!-- Middle section: controls for selected mode -->
+    <div class="section section-middle">
+      <ng-container [ngSwitch]="selectedMode?.type">
+        <!-- Lookup: show select with lookup list for chosen property -->
+        <ng-container *ngSwitchCase="'lookup'">
+          <ng-container *ngIf="selectedMode?.property as prop">
+            <p-select
+              class="w-full"
+              [options]="getLookupOptions(prop)"
+              [(ngModel)]="lookupValues[prop]"
+              [placeholder]="'Select value'"
+              [ngModelOptions]="{ standalone: true }"
+              (onChange)="onLookupChange(prop)"
+            >
+            </p-select>
+          </ng-container>
+        </ng-container>
 
-      <!-- Text Filter -->
-      <ng-container *ngIf="selectedFeature === 'filter_text'">
-        <input
-          type="text"
-          pInputText
-          [(ngModel)]="filterText"
-          (ngModelChange)="onFilterChange()"
-          placeholder="Enter text to filter..."
-          class="w-full" />
-      </ng-container>
+        <!-- Text filter: input -->
+        <ng-container *ngSwitchCase="'filter'">
+          <input
+            pInputText
+            type="text"
+            class="w-full"
+            [(ngModel)]="filterText"
+            [ngModelOptions]="{ standalone: true }"
+            (input)="onFilterTextChange()"
+            placeholder="Type to filter..."
+          />
+        </ng-container>
 
-      <!-- Sorting -->
-      <ng-container *ngIf="selectedFeature === 'sorting'">
-        <p-select
-          [options]="sortableProperties"
-          [(ngModel)]="sortBy"
-          [placeholder]="'Sort by'"
-          (onChange)="onSortChange()"
-          optionLabel="label"
-          optionValue="value"
-          appendTo="body"
-          styleClass="w-full sort-by">
-        </p-select>
-        
-        <p-select
-          [options]="sortOrderOptions"
-          [(ngModel)]="sortOrder"
-          (onChange)="onSortChange()"
-          optionLabel="label"
-          optionValue="value"
-          appendTo="body"
-          styleClass="w-full sort-order">
-        </p-select>
+        <!-- Sorting: field + direction -->
+        <ng-container *ngSwitchCase="'sort'">
+          <div class="sort-controls">
+            <p-select
+              class="sort-field"
+              [options]="sortableProperties"
+              [(ngModel)]="sortField"
+              [placeholder]="'Field'"
+              [ngModelOptions]="{ standalone: true }"
+              (onChange)="onSortChange()"
+            >
+            </p-select>
+
+            <p-select
+              class="sort-direction"
+              [options]="sortDirectionOptions"
+              [(ngModel)]="sortDirection"
+              [placeholder]="'Direction'"
+              [ngModelOptions]="{ standalone: true }"
+              (onChange)="onSortChange()"
+            >
+            </p-select>
+          </div>
+        </ng-container>
       </ng-container>
     </div>
 
-    <!-- Reset Button -->
-    <button 
-      type="button" 
-      class="reset-btn"
-      (click)="resetFilters()">
-      <i class="pi pi-times"></i>
-    </button>
+    <!-- Right section: summary and reset -->
+    <div class="section section-right">
+      <div class="summary">
+        <span class="count-label">Found:</span>
+        <span class="count-value">{{ currentResult.length }}</span>
+      </div>
+      <button
+        type="button"
+        pButton
+        label="Reset"
+        class="p-button-text reset-button"
+        (click)="resetAll()"
+      >
+      </button>
+    </div>
   </div>
-</div>
+</p-panel>

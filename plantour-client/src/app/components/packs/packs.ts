@@ -3,7 +3,6 @@ import { CrudService } from '../../services/crud-service';
 import { CreateUserPackageRequest, UpdateUserPackageRequest, UserPackageDto, UserPackageService } from '../../services/user-package-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
-import { PropertyConfig } from '../list-actions/list-actions.component';
 
 
 @Component({
@@ -30,7 +29,7 @@ export class PacksComponent {
 
 
   // Configuration
-  configuration: PropertyConfig[] = [
+  configuration: any[] = [
     {
       property: 'name',
       icon: 'pi pi-user',

@@ -1,260 +1,73 @@
-.list-actions-container {
-  .controls-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    .feature-select {
-      flex-shrink: 0;
-      width: 90px;
-      display: flex;
-      align-items: center;
-    }
-
-    .dynamic-controls {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      min-width: 0;
-
-      .sort-by {
-        flex: 1;
-        min-width: 0;
-      }
-
-      .sort-order {
-        flex-shrink: 0;
-        width: 60px;
-      }
-    }
-
-    .reset-btn {
-      flex-shrink: 0;
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #6c757d;
-      border: 2px solid #6c757d;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: white;
-
-      i {
-        font-size: 1.25rem;
-      }
-
-      &:hover {
-        background-color: #5a6268;
-        border-color: #5a6268;
-      }
-    }
-  }
-
-  .feature-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    position: relative;
-    width: 100%;
-
-    .icon-wrapper {
-      position: relative;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 24px;
-      height: 24px;
-
-      i {
-        font-size: 1.1rem;
-        color: inherit;
-        transition: all 0.2s;
-      }
-
-      &::after {
-        content: '';
-        position: absolute;
-        top: 2px;
-        right: 2px;
-        width: 6px;
-        height: 6px;
-        background-color: #22c55e;
-        border-radius: 50%;
-        opacity: 0;
-        transition: opacity 0.2s;
-        pointer-events: none;
-      }
-
-      &.has-active-filter::after {
-        opacity: 1;
-      }
-    }
-
-    .feature-label {
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
+.list-actions-panel {
+  width: 100%;
 }
 
-:host ::ng-deep {
-
-  .p-select,
-  .p-inputtext {
-    width: 100%;
-  }
-
-  .p-select-overlay {
-    z-index: 1100 !important;
-  }
-
-  // Make all icons in dropdown panel bold
-  .p-select-overlay .pi {
-    font-weight: 900 !important;
-    font-size: 1.2em !important;
-  }
-
-  // Target specifically icons in dropdown items
-  .p-select-option .icon-wrapper i {
-    font-weight: 900 !important;
-  }
-
-  // Also target the panel container
-  .p-select-list .icon-wrapper i {
-    font-weight: 900 !important;
-  }
-
-  .feature-select-dropdown {
-    .p-select-label {
-      display: flex;
-      align-items: center;
-      width: 100%;
-    }
-
-    .p-select-option {
-      .feature-item.dropdown {
-        display: flex !important;
-        align-items: center;
-        gap: 0.75rem;
-        width: 100%;
-
-        .icon-wrapper {
-          position: relative;
-          flex-shrink: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 24px;
-          height: 24px;
-
-          i {
-            font-size: 1.1rem;
-            transition: all 0.2s;
-            font-weight: 900;
-          }
-
-          &::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 6px;
-            height: 6px;
-            background-color: #22c55e;
-            border-radius: 50%;
-            opacity: 0;
-            transition: opacity 0.2s;
-            pointer-events: none;
-          }
-
-          &.has-active-filter::after {
-            opacity: 1;
-          }
-        }
-
-        .feature-label {
-          flex: 1;
-          // whitespace: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-      }
-    }
-  }
+.list-actions-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-@media (max-width: 400px) {
-  .list-actions-container {
-    .controls-row {
-      .feature-select {
-        width: 60px;
-      }
-    }
-
-    .feature-item.selected {
-      justify-content: center;
-
-      .feature-label {
-        display: none !important;
-      }
-
-      .icon-wrapper {
-        i {
-          font-size: 1.3rem;
-        }
-      }
-    }
-  }
-
-  :host ::ng-deep {
-    .feature-select-dropdown {
-      .p-select-label {
-        justify-content: center;
-
-        .feature-item.selected {
-          justify-content: center;
-
-          .feature-label {
-            display: none !important;
-          }
-
-          .icon-wrapper {
-            i {
-              font-size: 1.3rem;
-            }
-          }
-        }
-      }
-
-      .p-select-option {
-        .feature-item.dropdown {
-          .feature-label {
-            display: block !important;
-          }
-        }
-      }
-    }
-  }
+.section {
+  display: flex;
+  align-items: center;
 }
 
-.my-icon {
-  position: relative;
+.section-left,
+.section-right {
+  flex: 0 0 180px;
 }
 
-.my-icon::after {
-  content: "";
-  width: 8px;
-  height: 8px;
-  background: black;
-  border-radius: 50%;
-  position: absolute;
-  top: -2px;
-  right: -2px;
+.section-middle {
+  flex: 1 1 auto;
+}
+
+.mode-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mode-option i {
+  font-size: 1.1rem;
+}
+
+.mode-label {
+  font-size: 0.9rem;
+}
+
+.sort-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.sort-field,
+.sort-direction {
+  width: 50%;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+.count-label {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary, #6c757d);
+}
+
+.count-value {
+  font-weight: 600;
+}
+
+.reset-button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.w-full {
+  width: 100%;
 }
