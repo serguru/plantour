@@ -1,31 +1,70 @@
 <app-content-layout>
   <div class="page-header">
     <div class="header-left">
-      <i class="pi" [class]="entityIcon"></i>
-      <h2>{{title}}</h2>
+      <i
+        class="pi"
+        [class]="entityIcon"
+      ></i>
+      <h2>{{ title }}</h2>
     </div>
     <div class="header-right">
-      @if(!listToolsShown) {<i class="pi pi-filter" (click)="showListActions()" [class.has-dot]="isAnyFeatureActive"></i>}
-      @if(listToolsShown) {<i class="pi pi-filter-slash" (click)="hideListActions()" [class.has-dot]="isAnyFeatureActive"></i>}
-      <i class="pi pi-plus"></i>
-      <i class="pi pi-pencil"></i>
-      <i class="pi pi-trash"></i>
+      @if(!isListReadOnly) {
+      <!-- no format -->
+        @if(addUrl) {
+          <p-button
+            icon="pi pi-plus"
+            (click)="onAdd()"
+            [rounded]="true" 
+            [text]="true"
+            />
+        }
+        @if(editUrl) {
+          <p-button
+            icon="pi pi-pencil"
+            (click)="onEdit()"
+            [disabled]="!selected"     
+            [rounded]="true" 
+            [text]="true"
+            />
+        }
+        <p-button
+          icon="pi pi-trash"
+          (click)="onDelete()"
+          [disabled]="!selected"     
+          [rounded]="true" 
+          [text]="true"
+            />
+      <!-- no format -->
+      }
     </div>
   </div>
 
-  <app-list-actions [items]="entities" [config]="listActionsConfiguration" [listToolsShown]="listToolsShown"
-    (listChanged)="onEntitiesChanged($event)">
+  <app-list-actions
+    [items]="entities"
+    [config]="listActionsConfiguration"
+    (listChanged)="onEntitiesChanged($event)"
+  >
   </app-list-actions>
 
   @if (processedEntities && processedEntities.length > 0) {
-  <p-listbox id="base-list-listbox" [options]="processedEntities!" [(ngModel)]="selected">
-    <ng-template pTemplate="item" let-item>
+  <p-listbox
+    id="base-list-listbox"
+    [options]="processedEntities!"
+    [(ngModel)]="selected"
+  >
+    <ng-template
+      pTemplate="item"
+      let-item
+    >
       <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
     </ng-template>
   </p-listbox>
   } @else {
   <div class="empty-state">
-    <i class="pi" [class]="entityIcon"></i>
+    <i
+      class="pi"
+      [class]="entityIcon"
+    ></i>
     <p>No rows</p>
   </div>
   }

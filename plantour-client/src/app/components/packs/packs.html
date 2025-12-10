@@ -1,9 +1,26 @@
-<app-generic-list [service]="service" [listActionsConfiguration]="configuration" [itemTemplate]="packTemplate" title="Packs" entityIcon="pi-briefcase">
+<app-generic-list
+    [service]="service"
+    [listActionsConfiguration]="configuration"
+    [itemTemplate]="packTemplate"
+    title="Packs"
+    entityIcon="pi-briefcase"
+    [isListReadOnly]="false"
+    [addUrl]="'packs/add'"
+    [editUrl]="'packs/edit'"
+    entityNameProp="name"
+    entityName="package"
+>
 </app-generic-list>
 
-<ng-template #packTemplate let-item>
+<ng-template
+    #packTemplate
+    let-item
+>
     <div class="list-item">
-        <span class="list-name" [innerHTML]="item.name"></span>
+        <span
+            class="list-name"
+            [innerHTML]="item.name"
+        ></span>
     </div>
     <!-- <textarea readonly rows="4" cols="50">{{ item.description }}</textarea> -->
 </ng-template>

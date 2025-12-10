@@ -190,9 +190,10 @@ html {
   background-color: var(--form-header-background-color);
   color: white;
   flex-shrink: 0;
-    i {
-      font-size: 1.5rem;
-    }
+
+  i {
+    font-size: 1.5rem;
+  }
 
   .header-left {
     display: flex;
@@ -210,9 +211,6 @@ html {
   .header-right {
     display: flex;
     gap: 1.5rem;
-    i {
-      cursor: pointer;
-    }
   }
 }
 
@@ -270,9 +268,9 @@ html {
 
 
 .list-actions-container p-select {
-    height: 48px;
-    display: flex;
-    align-items: center;
+  height: 48px;
+  display: flex;
+  align-items: center;
 }
 
 .list-item {
@@ -284,16 +282,22 @@ html {
   font-size: 1.1rem;
 }
 
-.p-listbox#base-list-listbox  {
-    min-height: 100px;
-    border-width: 0px !important;
+.p-listbox#base-list-listbox {
+  min-height: 100px;
+  border-width: 0px !important;
 }
 
 
 .p-listbox#base-list-listbox .p-listbox-list-container {
-    max-height: none !important;
+  max-height: none !important;
 }
 
-p-panel.list-actions-panel  {
+p-panel.list-actions-panel {
   border-width: 0px !important;
 }
+
+
+.page-header .p-button-icon {
+  font-size: 1.5rem !important;
+  color: white;
+} 

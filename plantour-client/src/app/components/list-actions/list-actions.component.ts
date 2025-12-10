@@ -40,7 +40,6 @@ interface ModeOption {
 export class ListActionsComponent implements OnChanges, OnInit {
   @Input() items: any[] | null = null;
   @Input() config: ListActionsConfigItem[] | null = null;
-  @Input() listToolsShown: boolean = false;
 
   /**
    * Emits a new processed list (filtered, sorted, with highlighted matches)
