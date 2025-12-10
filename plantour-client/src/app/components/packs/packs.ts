@@ -14,19 +14,7 @@ import { BaseListComponent } from '../base-list/base-list';
   styleUrl: './packs.scss',
 })
 export class PacksComponent {
-  service: CrudService<UserPackageDto, CreateUserPackageRequest, UpdateUserPackageRequest>;
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
-    this.service = inject(UserPackageService);
-  }
-
-
-  get packages(): UserPackageDto[] {
-    return (this.service as UserPackageService).packages;
-  }
-
+  service: CrudService<UserPackageDto, CreateUserPackageRequest, UpdateUserPackageRequest> =  inject(UserPackageService);
 
   // Configuration
   configuration: any[] = [

@@ -23,10 +23,10 @@ import { ButtonModule } from 'primeng/button';
   templateUrl: './base-list.html',
   styleUrl: './base-list.scss'
 })
-export class BaseListComponent<T, TA, TU> implements OnInit {
+export class BaseListComponent<T> implements OnInit {
   private messagesService = inject(MessagesService);
 
-  @Input() service!: CrudService<T, TA, TU>;
+  @Input() service!: CrudService<T, any, any>;
   @Input() itemTemplate!: TemplateRef<any>;
   @Input() title: string | null = null;
   @Input() entityIcon: string | null = null;
@@ -37,7 +37,7 @@ export class BaseListComponent<T, TA, TU> implements OnInit {
   @Input() entityNameProp: string = 'name';
   @Input() entityName: string = '';
 
-  
+
   entities: T[] | null = null;
   selected: T | null = null;
   processedEntities: T[] | null = null;
@@ -70,12 +70,6 @@ export class BaseListComponent<T, TA, TU> implements OnInit {
     const id = (this.selected as any).id;
     this.router.navigate([this.editUrl, id]);
   }
-
-  // delete() {
-  //   if (!this.selected) return;
-  //   const id = (this.selected as any).id;
-  //   this.service.delete(id).subscribe(() => this.getAll());
-  // }
 
   get listNotEmpty(): boolean {
     return (this.entities?.length ?? 0) > 0;
@@ -111,18 +105,14 @@ export class BaseListComponent<T, TA, TU> implements OnInit {
 
     if (result === 'ok') {
       this.service.delete((this.selected as any)["id"])
-      .subscribe({
-        next: () => {
-          this.getAll();
-        },
-        error: (error) => {
-          this.messagesService.showError(`Failed to delete ${this.entityName}`);
-        }
-      });
+        .subscribe({
+          next: () => {
+            this.getAll();
+          },
+          error: (error) => {
+            this.messagesService.showError(`Failed to delete ${this.entityName}`);
+          }
+        });
     }
   }
-
-
-
-
 }
