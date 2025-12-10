@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
+import { CapitalizeFirstPipe } from '../../pipes/capitalize-first.pipe';
 
 export type SortType = 'string' | 'number' | 'none';
 
@@ -32,11 +33,11 @@ interface ModeOption {
 @Component({
   selector: 'app-list-actions',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectModule, InputTextModule, ButtonModule, PanelModule],
+  imports: [CommonModule, FormsModule, SelectModule, InputTextModule, ButtonModule, PanelModule, CapitalizeFirstPipe],
   templateUrl: './list-actions.component.html',
   styleUrl: './list-actions.component.scss'
 })
-export class ListActionsComponent implements OnChanges {
+export class ListActionsComponent implements OnChanges, OnInit {
   @Input() items: any[] = [];
   @Input() config: ListActionsConfigItem[] = [];
 
@@ -71,9 +72,9 @@ export class ListActionsComponent implements OnChanges {
   filterableProperties: string[] = [];
   sortableProperties: { label: string; value: string }[] = [];
   sortDirectionOptions = [
-    { label: 'Ascending', value: 'asc' },
-    { label: 'Descending', value: 'desc' },
-    { label: 'None', value: 'none' }
+    { icon: 'pi pi-sort-up', label: "Ascending", value: 'asc' },
+    { icon: 'pi pi-sort-down', label: "Descending", value: 'desc' },
+    { icon: 'pi pi-minus', label: "No sorting", value: 'none' }
   ];
 
   lookupConfigByProp: Record<string, ListActionsPropertyConfig> = {};
@@ -82,6 +83,16 @@ export class ListActionsComponent implements OnChanges {
    * Last processed list for local display (e.g. item count)
    */
   currentResult: any[] = [];
+
+  get firstSortingProperty(): string | null {
+    const sortProp = this.config.find(c => c.config.sorting && c.config.sorting !== 'none');
+    return sortProp ? sortProp.property : null;
+  }
+
+  ngOnInit(): void {
+    this.sortField = this.firstSortingProperty;
+  }
+
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['config']) {
@@ -246,7 +257,7 @@ export class ListActionsComponent implements OnChanges {
       this.lookupValues[prop] = null;
     });
     this.filterText = '';
-    this.sortField = null;
+    this.sortField = this.firstSortingProperty;
     this.sortDirection = 'none';
     this.applyAll();
   }

@@ -22,7 +22,7 @@
   </app-list-actions>
   }
 
-  <p-listbox [options]="processedEntities!" [(ngModel)]="selected">
+  <p-listbox id="base-list-listbox" [options]="processedEntities!" [(ngModel)]="selected">
     <ng-template pTemplate="item" let-item>
       <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
     </ng-template>

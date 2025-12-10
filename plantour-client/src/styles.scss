@@ -284,10 +284,16 @@ html {
   font-size: 1.1rem;
 }
 
-.p-listbox {
+.p-listbox#base-list-listbox  {
     min-height: 100px;
+    border-width: 0px !important;
 }
 
-.p-listbox .p-listbox-list-container {
+
+.p-listbox#base-list-listbox .p-listbox-list-container {
     max-height: none !important;
+}
+
+p-panel.list-actions-panel  {
+  border-width: 0px !important;
 }

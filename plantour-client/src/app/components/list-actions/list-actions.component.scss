@@ -1,25 +1,24 @@
-.list-actions-panel {
-  width: 100%;
-}
 
 .list-actions-content {
   display: flex;
   align-items: center;
   gap: 1rem;
+  padding: 1rem;
+
 }
 
-.section {
-  display: flex;
-  align-items: center;
+
+.side {
+  flex: 0 0 auto; /* ширина по содержимому */
+}
+.side i {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-color-secondary, #6c757d);
 }
 
-.section-left,
-.section-right {
-  flex: 0 0 180px;
-}
-
-.section-middle {
-  flex: 1 1 auto;
+.middle {
+  flex: 1; /* занимает всё, что осталось */
 }
 
 .mode-option {
@@ -42,9 +41,8 @@
   align-items: center;
 }
 
-.sort-field,
-.sort-direction {
-  width: 50%;
+.sort-field {
+  width: 100%;
 }
 
 .summary {

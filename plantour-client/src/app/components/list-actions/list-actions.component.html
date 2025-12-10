@@ -1,110 +1,92 @@
-<p-panel class="list-actions-panel" [toggleable]="false">
-  <ng-template pTemplate="header">
-    <span>List actions</span>
-  </ng-template>
+<div class="list-actions-content">
+  <div class="side">
+    <p-select [options]="modeOptions" [(ngModel)]="selectedMode" optionLabel="label" [showClear]="false"
+      [ngModelOptions]="{ standalone: true }">
+      <ng-template pTemplate="selectedItem" let-option>
+        <div class="mode-option selected">
+          <i [ngClass]="option.icon"></i>
+        </div>
+      </ng-template>
 
-  <div class="list-actions-content">
-    <!-- Left section: mode selector (lookup icons, filter, sort) -->
-    <div class="section section-left">
-      <p-select
-        [options]="modeOptions"
-        [(ngModel)]="selectedMode"
-        optionLabel="label"
-        [showClear]="false"
-        [ngModelOptions]="{ standalone: true }"
-      >
-        <ng-template pTemplate="selectedItem" let-option>
-          <div class="mode-option selected">
-            <i [ngClass]="option.icon"></i>
-          </div>
-        </ng-template>
+      <ng-template pTemplate="item" let-option>
+        <div class="mode-option">
+          <i [ngClass]="option.icon"></i>
+          <span class="mode-label" *ngIf="option.type === 'lookup'">
+            {{ option.property }}
+          </span>
+          <span class="mode-label" *ngIf="option.type !== 'lookup'">
+            {{ option.label }}
+          </span>
+        </div>
+      </ng-template>
+    </p-select>
+  </div>
 
-        <ng-template pTemplate="item" let-option>
-          <div class="mode-option">
-            <i [ngClass]="option.icon"></i>
-            <span class="mode-label" *ngIf="option.type === 'lookup'">
-              {{ option.property }}
-            </span>
-            <span class="mode-label" *ngIf="option.type !== 'lookup'">
-              {{ option.label }}
-            </span>
-          </div>
-        </ng-template>
-      </p-select>
-    </div>
-
-    <!-- Middle section: controls for selected mode -->
-    <div class="section section-middle">
-      <ng-container [ngSwitch]="selectedMode?.type">
-        <!-- Lookup: show select with lookup list for chosen property -->
-        <ng-container *ngSwitchCase="'lookup'">
-          <ng-container *ngIf="selectedMode?.property as prop">
-            <p-select
-              class="w-full"
-              [options]="getLookupOptions(prop)"
-              [(ngModel)]="lookupValues[prop]"
-              [placeholder]="'Select value'"
-              [ngModelOptions]="{ standalone: true }"
-              (onChange)="onLookupChange(prop)"
-            >
-            </p-select>
-          </ng-container>
-        </ng-container>
-
-        <!-- Text filter: input -->
-        <ng-container *ngSwitchCase="'filter'">
-          <input
-            pInputText
-            type="text"
-            class="w-full"
-            [(ngModel)]="filterText"
-            [ngModelOptions]="{ standalone: true }"
-            (input)="onFilterTextChange()"
-            placeholder="Type to filter..."
-          />
-        </ng-container>
-
-        <!-- Sorting: field + direction -->
-        <ng-container *ngSwitchCase="'sort'">
-          <div class="sort-controls">
-            <p-select
-              class="sort-field"
-              [options]="sortableProperties"
-              [(ngModel)]="sortField"
-              [placeholder]="'Field'"
-              [ngModelOptions]="{ standalone: true }"
-              (onChange)="onSortChange()"
-            >
-            </p-select>
-
-            <p-select
-              class="sort-direction"
-              [options]="sortDirectionOptions"
-              [(ngModel)]="sortDirection"
-              [placeholder]="'Direction'"
-              [ngModelOptions]="{ standalone: true }"
-              (onChange)="onSortChange()"
-            >
-            </p-select>
-          </div>
+  <div class="middle">
+    <ng-container [ngSwitch]="selectedMode?.type">
+      <!-- Lookup: show select with lookup list for chosen property -->
+      <ng-container *ngSwitchCase="'lookup'">
+        <ng-container *ngIf="selectedMode?.property as prop">
+          <p-select class="w-full" [options]="getLookupOptions(prop)" [(ngModel)]="lookupValues[prop]"
+            [placeholder]="'Select value'" [ngModelOptions]="{ standalone: true }" (onChange)="onLookupChange(prop)">
+          </p-select>
         </ng-container>
       </ng-container>
-    </div>
 
-    <!-- Right section: summary and reset -->
-    <div class="section section-right">
-      <div class="summary">
-        <span class="count-label">Found:</span>
-        <span class="count-value">{{ currentResult.length }}</span>
-      </div>
-      <button
-        type="button"
-        pButton
-        label="Reset"
-        class="p-button-text reset-button"
-        (click)="resetAll()"
-      >
-      </button>
-    </div>
+      <!-- Text filter: input -->
+      <ng-container *ngSwitchCase="'filter'">
+        <input pInputText type="text" class="w-full" [(ngModel)]="filterText" [ngModelOptions]="{ standalone: true }"
+          (input)="onFilterTextChange()" placeholder="Type to filter..." />
+      </ng-container>
+
+      <!-- Sorting: field + direction -->
+      <ng-container *ngSwitchCase="'sort'">
+        <div class="sort-controls">
+          <p-select class="sort-field" [placeholder]="'Field'" [options]="sortableProperties" [(ngModel)]="sortField"
+            [ngModelOptions]="{ standalone: true }" (onChange)="onSortChange()">
+            <ng-template pTemplate="item" let-item>
+              {{ item.label | capitalizeFirst }}
+            </ng-template>
+            <ng-template pTemplate="selectedItem" let-item>
+              {{ item?.label | capitalizeFirst }}
+            </ng-template>
+          </p-select>
+
+          <p-select class="sort-direction" [options]="sortDirectionOptions" [(ngModel)]="sortDirection"
+            [ngModelOptions]="{ standalone: true }" (onChange)="onSortChange()" optionLabel="label" [showClear]="false">
+
+            <ng-template pTemplate="selectedItem" let-option>
+              <div class="mode-option selected">
+                <i [ngClass]="option.icon"></i>
+              </div>
+            </ng-template>
+
+            <ng-template pTemplate="item" let-option>
+              <div class="mode-option">
+                <i [ngClass]="option.icon"></i>
+                <span class="mode-label">
+                  {{ option.label }}
+                </span>
+              </div>
+            </ng-template>
+
+
+          </p-select>
+
+
+
+
+
+
+
+        </div>
+      </ng-container>
+    </ng-container>
   </div>
-</p-panel>
+
+  <div class="side">
+
+    <i class="pi pi-times-circle" (click)="resetAll()"></i>
+
+  </div>
+</div>

@@ -5,7 +5,7 @@ import { ContentLayoutComponent } from "../layouts/content-layout.component";
 import { ListboxModule } from 'primeng/listbox';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ListActionsComponent  } from '../list-actions/list-actions.component';
+import { ListActionsComponent } from '../list-actions/list-actions.component';
 
 @Component({
   selector: 'app-generic-list',
@@ -31,7 +31,6 @@ export class BaseListComponent<T, TA, TU> implements OnInit {
   entities: T[] | null = null;
   selected: T | null = null;
   processedEntities: T[] | null = null;
-  //private filterText: string | null = null;
 
   listToolsShown: boolean = false;
 
@@ -45,7 +44,10 @@ export class BaseListComponent<T, TA, TU> implements OnInit {
   }
 
   getAll() {
-    this.service.getAll().subscribe(list => this.entities = list);
+    this.service.getAll().subscribe(list => {
+      this.entities = list;
+      this.processedEntities = this.entities;
+    });
   }
 
   add() {
@@ -80,26 +82,8 @@ export class BaseListComponent<T, TA, TU> implements OnInit {
     this.listToolsShown = false;
   }
 
-  // highlightText(text: string): string {
-  //   if (!this.filterText?.trim() || !text) {
-  //     return text;
-  //   }
-
-  //   const filterLower = this.filterText.toLowerCase();
-  //   const textLower = text.toLowerCase();
-  //   const index = textLower.indexOf(filterLower);
-
-  //   if (index === -1) {
-  //     return text;
-  //   }
-
-  //   const before = text.substring(0, index);
-  //   const match = text.substring(index, index + this.filterText.length);
-  //   const after = text.substring(index + this.filterText.length);
-
-  //   return `${before}<mark>${match}</mark>${after}`;
-  // }
-
-
+  get list(): T[] {
+    return this.processedEntities ? this.processedEntities : this.entities || [];
+  }
 
 }
