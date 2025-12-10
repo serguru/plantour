@@ -69,3 +69,18 @@
 .w-full {
   width: 100%;
 }
+
+.pi.has-dot {
+    position: relative;
+}
+
+.pi.has-dot::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background: black;
+    border-radius: 50%;
+}

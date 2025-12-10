@@ -38,14 +38,15 @@ interface ModeOption {
   styleUrl: './list-actions.component.scss'
 })
 export class ListActionsComponent implements OnChanges, OnInit {
-  @Input() items: any[] = [];
-  @Input() config: ListActionsConfigItem[] = [];
+  @Input() items: any[] | null = null;
+  @Input() config: ListActionsConfigItem[] | null = null;
+  @Input() listToolsShown: boolean = false;
 
   /**
    * Emits a new processed list (filtered, sorted, with highlighted matches)
    * every time user changes any condition.
    */
-  @Output() listChanged = new EventEmitter<any[]>();
+  @Output() listChanged = new EventEmitter<any>();
 
   modeOptions: ModeOption[] = [];
   selectedMode: ModeOption | null = null;
@@ -85,7 +86,7 @@ export class ListActionsComponent implements OnChanges, OnInit {
   currentResult: any[] = [];
 
   get firstSortingProperty(): string | null {
-    const sortProp = this.config.find(c => c.config.sorting && c.config.sorting !== 'none');
+    const sortProp = this.config?.find(c => c.config.sorting && c.config.sorting !== 'none');
     return sortProp ? sortProp.property : null;
   }
 
@@ -115,7 +116,7 @@ export class ListActionsComponent implements OnChanges, OnInit {
    * - parses lookup-list from string to array if needed
    */
   private normalizeConfig(): void {
-    this.config = (this.config || []).map((c) => {
+    this.config = (this.config || []).map(c => {
       const normalized: ListActionsConfigItem = {
         property: c.property,
         config: { ...(c.config || {}) }
@@ -174,18 +175,22 @@ export class ListActionsComponent implements OnChanges, OnInit {
   }
 
   private buildMetadata(): void {
-    this.filterableProperties = this.config
-      .filter((c) => !!c.config.filter)
-      .map((c) => c.property);
+    if (!this.config) {
+      this.filterableProperties = [];
+      this.sortableProperties = [];
+    }
+    this.filterableProperties = this.config!
+      .filter(c => !!c.config.filter)
+      .map(c => c.property);
 
-    this.sortableProperties = this.config
-      .filter((c) => c.config.sorting && c.config.sorting !== 'none')
-      .map((c) => ({ label: c.property, value: c.property }));
+    this.sortableProperties = this.config!
+      .filter(c => c.config.sorting && c.config.sorting !== 'none')
+      .map(c => ({ label: c.property, value: c.property }));
 
     this.lookupConfigByProp = {};
     this.lookupValues = {};
 
-    this.config.forEach((c) => {
+    this.config!.forEach(c => {
       this.lookupConfigByProp[c.property] = c.config;
       if (c.config.lookupList && c.config.lookupList.length) {
         this.lookupValues[c.property] = null;
@@ -197,7 +202,7 @@ export class ListActionsComponent implements OnChanges, OnInit {
     const options: ModeOption[] = [];
 
     // 1. lookup icons first
-    this.config.forEach((c) => {
+    this.config?.forEach(c => {
       if (c.config.lookupList && c.config.lookupList.length && c.config.lookupIcon) {
         options.push({
           type: 'lookup',
@@ -252,6 +257,43 @@ export class ListActionsComponent implements OnChanges, OnInit {
     this.applyAll();
   }
 
+
+  get isSortingActive(): boolean {
+    const isSortingActive = this.sortField !== null && this.sortDirection !== 'none';
+    return isSortingActive;
+  }
+
+  get isFilterActive(): boolean {
+    const isTextFilterActive = this.filterText?.trim().length ? true : false;
+    return isTextFilterActive;
+  }
+
+
+  isFeatureActive(option: ModeOption): boolean {
+    switch (option.type) {
+      case 'lookup':
+        const lookupValue = this.lookupValues[option.property!];
+        return lookupValue !== null && lookupValue !== undefined && lookupValue !== '';
+      case 'filter':
+        return this.isFilterActive;
+      case 'sort':
+        return this.isSortingActive;
+      default:
+        return false;
+    }
+  }
+
+  get isAnyFeatureActive(): boolean {
+    if (this.isFilterActive || this.isSortingActive) {
+      return true;
+    }
+
+    const result: boolean = this.lookupValues && Object.values(this.lookupValues).find(x => x !== null && x !== undefined && x !== '') !== undefined;
+    return result;
+
+  }
+
+
   resetAll(): void {
     Object.keys(this.lookupValues).forEach((prop) => {
       this.lookupValues[prop] = null;
@@ -263,9 +305,14 @@ export class ListActionsComponent implements OnChanges, OnInit {
   }
 
   private applyAll(): void {
-    if (!Array.isArray(this.items)) {
+    if (!this.items || !Array.isArray(this.items)) {
       this.currentResult = [];
-      this.listChanged.emit([]);
+      this.listChanged.emit(
+        {
+          "processedEntities": [],
+          isAnyFeatureActive: this.isAnyFeatureActive
+        }
+      );
       return;
     }
 
@@ -281,7 +328,14 @@ export class ListActionsComponent implements OnChanges, OnInit {
     const projected = this.highlightResults(working);
 
     this.currentResult = projected;
-    this.listChanged.emit(projected);
+    this.listChanged.emit(
+      {
+        "processedEntities": projected,
+        isAnyFeatureActive: this.isAnyFeatureActive
+      }
+    );
+
+
   }
 
   private matchesLookup(item: any): boolean {
@@ -320,7 +374,7 @@ export class ListActionsComponent implements OnChanges, OnInit {
       return [...items];
     }
 
-    const configItem = this.config.find((c) => c.property === this.sortField);
+    const configItem = this.config?.find(c => c.property === this.sortField);
     const sortType: SortType = configItem?.config.sorting || 'string';
     const direction = this.sortDirection === 'asc' ? 1 : -1;
 

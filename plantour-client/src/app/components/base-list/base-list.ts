@@ -27,10 +27,11 @@ export class BaseListComponent<T, TA, TU> implements OnInit {
   @Input() title: string | null = null;
   @Input() entityIcon: string | null = null;
   @Input() listActionsConfiguration: any[] = [];
-
+  
   entities: T[] | null = null;
   selected: T | null = null;
   processedEntities: T[] | null = null;
+  isAnyFeatureActive: boolean = false;
 
   listToolsShown: boolean = false;
 
@@ -71,7 +72,8 @@ export class BaseListComponent<T, TA, TU> implements OnInit {
   }
 
   onEntitiesChanged(response: any): void {
-    this.processedEntities = response;
+    this.processedEntities = response.processedEntities;
+    this.isAnyFeatureActive = response.isAnyFeatureActive;
   }
 
   showListActions() {
