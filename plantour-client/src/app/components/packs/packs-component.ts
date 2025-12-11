@@ -10,8 +10,8 @@ import { BaseListComponent } from '../base-list/base-list';
   imports: [
     BaseListComponent
   ],
-  templateUrl: './packs.html',
-  styleUrl: './packs.scss',
+  templateUrl: './packs-component.html',
+  styleUrl: './packs-component.scss',
 })
 export class PacksComponent {
   service: CrudService<UserPackageDto, CreateUserPackageRequest, UpdateUserPackageRequest> =  inject(UserPackageService);

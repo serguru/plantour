@@ -94,7 +94,17 @@ export const routes: Routes = [
   },
   {
     path: 'packs',
-    loadComponent: () => import('./components/packs/packs').then(m => m.PacksComponent)
+    loadComponent: () => import('./components/packs/packs-component').then(m => m.PacksComponent)
+  },
+  {
+    path: 'packs/add',
+    loadComponent: () => import('./components/packs/pack-form-component').then(m => m.PackFormComponent),
+    data: { mode: 'add' }
+  },
+  {
+    path: 'packs/edit/:id',
+    loadComponent: () => import('./components/packs/pack-form-component').then(m => m.PackFormComponent),
+    data: { mode: 'edit' }
   },
   {
     path: '**',

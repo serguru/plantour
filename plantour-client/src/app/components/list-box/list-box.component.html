@@ -1,0 +1,14 @@
+<div class="list-box">
+  <div
+    class="list-item"
+    #itemRow
+    *ngFor="let item of items; let i = index; trackBy: trackByIndex"
+    [ngClass]="{ selected: item === selected }"
+    (click)="onItemClick(item)"
+  >
+    <!-- Универсальный вывод: вызываем item.toString(), если объект -->
+    <ng-container>
+      <div [innerHTML]="$any(item)['name']"></div>
+    </ng-container>
+  </div>
+</div>

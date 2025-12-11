@@ -22,3 +22,14 @@ I need a solution to apply different templates inside p-listbox depending on T. 
 
 
 В src\app\components\packs\add-pack создай компонент AddPackComponent для создания новой упаковки. В src\app\components\packs\edit-pack создай компонент EditPackComponent для редактирования существующей упаковки. Используй сервис UserPackageService. Используй src\app\services\messages-service.ts для сообщений, standalone, ReactiveForms, @if, .ts, .html and .scss files. Не забудь про валидацию полей. Смотри как реализован UI в компоненте src\app\components\sign-in. Масимально используй классы из styles.scss так, как это сделано в ...\sign-in компоненте. Создавай оригинальные css классы только если подходящий класс в styles.scss не найден. Добавь routes для вновь созданных компонентов в app.routes.ts
+
+Создай generic standalone Angular компонент BaseFormComponent для создания и редактирования разных сущностей.
+Используй ReactiveForms, @if, .ts, .html and .scss files. 
+
+В компонент должны передаваться:
+1) сервис c методами getById(id string), add(newEntity), update(editedEntity).
+2) конфигурация полей для использования в this.fb.group(here)
+3) html template для полей формы 
+4) Флаг "add" или "edit"
+
+

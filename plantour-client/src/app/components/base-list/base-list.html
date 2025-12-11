@@ -46,11 +46,12 @@
   >
   </app-list-actions>
 
-  @if (processedEntities && processedEntities.length > 0) {
-  <p-listbox
+  <!-- <p-listbox
+    #listboxPlantour
     id="base-list-listbox"
     [options]="processedEntities!"
     [(ngModel)]="selected"
+    [hidden]="!processedEntities || !processedEntities.length"
   >
     <ng-template
       pTemplate="item"
@@ -58,14 +59,29 @@
     >
       <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
     </ng-template>
-  </p-listbox>
-  } @else {
-  <div class="empty-state">
+  </p-listbox> -->
+
+  <!-- <div>
+    @for(entity of processedEntities; track entity) {
+      <div [innerHTML]="$any(entity).name">
+      </div>
+    }
+  </div> -->
+
+<app-list-box
+  [items]="processedEntities || []"
+  [(selected)]="selected"
+></app-list-box>
+
+  <div
+    class="empty-state"
+    [hidden]="processedEntities && processedEntities.length"
+  >
     <i
       class="pi"
       [class]="entityIcon"
     ></i>
     <p>No rows</p>
   </div>
-  }
+
 </app-content-layout>

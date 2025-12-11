@@ -1,0 +1,40 @@
+<app-base-form
+  [service]="service"
+  [fieldsConfig]="fieldsConfig"
+  [formTemplate]="fieldsTemplate"
+  [mode]="mode"
+  entityIcon="pi-briefcase"
+  entityName="pack"
+  [id]="id"
+  backUrl="/packs"
+>
+</app-base-form>
+
+<ng-template
+  #fieldsTemplate
+  let-form="form"
+  let-onSubmit="onSubmit"
+>
+    <!-- (ngSubmit)="onSubmit()" -->
+  <form
+    [formGroup]="form"
+  >
+    <div class="form-field">
+      <label for="name">Name<span class="required">*</span></label>
+      <input
+        pInputText
+        id="name"
+        type="text"
+        formControlName="name"
+        placeholder="Enter pack name"
+      />
+      @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty) ) {
+        @if (form.get('name')?.errors?.['required']) {
+        <small class="error-message">
+          Name is required
+        </small>
+        }
+      }
+    </div>
+  </form>
+</ng-template>

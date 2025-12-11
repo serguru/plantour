@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, TemplateRef } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CrudService } from '../../services/crud-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentLayoutComponent } from "../layouts/content-layout.component";
@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { ListActionsComponent } from '../list-actions/list-actions.component';
 import { MessagesService } from '../../services/messages-service';
 import { ButtonModule } from 'primeng/button';
+import { ListBoxComponent } from '../list-box/list-box.component';
 
 @Component({
   selector: 'app-generic-list',
@@ -18,12 +19,16 @@ import { ButtonModule } from 'primeng/button';
     ListboxModule,
     CommonModule,
     ListActionsComponent,
-    ButtonModule
+    ButtonModule,
+    ListBoxComponent
   ],
   templateUrl: './base-list.html',
   styleUrl: './base-list.scss'
 })
 export class BaseListComponent<T> implements OnInit {
+
+  @ViewChild('listboxPlantour', { read: ElementRef }) listboxRef!: ElementRef;
+
   private messagesService = inject(MessagesService);
 
   @Input() service!: CrudService<T, any, any>;
@@ -51,14 +56,29 @@ export class BaseListComponent<T> implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.getAll();
+    const selectId = this.route.snapshot.queryParamMap.get('selectId') || null;
+    this.getAll(selectId);
   }
 
-  getAll() {
+  getAll(selectId?: string | null) {
     this.service.getAll().subscribe(list => {
       this.entities = list;
       this.processedEntities = this.entities;
+      this.selectEntity(selectId);
     });
+  }
+
+  selectEntity(id?: string | null): void {
+    if (!this.processedEntities || !id) return;
+
+    const entity = this.processedEntities.find(e => (e as any).id === id);
+    if (entity) {
+      this.selected = entity;
+      // setTimeout(() => {
+      //   this.scrollToSelectedItem();
+      // }, 1000);
+    }
+
   }
 
   onAdd() {
@@ -68,7 +88,7 @@ export class BaseListComponent<T> implements OnInit {
   onEdit() {
     if (!this.selected) return;
     const id = (this.selected as any).id;
-    this.router.navigate([this.editUrl, id]);
+    this.router.navigate([this.editUrl?.replace(':id', id)]);
   }
 
   get listNotEmpty(): boolean {
@@ -115,4 +135,38 @@ export class BaseListComponent<T> implements OnInit {
         });
     }
   }
+
+  scrollToSelectedItem() {
+
+    if (!this.listboxRef?.nativeElement) return;
+
+    // const el = this.listboxRef.nativeElement
+    //   .querySelector('.p-listbox-item.p-highlight') as HTMLElement;
+    const el = this.listboxRef.nativeElement
+      .querySelector('.p-listbox-option-selected') as HTMLElement;
+
+
+    if (el) {
+      el.scrollIntoView({
+        block: 'center',
+        behavior: 'instant' // лучше instant, чтобы избежать подвисаний
+      });
+    }
+
+    // setTimeout(() => {
+    //   if (!this.selected) return;
+
+    //   const itemElements = this.listboxRef.el.nativeElement.querySelectorAll('.p-listbox-option.p-listbox-option-selected');
+
+    //   // const index = this.items.findIndex(x => x.value === value);
+    //   // if (index === -1) return;
+    //   if (!itemElements || !itemElements.length) return;
+
+    //   const element = itemElements[0];
+    //   if (element) {
+    //     element.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    //   }
+    // });
+  }
+
 }
