@@ -26,15 +26,7 @@ export const routes: Routes = [
   },
   {
     path: 'things',
-    loadComponent: () => import('./components/things/things.component').then(m => m.ThingsComponent)
-  },
-  {
-    path: 'things/add',
-    loadComponent: () => import('./components/things/add-thing/add-thing.component').then(m => m.AddThingComponent)
-  },
-  {
-    path: 'things/edit/:id',
-    loadComponent: () => import('./components/things/edit-thing/edit-thing.component').then(m => m.EditThingComponent)
+    loadComponent: () => import('./components/things/things-component').then(m => m.ThingsComponent)
   },
   {
     path: 'trips',

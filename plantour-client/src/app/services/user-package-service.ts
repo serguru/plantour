@@ -6,7 +6,6 @@ import { CrudService } from './crud-service';
 
 export interface UserPackageDto {
   id: string;
-  userId: string;
   name: string;
   description?: string | null;
 }
@@ -59,7 +58,4 @@ export class UserPackageService extends CrudService<UserPackageDto, CreateUserPa
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  // getAllCategories(): Observable<PackageCategoryDto[]> {
-  //   return this.http.get<PackageCategoryDto[]>(`${this.apiUrl}/categories`);
-  // }
 }
