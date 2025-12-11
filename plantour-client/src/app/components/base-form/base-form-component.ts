@@ -132,10 +132,19 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
           }
         }
         )
-
     }
-
   }
-
+  
+  navigateBack(): void {
+    if (this.backUrl) {
+      if (!this.isAddMode) {
+        this.router.navigate([this.backUrl], {
+          queryParams: { selectId: this.id }
+        });
+        return;
+      }
+      this.router.navigate([this.backUrl]);
+    } 
+  }
 
 }

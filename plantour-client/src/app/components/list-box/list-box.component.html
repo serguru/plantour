@@ -1,13 +1,13 @@
-<div class="list-box">
-  <div
+<div class="list-view-container">
+  <div 
+    *ngFor="let item of items; trackBy: trackByFn"
+    #listItem
     class="list-item"
-    #itemRow
-    *ngFor="let item of items; let i = index; trackBy: trackByIndex"
-    [ngClass]="{ selected: item === selected }"
-    (click)="onItemClick(item)"
-  >
-    <ng-container>
-      <div [innerHTML]="$any(item)['name']"></div>
+    [class.selected]="isSelected(item)"
+    (click)="selectItem(item)"
+    (dblclick)="onItemDoubleClick(item)">
+    <ng-container 
+      *ngTemplateOutlet="itemTemplate; context: { $implicit: item }">
     </ng-container>
   </div>
 </div>

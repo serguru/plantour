@@ -8,6 +8,7 @@
   --primary-color: #3A9AA8;
   --primary-color-light: #4DB8C4;
   --primary-color-highlight: #caf5fa;
+  --primary-color-hover: #ebfdff;
   --content-container-background-color: #ffffff;
   --error-color: #E53935;
   --red-500: #ef4444;
@@ -150,21 +151,6 @@ html {
       margin-bottom: 0.5rem;
     }
 
-    .form-textarea,
-    textarea {
-      padding: 0.5rem;
-      font-family: inherit;
-      font-size: 1rem;
-      border: 1px solid var(--surface-400);
-      border-radius: 4px;
-      resize: vertical;
-
-      &:focus {
-        outline: none;
-        border-color: var(--primary-color);
-      }
-    }
-
     .error-message {
       color: var(--error-color);
       font-size: 0.875rem;
@@ -274,14 +260,14 @@ html {
   align-items: center;
 }
 
-.list-item {
-  padding: 0.5rem;
-}
+// .list-item {
+//   padding: 0.5rem;
+// }
 
-.list-name {
-  font-weight: 500;
-  font-size: 1.1rem;
-}
+// .list-name {
+//   font-weight: 500;
+//   font-size: 1.1rem;
+// }
 
 .p-listbox#base-list-listbox {
   min-height: 100px;

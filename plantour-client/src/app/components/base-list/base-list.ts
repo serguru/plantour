@@ -66,17 +66,22 @@ export class BaseListComponent<T> implements OnInit {
     });
   }
 
+  onSelectedChange(selected: any | null) {
+    this.selected = selected;
+  }
+
+  onSelectedChangeDblClick(selected: any | null) {
+    this.selected = selected;
+    this.onEdit();
+  }  
+
   selectEntity(id?: string | null): void {
     if (!this.processedEntities || !id) return;
 
     const entity = this.processedEntities.find(e => (e as any).id === id);
     if (entity) {
       this.selected = entity;
-      // setTimeout(() => {
-      //   this.scrollToSelectedItem();
-      // }, 1000);
     }
-
   }
 
   onAdd() {
@@ -84,9 +89,9 @@ export class BaseListComponent<T> implements OnInit {
   }
 
   onEdit() {
-    if (!this.selected) return;
+    if (!this.selected || this.isListReadOnly || !this.editUrl) return;
     const id = (this.selected as any).id;
-    this.router.navigate([this.editUrl?.replace(':id', id)]);
+    this.router.navigate([this.editUrl.replace(':id', id)]);
   }
 
   get listNotEmpty(): boolean {

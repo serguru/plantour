@@ -20,6 +20,18 @@
     </ng-container>
 
     <div class="form-actions">
+      @if(backUrl) {
+      <p-button
+        label="Cancel"
+        icon="pi pi-times"
+        severity="secondary"
+        type="button"
+        (onClick)="navigateBack()"
+        [loading]="isLoading"
+        [disabled]="isLoading"
+      ></p-button>
+      }
+
       <p-button
         type="submit"
         label="Submit"

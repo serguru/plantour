@@ -3,12 +3,16 @@ import { UserPackageService } from '../../services/user-package-service';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BaseFormComponent, BaseFormMode } from '../base-form/base-form-component';
 import { ActivatedRoute } from '@angular/router';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-pack-form-component',
   imports: [
     BaseFormComponent,
-    ReactiveFormsModule
+    InputTextModule,
+    ReactiveFormsModule,
+    TextareaModule
   ],
   templateUrl: './pack-form-component.html',
   styleUrl: './pack-form-component.scss',
@@ -21,6 +25,7 @@ export class PackFormComponent implements OnInit {
   service = inject(UserPackageService);
   fieldsConfig = {
     name: new FormControl('', Validators.required),
+    description: new FormControl(''),
   };
 
   ngOnInit(): void {

@@ -1,73 +1,156 @@
 import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  ViewChildren,
-  QueryList,
-  ElementRef,
-  AfterViewInit,
-  OnChanges,
-  SimpleChanges,
-  ChangeDetectionStrategy
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    TemplateRef,
+    AfterViewInit,
+    QueryList,
+    ViewChildren,
+    ElementRef,
+    OnInit,
+    OnDestroy,
+    OnChanges,
+    SimpleChanges,
+    inject
 } from '@angular/core';
-import { NgFor, NgClass } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+
 
 @Component({
-  selector: 'app-list-box',
-  standalone: true,
-  imports: [NgFor, NgClass],
-  templateUrl: './list-box.component.html',
-  styleUrls: ['./list-box.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-list-box',
+    standalone: true,
+    imports: [CommonModule],
+    templateUrl: './list-box.component.html',
+    styleUrls: ['./list-box.component.scss']
 })
-export class ListBoxComponent<T> implements AfterViewInit, OnChanges {
-  @Input() items: T[] = [];
-  @Input() selected: T | null = null;
-  @Output() selectedChange = new EventEmitter<T>();
+export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
+    @Input() items: any[] = [];
+    @Input() itemTemplate!: TemplateRef<any>;
+    @Output() selectedChange = new EventEmitter<any | null>();
+    @Output() selectedChangeDblClick = new EventEmitter<any | null>();
 
-  @ViewChildren('itemRow', { read: ElementRef })
-  itemElements!: QueryList<ElementRef<HTMLElement>>;
+    @ViewChildren('listItem') listItemElements!: QueryList<ElementRef>;
 
-  ngAfterViewInit(): void {
-    // Прокручиваем, если selected установлен программно после загрузки
-    this.scrollToSelected();
-  }
+    trackByFn(index: number, item: any): any {
+        return item.id ?? index;
+    }
+    selectedItem: any | null = null;
+    private destroy$ = new Subject<void>();
+    private shouldScrollToSelected = false;
+    private selectedIdFromUrl: string | number | null = null;
+    private router = inject(Router);
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['selected'] && !changes['selected'].firstChange) {
-      // Ждём рендера DOM после изменения selected
-      queueMicrotask(() => this.scrollToSelected());
+    constructor(private route: ActivatedRoute) { }
+
+
+    removeQueryParameter(paramName: string): void {
+        this.router.navigate([], {
+            relativeTo: this.route,
+
+            queryParams: {
+                [paramName]: null,
+            },
+
+            queryParamsHandling: 'merge',
+        });
     }
 
-    if (changes['items'] && !changes['items'].firstChange) {
-      queueMicrotask(() => this.scrollToSelected());
+    private setSelectedFromUrl() {
+        this.route.queryParams
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(params => {
+                const selectedId = params['selectId'];
+                if (selectedId) {
+                    this.selectedIdFromUrl = selectedId;
+                    this.selectItemById(selectedId);
+                }
+            });
     }
-  }
 
-  onItemClick(item: T): void {
-    this.selected = item;
-    //this.selectedChange.emit(item);
-//    this.scrollToSelected();
-  }
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['items']) {
+            this.setSelectedFromUrl();
+        }
+    }
 
-  private scrollToSelected(): void {
-    if (!this.selected || !this.itemElements?.length) return;
+    ngOnInit(): void {
+    }
 
-    const item = this.items.find(i => (i as any).id === (this.selected as any).id);
-    if (!item) return;
-    const index = this.items.indexOf(item);
+    ngAfterViewInit(): void {
+        this.listItemElements.changes
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => {
+                if (this.shouldScrollToSelected) {
+                    setTimeout(() => {
+                        this.scrollToSelectedItem();
+                    }, 0);
+                }
+            });
 
-    const el = this.itemElements.toArray()[index]?.nativeElement;
-    if (!el) return;
+        if (this.shouldScrollToSelected) {
+            setTimeout(() => {
+                this.scrollToSelectedItem();
+            }, 0);
+        }
+    }
 
-    el.scrollIntoView({
-      block: 'center',
-      behavior: 'smooth'
-    });
-  }
+    selectItem(item: any): void {
+        this.selectedItem = item;
+        this.selectedChange.emit(item);
+    }
 
-  trackByIndex(i: number): number {
-    return i;
-  }
+    onItemDoubleClick(item: any): void {
+        this.selectItem(item);
+        this.selectedChangeDblClick.emit(item);
+    }
+
+
+    isSelected(item: any): boolean {
+        return this.selectedItem?.id === item.id;
+    }
+
+    private selectItemById(id: string | number): void {
+        const item = this.items.find(i => String(i.id) === String(id));
+        if (item) {
+            this.selectedItem = item;
+            this.shouldScrollToSelected = true;
+            this.selectedChange.emit(item);
+        }
+    }
+
+    private scrollToSelectedItem(): void {
+
+
+        this.removeQueryParameter('selectId');
+
+        if (!this.selectedItem) {
+            this.shouldScrollToSelected = false;
+            return;
+        }
+
+        const index = this.items.findIndex(item => item.id === this.selectedItem!.id);
+        if (index === -1) {
+            this.shouldScrollToSelected = false;
+            return;
+        }
+
+        const elementsArray = this.listItemElements.toArray();
+        const element = elementsArray[index];
+
+        if (element?.nativeElement) {
+            element.nativeElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+            this.shouldScrollToSelected = false;
+        }
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
 }

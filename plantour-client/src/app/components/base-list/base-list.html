@@ -70,8 +70,11 @@
 
   <app-list-box
     [items]="processedEntities || []"
-    [(selected)]="selected"
+    [itemTemplate]="itemTemplate"
+    (selectedChange)="onSelectedChange($event)"
+    (selectedChangeDblClick)="onSelectedChangeDblClick($event)"
   ></app-list-box>
+
 
   @if (!processedEntities || processedEntities.length === 0) {
   <div class="empty-state">
@@ -83,3 +86,4 @@
   </div>
   }
 </app-content-layout>
+
