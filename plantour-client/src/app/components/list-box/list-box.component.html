@@ -6,7 +6,6 @@
     [ngClass]="{ selected: item === selected }"
     (click)="onItemClick(item)"
   >
-    <!-- Универсальный вывод: вызываем item.toString(), если объект -->
     <ng-container>
       <div [innerHTML]="$any(item)['name']"></div>
     </ng-container>

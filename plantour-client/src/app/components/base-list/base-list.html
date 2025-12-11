@@ -68,20 +68,18 @@
     }
   </div> -->
 
-<app-list-box
-  [items]="processedEntities || []"
-  [(selected)]="selected"
-></app-list-box>
+  <app-list-box
+    [items]="processedEntities || []"
+    [(selected)]="selected"
+  ></app-list-box>
 
-  <div
-    class="empty-state"
-    [hidden]="processedEntities && processedEntities.length"
-  >
+  @if (!processedEntities || processedEntities.length === 0) {
+  <div class="empty-state">
     <i
       class="pi"
       [class]="entityIcon"
     ></i>
     <p>No rows</p>
   </div>
-
+  }
 </app-content-layout>

@@ -47,10 +47,8 @@ export class ListBoxComponent<T> implements AfterViewInit, OnChanges {
 
   onItemClick(item: T): void {
     this.selected = item;
-    this.selectedChange.emit(item);
-
-    // После клика элемент уже в DOM, safe scroll
-    this.scrollToSelected();
+    //this.selectedChange.emit(item);
+//    this.scrollToSelected();
   }
 
   private scrollToSelected(): void {

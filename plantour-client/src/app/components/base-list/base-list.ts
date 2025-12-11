@@ -2,7 +2,6 @@ import { AfterViewInit, Component, ElementRef, inject, Input, OnInit, TemplateRe
 import { CrudService } from '../../services/crud-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentLayoutComponent } from "../layouts/content-layout.component";
-import { ListboxModule } from 'primeng/listbox';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ListActionsComponent } from '../list-actions/list-actions.component';
@@ -16,7 +15,6 @@ import { ListBoxComponent } from '../list-box/list-box.component';
   imports: [
     ContentLayoutComponent,
     FormsModule,
-    ListboxModule,
     CommonModule,
     ListActionsComponent,
     ButtonModule,
