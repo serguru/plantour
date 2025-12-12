@@ -14,7 +14,10 @@ import { BaseListComponent } from '../base-list/base-list';
   styleUrl: './packs-component.scss',
 })
 export class PacksComponent {
-  service: CrudService<UserPackageDto, CreateUserPackageRequest, UpdateUserPackageRequest> =  inject(UserPackageService);
+
+  router = inject(Router);
+
+  service: CrudService<UserPackageDto, CreateUserPackageRequest, UpdateUserPackageRequest> = inject(UserPackageService);
 
   // Configuration
   configuration: any[] = [
@@ -29,4 +32,17 @@ export class PacksComponent {
     }
   ];
 
+  toolBarButtons =
+    [
+      {
+        id: 'back-button',
+        icon: 'pi pi-chevron-left',
+        tooltip: 'Back',
+        command: () => this.router.navigate([""])
+
+
+
+        
+      }
+    ]
 }

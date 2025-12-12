@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { UserThingService } from '../../services/user-thing-service';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BaseFormComponent, BaseFormMode } from '../base-form/base-form-component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
@@ -22,6 +22,7 @@ import { AsyncPipe } from '@angular/common';
 })
 export class ThingFormComponent implements OnInit {
   private route: ActivatedRoute = inject(ActivatedRoute);
+  private router = inject(Router);
   public mode!: BaseFormMode;
   public id: string | null = null;
 
@@ -41,4 +42,21 @@ export class ThingFormComponent implements OnInit {
       this.id = this.route.snapshot.paramMap.get('id');
     }
   }
+  toolBarButtons =
+    [
+      {
+        id: 'back-button',
+        icon: 'pi pi-chevron-left',
+        tooltip: 'Back',
+        command: () => {
+          if (this.mode === 'add') {
+            this.router.navigate(["things"]);
+            return;
+          }
+          this.router.navigate(["things"], {
+            queryParams: { selectId: this.id }
+          });
+        }
+      }
+    ]
 }

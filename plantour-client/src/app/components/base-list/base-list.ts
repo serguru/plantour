@@ -8,6 +8,7 @@ import { ListActionsComponent } from '../list-actions/list-actions.component';
 import { MessagesService } from '../../services/messages-service';
 import { ButtonModule } from 'primeng/button';
 import { ListBoxComponent } from '../list-box/list-box.component';
+import { ToolbarAware } from '../toolbar-aware';
 
 @Component({
   selector: 'app-generic-list',
@@ -23,7 +24,7 @@ import { ListBoxComponent } from '../list-box/list-box.component';
   templateUrl: './base-list.html',
   styleUrl: './base-list.scss'
 })
-export class BaseListComponent<T> implements OnInit {
+export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
   @ViewChild('listboxPlantour', { read: ElementRef }) listboxRef!: ElementRef;
 
@@ -39,6 +40,7 @@ export class BaseListComponent<T> implements OnInit {
   @Input() isListReadOnly: boolean = false;
   @Input() entityNameProp: string = 'name';
   @Input() entityName: string = '';
+  @Input() toolBarButtons: any[] | null = null;
 
 
   entities: T[] | null = null;
@@ -51,11 +53,22 @@ export class BaseListComponent<T> implements OnInit {
   constructor(
     protected router: Router,
     protected route: ActivatedRoute
-  ) { }
+  ) {
+    super();
+  }
 
   ngOnInit() {
     const selectId = this.route.snapshot.queryParamMap.get('selectId') || null;
     this.getAll(selectId);
+    this.setupToolbarButtons();
+  }
+
+  private setupToolbarButtons(): void {
+    if (!this.toolBarButtons) return;
+
+    this.setToolbarButtons(
+      this.toolBarButtons
+    );
   }
 
   getAll(selectId?: string | null) {
@@ -73,7 +86,7 @@ export class BaseListComponent<T> implements OnInit {
   onSelectedChangeDblClick(selected: any | null) {
     this.selected = selected;
     this.onEdit();
-  }  
+  }
 
   selectEntity(id?: string | null): void {
     if (!this.processedEntities || !id) return;
@@ -143,8 +156,6 @@ export class BaseListComponent<T> implements OnInit {
 
     if (!this.listboxRef?.nativeElement) return;
 
-    // const el = this.listboxRef.nativeElement
-    //   .querySelector('.p-listbox-item.p-highlight') as HTMLElement;
     const el = this.listboxRef.nativeElement
       .querySelector('.p-listbox-option-selected') as HTMLElement;
 
@@ -152,24 +163,8 @@ export class BaseListComponent<T> implements OnInit {
     if (el) {
       el.scrollIntoView({
         block: 'center',
-        behavior: 'instant' // лучше instant, чтобы избежать подвисаний
+        behavior: 'instant'
       });
     }
-
-    // setTimeout(() => {
-    //   if (!this.selected) return;
-
-    //   const itemElements = this.listboxRef.el.nativeElement.querySelectorAll('.p-listbox-option.p-listbox-option-selected');
-
-    //   // const index = this.items.findIndex(x => x.value === value);
-    //   // if (index === -1) return;
-    //   if (!itemElements || !itemElements.length) return;
-
-    //   const element = itemElements[0];
-    //   if (element) {
-    //     element.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    //   }
-    // });
   }
-
 }
