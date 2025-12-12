@@ -87,14 +87,6 @@ export const routes: Routes = [
     loadComponent: () => import('./components/trip/trip-user/edit-trip-user/edit-trip-user.component').then(m => m.EditTripUserComponent)
   },
   {
-    path: 'test-layout',
-    loadComponent: () => import('./components/test-layout/test-layout.component').then(m => m.TestLayoutComponent)
-  },
-  {
-    path: 'base-list-test',
-    loadComponent: () => import('./components/base-list-test/base-list-test.component').then(m => m.BaseListTestComponent)
-  },
-  {
     path: 'packs',
     loadComponent: () => import('./components/packs/packs-component').then(m => m.PacksComponent)
   },
