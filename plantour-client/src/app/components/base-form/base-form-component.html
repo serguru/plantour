@@ -8,15 +8,11 @@
       ></i>
       <h2>{{ title }}</h2>
     </div>
-
-
   </div>
 
   <div class="controls-wrapper">
 
-    <!-- <ng-container *ngTemplateOutlet="formTemplate; context: { form: form, onSubmit: onSubmit.bind(this) }">
-    </ng-container> -->
-    <ng-container *ngTemplateOutlet="formTemplate; context: { form: form }">
+    <ng-container *ngTemplateOutlet="formTemplate; context: { form: form, thingCategories$: lookupsService.thingCategories$, units$: lookupsService.units$ }">
     </ng-container>
 
     <div class="form-actions">

@@ -29,6 +29,16 @@ export const routes: Routes = [
     loadComponent: () => import('./components/things/things-component').then(m => m.ThingsComponent)
   },
   {
+    path: 'things/add',
+    loadComponent: () => import('./components/things/thing-form-component').then(m => m.ThingFormComponent),
+    data: { mode: 'add' }
+  },
+  {
+    path: 'things/edit/:id',
+    loadComponent: () => import('./components/things/thing-form-component').then(m => m.ThingFormComponent),
+    data: { mode: 'edit' }
+  },
+  {
     path: 'trips',
     loadComponent: () => import('./components/trip/trip.component').then(m => m.TripComponent)
   },

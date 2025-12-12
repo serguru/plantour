@@ -97,6 +97,8 @@ export class LookupService {
     });
   }
 
+  
+
   getThingCategories(): Observable<ThingCategoryDto[]> {
     return new Observable((observer) => {
       this.loadLookupsIfNeeded().subscribe({
@@ -108,6 +110,8 @@ export class LookupService {
       });
     });
   }
+
+  thingCategories$ = this.getThingCategories();
 
   getTripStatuses(): Observable<TripStatusDto[]> {
     return new Observable((observer) => {
@@ -144,4 +148,7 @@ export class LookupService {
       });
     });
   }
+
+  units$ = this.getUnits();
+
 }

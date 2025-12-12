@@ -288,3 +288,9 @@ p-panel.list-actions-panel {
   font-size: 1.5rem !important;
   color: white;
 } 
+
+.p-select-option.p-select-option-selected.p-focus
+{
+  background-color: var(--primary-color-highlight) !important;
+  color: inherit !important;
+}

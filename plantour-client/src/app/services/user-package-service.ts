@@ -16,7 +16,7 @@ export interface CreateUserPackageRequest {
 }
 
 export interface UpdateUserPackageRequest {
-  packageId: string;
+  id: string;
   name: string;
   description?: string | null;
 }

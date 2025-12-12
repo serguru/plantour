@@ -39,7 +39,7 @@ public class UserPackageService : IUserPackageService
 
     public async Task<bool> UpdateAsync(UpdateUserPackageRequest request)
     {
-        var entity = await _userPackageRepository.GetByIdAsync(request.PackageId);
+        var entity = await _userPackageRepository.GetByIdAsync(request.Id);
         if (entity == null)
         {
             return false;

@@ -92,12 +92,14 @@
         >
           {{ item.label | capitalizeFirst }}
         </ng-template>
+
         <ng-template
           pTemplate="selectedItem"
           let-item
         >
           {{ item?.label | capitalizeFirst }}
         </ng-template>
+        
       </p-select>
 
       <p-select

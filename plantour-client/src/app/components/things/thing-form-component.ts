@@ -1,0 +1,44 @@
+import { Component, inject, OnInit } from '@angular/core';
+import { UserThingService } from '../../services/user-thing-service';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { BaseFormComponent, BaseFormMode } from '../base-form/base-form-component';
+import { ActivatedRoute } from '@angular/router';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { Select } from 'primeng/select';
+import { AsyncPipe } from '@angular/common';
+
+@Component({
+  selector: 'app-thing-form-component',
+  imports: [
+    BaseFormComponent,
+    InputTextModule,
+    ReactiveFormsModule,
+    TextareaModule,
+    Select,
+    AsyncPipe
+  ],
+  templateUrl: './thing-form-component.html'
+})
+export class ThingFormComponent implements OnInit {
+  private route: ActivatedRoute = inject(ActivatedRoute);
+  public mode!: BaseFormMode;
+  public id: string | null = null;
+
+  service = inject(UserThingService);
+  fieldsConfig = {
+    name: new FormControl('', Validators.required),
+    category: new FormControl(''),
+    notes: new FormControl(''),
+    units: new FormControl(''),
+    value: new FormControl(''),
+  };
+
+  ngOnInit(): void {
+    this.mode = this.route.snapshot.data['mode'];
+
+    if (this.mode === 'edit') {
+      this.id = this.route.snapshot.paramMap.get('id');
+    }
+  }
+}

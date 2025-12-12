@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { MessagesService } from '../../services/messages-service';
 import { Router } from '@angular/router';
+import { LookupService } from '../../services/lookup-service';
 
 export type BaseFormMode = 'add' | 'edit';
 
@@ -38,6 +39,7 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
   @Input() backUrl: string | null = null;
 
   fb = inject(FormBuilder);
+  lookupsService = inject(LookupService);
   form!: FormGroup;
   isLoading = false;
   errorMessage?: string;
@@ -112,7 +114,7 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
         )
 
     } else {
-      newEntity.packageId = this.id;
+      newEntity.id = this.id;
       this.service.update(newEntity).pipe(
         catchError((error) => {
           this.errorMessage = error.error?.message || 'Operation failed. Please try again.';
