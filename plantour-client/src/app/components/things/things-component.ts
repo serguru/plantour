@@ -31,8 +31,7 @@ export class ThingsComponent {
       config: {
         filter: true,
         sorting: 'text',
-        lookupList: ['One', 'Two', 'Three'],
-        lookupIcon: 'pi pi-tag'
+        lookupIcon: 'pi pi-objects-column'
       }
     }
   ];

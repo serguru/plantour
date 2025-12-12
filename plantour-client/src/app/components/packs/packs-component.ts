@@ -19,13 +19,14 @@ export class PacksComponent {
 
   service: CrudService<UserPackageDto, CreateUserPackageRequest, UpdateUserPackageRequest> = inject(UserPackageService);
 
-  // Configuration
   configuration: any[] = [
     {
       property: 'name',
       icon: 'pi pi-user',
       config: {
-        lookup: false,
+        //lookupList: ['DaypackC','Toiletries pouchAC','Yellow suitcaseABC'],
+        //lookupList: [],
+        lookupIcon: 'pi pi-box',
         filter: true,
         sorting: 'text'
       }

@@ -6,13 +6,14 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { CapitalizeFirstPipe } from '../../pipes/capitalize-first.pipe';
+import { InputGroupModule } from 'primeng/inputgroup';
 
 export type SortType = 'string' | 'number' | 'none';
 
 export interface ListActionsPropertyConfig {
   filter?: boolean;
   sorting?: SortType;
-  lookupList?: string[];
+  //lookupList?: string[];
   lookupIcon?: string;
 }
 
@@ -33,7 +34,9 @@ interface ModeOption {
 @Component({
   selector: 'app-list-actions',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectModule, InputTextModule, ButtonModule, PanelModule, CapitalizeFirstPipe],
+  imports: [
+    CommonModule, FormsModule, SelectModule, InputTextModule, 
+    ButtonModule, PanelModule, CapitalizeFirstPipe, InputGroupModule],
   templateUrl: './list-actions.component.html',
   styleUrl: './list-actions.component.scss'
 })
@@ -146,23 +149,6 @@ export class ListActionsComponent implements OnChanges, OnInit {
         normalized.config.sorting = 'none';
       }
 
-      // normalize lookup list (may come as "['A','B']" string)
-      const rawLookupList: any = (c.config as any)['lookup-list'] ?? (c.config as any)?.lookupList;
-      if (rawLookupList) {
-        if (Array.isArray(rawLookupList)) {
-          normalized.config.lookupList = rawLookupList.map((x) => String(x));
-        } else if (typeof rawLookupList === 'string') {
-          const trimmed = rawLookupList.trim();
-          const withoutBrackets = trimmed.replace(/^\[/, '').replace(/\]$/, '');
-          const items = withoutBrackets
-            .split(',')
-            .map((part) => part.trim())
-            .filter((part) => !!part)
-            .map((part) => part.replace(/^['"]/, '').replace(/['"]$/, ''));
-          normalized.config.lookupList = items;
-        }
-      }
-
       // normalize lookup icon (may come as 'lookup-icon')
       const rawLookupIcon: any = (c.config as any)['lookup-icon'] ?? (c.config as any)?.lookupIcon;
       if (rawLookupIcon) {
@@ -191,9 +177,9 @@ export class ListActionsComponent implements OnChanges, OnInit {
 
     this.config!.forEach(c => {
       this.lookupConfigByProp[c.property] = c.config;
-      if (c.config.lookupList && c.config.lookupList.length) {
-        this.lookupValues[c.property] = null;
-      }
+      // if (c.config.lookupList && c.config.lookupList.length) {
+      //   this.lookupValues[c.property] = null;
+      // }
     });
   }
 
@@ -202,7 +188,8 @@ export class ListActionsComponent implements OnChanges, OnInit {
 
     // 1. lookup icons first
     this.config?.forEach(c => {
-      if (c.config.lookupList && c.config.lookupList.length && c.config.lookupIcon) {
+      //      if (c.config.lookupList && c.config.lookupList.length && c.config.lookupIcon) {
+      if (c.config.lookupIcon) {
         options.push({
           type: 'lookup',
           label: c.property,
@@ -236,12 +223,29 @@ export class ListActionsComponent implements OnChanges, OnInit {
     }
   }
 
+
+  getLookupValues(property: string): string[] | null {
+    const strings = this.items?.map((x => x[property]?.toString()));
+    if (!strings) {
+      return null;
+    }
+    const unique = Array.from(new Set(strings));
+    if (!unique) {
+      return null;
+    }
+    const sorted = unique.sort((a, b) => a.localeCompare(b));
+    return sorted;
+  }
+
+
   getLookupOptions(property: string) {
     const conf = this.lookupConfigByProp[property];
-    if (!conf?.lookupList) {
+    //    if (!conf?.lookupList) {
+    const list = this.getLookupValues(property);
+    if (!list) {
       return [];
     }
-    return conf.lookupList.map((v) => ({ label: v, value: v }));
+    return list.map((v) => ({ label: v, value: v }));
   }
 
   onLookupChange(property: string): void {

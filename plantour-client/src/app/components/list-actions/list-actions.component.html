@@ -57,6 +57,7 @@
         [placeholder]="'Select value'"
         [ngModelOptions]="{ standalone: true }"
         (onChange)="onLookupChange(prop)"
+        [showClear]="true"
       >
       </p-select>
     </ng-container>
@@ -64,15 +65,15 @@
 
     <!-- Text filter: input -->
     @case ('filter') {
-    <input
-      pInputText
-      type="text"
-      class="w-full"
-      [(ngModel)]="filterText"
-      [ngModelOptions]="{ standalone: true }"
-      (input)="onFilterTextChange()"
-      placeholder="Type to filter..."
-    />
+      <input
+        pInputText
+        type="text"
+        class="w-full"
+        [(ngModel)]="filterText"
+        [ngModelOptions]="{ standalone: true }"
+        (input)="onFilterTextChange()"
+        placeholder="Type to filter..."
+      />
     }
 
     <!-- Sorting: field + direction -->
@@ -99,7 +100,7 @@
         >
           {{ item?.label | capitalizeFirst }}
         </ng-template>
-        
+
       </p-select>
 
       <p-select
