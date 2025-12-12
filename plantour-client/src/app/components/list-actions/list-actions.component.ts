@@ -225,7 +225,7 @@ export class ListActionsComponent implements OnChanges, OnInit {
 
 
   getLookupValues(property: string): string[] | null {
-    const strings = this.items?.map((x => x[property]?.toString()));
+    const strings = this.items?.map((x => (x[property] || '').toString()));
     if (!strings) {
       return null;
     }
@@ -344,9 +344,13 @@ export class ListActionsComponent implements OnChanges, OnInit {
   private matchesLookup(item: any): boolean {
     for (const prop of Object.keys(this.lookupValues)) {
       const expected = this.lookupValues[prop];
+      const actual = item?.[prop];
       if (expected !== null && expected !== undefined && expected !== '') {
-        const actual = item?.[prop];
         if (String(actual) !== String(expected)) {
+          return false;
+        }
+      } else {
+        if (!(!actual && !expected)) {
           return false;
         }
       }

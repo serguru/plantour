@@ -1,0 +1,33 @@
+<app-generic-list
+  [service]="service"
+  [listActionsConfiguration]="configuration"
+  [itemTemplate]="travelerTemplate"
+  title="Travelers"
+  entityIcon="pi-user"
+  [isListReadOnly]="false"
+  [addUrl]="'travelers/add'"
+  [editUrl]="'travelers/edit/:id'"
+  entityNameProp="email"
+  entityName="traveler"
+  [toolBarButtons]="toolBarButtons"
+>
+</app-generic-list>
+
+<ng-template #travelerTemplate let-item>
+  <div class="traveler-row">
+    <span class="traveler-email" [innerHTML]="item.email"></span>
+    <span class="traveler-name">
+      {{ item.firstName }} {{ item.lastName }}
+    </span>
+    @if (item.participantStatus) {
+      <p-tag
+        class="traveler-status"
+        [value]="item.participantStatus"
+        severity="info"
+        [style]="{ 'font-size': 'large' }"
+        (click)="onStatusClick(item, $event)"
+      >
+      </p-tag>
+    }
+  </div>
+</ng-template>

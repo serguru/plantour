@@ -39,6 +39,20 @@ export const routes: Routes = [
     data: { mode: 'edit' }
   },
   {
+    path: 'travelers',
+    loadComponent: () => import('./components/travelers/travelers-component').then(m => m.TravelersComponent)
+  },
+  {
+    path: 'travelers/add',
+    loadComponent: () => import('./components/travelers/traveler-form-component').then(m => m.TravelerFormComponent),
+    data: { mode: 'add' }
+  },
+  {
+    path: 'travelers/edit/:id',
+    loadComponent: () => import('./components/travelers/traveler-form-component').then(m => m.TravelerFormComponent),
+    data: { mode: 'edit' }
+  },
+  {
     path: 'trips',
     loadComponent: () => import('./components/trip/trip.component').then(m => m.TripComponent)
   },
