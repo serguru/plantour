@@ -13,7 +13,7 @@ export interface ListActionsPropertyConfig {
   filter?: boolean;
   sorting?: SortType;
   lookupList?: string[];
-  lookupIcon?: string; // PrimeIcons name without 'pi-'
+  lookupIcon?: string;
 }
 
 export interface ListActionsConfigItem {
