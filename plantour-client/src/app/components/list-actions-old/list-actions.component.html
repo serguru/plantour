@@ -1,0 +1,144 @@
+<div class="list-actions-content">
+  <div class="side">
+    <p-select
+      [options]="modeOptions"
+      [(ngModel)]="selectedMode"
+      optionLabel="label"
+      [showClear]="false"
+      [ngModelOptions]="{ standalone: true }"
+    >
+      <ng-template
+        pTemplate="selectedItem"
+        let-option
+      >
+        <div class="mode-option selected">
+          <i
+            [ngClass]="option.icon"
+            [class.has-dot]="isFeatureActive(option)"
+          ></i>
+        </div>
+      </ng-template>
+
+      <ng-template
+        pTemplate="item"
+        let-option
+      >
+        <div class="mode-option">
+          <i
+            [ngClass]="option.icon"
+            [class.has-dot]="isFeatureActive(option)"
+          ></i>
+          <span
+            class="mode-label"
+            *ngIf="option.type === 'lookup'"
+          >
+            {{ option.property }}
+          </span>
+          <span
+            class="mode-label"
+            *ngIf="option.type !== 'lookup'"
+          >
+            {{ option.label }}
+          </span>
+        </div>
+      </ng-template>
+    </p-select>
+  </div>
+
+  <div class="middle">
+    @switch (selectedMode?.type) {
+    <!-- Lookup: show select with lookup list for chosen property -->
+    @case ('lookup') {
+    <ng-container *ngIf="selectedMode?.property as prop">
+      <p-select
+        class="w-full"
+        [options]="getLookupOptions(prop)"
+        [(ngModel)]="lookupValues[prop]"
+        [placeholder]="'Select value'"
+        [ngModelOptions]="{ standalone: true }"
+        (onChange)="onLookupChange(prop)"
+      >
+      </p-select>
+    </ng-container>
+    }
+
+    <!-- Text filter: input -->
+    @case ('filter') {
+    <input
+      pInputText
+      type="text"
+      class="w-full"
+      [(ngModel)]="filterText"
+      [ngModelOptions]="{ standalone: true }"
+      (input)="onFilterTextChange()"
+      placeholder="Type to filter..."
+    />
+    }
+
+    <!-- Sorting: field + direction -->
+    @case ('sort') {
+    <div class="sort-controls">
+      <p-select
+        class="sort-field"
+        [placeholder]="'Field'"
+        [options]="sortableProperties"
+        [(ngModel)]="sortField"
+        [ngModelOptions]="{ standalone: true }"
+        (onChange)="onSortChange()"
+      >
+        <ng-template
+          pTemplate="item"
+          let-item
+        >
+          {{ item.label | capitalizeFirst }}
+        </ng-template>
+
+        <ng-template
+          pTemplate="selectedItem"
+          let-item
+        >
+          {{ item?.label | capitalizeFirst }}
+        </ng-template>
+        
+      </p-select>
+
+      <p-select
+        [options]="sortDirectionOptions"
+        [(ngModel)]="sortDirection"
+        optionValue="value"
+        [showClear]="false"
+        [ngModelOptions]="{ standalone: true }"
+        (onChange)="onSortChange()"
+      >
+        <ng-template
+          pTemplate="selectedItem"
+          let-option
+        >
+          <div class="mode-option selected">
+            <i [ngClass]="option.icon"></i>
+          </div>
+        </ng-template>
+
+        <ng-template
+          pTemplate="item"
+          let-option
+        >
+          <div class="mode-option">
+            <i [ngClass]="option.icon"></i>
+            <span class="mode-label">
+              {{ option.label }}
+            </span>
+          </div>
+        </ng-template>
+      </p-select>
+    </div>
+    } }
+  </div>
+
+  <div class="side">
+    <i
+      class="pi pi-times-circle"
+      (click)="resetAll()"
+    ></i>
+  </div>
+</div>

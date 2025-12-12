@@ -1,0 +1,65 @@
+
+.list-actions-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+
+.side {
+  flex: 0 0 auto; /* ширина по содержимому */
+}
+.side i {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-color-secondary, #6c757d);
+}
+
+.middle {
+  flex: 1; /* занимает всё, что осталось */
+}
+
+.mode-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mode-option i {
+  font-size: 1.1rem;
+}
+
+.mode-label {
+  font-size: 0.9rem;
+}
+
+.sort-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.sort-field {
+  width: 100%;
+}
+
+
+.w-full {
+  width: 100%;
+}
+
+.pi.has-dot {
+    position: relative;
+}
+
+.pi.has-dot::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background: black;
+    border-radius: 50%;
+}
