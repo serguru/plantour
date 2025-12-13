@@ -123,7 +123,8 @@ create table admins_participants (
     admin_id uuid not null references users(id) on delete cascade,
     participant_id uuid not null references users(id) on delete cascade,
     participant_status varchar(50),
-    access_code varchar(8) not null unique,
+    access_code_hash bytea null,
+    access_code_salt bytea null,
     email varchar(255) not null check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     first_name varchar(100),
     last_name varchar(100),
@@ -342,13 +343,14 @@ VALUES
 -- ====================================================================
 -- ADMINS / PARTICIPANTS LINKS
 -- ====================================================================
-INSERT INTO admins_participants (id, admin_id, participant_id, access_code, email, first_name, last_name, phone, notes)
+INSERT INTO admins_participants (id, admin_id, participant_id, access_code_hash, access_code_salt, email, first_name, last_name, phone, notes)
 VALUES
     (
         gen_random_uuid(),
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        'ALC12345',
+        '',
+        '',
         'alice.participant@plantour.test',
         'Alice',
         'Participant',
@@ -360,7 +362,8 @@ VALUES
         gen_random_uuid(),
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        'BOB54321',
+        '',
+        '',
         'bob.participant@plantour.test',
         'Bob',
         'Participant',

@@ -6,5 +6,5 @@ public class SignInParticipantRequest
 {
     [Required]
     [StringLength(8)]
-    public string AccessCode { get; set; } = null!;
+    public string AccessCode { get; set; } = null!; // Plain code, will be hashed for verification
 }

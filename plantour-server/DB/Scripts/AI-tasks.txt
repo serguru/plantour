@@ -26,3 +26,7 @@
 Добаавь в UserPackageDto поле CategoryName. Заполняй это поле значением Name из PackageCategory, соответствующим UserPackageDto.CategoryId. Добавь в UserPackageDto список категорий из PackageCategory. Назови его CategoriesLookup. Включи в него Id и Name. Не забудь переделать mappinng соответственно.
 
 Нужно создать сервис, который вернет клиенту полный набор lookups. Создай repository Repositories/LookupsRepository и включи в него только методы для чтения следующих сущностей: PackingStatus, CommunicationType, ThingCategory, TripStatus, ParticipantStatus, Unit. Создай Services/LookupsService и включи в него единственный метод GetAllLookups, который вернет все lookups из Repositories/LookupsRepository  . Создай контролер LookupsController с единственной  endpoint для GetAllLookups.
+
+
+Смотри AdminsParticipant -> AccessCode. Смотри User -> (PasswordHash, PasswordSalt) и как PasswordHash, PasswordSalt используются в коде. Внеси необходимые изменения в код так, чобы AccessCode использовался также, как сейчас используется Password, т.е. c AccessCodeHash и AccessCodeSalt.
+

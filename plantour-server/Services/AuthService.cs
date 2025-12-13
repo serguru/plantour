@@ -1,3 +1,4 @@
+    // AccessCode hash helpers (same as password)
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -61,6 +62,21 @@ public class AuthService : IAuthService
         return await GenerateAdminAuthResponse(user);
     }
 
+    private void CreateAccessCodeHash(string accessCode, out byte[] accessCodeHash, out byte[] accessCodeSalt)
+    {
+        using var hmac = new HMACSHA512();
+        accessCodeSalt = hmac.Key;
+        accessCodeHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(accessCode));
+    }
+
+    private bool VerifyAccessCodeHash(string accessCode, byte[] storedHash, byte[] storedSalt)
+    {
+        using var hmac = new HMACSHA512(storedSalt);
+        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(accessCode));
+        return computedHash.SequenceEqual(storedHash);
+    }
+
+
     public async Task<AuthResponse> SignInAsync(SignInRequest request)
     {
         // Find user
@@ -115,14 +131,20 @@ public class AuthService : IAuthService
 
         // Generate unique access code
         var accessCode = await AccessCodeGenerator.GenerateUniqueAsync(async code =>
-            await _adminsParticipantRepository.AnyByAccessCode(code)
-        );
+        {
+            CreateAccessCodeHash(code, out var hash, out var salt);
+            return await _adminsParticipantRepository.AnyByAccessCodeHash(hash);
+        });
+
+        // Hash access code
+        CreateAccessCodeHash(accessCode, out var accessCodeHash, out var accessCodeSalt);
 
         // Create admin-participant relationship
         var adminParticipant = new AdminsParticipant
         {
-            ParticipantId = Guid.NewGuid(), 
-            AccessCode = accessCode,
+            ParticipantId = Guid.NewGuid(),
+            AccessCodeHash = accessCodeHash,
+            AccessCodeSalt = accessCodeSalt,
             Notes = request.Notes,
             ParticipantStatus = request.ParticipantStatus,
             Email = request.Email,
@@ -140,19 +162,25 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request)
     {
-        // Find admin-participant relationship by access code
-        var adminParticipant = await _adminsParticipantRepository.GetByAccessCodeAsync(request.AccessCode);
-
+        // Hash access code
+        var accessCode = request.AccessCode;
+        AdminsParticipant? adminParticipant = null;
+        foreach (var ap in await _adminsParticipantRepository.GetAllAsync())
+        {
+            if (ap.AccessCodeHash != null && ap.AccessCodeSalt != null && VerifyAccessCodeHash(accessCode, ap.AccessCodeHash, ap.AccessCodeSalt))
+            {
+                adminParticipant = ap;
+                break;
+            }
+        }
         if (adminParticipant == null)
         {
             throw new UnauthorizedAccessException("Cannot signin participant with provided access code");
         }
-
         var participant = adminParticipant.Participant;
         var admin = adminParticipant.Admin;
-
         // Generate participant tokens
-        return await GenerateParticipantAuthResponse(participant, admin, request.AccessCode);
+        return await GenerateParticipantAuthResponse(participant, admin, accessCode);
     }
 
     #endregion

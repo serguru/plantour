@@ -14,7 +14,7 @@ public class AdminsParticipantRepository : BaseRepository
         _dbSet = context.Set<AdminsParticipant>();
         _context = context;
     }
-
+    
     public async Task<AdminsParticipant?> GetByIdAsync(Guid id)
     {
         if (CurrentUser == null)
@@ -125,17 +125,17 @@ public class AdminsParticipantRepository : BaseRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> AnyByAccessCode(string code)
+    public async Task<bool> AnyByAccessCodeHash(byte[] codeHash)
     {
         return await _dbSet
-            .AnyAsync(x => x.AccessCode == code);
+            .AnyAsync(x => x.AccessCodeHash != null && x.AccessCodeHash.SequenceEqual(codeHash));
     }
 
-    public async Task<AdminsParticipant?> GetByAccessCodeAsync(string code)
+    public async Task<AdminsParticipant?> GetByAccessCodeHashAsync(byte[] codeHash)
     {
         return await _dbSet
             .Include(ap => ap.Participant)
             .Include(ap => ap.Admin)
-            .FirstOrDefaultAsync(ap => ap.AccessCode == code);
+            .FirstOrDefaultAsync(ap => ap.AccessCodeHash != null && ap.AccessCodeHash.SequenceEqual(codeHash));
     }
 }
