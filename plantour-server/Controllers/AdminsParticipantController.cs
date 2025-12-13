@@ -72,21 +72,6 @@ public class AdminsParticipantController : ControllerBase
         }
     }
 
-    [HttpPost]
-    [AdminOnly]
-    public async Task<ActionResult<AdminsParticipantDto>> Add([FromBody] CreateAdminsParticipantRequest request)
-    {
-        try
-        {
-            var dto = await _service.AddAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while creating the admins participant", details = ex.Message });
-        }
-    }
-
     [HttpPut]
     [AdminOnly]
     public async Task<ActionResult> Update([FromBody] UpdateAdminsParticipantRequest request)

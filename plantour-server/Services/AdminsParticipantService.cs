@@ -36,13 +36,6 @@ public class AdminsParticipantService : IAdminsParticipantService
         return entity != null ? _mapper.Map<AdminsParticipantDto>(entity) : null;
     }
 
-    public async Task<AdminsParticipantDto> AddAsync(CreateAdminsParticipantRequest request)
-    {
-        var entity = _mapper.Map<AdminsParticipant>(request);
-        await _adminsParticipantRepository.AddAsync(entity);
-        return _mapper.Map<AdminsParticipantDto>(entity);
-    }
-
     public async Task<bool> UpdateAsync(UpdateAdminsParticipantRequest request)
     {
         var entity = await _adminsParticipantRepository.GetByIdAsync(request.Id);
@@ -67,4 +60,6 @@ public class AdminsParticipantService : IAdminsParticipantService
         await _adminsParticipantRepository.DeleteAsync(id);
         return true;
     }
+
+
 }

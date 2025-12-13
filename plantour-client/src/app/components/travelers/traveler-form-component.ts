@@ -14,8 +14,7 @@ import { AsyncPipe } from '@angular/common';
     BaseFormComponent,
     InputTextModule,
     ReactiveFormsModule,
-    TextareaModule,
-    AsyncPipe
+    TextareaModule
   ],
   templateUrl: './traveler-form-component.html',
   styleUrl: './traveler-form-component.scss'

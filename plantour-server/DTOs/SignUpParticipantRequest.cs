@@ -5,9 +5,6 @@ namespace plantour_server.DTOs;
 public class SignUpParticipantRequest
 {
     [Required]
-    public Guid AdminId { get; set; }
-
-    [Required]
     [EmailAddress]
     public string Email { get; set; } = null!;
 
@@ -20,6 +17,6 @@ public class SignUpParticipantRequest
     [StringLength(50)]
     public string? Phone { get; set; }
 
-    [MinLength(6)]
-    public string? Password { get; set; }
+    public string? Notes { get; set; }
+    public string? ParticipantStatus { get; set; }
 }

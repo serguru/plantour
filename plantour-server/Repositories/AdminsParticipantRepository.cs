@@ -41,25 +41,65 @@ public class AdminsParticipantRepository : BaseRepository
         {
             return Array.Empty<AdminsParticipant>();
         }
-
         return await _dbSet
             .Where(x => x.AdminId == CurrentUser.UserId)
             .ToListAsync();
     }
 
+    public async Task<AdminsParticipant?> GetByParticipantIdAsync(Guid participantId)
+    {
+        if (CurrentUser == null)
+        {
+            return null;
+        }
+        return await _dbSet
+            .Include(x => x.Admin)
+            .FirstOrDefaultAsync(x => x.AdminId == CurrentUser.UserId && x.ParticipantId == participantId);
+    }
+
+    public async Task<bool> AnyByParticipantIdAsync(Guid participantId)
+    {
+        if (CurrentUser == null)
+        {
+            return false;
+        }
+
+        return await _dbSet
+            .AnyAsync(x => x.AdminId == CurrentUser.UserId && x.ParticipantId == participantId);
+    }
+
+    public async Task<bool> AnyByParticipantEmailAsync(string email)
+    {
+        if (CurrentUser == null)
+        {
+            return false;
+        }
+
+        return await _dbSet
+            .AnyAsync(x => x.AdminId == CurrentUser.UserId && x.Participant.Email == email);
+    }
+    
     public virtual async Task AddAsync(AdminsParticipant entity)
     {
         if (CurrentUser == null)
         {
             throw new InvalidOperationException("Access denied");
         }
-        var existingEntity = await GetByEmailAsync(entity.Email);
-        if (existingEntity != null)
-        {
-            throw new InvalidOperationException("Participant with the same email already exists");
-        }
         _context.AdminsParticipants.Add(entity);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            // Handle unique constraint violation
+            if (ex.InnerException != null && ex.InnerException.Message.Contains("UNIQUE constraint failed"))
+            {
+                throw new InvalidOperationException("Participant with the same email already exists");
+            }
+            throw;
+        }
+    //    await _context.SaveChangesAsync();
     }
 
     public virtual async Task UpdateAsync(AdminsParticipant entity)
@@ -83,5 +123,19 @@ public class AdminsParticipantRepository : BaseRepository
         }
         _context.AdminsParticipants.Remove(entity);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> AnyByAccessCode(string code)
+    {
+        return await _dbSet
+            .AnyAsync(x => x.AccessCode == code);
+    }
+
+    public async Task<AdminsParticipant?> GetByAccessCodeAsync(string code)
+    {
+        return await _dbSet
+            .Include(ap => ap.Participant)
+            .Include(ap => ap.Admin)
+            .FirstOrDefaultAsync(ap => ap.AccessCode == code);
     }
 }

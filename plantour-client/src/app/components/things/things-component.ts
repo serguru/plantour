@@ -22,12 +22,14 @@ export class ThingsComponent {
   configuration: any[] = [
     {
       property: 'name',
+      label: 'Name',
       config: {
         filter: true,
         sorting: 'text'
       }
     },{
       property: 'category',
+      label: 'Category',
       config: {
         filter: true,
         sorting: 'text',

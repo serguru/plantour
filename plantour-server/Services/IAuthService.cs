@@ -9,14 +9,10 @@ public interface IAuthService
     Task<AuthResponse> SignInAsync(SignInRequest request);
 
     // Participant authentication
-    Task<AuthResponse> SignUpParticipantAsync(SignUpParticipantRequest request);
+    Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request);
     Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request);
 
     // Token management
-    Task<object> RefreshTokenAsync(string refreshToken);
-    Task RevokeTokenAsync(string refreshToken);
     Task<bool> ValidateTokenAsync(string token);
 
-    // Helper methods
-    Task<string> GenerateAccessCodeAsync(Guid adminId, Guid participantId);
 }

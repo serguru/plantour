@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
-import { AccessToken, SignUpRequest } from '../models/auth.models';
+import { AccessToken, SignUpParticipantRequest, SignUpRequest } from '../models/auth.models';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 
 
@@ -77,6 +77,10 @@ export class UsersService {
           this.writeTokensToStorage(r.accessToken, r.refreshToken);
         }
         ))
+  }
+
+  registerParticipant(data: SignUpParticipantRequest): Observable<any> {
+    return this.http.post<string>(`${this.apiUrl}/api/auth/participant/signup`, data)
   }
 
   currentUser(): AccessToken | null {

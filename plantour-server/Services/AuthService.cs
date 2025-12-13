@@ -9,18 +9,26 @@ using plantour_server.DTOs;
 using plantour_server.Models;
 using plantour_server.DbModels;
 using plantour_server.Utils;
+using AutoMapper;
+using PlantourApi.Models;
+using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly PlantourContext _context;
+    private readonly AuthRepository _authRepository;
+    private readonly AdminsParticipantRepository _adminsParticipantRepository;
+
+    private readonly IMapper _mapper;
     private readonly JwtSettings _jwtSettings;
 
-    public AuthService(PlantourContext context, IOptions<JwtSettings> jwtSettings)
+    public AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, AuthRepository authRepository, AdminsParticipantRepository adminsParticipantRepository)
     {
-        _context = context;
         _jwtSettings = jwtSettings.Value;
+        _mapper = mapper;
+        _authRepository = authRepository;
+        _adminsParticipantRepository = adminsParticipantRepository;
     }
 
     #region Admin Authentication
@@ -28,7 +36,7 @@ public class AuthService : IAuthService
     public async Task<AuthResponse> SignUpAsync(SignUpRequest request)
     {
         // Check if user already exists
-        if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+        if (await _authRepository.AnyByEmailAsync(request.Email))
         {
             throw new InvalidOperationException("User with this email already exists");
         }
@@ -39,7 +47,6 @@ public class AuthService : IAuthService
         // Create new user
         var user = new User
         {
-            Id = Guid.NewGuid(),
             Email = request.Email,
             PasswordHash = passwordHash,
             PasswordSalt = passwordSalt,
@@ -48,8 +55,7 @@ public class AuthService : IAuthService
             Phone = request.Phone
         };
 
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        await _authRepository.AddAsync(user);
 
         // Generate admin tokens
         return await GenerateAdminAuthResponse(user);
@@ -58,7 +64,7 @@ public class AuthService : IAuthService
     public async Task<AuthResponse> SignInAsync(SignInRequest request)
     {
         // Find user
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        var user = await _authRepository.GetByEmailAsync(request.Email);
         if (user == null || user.PasswordHash == null || user.PasswordSalt == null)
         {
             throw new UnauthorizedAccessException("Invalid email or password");
@@ -78,75 +84,62 @@ public class AuthService : IAuthService
 
     #region Participant Authentication
 
-    public async Task<AuthResponse> SignUpParticipantAsync(SignUpParticipantRequest request)
+    public async Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request)
     {
-        // Verify admin exists
-        var admin = await _context.Users.FindAsync(request.AdminId);
-        if (admin == null)
+        // Ensure participant user exists or create new
+        if (!await _authRepository.AnyByEmailAsync(request.Email))
         {
-            throw new InvalidOperationException("Admin not found");
+            var participant = new User
+            {
+                Email = request.Email,
+                PasswordHash = null,
+                PasswordSalt = null,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Phone = request.Phone,
+                Notes = $"Registered by admin on {DateTime.UtcNow}"
+            };
+            await _authRepository.AddAsync(participant);
         }
 
-        // Check if user already exists
-        if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+        if (await _adminsParticipantRepository.AnyByParticipantEmailAsync(request.Email))
         {
-            throw new InvalidOperationException("User with this email already exists");
+            throw new InvalidOperationException("Participant with this email is already registered under your admin account");
         }
-
-        // Create participant user
-        byte[]? passwordHash = null;
-        byte[]? passwordSalt = null;
-
-        if (!string.IsNullOrEmpty(request.Password))
-        {
-            CreatePasswordHash(request.Password, out passwordHash, out passwordSalt);
-        }
-
-        var participant = new User
-        {
-            Id = Guid.NewGuid(),
-            Email = request.Email,
-            PasswordHash = passwordHash,
-            PasswordSalt = passwordSalt,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Phone = request.Phone
-        };
-
-        _context.Users.Add(participant);
 
         // Generate unique access code
         var accessCode = await AccessCodeGenerator.GenerateUniqueAsync(async code =>
-            await _context.AdminsParticipants.AnyAsync(ap => ap.AccessCode == code)
+            await _adminsParticipantRepository.AnyByAccessCode(code)
         );
 
         // Create admin-participant relationship
         var adminParticipant = new AdminsParticipant
         {
-            Id = Guid.NewGuid(),
-            AdminId = request.AdminId,
-            ParticipantId = participant.Id,
-            AccessCode = accessCode
+            ParticipantId = Guid.NewGuid(), 
+            AccessCode = accessCode,
+            Notes = request.Notes,
+            ParticipantStatus = request.ParticipantStatus,
+            Email = request.Email,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Phone = request.Phone
         };
 
-        _context.AdminsParticipants.Add(adminParticipant);
-        await _context.SaveChangesAsync();
+        await _adminsParticipantRepository.AddAsync(adminParticipant);
 
-        // Generate participant tokens
-        return await GenerateParticipantAuthResponse(participant, admin, accessCode);
+        AdminsParticipantDto result = _mapper.Map<AdminsParticipantDto>(adminParticipant);
+
+        return result;
     }
 
     public async Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request)
     {
         // Find admin-participant relationship by access code
-        var adminParticipant = await _context.AdminsParticipants
-            .Include(ap => ap.Participant)
-            .Include(ap => ap.Admin)
-            .FirstOrDefaultAsync(ap => ap.AccessCode == request.AccessCode);
+        var adminParticipant = await _adminsParticipantRepository.GetByAccessCodeAsync(request.AccessCode);
 
         if (adminParticipant == null)
         {
-            throw new UnauthorizedAccessException("Invalid access code");
+            throw new UnauthorizedAccessException("Cannot signin participant with provided access code");
         }
 
         var participant = adminParticipant.Participant;
@@ -156,81 +149,10 @@ public class AuthService : IAuthService
         return await GenerateParticipantAuthResponse(participant, admin, request.AccessCode);
     }
 
-    public async Task<string> GenerateAccessCodeAsync(Guid adminId, Guid participantId)
-    {
-        // Verify relationship exists
-        var relationship = await _context.AdminsParticipants
-            .FirstOrDefaultAsync(ap => ap.AdminId == adminId && ap.ParticipantId == participantId);
-
-        if (relationship == null)
-        {
-            throw new InvalidOperationException("Admin-Participant relationship not found");
-        }
-
-        return relationship.AccessCode;
-    }
-
     #endregion
 
     #region Token Management
 
-    public async Task<object> RefreshTokenAsync(string refreshToken)
-    {
-        var token = await _context.RefreshTokens
-            .Include(rt => rt.User)
-            .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
-
-        if (token == null || !token.IsActive)
-        {
-            throw new UnauthorizedAccessException("Invalid or expired refresh token");
-        }
-
-        // Revoke old token
-        token.RevokedAt = DateTime.UtcNow;
-
-        // Decode the old token to determine role
-        var handler = new JwtSecurityTokenHandler();
-        var oldAccessToken = token.Token; // This is refresh token, we need to check user's role from DB
-
-        // Check if user is in admin-participant relationship as participant
-        var participantRelationship = await _context.AdminsParticipants
-            .Include(ap => ap.Admin)
-            .FirstOrDefaultAsync(ap => ap.ParticipantId == token.UserId);
-
-        object response;
-        if (participantRelationship != null)
-        {
-            // Generate new participant tokens
-            response = await GenerateParticipantAuthResponse(
-                token.User,
-                participantRelationship.Admin,
-                participantRelationship.AccessCode);
-        }
-        else
-        {
-            // Generate new admin tokens
-            response = await GenerateAdminAuthResponse(token.User);
-        }
-
-        token.ReplacedByToken = refreshToken;
-        await _context.SaveChangesAsync();
-
-        return response;
-    }
-
-    public async Task RevokeTokenAsync(string refreshToken)
-    {
-        var token = await _context.RefreshTokens
-            .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
-
-        if (token == null || !token.IsActive)
-        {
-            throw new InvalidOperationException("Token not found or already revoked");
-        }
-
-        token.RevokedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
-    }
 
     public async Task<bool> ValidateTokenAsync(string token)
     {
@@ -266,12 +188,10 @@ public class AuthService : IAuthService
     private async Task<AuthResponse> GenerateAdminAuthResponse(User user)
     {
         var accessToken = GenerateAdminAccessToken(user);
-        var refreshToken = await GenerateRefreshToken(user.Id);
 
         return new AuthResponse
         {
             AccessToken = accessToken,
-            RefreshToken = refreshToken.Token,
         };
     }
 
@@ -279,16 +199,14 @@ public class AuthService : IAuthService
         User participant, User admin, string accessCode)
     {
         var accessToken = GenerateParticipantAccessToken(participant, admin, accessCode);
-        var refreshToken = await GenerateRefreshToken(participant.Id);
 
         return new AuthResponse
         {
             AccessToken = accessToken,
-            RefreshToken = refreshToken.Token,
         };
     }
 
-    private List<Claim>  GenerateUserClaims(User user)
+    private List<Claim> GenerateUserClaims(User user)
     {
         var claims = new List<Claim>
         {
@@ -343,23 +261,6 @@ public class AuthService : IAuthService
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
-    }
-
-    private async Task<RefreshToken> GenerateRefreshToken(Guid userId)
-    {
-        var refreshToken = new RefreshToken
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-            ExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays),
-            CreatedAt = DateTime.UtcNow
-        };
-
-        _context.RefreshTokens.Add(refreshToken);
-        await _context.SaveChangesAsync();
-
-        return refreshToken;
     }
 
     #endregion

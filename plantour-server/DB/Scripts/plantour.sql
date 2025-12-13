@@ -133,17 +133,6 @@ create table admins_participants (
 create unique index idx_admins_participants_admin_id_participant_id on admins_participants(admin_id, participant_id);
 create unique index idx_admins_participants_email_admin_id_email on admins_participants(admin_id, email);
 
-create table refresh_tokens (
-    id uuid primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
-    token varchar(500) not null,
-    expires_at timestamp with time zone not null,
-    created_at timestamp with time zone not null default now(),
-    revoked_at timestamp with time zone null,
-    replaced_by_token varchar(500) null
-);
-create index idx_refresh_tokens_user_id on refresh_tokens(user_id);
-
 -----------------------------------------------------------------------
 -- USER THINGS
 -----------------------------------------------------------------------

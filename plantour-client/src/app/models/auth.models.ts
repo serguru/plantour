@@ -32,7 +32,8 @@ export interface SignUpParticipantRequest {
   firstName?: string;
   lastName?: string;
   phone?: string;
-  password?: string;
+  notes?: string;
+  participantStatus?: string;
 }
 
 export interface SignInParticipantRequest {

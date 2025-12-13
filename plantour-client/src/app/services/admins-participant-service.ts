@@ -1,8 +1,10 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable, Inject, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService } from './crud-service';
+import { SignUpParticipantRequest } from '../models/auth.models';
+import { UsersService } from './users-service';
 
 export interface AdminsParticipantDto {
   id: string;
@@ -17,15 +19,15 @@ export interface AdminsParticipantDto {
   notes?: string | null;
 }
 
-export interface CreateAdminsParticipantRequest {
-  participantId: string;
-  participantStatus?: string | null;
-  email: string;
-  firstName?: string | null;
-  lastName?: string | null;
-  phone?: string | null;
-  notes?: string | null;
-}
+// export interface CreateAdminsParticipantRequest {
+//   participantId: string;
+//   participantStatus?: string | null;
+//   email: string;
+//   firstName?: string | null;
+//   lastName?: string | null;
+//   phone?: string | null;
+//   notes?: string | null;
+// }
 
 export interface UpdateAdminsParticipantRequest {
   id: string;
@@ -41,8 +43,9 @@ export interface UpdateAdminsParticipantRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class AdminsParticipantService extends CrudService<AdminsParticipantDto, CreateAdminsParticipantRequest, UpdateAdminsParticipantRequest> {
+export class AdminsParticipantService extends CrudService<AdminsParticipantDto, SignUpParticipantRequest, UpdateAdminsParticipantRequest> {
   private apiUrl: string;
+  private usersService = inject(UsersService)
 
   constructor(
     private http: HttpClient,
@@ -64,9 +67,13 @@ export class AdminsParticipantService extends CrudService<AdminsParticipantDto, 
     return this.http.get<AdminsParticipantDto>(`${this.apiUrl}/email/${email}`);
   }
 
-  add(request: CreateAdminsParticipantRequest): Observable<AdminsParticipantDto> {
-    return this.http.post<AdminsParticipantDto>(this.apiUrl, request);
+  add(request: SignUpParticipantRequest): Observable<AdminsParticipantDto> {
+    return this.usersService.registerParticipant(request);
+//    return this.http.post<AdminsParticipantDto>(this.apiUrl, request);
   }
+
+
+
 
   update(request: UpdateAdminsParticipantRequest): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}`, request);

@@ -13,12 +13,12 @@ export type SortType = 'string' | 'number' | 'none';
 export interface ListActionsPropertyConfig {
   filter?: boolean;
   sorting?: SortType;
-  //lookupList?: string[];
   lookupIcon?: string;
 }
 
 export interface ListActionsConfigItem {
   property: string;
+  label: string;
   config: ListActionsPropertyConfig;
 }
 
@@ -121,6 +121,7 @@ export class ListActionsComponent implements OnChanges, OnInit {
     this.config = (this.config || []).map(c => {
       const normalized: ListActionsConfigItem = {
         property: c.property,
+        label: c.label,
         config: { ...(c.config || {}) }
       };
 
@@ -170,7 +171,7 @@ export class ListActionsComponent implements OnChanges, OnInit {
 
     this.sortableProperties = this.config!
       .filter(c => c.config.sorting && c.config.sorting !== 'none')
-      .map(c => ({ label: c.property, value: c.property }));
+      .map(c => ({ label: c.label, value: c.property }));
 
     this.lookupConfigByProp = {};
     this.lookupValues = {};
@@ -192,7 +193,7 @@ export class ListActionsComponent implements OnChanges, OnInit {
       if (c.config.lookupIcon) {
         options.push({
           type: 'lookup',
-          label: c.property,
+          label: c.label,
           property: c.property,
           icon: `pi pi-${c.config.lookupIcon}`
         });

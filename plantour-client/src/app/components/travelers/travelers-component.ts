@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { CrudService } from '../../services/crud-service';
-import { AdminsParticipantDto, CreateAdminsParticipantRequest, UpdateAdminsParticipantRequest, AdminsParticipantService } from '../../services/admins-participant-service';
+import { AdminsParticipantDto, UpdateAdminsParticipantRequest, AdminsParticipantService } from '../../services/admins-participant-service';
 import { BaseListComponent } from '../base-list/base-list';
 import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
+import { SignUpParticipantRequest } from '../../models/auth.models';
 
 @Component({
   selector: 'app-travelers-component',
@@ -18,29 +19,33 @@ import { TagModule } from 'primeng/tag';
 export class TravelersComponent {
   router = inject(Router);
 
-  service: CrudService<AdminsParticipantDto, CreateAdminsParticipantRequest, UpdateAdminsParticipantRequest> = inject(AdminsParticipantService);
+  service: CrudService<AdminsParticipantDto, SignUpParticipantRequest, UpdateAdminsParticipantRequest> = inject(AdminsParticipantService);
 
   configuration: any[] = [
     {
       property: 'email',
+      label: 'email',
       config: {
         filter: true,
         sorting: 'text'
       }
     },{
       property: 'firstName',
+      label: 'First Name',
       config: {
         filter: true,
         sorting: 'text'
       }
     },{
       property: 'lastName',
+      label: 'Last Name',
       config: {
         filter: true,
         sorting: 'text'
       }
     },{
       property: 'participantStatus',
+      label: 'Status',
       config: {
         filter: true,
         sorting: 'text',

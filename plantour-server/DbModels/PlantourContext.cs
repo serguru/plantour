@@ -21,8 +21,6 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<ParticipantStatus> ParticipantStatuses { get; set; }
 
-    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
-
     public virtual DbSet<ThingCategory> ThingCategories { get; set; }
 
     public virtual DbSet<Trip> Trips { get; set; }
@@ -85,16 +83,6 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("participant_status_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-        });
-
-        modelBuilder.Entity<RefreshToken>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("refresh_tokens_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
-
-            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens).HasConstraintName("refresh_tokens_user_id_fkey");
         });
 
         modelBuilder.Entity<ThingCategory>(entity =>

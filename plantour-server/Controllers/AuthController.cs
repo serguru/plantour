@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using plantour_server.Attributes;
+using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Services;
 
@@ -63,12 +64,12 @@ public class AuthController : ControllerBase
 
     [HttpPost("participant/signup")]
     [AdminOnly]
-    public async Task<ActionResult<AuthResponse>> SignUpParticipant([FromBody] SignUpParticipantRequest request)
+    public async Task<ActionResult<AdminsParticipantDto>> SignUpParticipant([FromBody] SignUpParticipantRequest request)
     {
         try
         {
-            var response = await _authService.SignUpParticipantAsync(request);
-            return Ok(response);
+            AdminsParticipantDto result = await _authService.SignUpParticipantAsync(request);
+            return Ok(result);
         }
         catch (InvalidOperationException ex)
         {
@@ -79,10 +80,6 @@ public class AuthController : ControllerBase
             return StatusCode(500, new { message = "An error occurred during participant sign up", details = ex.Message });
         }
     }
-
-    // PER52212636 request number for closing accounts
-
-
 
     [HttpPost("participant/signin")]
     [AllowAnonymous]
@@ -106,40 +103,6 @@ public class AuthController : ControllerBase
     #endregion
 
     #region Common Endpoints
-
-    [AllowAnonymous]
-    [HttpPost("refresh")]
-    public async Task<ActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
-    {
-        try
-        {
-            var response = await _authService.RefreshTokenAsync(request.RefreshToken);
-            return Ok(response);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred during token refresh", details = ex.Message });
-        }
-    }
-
-    [Authorize]
-    [HttpPost("revoke")]
-    public async Task<IActionResult> RevokeToken([FromBody] RefreshTokenRequest request)
-    {
-        try
-        {
-            await _authService.RevokeTokenAsync(request.RefreshToken);
-            return Ok(new { message = "Token revoked successfully" });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-    }
 
     [Authorize]
     [HttpGet("validate")]

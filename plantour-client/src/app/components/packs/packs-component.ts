@@ -22,6 +22,7 @@ export class PacksComponent {
   configuration: any[] = [
     {
       property: 'name',
+      label: 'Name',
       icon: 'pi pi-user',
       config: {
         //lookupList: ['DaypackC','Toiletries pouchAC','Yellow suitcaseABC'],
