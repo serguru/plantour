@@ -12,6 +12,7 @@ public class AdminsParticipantMappingProfile : Profile
         
         CreateMap<UpdateAdminsParticipantRequest, AdminsParticipant>()
             .ForMember(dest => dest.AdminId, opt => opt.Ignore())
+            .ForMember(dest => dest.ParticipantId, opt => opt.Ignore())
             .ForMember(dest => dest.AccessCodeHash, opt => opt.Ignore())
             .ForMember(dest => dest.AccessCodeSalt, opt => opt.Ignore())
             .ForMember(dest => dest.Admin, opt => opt.Ignore())

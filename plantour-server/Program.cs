@@ -94,6 +94,7 @@ builder.Services.AddScoped<plantour_server.Repositories.TripUserThingRepository>
 builder.Services.AddScoped<plantour_server.Repositories.TripUserPackageRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.LookupsRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.AuthRepository>();
 
 
 // Configure CORS for Angular client

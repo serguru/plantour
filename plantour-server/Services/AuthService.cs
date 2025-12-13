@@ -108,10 +108,12 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("Only admins can register participants");
         }
 
+        User? participant = _authRepository.GetByEmailAsync(request.Email).Result;
+
         // Ensure participant user exists or create new
-        if (!await _authRepository.AnyByEmailAsync(request.Email))
+        if (participant == null)
         {
-            var participant = new User
+            participant = new User
             {
                 Email = request.Email,
                 PasswordHash = null,
@@ -142,7 +144,7 @@ public class AuthService : IAuthService
         // Create admin-participant relationship
         var adminParticipant = new AdminsParticipant
         {
-            ParticipantId = Guid.NewGuid(),
+            ParticipantId = participant.Id,
             AccessCodeHash = accessCodeHash,
             AccessCodeSalt = accessCodeSalt,
             Notes = request.Notes,

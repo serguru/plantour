@@ -85,6 +85,7 @@ public class AdminsParticipantRepository : BaseRepository
         {
             throw new InvalidOperationException("Access denied");
         }
+        entity.Id = Guid.NewGuid();
         entity.AdminId = CurrentUser.UserId!.Value;
         _context.AdminsParticipants.Add(entity);
         try

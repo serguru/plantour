@@ -7,9 +7,7 @@ public class UpdateAdminsParticipantRequest
     [Required]
     public Guid Id { get; set; }
     
-    [Required]
-    public Guid ParticipantId { get; set; }
-    
+   
     public string? ParticipantStatus { get; set; }
     
     [Required]
