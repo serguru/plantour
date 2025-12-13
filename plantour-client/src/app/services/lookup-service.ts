@@ -136,6 +136,7 @@ export class LookupService {
       });
     });
   }
+  participantStatuses$ = this.getParticipantStatuses();
 
   getUnits(): Observable<UnitDto[]> {
     return new Observable((observer) => {

@@ -11,7 +11,11 @@
 >
 </app-base-form>
 
-<ng-template #fieldsTemplate let-form="form">
+<ng-template
+  #fieldsTemplate
+  let-form="form"
+  let-participantStatuses="participantStatuses$"
+>
   <div class="controls-wrapper">
     <form [formGroup]="form">
       <div class="form-field">
@@ -24,12 +28,12 @@
           placeholder="Enter email"
         />
         @if (form.get('email')?.invalid && (form.get('email')?.touched || form.get('email')?.dirty)) {
-          @if (form.get('email')?.errors?.['required']) {
-            <small class="error-message">Email is required</small>
-          }
-          @if (form.get('email')?.errors?.['email']) {
-            <small class="error-message">Invalid email format</small>
-          }
+        @if (form.get('email')?.errors?.['required']) {
+        <small class="error-message">Email is required</small>
+        }
+        @if (form.get('email')?.errors?.['email']) {
+        <small class="error-message">Invalid email format</small>
+        }
         }
       </div>
       <div class="form-field">
@@ -42,7 +46,7 @@
           placeholder="Enter first name"
         />
         @if (form.get('firstName')?.invalid && (form.get('firstName')?.touched || form.get('firstName')?.dirty)) {
-          <small class="error-message">First name is required</small>
+        <small class="error-message">First name is required</small>
         }
       </div>
       <div class="form-field">
@@ -55,7 +59,7 @@
           placeholder="Enter last name"
         />
         @if (form.get('lastName')?.invalid && (form.get('lastName')?.touched || form.get('lastName')?.dirty)) {
-          <small class="error-message">Last name is required</small>
+        <small class="error-message">Last name is required</small>
         }
       </div>
       <div class="form-field">
@@ -80,14 +84,38 @@
       </div>
       <div class="form-field">
         <label for="participantStatus">Status</label>
-        <input
+        <!-- <input
           pInputText
           id="participantStatus"
           type="text"
           formControlName="participantStatus"
           placeholder="Enter status (optional)"
-        />
+        /> -->
+
+          <p-select
+            id="participantStatus"
+            formControlName="participantStatus"
+            [options]="participantStatuses | async"
+            optionLabel="name"
+            optionValue="name"
+            placeholder="Select status"
+            [showClear]="true"
+            styleClass="w-full"
+            [editable]="true"
+            appendTo="body"
+          ></p-select>
+
+
+
       </div>
+
+
+
+
+
+      
+
+
     </form>
   </div>
 </ng-template>

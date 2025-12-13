@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { AsyncPipe } from '@angular/common';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'app-traveler-form-component',
@@ -14,7 +15,9 @@ import { AsyncPipe } from '@angular/common';
     BaseFormComponent,
     InputTextModule,
     ReactiveFormsModule,
-    TextareaModule
+    TextareaModule,
+    Select,
+    AsyncPipe
   ],
   templateUrl: './traveler-form-component.html',
   styleUrl: './traveler-form-component.scss'

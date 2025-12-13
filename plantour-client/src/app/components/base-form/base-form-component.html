@@ -12,7 +12,12 @@
 
   <div class="controls-wrapper">
 
-    <ng-container *ngTemplateOutlet="formTemplate; context: { form: form, thingCategories$: lookupsService.thingCategories$, units$: lookupsService.units$ }">
+    <ng-container *ngTemplateOutlet="formTemplate; context: { 
+        form: form, 
+        thingCategories$: lookupsService.thingCategories$, 
+        units$: lookupsService.units$,
+        participantStatuses$: lookupsService.participantStatuses$ 
+      }">
     </ng-container>
 
     <div class="form-actions">
