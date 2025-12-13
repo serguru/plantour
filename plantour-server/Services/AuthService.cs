@@ -86,6 +86,12 @@ public class AuthService : IAuthService
 
     public async Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request)
     {
+        var currentUser = _authRepository.CurrentUser;
+        if (currentUser == null || !currentUser.IsAdmin)
+        {
+            throw new UnauthorizedAccessException("Only admins can register participants");
+        }
+
         // Ensure participant user exists or create new
         if (!await _authRepository.AnyByEmailAsync(request.Email))
         {
@@ -97,7 +103,7 @@ public class AuthService : IAuthService
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Phone = request.Phone,
-                Notes = $"Registered by admin on {DateTime.UtcNow}"
+                Notes = $"Registered by admin {currentUser.Email} on {DateTime.UtcNow}"
             };
             await _authRepository.AddAsync(participant);
         }

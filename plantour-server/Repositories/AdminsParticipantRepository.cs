@@ -85,6 +85,7 @@ public class AdminsParticipantRepository : BaseRepository
         {
             throw new InvalidOperationException("Access denied");
         }
+        entity.AdminId = CurrentUser.UserId!.Value;
         _context.AdminsParticipants.Add(entity);
         try
         {
@@ -99,7 +100,6 @@ public class AdminsParticipantRepository : BaseRepository
             }
             throw;
         }
-    //    await _context.SaveChangesAsync();
     }
 
     public virtual async Task UpdateAsync(AdminsParticipant entity)

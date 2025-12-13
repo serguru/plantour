@@ -45,7 +45,6 @@ public partial class User
     [InverseProperty("Participant")]
     public virtual ICollection<AdminsParticipant> AdminsParticipantParticipants { get; set; } = new List<AdminsParticipant>();
 
-
     [InverseProperty("User")]
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 

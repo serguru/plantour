@@ -12,7 +12,7 @@ public abstract class BaseRepository
     {
         _httpContextAccessor = httpContextAccessor;
     }
-    protected CurrentUser? CurrentUser
+    public CurrentUser? CurrentUser
     {
         get
         {
