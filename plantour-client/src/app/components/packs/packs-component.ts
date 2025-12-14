@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CrudService } from '../../services/crud-service';
-import { CreateUserPackageRequest, UpdateUserPackageRequest, UserPackageDto, UserPackageService } from '../../services/package-service';
+import { CreatePackageRequest, UpdatePackageRequest, PackageDto, UserPackageService } from '../../services/package-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
 
@@ -17,7 +17,7 @@ export class PacksComponent {
 
   router = inject(Router);
 
-  service: CrudService<UserPackageDto, CreateUserPackageRequest, UpdateUserPackageRequest> = inject(UserPackageService);
+  service: CrudService<PackageDto, CreatePackageRequest, UpdatePackageRequest> = inject(UserPackageService);
 
   configuration: any[] = [
     {

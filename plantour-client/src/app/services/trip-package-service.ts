@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService } from './crud-service';
 
-export interface TripUserPackageDto {
+export interface TripPackageDto {
   id: string;
   parentPackageId?: string | null;
   tripUserId: string;
@@ -47,7 +47,7 @@ export interface UpdateTripPackageRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class TripPackageService extends CrudService<TripUserPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest> {
+export class TripPackageService extends CrudService<TripPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest> {
   private apiUrl: string;
 
   constructor(
@@ -58,16 +58,16 @@ export class TripPackageService extends CrudService<TripUserPackageDto, CreateTr
     this.apiUrl = `${environment.apiUrl}/api/TripUserPackage`;
   }
 
-  getAll(tripId: string): Observable<TripUserPackageDto[]> {
-    return this.http.get<TripUserPackageDto[]>(`${this.apiUrl}/trip/${tripId}`);
+  getAll(tripId: string): Observable<TripPackageDto[]> {
+    return this.http.get<TripPackageDto[]>(`${this.apiUrl}/trip/${tripId}`);
   }
 
-  getById(id: string): Observable<TripUserPackageDto> {
-    return this.http.get<TripUserPackageDto>(`${this.apiUrl}/${id}`);
+  getById(id: string): Observable<TripPackageDto> {
+    return this.http.get<TripPackageDto>(`${this.apiUrl}/${id}`);
   }
 
-  add(request: CreateTripPackageRequest): Observable<TripUserPackageDto> {
-    return this.http.post<TripUserPackageDto>(this.apiUrl, request);
+  add(request: CreateTripPackageRequest): Observable<TripPackageDto> {
+    return this.http.post<TripPackageDto>(this.apiUrl, request);
   }
 
   update(request: UpdateTripPackageRequest): Observable<void> {

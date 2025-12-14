@@ -4,18 +4,18 @@ import { Observable, of, tap } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService } from './crud-service';
 
-export interface UserPackageDto {
+export interface PackageDto {
   id: string;
   name: string;
   description?: string | null;
 }
 
-export interface CreateUserPackageRequest {
+export interface CreatePackageRequest {
   name: string;
   description?: string | null;
 }
 
-export interface UpdateUserPackageRequest {
+export interface UpdatePackageRequest {
   id: string;
   name: string;
   description?: string | null;
@@ -24,9 +24,9 @@ export interface UpdateUserPackageRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class UserPackageService extends CrudService<UserPackageDto, CreateUserPackageRequest, UpdateUserPackageRequest> {
+export class UserPackageService extends CrudService<PackageDto, CreatePackageRequest, UpdatePackageRequest> {
   private apiUrl: string;
-  public packages: UserPackageDto[] = [];
+  public packages: PackageDto[] = [];
 
   constructor(
     private http: HttpClient,
@@ -36,21 +36,21 @@ export class UserPackageService extends CrudService<UserPackageDto, CreateUserPa
     this.apiUrl = `${environment.apiUrl}/api/userpackage`;
   }
 
-  getAll(): Observable<UserPackageDto[]> {
-    return this.http.get<UserPackageDto[]>(this.apiUrl).pipe(
+  getAll(): Observable<PackageDto[]> {
+    return this.http.get<PackageDto[]>(this.apiUrl).pipe(
       tap(packages => this.packages = packages)
     );
   }
 
-  getById(id: string): Observable<UserPackageDto> {
-    return this.http.get<UserPackageDto>(`${this.apiUrl}/${id}`);
+  getById(id: string): Observable<PackageDto> {
+    return this.http.get<PackageDto>(`${this.apiUrl}/${id}`);
   }
 
-  add(request: CreateUserPackageRequest): Observable<UserPackageDto> {
-    return this.http.post<UserPackageDto>(this.apiUrl, request);
+  add(request: CreatePackageRequest): Observable<PackageDto> {
+    return this.http.post<PackageDto>(this.apiUrl, request);
   }
 
-  update(request: UpdateUserPackageRequest): Observable<void> {
+  update(request: UpdatePackageRequest): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}`, request);
   }
 
