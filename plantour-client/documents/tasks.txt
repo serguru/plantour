@@ -111,7 +111,7 @@ I need a solution to apply different templates inside p-listbox depending on T. 
 
 
 
-Смотри компонент ThingsComponent. Создай в src\app\components\travelers новый похожий компонент TravelersComponent для управления списком путешественников юзера. Используй сервис AdminsParticipantService так же, как ThingsComponent использует сервис TripUserThingService. Не забудь создать там же еще один компонент форму - аналог ThingFormComponent.
+Смотри компонент ThingsComponent. Создай в src\app\components\travelers новый похожий компонент TravelersComponent для управления списком путешественников юзера. Используй сервис AdminsParticipantService так же, как ThingsComponent использует сервис TripThingService. Не забудь создать там же еще один компонент форму - аналог ThingFormComponent.
 
 Используй src\app\services\messages-service.ts для сообщений, standalone, ReactiveForms, @if, .ts, .html and .scss files. Не забудь про валидацию полей. Смотри как реализован UI в компонентах ThingsComponent и ThingFormComponent. Масимально используй классы из styles.scss так, как это сделано в этих компонентах. Создавай оригинальные css классы только если подходящий класс в styles.scss не найден. Добавь routes для вновь созданных компонентов в app.routes.ts
 

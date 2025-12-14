@@ -18,7 +18,7 @@ export interface TripUserPackageDto {
   weightUnit?: string | null;
 }
 
-export interface CreateTripUserPackageRequest {
+export interface CreateTripPackageRequest {
   tripId: string;
   parentPackageId?: string | null;
   name: string;
@@ -31,7 +31,7 @@ export interface CreateTripUserPackageRequest {
   weightUnit?: string | null;
 }
 
-export interface UpdateTripUserPackageRequest {
+export interface UpdateTripPackageRequest {
   id: string;
   parentPackageId?: string | null;
   name: string;
@@ -47,7 +47,7 @@ export interface UpdateTripUserPackageRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class TripUserPackageService extends CrudService<TripUserPackageDto, CreateTripUserPackageRequest, UpdateTripUserPackageRequest> {
+export class TripPackageService extends CrudService<TripUserPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest> {
   private apiUrl: string;
 
   constructor(
@@ -66,11 +66,11 @@ export class TripUserPackageService extends CrudService<TripUserPackageDto, Crea
     return this.http.get<TripUserPackageDto>(`${this.apiUrl}/${id}`);
   }
 
-  add(request: CreateTripUserPackageRequest): Observable<TripUserPackageDto> {
+  add(request: CreateTripPackageRequest): Observable<TripUserPackageDto> {
     return this.http.post<TripUserPackageDto>(this.apiUrl, request);
   }
 
-  update(request: UpdateTripUserPackageRequest): Observable<void> {
+  update(request: UpdateTripPackageRequest): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}`, request);
   }
 
