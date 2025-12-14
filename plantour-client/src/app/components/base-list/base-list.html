@@ -53,6 +53,10 @@
     </div>
   </div>
 
+  @if (dic2tripVisible) {
+  <app-dic-trip (selectedTripChanged)="onSelectedTripChanged($event)"></app-dic-trip>
+  }
+
   <app-list-actions
     [items]="entities"
     [config]="listActionsConfiguration"

@@ -9,6 +9,7 @@ import { MessagesService } from '../../services/messages-service';
 import { ButtonModule } from 'primeng/button';
 import { ListBoxComponent } from '../list-box/list-box.component';
 import { ToolbarAware } from '../toolbar-aware';
+import { DicTripComponent } from '../dic-trip/dic-trip.component';
 
 @Component({
   selector: 'app-generic-list',
@@ -19,7 +20,8 @@ import { ToolbarAware } from '../toolbar-aware';
     CommonModule,
     ListActionsComponent,
     ButtonModule,
-    ListBoxComponent
+    ListBoxComponent,
+    DicTripComponent
   ],
   templateUrl: './base-list.html',
   styleUrl: './base-list.scss'
@@ -60,6 +62,14 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     protected route: ActivatedRoute
   ) {
     super();
+  }
+
+  onSelectedTripChanged(trip: any | null) {
+console.log('Selected trip changed:', trip);   
+    // if (trip) {
+    //   this.tripId = trip.id;    
+    //   this.getAll();
+    // }
   }
 
   onToggleTrip() {
