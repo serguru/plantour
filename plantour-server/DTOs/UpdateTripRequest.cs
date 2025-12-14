@@ -5,7 +5,7 @@ namespace plantour_server.DTOs;
 public class UpdateTripRequest
 {
     [Required]
-    public Guid TripId { get; set; }
+    public Guid Id { get; set; }
     
     public string? TripStatus { get; set; }
     

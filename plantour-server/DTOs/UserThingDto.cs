@@ -3,7 +3,6 @@ namespace plantour_server.DTOs;
 public class UserThingDto
 {
     public Guid Id { get; set; }
-    public Guid UserId { get; set; }
 
     public string? Category { get; set; }
 

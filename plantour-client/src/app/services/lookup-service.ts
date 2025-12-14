@@ -124,6 +124,8 @@ export class LookupService {
       });
     });
   }
+  tripStatuses$ = this.getTripStatuses();
+
 
   getParticipantStatuses(): Observable<ParticipantStatusDto[]> {
     return new Observable((observer) => {

@@ -39,7 +39,7 @@ public class TripService : ITripService
 
     public async Task<bool> UpdateAsync(UpdateTripRequest request)
     {
-        var entity = await _tripRepository.GetByIdAsync(request.TripId);
+        var entity = await _tripRepository.GetByIdAsync(request.Id);
         if (entity == null)
         {
             return false;

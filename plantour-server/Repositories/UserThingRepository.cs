@@ -58,6 +58,8 @@ public class UserThingRepository : BaseRepository
         {
             throw new InvalidOperationException("Thing with the same description already exists");
         }
+        entity.Id = Guid.NewGuid();
+        entity.UserId = CurrentUser.UserId!.Value;
         _context.UserThings.Add(entity);
         await _context.SaveChangesAsync();
     }
@@ -69,6 +71,7 @@ public class UserThingRepository : BaseRepository
         {
             throw new InvalidOperationException("User thing not found or access denied");
         }
+        entity.UserId = CurrentUser.UserId!.Value;
         _context.UserThings.Attach(entity);
         _context.Entry(entity).State = EntityState.Modified;
         await _context.SaveChangesAsync();

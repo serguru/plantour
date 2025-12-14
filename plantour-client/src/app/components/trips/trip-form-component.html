@@ -1,0 +1,89 @@
+<app-base-form
+  [service]="service"
+  [fieldsConfig]="fieldsConfig"
+  [formTemplate]="fieldsTemplate"
+  [mode]="mode"
+  entityIcon="pi-compass"
+  entityName="trip"
+  [id]="id"
+  backUrl="/trips"
+  [toolBarButtons]="this.toolBarButtons"
+>
+</app-base-form>
+
+<ng-template
+  #fieldsTemplate
+  let-form="form"
+  let-tripStatuses="tripStatuses$"
+  let-onSubmit="onSubmit"
+>
+  <div class="controls-wrapper">
+    <form [formGroup]="form">
+      <div class="form-field">
+        <label for="name">Name<span class="required">*</span></label>
+        <input
+          pInputText
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Enter trip name"
+        />
+        @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty) ) {
+        @if (form.get('name')?.errors?.['required']) {
+        <small class="error-message">
+          Name is required
+        </small>
+        }
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="tripStatus">Status</label>
+        <p-select
+          id="tripStatus"
+          formControlName="tripStatus"
+          [options]="tripStatuses | async"
+          optionLabel="name"
+          optionValue="name"
+          placeholder="Select status"
+          [showClear]="true"
+          styleClass="w-full"
+          [editable]="true"
+        ></p-select>
+      </div>
+
+      <div class="form-field">
+        <label for="startDate">Start date</label>
+        <p-datepicker
+          id="startDate"
+          formControlName="startDate"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          styleClass="w-full"
+        ></p-datepicker>
+      </div>
+
+      <div class="form-field">
+        <label for="endDate">End date</label>
+        <p-datepicker
+          id="endDate"
+          formControlName="endDate"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          styleClass="w-full"
+        ></p-datepicker>
+      </div>
+
+      <div class="form-field">
+        <label for="description">Description</label>
+        <textarea
+          pTextarea
+          id="description"
+          formControlName="description"
+          rows="5"
+          placeholder="Enter description (optional)"
+        ></textarea>
+      </div>
+    </form>
+  </div>
+</ng-template>

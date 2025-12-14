@@ -34,6 +34,20 @@ export const routes: Routes = [
     data: { mode: 'add' }
   },
   {
+    path: 'trips',
+    loadComponent: () => import('./components/trips/trips-component').then(m => m.TripsComponent)
+  },
+  {
+    path: 'trips/add',
+    loadComponent: () => import('./components/trips/trip-form-component').then(m => m.TripFormComponent),
+    data: { mode: 'add' }
+  },
+  {
+    path: 'trips/edit/:id',
+    loadComponent: () => import('./components/trips/trip-form-component').then(m => m.TripFormComponent),
+    data: { mode: 'edit' }
+  },
+  {
     path: 'things/edit/:id',
     loadComponent: () => import('./components/things/thing-form-component').then(m => m.ThingFormComponent),
     data: { mode: 'edit' }

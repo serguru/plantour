@@ -9,6 +9,7 @@ import { MessagesService } from '../../services/messages-service';
 import { Router } from '@angular/router';
 import { LookupService } from '../../services/lookup-service';
 import { ToolbarAware } from '../toolbar-aware';
+import deepEqual from 'fast-deep-equal';
 
 export type BaseFormMode = 'add' | 'edit';
 
@@ -29,6 +30,8 @@ export class BaseFormComponent<T, TA, TU> extends ToolbarAware implements OnInit
   constructor() {
     super();
   }
+
+  private initialValue!: any;
 
   messagesService = inject(MessagesService);
 
@@ -67,7 +70,16 @@ export class BaseFormComponent<T, TA, TU> extends ToolbarAware implements OnInit
     );
   }
 
+  get submitEnabled(): boolean {
+    if (this.isAddMode) {
+      return true;
+    } 
+    return !deepEqual(this.initialValue, this.form.getRawValue());
+  }
+
   ngOnInit() {
+
+
     this.setupToolbarButtons();
     this.form = this.fb.group(this.fieldsConfig);
 
@@ -89,8 +101,22 @@ export class BaseFormComponent<T, TA, TU> extends ToolbarAware implements OnInit
     ).subscribe({
       next: (entity) => {
         this.form.patchValue(entity as any);
+        this.initialValue = this.form.getRawValue();
       }
     })
+  }
+
+  isValidDate(value: unknown): value is Date {
+    return value instanceof Date && !isNaN(value.getTime());
+  }
+
+  formatDate(date: Date | string): string {
+    if (!date) return '';
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   onSubmit(): void {
@@ -104,6 +130,18 @@ export class BaseFormComponent<T, TA, TU> extends ToolbarAware implements OnInit
     this.errorMessage = '';
 
     const newEntity = this.form.value;
+
+    for (const [key, value] of Object.entries(newEntity)) {
+      if (this.isValidDate(value)) {
+        newEntity[key] = this.formatDate(value);
+      }
+      if (typeof value === 'string') {
+        newEntity[key] = value.trim();
+      }
+      if (value === '') {
+        newEntity[key] = null;
+      }
+    }
 
     if (this.isAddMode) {
 
@@ -152,7 +190,7 @@ export class BaseFormComponent<T, TA, TU> extends ToolbarAware implements OnInit
         )
     }
   }
-  
+
   navigateBack(): void {
     if (this.backUrl) {
       if (!this.isAddMode) {
@@ -162,7 +200,7 @@ export class BaseFormComponent<T, TA, TU> extends ToolbarAware implements OnInit
         return;
       }
       this.router.navigate([this.backUrl]);
-    } 
+    }
   }
 
 }
