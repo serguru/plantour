@@ -37,6 +37,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   @Input() listActionsConfiguration: any[] = [];
   @Input() addUrl: string | null = null;
   @Input() editUrl: string | null = null;
+  @Input() dic2trip: boolean = false;
   @Input() isListReadOnly: boolean = false;
   @Input() entityNameProp: string = 'name';
   @Input() entityName: string = '';
@@ -52,11 +53,18 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   listToolsShown: boolean = false;
   tripId: string | null = null;
 
+  dic2tripVisible: boolean = false;
+
   constructor(
     protected router: Router,
     protected route: ActivatedRoute
   ) {
     super();
+  }
+
+  onToggleTrip() {
+    if (!this.dic2trip) return;
+    this.dic2tripVisible = !this.dic2tripVisible;
   }
 
   ngOnInit() {

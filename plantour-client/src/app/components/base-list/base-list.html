@@ -7,9 +7,23 @@
       ></i>
       <h2>{{ title }}</h2>
     </div>
+
     <div class="header-right">
       @if(!isListReadOnly) {
       <!-- no format -->
+        @if(dic2trip) {
+          <p-button
+            [text]="true"
+            [rounded]="true"
+          >
+            <i
+              class="pi pi-compass"
+              pButtonIcon
+              [ngClass]="dic2tripVisible ? 'icon-green':null"
+              (click)="onToggleTrip()"
+            ></i>
+          </p-button>
+        }
         @if(addUrl) {
           <p-button
             icon="pi pi-plus"
@@ -46,28 +60,6 @@
   >
   </app-list-actions>
 
-  <!-- <p-listbox
-    #listboxPlantour
-    id="base-list-listbox"
-    [options]="processedEntities!"
-    [(ngModel)]="selected"
-    [hidden]="!processedEntities || !processedEntities.length"
-  >
-    <ng-template
-      pTemplate="item"
-      let-item
-    >
-      <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
-    </ng-template>
-  </p-listbox> -->
-
-  <!-- <div>
-    @for(entity of processedEntities; track entity) {
-      <div [innerHTML]="$any(entity).name">
-      </div>
-    }
-  </div> -->
-
   <app-list-box
     [items]="processedEntities || []"
     [itemTemplate]="itemTemplate"
@@ -86,4 +78,3 @@
   </div>
   }
 </app-content-layout>
-

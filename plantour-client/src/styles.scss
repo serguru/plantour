@@ -198,6 +198,7 @@ html {
   .header-right {
     display: flex;
     gap: 1.5rem;
+//    color: red !important;
   }
 }
 
@@ -287,6 +288,9 @@ p-panel.list-actions-panel {
 .page-header .p-button-icon {
   font-size: 1.5rem !important;
   color: white;
+} 
+.page-header .p-button:hover .p-button-icon {
+  color: black !important;
 } 
 
 .p-select-option.p-select-option-selected.p-focus

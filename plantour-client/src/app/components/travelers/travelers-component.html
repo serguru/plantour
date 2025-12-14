@@ -10,24 +10,31 @@
   entityNameProp="email"
   entityName="traveler"
   [toolBarButtons]="toolBarButtons"
+  [dic2trip]="true"
 >
 </app-generic-list>
 
-<ng-template #travelerTemplate let-item>
+<ng-template
+  #travelerTemplate
+  let-item
+>
   <div class="traveler-row">
-    <span class="traveler-email" [innerHTML]="item.email"></span>
+    <span
+      class="traveler-email"
+      [innerHTML]="item.email"
+    ></span>
     <span class="traveler-name">
       {{ item.firstName }} {{ item.lastName }}
     </span>
     @if (item.participantStatus) {
-      <p-tag
-        class="traveler-status"
-        [value]="item.participantStatus"
-        severity="info"
-        [style]="{ 'font-size': 'large' }"
-        (click)="onStatusClick(item, $event)"
-      >
-      </p-tag>
+    <p-tag
+      class="traveler-status"
+      [value]="item.participantStatus"
+      severity="info"
+      [style]="{ 'font-size': 'large' }"
+      (click)="onStatusClick(item, $event)"
+    >
+    </p-tag>
     }
   </div>
 </ng-template>
