@@ -20,6 +20,13 @@ export class TripsComponent {
 
   service: CrudService<TripDto, any, any> = inject(TripService);
 
+  selected: TripDto | null = null;
+
+  onTripSelected = (trip: TripDto | null) => {
+    this.selected = trip;
+    this.toolBarButtons[1].disabled = !this.selected;
+  };
+
   configuration: any[] = [
     {
       property: 'name',
@@ -39,12 +46,22 @@ export class TripsComponent {
     }
   ];
 
+  get selectedExists(): boolean {
+    return this.selected !== null;
+  }
+
   toolBarButtons = [
     {
       id: 'back-button',
       icon: 'pi pi-chevron-left',
       tooltip: 'Back',
       command: () => this.router.navigate([""])
+    },{
+      id: 'trip-packs-button',
+      icon: 'pi pi-briefcase',
+      tooltip: 'Trip packs',
+      disabled: true,
+      command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-packs`])
     }
   ]
 

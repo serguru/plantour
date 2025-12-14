@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
 import { CrudService } from '../../services/crud-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentLayoutComponent } from "../layouts/content-layout.component";
@@ -41,7 +41,8 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   @Input() entityNameProp: string = 'name';
   @Input() entityName: string = '';
   @Input() toolBarButtons: any[] | null = null;
-
+  @Input() useTripId: boolean = false;
+  @Output() entitySelected = new EventEmitter<any | null>();
 
   entities: T[] | null = null;
   selected: T | null = null;
@@ -49,6 +50,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   isAnyFeatureActive: boolean = false;
 
   listToolsShown: boolean = false;
+  tripId: string | null = null;
 
   constructor(
     protected router: Router,
@@ -58,6 +60,9 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   }
 
   ngOnInit() {
+    if (this.useTripId) {
+      this.tripId = this.route.snapshot.paramMap.get('tripId');
+    }
     const selectId = this.route.snapshot.queryParamMap.get('selectId') || null;
     this.getAll(selectId);
     this.setupToolbarButtons();
@@ -72,7 +77,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   }
 
   getAll(selectId?: string | null) {
-    this.service.getAll().subscribe(list => {
+    this.service.getAll(this.tripId!).subscribe(list => {
       this.entities = list;
       this.processedEntities = this.entities;
       this.selectEntity(selectId);
@@ -81,6 +86,9 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
   onSelectedChange(selected: any | null) {
     this.selected = selected;
+    if (this.entitySelected) {
+      this.entitySelected.emit(this.selected);
+    } 
   }
 
   onSelectedChangeDblClick(selected: any | null) {
@@ -98,13 +106,13 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   }
 
   onAdd() {
-    this.router.navigate([this.addUrl]);
+    this.router.navigate([this.addUrl],{relativeTo: this.route});
   }
 
   onEdit() {
     if (!this.selected || this.isListReadOnly || !this.editUrl) return;
     const id = (this.selected as any).id;
-    this.router.navigate([this.editUrl.replace(':id', id)]);
+    this.router.navigate([this.editUrl.replace(':id', id)],{relativeTo: this.route});
   }
 
   get listNotEmpty(): boolean {

@@ -98,8 +98,12 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     }
 
     selectItem(item: any): void {
-        this.selectedItem = item;
-        this.selectedChange.emit(item);
+        if (this.selectedItem == item) {
+            this.selectedItem = null;
+        } else {
+            this.selectedItem = item;
+        }
+        this.selectedChange.emit(this.selectedItem);
     }
 
     onItemDoubleClick(item: any): void {

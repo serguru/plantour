@@ -1,0 +1,62 @@
+import { Component, inject, OnInit } from '@angular/core';
+import { CrudService } from '../../services/crud-service';
+import { TripPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest, TripPackageService } from '../../services/trip-package-service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BaseListComponent } from '../base-list/base-list';
+
+@Component({
+  selector: 'app-trip-packs',
+  standalone: true,
+  imports: [
+    BaseListComponent
+  ],
+  templateUrl: './trip-packs-component.html',
+  styleUrl: './trip-packs-component.scss',
+})
+export class TripPacksComponent implements OnInit {
+
+  tripId: string | null = null;
+
+  ngOnInit(): void {
+    this.tripId = this.route.snapshot.paramMap.get('tripId');
+  }
+
+  route = inject(ActivatedRoute);
+  router = inject(Router);
+  service: CrudService<TripPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest> = inject(TripPackageService);
+
+  configuration: any[] = [
+    {
+      property: 'name',
+      label: 'Name',
+      icon: 'pi pi-briefcase',
+      config: {
+        lookupIcon: 'pi pi-box',
+        filter: true,
+        sorting: 'text'
+      }
+    }
+  ];
+
+  toolBarButtons = [
+    {
+      id: 'back-button',
+      icon: 'pi pi-chevron-left',
+      tooltip: 'Back',
+      command: () => {
+
+        //const tripId = this.route.snapshot.paramMap.get('tripId');
+        if (!this.tripId) {
+          this.router.navigate(["trips"]);
+          return;
+        }
+
+        this.router.navigate(["trips"], {
+          queryParams: { selectId: this.tripId }
+        });
+      }
+    }
+  ]
+
+
+}

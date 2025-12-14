@@ -2,14 +2,15 @@
     [service]="service"
     [listActionsConfiguration]="configuration"
     [itemTemplate]="packTemplate"
-    title="Packs"
+    title="Trip Packs"
     entityIcon="pi-briefcase"
     [isListReadOnly]="false"
     [addUrl]="'add'"
     [editUrl]="'edit/:id'"
     entityNameProp="name"
-    entityName="package"
+    entityName="trip package"
     [toolBarButtons]="toolBarButtons"
+    [useTripId]="true"
 >
 </app-generic-list>
 
@@ -17,11 +18,8 @@
     #packTemplate
     let-item
 >
-    <!-- <div class="list-item"> -->
-        <span
-            class="list-name"
-            [innerHTML]="item.name"
-        ></span>
-    <!-- </div> -->
-    <!-- <textarea readonly rows="4" cols="50">{{ item.description }}</textarea> -->
+    <span
+        class="list-name"
+        [innerHTML]="item.name"
+    ></span>
 </ng-template>

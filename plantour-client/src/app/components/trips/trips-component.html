@@ -5,11 +5,12 @@
   title="Trips"
   entityIcon="pi-compass"
   [isListReadOnly]="false"
-  [addUrl]="'trips/add'"
-  [editUrl]="'trips/edit/:id'"
+  [addUrl]="'add'"
+  [editUrl]="'edit/:id'"
   entityNameProp="name"
   entityName="trip"
   [toolBarButtons]="toolBarButtons"
+  (entitySelected)="onTripSelected($event)"
 >
 </app-generic-list>
 
