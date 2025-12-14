@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { UserPackageService } from '../../services/user-package-service';
+import { UserPackageService } from '../../services/package-service';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BaseFormComponent, BaseFormMode } from '../base-form/base-form-component';
 import { ActivatedRoute, Router } from '@angular/router';

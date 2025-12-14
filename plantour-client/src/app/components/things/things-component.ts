@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CrudService } from '../../services/crud-service';
-import { CreateUserThingRequest, UpdateUserThingRequest, UserThingDto, UserThingService } from '../../services/user-thing-service';
+import { CreateUserThingRequest, UpdateUserThingRequest, UserThingDto, UserThingService } from '../../services/thing-service';
 import { BaseListComponent } from '../base-list/base-list';
 import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
