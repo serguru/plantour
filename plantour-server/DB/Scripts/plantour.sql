@@ -146,7 +146,7 @@ create table user_things (
     value decimal(10,3) check(value > 0), -- 1 if null
     notes text
 );
-create index idx_user_things_user_id on user_things(user_id);
+create unique index idx_user_things_user_id_name on user_things(user_id, name);
 
 -----------------------------------------------------------------------
 -- USER PACKAGES
@@ -268,7 +268,7 @@ create table trip_user_packages (
     weight_value decimal(10,3) check(weight_value > 0),
     weight_unit varchar(50)
 );
-create index idx_trip_user_packages_trip_user_id on trip_user_packages(trip_user_id);
+create unique index idx_trip_user_packages_trip_user_id_name on trip_user_packages(trip_user_id, name);
 
 -----------------------------------------------------------------------
 -- TRIP USER THINGS
@@ -285,8 +285,57 @@ create table trip_user_things (
     packing_status varchar(50),
     packed_at timestamptz
 );
-create index idx_trip_user_things_trip_user_id on trip_user_things(trip_user_id);
+create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
 
+
+create or replace function plantour.insert_trip_user_packages(
+    p_admin_id uuid,
+    p_participant_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_trip_user_id uuid;
+    v_inserted_count integer;
+begin
+    select tu.id
+    into v_trip_user_id
+    from plantour.trip_users tu
+    join plantour.admins_participants ap on ap.id = tu.admin_participant_id
+    join plantour.trips t on t.id = tu.trip_id
+    where
+        t.id = p_trip_id
+        and t.user_id = p_admin_id
+        and ap.admin_id = p_admin_id
+        and ap.participant_id = p_participant_id;
+
+    if v_trip_user_id is null then
+        raise exception
+            'TripUser not found for admin %, participant %, trip %',
+            p_admin_id, p_participant_id, p_trip_id;
+    end if;
+
+    insert into plantour.trip_user_packages (trip_user_id, name)
+    select
+        v_trip_user_id,
+        up.name
+    from plantour.user_packages up
+    left join plantour.trip_user_packages tup on 
+        tup.trip_user_id = v_trip_user_id and 
+        lower(tup.name collate "und-x-icu") = lower(up.name collate "und-x-icu")
+    where
+        up.id = any (p_ids)
+        and up.user_id = p_participant_id
+        and tup.id is null;
+
+    get diagnostics v_inserted_count = row_count;
+
+    return v_inserted_count;
+end;
+$$;
 
 -- ====================================================================
 -- USERS (1 admin + 2 participants + 2 extra users)

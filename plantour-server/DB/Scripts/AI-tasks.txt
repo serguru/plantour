@@ -27,6 +27,42 @@
 
 Нужно создать сервис, который вернет клиенту полный набор lookups. Создай repository Repositories/LookupsRepository и включи в него только методы для чтения следующих сущностей: PackingStatus, CommunicationType, ThingCategory, TripStatus, ParticipantStatus, Unit. Создай Services/LookupsService и включи в него единственный метод GetAllLookups, который вернет все lookups из Repositories/LookupsRepository  . Создай контролер LookupsController с единственной  endpoint для GetAllLookups.
 
+ и как PasswordHash, PasswordSalt используются в коде. Внеси необходимые изменения в код так, чобы AccessCode использовался также, как сейчас используется Password, т.е. c AccessCodeHash и AccessCodeSalt.
 
-Смотри AdminsParticipant -> AccessCode. Смотри User -> (PasswordHash, PasswordSalt) и как PasswordHash, PasswordSalt используются в коде. Внеси необходимые изменения в код так, чобы AccessCode использовался также, как сейчас используется Password, т.е. c AccessCodeHash и AccessCodeSalt.
+
+
+
+
+Напиши PostgreSQL stored procedure, которая:
+1) на вход получит @adminId uuid, @participantId uuid, @tripId uuiq и массив @ids uuid[]
+2) вставит в trip_user_packages записи 
+
+insert into trip_user_packages (trip_user_id, name)
+select * 
+from 
+(
+select a.name as name
+from user_packages a
+where a.id in @ids and a.user_id = @userId
+
+) x
+left join 
+(
+select b.id as trip_user_id, a.name as name
+from trip_user_packages a
+join trip_users b on b.id = a.trip_user_id
+join admins_participants c on c.id = b.admin_participant_id
+join trip d on d.id = b.trip_id
+where
+    d.id = @tripId and
+    d.user_id = @aminId and
+    c.admin_id = @adminId and
+    c.participant_id = @participantId
+
+) y on a.name = b.name
+where
+    y.trip_user_id is null
+
+
+
 
