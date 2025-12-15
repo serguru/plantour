@@ -17,7 +17,7 @@ public class TripUserRepository : BaseRepository
 
     public async Task<TripUser?> GetByIdAsync(Guid id)
     {
-        if (CurrentUser == null || CurrentUser.IsParticipant)
+        if (CurrentUser == null)
         {
             return null;
         }
@@ -26,12 +26,18 @@ public class TripUserRepository : BaseRepository
             return await _dbSet
                 .FirstOrDefaultAsync(x => x.Id == id && x.AdminParticipant.AdminId == CurrentUser.UserId);
         }
+
+        if (CurrentUser.IsParticipant)
+        {
+            return await _dbSet
+                .FirstOrDefaultAsync(x => x.Id == id && x.AdminParticipant.AdminId == CurrentUser.AdminId);
+        }
         return null;
     }
 
     public async Task<IEnumerable<TripUser>> GetAllAsync(Guid tripId)
     {
-        if (CurrentUser == null || CurrentUser.IsParticipant)
+        if (CurrentUser == null)
         {
             return Array.Empty<TripUser>();
         }
@@ -39,6 +45,12 @@ public class TripUserRepository : BaseRepository
         {
             return await _dbSet
                 .Where(x => x.TripId == tripId && x.AdminParticipant.AdminId == CurrentUser.UserId)
+                .ToListAsync();
+        }
+        if (CurrentUser.IsParticipant)
+        {
+            return await _dbSet
+                .Where(x => x.TripId == tripId && x.AdminParticipant.AdminId == CurrentUser.AdminId)
                 .ToListAsync();
         }
 

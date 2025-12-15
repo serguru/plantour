@@ -16,6 +16,22 @@ public class TripUserPackageController : ControllerBase
         _service = service;
     }
 
+
+    [HttpPost("insert-from-dic")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<TripUserPackageDto>> Add([FromBody] InsertMultipleTripUserPackageRequest request)
+    {
+        try
+        {
+            var insertedCount = await _service.InsertTripUserPackagesAsync(request.TripId, request.PackageIds);
+            return Ok(new {insertedCount});
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while creating the trip user package", details = ex.Message });
+        }
+    }
+
     [HttpGet("trip/{tripId}")]
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<TripUserPackageDto>>> GetAll(Guid tripId)

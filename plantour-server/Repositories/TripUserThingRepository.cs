@@ -20,9 +20,32 @@ public class TripUserThingRepository : BaseRepository
         {
             return null;
         }
-        return await _dbSet
-            .Include(x => x.TripUserPackage)
-            .FirstOrDefaultAsync(x => x.Id == id && x.TripUser.Trip.UserId == CurrentUser.UserId);
+
+        if (CurrentUser.IsAdmin)
+        {
+            return await _dbSet
+                .Include(x => x.TripUserPackage)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id &&
+                    x.TripUser.Trip.UserId == CurrentUser.UserId &&
+                    x.TripUser.AdminParticipant.AdminId == CurrentUser.UserId &&
+                    x.TripUser.AdminParticipant.ParticipantId == CurrentUser.UserId
+                    );
+        }
+
+        if (CurrentUser.IsParticipant)
+        {
+            return await _dbSet
+                .Include(x => x.TripUserPackage)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id &&
+                    x.TripUser.Trip.UserId == CurrentUser.AdminId &&
+                    x.TripUser.AdminParticipant.AdminId == CurrentUser.AdminId &&
+                    x.TripUser.AdminParticipant.ParticipantId == CurrentUser.UserId
+                    );
+        }
+
+        return null;
     }
 
     public async Task<IEnumerable<TripUserThing>> GetAllAsync(Guid tripId)
@@ -32,10 +55,32 @@ public class TripUserThingRepository : BaseRepository
             return Array.Empty<TripUserThing>();
         }
 
-        return await _dbSet
-            .Include(x => x.TripUserPackage)
-            .Where(x => x.TripUser.TripId == tripId && x.TripUser.Trip.UserId == CurrentUser.UserId)
-            .ToListAsync();
+        if (CurrentUser.IsAdmin)
+        {
+            return await _dbSet
+                .Include(x => x.TripUserPackage)
+                .Where(x =>
+                    x.TripUser.TripId == tripId &&
+                    x.TripUser.Trip.UserId == CurrentUser.UserId &&
+                    x.TripUser.AdminParticipant.AdminId == CurrentUser.UserId &&
+                    x.TripUser.AdminParticipant.ParticipantId == CurrentUser.UserId
+                ).ToListAsync();
+        }
+
+        if (CurrentUser.IsParticipant)
+        {
+            return await _dbSet
+                .Include(x => x.TripUserPackage)
+                .Where(x =>
+                    x.TripUser.TripId == tripId &&
+                    x.TripUser.Trip.UserId == CurrentUser.AdminId &&
+                    x.TripUser.AdminParticipant.AdminId == CurrentUser.AdminId &&
+                    x.TripUser.AdminParticipant.ParticipantId == CurrentUser.UserId
+                ).ToListAsync();
+        }
+
+        return Array.Empty<TripUserThing>();
+
     }
 
     public async Task AddAsync(Guid tripId, TripUserThing entity)
@@ -45,9 +90,29 @@ public class TripUserThingRepository : BaseRepository
             throw new InvalidOperationException("Access denied");
         }
 
-        var tripUser = await _context.TripUsers
-            .FirstOrDefaultAsync(x => x.TripId == tripId && x.Trip.UserId == CurrentUser.UserId); 
-            
+
+        TripUser? tripUser = null;
+
+        if (CurrentUser.IsAdmin)
+        {
+            tripUser = await _context.TripUsers
+                .FirstOrDefaultAsync(x =>
+                    x.Trip.UserId == CurrentUser.UserId &&
+                    x.AdminParticipant.AdminId == CurrentUser.UserId &&
+                    x.AdminParticipant.ParticipantId == CurrentUser.UserId
+                    );
+        }
+
+        if (CurrentUser.IsParticipant)
+        {
+            tripUser = await _context.TripUsers
+                .FirstOrDefaultAsync(x =>
+                    x.Trip.UserId == CurrentUser.AdminId &&
+                    x.AdminParticipant.AdminId == CurrentUser.AdminId &&
+                    x.AdminParticipant.ParticipantId == CurrentUser.UserId
+                    );
+        }
+
         if (tripUser == null)
         {
             throw new InvalidOperationException("Access denied");

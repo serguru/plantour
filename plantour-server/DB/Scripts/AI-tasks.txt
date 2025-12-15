@@ -63,6 +63,4 @@ where
 where
     y.trip_user_id is null
 
-
-
-
+Смотри create or replace function plantour.insert_trip_user_packages в файле DB\Scripts\plantour.sql. В repository Repositories\DicTripRepository.cs добавь код для вызова insert_trip_user_packages.

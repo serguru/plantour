@@ -5,18 +5,12 @@ using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
-public class TripService : ITripService
+public class TripService(
+    TripRepository tripRepository,
+    IMapper mapper) : ITripService
 {
-    private readonly TripRepository _tripRepository;
-    private readonly IMapper _mapper;
-
-    public TripService(
-        TripRepository tripRepository,
-        IMapper mapper)
-    {
-        _tripRepository = tripRepository;
-        _mapper = mapper;
-    }
+    private readonly TripRepository _tripRepository = tripRepository;
+    private readonly IMapper _mapper = mapper;
 
     public async Task<IEnumerable<TripDto>> GetAllAsync()
     {
@@ -29,10 +23,6 @@ public class TripService : ITripService
         var entities = await _tripRepository.GetAllForParticipantAsync();
         return _mapper.Map<IEnumerable<TripDto>>(entities);
     }
-
-
-
-
 
     public async Task<TripDto?> GetByIdAsync(Guid id)
     {

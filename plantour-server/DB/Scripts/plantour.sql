@@ -287,7 +287,6 @@ create table trip_user_things (
 );
 create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
 
-
 create or replace function plantour.insert_trip_user_packages(
     p_admin_id uuid,
     p_participant_id uuid,
