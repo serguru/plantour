@@ -24,6 +24,16 @@ public class TripService : ITripService
         return _mapper.Map<IEnumerable<TripDto>>(entities);
     }
 
+    public async Task<IEnumerable<TripDto>> GetAllForParticipantAsync()
+    {
+        var entities = await _tripRepository.GetAllForParticipantAsync();
+        return _mapper.Map<IEnumerable<TripDto>>(entities);
+    }
+
+
+
+
+
     public async Task<TripDto?> GetByIdAsync(Guid id)
     {
         var entity = await _tripRepository.GetByIdAsync(id);

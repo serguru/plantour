@@ -11,6 +11,12 @@ import { ListBoxComponent } from '../list-box/list-box.component';
 import { ToolbarAware } from '../toolbar-aware';
 import { DicTripComponent } from '../dic-trip/dic-trip.component';
 import { TripDto } from '../../services/trip-service';
+import { finalize } from 'rxjs';
+
+export type Comparable = {
+  name?: string;
+  email?: string;
+};
 
 @Component({
   selector: 'app-generic-list',
@@ -47,20 +53,20 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   @Input() entityName: string = '';
   @Input() toolBarButtons: any[] | null = null;
   @Input() useTripId: boolean = false;
-
-
   @Output() entitySelected = new EventEmitter<any | null>();
 
-
+  tripEntities: any[] | null = null;
   entities: T[] | null = null;
   selected: T | null = null;
-  processedEntities: T[] | null = null;
   isAnyFeatureActive: boolean = false;
 
   listToolsShown: boolean = false;
   tripId: string | null = null;
 
   dic2tripVisible: boolean = false;
+
+  processedEntities: T[] | null = null;
+
 
   constructor(
     protected router: Router,
@@ -69,19 +75,82 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     super();
   }
 
+  get entitiesToDisplay(): any[] | null {
+    if (!this.processedEntities || !this.tripEntities || this.tripEntities.length === 0) {
+      return this.processedEntities;
+    };
+
+    const result = this.processedEntities!.map(entity => {
+
+      const tripEntity = this.tripEntities!.find(x => this.equalsByNameOrEmail(entity as any, x as any));
+
+      if (tripEntity) {
+        return { ...entity as any, inTripId: tripEntity.id };
+      }
+
+      return entity;
+    });
+
+    return result;
+  }
+
+
+  equalsByNameOrEmail(
+    a: Comparable,
+    b: Comparable,
+    locale: string = 'en'
+  ): boolean {
+    const hasName =
+      typeof a.name === 'string' &&
+      typeof b.name === 'string';
+
+    const hasEmail =
+      typeof a.email === 'string' &&
+      typeof b.email === 'string';
+
+    if (!hasName && !hasEmail) {
+      throw new Error(
+        'Both objects must contain either "name" or "email" property'
+      );
+    }
+
+    if (hasName) {
+      return a.name!.localeCompare(b.name!, locale, {
+        sensitivity: 'accent',
+        usage: 'search',
+      }) === 0;
+    }
+
+    return a.email!.localeCompare(b.email!, locale, {
+      sensitivity: 'accent',
+      usage: 'search',
+    }) === 0;
+  }
+
+
   checkSelectedTrip: (() => TripDto | null) | null = null;
 
   setCheckSelectedTrip(getter: (() => TripDto | null) | null) {
     this.checkSelectedTrip = getter;
   }
 
-
   onSelectedTripChanged(trip: any | null) {
-    console.log('Selected trip changed:', trip);
-    // if (trip) {
-    //   this.tripId = trip.id;    
-    //   this.getAll();
-    // }
+    this.refreshTripEntities(trip)
+  }
+
+  refreshTripEntities(trip: any | null) {
+    if (!trip) {
+      this.tripEntities = [];
+      return;
+    }
+
+    if (!this.tripDicSservice) {
+      throw new Error('tripDicSservice is not set');
+    }
+
+    this.tripDicSservice.getAll(trip.id).subscribe(entities => {
+      this.tripEntities = entities;
+    });
   }
 
   onToggleTrip() {
@@ -121,20 +190,50 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     }
   }
 
-  tryAddSelected2Trip(tripDto: TripDto) {
-    const newEntity: any = structuredClone(this.selected);
-    if (!newEntity) return;
+  processInTrip(tripDto: TripDto) {
+
+    if (!this.selected || !this.tripDicSservice) return;
+
+    const selected = this.selected as any;
+
+    if (selected.inTripId) {
+      this.tripDicSservice!.delete(selected.inTripId)
+        .pipe(
+          finalize(() => {
+            this.refreshTripEntities(tripDto);
+          })
+        )
+        .subscribe({
+          next: () => {
+            this.messagesService.showInfo(`${this.entityName} deleted from trip "${tripDto.name}" successfully`);
+          },
+          error: (e) => {
+            this.messagesService.showError(`Failed deleting ${this.entityName} from trip "${tripDto.name} with error: ${e.message}`);
+          }
+        });
+      return;
+    }
+
+    const newEntity: any = structuredClone(selected);
+
     newEntity.tripId = tripDto.id;
+
     delete newEntity.id;
-    this.tripDicSservice!.add(newEntity).subscribe({
-      next: () => {
-        this.messagesService.showInfo(`${this.entityName} added to trip "${tripDto.name}" successfully`);
-      },
-      error: (e) => {
-        this.messagesService.showError(`Failed adding ${this.entityName} to trip "${tripDto.name} with error: ${e.message}`);
-      }
-    
-    });
+    this.tripDicSservice!.add(newEntity)
+      .pipe(
+        finalize(() => {
+          this.refreshTripEntities(tripDto);
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.messagesService.showInfo(`${this.entityName} added to trip "${tripDto.name}" successfully`);
+        },
+        error: (e) => {
+          this.messagesService.showError(`Failed adding ${this.entityName} to trip "${tripDto.name} with error: ${e.message}`);
+        }
+
+      });
   }
 
 
@@ -144,7 +243,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
       const tripDto = this.checkSelectedTrip!();
       if (tripDto) {
-        this.tryAddSelected2Trip(tripDto);
+        this.processInTrip(tripDto);
       }
       return;
     }

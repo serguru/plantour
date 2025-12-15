@@ -32,6 +32,21 @@ public class TripController : ControllerBase
         }
     }
 
+    [HttpGet("participant")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<IEnumerable<TripDto>>> GetAllForParticipant()
+    {
+        try
+        {
+            var dtos = await _service.GetAllForParticipantAsync();
+            return Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while retrieving trips", details = ex.Message });
+        }
+    }
+
     [HttpGet("{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult<TripDto>> GetById(Guid id)

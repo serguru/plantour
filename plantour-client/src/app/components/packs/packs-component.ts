@@ -27,8 +27,6 @@ export class PacksComponent {
       label: 'Name',
       icon: 'pi pi-user',
       config: {
-        //lookupList: ['DaypackC','Toiletries pouchAC','Yellow suitcaseABC'],
-        //lookupList: [],
         lookupIcon: 'pi pi-box',
         filter: true,
         sorting: 'text'
@@ -43,10 +41,6 @@ export class PacksComponent {
         icon: 'pi pi-chevron-left',
         tooltip: 'Back',
         command: () => this.router.navigate([""])
-
-
-
-        
       }
     ]
 }

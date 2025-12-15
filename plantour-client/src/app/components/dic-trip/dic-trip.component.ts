@@ -40,7 +40,7 @@ export class DicTripComponent implements OnInit, OnDestroy {
         this.registerGetter.emit(this.getCurrentTrip);
         this.loading = true;
 
-        this.tripService.getAll()
+        this.tripService.getAll('participant')
             .pipe(
                 catchError(error => {
                     this.trips = [];

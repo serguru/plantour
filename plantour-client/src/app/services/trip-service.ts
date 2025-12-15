@@ -44,8 +44,8 @@ export class TripService extends CrudService<TripDto, CreateTripRequest, UpdateT
     this.apiUrl = `${environment.apiUrl}/api/trip`;
   }
 
-  getAll(): Observable<TripDto[]> {
-    return this.http.get<TripDto[]>(this.apiUrl);
+  getAll(extraPath?: string): Observable<TripDto[]> {
+    return this.http.get<TripDto[]>(`${this.apiUrl}${extraPath ? '/' + extraPath : ''}`);
   }
 
   getById(id: string): Observable<TripDto> {

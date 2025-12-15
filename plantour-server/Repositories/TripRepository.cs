@@ -36,6 +36,35 @@ public class TripRepository : BaseRepository
         return null;
     }
 
+    public async Task<IEnumerable<Trip>> GetAllForParticipantAsync()
+    {
+        if (CurrentUser == null)
+        {
+            return Array.Empty<Trip>();
+        }
+
+        if (CurrentUser.IsAdmin)
+        {
+            return await _dbSet
+                .Include(x => x.TripUsers)
+                .Where(x => x.UserId == CurrentUser.UserId && x.TripUsers.Any(y => y.Trip.UserId == CurrentUser.UserId))
+                .ToListAsync();
+        }
+
+        if (CurrentUser.IsParticipant)
+        {
+            return await _dbSet
+                .Include(x => x.TripUsers)
+                .Where(x => x.UserId == CurrentUser.AdminId && x.TripUsers.Any(y => y.Trip.UserId == CurrentUser.UserId))
+                .ToListAsync();
+        }
+
+        return Array.Empty<Trip>();
+
+    }
+
+
+
     public async Task<IEnumerable<Trip>> GetAllAsync(Guid id)
     {
         if (CurrentUser == null)

@@ -67,7 +67,7 @@
   </app-list-actions>
 
   <app-list-box
-    [items]="processedEntities || []"
+    [items]="entitiesToDisplay || []"
     [itemTemplate]="itemTemplate"
     (selectedChange)="onSelectedChange($event)"
     (selectedChangeDblClick)="onSelectedChangeDblClick($event)"

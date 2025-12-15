@@ -134,3 +134,5 @@ I need a solution to apply different templates inside p-listbox depending on T. 
 Обеспечь возможность другим компонентам подпиаться на событие "selected trip changed"
 
 
+"8aa1392b-9c04-4864-aa0b-1e59dc72811b"
+"Blue backpack
