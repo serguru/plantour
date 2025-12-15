@@ -11,6 +11,13 @@
   --primary-color-hover: #ebfdff;
   --content-container-background-color: #ffffff;
   --error-color: #E53935;
+  --error-background-color: #ffe6e6;
+  --warning-background-color: rgb(252, 252, 225); 
+  --warning-color: rgb(87, 87, 2); 
+  --info-background-color: rgb(223, 251, 223);
+  --info-color: rgb(12, 155, 12);
+
+
   --red-500: #ef4444;
   --form-header-background-color: #2F7C87;
   /* ---------------------------------------
@@ -212,17 +219,32 @@ html {
   align-items: center;
   gap: 0.75rem;
   border-left: 4px solid var(--error-color);
-
   i {
     font-size: 1.25rem;
     flex-shrink: 0;
   }
-
   span {
     flex: 1;
   }
 }
 
+.warning-alert {
+  background: var(--warning-color);
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-left: 4px solid var(--error-color);
+  i {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+  span {
+    flex: 1;
+  }
+}
 
 .link-button {
   background: none;

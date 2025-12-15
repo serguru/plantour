@@ -10,6 +10,7 @@ import { ButtonModule } from 'primeng/button';
 import { ListBoxComponent } from '../list-box/list-box.component';
 import { ToolbarAware } from '../toolbar-aware';
 import { DicTripComponent } from '../dic-trip/dic-trip.component';
+import { TripDto } from '../../services/trip-service';
 
 @Component({
   selector: 'app-generic-list',
@@ -45,7 +46,10 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   @Input() entityName: string = '';
   @Input() toolBarButtons: any[] | null = null;
   @Input() useTripId: boolean = false;
+  
+  
   @Output() entitySelected = new EventEmitter<any | null>();
+
 
   entities: T[] | null = null;
   selected: T | null = null;
@@ -64,8 +68,15 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     super();
   }
 
+  checkSelectedTrip: (() => TripDto | null) | null = null;
+
+  setCheckSelectedTrip(getter: (() => TripDto | null) | null) {
+    this.checkSelectedTrip = getter;
+  }
+
+
   onSelectedTripChanged(trip: any | null) {
-console.log('Selected trip changed:', trip);   
+    console.log('Selected trip changed:', trip);
     // if (trip) {
     //   this.tripId = trip.id;    
     //   this.getAll();
@@ -106,11 +117,14 @@ console.log('Selected trip changed:', trip);
     this.selected = selected;
     if (this.entitySelected) {
       this.entitySelected.emit(this.selected);
-    } 
+    }
   }
 
   onSelectedChangeDblClick(selected: any | null) {
     this.selected = selected;
+    if (this.dic2tripVisible && this.checkSelectedTrip && this.checkSelectedTrip!()) {
+      return;
+    }
     this.onEdit();
   }
 
@@ -124,13 +138,13 @@ console.log('Selected trip changed:', trip);
   }
 
   onAdd() {
-    this.router.navigate([this.addUrl],{relativeTo: this.route});
+    this.router.navigate([this.addUrl], { relativeTo: this.route });
   }
 
   onEdit() {
     if (!this.selected || this.isListReadOnly || !this.editUrl) return;
     const id = (this.selected as any).id;
-    this.router.navigate([this.editUrl.replace(':id', id)],{relativeTo: this.route});
+    this.router.navigate([this.editUrl.replace(':id', id)], { relativeTo: this.route });
   }
 
   get listNotEmpty(): boolean {

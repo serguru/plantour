@@ -1,13 +1,9 @@
 <div class="panel">
     <!-- no format -->
-    @if(loading) {
-        <div>Loading...</div>
-    } @else {
+    @if(!loading) {
         @if (!trips || trips.length === 0) {
-            <div class="error-alert">
-                <i class="pi pi-exclamation-triangle"></i>
-                <span>No trips</span>
-            </div>
+            <app-message-panel messageType="info" messageText="No trips"></app-message-panel>
+
         } @else {
             <p-select
                 [options]="trips"

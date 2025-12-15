@@ -1,18 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output, computed, inject, signal } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
 import { TripService, TripDto } from '../../services/trip-service';
 import { catchError, finalize } from 'rxjs';
+import { MessagePanelComponent } from '../message-panel/message-panel-component/message-panel-component';
 
 @Component({
     selector: 'app-dic-trip',
     standalone: true,
-    imports: [CommonModule, FormsModule, Select],
+    imports: [CommonModule, FormsModule, Select, MessagePanelComponent],
     templateUrl: './dic-trip.component.html',
     styleUrls: ['./dic-trip.component.scss'],
 })
-export class DicTripComponent implements OnInit {
+export class DicTripComponent implements OnInit, OnDestroy {
     loading = false;
     private tripService = inject(TripService);
 
@@ -24,8 +25,19 @@ export class DicTripComponent implements OnInit {
     });
 
     @Output() selectedTripChanged = new EventEmitter<TripDto | null>();
+    @Output() registerGetter: EventEmitter<(() => TripDto | null) | null> = new EventEmitter<(() => TripDto | null) | null>();
+
+    getCurrentTrip = (): TripDto | null => {
+        const trip = this.selectedTrip();
+        return trip;
+    };
+
+    ngOnDestroy(): void {
+        this.registerGetter.emit(null);
+    }
 
     ngOnInit() {
+        this.registerGetter.emit(this.getCurrentTrip);
         this.loading = true;
 
         this.tripService.getAll()
@@ -36,8 +48,8 @@ export class DicTripComponent implements OnInit {
                     this.selectedTripChanged.emit(null);
                     throw error;
                 }),
-                finalize(() => { 
-                    this.loading = false; 
+                finalize(() => {
+                    this.loading = false;
                 })
             )
             .subscribe(trips => {

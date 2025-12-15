@@ -54,7 +54,9 @@
   </div>
 
   @if (dic2tripVisible) {
-  <app-dic-trip (selectedTripChanged)="onSelectedTripChanged($event)"></app-dic-trip>
+  <app-dic-trip (selectedTripChanged)="onSelectedTripChanged($event)"
+  (registerGetter)="setCheckSelectedTrip($event)"
+  ></app-dic-trip>
   }
 
   <app-list-actions
