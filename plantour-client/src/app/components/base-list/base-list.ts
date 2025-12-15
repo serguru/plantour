@@ -34,6 +34,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   private messagesService = inject(MessagesService);
 
   @Input() service!: CrudService<T, any, any>;
+  @Input() tripDicSservice: CrudService<T, any, any> | null = null;
   @Input() itemTemplate!: TemplateRef<any>;
   @Input() title: string | null = null;
   @Input() entityIcon: string | null = null;
@@ -46,8 +47,8 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   @Input() entityName: string = '';
   @Input() toolBarButtons: any[] | null = null;
   @Input() useTripId: boolean = false;
-  
-  
+
+
   @Output() entitySelected = new EventEmitter<any | null>();
 
 
@@ -120,9 +121,31 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     }
   }
 
+  tryAddSelected2Trip(tripDto: TripDto) {
+    const newEntity: any = structuredClone(this.selected);
+    if (!newEntity) return;
+    newEntity.tripId = tripDto.id;
+    delete newEntity.id;
+    this.tripDicSservice!.add(newEntity).subscribe({
+      next: () => {
+        this.messagesService.showInfo(`${this.entityName} added to trip "${tripDto.name}" successfully`);
+      },
+      error: (e) => {
+        this.messagesService.showError(`Failed adding ${this.entityName} to trip "${tripDto.name} with error: ${e.message}`);
+      }
+    
+    });
+  }
+
+
   onSelectedChangeDblClick(selected: any | null) {
     this.selected = selected;
-    if (this.dic2tripVisible && this.checkSelectedTrip && this.checkSelectedTrip!()) {
+    if (this.selected && this.dic2tripVisible && this.checkSelectedTrip && this.tripDicSservice) {
+
+      const tripDto = this.checkSelectedTrip!();
+      if (tripDto) {
+        this.tryAddSelected2Trip(tripDto);
+      }
       return;
     }
     this.onEdit();
