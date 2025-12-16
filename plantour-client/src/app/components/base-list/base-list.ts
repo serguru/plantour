@@ -39,7 +39,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
   private messagesService = inject(MessagesService);
 
-  @Input() service!: CrudService<T, any, any>;
+  @Input() service!: CrudService<any, any, any>;
   @Input() tripDicService: CrudService<T, any, any> | null = null;
   @Input() fromDicService: FromDicService | null = null;
   @Input() itemTemplate!: TemplateRef<any>;

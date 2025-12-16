@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { CrudService } from '../../services/crud-service';
-import { CreateUserThingRequest, UpdateUserThingRequest, UserThingDto, UserThingService } from '../../services/thing-service';
+import { CrudService, FromDicService } from '../../services/crud-service';
+import { CreateUserThingRequest, UpdateUserThingRequest, ThingDto, UserThingService } from '../../services/thing-service';
 import { BaseListComponent } from '../base-list/base-list';
 import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
+import { CreateTripThingRequest, TripThingService, TripUserThingDto, UpdateTripThingRequest } from '../../services/trip-thing-service';
 
 @Component({
   selector: 'app-things-component',
@@ -17,7 +18,9 @@ import { TagModule } from 'primeng/tag';
 export class ThingsComponent {
   router = inject(Router);
 
-  service: CrudService<UserThingDto, CreateUserThingRequest, UpdateUserThingRequest> = inject(UserThingService);
+  service: CrudService<ThingDto, CreateUserThingRequest, UpdateUserThingRequest> = inject(UserThingService);
+  tripDicService: CrudService<TripUserThingDto, CreateTripThingRequest, UpdateTripThingRequest> = inject(TripThingService);
+  fromDicService: FromDicService = inject(TripThingService);
 
   configuration: any[] = [
     {
@@ -48,7 +51,7 @@ export class ThingsComponent {
       }
     ]
 
-  onCategoryClick(item: UserThingDto, $event: Event) {
+  onCategoryClick(item: ThingDto, $event: Event) {
      $event.stopPropagation(); 
      console.log('Category: ' + item.category);
   }

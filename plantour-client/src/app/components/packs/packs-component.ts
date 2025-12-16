@@ -3,7 +3,7 @@ import { CrudService, FromDicService } from '../../services/crud-service';
 import { CreatePackageRequest, UpdatePackageRequest, PackageDto, UserPackageService } from '../../services/package-service';
 import { Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
-import { TripPackageService } from '../../services/trip-package-service';
+import { CreateTripPackageRequest, TripPackageDto, TripPackageService, UpdateTripPackageRequest } from '../../services/trip-package-service';
 
 @Component({
   selector: 'app-packs',
@@ -19,7 +19,7 @@ export class PacksComponent {
 
   service: CrudService<PackageDto, CreatePackageRequest, UpdatePackageRequest> = inject(UserPackageService);
 
-  tripDicService: CrudService<PackageDto, CreatePackageRequest, UpdatePackageRequest> = inject(TripPackageService);
+  tripDicService: CrudService<TripPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest> = inject(TripPackageService);
 
   fromDicService: FromDicService = inject(TripPackageService);
 

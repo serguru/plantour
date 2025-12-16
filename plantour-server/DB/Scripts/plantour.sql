@@ -287,28 +287,17 @@ create table trip_user_things (
 );
 create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
 
--- select plantour.insert_trip_user_packages(
---     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
---     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
---     'cccccccc-cccc-cccc-cccc-cccccccccccc',
---     array[
---         '11111111-1111-1111-1111-111111111111',
---         '22222222-2222-2222-2222-222222222222'
---     ]::uuid[]
--- );
 
-create or replace function plantour.insert_trip_user_packages(
+create or replace function plantour.get_trip_user_id(
     p_admin_id uuid,
     p_participant_id uuid,
-    p_trip_id uuid,
-    p_ids uuid[]
+    p_trip_id uuid
 )
-returns integer
+returns uuid
 language plpgsql
 as $$
 declare
     v_trip_user_id uuid;
-    v_inserted_count integer;
 begin
     select tu.id
     into v_trip_user_id
@@ -326,6 +315,42 @@ begin
             'TripUser not found for admin %, participant %, trip %',
             p_admin_id, p_participant_id, p_trip_id;
     end if;
+
+
+    return v_trip_user_id;
+end;
+$$;
+
+-- select plantour.insert_trip_user_packages(
+--     '',
+--     '',
+--     '',
+--     array[
+--         '',
+--         ''
+--     ]::uuid[]
+-- );
+
+create or replace function plantour.insert_trip_user_packages(
+    p_admin_id uuid,
+    p_participant_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_trip_user_id uuid;
+    v_inserted_count integer;
+begin
+
+    select plantour.get_trip_user_id(
+        p_admin_id,
+        p_participant_id,
+        p_trip_id
+    )
+    into v_trip_user_id;
 
     insert into plantour.trip_user_packages (trip_user_id, name)
     select
@@ -346,16 +371,6 @@ begin
 end;
 $$;
 
--- select plantour.delete_trip_user_packages(
---     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
---     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
---     'cccccccc-cccc-cccc-cccc-cccccccccccc',
---     array[
---         '11111111-1111-1111-1111-111111111111',
---         '22222222-2222-2222-2222-222222222222'
---     ]::uuid[]
--- );
-
 create or replace function plantour.delete_trip_user_packages(
     p_admin_id uuid,
     p_participant_id uuid,
@@ -369,22 +384,13 @@ declare
     v_trip_user_id uuid;
     v_deleted_count integer;
 begin
-    select tu.id
-    into v_trip_user_id
-    from plantour.trip_users tu
-    join plantour.admins_participants ap on ap.id = tu.admin_participant_id
-    join plantour.trips t on t.id = tu.trip_id
-    where
-        t.id = p_trip_id
-        and t.user_id = p_admin_id
-        and ap.admin_id = p_admin_id
-        and ap.participant_id = p_participant_id;
 
-    if v_trip_user_id is null then
-        raise exception
-            'TripUser not found for admin %, participant %, trip %',
-            p_admin_id, p_participant_id, p_trip_id;
-    end if;
+    select plantour.get_trip_user_id(
+        p_admin_id,
+        p_participant_id,
+        p_trip_id
+    )
+    into v_trip_user_id;
 
     delete from plantour.trip_user_packages a
     using plantour.user_packages b
@@ -401,6 +407,85 @@ begin
     return v_deleted_count;
 end;
 $$;
+
+
+create or replace function plantour.insert_trip_user_things(
+    p_admin_id uuid,
+    p_participant_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_trip_user_id uuid;
+    v_inserted_count integer;
+begin
+
+    select plantour.get_trip_user_id(
+        p_admin_id,
+        p_participant_id,
+        p_trip_id
+    )
+    into v_trip_user_id;
+
+    insert into plantour.trip_user_things (trip_user_id, name)
+    select
+        v_trip_user_id,
+        b.name
+    from plantour.user_things b
+    left join plantour.trip_user_things c on 
+        c.trip_user_id = v_trip_user_id and 
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        b.id = any (p_ids)
+        and b.user_id = p_participant_id
+        and c.id is null;
+
+    get diagnostics v_inserted_count = row_count;
+
+    return v_inserted_count;
+end;
+$$;
+
+create or replace function plantour.delete_trip_user_things(
+    p_admin_id uuid,
+    p_participant_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_trip_user_id uuid;
+    v_deleted_count integer;
+begin
+
+    select plantour.get_trip_user_id(
+        p_admin_id,
+        p_participant_id,
+        p_trip_id
+    )
+    into v_trip_user_id;
+
+    delete from plantour.trip_user_things a
+    using plantour.user_things b
+    join plantour.trip_user_things c on 
+        c.trip_user_id = v_trip_user_id and 
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        a.id = c.id and
+        b.id = any (p_ids)
+        and b.user_id = p_participant_id;
+
+    get diagnostics v_deleted_count = row_count;
+
+    return v_deleted_count;
+end;
+$$;
+
 
 
 

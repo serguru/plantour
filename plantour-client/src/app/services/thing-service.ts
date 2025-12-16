@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService } from './crud-service';
 
-export interface UserThingDto {
+export interface ThingDto {
   id: string;
   userId: string;
   category?: string | null;
@@ -34,7 +34,7 @@ export interface UpdateUserThingRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class UserThingService implements CrudService<UserThingDto, CreateUserThingRequest, UpdateUserThingRequest> {
+export class UserThingService implements CrudService<ThingDto, CreateUserThingRequest, UpdateUserThingRequest> {
   private apiUrl: string;
 
   constructor(
@@ -45,16 +45,16 @@ export class UserThingService implements CrudService<UserThingDto, CreateUserThi
     this.apiUrl = `${environment.apiUrl}/api/userthing`;
   }
 
-  getAll(): Observable<UserThingDto[]> {
-    return this.http.get<UserThingDto[]>(this.apiUrl);
+  getAll(): Observable<ThingDto[]> {
+    return this.http.get<ThingDto[]>(this.apiUrl);
   }
 
-  getById(id: string): Observable<UserThingDto> {
-    return this.http.get<UserThingDto>(`${this.apiUrl}/${id}`);
+  getById(id: string): Observable<ThingDto> {
+    return this.http.get<ThingDto>(`${this.apiUrl}/${id}`);
   }
 
-  add(request: CreateUserThingRequest): Observable<UserThingDto> {
-    return this.http.post<UserThingDto>(this.apiUrl, request);
+  add(request: CreateUserThingRequest): Observable<ThingDto> {
+    return this.http.post<ThingDto>(this.apiUrl, request);
   }
 
   update(request: UpdateUserThingRequest): Observable<void> {
