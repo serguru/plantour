@@ -28,6 +28,7 @@ export class DicTripComponent implements OnInit, OnDestroy {
     @Input() entitiesToDisplay: { list: any[]; addedCount: number; notAddedCount: number } | null = null;
     @Input() fromDicService: FromDicService | null = null;
     @Input() addFromDic: ((data: MultipleIdsRequest) => void) | null = null;
+    @Input() deleteFromDic: ((data: MultipleIdsRequest) => void) | null = null;
     @Output() selectedTripChanged = new EventEmitter<TripDto | null>();
     @Output() registerGetter: EventEmitter<(() => TripDto | null) | null> = new EventEmitter<(() => TripDto | null) | null>();
 
@@ -105,5 +106,10 @@ export class DicTripComponent implements OnInit, OnDestroy {
     }
 
     onRemoveAllClick() {
+        const ids: string[] = this.getIds(true);
+        if (ids.length === 0 || !this.selectedTripId() || !this.deleteFromDic) {
+            return;
+        }
+        this.deleteFromDic({ collectionId: this.selectedTripId()!, ids });
     }
 }

@@ -10,4 +10,5 @@ public interface ITripUserPackageService
     Task<bool> UpdateAsync(UpdateTripUserPackageRequest request);
     Task<bool> DeleteAsync(Guid id);
     Task<int> InsertTripUserPackagesAsync(Guid tripId, Guid[] packageIds);
+    Task<int> DeleteTripUserPackagesAsync(Guid tripId, Guid[] packageIds);
 }

@@ -19,7 +19,7 @@ public class TripUserPackageController : ControllerBase
 
     [HttpPost("insert-from-dic")]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripUserPackageDto>> Add([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult<TripUserPackageDto>> AddFromDic([FromBody] MultipleIdsRequest request)
     {
         try
         {
@@ -28,7 +28,22 @@ public class TripUserPackageController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "An error occurred while creating the trip user package", details = ex.Message });
+            return StatusCode(500, new { message = "An error occurred while creating the trip user package(s)", details = ex.Message });
+        }
+    }
+
+    [HttpPost("delete-from-dic")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<TripUserPackageDto>> DeleteFromDic([FromBody] MultipleIdsRequest request)
+    {
+        try
+        {
+            var deletedCount = await _service.DeleteTripUserPackagesAsync(request.CollectionId, request.Ids);
+            return Ok(new {deletedCount});
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while deleting the trip user package(s)", details = ex.Message });
         }
     }
 

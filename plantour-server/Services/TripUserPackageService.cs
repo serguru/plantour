@@ -19,6 +19,11 @@ public class TripUserPackageService(
         return await _dicTripRepository.InsertTripUserPackagesAsync(tripId, packageIds);
     }
 
+    public async Task<int> DeleteTripUserPackagesAsync(Guid tripId, Guid[] packageIds)
+    {
+        return await _dicTripRepository.DeleteTripUserPackagesAsync(tripId, packageIds);
+    }
+
 
     public async Task<IEnumerable<TripUserPackageDto>> GetAllAsync(Guid tripId)
     {

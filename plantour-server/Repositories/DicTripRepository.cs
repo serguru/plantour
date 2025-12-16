@@ -68,4 +68,51 @@ public class DicTripRepository : BaseRepository
         return insertedCount;
     }
 
+    public async Task<int> DeleteTripUserPackagesAsync(
+        Guid tripId,
+        Guid[] packageIds)
+    {
+        if (CurrentUser == null || !packageIds.Any())
+        {
+            return 0;
+        }
+
+        Guid adminId, participantId;
+
+        if (CurrentUser.IsAdmin)
+        {
+            adminId = CurrentUser.UserId!.Value;
+            participantId = adminId;
+        }
+        else if (CurrentUser.IsParticipant)
+        {
+            adminId = CurrentUser.AdminId!.Value;
+            participantId = CurrentUser.UserId!.Value;
+        }
+        else
+        {
+            return 0;
+        }   
+
+        int deletedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.delete_trip_user_packages(@adminId, @participantId, @tripId, @packageIds);";
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@participantId", participantId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@packageIds", packageIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    deletedCount = count;
+                }
+            }
+        }
+        return deletedCount;
+    }
+
 }

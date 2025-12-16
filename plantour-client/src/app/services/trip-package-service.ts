@@ -61,6 +61,10 @@ export class TripPackageService implements CrudService<TripPackageDto, CreateTri
     return this.http.post<number>(`${this.apiUrl}/insert-from-dic`, data);
   }
 
+  deleteFromDic(data: MultipleIdsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/delete-from-dic`, data);
+  }
+
   getAll(tripId: string): Observable<TripPackageDto[]> {
     return this.http.get<TripPackageDto[]>(`${this.apiUrl}/trip/${tripId}`);
   }

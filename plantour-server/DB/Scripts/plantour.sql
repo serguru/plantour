@@ -330,21 +330,79 @@ begin
     insert into plantour.trip_user_packages (trip_user_id, name)
     select
         v_trip_user_id,
-        up.name
-    from plantour.user_packages up
-    left join plantour.trip_user_packages tup on 
-        tup.trip_user_id = v_trip_user_id and 
-        lower(tup.name collate "und-x-icu") = lower(up.name collate "und-x-icu")
+        b.name
+    from plantour.user_packages b
+    left join plantour.trip_user_packages c on 
+        c.trip_user_id = v_trip_user_id and 
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
     where
-        up.id = any (p_ids)
-        and up.user_id = p_participant_id
-        and tup.id is null;
+        b.id = any (p_ids)
+        and b.user_id = p_participant_id
+        and c.id is null;
 
     get diagnostics v_inserted_count = row_count;
 
     return v_inserted_count;
 end;
 $$;
+
+-- select plantour.delete_trip_user_packages(
+--     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+--     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+--     'cccccccc-cccc-cccc-cccc-cccccccccccc',
+--     array[
+--         '11111111-1111-1111-1111-111111111111',
+--         '22222222-2222-2222-2222-222222222222'
+--     ]::uuid[]
+-- );
+
+create or replace function plantour.delete_trip_user_packages(
+    p_admin_id uuid,
+    p_participant_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_trip_user_id uuid;
+    v_deleted_count integer;
+begin
+    select tu.id
+    into v_trip_user_id
+    from plantour.trip_users tu
+    join plantour.admins_participants ap on ap.id = tu.admin_participant_id
+    join plantour.trips t on t.id = tu.trip_id
+    where
+        t.id = p_trip_id
+        and t.user_id = p_admin_id
+        and ap.admin_id = p_admin_id
+        and ap.participant_id = p_participant_id;
+
+    if v_trip_user_id is null then
+        raise exception
+            'TripUser not found for admin %, participant %, trip %',
+            p_admin_id, p_participant_id, p_trip_id;
+    end if;
+
+    delete from plantour.trip_user_packages a
+    using plantour.user_packages b
+    join plantour.trip_user_packages c on 
+        c.trip_user_id = v_trip_user_id and 
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        a.id = c.id and
+        b.id = any (p_ids)
+        and b.user_id = p_participant_id;
+
+    get diagnostics v_deleted_count = row_count;
+
+    return v_deleted_count;
+end;
+$$;
+
+
 
 -- ====================================================================
 -- USERS (1 admin + 2 participants + 2 extra users)

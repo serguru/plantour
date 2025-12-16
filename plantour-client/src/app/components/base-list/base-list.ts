@@ -204,28 +204,30 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
     if (!item || !this.tripDicService || !this.fromDicService) return;
 
-    if (item.inTripId) {
-      this.tripDicService!.delete(item.inTripId)
-        .pipe(
-          finalize(() => {
-            this.refreshTripEntities(tripDto.id);
-          })
-        )
-        .subscribe({
-          next: () => {
-//            this.messagesService.showInfo(`${this.entityName} deleted from trip "${tripDto.name}" successfully`);
-          },
-          error: (e) => {
-            this.messagesService.showError(`Failed deleting ${this.entityName} from trip "${tripDto.name} with error: ${e.message}`);
-          }
-        });
-      return;
-    }
-
     const data: MultipleIdsRequest = {
       collectionId: tripDto.id,
       ids: [item.id]
     };
+
+    if (item.inTripId) {
+      this.deleteFromDic(data);
+//       this.tripDicService!.delete(item.inTripId)
+//         .pipe(
+//           finalize(() => {
+//             this.refreshTripEntities(tripDto.id);
+//           })
+//         )
+//         .subscribe({
+//           next: () => {
+// //            this.messagesService.showInfo(`${this.entityName} deleted from trip "${tripDto.name}" successfully`);
+//           },
+//           error: (e) => {
+//             this.messagesService.showError(`Failed deleting ${this.entityName} from trip "${tripDto.name} with error: ${e.message}`);
+//           }
+//         });
+      return;
+    }
+
 
     this.addFromDic(data);
 
@@ -245,6 +247,22 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
           this.messagesService.showError(`Failed adding to trip with error: ${e.message}`);
         }
 
+      });
+  }
+
+  deleteFromDic(data: MultipleIdsRequest) {
+    this.fromDicService!.deleteFromDic(data)
+      .pipe(
+        finalize(() => {
+          this.refreshTripEntities(data.collectionId);
+        })
+      )
+      .subscribe({
+        next: (processedCount: number) => {
+        },
+        error: (e) => {
+          this.messagesService.showError(`Failed deleting from trip with error: ${e.message}`);
+        }
       });
   }
 

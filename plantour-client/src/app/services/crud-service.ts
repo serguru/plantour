@@ -23,5 +23,6 @@ export interface MultipleIdsRequest {
 
 export interface FromDicService {
   addFromDic(data: MultipleIdsRequest): Observable<number>;
+  deleteFromDic(data: MultipleIdsRequest): Observable<number>;
 }
 
