@@ -1,22 +1,28 @@
-
-<div class="list-view-container">
+<div class="list-container">
   <div
+    class="item-container"
     *ngFor="let item of items; trackBy: trackByFn"
     #listItem
-    class="list-item"
     [class.selected]="isSelected(item)"
     (click)="selectItem(item)"
   >
-    <ng-container 
-      *ngTemplateOutlet="itemTemplate; context: { $implicit: item }">
-    </ng-container>
+    <div class="left">
+      <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }">
+      </ng-container>
+
+    </div>
 
     @if(dic2tripVisible) {
-        <p-button
-        (click)="addRemoveFromDic.emit(item)"
-        >{{item.inTripId ? 'Remove' : 'Add'}}</p-button>
-
+    <div class="right">
+      <p-button
+        [icon]="icon(item)"
+        (click)="onIconClick(item, $event)"
+        [rounded]="true"
+        severity="secondary"
+        [outlined]="true"
+      ></p-button>
+    </div>
     }
-
   </div>
+
 </div>

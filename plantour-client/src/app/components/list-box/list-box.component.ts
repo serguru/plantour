@@ -150,6 +150,15 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
         }
     }
 
+    icon(item: any) {
+        return item.inTripId ? 'pi pi-check' : 'pi pi-arrow-up';
+    }
+
+    onIconClick( item: any, event: MouseEvent) {
+        event.stopPropagation();
+        this.addRemoveFromDic.emit(item);
+    }   
+
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();

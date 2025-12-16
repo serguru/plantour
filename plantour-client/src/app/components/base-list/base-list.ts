@@ -76,12 +76,18 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     super();
   }
 
-  get entitiesToDisplay(): any[] | null {
+  get entitiesToDisplay(): any | null {
+
+    const result: any = {};
+
     if (!this.processedEntities || !this.tripEntities || this.tripEntities.length === 0) {
-      return this.processedEntities;
+      result.list = this.processedEntities;
+      result.addedCount = this.processedEntities?.filter(entity => (entity as any).inTripId).length || 0;
+      result.notAddedCount = (this.processedEntities?.length || 0) - result.addedCount;
+      return result;
     };
 
-    const result = this.processedEntities!.map(entity => {
+    const newItems = this.processedEntities!.map(entity => {
 
       const tripEntity = this.tripEntities!.find(x => this.equalsByNameOrEmail(entity as any, x as any));
 
@@ -92,6 +98,9 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
       return entity;
     });
 
+    result.list = newItems;
+    result.addedCount = newItems.filter(entity => (entity as any).inTripId).length || 0;
+    result.notAddedCount = (newItems?.length || 0) - result.addedCount;
     return result;
   }
 
@@ -204,7 +213,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
         )
         .subscribe({
           next: () => {
-            this.messagesService.showInfo(`${this.entityName} deleted from trip "${tripDto.name}" successfully`);
+//            this.messagesService.showInfo(`${this.entityName} deleted from trip "${tripDto.name}" successfully`);
           },
           error: (e) => {
             this.messagesService.showError(`Failed deleting ${this.entityName} from trip "${tripDto.name} with error: ${e.message}`);
@@ -218,19 +227,22 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
       ids: [item.id]
     };
 
+    this.addFromDic(data);
+
+  }
+
+  addFromDic(data: MultipleIdsRequest) {
     this.fromDicService!.addFromDic(data)
       .pipe(
         finalize(() => {
-          this.refreshTripEntities(tripDto.id);
+          this.refreshTripEntities(data.collectionId);
         })
       )
       .subscribe({
         next: (processedCount: number) => {
-          console.log('processedCount', processedCount);
-          this.messagesService.showInfo(`${this.entityName} added to trip "${tripDto.name}" successfully`);
         },
         error: (e) => {
-          this.messagesService.showError(`Failed adding ${this.entityName} to trip "${tripDto.name} with error: ${e.message}`);
+          this.messagesService.showError(`Failed adding to trip with error: ${e.message}`);
         }
 
       });

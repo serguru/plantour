@@ -3,15 +3,36 @@
     @if(!loading) {
         @if (!trips || trips.length === 0) {
             <app-message-panel messageType="info" messageText="No trips"></app-message-panel>
-
         } @else {
-            <p-select
-                [options]="trips"
-                optionLabel="name"
-                optionValue="id"
-                [ngModel]="selectedTripId()"
-                (ngModelChange)="onSelectedTripChange($event)"
-            ></p-select>
+            <div class="container">
+                <p-select
+                    class="left"
+                    [options]="trips"
+                    optionLabel="name"
+                    optionValue="id"
+                    [ngModel]="selectedTripId()"
+                    (ngModelChange)="onSelectedTripChange($event)"
+                ></p-select>
+                <div class="right">
+                    <p-button
+                        icon="pi pi-arrow-up"
+                        (click)="onAddAllClick()"
+                        [rounded]="true"
+                        severity="secondary"
+                        [outlined]="true"
+                        [disabled]="addDisabled"
+                        ></p-button>
+                    <p-button
+                        icon="pi pi-minus"
+                        (click)="onRemoveAllClick()"
+                        [rounded]="true"
+                        severity="secondary"
+                        [outlined]="true"
+                        [disabled]="removeDisabled"
+                    ></p-button>
+                </div>
+
+            </div>
         }
     }
     <!-- no format -->

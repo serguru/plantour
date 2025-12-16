@@ -54,8 +54,11 @@
   </div>
 
   @if (dic2tripVisible) {
-  <app-dic-trip (selectedTripChanged)="onSelectedTripChanged($event)"
-  (registerGetter)="setCheckSelectedTrip($event)"
+  <app-dic-trip
+    (selectedTripChanged)="onSelectedTripChanged($event)"
+    (registerGetter)="setCheckSelectedTrip($event)"
+    [entitiesToDisplay]="entitiesToDisplay"
+    [addFromDic]="addFromDic.bind(this)"
   ></app-dic-trip>
   }
 
@@ -67,7 +70,7 @@
   </app-list-actions>
 
   <app-list-box
-    [items]="entitiesToDisplay || []"
+    [items]="entitiesToDisplay.list || []"
     [itemTemplate]="itemTemplate"
     (selectedChange)="onSelectedChange($event)"
     (addRemoveFromDic)="onAddRemoveFromDic($event)"
