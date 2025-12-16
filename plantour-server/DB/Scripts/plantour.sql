@@ -287,6 +287,16 @@ create table trip_user_things (
 );
 create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
 
+-- select plantour.insert_trip_user_packages(
+--     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+--     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+--     'cccccccc-cccc-cccc-cccc-cccccccccccc',
+--     array[
+--         '11111111-1111-1111-1111-111111111111',
+--         '22222222-2222-2222-2222-222222222222'
+--     ]::uuid[]
+-- );
+
 create or replace function plantour.insert_trip_user_packages(
     p_admin_id uuid,
     p_participant_id uuid,

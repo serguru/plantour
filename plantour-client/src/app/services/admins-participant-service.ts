@@ -43,7 +43,7 @@ export interface UpdateAdminsParticipantRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class AdminsParticipantService extends CrudService<AdminsParticipantDto, SignUpParticipantRequest, UpdateAdminsParticipantRequest> {
+export class AdminsParticipantService implements CrudService<AdminsParticipantDto, SignUpParticipantRequest, UpdateAdminsParticipantRequest> {
   private apiUrl: string;
   private usersService = inject(UsersService)
 
@@ -51,7 +51,7 @@ export class AdminsParticipantService extends CrudService<AdminsParticipantDto, 
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    super();
+   
     this.apiUrl = `${environment.apiUrl}/api/AdminsParticipant`;
   }
 

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
@@ -24,7 +25,7 @@ public class DicTripRepository : BaseRepository
         Guid tripId,
         Guid[] packageIds)
     {
-        if (CurrentUser == null)
+        if (CurrentUser == null || !packageIds.Any())
         {
             return 0;
         }
@@ -46,10 +47,25 @@ public class DicTripRepository : BaseRepository
             return 0;
         }   
 
-        var result = await _context.Database.ExecuteSqlInterpolatedAsync(
-            $"SELECT plantour.insert_trip_user_packages({adminId}, {participantId}, {tripId}, {packageIds})");
-        
-        return result;
+        int insertedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.insert_trip_user_packages(@adminId, @participantId, @tripId, @packageIds);";
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@participantId", participantId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@packageIds", packageIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    insertedCount = count;
+                }
+            }
+        }
+        return insertedCount;
     }
 
 }

@@ -42,14 +42,14 @@ export interface UpdateTripUserRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class TripUserService extends CrudService<TripUserDto, CreateTripUserRequest, UpdateTripUserRequest> {
+export class TripUserService implements CrudService<TripUserDto, CreateTripUserRequest, UpdateTripUserRequest> {
   private apiUrl: string;
 
   constructor(
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    super();
+   
     this.apiUrl = `${environment.apiUrl}/api/tripuser`;
   }
 

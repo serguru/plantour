@@ -46,16 +46,24 @@ public class TripRepository : BaseRepository
         if (CurrentUser.IsAdmin)
         {
             return await _dbSet
-                .Include(x => x.TripUsers)
-                .Where(x => x.UserId == CurrentUser.UserId && x.TripUsers.Any(y => y.Trip.UserId == CurrentUser.UserId))
+                .Where(x => 
+                    x.UserId == CurrentUser.UserId && 
+                    x.TripUsers.Any(y => 
+                    y.AdminParticipant.ParticipantId == CurrentUser.UserId &&
+                    y.AdminParticipant.AdminId == CurrentUser.UserId
+                    ))
                 .ToListAsync();
         }
 
         if (CurrentUser.IsParticipant)
         {
             return await _dbSet
-                .Include(x => x.TripUsers)
-                .Where(x => x.UserId == CurrentUser.AdminId && x.TripUsers.Any(y => y.Trip.UserId == CurrentUser.UserId))
+                .Where(x => 
+                    x.UserId == CurrentUser.AdminId && 
+                    x.TripUsers.Any(y => 
+                    y.AdminParticipant.ParticipantId == CurrentUser.UserId &&
+                    y.AdminParticipant.AdminId == CurrentUser.AdminId
+                    ))
                 .ToListAsync();
         }
 

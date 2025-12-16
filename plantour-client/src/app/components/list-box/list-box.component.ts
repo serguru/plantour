@@ -30,7 +30,7 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     @Input() items: any[] = [];
     @Input() itemTemplate!: TemplateRef<any>;
     @Output() selectedChange = new EventEmitter<any | null>();
-    @Output() selectedChangeDblClick = new EventEmitter<any | null>();
+    @Output() addRemoveFromDic = new EventEmitter<any | null>();
 
     @ViewChildren('listItem') listItemElements!: QueryList<ElementRef>;
 
@@ -97,6 +97,7 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
         }
     }
 
+
     selectItem(item: any): void {
         if (this.selectedItem == item) {
             this.selectedItem = null;
@@ -105,12 +106,6 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
         }
         this.selectedChange.emit(this.selectedItem);
     }
-
-    onItemDoubleClick(item: any): void {
-        this.selectItem(item);
-        this.selectedChangeDblClick.emit(item);
-    }
-
 
     isSelected(item: any): boolean {
         return this.selectedItem?.id === item.id;

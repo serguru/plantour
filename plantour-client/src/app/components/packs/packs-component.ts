@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CrudService } from '../../services/crud-service';
+import { CrudService, FromDicService } from '../../services/crud-service';
 import { CreatePackageRequest, UpdatePackageRequest, PackageDto, UserPackageService } from '../../services/package-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
@@ -19,7 +19,10 @@ export class PacksComponent {
   router = inject(Router);
 
   service: CrudService<PackageDto, CreatePackageRequest, UpdatePackageRequest> = inject(UserPackageService);
+
   tripDicService: CrudService<PackageDto, CreatePackageRequest, UpdatePackageRequest> = inject(TripPackageService);
+
+  fromDicService: FromDicService = inject(TripPackageService);
 
   configuration: any[] = [
     {

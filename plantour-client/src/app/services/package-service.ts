@@ -24,7 +24,7 @@ export interface UpdatePackageRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class UserPackageService extends CrudService<PackageDto, CreatePackageRequest, UpdatePackageRequest> {
+export class UserPackageService implements CrudService<PackageDto, CreatePackageRequest, UpdatePackageRequest> {
   private apiUrl: string;
   public packages: PackageDto[] = [];
 
@@ -32,7 +32,7 @@ export class UserPackageService extends CrudService<PackageDto, CreatePackageReq
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    super();
+   
     this.apiUrl = `${environment.apiUrl}/api/userpackage`;
   }
 

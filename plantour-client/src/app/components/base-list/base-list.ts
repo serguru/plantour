@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
-import { CrudService } from '../../services/crud-service';
+import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentLayoutComponent } from "../layouts/content-layout.component";
 import { FormsModule } from '@angular/forms';
@@ -10,7 +10,7 @@ import { ButtonModule } from 'primeng/button';
 import { ListBoxComponent } from '../list-box/list-box.component';
 import { ToolbarAware } from '../toolbar-aware';
 import { DicTripComponent } from '../dic-trip/dic-trip.component';
-import { TripDto } from '../../services/trip-service';
+import { TripDto, TripService } from '../../services/trip-service';
 import { finalize } from 'rxjs';
 
 export type Comparable = {
@@ -40,7 +40,8 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   private messagesService = inject(MessagesService);
 
   @Input() service!: CrudService<T, any, any>;
-  @Input() tripDicSservice: CrudService<T, any, any> | null = null;
+  @Input() tripDicService: CrudService<T, any, any> | null = null;
+  @Input() fromDicService: FromDicService | null = null;
   @Input() itemTemplate!: TemplateRef<any>;
   @Input() title: string | null = null;
   @Input() entityIcon: string | null = null;
@@ -135,20 +136,20 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   }
 
   onSelectedTripChanged(trip: any | null) {
-    this.refreshTripEntities(trip)
+    this.refreshTripEntities(trip.id)
   }
 
-  refreshTripEntities(trip: any | null) {
-    if (!trip) {
+  refreshTripEntities(id: string | null) {
+    if (!id) {
       this.tripEntities = [];
       return;
     }
 
-    if (!this.tripDicSservice) {
-      throw new Error('tripDicSservice is not set');
+    if (!this.tripDicService) {
+      throw new Error('tripDicService is not set');
     }
 
-    this.tripDicSservice.getAll(trip.id).subscribe(entities => {
+    this.tripDicService.getAll(id).subscribe(entities => {
       this.tripEntities = entities;
     });
   }
@@ -190,17 +191,15 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     }
   }
 
-  processInTrip(tripDto: TripDto) {
+  processInTrip(tripDto: TripDto, item: any) {
 
-    if (!this.selected || !this.tripDicSservice) return;
+    if (!item || !this.tripDicService || !this.fromDicService) return;
 
-    const selected = this.selected as any;
-
-    if (selected.inTripId) {
-      this.tripDicSservice!.delete(selected.inTripId)
+    if (item.inTripId) {
+      this.tripDicService!.delete(item.inTripId)
         .pipe(
           finalize(() => {
-            this.refreshTripEntities(tripDto);
+            this.refreshTripEntities(tripDto.id);
           })
         )
         .subscribe({
@@ -214,19 +213,20 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
       return;
     }
 
-    const newEntity: any = structuredClone(selected);
+    const data: MultipleIdsRequest = {
+      collectionId: tripDto.id,
+      ids: [item.id]
+    };
 
-    newEntity.tripId = tripDto.id;
-
-    delete newEntity.id;
-    this.tripDicSservice!.add(newEntity)
+    this.fromDicService!.addFromDic(data)
       .pipe(
         finalize(() => {
-          this.refreshTripEntities(tripDto);
+          this.refreshTripEntities(tripDto.id);
         })
       )
       .subscribe({
-        next: (response: any) => {
+        next: (processedCount: number) => {
+          console.log('processedCount', processedCount);
           this.messagesService.showInfo(`${this.entityName} added to trip "${tripDto.name}" successfully`);
         },
         error: (e) => {
@@ -237,17 +237,15 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   }
 
 
-  onSelectedChangeDblClick(selected: any | null) {
-    this.selected = selected;
-    if (this.selected && this.dic2tripVisible && this.checkSelectedTrip && this.tripDicSservice) {
-
-      const tripDto = this.checkSelectedTrip!();
-      if (tripDto) {
-        this.processInTrip(tripDto);
-      }
+  onAddRemoveFromDic(item: any) {
+    if (!this.dic2tripVisible || !this.checkSelectedTrip || !this.tripDicService) {
       return;
     }
-    this.onEdit();
+    const tripDto = this.checkSelectedTrip!();
+    if (!tripDto) {
+      return;
+    }
+    this.processInTrip(tripDto, item);
   }
 
   selectEntity(id?: string | null): void {

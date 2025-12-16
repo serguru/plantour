@@ -1,0 +1,7 @@
+namespace plantour_server.DTOs;
+
+public class MultipleIdsRequest
+{
+    public Guid CollectionId { get; set; }
+    public Guid[] Ids { get; set; } = [];
+}

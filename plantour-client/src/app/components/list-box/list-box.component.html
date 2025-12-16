@@ -1,11 +1,12 @@
+
 <div class="list-view-container">
-  <div 
+  <div
     *ngFor="let item of items; trackBy: trackByFn"
     #listItem
     class="list-item"
     [class.selected]="isSelected(item)"
     (click)="selectItem(item)"
-    (dblclick)="onItemDoubleClick(item)">
+  >
     <ng-container 
       *ngTemplateOutlet="itemTemplate; context: { $implicit: item }">
     </ng-container>

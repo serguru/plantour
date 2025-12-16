@@ -19,11 +19,11 @@ public class TripUserPackageController : ControllerBase
 
     [HttpPost("insert-from-dic")]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripUserPackageDto>> Add([FromBody] InsertMultipleTripUserPackageRequest request)
+    public async Task<ActionResult<TripUserPackageDto>> Add([FromBody] MultipleIdsRequest request)
     {
         try
         {
-            var insertedCount = await _service.InsertTripUserPackagesAsync(request.TripId, request.PackageIds);
+            var insertedCount = await _service.InsertTripUserPackagesAsync(request.CollectionId, request.Ids);
             return Ok(new {insertedCount});
         }
         catch (Exception ex)

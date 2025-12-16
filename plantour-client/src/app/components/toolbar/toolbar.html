@@ -1,39 +1,54 @@
 <div class="toolbar">
   <div class="toolbar-left">
-    <div class="logo-container" (click)="onLogoClick()">
-      <img src="assets/plantour-logo.png" alt="Plantour Logo" class="logo-image" />
+    <div
+      class="logo-container"
+      (click)="onLogoClick()"
+    >
+      <img
+        src="assets/plantour-logo.png"
+        alt="Plantour Logo"
+        class="logo-image"
+      />
       <span class="app-title">Plantour</span>
     </div>
   </div>
-  
+
   <div class="toolbar-center">
     @for (row of buttonRows; track $index) {
-      <div class="button-row">
-        @for (button of row; track $index) {
-          <button 
-            pButton 
-            [icon]="button.icon"
-            [label]="button.label || ''"
-            [pTooltip]="button.tooltip || ''"
-            [disabled]="button.disabled || false"
-            class="p-button-text p-button-rounded dynamic-button"
-            (click)="button.command()"
-            [attr.aria-label]="button.tooltip || button.label || 'Action'">
-          </button>
-        }
-      </div>
+    <div class="button-row">
+      @for (button of row; track $index) {
+      <button
+        pButton
+        [icon]="button.icon"
+        [label]="button.label || ''"
+        [pTooltip]="button.tooltip || ''"
+        [disabled]="button.disabled || false"
+        class="p-button-text p-button-rounded dynamic-button"
+        (click)="button.command()"
+        [attr.aria-label]="button.tooltip || button.label || 'Action'"
+      >
+      </button>
+      }
+    </div>
     }
   </div>
-  
+
+
+
   <div class="toolbar-right">
-    <button 
-      pButton 
+    <button
+      pButton
       icon="pi pi-bars"
       class="p-button-text p-button-rounded menu-button"
       (click)="menu.toggle($event)"
-      aria-label="Menu">
+      aria-label="Menu"
+    >
     </button>
-    <p-menu #menu [model]="menuItems" [popup]="true" styleClass="toolbar-popup-menu"></p-menu>
+    <p-menu
+      #menu
+      [model]="menuItems"
+      [popup]="true"
+      styleClass="toolbar-popup-menu"
+    ></p-menu>
   </div>
 </div>
-

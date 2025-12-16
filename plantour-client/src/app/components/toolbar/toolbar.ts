@@ -149,4 +149,7 @@ export class Toolbar implements OnInit, OnDestroy {
     console.log(`Navigate to: ${path}`);
     this.router.navigate([path]);
   }
+
+
+
 }
