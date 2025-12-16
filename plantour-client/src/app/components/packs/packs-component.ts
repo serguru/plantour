@@ -1,16 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { CrudService, FromDicService } from '../../services/crud-service';
 import { CreatePackageRequest, UpdatePackageRequest, PackageDto, UserPackageService } from '../../services/package-service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
 import { TripPackageService } from '../../services/trip-package-service';
-
 
 @Component({
   selector: 'app-packs',
   imports: [
     BaseListComponent
-  ],
+],
   templateUrl: './packs-component.html',
   styleUrl: './packs-component.scss',
 })

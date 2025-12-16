@@ -10,5 +10,13 @@
     <ng-container 
       *ngTemplateOutlet="itemTemplate; context: { $implicit: item }">
     </ng-container>
+
+    @if(dic2tripVisible) {
+        <p-button
+        (click)="addRemoveFromDic.emit(item)"
+        >{{item.inTripId ? 'Remove' : 'Add'}}</p-button>
+
+    }
+
   </div>
 </div>

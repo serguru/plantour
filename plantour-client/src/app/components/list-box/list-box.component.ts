@@ -17,18 +17,20 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
+import { Button } from 'primeng/button';
 
 
 @Component({
     selector: 'app-list-box',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, Button],
     templateUrl: './list-box.component.html',
     styleUrls: ['./list-box.component.scss']
 })
 export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     @Input() items: any[] = [];
     @Input() itemTemplate!: TemplateRef<any>;
+    @Input() dic2tripVisible: boolean = false;
     @Output() selectedChange = new EventEmitter<any | null>();
     @Output() addRemoveFromDic = new EventEmitter<any | null>();
 
