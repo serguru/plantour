@@ -49,9 +49,9 @@ create table trip_status (
 );
 insert into trip_status (name) values
 ('Planning'),
+('Preparation'),
 ('Active'),
-('Completed'),
-('Archived');
+('Completed');
 
 
 -----------------------------------------------------------------------
@@ -64,8 +64,8 @@ create table packing_status (
 );
 insert into packing_status (name) values
 ('Planning'),
-('Active'),
-('Completed'),
+('Packing'),
+('Packed'),
 ('Verified');
 
 
@@ -92,13 +92,13 @@ insert into thing_categories (name) values
 ('Toiletries'),
 ('Travel Essentials');
 
-create table participant_status (
+create table participant_statuses (
     id uuid not null primary key default gen_random_uuid(),
     name varchar(50) not null unique,
     notes text
 );
 
-insert into participant_status (name) values
+insert into participant_statuses (name) values
 ('Planned'),
 ('Invited'),
 ('Active'),
@@ -122,17 +122,15 @@ create table admins_participants (
     id uuid not null primary key default gen_random_uuid(),
     admin_id uuid not null references users(id) on delete cascade,
     participant_id uuid not null references users(id) on delete cascade,
-    participant_status varchar(50),
+    participant_status_id uuid not null references participant_statuses(id),
     access_code_hash bytea null,
     access_code_salt bytea null,
-    email varchar(255) not null check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     first_name varchar(100),
     last_name varchar(100),
     phone varchar(50),
     notes text
 );
 create unique index idx_admins_participants_admin_id_participant_id on admins_participants(admin_id, participant_id);
-create unique index idx_admins_participants_email_admin_id_email on admins_participants(admin_id, email);
 
 -----------------------------------------------------------------------
 -- USER THINGS
@@ -143,7 +141,7 @@ create table user_things (
     category varchar(50),
     name varchar(200) not null,
     units varchar(50),
-    value decimal(10,3) check(value > 0), -- 1 if null
+    value decimal(10,3) check(value > 0),
     notes text
 );
 create unique index idx_user_things_user_id_name on user_things(user_id, name);
@@ -155,7 +153,7 @@ create table user_packages (
     id uuid not null primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
     name varchar(200) not null,
-    description text
+    notes text
 );
 create unique index idx_user_packages_user_id_name on user_packages(user_id, name);
 
@@ -165,10 +163,10 @@ create unique index idx_user_packages_user_id_name on user_packages(user_id, nam
 -----------------------------------------------------------------------
 create table trips (
     id uuid not null primary key default gen_random_uuid(),
-    user_id uuid null references users(id) on delete cascade,
-    trip_status varchar(50),
+    user_id uuid not null references users(id) on delete cascade,
+    trip_status_id uuid not null references trip_status(id),
     name varchar(200) not null,
-    description text,
+    notes text,
     start_date date,
     end_date date,
     constraint ch_trips_start_before_end check (
@@ -177,7 +175,7 @@ create table trips (
         or start_date <= end_date
     )
 );
-create index idx_trips_user_id on trips(user_id);
+create unique index idx_trips_user_id_name on trips(user_id, name);
 
 -----------------------------------------------------------------------
 -- INVITATIONS
@@ -242,15 +240,9 @@ create table trip_users (
     id uuid not null primary key default gen_random_uuid(),
     trip_id uuid not null references trips(id) on delete cascade,
     admin_participant_id uuid not null references admins_participants(id) on delete cascade,
-    participant_status varchar(50),
-    email varchar(255) not null check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-    first_name varchar(100),
-    last_name varchar(100),
-    phone varchar(50),
     notes text
 );
 create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, admin_participant_id);
-create unique index idx_trip_users_trip_id_email on trip_users(trip_id, email);
 
 -----------------------------------------------------------------------
 -- TRIP USER PACKAGES
@@ -259,10 +251,10 @@ create table trip_user_packages (
     id uuid not null primary key default gen_random_uuid(),
     parent_package_id uuid references trip_user_packages(id) on delete set null,
     trip_user_id uuid not null references trip_users(id) on delete cascade,
-    name varchar(200) not null, -- to be copied from user_packages
+    name varchar(200) not null,
     label varchar(100),
     notes text,
-    packing_status varchar(50),
+    packing_status_id uuid not null references packing_status(id),
     packed_at timestamptz,
     packing_list_included boolean not null default(false),
     weight_value decimal(10,3) check(weight_value > 0),
@@ -278,11 +270,10 @@ create table trip_user_things (
     trip_user_id uuid not null references trip_users(id) on delete cascade,
     category varchar(50),      
     name varchar(200) not null,
-    units varchar(50), -- pcs if null
-    value decimal(10,3) check(value > 0), -- 1 if null
+    units varchar(50),
+    value decimal(10,3) check(value > 0),
     notes text,
     trip_user_package_id uuid references trip_user_packages(id) on delete set null,
-    packing_status varchar(50),
     packed_at timestamptz
 );
 create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
@@ -299,23 +290,22 @@ as $$
 declare
     v_trip_user_id uuid;
 begin
-    select tu.id
+    select a.id
     into v_trip_user_id
-    from plantour.trip_users tu
-    join plantour.admins_participants ap on ap.id = tu.admin_participant_id
-    join plantour.trips t on t.id = tu.trip_id
+    from plantour.trip_users a
+    join plantour.admins_participants trip_statusap on b.id = a.admin_participant_id
+    join plantour.trips t on t.id = a.trip_id
     where
         t.id = p_trip_id
         and t.user_id = p_admin_id
-        and ap.admin_id = p_admin_id
-        and ap.participant_id = p_participant_id;
+        and b.admin_id = p_admin_id
+        and b.participant_id = p_participant_id;
 
     if v_trip_user_id is null then
         raise exception
             'TripUser not found for admin %, participant %, trip %',
             p_admin_id, p_participant_id, p_trip_id;
     end if;
-
 
     return v_trip_user_id;
 end;
@@ -524,19 +514,10 @@ begin
     -- Exception will be raised if trip not found or not owned by admin
     perform plantour.get_trip_id(p_admin_id, p_trip_id);
 
-    insert into plantour.trip_users (trip_id, admin_participant_id, email, first_name, last_name, phone)
-    select p_trip_id,
-        b.id,
-        b.email,
-        b.first_name,
-        b.last_name,
-        b.phone
+    insert into plantour.trip_users (trip_id, admin_participant_id)
+    select p_trip_id, b.id
     from plantour.admins_participants b
-    left join plantour.trip_users c on 
-        (
-            b.id = c.admin_participant_id or 
-            lower(c.email collate "und-x-icu") = lower(b.email collate "und-x-icu")
-        ) and c.trip_id = p_trip_id
+    left join plantour.trip_users c on b.id = c.admin_participant_id and c.trip_id = p_trip_id
     where
         b.id = any (p_ids)
         and b.admin_id = p_admin_id
@@ -563,12 +544,9 @@ begin
     perform plantour.get_trip_id(p_admin_id, p_trip_id);
 
     delete from plantour.trip_users a
-    using plantour.admins_participants b
-    join plantour.trip_users c on b.id = c.admin_participant_id and c.trip_id = p_trip_id
     where
-        a.id = c.id and
-        b.id = any (p_ids)
-        and b.admin_id = p_admin_id;        
+        a.trip_id = p_trip_id and
+        a.admin_participant_id = any (p_ids);
 
     get diagnostics v_deleted_count = row_count;
 
@@ -577,13 +555,8 @@ end;
 $$;
 
 
---23505: duplicate key value violates unique constraint "idx_trip_users_trip_id_user_id"
-
-
-
-
 -- ====================================================================
--- USERS (1 admin + 2 participants + 2 extra users)
+-- USERS (2 admins + 2 participants + 2 extra users)
 -- ====================================================================
 INSERT INTO users (email, password_hash, password_salt, first_name, last_name, phone, notes)
 VALUES
@@ -591,10 +564,19 @@ VALUES
         'serguru@gmail.com',
         '\x35c846498f41a7ed1513b765c264ab222f7c3b015163fc07c78f6af00554436d2bb8f3d105a848584a0103f228132affc301505136188d50194e14f9a32d0f64',
         '\x727465da121430b0bf747ea4a4cc3c21f458c61b824b15d354fc8e10adb5d2a7e82a3aa26363d48178341995f078275e2d5b3c5df70536c6af73a6dff32e15b7',
-        'Admin',
-        'User',
+        'Serge',
+        'Cherny',
         '+1-604-000-0000',
-        'Primary admin test user'
+        'Primary admin user'
+    ),
+    (
+        'sechevan@gmail.com',
+        '\x35c846498f41a7ed1513b765c264ab222f7c3b015163fc07c78f6af00554436d2bb8f3d105a848584a0103f228132affc301505136188d50194e14f9a32d0f64',
+        '\x727465da121430b0bf747ea4a4cc3c21f458c61b824b15d354fc8e10adb5d2a7e82a3aa26363d48178341995f078275e2d5b3c5df70536c6af73a6dff32e15b7',
+        'Bill',
+        'Gates',
+        '+1-604-000-0001',
+        'Secondary admin test user'
     ),
     (
         'alice.participant@plantour.test',
@@ -637,18 +619,15 @@ VALUES
 -- ====================================================================
 -- ADMINS / PARTICIPANTS LINKS
 -- ====================================================================
-INSERT INTO admins_participants (id, admin_id, participant_id, access_code_hash, access_code_salt, email, first_name, last_name, phone, notes)
+INSERT INTO admins_participants (id, admin_id, participant_id,participant_status_id, access_code_hash, access_code_salt, notes)
 VALUES
     (
         gen_random_uuid(),
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
+        (SELECT id FROM participant_statuses WHERE name = 'Active'),
         '',
         '',
-        'alice.participant@plantour.test',
-        'Alice',
-        'Participant',
-        '+1-604-000-0001',
         'First participant linked to admin'
 
     ),
@@ -656,12 +635,9 @@ VALUES
         gen_random_uuid(),
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
+        (SELECT id FROM participant_statuses WHERE name = 'Planned'),
         '',
         '',
-        'bob.participant@plantour.test',
-        'Bob',
-        'Participant',
-        '+1-604-000-0002',
         'Second participant linked to admin'
 
     );
