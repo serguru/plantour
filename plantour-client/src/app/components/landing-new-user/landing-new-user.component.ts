@@ -58,6 +58,11 @@ export class LandingNewUserComponent extends ToolbarAware {
   onSignIn(): void {
     this.router.navigate(['sign-in']);
   }
+  onSignInParticipant(): void {
+    this.router.navigate(['sign-in-participant']);
+  }
+
+  
 
   scrollToFeatures(): void {
     const element = document.getElementById('features');
