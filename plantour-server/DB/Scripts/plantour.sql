@@ -321,6 +321,30 @@ begin
 end;
 $$;
 
+create or replace function plantour.get_trip_id(
+    p_admin_id uuid,
+    p_trip_id uuid
+)
+returns void
+language plpgsql
+as $$
+declare
+    v_trip_id uuid;
+begin
+    select id
+    into v_trip_id
+    from plantour.trips
+    where
+        id = p_trip_id
+        and user_id = p_admin_id;
+
+    if v_trip_id is null then
+        raise exception
+            'Trip not found for current admin';
+    end if;
+end;
+$$;
+
 -- select plantour.insert_trip_user_packages(
 --     '',
 --     '',
@@ -485,6 +509,75 @@ begin
     return v_deleted_count;
 end;
 $$;
+
+create or replace function plantour.insert_trip_users(
+    p_admin_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_inserted_count integer;
+begin
+    -- Exception will be raised if trip not found or not owned by admin
+    perform plantour.get_trip_id(p_admin_id, p_trip_id);
+
+    insert into plantour.trip_users (trip_id, admin_participant_id, email, first_name, last_name, phone)
+    select p_trip_id,
+        b.id,
+        b.email,
+        b.first_name,
+        b.last_name,
+        b.phone
+    from plantour.admins_participants b
+    left join plantour.trip_users c on 
+        (
+            b.id = c.admin_participant_id or 
+            lower(c.email collate "und-x-icu") = lower(b.email collate "und-x-icu")
+        ) and c.trip_id = p_trip_id
+    where
+        b.id = any (p_ids)
+        and b.admin_id = p_admin_id
+        and c.id is null;        
+
+    get diagnostics v_inserted_count = row_count;
+
+    return v_inserted_count;
+end;
+$$;
+
+create or replace function plantour.delete_trip_users(
+    p_admin_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_deleted_count integer;
+begin
+    -- Exception will be raised if trip not found or not owned by admin
+    perform plantour.get_trip_id(p_admin_id, p_trip_id);
+
+    delete from plantour.trip_users a
+    using plantour.admins_participants b
+    join plantour.trip_users c on b.id = c.admin_participant_id and c.trip_id = p_trip_id
+    where
+        a.id = c.id and
+        b.id = any (p_ids)
+        and b.admin_id = p_admin_id;        
+
+    get diagnostics v_deleted_count = row_count;
+
+    return v_deleted_count;
+end;
+$$;
+
+
+--23505: duplicate key value violates unique constraint "idx_trip_users_trip_id_user_id"
 
 
 

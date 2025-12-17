@@ -16,6 +16,37 @@ public class TripUserController : ControllerBase
         _service = service;
     }
 
+
+    [HttpPost("insert-from-dic")]
+    [AdminOnly]
+    public async Task<ActionResult<TripUserPackageDto>> AddFromDic([FromBody] MultipleIdsRequest request)
+    {
+        try
+        {
+            var insertedCount = await _service.InsertTripUsersAsync(request.CollectionId, request.Ids);
+            return Ok(new {insertedCount});
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while creating the trip user(s)", details = ex.Message });
+        }
+    }
+
+    [HttpPost("delete-from-dic")]
+    [AdminOnly]
+    public async Task<ActionResult<TripUserPackageDto>> DeleteFromDic([FromBody] MultipleIdsRequest request)
+    {
+        try
+        {
+            var deletedCount = await _service.DeleteTripUsersAsync(request.CollectionId, request.Ids);
+            return Ok(new {deletedCount});
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while deleting the trip user(s)", details = ex.Message });
+        }
+    }
+
     [HttpGet("trip/{tripId}")]
     [AdminOnly]
     public async Task<ActionResult<IEnumerable<TripUserDto>>> GetAll(Guid tripId)

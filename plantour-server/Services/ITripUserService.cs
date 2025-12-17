@@ -9,4 +9,6 @@ public interface ITripUserService
     Task<TripUserDto> AddAsync(CreateTripUserRequest request);
     Task<bool> UpdateAsync(UpdateTripUserRequest request);
     Task<bool> DeleteAsync(Guid id);
+    Task<int> InsertTripUsersAsync(Guid tripId, Guid[] packageIds);
+    Task<int> DeleteTripUsersAsync(Guid tripId, Guid[] packageIds);
 }

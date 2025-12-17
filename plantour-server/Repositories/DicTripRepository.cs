@@ -187,8 +187,8 @@ public class DicTripRepository : BaseRepository
     /// <param name="adminId">The admin user ID</param>
     /// <param name="participantId">The participant user ID</param>
     /// <param name="tripId">The trip ID</param>
-    /// <param name="thingIds">Array of user package IDs to delete</param>
-    /// <returns>Number of inserted records</returns>
+    /// <param name="thingIds">Array of user thing IDs to delete</param>
+    /// <returns>Number of deleted records</returns>
     public async Task<int> DeleteTripUserThingsAsync(
         Guid tripId,
         Guid[] thingIds)
@@ -236,4 +236,98 @@ public class DicTripRepository : BaseRepository
         return deletedCount;
     }
 
+
+
+    public async Task<int> InsertTripUsersAsync(
+        Guid tripId,
+        Guid[] adminParticipantIds)
+    {
+        if (CurrentUser == null || !adminParticipantIds.Any())
+        {
+            return 0;
+        }
+
+        Guid adminId;
+
+        if (CurrentUser.IsAdmin)
+        {
+            adminId = CurrentUser.UserId!.Value;
+        }
+        else
+        {
+            return 0;
+        }   
+
+        int insertedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.insert_trip_users(@adminId, @tripId, @adminParticipantIds);";
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@adminParticipantIds", adminParticipantIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    insertedCount = count;
+                }
+            }
+        }
+        return insertedCount;
+    }
+
+
+
+
+    public async Task<int> DeleteTripUsersAsync(
+        Guid tripId,
+        Guid[] adminParticipantIds)
+    {
+        if (CurrentUser == null || !adminParticipantIds.Any())
+        {
+            return 0;
+        }
+
+        Guid adminId;
+
+        if (CurrentUser.IsAdmin)
+        {
+            adminId = CurrentUser.UserId!.Value;
+        }
+        else
+        {
+            return 0;
+        }   
+
+        int deletedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.delete_trip_users(@adminId, @tripId, @adminParticipantIds);";
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@adminParticipantIds", adminParticipantIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    deletedCount = count;
+                }
+            }
+        }
+        return deletedCount;
+    }
+
+
+
+
+
+
+
 }
+
+
+

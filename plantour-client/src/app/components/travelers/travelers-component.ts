@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { CrudService } from '../../services/crud-service';
+import { CrudService, FromDicService } from '../../services/crud-service';
 import { AdminsParticipantDto, UpdateAdminsParticipantRequest, AdminsParticipantService } from '../../services/admins-participant-service';
 import { BaseListComponent } from '../base-list/base-list';
 import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
 import { SignUpParticipantRequest } from '../../models/auth.models';
+import { CreateTripUserRequest, TripUserDto, TripUserService, UpdateTripUserRequest } from '../../services/trip-user-service';
 
 @Component({
   selector: 'app-travelers-component',
@@ -20,6 +21,10 @@ export class TravelersComponent {
   router = inject(Router);
 
   service: CrudService<AdminsParticipantDto, SignUpParticipantRequest, UpdateAdminsParticipantRequest> = inject(AdminsParticipantService);
+
+  tripDicService: CrudService<TripUserDto, CreateTripUserRequest, UpdateTripUserRequest> = inject(TripUserService);
+  fromDicService: FromDicService = inject(TripUserService);
+
 
   configuration: any[] = [
     {

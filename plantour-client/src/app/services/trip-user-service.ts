@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
-import { CrudService } from './crud-service';
+import { CrudService, FromDicService, MultipleIdsRequest } from './crud-service';
 
 export interface TripUserDto {
   id: string;
@@ -42,7 +42,7 @@ export interface UpdateTripUserRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class TripUserService implements CrudService<TripUserDto, CreateTripUserRequest, UpdateTripUserRequest> {
+export class TripUserService implements CrudService<TripUserDto, CreateTripUserRequest, UpdateTripUserRequest>, FromDicService {
   private apiUrl: string;
 
   constructor(
@@ -52,6 +52,15 @@ export class TripUserService implements CrudService<TripUserDto, CreateTripUserR
    
     this.apiUrl = `${environment.apiUrl}/api/tripuser`;
   }
+
+  addFromDic(data: MultipleIdsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/insert-from-dic`, data);
+  }
+
+  deleteFromDic(data: MultipleIdsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/delete-from-dic`, data);
+  }
+
 
   getAll(tripId: string): Observable<TripUserDto[]> {
     return this.http.get<TripUserDto[]>(`${this.apiUrl}/trip/${tripId}`);
