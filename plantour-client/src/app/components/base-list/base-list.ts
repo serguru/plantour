@@ -15,7 +15,6 @@ import { finalize } from 'rxjs';
 
 export type Comparable = {
   name?: string;
-  email?: string;
 };
 
 @Component({
@@ -89,7 +88,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
     const newItems = this.processedEntities!.map(entity => {
 
-      const tripEntity = this.tripEntities!.find(x => this.equalsByNameOrEmail(entity as any, x as any));
+      const tripEntity = this.tripEntities!.find(x => this.equalsByName(entity as any, x as any));
 
       if (tripEntity) {
         return { ...entity as any, inTripId: tripEntity.id };
@@ -105,7 +104,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   }
 
 
-  equalsByNameOrEmail(
+  equalsByName(
     a: Comparable,
     b: Comparable,
     locale: string = 'en'
@@ -114,27 +113,18 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
       typeof a.name === 'string' &&
       typeof b.name === 'string';
 
-    const hasEmail =
-      typeof a.email === 'string' &&
-      typeof b.email === 'string';
 
-    if (!hasName && !hasEmail) {
+    if (!hasName) {
       throw new Error(
-        'Both objects must contain either "name" or "email" property'
+        'Both objects must contain "name" property'
       );
     }
 
-    if (hasName) {
-      return a.name!.localeCompare(b.name!, locale, {
-        sensitivity: 'accent',
-        usage: 'search',
-      }) === 0;
-    }
-
-    return a.email!.localeCompare(b.email!, locale, {
+    return a.name!.localeCompare(b.name!, locale, {
       sensitivity: 'accent',
       usage: 'search',
     }) === 0;
+
   }
 
 
@@ -211,20 +201,20 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
     if (item.inTripId) {
       this.deleteFromDic(data);
-//       this.tripDicService!.delete(item.inTripId)
-//         .pipe(
-//           finalize(() => {
-//             this.refreshTripEntities(tripDto.id);
-//           })
-//         )
-//         .subscribe({
-//           next: () => {
-// //            this.messagesService.showInfo(`${this.entityName} deleted from trip "${tripDto.name}" successfully`);
-//           },
-//           error: (e) => {
-//             this.messagesService.showError(`Failed deleting ${this.entityName} from trip "${tripDto.name} with error: ${e.message}`);
-//           }
-//         });
+      //       this.tripDicService!.delete(item.inTripId)
+      //         .pipe(
+      //           finalize(() => {
+      //             this.refreshTripEntities(tripDto.id);
+      //           })
+      //         )
+      //         .subscribe({
+      //           next: () => {
+      // //            this.messagesService.showInfo(`${this.entityName} deleted from trip "${tripDto.name}" successfully`);
+      //           },
+      //           error: (e) => {
+      //             this.messagesService.showError(`Failed deleting ${this.entityName} from trip "${tripDto.name} with error: ${e.message}`);
+      //           }
+      //         });
       return;
     }
 

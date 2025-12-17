@@ -8,10 +8,8 @@ import { UsersService } from './users-service';
 
 export interface AdminsParticipantDto {
   id: string;
-  adminId: string;
-  participantId: string;
-  participantStatus?: string | null;
-  accessCode: string;
+  participantStatusId: string;
+  participantStatus: string;
   email: string;
   firstName?: string | null;
   lastName?: string | null;
@@ -19,24 +17,9 @@ export interface AdminsParticipantDto {
   notes?: string | null;
 }
 
-// export interface CreateAdminsParticipantRequest {
-//   participantId: string;
-//   participantStatus?: string | null;
-//   email: string;
-//   firstName?: string | null;
-//   lastName?: string | null;
-//   phone?: string | null;
-//   notes?: string | null;
-// }
-
 export interface UpdateAdminsParticipantRequest {
   id: string;
   participantId: string;
-  participantStatus?: string | null;
-  email: string;
-  firstName?: string | null;
-  lastName?: string | null;
-  phone?: string | null;
   notes?: string | null;
 }
 
@@ -69,11 +52,7 @@ export class AdminsParticipantService implements CrudService<AdminsParticipantDt
 
   add(request: SignUpParticipantRequest): Observable<AdminsParticipantDto> {
     return this.usersService.registerParticipant(request);
-//    return this.http.post<AdminsParticipantDto>(this.apiUrl, request);
   }
-
-
-
 
   update(request: UpdateAdminsParticipantRequest): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}`, request);

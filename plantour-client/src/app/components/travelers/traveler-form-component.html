@@ -93,11 +93,11 @@
         /> -->
 
           <p-select
-            id="participantStatus"
-            formControlName="participantStatus"
+            id="participantStatusId"
+            formControlName="participantStatusId"
             [options]="participantStatuses | async"
             optionLabel="name"
-            optionValue="name"
+            optionValue="id"
             placeholder="Select status"
             [showClear]="true"
             styleClass="w-full"

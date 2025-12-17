@@ -125,9 +125,6 @@ create table admins_participants (
     participant_status_id uuid not null references participant_statuses(id),
     access_code_hash bytea null,
     access_code_salt bytea null,
-    first_name varchar(100),
-    last_name varchar(100),
-    phone varchar(50),
     notes text
 );
 create unique index idx_admins_participants_admin_id_participant_id on admins_participants(admin_id, participant_id);

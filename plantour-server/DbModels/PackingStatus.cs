@@ -20,4 +20,7 @@ public partial class PackingStatus
 
     [Column("notes")]
     public string? Notes { get; set; }
+
+    [InverseProperty("PackingStatus")]
+    public virtual ICollection<TripUserPackage> TripUserPackages { get; set; } = new List<TripUserPackage>();
 }

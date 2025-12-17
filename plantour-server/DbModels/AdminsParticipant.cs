@@ -8,7 +8,6 @@ namespace plantour_server.DbModels;
 
 [Table("admins_participants", Schema = "plantour")]
 [Index("AdminId", "ParticipantId", Name = "idx_admins_participants_admin_id_participant_id", IsUnique = true)]
-[Index("AdminId", "Email", Name = "idx_admins_participants_email_admin_id_email", IsUnique = true)]
 public partial class AdminsParticipant
 {
     [Key]
@@ -21,31 +20,14 @@ public partial class AdminsParticipant
     [Column("participant_id")]
     public Guid ParticipantId { get; set; }
 
-    [Column("participant_status")]
-    [StringLength(50)]
-    public string? ParticipantStatus { get; set; }
+    [Column("participant_status_id")]
+    public Guid ParticipantStatusId { get; set; }
 
     [Column("access_code_hash")]
     public byte[]? AccessCodeHash { get; set; }
 
     [Column("access_code_salt")]
     public byte[]? AccessCodeSalt { get; set; }
-
-    [Column("email")]
-    [StringLength(255)]
-    public string Email { get; set; } = null!;
-
-    [Column("first_name")]
-    [StringLength(100)]
-    public string? FirstName { get; set; }
-
-    [Column("last_name")]
-    [StringLength(100)]
-    public string? LastName { get; set; }
-
-    [Column("phone")]
-    [StringLength(50)]
-    public string? Phone { get; set; }
 
     [Column("notes")]
     public string? Notes { get; set; }
@@ -57,6 +39,10 @@ public partial class AdminsParticipant
     [ForeignKey("ParticipantId")]
     [InverseProperty("AdminsParticipantParticipants")]
     public virtual User Participant { get; set; } = null!;
+
+    [ForeignKey("ParticipantStatusId")]
+    [InverseProperty("AdminsParticipants")]
+    public virtual ParticipantStatus ParticipantStatus { get; set; } = null!;
 
     [InverseProperty("AdminParticipant")]
     public virtual ICollection<TripUser> TripUsers { get; set; } = new List<TripUser>();

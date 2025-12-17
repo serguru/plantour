@@ -20,4 +20,7 @@ public partial class TripStatus
 
     [Column("notes")]
     public string? Notes { get; set; }
+
+    [InverseProperty("TripStatus")]
+    public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 }

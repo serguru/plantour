@@ -43,6 +43,8 @@ public partial class PlantourContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresExtension("pldbgapi");
+
         modelBuilder.Entity<AdminsParticipant>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("admins_participants_pkey");
@@ -52,6 +54,10 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Admin).WithMany(p => p.AdminsParticipantAdmins).HasConstraintName("admins_participants_admin_id_fkey");
 
             entity.HasOne(d => d.Participant).WithMany(p => p.AdminsParticipantParticipants).HasConstraintName("admins_participants_participant_id_fkey");
+
+            entity.HasOne(d => d.ParticipantStatus).WithMany(p => p.AdminsParticipants)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("admins_participants_participant_status_id_fkey");
         });
 
         modelBuilder.Entity<CommunicationType>(entity =>
@@ -80,7 +86,7 @@ public partial class PlantourContext : DbContext
 
         modelBuilder.Entity<ParticipantStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("participant_status_pkey");
+            entity.HasKey(e => e.Id).HasName("participant_statuses_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
@@ -98,9 +104,11 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Trips)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("trips_user_id_fkey");
+            entity.HasOne(d => d.TripStatus).WithMany(p => p.Trips)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("trips_trip_status_id_fkey");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Trips).HasConstraintName("trips_user_id_fkey");
         });
 
         modelBuilder.Entity<TripStatus>(entity =>
@@ -126,6 +134,10 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("trip_user_packages_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.PackingStatus).WithMany(p => p.TripUserPackages)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("trip_user_packages_packing_status_id_fkey");
 
             entity.HasOne(d => d.ParentPackage).WithMany(p => p.InverseParentPackage)
                 .OnDelete(DeleteBehavior.SetNull)

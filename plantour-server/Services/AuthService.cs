@@ -116,17 +116,17 @@ public class AuthService : IAuthService
             participant = new User
             {
                 Email = request.Email,
-                PasswordHash = null,
-                PasswordSalt = null,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Phone = request.Phone,
+                PasswordHash = null,
+                PasswordSalt = null,
                 Notes = $"Registered by admin {currentUser.Email} on {DateTime.UtcNow}"
             };
             await _authRepository.AddAsync(participant);
         }
 
-        if (await _adminsParticipantRepository.AnyByParticipantEmailAsync(request.Email))
+        if (await _adminsParticipantRepository.AnyByIdAsync(participant.Id))
         {
             throw new InvalidOperationException("Participant with this email is already registered under your admin account");
         }
@@ -148,11 +148,7 @@ public class AuthService : IAuthService
             AccessCodeHash = accessCodeHash,
             AccessCodeSalt = accessCodeSalt,
             Notes = request.Notes,
-            ParticipantStatus = request.ParticipantStatus,
-            Email = request.Email,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Phone = request.Phone
+            ParticipantStatusId = request.ParticipantStatusId
         };
 
         await _adminsParticipantRepository.AddAsync(adminParticipant);

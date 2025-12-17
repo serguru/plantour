@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("participant_status", Schema = "plantour")]
-[Index("Name", Name = "participant_status_name_key", IsUnique = true)]
+[Table("participant_statuses", Schema = "plantour")]
+[Index("Name", Name = "participant_statuses_name_key", IsUnique = true)]
 public partial class ParticipantStatus
 {
     [Key]
@@ -20,4 +20,7 @@ public partial class ParticipantStatus
 
     [Column("notes")]
     public string? Notes { get; set; }
+
+    [InverseProperty("ParticipantStatus")]
+    public virtual ICollection<AdminsParticipant> AdminsParticipants { get; set; } = new List<AdminsParticipant>();
 }

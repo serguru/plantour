@@ -16,8 +16,8 @@ import { Select } from 'primeng/select';
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
-    Select,
-    AsyncPipe
+    AsyncPipe,
+    Select
   ],
   templateUrl: './traveler-form-component.html',
   styleUrl: './traveler-form-component.scss'
@@ -29,20 +29,26 @@ export class TravelerFormComponent implements OnInit {
   public id: string | null = null;
 
   service = inject(AdminsParticipantService);
-  fieldsConfig = {
-    email: new FormControl('', [Validators.required, Validators.email]),
-    firstName: new FormControl('', Validators.required),
-    lastName: new FormControl('', Validators.required),
-    phone: new FormControl(''),
-    notes: new FormControl(''),
-    participantStatus: new FormControl(''),
-  };
+  fieldsConfig = {};
+
+  get isEditMode(): boolean {
+    return this.mode === 'edit';
+  }
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];
-    if (this.mode === 'edit') {
+    if (this.isEditMode) {
       this.id = this.route.snapshot.paramMap.get('id');
     }
+    this.fieldsConfig = {
+      email: new FormControl({ value: '', disabled: this.isEditMode }, [Validators.required, Validators.email]),
+      firstName: new FormControl({ value: '', disabled: this.isEditMode }, Validators.required),
+      lastName: new FormControl({ value: '', disabled: this.isEditMode }, Validators.required),
+      phone: new FormControl({ value: '', disabled: this.isEditMode }),
+      notes: new FormControl(''),
+      participantStatusId: new FormControl(''),
+    };
+
   }
 
   toolBarButtons = [

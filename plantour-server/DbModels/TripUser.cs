@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("trip_users", Schema = "plantour")]
-[Index("TripId", "Email", Name = "idx_trip_users_trip_id_email", IsUnique = true)]
 [Index("TripId", "AdminParticipantId", Name = "idx_trip_users_trip_id_user_id", IsUnique = true)]
 public partial class TripUser
 {
@@ -20,26 +19,6 @@ public partial class TripUser
 
     [Column("admin_participant_id")]
     public Guid AdminParticipantId { get; set; }
-
-    [Column("participant_status")]
-    [StringLength(50)]
-    public string? ParticipantStatus { get; set; }
-
-    [Column("email")]
-    [StringLength(255)]
-    public string Email { get; set; } = null!;
-
-    [Column("first_name")]
-    [StringLength(100)]
-    public string? FirstName { get; set; }
-
-    [Column("last_name")]
-    [StringLength(100)]
-    public string? LastName { get; set; }
-
-    [Column("phone")]
-    [StringLength(50)]
-    public string? Phone { get; set; }
 
     [Column("notes")]
     public string? Notes { get; set; }

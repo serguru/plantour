@@ -31,9 +31,8 @@ public partial class TripUserPackage
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [Column("packing_status")]
-    [StringLength(50)]
-    public string? PackingStatus { get; set; }
+    [Column("packing_status_id")]
+    public Guid PackingStatusId { get; set; }
 
     [Column("packed_at")]
     public DateTime? PackedAt { get; set; }
@@ -51,6 +50,10 @@ public partial class TripUserPackage
 
     [InverseProperty("ParentPackage")]
     public virtual ICollection<TripUserPackage> InverseParentPackage { get; set; } = new List<TripUserPackage>();
+
+    [ForeignKey("PackingStatusId")]
+    [InverseProperty("TripUserPackages")]
+    public virtual PackingStatus PackingStatus { get; set; } = null!;
 
     [ForeignKey("ParentPackageId")]
     [InverseProperty("InverseParentPackage")]

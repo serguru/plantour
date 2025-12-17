@@ -22,6 +22,7 @@ public class AdminsParticipantRepository : BaseRepository
             return null;
         }
         return await _dbSet     
+            .Include(x => x.Participant)
             .FirstOrDefaultAsync(x => x.Id == id && x.AdminId == CurrentUser.UserId);
     }
 
@@ -32,7 +33,7 @@ public class AdminsParticipantRepository : BaseRepository
             return null;
         }
         return await _dbSet
-            .FirstOrDefaultAsync(x => x.Email == email && x.AdminId == CurrentUser.UserId);
+            .FirstOrDefaultAsync(x => x.Participant.Email == email && x.AdminId == CurrentUser.UserId);
     }
 
     public async Task<IEnumerable<AdminsParticipant>> GetAllAsync()
@@ -42,6 +43,7 @@ public class AdminsParticipantRepository : BaseRepository
             return Array.Empty<AdminsParticipant>();
         }
         return await _dbSet
+            .Include(x => x.Participant)
             .Where(x => x.AdminId == CurrentUser.UserId)
             .ToListAsync();
     }
@@ -77,6 +79,17 @@ public class AdminsParticipantRepository : BaseRepository
 
         return await _dbSet
             .AnyAsync(x => x.AdminId == CurrentUser.UserId && x.Participant.Email == email);
+    }
+
+    public async Task<bool> AnyByIdAsync(Guid id)
+    {
+        if (CurrentUser == null)
+        {
+            return false;
+        }
+
+        return await _dbSet
+            .AnyAsync(x => x.AdminId == CurrentUser.UserId && x.ParticipantId == id);
     }
     
     public virtual async Task AddAsync(AdminsParticipant entity)

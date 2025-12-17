@@ -21,8 +21,8 @@ public partial class UserPackage
     [StringLength(200)]
     public string Name { get; set; } = null!;
 
-    [Column("description")]
-    public string? Description { get; set; }
+    [Column("notes")]
+    public string? Notes { get; set; }
 
     [ForeignKey("UserId")]
     [InverseProperty("UserPackages")]

@@ -8,15 +8,14 @@ public class AdminsParticipantMappingProfile : Profile
 {
     public AdminsParticipantMappingProfile()
     {
-        CreateMap<AdminsParticipant, AdminsParticipantDto>();
-        
-        CreateMap<UpdateAdminsParticipantRequest, AdminsParticipant>()
-            .ForMember(dest => dest.AdminId, opt => opt.Ignore())
-            .ForMember(dest => dest.ParticipantId, opt => opt.Ignore())
-            .ForMember(dest => dest.AccessCodeHash, opt => opt.Ignore())
-            .ForMember(dest => dest.AccessCodeSalt, opt => opt.Ignore())
-            .ForMember(dest => dest.Admin, opt => opt.Ignore())
-            .ForMember(dest => dest.Participant, opt => opt.Ignore())
-            .ForMember(dest => dest.TripUsers, opt => opt.Ignore());
+        CreateMap<AdminsParticipant, AdminsParticipantDto>()
+            .ForMember(dest => dest.ParticipantStatus, opt => opt.MapFrom(src => src.ParticipantStatus.Name))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Participant.Email))
+            .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.Participant.FirstName))
+            .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.Participant.LastName))
+            .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Participant.Phone))
+            .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Participant.Notes));
+
+        CreateMap<UpdateAdminsParticipantRequest, AdminsParticipant>();
     }
 }

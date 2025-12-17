@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("trips", Schema = "plantour")]
-[Index("UserId", Name = "idx_trips_user_id")]
+[Index("UserId", "Name", Name = "idx_trips_user_id_name", IsUnique = true)]
 public partial class Trip
 {
     [Key]
@@ -15,18 +15,17 @@ public partial class Trip
     public Guid Id { get; set; }
 
     [Column("user_id")]
-    public Guid? UserId { get; set; }
+    public Guid UserId { get; set; }
 
-    [Column("trip_status")]
-    [StringLength(50)]
-    public string? TripStatus { get; set; }
+    [Column("trip_status_id")]
+    public Guid TripStatusId { get; set; }
 
     [Column("name")]
     [StringLength(200)]
     public string Name { get; set; } = null!;
 
-    [Column("description")]
-    public string? Description { get; set; }
+    [Column("notes")]
+    public string? Notes { get; set; }
 
     [Column("start_date")]
     public DateOnly? StartDate { get; set; }
@@ -37,10 +36,14 @@ public partial class Trip
     [InverseProperty("Trip")]
     public virtual ICollection<Invitation> Invitations { get; set; } = new List<Invitation>();
 
+    [ForeignKey("TripStatusId")]
+    [InverseProperty("Trips")]
+    public virtual TripStatus TripStatus { get; set; } = null!;
+
     [InverseProperty("Trip")]
     public virtual ICollection<TripUser> TripUsers { get; set; } = new List<TripUser>();
 
     [ForeignKey("UserId")]
     [InverseProperty("Trips")]
-    public virtual User? User { get; set; }
+    public virtual User User { get; set; } = null!;
 }
