@@ -24,10 +24,7 @@ public partial class AdminsParticipant
     public Guid ParticipantStatusId { get; set; }
 
     [Column("access_code_hash")]
-    public byte[]? AccessCodeHash { get; set; }
-
-    [Column("access_code_salt")]
-    public byte[]? AccessCodeSalt { get; set; }
+    public string? AccessCodeHash { get; set; }
 
     [Column("notes")]
     public string? Notes { get; set; }

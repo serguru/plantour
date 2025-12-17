@@ -139,17 +139,17 @@ public class AdminsParticipantRepository : BaseRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> AnyByAccessCodeHash(byte[] codeHash)
+    public async Task<bool> AnyByAccessCodeHash(string hash)
     {
         return await _dbSet
-            .AnyAsync(x => x.AccessCodeHash != null && x.AccessCodeHash.SequenceEqual(codeHash));
+            .AnyAsync(x => x.AccessCodeHash == hash);
     }
 
-    public async Task<AdminsParticipant?> GetByAccessCodeHashAsync(byte[] codeHash)
+    public async Task<AdminsParticipant?> GetByAccessCodeHashAsync(string hash)
     {
         return await _dbSet
-            .Include(ap => ap.Participant)
-            .Include(ap => ap.Admin)
-            .FirstOrDefaultAsync(ap => ap.AccessCodeHash != null && ap.AccessCodeHash.SequenceEqual(codeHash));
+            .Include(x => x.Participant)
+            .Include(x => x.Admin)
+            .FirstOrDefaultAsync(x => x.AccessCodeHash == hash);
     }
 }

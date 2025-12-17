@@ -56,16 +56,15 @@ export class UsersService {
         ))
   }
 
-  writeTokensToStorage(accessToken: string, refreshToken: string): void {
+  writeTokensToStorage(accessToken: string): void {
     localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
   }
 
   loginParticipant(accessCode: string): Observable<any> {
     return this.http.post<string>(`${this.apiUrl}/api/auth/participant/signin`, { accessCode })
       .pipe(
         tap((r: any) => {
-          this.writeTokensToStorage(r.accessToken, r.refreshToken);
+          this.writeTokensToStorage(r.accessToken);
         }
         ))
   }
@@ -74,7 +73,7 @@ export class UsersService {
     return this.http.post<string>(`${this.apiUrl}/api/auth/admin/signup`, data)
       .pipe(
         tap((r: any) => {
-          this.writeTokensToStorage(r.accessToken, r.refreshToken);
+          this.writeTokensToStorage(r.accessToken);
         }
         ))
   }
@@ -103,5 +102,9 @@ export class UsersService {
     
     return `${user.email}`;
   } 
+
+  signOut(): void {
+    localStorage.removeItem("accessToken");
+  }
 
 }

@@ -10,7 +10,7 @@ public static class AccessCodeGenerator
     /// <summary>
     /// Generates a random 8-character access code
     /// </summary>
-    public static string Generate()
+    public static string GenerateAccessCode()
     {
         var code = new StringBuilder(8);
         var randomBytes = RandomNumberGenerator.GetBytes(8);
@@ -23,27 +23,4 @@ public static class AccessCodeGenerator
         return code.ToString();
     }
 
-    /// <summary>
-    /// Generates a unique access code that doesn't exist in the database
-    /// </summary>
-    public static async Task<string> GenerateUniqueAsync(Func<string, Task<bool>> existsCheck)
-    {
-        string code;
-        int attempts = 0;
-        const int maxAttempts = 100;
-
-        do
-        {
-            code = Generate();
-            attempts++;
-
-            if (attempts > maxAttempts)
-            {
-                throw new InvalidOperationException("Failed to generate unique access code after multiple attempts");
-            }
-        }
-        while (await existsCheck(code));
-
-        return code;
-    }
 }

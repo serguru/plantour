@@ -123,8 +123,7 @@ create table admins_participants (
     admin_id uuid not null references users(id) on delete cascade,
     participant_id uuid not null references users(id) on delete cascade,
     participant_status_id uuid not null references participant_statuses(id),
-    access_code_hash bytea null,
-    access_code_salt bytea null,
+    access_code_hash char(64) not null unique,
     notes text
 );
 create unique index idx_admins_participants_admin_id_participant_id on admins_participants(admin_id, participant_id);
@@ -616,15 +615,14 @@ VALUES
 -- ====================================================================
 -- ADMINS / PARTICIPANTS LINKS
 -- ====================================================================
-INSERT INTO admins_participants (id, admin_id, participant_id,participant_status_id, access_code_hash, access_code_salt, notes)
+INSERT INTO admins_participants (id, admin_id, participant_id,participant_status_id, access_code_hash, notes)
 VALUES
     (
         gen_random_uuid(),
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
         (SELECT id FROM participant_statuses WHERE name = 'Active'),
-        '',
-        '',
+        'a',
         'First participant linked to admin'
 
     ),
@@ -633,9 +631,7 @@ VALUES
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
         (SELECT id FROM participant_statuses WHERE name = 'Planned'),
-        '',
-        '',
+        'b',
         'Second participant linked to admin'
-
     );
 

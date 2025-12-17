@@ -41,9 +41,6 @@ export interface SignInParticipantRequest {
   password?: string;
 }
 
-export interface RefreshTokenRequest {
-  refreshToken: string;
-}
 
 // Response models
 export interface AuthResponse {
@@ -52,7 +49,6 @@ export interface AuthResponse {
   firstName?: string;
   lastName?: string;
   accessToken: string;
-  refreshToken: string;
   expiresAt: string;
 }
 
@@ -67,16 +63,10 @@ export interface ParticipantAuthResponse {
   adminFirstName?: string;
   adminLastName?: string;
   accessToken: string;
-  refreshToken: string;
   expiresAt: string;
   role: string;
 }
 
-export interface RefreshTokenResponse {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: string;
-}
 
 export interface ValidateTokenResponse {
   isValid: boolean;

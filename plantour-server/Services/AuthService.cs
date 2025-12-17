@@ -1,4 +1,4 @@
-    // AccessCode hash helpers (same as password)
+// AccessCode hash helpers (same as password)
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -23,13 +23,17 @@ public class AuthService : IAuthService
 
     private readonly IMapper _mapper;
     private readonly JwtSettings _jwtSettings;
+    private readonly IConfiguration _configuration;
+    private readonly IWebHostEnvironment _environment;
 
-    public AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, AuthRepository authRepository, AdminsParticipantRepository adminsParticipantRepository)
+    public AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, AuthRepository authRepository, AdminsParticipantRepository adminsParticipantRepository, IConfiguration configuration, IWebHostEnvironment environment)
     {
         _jwtSettings = jwtSettings.Value;
         _mapper = mapper;
         _authRepository = authRepository;
         _adminsParticipantRepository = adminsParticipantRepository;
+        _configuration = configuration;
+        _environment = environment;
     }
 
     #region Admin Authentication
@@ -62,21 +66,6 @@ public class AuthService : IAuthService
         return await GenerateAdminAuthResponse(user);
     }
 
-    private void CreateAccessCodeHash(string accessCode, out byte[] accessCodeHash, out byte[] accessCodeSalt)
-    {
-        using var hmac = new HMACSHA512();
-        accessCodeSalt = hmac.Key;
-        accessCodeHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(accessCode));
-    }
-
-    private bool VerifyAccessCodeHash(string accessCode, byte[] storedHash, byte[] storedSalt)
-    {
-        using var hmac = new HMACSHA512(storedSalt);
-        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(accessCode));
-        return computedHash.SequenceEqual(storedHash);
-    }
-
-
     public async Task<AuthResponse> SignInAsync(SignInRequest request)
     {
         // Find user
@@ -99,6 +88,22 @@ public class AuthService : IAuthService
     #endregion
 
     #region Participant Authentication
+
+    private string AccessCode2Hash(string accessCode)
+    {
+        string? pepper = _configuration["AccessCodePepper"];
+
+        if (string.IsNullOrWhiteSpace(accessCode))
+            throw new ArgumentException("AccessCode must not be empty", nameof(accessCode));
+
+        if (string.IsNullOrWhiteSpace(pepper))
+            throw new ArgumentException("Pepper must not be empty", nameof(pepper));
+
+        string input = accessCode + pepper;
+        byte[] bytes = Encoding.UTF8.GetBytes(input);
+        byte[] hashBytes = SHA256.HashData(bytes);
+        return Convert.ToHexString(hashBytes).ToLowerInvariant();
+    }
 
     public async Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request)
     {
@@ -131,23 +136,33 @@ public class AuthService : IAuthService
             throw new InvalidOperationException("Participant with this email is already registered under your admin account");
         }
 
-        // Generate unique access code
-        var accessCode = await AccessCodeGenerator.GenerateUniqueAsync(async code =>
-        {
-            CreateAccessCodeHash(code, out var hash, out var salt);
-            return await _adminsParticipantRepository.AnyByAccessCodeHash(hash);
-        });
 
-        // Hash access code
-        CreateAccessCodeHash(accessCode, out var accessCodeHash, out var accessCodeSalt);
+        string accessCode = "";
+        string accessCodeHash = "";
+        for (int i = 0; i < 100; i++)
+        {
+            accessCode = AccessCodeGenerator.GenerateAccessCode();
+            accessCodeHash = AccessCode2Hash(accessCode);
+            if (!await _adminsParticipantRepository.AnyByAccessCodeHash(accessCodeHash))
+            {
+                break;
+            }
+            if (i == 99)
+            {
+                throw new InvalidOperationException("Failed to generate unique access code after multiple attempts");
+            }
+        }
+
+        string? notes = _environment.IsDevelopment()
+            ? $"Access Code: {accessCode!}"
+            : request.Notes;
 
         // Create admin-participant relationship
         var adminParticipant = new AdminsParticipant
         {
             ParticipantId = participant.Id,
             AccessCodeHash = accessCodeHash,
-            AccessCodeSalt = accessCodeSalt,
-            Notes = request.Notes,
+            Notes = notes,
             ParticipantStatusId = request.ParticipantStatusId
         };
 
@@ -160,25 +175,17 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request)
     {
-        // Hash access code
-        var accessCode = request.AccessCode;
-        AdminsParticipant? adminParticipant = null;
-        foreach (var ap in await _adminsParticipantRepository.GetAllAsync())
-        {
-            if (ap.AccessCodeHash != null && ap.AccessCodeSalt != null && VerifyAccessCodeHash(accessCode, ap.AccessCodeHash, ap.AccessCodeSalt))
-            {
-                adminParticipant = ap;
-                break;
-            }
-        }
+        AdminsParticipant? adminParticipant = _adminsParticipantRepository.GetByAccessCodeHashAsync(AccessCode2Hash(request.AccessCode)).Result;
+
         if (adminParticipant == null)
         {
             throw new UnauthorizedAccessException("Cannot signin participant with provided access code");
         }
+
         var participant = adminParticipant.Participant;
         var admin = adminParticipant.Admin;
         // Generate participant tokens
-        return await GenerateParticipantAuthResponse(participant, admin, accessCode);
+        return await GenerateParticipantAuthResponse(participant, admin);
     }
 
     #endregion
@@ -228,9 +235,9 @@ public class AuthService : IAuthService
     }
 
     private async Task<AuthResponse> GenerateParticipantAuthResponse(
-        User participant, User admin, string accessCode)
+        User participant, User admin)
     {
-        var accessToken = GenerateParticipantAccessToken(participant, admin, accessCode);
+        var accessToken = GenerateParticipantAccessToken(participant, admin);
 
         return new AuthResponse
         {
@@ -273,14 +280,13 @@ public class AuthService : IAuthService
         return tokenHandler.WriteToken(token);
     }
 
-    private string GenerateParticipantAccessToken(User participant, User admin, string accessCode)
+    private string GenerateParticipantAccessToken(User participant, User admin)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
 
         var claims = GenerateUserClaims(participant);
         claims.Add(new Claim(PlantourClaims.Role, PlantourRoles.Participant));
-        claims.Add(new Claim(PlantourClaims.AccessCode, accessCode));
         claims.Add(new Claim(PlantourClaims.AdminId, admin.Id.ToString()));
 
         var tokenDescriptor = new SecurityTokenDescriptor

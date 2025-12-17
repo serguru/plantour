@@ -136,3 +136,6 @@ I need a solution to apply different templates inside p-listbox depending on T. 
 
 Изучи SQL скрипт ниже. Этот скрипт создаёт PostgesSQL БД и добавляет в нее данные. Твоя задача заполнить таблицы тестовыми данными на английском языке. Не изменяй никакие существующие данные, только читай их и добавляй новые. Используй реальные названия entities т.е. "Жёлтый чемодан" вместо "Test1". НЕ добавляй проверочные select. НЕ забудь заполнить trips, trip_users и все остальные таблицы. Не переписывай код из моего скрипта в свой. Верни мне ссылку на файл с результатом для скачивания.
 
+Напиши PostgreSQL stored procedure, которая на вход получала бы password и возвращала бы hashed pasword и salt.
+Напиши PostgreSQL еще одну stored procedure, которая на вход получала бы password, hashed pasword и salt и возвращала бы true если password соответствует hash password.
+
