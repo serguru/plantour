@@ -5,25 +5,12 @@
         class="pi"
         [class]="entityIcon"
       ></i>
-      <h2>{{ title }}</h2>
+      <h2 class="ellipsis-text">{{ title }}</h2>
     </div>
 
     <div class="header-middle">
       @if(!isListReadOnly) {
       <!-- no format -->
-        <!-- @if(dic2trip) {
-          <p-button
-            [text]="true"
-            [rounded]="true"
-          >
-            <i
-              class="pi pi-compass"
-              pButtonIcon
-              [ngClass]="dic2tripVisible ? 'icon-green':null"
-              (click)="onToggleTrip()"
-            ></i>
-          </p-button>
-        } -->
         @if(addUrl) {
           <p-button
             icon="pi pi-plus"
@@ -53,7 +40,6 @@
     </div>
 
     <div class="header-right">
-
       <button
         pButton
         icon="pi pi-ellipsis-v"
@@ -71,7 +57,7 @@
     </div>
   </div>
 
-  @if (dic2tripVisible) {
+  @if (showDic2Trip) {
   <app-dic-trip
     (selectedTripChanged)="onSelectedTripChanged($event)"
     (registerGetter)="setCheckSelectedTrip($event)"
@@ -98,7 +84,7 @@
     [itemTemplate]="itemTemplate"
     (selectedChange)="onSelectedChange($event)"
     (addRemoveFromDic)="onAddRemoveFromDic($event)"
-    [dic2tripVisible]="dic2tripVisible"
+    [dic2tripVisible]="showDic2Trip"
   ></app-list-box>
 
 

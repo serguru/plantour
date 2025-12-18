@@ -3,7 +3,6 @@ import { CrudService, FromDicService } from '../../services/crud-service';
 import { TripPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest, TripPackageService } from '../../services/trip-package-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
-import { TripPanelComponent } from '../trip-panel/trip-panel-component/trip-panel-component';
 
 @Component({
   selector: 'app-trip-packs',

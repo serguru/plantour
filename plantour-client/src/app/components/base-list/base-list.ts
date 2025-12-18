@@ -86,6 +86,10 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     super();
   }
 
+  get showDic2Trip(): boolean { 
+    return this.dic2trip && this.dic2tripVisible;
+  }
+
   onShowHideMenu(name: string) {
 
     switch (name) {

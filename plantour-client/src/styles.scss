@@ -12,8 +12,8 @@
   --content-container-background-color: #ffffff;
   --error-color: #E53935;
   --error-background-color: #ffe6e6;
-  --warning-background-color: rgb(252, 252, 225); 
-  --warning-color: rgb(87, 87, 2); 
+  --warning-background-color: rgb(252, 252, 225);
+  --warning-color: rgb(87, 87, 2);
   --info-background-color: rgb(223, 251, 223);
   --info-color: rgb(12, 155, 12);
 
@@ -190,8 +190,10 @@ html {
   }
 
   .header-left {
-    display: flex;
-    align-items: center;
+    // display: flex;
+    // align-items: center;
+    display: grid;
+    grid-template-columns: 1fr auto;
     gap: 0.75rem;
 
     h2 {
@@ -213,7 +215,13 @@ html {
     margin-left: auto;
     // display: flex;
     // gap: 1rem;
-//    color: red !important;
+    //    color: red !important;
+  }
+
+  .ellipsis-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -227,10 +235,12 @@ html {
   align-items: center;
   gap: 0.75rem;
   border-left: 4px solid var(--error-color);
+
   i {
     font-size: 1.25rem;
     flex-shrink: 0;
   }
+
   span {
     flex: 1;
   }
@@ -245,10 +255,12 @@ html {
   align-items: center;
   gap: 0.75rem;
   border-left: 4px solid var(--error-color);
+
   i {
     font-size: 1.25rem;
     flex-shrink: 0;
   }
+
   span {
     flex: 1;
   }
@@ -318,13 +330,13 @@ p-panel.list-actions-panel {
 .page-header .p-button-icon {
   font-size: 1.5rem !important;
   color: white;
-} 
+}
+
 .page-header .p-button:hover .p-button-icon {
   color: black !important;
-} 
+}
 
-.p-select-option.p-select-option-selected.p-focus
-{
+.p-select-option.p-select-option-selected.p-focus {
   background-color: var(--primary-color-highlight) !important;
   color: inherit !important;
 }

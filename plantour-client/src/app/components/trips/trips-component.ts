@@ -24,7 +24,7 @@ export class TripsComponent {
 
   onTripSelected = (trip: TripDto | null) => {
     this.selected = trip;
-    this.toolBarButtons[1].disabled = !this.selected;
+    this.toolBarButtons.forEach(x => x.disabled = !this.selected);
   };
 
   configuration: any[] = [
@@ -56,6 +56,12 @@ export class TripsComponent {
       icon: 'pi pi-chevron-left',
       tooltip: 'Back',
       command: () => this.router.navigate([""])
+    },{
+      id: 'trip-participants-button',
+      icon: 'pi pi-user',
+      tooltip: 'Trip participants',
+      disabled: true,
+      command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-participants`])
     },{
       id: 'trip-packs-button',
       icon: 'pi pi-briefcase',

@@ -1,0 +1,38 @@
+<app-generic-list
+    [service]="service"
+    [fromDicService]="fromDicservice"
+    [listActionsConfiguration]="configuration"
+    [itemTemplate]="participantTemplate"
+    title="Trip Participants"
+    entityIcon="pi-user"
+    [isListReadOnly]="false"
+    [addUrl]="'add'"
+    [editUrl]="'edit/:id'"
+    entityNameProp="email"
+    entityName="trip participant"
+    [toolBarButtons]="toolBarButtons"
+    [useTripId]="true"
+    [dic2trip]="false"
+    [tripPanelVisible]="true"
+>
+</app-generic-list>
+
+<ng-template
+    #participantTemplate
+    let-item
+>
+    <div class="participant-row">
+        <span
+            class="participant-email"
+            [innerHTML]="item.email"
+        ></span>
+        <span class="participant-name">
+            {{ item.firstName }} {{ item.lastName }}
+        </span>
+        @if (item.participantStatus) {
+        <span class="participant-status">
+            {{ item.participantStatus }}
+        </span>
+        }
+    </div>
+</ng-template>

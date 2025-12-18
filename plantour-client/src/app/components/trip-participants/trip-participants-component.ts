@@ -1,0 +1,87 @@
+import { Component, inject, OnInit } from '@angular/core';
+import { CrudService, FromDicService } from '../../services/crud-service';
+import { TripUserDto, CreateTripUserRequest, UpdateTripUserRequest, TripUserService } from '../../services/trip-user-service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BaseListComponent } from '../base-list/base-list';
+
+@Component({
+  selector: 'app-trip-participants',
+  standalone: true,
+  imports: [
+    BaseListComponent
+  ],
+  templateUrl: './trip-participants-component.html',
+  styleUrl: './trip-participants-component.scss',
+})
+export class TripParticipantsComponent implements OnInit {
+
+  tripId: string | null = null;
+
+  ngOnInit(): void {
+    this.tripId = this.route.snapshot.paramMap.get('tripId');
+  }
+
+  route = inject(ActivatedRoute);
+  router = inject(Router);
+  service: CrudService<TripUserDto, CreateTripUserRequest, UpdateTripUserRequest> = inject(TripUserService);
+
+  fromDicservice: FromDicService = inject(TripUserService);
+
+  configuration: any[] = [
+    {
+      property: 'email',
+      label: 'Email',
+      icon: 'pi pi-envelope',
+      config: {
+        lookupIcon: 'pi pi-envelope',
+        filter: true,
+        sorting: 'text'
+      }
+    },
+    {
+      property: 'firstName',
+      label: 'First Name',
+      icon: 'pi pi-user',
+      config: {
+        filter: true,
+        sorting: 'text'
+      }
+    },
+    {
+      property: 'lastName',
+      label: 'Last Name',
+      icon: 'pi pi-user',
+      config: {
+        filter: true,
+        sorting: 'text'
+      }
+    },
+    {
+      property: 'participantStatus',
+      label: 'Status',
+      icon: 'pi pi-flag',
+      config: {
+        filter: true,
+        sorting: 'text'
+      }
+    }
+  ];
+
+  toolBarButtons = [
+    {
+      id: 'back-button',
+      icon: 'pi pi-chevron-left',
+      tooltip: 'Back',
+      command: () => {
+        if (!this.tripId) {
+          this.router.navigate(["trips"]);
+          return;
+        }
+
+        this.router.navigate(["trips"], {
+          queryParams: { selectId: this.tripId }
+        });
+      }
+    }
+  ]
+}
