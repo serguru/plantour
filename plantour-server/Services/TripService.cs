@@ -61,4 +61,10 @@ public class TripService(
         await _tripRepository.DeleteAsync(id);
         return true;
     }
+
+    public async Task<TripStatDto?> GetTripStatsAsync(Guid id)
+    {
+        TripStatDto? result = await _tripRepository.GetTripStats(id);
+        return result;
+    }
 }

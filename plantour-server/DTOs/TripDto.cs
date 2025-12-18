@@ -7,11 +7,12 @@ public class TripDto
 
     public Guid UserId { get; set; }
 
-    public string? TripStatus { get; set; }
+    public Guid TripStatusId { get; set; }
+    public string TripStatus { get; set; } = null!;
 
     public string Name { get; set; } = null!;
 
-    public string? Description { get; set; }
+    public string? Notes { get; set; }
 
     public DateOnly? StartDate { get; set; }
 

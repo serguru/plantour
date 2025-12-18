@@ -61,9 +61,14 @@
     [addFromDic]="addFromDic.bind(this)"
     [deleteFromDic]="deleteFromDic.bind(this)"
     [tripsFor]="tripsFor"
-    
   ></app-dic-trip>
   }
+  @if (tripPanelVisible && tripId) {
+    <app-trip-panel [tripId]="tripId"></app-trip-panel>
+  }
+
+
+
 
   <app-list-actions
     [items]="entities"

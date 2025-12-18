@@ -12,6 +12,7 @@ import { ToolbarAware } from '../toolbar-aware';
 import { DicTripComponent } from '../dic-trip/dic-trip.component';
 import { TripDto, TripService } from '../../services/trip-service';
 import { finalize } from 'rxjs';
+import { TripPanelComponent } from '../trip-panel/trip-panel-component/trip-panel-component';
 
 export type Comparable = {
   name?: string;
@@ -27,7 +28,8 @@ export type Comparable = {
     ListActionsComponent,
     ButtonModule,
     ListBoxComponent,
-    DicTripComponent
+    DicTripComponent,
+    TripPanelComponent
   ],
   templateUrl: './base-list.html',
   styleUrl: './base-list.scss'
@@ -55,6 +57,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   @Input() useTripId: boolean = false;
   @Output() entitySelected = new EventEmitter<any | null>();
   @Input() tripsFor: string | null = null;
+  @Input() tripPanelVisible: boolean = false;
 
   tripEntities: any[] | null = null;
   entities: T[] | null = null;

@@ -11,4 +11,5 @@ public interface ITripService
     Task<TripDto> AddAsync(CreateTripRequest request);
     Task<bool> UpdateAsync(UpdateTripRequest request);
     Task<bool> DeleteAsync(Guid id);
+    Task<TripStatDto?> GetTripStatsAsync(Guid id);
 }

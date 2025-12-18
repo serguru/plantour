@@ -122,4 +122,20 @@ public class TripController : ControllerBase
             return StatusCode(500, new { message = "An error occurred while deleting the trip", details = ex.Message });
         }
     }
+
+    [HttpGet("stat/{id}")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<TripStatDto?>> GetTripStats(Guid id)
+    {
+        try
+        {
+            var dtos = await _service.GetTripStatsAsync(id);
+            return Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while retrieving trip stats", details = ex.Message });
+        }
+    }
+
 }

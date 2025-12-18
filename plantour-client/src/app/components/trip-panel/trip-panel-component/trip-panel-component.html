@@ -1,0 +1,16 @@
+<div class="container">
+    @if(tripStatDto) {
+    <!-- <h4>{{tripStatDto.trip.name}}</h4> -->
+    <h3 class="left">
+        <a [href]="tripUrl">
+            {{tripStatDto.trip.name}}
+        </a>
+    </h3>
+
+    <h4  class="right">Participants: {{tripStatDto.totalParticipants}}</h4>
+
+
+    } @else {
+    <h4>No trip found</h4>
+    }
+</div>
