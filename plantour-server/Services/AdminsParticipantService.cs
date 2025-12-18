@@ -41,11 +41,12 @@ public class AdminsParticipantService : IAdminsParticipantService
         var entity = await _adminsParticipantRepository.GetByIdAsync(request.Id);
         if (entity == null)
         {
-            return false;
+            throw new InvalidOperationException("Admin participant not found or access denied");
         }
         
         _mapper.Map(request, entity);
         await _adminsParticipantRepository.UpdateAsync(entity);
+        
         return true;
     }
 

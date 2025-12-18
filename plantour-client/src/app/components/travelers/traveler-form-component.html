@@ -8,6 +8,7 @@
   [id]="id"
   backUrl="/travelers"
   [toolBarButtons]="this.toolBarButtons"
+  (formReady)="formReady($event)"
 >
 </app-base-form>
 
@@ -83,37 +84,29 @@
         ></textarea>
       </div>
       <div class="form-field">
-        <label for="participantStatus">Status</label>
-        <!-- <input
-          pInputText
-          id="participantStatus"
-          type="text"
-          formControlName="participantStatus"
-          placeholder="Enter status (optional)"
-        /> -->
-
-          <p-select
-            id="participantStatusId"
-            formControlName="participantStatusId"
-            [options]="participantStatuses | async"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Select status"
-            [showClear]="true"
-            styleClass="w-full"
-            [editable]="true"
-            appendTo="body"
-          ></p-select>
-
-
-
+        <label for="participantStatus">Status<span class="required">*</span></label>
+        <p-select
+          id="participantStatusId"
+          formControlName="participantStatusId"
+          [options]="participantStatuses | async"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Select status"
+          [showClear]="false"
+          styleClass="w-full"
+          [editable]="false"
+          appendTo="body"
+        ></p-select>
+        @if (form.get('participantStatusId')?.invalid && (form.get('participantStatusId')?.touched || form.get('participantStatusId')?.dirty)) {
+        <small class="error-message">Status is required</small>
+        }
       </div>
 
 
 
 
 
-      
+
 
 
     </form>

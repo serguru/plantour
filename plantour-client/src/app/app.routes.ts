@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { landingNewUserGuard, landingRegisteredUserGuard } from './guards/landing-guard';
+import { adminGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
   {
@@ -58,15 +59,18 @@ export const routes: Routes = [
   },
   {
     path: 'travelers',
+    canActivate: [adminGuard],
     loadComponent: () => import('./components/travelers/travelers-component').then(m => m.TravelersComponent)
   },
   {
     path: 'travelers/add',
+    canActivate: [adminGuard],
     loadComponent: () => import('./components/travelers/traveler-form-component').then(m => m.TravelerFormComponent),
     data: { mode: 'add' }
   },
   {
     path: 'travelers/edit/:id',
+    canActivate: [adminGuard],
     loadComponent: () => import('./components/travelers/traveler-form-component').then(m => m.TravelerFormComponent),
     data: { mode: 'edit' }
   },

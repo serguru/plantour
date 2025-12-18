@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CrudService } from '../../services/crud-service';
 import { catchError, EMPTY, finalize } from 'rxjs';
@@ -46,6 +46,7 @@ export class BaseFormComponent<T, TA, TU> extends ToolbarAware implements OnInit
   @Input() entityName!: string;
   @Input() backUrl: string | null = null;
   @Input() toolBarButtons: any[] | null = null;
+  @Output() formReady = new EventEmitter<any>();
 
 
   fb = inject(FormBuilder);
@@ -78,12 +79,11 @@ export class BaseFormComponent<T, TA, TU> extends ToolbarAware implements OnInit
   }
 
   ngOnInit() {
-
-
     this.setupToolbarButtons();
     this.form = this.fb.group(this.fieldsConfig);
 
     if (this.isAddMode) {
+      this.formReady.emit(this);
       return;
     }
 
@@ -102,6 +102,7 @@ export class BaseFormComponent<T, TA, TU> extends ToolbarAware implements OnInit
       next: (entity) => {
         this.form.patchValue(entity as any);
         this.initialValue = this.form.getRawValue();
+        this.formReady.emit(this);
       }
     })
   }

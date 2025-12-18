@@ -119,9 +119,9 @@ public class AdminsParticipantRepository : BaseRepository
     public virtual async Task UpdateAsync(AdminsParticipant entity)
     {
         var existingEntity = await GetByIdAsync(entity.Id);
-        if (existingEntity == null || existingEntity.AdminId != CurrentUser!.UserId)
+        if (existingEntity == null)
         {
-            throw new InvalidOperationException("Participant not found or access denied");
+            throw new InvalidOperationException("Admin participant not found or access denied");
         }
         _context.AdminsParticipants.Attach(entity);
         _context.Entry(entity).State = EntityState.Modified;

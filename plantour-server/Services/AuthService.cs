@@ -154,7 +154,7 @@ public class AuthService : IAuthService
         }
 
         string? notes = _environment.IsDevelopment()
-            ? $"Access Code: {accessCode!}"
+            ? accessCode!
             : request.Notes;
 
         // Create admin-participant relationship

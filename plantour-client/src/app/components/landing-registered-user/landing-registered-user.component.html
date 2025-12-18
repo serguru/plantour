@@ -57,7 +57,7 @@
             <div class="trip-stat-label">Planning</div>
           </div>
         </div>
-        
+
         <div class="trip-stat">
           <div class="trip-stat-icon packing">
             <i class="pi pi-shopping-bag"></i>
@@ -67,7 +67,7 @@
             <div class="trip-stat-label">Packing</div>
           </div>
         </div>
-        
+
         <div class="trip-stat">
           <div class="trip-stat-icon in-progress">
             <i class="pi pi-compass"></i>
@@ -77,7 +77,7 @@
             <div class="trip-stat-label">In Progress</div>
           </div>
         </div>
-        
+
         <div class="trip-stat">
           <div class="trip-stat-icon completed">
             <i class="pi pi-check-circle"></i>
@@ -92,36 +92,41 @@
   </div>
 
   <div class="actions-grid">
-    <p-button 
-      label="Travelers" 
-      icon="pi pi-users" 
+    @if(isAdmin) {
+    <p-button
+      label="Travelers"
+      icon="pi pi-users"
       severity="primary"
       styleClass="action-button"
-      (onClick)="navigateToTravelers()">
+      (onClick)="navigateToTravelers()"
+    >
     </p-button>
-    
-    <p-button 
-      label="Things" 
-      icon="pi pi-box" 
+    }
+    <p-button
+      label="Things"
+      icon="pi pi-box"
       severity="primary"
       styleClass="action-button"
-      (onClick)="navigateToThings()">
+      (onClick)="navigateToThings()"
+    >
     </p-button>
-    
-    <p-button 
-      label="Packs" 
-      icon="pi pi-briefcase" 
+
+    <p-button
+      label="Packs"
+      icon="pi pi-briefcase"
       severity="primary"
       styleClass="action-button"
-      (onClick)="navigateToPacks()">
+      (onClick)="navigateToPacks()"
+    >
     </p-button>
-    
-    <p-button 
-      label="Trips" 
-      icon="pi pi-map" 
+
+    <p-button
+      label="Trips"
+      icon="pi pi-map"
       severity="primary"
       styleClass="action-button"
-      (onClick)="navigateToTrips()">
+      (onClick)="navigateToTrips()"
+    >
     </p-button>
   </div>
 </div>

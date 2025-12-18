@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { AdminsParticipantService } from '../../services/admins-participant-service';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Form, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BaseFormComponent, BaseFormMode } from '../base-form/base-form-component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
@@ -29,26 +29,39 @@ export class TravelerFormComponent implements OnInit {
   public id: string | null = null;
 
   service = inject(AdminsParticipantService);
-  fieldsConfig = {};
+
+  fieldsConfig = {
+    email: new FormControl('', [Validators.required, Validators.email]),
+    firstName: new FormControl('', Validators.required),
+    lastName: new FormControl('', Validators.required),
+    phone: new FormControl(''),
+    notes: new FormControl(''),
+    participantStatusId: new FormControl('', Validators.required),
+  }
 
   get isEditMode(): boolean {
     return this.mode === 'edit';
   }
+
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];
     if (this.isEditMode) {
       this.id = this.route.snapshot.paramMap.get('id');
     }
-    this.fieldsConfig = {
-      email: new FormControl({ value: '', disabled: this.isEditMode }, [Validators.required, Validators.email]),
-      firstName: new FormControl({ value: '', disabled: this.isEditMode }, Validators.required),
-      lastName: new FormControl({ value: '', disabled: this.isEditMode }, Validators.required),
-      phone: new FormControl({ value: '', disabled: this.isEditMode }),
-      notes: new FormControl(''),
-      participantStatusId: new FormControl(''),
-    };
+  }
 
+
+  formReady(base: any) {
+    if (this.isEditMode) {
+      ['email', 'firstName', 'lastName', 'phone'].forEach(field => {
+        base.form.get(field).disable();
+      });
+      return;
+    }
+    base.lookupsService.participantStatuses$.subscribe((statuses: any) => {
+      base.form.get('participantStatusId').setValue(statuses.length > 0 ? statuses.find((x: any) => x.name == "Active")?.id : '');
+    });
   }
 
   toolBarButtons = [

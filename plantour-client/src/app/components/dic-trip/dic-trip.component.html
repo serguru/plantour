@@ -2,7 +2,7 @@
     <!-- no format -->
     @if(!loading) {
         @if (!trips || trips.length === 0) {
-            <app-message-panel messageType="info" messageText="No trips"></app-message-panel>
+            <app-message-panel messageType="warning" messageText="No trips"></app-message-panel>
         } @else {
             <div class="container">
                 <p-select

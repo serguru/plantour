@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ToolbarAware } from '../toolbar-aware';
+import { UsersService } from '../../services/users-service';
 
 @Component({
   selector: 'app-landing-registered-user',
@@ -29,6 +30,16 @@ export class LandingRegisteredUserComponent extends ToolbarAware {
 
   constructor(private router: Router) {
     super();
+  }
+
+  usersService = inject(UsersService);
+
+  get isAdmin(): boolean {
+    return this.usersService.isAdmin;
+  }
+
+  get isParticipant(): boolean {
+    return this.usersService.isParticipant;
   }
 
   navigateToTravelers(): void {

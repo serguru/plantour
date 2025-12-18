@@ -82,6 +82,16 @@ export class UsersService {
     return this.http.post<string>(`${this.apiUrl}/api/auth/participant/signup`, data)
   }
 
+  get isAdmin(): boolean {
+    const user = this.currentUser();
+    return user?.role === 'Admin' && this.isAuthenticated;
+  }
+
+  get isParticipant(): boolean {
+    const user = this.currentUser();
+    return user?.role === 'Participant' && this.isAuthenticated;
+  }
+
   currentUser(): AccessToken | null {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -96,11 +106,18 @@ export class UsersService {
       return "Profile";
     }
 
+    let result = "";
     if (user.last_name && user.first_name) {
-      return `${user.first_name} ${user.last_name}`;
+      result += `${user.first_name} ${user.last_name}`;
+    } else {
+      result += user.email
+    }
+
+    if (user.role === 'Participant') {
+      result += ", participant";
     }
     
-    return `${user.email}`;
+    return result;
   } 
 
   signOut(): void {

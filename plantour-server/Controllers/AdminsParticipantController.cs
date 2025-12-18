@@ -8,6 +8,7 @@ namespace plantour_server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[AdminOnly]
 public class AdminsParticipantController : ControllerBase
 {
     private readonly IAdminsParticipantService _service;
@@ -18,7 +19,6 @@ public class AdminsParticipantController : ControllerBase
     }
 
     [HttpGet]
-    [AdminOnly]
     public async Task<ActionResult<IEnumerable<AdminsParticipantDto>>> GetAll()
     {
         try
@@ -33,7 +33,6 @@ public class AdminsParticipantController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [AdminOnly]
     public async Task<ActionResult<AdminsParticipantDto>> GetById(Guid id)
     {
         try
@@ -53,7 +52,6 @@ public class AdminsParticipantController : ControllerBase
     }
 
     [HttpGet("email/{email}")]
-    [AdminOnly]
     public async Task<ActionResult<AdminsParticipantDto>> GetByEmail(string email)
     {
         try
@@ -73,7 +71,6 @@ public class AdminsParticipantController : ControllerBase
     }
 
     [HttpPut]
-    [AdminOnly]
     public async Task<ActionResult> Update([FromBody] UpdateAdminsParticipantRequest request)
     {
         try
@@ -93,7 +90,6 @@ public class AdminsParticipantController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [AdminOnly]
     public async Task<ActionResult> Delete(Guid id)
     {
         try
