@@ -289,7 +289,7 @@ begin
     select a.id
     into v_trip_user_id
     from plantour.trip_users a
-    join plantour.admins_participants trip_statusap on b.id = a.admin_participant_id
+    join plantour.admins_participants b on b.id = a.admin_participant_id
     join plantour.trips t on t.id = a.trip_id
     where
         t.id = p_trip_id
@@ -362,14 +362,16 @@ begin
     )
     into v_trip_user_id;
 
-    insert into plantour.trip_user_packages (trip_user_id, name)
+    insert into plantour.trip_user_packages (trip_user_id, name, packing_status_id)
     select
         v_trip_user_id,
-        b.name
+        b.name,
+        d.id
     from plantour.user_packages b
     left join plantour.trip_user_packages c on 
         c.trip_user_id = v_trip_user_id and 
         lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    join plantour.packing_status d on d.name = 'Planning'
     where
         b.id = any (p_ids)
         and b.user_id = p_participant_id

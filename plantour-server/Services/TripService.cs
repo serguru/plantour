@@ -14,7 +14,7 @@ public class TripService(
 
     public async Task<IEnumerable<TripDto>> GetAllAsync()
     {
-        var entities = await _tripRepository.GetAllAsync(Guid.Empty);
+        var entities = await _tripRepository.GetAllAsync();
         return _mapper.Map<IEnumerable<TripDto>>(entities);
     }
 

@@ -54,6 +54,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   @Input() toolBarButtons: any[] | null = null;
   @Input() useTripId: boolean = false;
   @Output() entitySelected = new EventEmitter<any | null>();
+  @Input() tripsFor: string | null = null;
 
   tripEntities: any[] | null = null;
   entities: T[] | null = null;

@@ -29,6 +29,9 @@ export class DicTripComponent implements OnInit, OnDestroy {
     @Input() fromDicService: FromDicService | null = null;
     @Input() addFromDic: ((data: MultipleIdsRequest) => void) | null = null;
     @Input() deleteFromDic: ((data: MultipleIdsRequest) => void) | null = null;
+    
+    @Input() tripsFor: string | null = null;
+
     @Output() selectedTripChanged = new EventEmitter<TripDto | null>();
     @Output() registerGetter: EventEmitter<(() => TripDto | null) | null> = new EventEmitter<(() => TripDto | null) | null>();
 
@@ -59,7 +62,9 @@ export class DicTripComponent implements OnInit, OnDestroy {
         this.registerGetter.emit(this.getCurrentTrip);
         this.loading = true;
 
-        this.tripService.getAll('participant')
+        const extraPath = this.tripsFor == 'adminsOnly' ? '' : 'participant';
+
+        this.tripService.getAll(extraPath)
             .pipe(
                 catchError(error => {
                     this.trips = [];

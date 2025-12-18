@@ -40,7 +40,6 @@ export class TripService implements CrudService<TripDto, CreateTripRequest, Upda
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-   
     this.apiUrl = `${environment.apiUrl}/api/trip`;
   }
 

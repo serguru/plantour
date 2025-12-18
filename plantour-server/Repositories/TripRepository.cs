@@ -71,9 +71,7 @@ public class TripRepository : BaseRepository
 
     }
 
-
-
-    public async Task<IEnumerable<Trip>> GetAllAsync(Guid id)
+    public async Task<IEnumerable<Trip>> GetAllAsync()
     {
         if (CurrentUser == null)
         {
