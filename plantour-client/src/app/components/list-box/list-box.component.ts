@@ -151,7 +151,7 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     }
 
     icon(item: any) {
-        return item.inTripId ? 'pi pi-check' : 'pi pi-arrow-up';
+        return item.inTripId ? 'pi pi-check' : 'pi pi-plus';
     }
 
     onIconClick( item: any, event: MouseEvent) {

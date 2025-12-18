@@ -147,3 +147,15 @@ I need a solution to apply different templates inside p-listbox depending on T. 
 
 Максимально используй классы из styles.scss так, как это сделано в этих компонентах. Создавай оригинальные css классы только если подходящий класс в styles.scss не найден. Добавь routes для вновь созданных компонентов в app.routes.ts
 Не используй DropdownModule. Используй Select.
+
+
+
+Смотри компонент TripPacksComponent. Создай в src\app\components\trip-things новый похожий компонент TripThingsComponent для управления списком вещей путешествия. Используй сервис TripThingService так же, как TripPacksComponent использует сервис TripPackageService. Не забудь создать там же еще один компонент форму TripThingFormComponent - аналог TripPackFormComponent.
+
+Используй src\app\services\messages-service.ts для сообщений, standalone, ReactiveForms, @if, .ts, .html and .scss files. Не забудь про валидацию полей. Смотри как реализован UI в компоненте TripPacksComponent и TripPackFormComponent.
+
+Максимально используй классы из styles.scss так, как это сделано в этих компонентах. Создавай оригинальные css классы только если подходящий класс в styles.scss не найден. Добавь routes для вновь созданных компонентов в app.routes.ts
+Не используй DropdownModule. Используй Select.
+
+
+

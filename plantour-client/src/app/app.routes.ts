@@ -117,6 +117,20 @@ export const routes: Routes = [
     data: { mode: 'edit' }
   },
   {
+    path: 'trips/:tripId/trip-things',
+    loadComponent: () => import('./components/trip-things/trip-things-component').then(m => m.TripThingsComponent)
+  },
+  {
+    path: 'trips/:tripId/trip-things/add',
+    loadComponent: () => import('./components/trip-things/trip-thing-form-component').then(m => m.TripThingFormComponent),
+    data: { mode: 'add' }
+  },
+  {
+    path: 'trips/:tripId/trip-things/edit/:id',
+    loadComponent: () => import('./components/trip-things/trip-thing-form-component').then(m => m.TripThingFormComponent),
+    data: { mode: 'edit' }
+  },
+  {
     path: '**',
     redirectTo: ''
   }

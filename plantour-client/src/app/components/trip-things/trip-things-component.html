@@ -1,0 +1,29 @@
+
+<app-generic-list
+    [service]="service"
+    [fromDicService]="fromDicservice"
+    [listActionsConfiguration]="configuration"
+    [itemTemplate]="thingTemplate"
+    title="Trip Things"
+    entityIcon="pi-box"
+    [isListReadOnly]="false"
+    [addUrl]="'add'"
+    [editUrl]="'edit/:id'"
+    entityNameProp="name"
+    entityName="trip thing"
+    [toolBarButtons]="toolBarButtons"
+    [useTripId]="true"
+    [dic2trip]="false"
+    [tripPanelVisible]="true"
+>
+</app-generic-list>
+
+<ng-template
+    #thingTemplate
+    let-item
+>
+    <span
+        class="list-name"
+        [innerHTML]="item.name"
+    ></span>
+</ng-template>

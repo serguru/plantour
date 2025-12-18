@@ -1,0 +1,105 @@
+<app-base-form
+  [service]="service"
+  [fieldsConfig]="fieldsConfig"
+  [formTemplate]="fieldsTemplate"
+  [mode]="mode"
+  entityIcon="pi-box"
+  entityName="trip thing"
+  [id]="id"
+  [backUrl]="'/trips/' + tripId + '/trip-things'"
+  [toolBarButtons]="this.toolBarButtons"
+>
+</app-base-form>
+
+<ng-template
+  #fieldsTemplate
+  let-form="form"
+  let-thingCategories="thingCategories$"
+  let-packingStatuses="packingStatuses$"
+  let-onSubmit="onSubmit"
+>
+  <div class="controls-wrapper">
+    <form [formGroup]="form">
+      <div class="form-field">
+        <label for="name">Name<span class="required">*</span></label>
+        <input
+          pInputText
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Enter trip thing name"
+        />
+        @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty) ) {
+        @if (form.get('name')?.errors?.['required']) {
+        <small class="error-message">
+          Name is required
+        </small>
+        }
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="category">Category</label>
+        <p-select
+          id="category"
+          formControlName="category"
+          [options]="thingCategories | async"
+          optionLabel="name"
+          optionValue="name"
+          placeholder="Select category"
+          [showClear]="true"
+          styleClass="w-full"
+          [editable]="true"
+        ></p-select>
+      </div>
+
+      <div class="form-field">
+        <label for="packingStatus">Packing Status</label>
+        <p-select
+          id="packingStatus"
+          formControlName="packingStatus"
+          [options]="packingStatuses | async"
+          optionLabel="name"
+          optionValue="name"
+          placeholder="Select status"
+          [showClear]="true"
+          styleClass="w-full"
+          [editable]="true"
+        ></p-select>
+      </div>
+
+      <div class="form-field">
+        <label for="value">Value</label>
+        <input
+          pInputText
+          id="value"
+          type="text"
+          formControlName="value"
+          placeholder="Enter value (optional)"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="units">Units</label>
+        <input
+          pInputText
+          id="units"
+          type="text"
+          formControlName="units"
+          placeholder="Enter units (optional)"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="notes">Notes</label>
+        <textarea
+          pTextarea
+          id="notes"
+          formControlName="notes"
+          rows="5"
+          placeholder="Enter notes (optional)"
+        ></textarea>
+      </div>
+    </form>
+  </div>
+</ng-template>
