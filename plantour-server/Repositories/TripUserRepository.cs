@@ -44,12 +44,14 @@ public class TripUserRepository : BaseRepository
         if (CurrentUser.IsAdmin)
         {
             return await _dbSet
+                .Include(x => x.AdminParticipant.Participant)
                 .Where(x => x.TripId == tripId && x.AdminParticipant.AdminId == CurrentUser.UserId)
                 .ToListAsync();
         }
         if (CurrentUser.IsParticipant)
         {
             return await _dbSet
+                .Include(x => x.AdminParticipant.Participant)
                 .Where(x => x.TripId == tripId && x.AdminParticipant.AdminId == CurrentUser.AdminId)
                 .ToListAsync();
         }

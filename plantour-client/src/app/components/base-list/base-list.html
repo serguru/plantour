@@ -8,10 +8,10 @@
       <h2>{{ title }}</h2>
     </div>
 
-    <div class="header-right">
+    <div class="header-middle">
       @if(!isListReadOnly) {
       <!-- no format -->
-        @if(dic2trip) {
+        <!-- @if(dic2trip) {
           <p-button
             [text]="true"
             [rounded]="true"
@@ -23,7 +23,7 @@
               (click)="onToggleTrip()"
             ></i>
           </p-button>
-        }
+        } -->
         @if(addUrl) {
           <p-button
             icon="pi pi-plus"
@@ -51,6 +51,24 @@
       <!-- no format -->
       }
     </div>
+
+    <div class="header-right">
+
+      <button
+        pButton
+        icon="pi pi-ellipsis-v"
+        class="p-button-text p-button-rounded menu-button"
+        (click)="menu.toggle($event)"
+        aria-label="Menu"
+      >
+      </button>
+      <p-menu
+        #menu
+        [model]="menuItems"
+        [popup]="true"
+        styleClass="toolbar-popup-menu"
+      ></p-menu>
+    </div>
   </div>
 
   @if (dic2tripVisible) {
@@ -64,16 +82,14 @@
   ></app-dic-trip>
   }
   @if (tripPanelVisible && tripId) {
-    <app-trip-panel [tripId]="tripId"></app-trip-panel>
+  <app-trip-panel [tripId]="tripId"></app-trip-panel>
   }
-
-
-
 
   <app-list-actions
     [items]="entities"
     [config]="listActionsConfiguration"
     (listChanged)="onEntitiesChanged($event)"
+    [ngStyle] = "{display: listToolsVisible ? 'block':'none'}"
   >
   </app-list-actions>
 

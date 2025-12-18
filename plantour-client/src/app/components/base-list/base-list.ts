@@ -13,9 +13,12 @@ import { DicTripComponent } from '../dic-trip/dic-trip.component';
 import { TripDto, TripService } from '../../services/trip-service';
 import { finalize } from 'rxjs';
 import { TripPanelComponent } from '../trip-panel/trip-panel-component/trip-panel-component';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
 
 export type Comparable = {
   name?: string;
+  email?: string;
 };
 
 @Component({
@@ -29,7 +32,8 @@ export type Comparable = {
     ButtonModule,
     ListBoxComponent,
     DicTripComponent,
-    TripPanelComponent
+    TripPanelComponent,
+    MenuModule
   ],
   templateUrl: './base-list.html',
   styleUrl: './base-list.scss'
@@ -58,7 +62,9 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   @Output() entitySelected = new EventEmitter<any | null>();
   @Input() tripsFor: string | null = null;
   @Input() tripPanelVisible: boolean = false;
+  @Input() thing2pack: boolean = false;
 
+  thing2packVisible: boolean = false;
   tripEntities: any[] | null = null;
   entities: T[] | null = null;
   selected: T | null = null;
@@ -68,6 +74,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   tripId: string | null = null;
 
   dic2tripVisible: boolean = false;
+  listToolsVisible: boolean = false;
 
   processedEntities: T[] | null = null;
 
@@ -78,6 +85,55 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   ) {
     super();
   }
+
+  onShowHideMenu(name: string) {
+
+    switch (name) {
+      case 'trips':
+        this.dic2tripVisible = !this.dic2tripVisible;   
+        localStorage.setItem(`base-list-${name}` , this.dic2tripVisible ? '1' : '0');
+        break;
+      case 'tools':
+        this.listToolsVisible = !this.listToolsVisible;   
+        localStorage.setItem(`base-list-${name}` , this.listToolsVisible ? '1' : '0');
+        break;
+      case 'packs':
+        this.thing2packVisible = !this.thing2packVisible;   
+        localStorage.setItem(`base-list-${name}` , this.thing2packVisible ? '1' : '0');
+        break;
+      default:
+        break;  
+    }
+  }
+
+  get menuItems(): MenuItem[] {
+    const items: MenuItem[] = [];
+
+    if (this.dic2trip) {
+      items.push({
+          label: `${this.dic2tripVisible ? "Hide":"Show"} trips select`,
+          icon: 'pi pi-compass',
+          command: () => this.onShowHideMenu('trips')
+      });
+    }
+    items.push({
+        label: `${this.listToolsVisible ? "Hide":"Show"} list tools`,
+        icon: 'pi pi-filter',
+        command: () => this.onShowHideMenu('tools')
+    });
+    if (this.thing2pack) {
+      items.push({
+          label: `${this.thing2packVisible ? "Hide":"Show"} packs select`,
+          icon: 'pi pi-briefcase',
+          command: () => this.onShowHideMenu('packs')
+      });
+    }
+
+    return items;
+
+  }
+
+
 
   get entitiesToDisplay(): any | null {
 
@@ -117,13 +173,24 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
       typeof a.name === 'string' &&
       typeof b.name === 'string';
 
+    const hasEmail =
+      typeof a.email === 'string' &&
+      typeof b.email === 'string';
 
-    if (!hasName) {
+
+    if (!hasName && !hasEmail) {
       throw new Error(
-        'Both objects must contain "name" property'
+        'Both objects must contain "name" or "email" property'
       );
     }
 
+    if (hasEmail) {
+      return a.email!.localeCompare(b.email!, locale, {
+        sensitivity: 'accent',
+        usage: 'search',
+      }) === 0;
+    }
+    
     return a.name!.localeCompare(b.name!, locale, {
       sensitivity: 'accent',
       usage: 'search',
@@ -157,10 +224,14 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     });
   }
 
-  onToggleTrip() {
-    if (!this.dic2trip) return;
-    this.dic2tripVisible = !this.dic2tripVisible;
+
+  restoreState() {
+    const dic2tripState = localStorage.getItem(`base-list-trips`);    
+    this.dic2tripVisible = dic2tripState === '1';
+    const listToolsState = localStorage.getItem(`base-list-tools`);
+    this.listToolsVisible = listToolsState === '1';
   }
+
 
   ngOnInit() {
     if (this.useTripId) {
@@ -169,6 +240,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     const selectId = this.route.snapshot.queryParamMap.get('selectId') || null;
     this.getAll(selectId);
     this.setupToolbarButtons();
+    this.restoreState();
   }
 
   private setupToolbarButtons(): void {
@@ -205,20 +277,6 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
     if (item.inTripId) {
       this.deleteFromDic(data);
-      //       this.tripDicService!.delete(item.inTripId)
-      //         .pipe(
-      //           finalize(() => {
-      //             this.refreshTripEntities(tripDto.id);
-      //           })
-      //         )
-      //         .subscribe({
-      //           next: () => {
-      // //            this.messagesService.showInfo(`${this.entityName} deleted from trip "${tripDto.name}" successfully`);
-      //           },
-      //           error: (e) => {
-      //             this.messagesService.showError(`Failed deleting ${this.entityName} from trip "${tripDto.name} with error: ${e.message}`);
-      //           }
-      //         });
       return;
     }
 
@@ -351,4 +409,5 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
       });
     }
   }
+
 }
