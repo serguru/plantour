@@ -24,8 +24,6 @@ public class TripUserThingService(
         return await _dicTripRepository.DeleteTripUserThingsAsync(tripId, packageIds);
     }
 
-
-
     public async Task<IEnumerable<TripUserThingDto>> GetAllAsync(Guid tripId)
     {
         var entities = await _tripUserThingRepository.GetAllAsync(tripId);
@@ -68,5 +66,15 @@ public class TripUserThingService(
         
         await _tripUserThingRepository.DeleteAsync(id);
         return true;
+    }
+
+    public async Task<int> PackTripThingsAsync(Guid tripId, Guid packageId, Guid[] tripThingIds)
+    {
+        return await _dicTripRepository.PackTripThingsAsync(tripId, packageId, tripThingIds, false);
+    }
+
+    public async Task<int> UnpackTripThingsAsync(Guid tripId, Guid packageId, Guid[] tripThingIds)
+    {
+        return await _dicTripRepository.PackTripThingsAsync(tripId, packageId, tripThingIds, true);
     }
 }

@@ -135,4 +135,45 @@ public class TripUserThingController : ControllerBase
             return StatusCode(500, new { message = "An error occurred while deleting the trip user thing", details = ex.Message });
         }
     }
+
+    [HttpPut("pack-trip-things")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> PackTripThings([FromBody] MultipleIdsRequest request)
+    {
+
+        if (request.Id == null)
+        {
+            return BadRequest(new { message = "PackageId (Id) must be provided" });
+        }
+        try
+        {
+            var updated = await _service.PackTripThingsAsync(request.CollectionId, request.Id!.Value, request.Ids);
+            return Ok(new { updatedCount = updated });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while packing the trip user thing(-s)", details = ex.Message });
+        }
+    }
+
+    [HttpPut("unpack-trip-things")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> UnpackTripThings([FromBody] MultipleIdsRequest request)
+    {
+
+        if (request.Id == null)
+        {
+            return BadRequest(new { message = "PackageId (Id) must be provided" });
+        }
+        try
+        {
+            var updated = await _service.UnpackTripThingsAsync(request.CollectionId, request.Id!.Value, request.Ids);
+            return Ok(new { updatedCount = updated });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while unpacking the trip user thing(-s)", details = ex.Message });
+        }
+    }
+
 }

@@ -57,6 +57,7 @@
     </div>
   </div>
 
+
   @if (showDic2Trip) {
   <app-dic-trip
     (selectedTripChanged)="onSelectedTripChanged($event)"
@@ -70,6 +71,19 @@
   @if (tripPanelVisible && tripId) {
   <app-trip-panel [tripId]="tripId"></app-trip-panel>
   }
+
+  @if(showThing2Pack) {
+    <app-packing
+      [packages]="packages",
+      [things]="entitiesToDisplay.list || []",
+      [pack]="pack.bind(this)"
+      [unpack]="unpack.bind(this)"
+      (registerGetter)="setCheckSelectedPack($event)"
+      (selectedTripPackageChanged)="onSelectedTripPackageChanged($event)"
+    >
+    </app-packing>
+  }
+
 
   <app-list-actions
     [items]="entities"

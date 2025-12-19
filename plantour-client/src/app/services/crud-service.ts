@@ -19,10 +19,16 @@ export interface CrudService<T, TA, TU> {
 export interface MultipleIdsRequest {
   collectionId: string;
   ids: string[];
+  id?: string;
 }
 
 export interface FromDicService {
   addFromDic(data: MultipleIdsRequest): Observable<number>;
   deleteFromDic(data: MultipleIdsRequest): Observable<number>;
+}
+
+export interface PackingService {
+  pack(data: MultipleIdsRequest): Observable<number>;
+  unpack(data: MultipleIdsRequest): Observable<number>;
 }
 

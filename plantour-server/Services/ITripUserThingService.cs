@@ -11,4 +11,6 @@ public interface ITripUserThingService
     Task<bool> DeleteAsync(Guid id);
     Task<int> InsertTripUserThingsAsync(Guid tripId, Guid[] packageIds);
     Task<int> DeleteTripUserThingsAsync(Guid tripId, Guid[] packageIds);
+    Task<int> PackTripThingsAsync(Guid tripId, Guid packageId, Guid[] tripThingIds);
+    Task<int> UnpackTripThingsAsync(Guid tripId, Guid packageId, Guid[] tripThingIds);
 }

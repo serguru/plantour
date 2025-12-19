@@ -278,9 +278,6 @@ public class DicTripRepository : BaseRepository
         return insertedCount;
     }
 
-
-
-
     public async Task<int> DeleteTripUsersAsync(
         Guid tripId,
         Guid[] adminParticipantIds)
@@ -321,10 +318,58 @@ public class DicTripRepository : BaseRepository
         return deletedCount;
     }
 
+    public async Task<int> PackTripThingsAsync(
+        Guid tripId,
+        Guid packageId,
+        Guid[] tripThingIds,
+        bool unpack
+        )
+    {
+        if (CurrentUser == null || !tripThingIds.Any())
+        {
+            return 0;
+        }
 
+        Guid adminId, participantId;
 
+        if (CurrentUser.IsAdmin)
+        {
+            adminId = CurrentUser.UserId!.Value;
+            participantId = adminId;
+        }
+        else if (CurrentUser.IsParticipant)
+        {
+            adminId = CurrentUser.AdminId!.Value;
+            participantId = CurrentUser.UserId!.Value;
+        }
+        else
+        {
+            return 0;
+        }   
 
+        int updatedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.pack_trip_things(@adminId, @participantId, @tripId, @packageId, @tripThingIds, @unpack);";
 
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@participantId", participantId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@packageId", packageId));
+                command.Parameters.Add(new NpgsqlParameter("@tripThingIds", tripThingIds));
+                command.Parameters.Add(new NpgsqlParameter("@unpack", unpack));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    updatedCount = count;
+                }
+            }
+        }
+        return updatedCount;
+    }
 
 
 }

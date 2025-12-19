@@ -4,7 +4,7 @@ import { CreateUserThingRequest, UpdateUserThingRequest, ThingDto, UserThingServ
 import { BaseListComponent } from '../base-list/base-list';
 import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
-import { CreateTripThingRequest, TripThingService, TripUserThingDto, UpdateTripThingRequest } from '../../services/trip-thing-service';
+import { CreateTripThingRequest, TripThingService, TripThingDto, UpdateTripThingRequest } from '../../services/trip-thing-service';
 
 @Component({
   selector: 'app-things-component',
@@ -19,7 +19,7 @@ export class ThingsComponent {
   router = inject(Router);
 
   service: CrudService<ThingDto, CreateUserThingRequest, UpdateUserThingRequest> = inject(UserThingService);
-  tripDicService: CrudService<TripUserThingDto, CreateTripThingRequest, UpdateTripThingRequest> = inject(TripThingService);
+  tripDicService: CrudService<TripThingDto, CreateTripThingRequest, UpdateTripThingRequest> = inject(TripThingService);
   fromDicService: FromDicService = inject(TripThingService);
 
   configuration: any[] = [

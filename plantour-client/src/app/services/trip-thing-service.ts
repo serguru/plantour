@@ -2,9 +2,9 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
-import { CrudService, FromDicService, MultipleIdsRequest } from './crud-service';
+import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from './crud-service';
 
-export interface TripUserThingDto {
+export interface TripThingDto {
   id: string;
   tripUserId: string;
   category?: string | null;
@@ -47,7 +47,7 @@ export interface UpdateTripThingRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class TripThingService implements CrudService<TripUserThingDto, CreateTripThingRequest, UpdateTripThingRequest>, FromDicService {
+export class TripThingService implements CrudService<TripThingDto, CreateTripThingRequest, UpdateTripThingRequest>, FromDicService, PackingService {
   private apiUrl: string;
 
   constructor(
@@ -67,16 +67,16 @@ export class TripThingService implements CrudService<TripUserThingDto, CreateTri
   }
 
 
-  getAll(tripId: string): Observable<TripUserThingDto[]> {
-    return this.http.get<TripUserThingDto[]>(`${this.apiUrl}/trip/${tripId}`);
+  getAll(tripId: string): Observable<TripThingDto[]> {
+    return this.http.get<TripThingDto[]>(`${this.apiUrl}/trip/${tripId}`);
   }
 
-  getById(id: string): Observable<TripUserThingDto> {
-    return this.http.get<TripUserThingDto>(`${this.apiUrl}/${id}`);
+  getById(id: string): Observable<TripThingDto> {
+    return this.http.get<TripThingDto>(`${this.apiUrl}/${id}`);
   }
 
-  add(request: CreateTripThingRequest): Observable<TripUserThingDto> {
-    return this.http.post<TripUserThingDto>(this.apiUrl, request);
+  add(request: CreateTripThingRequest): Observable<TripThingDto> {
+    return this.http.post<TripThingDto>(this.apiUrl, request);
   }
 
   update(request: UpdateTripThingRequest): Observable<void> {
@@ -86,4 +86,13 @@ export class TripThingService implements CrudService<TripUserThingDto, CreateTri
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  pack(data: MultipleIdsRequest): Observable<number> {
+    return this.http.put<number>(`${this.apiUrl}/pack-trip-things`, data);
+  }
+
+  unpack(data: MultipleIdsRequest): Observable<number> {
+    return this.http.put<number>(`${this.apiUrl}/unpack-trip-things`, data);
+  }
+  
 }

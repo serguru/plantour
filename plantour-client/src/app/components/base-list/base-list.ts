@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
-import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
+import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from '../../services/crud-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentLayoutComponent } from "../layouts/content-layout.component";
 import { FormsModule } from '@angular/forms';
@@ -15,6 +15,8 @@ import { finalize } from 'rxjs';
 import { TripPanelComponent } from '../trip-panel/trip-panel-component/trip-panel-component';
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
+import { PackingComponent } from '../packing/packing.component';
+import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
 
 export type Comparable = {
   name?: string;
@@ -33,7 +35,8 @@ export type Comparable = {
     ListBoxComponent,
     DicTripComponent,
     TripPanelComponent,
-    MenuModule
+    MenuModule,
+    PackingComponent
   ],
   templateUrl: './base-list.html',
   styleUrl: './base-list.scss'
@@ -43,10 +46,12 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   @ViewChild('listboxPlantour', { read: ElementRef }) listboxRef!: ElementRef;
 
   private messagesService = inject(MessagesService);
+  private tripPackageService = inject(TripPackageService);
 
   @Input() service!: CrudService<any, any, any>;
   @Input() tripDicService: CrudService<T, any, any> | null = null;
   @Input() fromDicService: FromDicService | null = null;
+  @Input() packingService: PackingService | null = null;
   @Input() itemTemplate!: TemplateRef<any>;
   @Input() title: string | null = null;
   @Input() entityIcon: string | null = null;
@@ -77,6 +82,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   listToolsVisible: boolean = false;
 
   processedEntities: T[] | null = null;
+  packages: TripPackageDto[] = [];
 
 
   constructor(
@@ -85,6 +91,11 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   ) {
     super();
   }
+
+  get showThing2Pack(): boolean { 
+    return this.thing2pack && this.thing2packVisible;
+  }
+
 
   get showDic2Trip(): boolean { 
     return this.dic2trip && this.dic2tripVisible;
@@ -120,11 +131,6 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
           command: () => this.onShowHideMenu('trips')
       });
     }
-    items.push({
-        label: `${this.listToolsVisible ? "Hide":"Show"} list tools`,
-        icon: 'pi pi-filter',
-        command: () => this.onShowHideMenu('tools')
-    });
     if (this.thing2pack) {
       items.push({
           label: `${this.thing2packVisible ? "Hide":"Show"} packs select`,
@@ -132,9 +138,13 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
           command: () => this.onShowHideMenu('packs')
       });
     }
+    items.push({
+        label: `${this.listToolsVisible ? "Hide":"Show"} list tools`,
+        icon: 'pi pi-filter',
+        command: () => this.onShowHideMenu('tools')
+    });
 
     return items;
-
   }
 
 
@@ -261,6 +271,11 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
       this.processedEntities = this.entities;
       this.selectEntity(selectId);
     });
+    if (this.useTripId && this.tripId) {
+      this.tripPackageService.getAll(this.tripId).subscribe(packages => {
+        this.packages = packages;
+      });
+    }
   }
 
   onSelectedChange(selected: any | null) {
@@ -413,5 +428,55 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
       });
     }
   }
+
+  pack(ids: string[], id: string) {
+    if (!this.useTripId || !this.tripId || this.packages.length === 0) {
+      return;
+    } 
+    this.packingService!.pack({
+      collectionId: this.tripId,
+      ids: ids,
+      id: id
+    }).subscribe({
+      next: () => {
+        this.getAll(this.selected ? (this.selected as any).id : null);
+      },
+      error: (error) => {
+        this.messagesService.showError(`Failed to initiate packing: ${error.message}`);
+      }
+    });
+
+  }
+  
+  unpack(ids: string[], id: string) {
+    if (!this.useTripId || !this.tripId || this.packages.length === 0) {
+      return;
+    } 
+    this.packingService!.unpack({
+      collectionId: this.tripId,
+      ids: ids,
+      id: id
+    }).subscribe({
+      next: () => {
+        this.getAll(this.selected ? (this.selected as any).id : null);
+      },
+      error: (error) => {
+        this.messagesService.showError(`Failed to initiate unpacking: ${error.message}`);
+      }
+    });
+
+  }
+
+  checkSelectedPack: (() => TripPackageDto | null) | null = null;
+
+  setCheckSelectedPack(getter: (() => TripPackageDto | null) | null) {
+    this.checkSelectedPack = getter;
+  }
+
+  onSelectedTripPackageChanged(pack: any | null) {
+    this.getAll();
+  }
+  
+
 
 }

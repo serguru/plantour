@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CrudService, FromDicService } from '../../services/crud-service';
-import { TripUserThingDto, CreateTripThingRequest, UpdateTripThingRequest, TripThingService } from '../../services/trip-thing-service';
+import { CrudService, FromDicService, PackingService } from '../../services/crud-service';
+import { TripThingDto, CreateTripThingRequest, UpdateTripThingRequest, TripThingService } from '../../services/trip-thing-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
 
@@ -23,9 +23,10 @@ export class TripThingsComponent implements OnInit {
 
   route = inject(ActivatedRoute);
   router = inject(Router);
-  service: CrudService<TripUserThingDto, CreateTripThingRequest, UpdateTripThingRequest> = inject(TripThingService);
+  service: CrudService<TripThingDto, CreateTripThingRequest, UpdateTripThingRequest> = inject(TripThingService);
 
   fromDicservice: FromDicService = inject(TripThingService);
+  packingService: PackingService = inject(TripThingService);
 
   configuration: any[] = [
     {

@@ -1,0 +1,39 @@
+<div class="panel">
+    <!-- no format -->
+    @if(!loading) {
+        @if (!packages || packages.length === 0) {
+            <app-message-panel messageType="warning" messageText="No trips"></app-message-panel>
+        } @else {
+            <div class="container">
+                <p-select
+                    class="left"
+                    [options]="packages"
+                    optionLabel="name"
+                    optionValue="id"
+                    [ngModel]="selectedTripPackageId()"
+                    (ngModelChange)="onSelectedTripPackageChange($event)"
+                ></p-select>
+                <div class="right">
+                    <p-button
+                        icon="pi pi-plus"
+                        (click)="onAddAllClick()"
+                        [rounded]="true"
+                        severity="secondary"
+                        [outlined]="true"
+                        [disabled]="addDisabled"
+                        ></p-button>
+                    <p-button
+                        icon="pi pi-minus"
+                        (click)="onRemoveAllClick()"
+                        [rounded]="true"
+                        severity="secondary"
+                        [outlined]="true"
+                        [disabled]="removeDisabled"
+                    ></p-button>
+                </div>
+
+            </div>
+        }
+    }
+    <!-- no format -->
+</div>

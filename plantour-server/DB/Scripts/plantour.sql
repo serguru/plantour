@@ -553,6 +553,90 @@ end;
 $$;
 
 
+
+create or replace function plantour.pack_trip_things(
+    p_admin_id uuid,
+    p_participant_id uuid,
+    p_trip_id uuid,
+    p_package_id uuid,
+    p_ids uuid[],
+    p_unpack boolean
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_updated_count integer;
+    v_admins_participant_id uuid;
+    v_trip_user_id uuid;
+begin
+    -- Exception will be raised if trip not found or not owned by admin
+    perform plantour.get_trip_id(p_admin_id, p_trip_id);
+
+    -- The participant must be linked to the admin
+    select id
+    into v_admins_participant_id
+    from plantour.admins_participants
+    where
+        admin_id = p_admin_id
+        and participant_id = p_participant_id;
+
+    if v_admins_participant_id is null then
+        raise exception
+            'Admin participant relation not found';
+    end if;
+
+    -- The participant must be linked to the trip
+    select id
+    into v_trip_user_id
+    from plantour.trip_users
+    where
+        admin_participant_id = v_admins_participant_id
+        and trip_id = p_trip_id;
+
+    if v_admins_participant_id is null then
+        raise exception
+            'Trip user for participant not found';
+    end if;
+
+    if not exists (
+        select null from plantour.trip_user_packages where id = p_package_id and trip_user_id = v_trip_user_id
+    ) then
+        raise exception
+            'Wrong pack id';
+    end if;
+
+    if (p_unpack) then
+        update plantour.trip_user_things
+        set 
+            packed_at = null, 
+            trip_user_package_id = null
+        where
+            trip_user_id = v_trip_user_id and
+            id = any (p_ids) and
+            trip_user_package_id = p_package_id;
+
+    else            
+        update plantour.trip_user_things
+        set 
+            packed_at = now(), 
+            trip_user_package_id = p_package_id
+        where
+            trip_user_id = v_trip_user_id and
+            id = any (p_ids);
+
+    end if;
+
+
+    get diagnostics v_updated_count = row_count;
+
+    return v_updated_count;
+end;
+$$;
+
+
+
+
 -- ====================================================================
 -- USERS (2 admins + 2 participants + 2 extra users)
 -- ====================================================================
