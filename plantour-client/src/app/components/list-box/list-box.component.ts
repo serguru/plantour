@@ -31,8 +31,10 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     @Input() items: any[] = [];
     @Input() itemTemplate!: TemplateRef<any>;
     @Input() dic2tripVisible: boolean = false;
+    @Input() thing2packVisible: boolean = false;
     @Output() selectedChange = new EventEmitter<any | null>();
     @Output() addRemoveFromDic = new EventEmitter<any | null>();
+    @Output() packUnpack = new EventEmitter<any | null>();
 
     @ViewChildren('listItem') listItemElements!: QueryList<ElementRef>;
 
@@ -151,13 +153,19 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     }
 
     icon(item: any) {
-        return item.inTripId ? 'pi pi-check' : 'pi pi-plus';
+        return (this.dic2tripVisible && item.inTripId) || (this.thing2packVisible && item.tripUserPackageId) ? 'pi pi-check' : 'pi pi-plus';
     }
 
-    onIconClick( item: any, event: MouseEvent) {
+    onIconClick(item: any, event: MouseEvent) {
         event.stopPropagation();
-        this.addRemoveFromDic.emit(item);
-    }   
+        if (this.dic2tripVisible) {
+            this.addRemoveFromDic.emit(item);
+            return;
+        }
+        if (this.thing2packVisible) {
+            this.packUnpack.emit(item);
+        }
+    }
 
     ngOnDestroy(): void {
         this.destroy$.next();

@@ -57,7 +57,6 @@
     </div>
   </div>
 
-
   @if (showDic2Trip) {
   <app-dic-trip
     (selectedTripChanged)="onSelectedTripChanged($event)"
@@ -75,7 +74,7 @@
   @if(showThing2Pack) {
     <app-packing
       [packages]="packages",
-      [things]="entitiesToDisplay.list || []",
+      [things]="entitiesToDisplay?.list || []",
       [pack]="pack.bind(this)"
       [unpack]="unpack.bind(this)"
       (registerGetter)="setCheckSelectedPack($event)"
@@ -83,7 +82,6 @@
     >
     </app-packing>
   }
-
 
   <app-list-actions
     [items]="entities"
@@ -94,11 +92,13 @@
   </app-list-actions>
 
   <app-list-box
-    [items]="entitiesToDisplay.list || []"
+    [items]="entitiesToDisplay?.list || []"
     [itemTemplate]="itemTemplate"
     (selectedChange)="onSelectedChange($event)"
     (addRemoveFromDic)="onAddRemoveFromDic($event)"
     [dic2tripVisible]="showDic2Trip"
+    [thing2packVisible]="thing2packVisible"
+    (packUnpack)="onPackUnpack($event)"
   ></app-list-box>
 
 

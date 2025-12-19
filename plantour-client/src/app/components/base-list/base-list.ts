@@ -17,6 +17,7 @@ import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { PackingComponent } from '../packing/packing.component';
 import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
+import { TripThingDto } from '../../services/trip-thing-service';
 
 export type Comparable = {
   name?: string;
@@ -148,32 +149,62 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   }
 
 
-
   get entitiesToDisplay(): any | null {
-
     const result: any = {};
 
-    if (!this.processedEntities || !this.tripEntities || this.tripEntities.length === 0) {
-      result.list = this.processedEntities;
-      result.addedCount = this.processedEntities?.filter(entity => (entity as any).inTripId).length || 0;
-      result.notAddedCount = (this.processedEntities?.length || 0) - result.addedCount;
+    if (!this.processedEntities) {
+      result.list = [];
+      result.addedCount = 0;
+      result.notAddedCount = 0;
       return result;
-    };
+    }
 
-    const newItems = this.processedEntities!.map(entity => {
+    if (!this.thing2pack && !this.dic2trip) {
+      result.list = this.processedEntities;
+      result.addedCount = 0;
+      result.notAddedCount = 0;
+      return result;
+    }
 
-      const tripEntity = this.tripEntities!.find(x => this.equalsByName(entity as any, x as any));
+    if (this.dic2trip) {
+      if (!this.processedEntities || !this.tripEntities || this.tripEntities.length === 0) {
+        result.list = this.processedEntities;
+        result.addedCount = this.processedEntities?.filter(entity => (entity as any).inTripId).length || 0;
+        result.notAddedCount = (this.processedEntities?.length || 0) - result.addedCount;
+        return result;
+      };
 
-      if (tripEntity) {
-        return { ...entity as any, inTripId: tripEntity.id };
-      }
+      const newItems = this.processedEntities!.map(entity => {
 
-      return entity;
-    });
+        const tripEntity = this.tripEntities!.find(x => this.equalsByName(entity as any, x as any));
 
-    result.list = newItems;
-    result.addedCount = newItems.filter(entity => (entity as any).inTripId).length || 0;
-    result.notAddedCount = (newItems?.length || 0) - result.addedCount;
+        if (tripEntity) {
+          return { ...entity as any, inTripId: tripEntity.id };
+        }
+
+        return entity;
+      });
+
+      result.list = newItems;
+      result.addedCount = newItems.filter(entity => (entity as any).inTripId).length || 0;
+      result.notAddedCount = (newItems?.length || 0) - result.addedCount;
+      return result;
+    }
+
+    if (!this.checkSelectedPack) {
+      result.list = this.processedEntities;
+      return result;
+    }
+
+    const selectedPackage = this.checkSelectedPack!();
+    if (!selectedPackage) {
+      result.list = this.processedEntities;
+      return result;
+    }
+
+    result.list = this.processedEntities.filter(entity => {
+      return (entity as any).tripUserPackageId === selectedPackage.id || !(entity as any).tripUserPackageId;
+    }); 
     return result;
   }
 
@@ -304,6 +335,24 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
   }
 
+  processPacking(tripPackageDto: TripPackageDto, item: TripThingDto) {
+
+    if (!item || !this.packingService) return;
+
+
+    if (!item.tripUserPackageId) {
+      this.pack([item.id], tripPackageDto.id);
+      return;
+    }
+
+    if (item.tripUserPackageId == tripPackageDto.id) {
+      this.unpack([item.id], tripPackageDto.id);
+      return;
+    }
+
+    throw new Error('Item is packed in another package');
+  }
+
   addFromDic(data: MultipleIdsRequest) {
     this.fromDicService!.addFromDic(data)
       .pipe(
@@ -336,7 +385,17 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
         }
       });
   }
-
+  
+  onPackUnpack(item: TripThingDto) {
+    if (!this.thing2packVisible || !this.checkSelectedPack || !this.packingService) {
+      return;
+    }
+    const tripPackageDto = this.checkSelectedPack!();
+    if (!tripPackageDto) {
+      return;
+    }
+    this.processPacking(tripPackageDto, item);
+  }
 
   onAddRemoveFromDic(item: any) {
     if (!this.dic2tripVisible || !this.checkSelectedTrip || !this.tripDicService) {
