@@ -30,6 +30,12 @@ export class TripThingsComponent implements OnInit {
   fromDicservice: FromDicService = inject(TripThingService);
   packingService: PackingService = inject(TripThingService);
 
+  checkSelectedPack: (() => TripPackageDto | null) | null = null;
+
+  setCheckSelectedPack(getter: (() => TripPackageDto | null) | null) {
+    this.checkSelectedPack = getter;
+  }
+
   configuration: any[] = [
     {
       property: 'name',

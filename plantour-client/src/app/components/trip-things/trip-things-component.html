@@ -1,4 +1,3 @@
-
 <app-generic-list
     [service]="service"
     [fromDicService]="fromDicservice"
@@ -17,6 +16,7 @@
     [dic2trip]="false"
     [tripPanelVisible]="true"
     [thing2pack]="true"
+    (registerGetter)="setCheckSelectedPack($event)"
 >
 </app-generic-list>
 
@@ -26,16 +26,23 @@
     let-tripPacks="tripPacks"
     let-packageChange="packageChange"
 >
-    <span
-        [innerHTML]="item.name"
-    ></span>
-    <p-select
-        [options]="tripPacks || []"
-        optionLabel="name"
-        optionValue="id"
-        [(ngModel)]="item.tripUserPackageId"
-        (onChange)="packageChange(item, $event)"
-        [showClear]="true"
-        appendTo="body"
-    />
+    <div class="container">
+        <span
+            class="left"
+            [innerHTML]="item.name"
+        ></span>
+        @if(!checkSelectedPack || !checkSelectedPack()) {
+        <p-select
+            class="right"
+            [options]="tripPacks || []"
+            optionLabel="name"
+            optionValue="id"
+            [(ngModel)]="item.tripUserPackageId"
+            (onChange)="packageChange(item, $event)"
+            [showClear]="true"
+            appendTo="body"
+        />
+
+        }
+    </div>
 </ng-template>

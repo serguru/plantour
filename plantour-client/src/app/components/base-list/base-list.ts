@@ -70,6 +70,9 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   @Input() tripPanelVisible: boolean = false;
   @Input() thing2pack: boolean = false;
 
+    @Output() registerGetter: EventEmitter<(() => TripPackageDto | null) | null> = new EventEmitter<(() => TripPackageDto | null) | null>();
+
+  
   thing2packVisible: boolean = false;
   tripEntities: any[] | null = null;
   entities: T[] | null = null;
@@ -549,6 +552,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
   setCheckSelectedPack(getter: (() => TripPackageDto | null) | null) {
     this.checkSelectedPack = getter;
+    this.registerGetter.emit(this.checkSelectedPack);
   }
 
   onSelectedTripPackageChanged(pack: any | null) {
