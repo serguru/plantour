@@ -17,7 +17,6 @@ public class LookupsService : ILookupsService
 
     public async Task<LookupsResponse> GetAllLookupsAsync()
     {
-        var packingStatuses = await _lookupsRepository.GetAllPackingStatusesAsync();
         var communicationTypes = await _lookupsRepository.GetAllCommunicationTypesAsync();
         var thingCategories = await _lookupsRepository.GetAllThingCategoriesAsync();
         var tripStatuses = await _lookupsRepository.GetAllTripStatusesAsync();
@@ -26,7 +25,6 @@ public class LookupsService : ILookupsService
 
         return new LookupsResponse
         {
-            PackingStatuses = _mapper.Map<IEnumerable<PackingStatusDto>>(packingStatuses),
             CommunicationTypes = _mapper.Map<IEnumerable<CommunicationTypeDto>>(communicationTypes),
             ThingCategories = _mapper.Map<IEnumerable<ThingCategoryDto>>(thingCategories),
             TripStatuses = _mapper.Map<IEnumerable<TripStatusDto>>(tripStatuses),

@@ -35,7 +35,6 @@ export class TripThingFormComponent implements OnInit {
   private lookupService = inject(LookupService);
 
   thingCategories$ = this.lookupService.getThingCategories();
-  packingStatuses$ = this.lookupService.getPackingStatuses();
 
   fieldsConfig = {
     name: new FormControl('', Validators.required),
@@ -43,7 +42,6 @@ export class TripThingFormComponent implements OnInit {
     notes: new FormControl(''),
     units: new FormControl(''),
     value: new FormControl(''),
-    packingStatus: new FormControl(''),
     tripUserPackageId: new FormControl(''),
     packedAt: new FormControl('')
   };

@@ -6,12 +6,10 @@ import { CrudService, FromDicService, MultipleIdsRequest } from './crud-service'
 
 export interface TripPackageDto {
   id: string;
-  parentPackageId?: string | null;
   tripUserId: string;
   name: string;
   label?: string | null;
   notes?: string | null;
-  packingStatus?: string | null;
   packedAt?: string | null;
   packingListIncluded: boolean;
   weightValue?: number | null;
@@ -20,11 +18,9 @@ export interface TripPackageDto {
 
 export interface CreateTripPackageRequest {
   tripId: string;
-  parentPackageId?: string | null;
   name: string;
   label?: string | null;
   notes?: string | null;
-  packingStatus?: string | null;
   packedAt?: string | null;
   packingListIncluded: boolean;
   weightValue?: number | null;
@@ -33,11 +29,9 @@ export interface CreateTripPackageRequest {
 
 export interface UpdateTripPackageRequest {
   id: string;
-  parentPackageId?: string | null;
   name: string;
   label?: string | null;
   notes?: string | null;
-  packingStatus?: string | null;
   packedAt?: string | null;
   packingListIncluded: boolean;
   weightValue?: number | null;

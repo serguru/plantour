@@ -17,8 +17,6 @@ import { LookupService } from '../../services/lookup-service';
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
-    Select,
-    AsyncPipe,
     CommonModule
   ],
   templateUrl: './trip-pack-form-component.html',
@@ -34,13 +32,10 @@ export class TripPackFormComponent implements OnInit {
   service = inject(TripPackageService);
   private lookupService = inject(LookupService);
 
-  packingStatuses$ = this.lookupService.getPackingStatuses();
-
   fieldsConfig = {
     name: new FormControl('', Validators.required),
     label: new FormControl(''),
     notes: new FormControl(''),
-    packingStatus: new FormControl(''),
     packedAt: new FormControl(''),
     packingListIncluded: new FormControl(false),
     weightValue: new FormControl(''),

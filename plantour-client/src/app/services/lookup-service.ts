@@ -4,11 +4,6 @@ import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 
-export interface PackingStatusDto {
-  id: string;
-  name: string;
-  notes?: string | null;
-}
 
 export interface CommunicationTypeDto {
   id: string;
@@ -39,7 +34,6 @@ export interface UnitDto {
 }
 
 export interface LookupsResponse {
-  packingStatuses: PackingStatusDto[];
   communicationTypes: CommunicationTypeDto[];
   thingCategories: ThingCategoryDto[];
   tripStatuses: TripStatusDto[];
@@ -71,18 +65,6 @@ export class LookupService {
         this.lookups = response;
       })
     );
-  }
-
-  getPackingStatuses(): Observable<PackingStatusDto[]> {
-    return new Observable((observer) => {
-      this.loadLookupsIfNeeded().subscribe({
-        next: (lookups) => {
-          observer.next(lookups.packingStatuses);
-          observer.complete();
-        },
-        error: (err) => observer.error(err),
-      });
-    });
   }
 
   getCommunicationTypes(): Observable<CommunicationTypeDto[]> {

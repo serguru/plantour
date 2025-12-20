@@ -71,6 +71,12 @@ VALUES
     (
         (SELECT id FROM trips WHERE name = 'Summer Alps Expedition 2026'),
         (SELECT id FROM admins_participants WHERE admin_id = (SELECT id FROM users WHERE email = 'serguru@gmail.com') 
+         AND participant_id = (SELECT id FROM users WHERE email = 'serguru@gmail.com')),
+        'Serguru is the admin and the participant'
+    ),
+    (
+        (SELECT id FROM trips WHERE name = 'Summer Alps Expedition 2026'),
+        (SELECT id FROM admins_participants WHERE admin_id = (SELECT id FROM users WHERE email = 'serguru@gmail.com') 
          AND participant_id = (SELECT id FROM users WHERE email = 'alice.participant@plantour.test')),
         'Alice is the primary navigator'
     ),
@@ -84,13 +90,20 @@ VALUES
 -----------------------------------------------------------------------
 -- TRIP USER PACKAGES
 -----------------------------------------------------------------------
-INSERT INTO trip_user_packages (trip_user_id, name, label, packing_status_id, packing_list_included, weight_value, weight_unit)
+INSERT INTO trip_user_packages (trip_user_id, name, label, packing_list_included, weight_value, weight_unit)
 VALUES
     (
-        (SELECT id FROM trip_users WHERE notes = 'Alice is the primary navigator'),
-        'Green Osprey',
+        (SELECT id FROM trip_users WHERE notes = 'Serguru is the admin and the participant'),
+        'Large Box',
         'A1',
-        (SELECT id FROM packing_status WHERE name = 'Packing'),
+        true,
+        12.5,
+        'kg'
+    ),
+    (
+        (SELECT id FROM trip_users WHERE notes = 'Alice is the primary navigator'),
+        'Yellow Suitcase',
+        'X1',
         true,
         12.5,
         'kg'
@@ -102,13 +115,31 @@ VALUES
 INSERT INTO trip_user_things (trip_user_id, category, name, units, value, notes, trip_user_package_id)
 VALUES
     (
+        (SELECT id FROM trip_users WHERE notes = 'Serguru is the admin and the participant'),
+        'Clothing',
+        'Rain Jacket',
+        'pcs',
+        1,
+        'Essential for mountains',
+        (SELECT id FROM trip_user_packages WHERE name = 'Large Box')
+    ),
+    (
+        (SELECT id FROM trip_users WHERE notes = 'Serguru is the admin and the participant'),
+        'Fishing',
+        'Talles',
+        'pcs',
+        1,
+        'Essential for ocean',
+        null
+    ),
+    (
         (SELECT id FROM trip_users WHERE notes = 'Alice is the primary navigator'),
         'Clothing',
         'Rain Jacket',
         'pcs',
         1,
         'Essential for mountains',
-        (SELECT id FROM trip_user_packages WHERE name = 'Green Osprey')
+        (SELECT id FROM trip_user_packages WHERE name = 'Yellow Suitcase')
     ),
     (
         (SELECT id FROM trip_users WHERE notes = 'Alice is the primary navigator'),
@@ -117,7 +148,7 @@ VALUES
         'pcs',
         1,
         'Check batteries before leaving',
-        (SELECT id FROM trip_user_packages WHERE name = 'Green Osprey')
+        (SELECT id FROM trip_user_packages WHERE name = 'Yellow Suitcase')
     );
 
 commit;

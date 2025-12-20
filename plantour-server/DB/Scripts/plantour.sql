@@ -54,21 +54,6 @@ insert into trip_status (name) values
 ('Completed');
 
 
------------------------------------------------------------------------
--- PACKING STATUS
------------------------------------------------------------------------
-create table packing_status (
-    id uuid not null primary key default gen_random_uuid(),
-    name varchar(50) not null unique,
-    notes text
-);
-insert into packing_status (name) values
-('Planning'),
-('Packing'),
-('Packed'),
-('Verified');
-
-
 create table thing_categories (
     id uuid not null primary key default gen_random_uuid(),
     name varchar(50) not null unique,
@@ -245,12 +230,10 @@ create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, admin_
 -----------------------------------------------------------------------
 create table trip_user_packages (
     id uuid not null primary key default gen_random_uuid(),
-    parent_package_id uuid references trip_user_packages(id) on delete set null,
     trip_user_id uuid not null references trip_users(id) on delete cascade,
     name varchar(200) not null,
     label varchar(100),
     notes text,
-    packing_status_id uuid not null references packing_status(id),
     packed_at timestamptz,
     packing_list_included boolean not null default(false),
     weight_value decimal(10,3) check(weight_value > 0),
@@ -363,16 +346,14 @@ begin
     )
     into v_trip_user_id;
 
-    insert into plantour.trip_user_packages (trip_user_id, name, packing_status_id)
+    insert into plantour.trip_user_packages (trip_user_id, name)
     select
         v_trip_user_id,
-        b.name,
-        d.id
+        b.name
     from plantour.user_packages b
     left join plantour.trip_user_packages c on 
         c.trip_user_id = v_trip_user_id and 
         lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
-    join plantour.packing_status d on d.name = 'Planning'
     where
         b.id = any (p_ids)
         and b.user_id = p_participant_id
@@ -705,9 +686,17 @@ VALUES
     (
         gen_random_uuid(),
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM participant_statuses WHERE name = 'Active'),
         'a',
+        'Same participant as admin'
+    ),
+    (
+        gen_random_uuid(),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
+        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
+        (SELECT id FROM participant_statuses WHERE name = 'Active'),
+        'aa',
         'First participant linked to admin'
 
     ),

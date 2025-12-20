@@ -14,7 +14,6 @@
 <ng-template
   #fieldsTemplate
   let-form="form"
-  let-packingStatuses="packingStatuses$"
   let-onSubmit="onSubmit"
 >
   <div class="controls-wrapper">
@@ -46,21 +45,6 @@
           formControlName="label"
           placeholder="Enter label (optional)"
         />
-      </div>
-
-      <div class="form-field">
-        <label for="packingStatus">Packing Status</label>
-        <p-select
-          id="packingStatus"
-          formControlName="packingStatus"
-          [options]="packingStatuses | async"
-          optionLabel="name"
-          optionValue="name"
-          placeholder="Select status"
-          [showClear]="true"
-          styleClass="w-full"
-          [editable]="true"
-        ></p-select>
       </div>
 
       <div class="form-field">

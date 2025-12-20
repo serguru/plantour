@@ -15,7 +15,6 @@
   #fieldsTemplate
   let-form="form"
   let-thingCategories="thingCategories$"
-  let-packingStatuses="packingStatuses$"
   let-onSubmit="onSubmit"
 >
   <div class="controls-wrapper">
@@ -53,20 +52,6 @@
         ></p-select>
       </div>
 
-      <div class="form-field">
-        <label for="packingStatus">Packing Status</label>
-        <p-select
-          id="packingStatus"
-          formControlName="packingStatus"
-          [options]="packingStatuses | async"
-          optionLabel="name"
-          optionValue="name"
-          placeholder="Select status"
-          [showClear]="true"
-          styleClass="w-full"
-          [editable]="true"
-        ></p-select>
-      </div>
 
       <div class="form-field">
         <label for="value">Value</label>

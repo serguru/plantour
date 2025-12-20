@@ -17,8 +17,6 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Invitation> Invitations { get; set; }
 
-    public virtual DbSet<PackingStatus> PackingStatuses { get; set; }
-
     public virtual DbSet<ParticipantStatus> ParticipantStatuses { get; set; }
 
     public virtual DbSet<ThingCategory> ThingCategories { get; set; }
@@ -78,13 +76,6 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Trip).WithMany(p => p.Invitations).HasConstraintName("invitations_trip_id_fkey");
         });
 
-        modelBuilder.Entity<PackingStatus>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("packing_status_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-        });
-
         modelBuilder.Entity<ParticipantStatus>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("participant_statuses_pkey");
@@ -135,14 +126,6 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("trip_user_packages_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-
-            entity.HasOne(d => d.PackingStatus).WithMany(p => p.TripUserPackages)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("trip_user_packages_packing_status_id_fkey");
-
-            entity.HasOne(d => d.ParentPackage).WithMany(p => p.InverseParentPackage)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("trip_user_packages_parent_package_id_fkey");
 
             entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserPackages).HasConstraintName("trip_user_packages_trip_user_id_fkey");
         });

@@ -12,11 +12,6 @@ public class LookupsRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<PackingStatus>> GetAllPackingStatusesAsync()
-    {
-        return await _context.PackingStatuses.OrderBy(x => x.Name).ToListAsync();
-    }
-
     public async Task<IEnumerable<CommunicationType>> GetAllCommunicationTypesAsync()
     {
         return await _context.CommunicationTypes.OrderBy(x => x.Name).ToListAsync();

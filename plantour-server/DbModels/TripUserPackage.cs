@@ -14,9 +14,6 @@ public partial class TripUserPackage
     [Column("id")]
     public Guid Id { get; set; }
 
-    [Column("parent_package_id")]
-    public Guid? ParentPackageId { get; set; }
-
     [Column("trip_user_id")]
     public Guid TripUserId { get; set; }
 
@@ -31,9 +28,6 @@ public partial class TripUserPackage
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [Column("packing_status_id")]
-    public Guid PackingStatusId { get; set; }
-
     [Column("packed_at")]
     public DateTime? PackedAt { get; set; }
 
@@ -47,17 +41,6 @@ public partial class TripUserPackage
     [Column("weight_unit")]
     [StringLength(50)]
     public string? WeightUnit { get; set; }
-
-    [InverseProperty("ParentPackage")]
-    public virtual ICollection<TripUserPackage> InverseParentPackage { get; set; } = new List<TripUserPackage>();
-
-    [ForeignKey("PackingStatusId")]
-    [InverseProperty("TripUserPackages")]
-    public virtual PackingStatus PackingStatus { get; set; } = null!;
-
-    [ForeignKey("ParentPackageId")]
-    [InverseProperty("InverseParentPackage")]
-    public virtual TripUserPackage? ParentPackage { get; set; }
 
     [ForeignKey("TripUserId")]
     [InverseProperty("TripUserPackages")]

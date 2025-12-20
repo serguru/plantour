@@ -15,7 +15,6 @@ export interface TripThingDto {
   tripUserPackageId?: string | null;
   packageName?: string | null;
   packageLabel?: string | null;
-  packingStatus?: string | null;
   packedAt?: string | null;
 }
 
@@ -27,7 +26,6 @@ export interface CreateTripThingRequest {
   units?: string | null;
   value?: number | null;
   tripUserPackageId?: string | null;
-  packingStatus?: string | null;
   packedAt?: string | null;
 }
 
@@ -40,7 +38,6 @@ export interface UpdateTripThingRequest {
   units?: string | null;
   value?: number | null;
   tripUserPackageId?: string | null;
-  packingStatus?: string | null;
   packedAt?: string | null;
 }
 
