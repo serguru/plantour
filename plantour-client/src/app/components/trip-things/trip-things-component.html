@@ -23,9 +23,19 @@
 <ng-template
     #thingTemplate
     let-item
+    let-tripPacks="tripPacks"
+    let-packageChange="packageChange"
 >
     <span
-        class="list-name"
         [innerHTML]="item.name"
     ></span>
+    <p-select
+        [options]="tripPacks || []"
+        optionLabel="name"
+        optionValue="id"
+        [(ngModel)]="item.tripUserPackageId"
+        (onChange)="packageChange(item, $event)"
+        [showClear]="true"
+        appendTo="body"
+    />
 </ng-template>

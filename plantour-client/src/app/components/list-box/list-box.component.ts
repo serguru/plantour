@@ -18,6 +18,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Button } from 'primeng/button';
+import { TripPackageDto } from '../../services/trip-package-service';
 
 
 @Component({
@@ -29,6 +30,7 @@ import { Button } from 'primeng/button';
 })
 export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     @Input() items: any[] = [];
+    @Input() packages: TripPackageDto[] = [];
     @Input() itemTemplate!: TemplateRef<any>;
     @Input() dic2tripVisible: boolean = false;
     @Input() thing2packVisible: boolean = false;
@@ -170,5 +172,9 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    packageChange(item: any) {
+        this.packUnpack.emit({item, alreadyChanged: true});
     }
 }

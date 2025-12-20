@@ -3,24 +3,26 @@ import { CrudService, FromDicService, PackingService } from '../../services/crud
 import { TripThingDto, CreateTripThingRequest, UpdateTripThingRequest, TripThingService } from '../../services/trip-thing-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
+import { TripPackageDto } from '../../services/trip-package-service';
+import { Select } from "primeng/select";
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-trip-things',
   standalone: true,
   imports: [
-    BaseListComponent
-  ],
+    BaseListComponent,
+    Select,
+    FormsModule,
+    CommonModule
+],
   templateUrl: './trip-things-component.html',
   styleUrl: './trip-things-component.scss',
 })
 export class TripThingsComponent implements OnInit {
 
   tripId: string | null = null;
-
-  ngOnInit(): void {
-    this.tripId = this.route.snapshot.paramMap.get('tripId');
-  }
-
   route = inject(ActivatedRoute);
   router = inject(Router);
   service: CrudService<TripThingDto, CreateTripThingRequest, UpdateTripThingRequest> = inject(TripThingService);
@@ -57,5 +59,9 @@ export class TripThingsComponent implements OnInit {
         });
       }
     }
-  ]
+  ];
+
+  ngOnInit(): void {
+    this.tripId = this.route.snapshot.paramMap.get('tripId');
+  }
 }

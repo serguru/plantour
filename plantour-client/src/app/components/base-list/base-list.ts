@@ -93,12 +93,12 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     super();
   }
 
-  get showThing2Pack(): boolean { 
+  get showThing2Pack(): boolean {
     return this.thing2pack && this.thing2packVisible;
   }
 
 
-  get showDic2Trip(): boolean { 
+  get showDic2Trip(): boolean {
     return this.dic2trip && this.dic2tripVisible;
   }
 
@@ -106,19 +106,19 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
     switch (name) {
       case 'trips':
-        this.dic2tripVisible = !this.dic2tripVisible;   
-        localStorage.setItem(`base-list-${name}` , this.dic2tripVisible ? '1' : '0');
+        this.dic2tripVisible = !this.dic2tripVisible;
+        localStorage.setItem(`base-list-${name}`, this.dic2tripVisible ? '1' : '0');
         break;
       case 'tools':
-        this.listToolsVisible = !this.listToolsVisible;   
-        localStorage.setItem(`base-list-${name}` , this.listToolsVisible ? '1' : '0');
+        this.listToolsVisible = !this.listToolsVisible;
+        localStorage.setItem(`base-list-${name}`, this.listToolsVisible ? '1' : '0');
         break;
       case 'packs':
-        this.thing2packVisible = !this.thing2packVisible;   
-        localStorage.setItem(`base-list-${name}` , this.thing2packVisible ? '1' : '0');
+        this.thing2packVisible = !this.thing2packVisible;
+        localStorage.setItem(`base-list-${name}`, this.thing2packVisible ? '1' : '0');
         break;
       default:
-        break;  
+        break;
     }
   }
 
@@ -127,22 +127,22 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
     if (this.dic2trip) {
       items.push({
-          label: `${this.dic2tripVisible ? "Hide":"Show"} trips select`,
-          icon: 'pi pi-compass',
-          command: () => this.onShowHideMenu('trips')
+        label: `${this.dic2tripVisible ? "Hide" : "Show"} trips select`,
+        icon: 'pi pi-compass',
+        command: () => this.onShowHideMenu('trips')
       });
     }
     if (this.thing2pack) {
       items.push({
-          label: `${this.thing2packVisible ? "Hide":"Show"} packs select`,
-          icon: 'pi pi-briefcase',
-          command: () => this.onShowHideMenu('packs')
+        label: `${this.thing2packVisible ? "Hide" : "Show"} packs select`,
+        icon: 'pi pi-briefcase',
+        command: () => this.onShowHideMenu('packs')
       });
     }
     items.push({
-        label: `${this.listToolsVisible ? "Hide":"Show"} list tools`,
-        icon: 'pi pi-filter',
-        command: () => this.onShowHideMenu('tools')
+      label: `${this.listToolsVisible ? "Hide" : "Show"} list tools`,
+      icon: 'pi pi-filter',
+      command: () => this.onShowHideMenu('tools')
     });
 
     return items;
@@ -204,7 +204,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
     result.list = this.processedEntities.filter(entity => {
       return (entity as any).tripUserPackageId === selectedPackage.id || !(entity as any).tripUserPackageId;
-    }); 
+    });
     return result;
   }
 
@@ -235,7 +235,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
         usage: 'search',
       }) === 0;
     }
-    
+
     return a.name!.localeCompare(b.name!, locale, {
       sensitivity: 'accent',
       usage: 'search',
@@ -271,7 +271,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
 
   restoreState() {
-    const dic2tripState = localStorage.getItem(`base-list-trips`);    
+    const dic2tripState = localStorage.getItem(`base-list-trips`);
     this.dic2tripVisible = dic2tripState === '1';
     const listToolsState = localStorage.getItem(`base-list-tools`);
     this.listToolsVisible = listToolsState === '1';
@@ -335,22 +335,17 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
   }
 
-  processPacking(tripPackageDto: TripPackageDto, item: TripThingDto) {
+  processPacking(tripUserPackageId: string, item: TripThingDto) {
 
     if (!item || !this.packingService) return;
 
 
     if (!item.tripUserPackageId) {
-      this.pack([item.id], tripPackageDto.id);
+      this.pack([item.id], tripUserPackageId);
       return;
     }
 
-    if (item.tripUserPackageId == tripPackageDto.id) {
-      this.unpack([item.id], tripPackageDto.id);
-      return;
-    }
-
-    throw new Error('Item is packed in another package');
+    this.unpack([item.id], tripUserPackageId);
   }
 
   addFromDic(data: MultipleIdsRequest) {
@@ -385,16 +380,40 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
         }
       });
   }
-  
-  onPackUnpack(item: TripThingDto) {
-    if (!this.thing2packVisible || !this.checkSelectedPack || !this.packingService) {
-      return;
+
+  onPackUnpack(data: any) {
+
+    let tripUserPackageId: string;
+    let item: any;
+
+    if (data.alreadyChanged) {
+      item = this.entities?.find((x: any) => x.id === data.item.id);
+//      tripUserPackageId = ;
+
+      if (!item.tripUserPackageId && !data.item.tripUserPackageId || item.tripUserPackageId === data.item.tripUserPackageId) {
+        return;
+      }
+
+      if (data.item.tripUserPackageId && item.tripUserPackageId && item.tripUserPackageId !== data.item.tripUserPackageId) {
+        this.messagesService.showError(`Item is already packed in another package`);
+        return;
+      }
+
+      tripUserPackageId = data.item.tripUserPackageId || item.tripUserPackageId;
+      
+    } else {
+      if (!this.thing2packVisible || !this.checkSelectedPack || !this.packingService) {
+        return;
+      }
+      const tripPackageDto: any = this.checkSelectedPack!();
+      if (!tripPackageDto) {
+        return;
+      }
+      tripUserPackageId = tripPackageDto!.id;
+      item = data.item;
     }
-    const tripPackageDto = this.checkSelectedPack!();
-    if (!tripPackageDto) {
-      return;
-    }
-    this.processPacking(tripPackageDto, item);
+
+    this.processPacking(tripUserPackageId, item);
   }
 
   onAddRemoveFromDic(item: any) {
@@ -491,7 +510,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   pack(ids: string[], id: string) {
     if (!this.useTripId || !this.tripId || this.packages.length === 0) {
       return;
-    } 
+    }
     this.packingService!.pack({
       collectionId: this.tripId,
       ids: ids,
@@ -506,11 +525,11 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     });
 
   }
-  
+
   unpack(ids: string[], id: string) {
     if (!this.useTripId || !this.tripId || this.packages.length === 0) {
       return;
-    } 
+    }
     this.packingService!.unpack({
       collectionId: this.tripId,
       ids: ids,
@@ -535,7 +554,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   onSelectedTripPackageChanged(pack: any | null) {
     this.getAll();
   }
-  
+
 
 
 }

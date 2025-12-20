@@ -7,7 +7,11 @@
     (click)="selectItem(item)"
   >
     <div class="left">
-      <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }">
+      <ng-container *ngTemplateOutlet="itemTemplate; context: { 
+        $implicit: item,  
+        tripPacks: packages,
+        packageChange: packageChange.bind(this)
+        }">
       </ng-container>
 
     </div>

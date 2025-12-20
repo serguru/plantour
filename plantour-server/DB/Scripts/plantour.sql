@@ -552,8 +552,6 @@ begin
 end;
 $$;
 
-
-
 create or replace function plantour.pack_trip_things(
     p_admin_id uuid,
     p_participant_id uuid,
