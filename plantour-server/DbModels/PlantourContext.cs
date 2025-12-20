@@ -50,6 +50,7 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("admins_participants_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.AccessCodeHash).IsFixedLength();
 
             entity.HasOne(d => d.Admin).WithMany(p => p.AdminsParticipantAdmins).HasConstraintName("admins_participants_admin_id_fkey");
 
@@ -152,7 +153,11 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserThings).HasConstraintName("trip_user_things_trip_user_id_fkey");
+            entity.HasOne(d => d.AssignedByUser).WithMany(p => p.TripUserThingAssignedByUsers)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("trip_user_things_assigned_by_user_id_fkey");
+
+            entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserThingTripUsers).HasConstraintName("trip_user_things_trip_user_id_fkey");
 
             entity.HasOne(d => d.TripUserPackage).WithMany(p => p.TripUserThings)
                 .OnDelete(DeleteBehavior.SetNull)

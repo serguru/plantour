@@ -20,12 +20,12 @@ public class TripUserMappingProfile : Profile
             .ForMember(dest => dest.AdminParticipant, opt => opt.Ignore())
             .ForMember(dest => dest.Trip, opt => opt.Ignore())
             .ForMember(dest => dest.TripUserPackages, opt => opt.Ignore())
-            .ForMember(dest => dest.TripUserThings, opt => opt.Ignore());
+            .ForMember(dest => dest.TripUserThingTripUsers, opt => opt.Ignore());
         
         CreateMap<UpdateTripUserRequest, TripUser>()
             .ForMember(dest => dest.AdminParticipant, opt => opt.Ignore())
             .ForMember(dest => dest.Trip, opt => opt.Ignore())
             .ForMember(dest => dest.TripUserPackages, opt => opt.Ignore())
-            .ForMember(dest => dest.TripUserThings, opt => opt.Ignore());
+            .ForMember(dest => dest.TripUserThingTripUsers, opt => opt.Ignore());
     }
 }

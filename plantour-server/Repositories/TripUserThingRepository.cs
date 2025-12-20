@@ -25,6 +25,7 @@ public class TripUserThingRepository : BaseRepository
         {
             return await _dbSet
                 .Include(x => x.TripUserPackage)
+                .Include(x => x.AssignedByUser != null ? x.AssignedByUser.AdminParticipant.Participant : null)
                 .FirstOrDefaultAsync(x =>
                     x.Id == id &&
                     x.TripUser.Trip.UserId == CurrentUser.UserId &&
@@ -37,6 +38,7 @@ public class TripUserThingRepository : BaseRepository
         {
             return await _dbSet
                 .Include(x => x.TripUserPackage)
+                .Include(x => x.AssignedByUser != null ? x.AssignedByUser.AdminParticipant.Participant : null)
                 .FirstOrDefaultAsync(x =>
                     x.Id == id &&
                     x.TripUser.Trip.UserId == CurrentUser.AdminId &&
@@ -59,6 +61,7 @@ public class TripUserThingRepository : BaseRepository
         {
             return await _dbSet
                 .Include(x => x.TripUserPackage)
+                .Include(x => x.AssignedByUser != null ? x.AssignedByUser.AdminParticipant.Participant : null)
                 .Where(x =>
                     x.TripUser.TripId == tripId &&
                     x.TripUser.Trip.UserId == CurrentUser.UserId &&
@@ -71,6 +74,7 @@ public class TripUserThingRepository : BaseRepository
         {
             return await _dbSet
                 .Include(x => x.TripUserPackage)
+                .Include(x => x.AssignedByUser != null ? x.AssignedByUser.AdminParticipant.Participant : null)
                 .Where(x =>
                     x.TripUser.TripId == tripId &&
                     x.TripUser.Trip.UserId == CurrentUser.AdminId &&

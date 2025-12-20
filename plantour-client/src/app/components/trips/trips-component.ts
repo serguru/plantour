@@ -64,7 +64,7 @@ export class TripsComponent {
       command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-participants`])
     },{
       id: 'trip-packs-button',
-      icon: 'pi pi-briefcase',
+      icon: 'pi pi-box',
       tooltip: 'Trip packs',
       disabled: true,
       command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-packs`])

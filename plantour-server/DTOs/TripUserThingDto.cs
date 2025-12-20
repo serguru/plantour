@@ -15,4 +15,6 @@ public class TripUserThingDto
     public string? PackageLabel { get; set; }
     public string? PackingStatus { get; set; }
     public DateTime? PackedAt { get; set; }
+    public Guid? AssignedByUserId { get; set; }
+    public TripUserDto? AssignedByUser { get; set; }
 }

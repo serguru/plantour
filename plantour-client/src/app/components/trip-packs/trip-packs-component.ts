@@ -31,7 +31,7 @@ export class TripPacksComponent implements OnInit {
     {
       property: 'name',
       label: 'Name',
-      icon: 'pi pi-briefcase',
+      icon: 'pi pi-box',
       config: {
         lookupIcon: 'pi pi-box',
         filter: true,

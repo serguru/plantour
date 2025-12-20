@@ -138,7 +138,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     if (this.thing2pack) {
       items.push({
         label: `${this.thing2packVisible ? "Hide" : "Show"} packs select`,
-        icon: 'pi pi-briefcase',
+        icon: 'pi pi-box',
         command: () => this.onShowHideMenu('packs')
       });
     }
@@ -399,11 +399,6 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
       if (data.item.tripUserPackageId && item.tripUserPackageId && item.tripUserPackageId !== data.item.tripUserPackageId) {
         item.tripUserPackageId = null;
       }
-
-      // if (data.item.tripUserPackageId && item.tripUserPackageId && item.tripUserPackageId !== data.item.tripUserPackageId) {
-      //   this.messagesService.showError(`Item is already packed in another package`);
-      //   return;
-      // }
 
       tripUserPackageId = data.item.tripUserPackageId || item.tripUserPackageId;
       

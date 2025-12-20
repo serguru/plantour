@@ -34,6 +34,9 @@ public partial class TripUser
     [InverseProperty("TripUser")]
     public virtual ICollection<TripUserPackage> TripUserPackages { get; set; } = new List<TripUserPackage>();
 
+    [InverseProperty("AssignedByUser")]
+    public virtual ICollection<TripUserThing> TripUserThingAssignedByUsers { get; set; } = new List<TripUserThing>();
+
     [InverseProperty("TripUser")]
-    public virtual ICollection<TripUserThing> TripUserThings { get; set; } = new List<TripUserThing>();
+    public virtual ICollection<TripUserThing> TripUserThingTripUsers { get; set; } = new List<TripUserThing>();
 }

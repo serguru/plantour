@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("admins_participants", Schema = "plantour")]
+[Index("AccessCodeHash", Name = "admins_participants_access_code_hash_key", IsUnique = true)]
 [Index("AdminId", "ParticipantId", Name = "idx_admins_participants_admin_id_participant_id", IsUnique = true)]
 public partial class AdminsParticipant
 {
@@ -24,7 +25,8 @@ public partial class AdminsParticipant
     public Guid ParticipantStatusId { get; set; }
 
     [Column("access_code_hash")]
-    public string? AccessCodeHash { get; set; }
+    [StringLength(64)]
+    public string AccessCodeHash { get; set; } = null!;
 
     [Column("notes")]
     public string? Notes { get; set; }

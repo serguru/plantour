@@ -42,8 +42,15 @@ public partial class TripUserThing
     [Column("packed_at")]
     public DateTime? PackedAt { get; set; }
 
+    [Column("assigned_by_user_id")]
+    public Guid? AssignedByUserId { get; set; }
+
+    [ForeignKey("AssignedByUserId")]
+    [InverseProperty("TripUserThingAssignedByUsers")]
+    public virtual TripUser? AssignedByUser { get; set; }
+
     [ForeignKey("TripUserId")]
-    [InverseProperty("TripUserThings")]
+    [InverseProperty("TripUserThingTripUsers")]
     public virtual TripUser TripUser { get; set; } = null!;
 
     [ForeignKey("TripUserPackageId")]

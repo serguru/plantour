@@ -270,7 +270,8 @@ create table trip_user_things (
     value decimal(10,3) check(value > 0),
     notes text,
     trip_user_package_id uuid references trip_user_packages(id) on delete set null,
-    packed_at timestamptz
+    packed_at timestamptz,
+    assigned_by_user_id uuid null references trip_users(id) on delete set null
 );
 create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
 
