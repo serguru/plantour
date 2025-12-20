@@ -391,16 +391,19 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
     if (data.alreadyChanged) {
       item = this.entities?.find((x: any) => x.id === data.item.id);
-//      tripUserPackageId = ;
 
       if (!item.tripUserPackageId && !data.item.tripUserPackageId || item.tripUserPackageId === data.item.tripUserPackageId) {
         return;
       }
 
       if (data.item.tripUserPackageId && item.tripUserPackageId && item.tripUserPackageId !== data.item.tripUserPackageId) {
-        this.messagesService.showError(`Item is already packed in another package`);
-        return;
+        item.tripUserPackageId = null;
       }
+
+      // if (data.item.tripUserPackageId && item.tripUserPackageId && item.tripUserPackageId !== data.item.tripUserPackageId) {
+      //   this.messagesService.showError(`Item is already packed in another package`);
+      //   return;
+      // }
 
       tripUserPackageId = data.item.tripUserPackageId || item.tripUserPackageId;
       
