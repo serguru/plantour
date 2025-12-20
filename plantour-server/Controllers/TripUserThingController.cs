@@ -48,7 +48,7 @@ public class TripUserThingController : ControllerBase
 
     [HttpGet("trip/{tripId}")]
     [AdminOrParticipant]
-    public async Task<ActionResult<IEnumerable<TripUserThingDto>>> GetAll(Guid tripId)
+    public async Task<ActionResult<IEnumerable<TripThingDto>>> GetAll(Guid tripId)
     {
         try
         {
@@ -63,7 +63,7 @@ public class TripUserThingController : ControllerBase
 
     [HttpGet("{id}")]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripUserThingDto>> GetById(Guid id)
+    public async Task<ActionResult<TripThingDto>> GetById(Guid id)
     {
         try
         {
@@ -83,7 +83,7 @@ public class TripUserThingController : ControllerBase
 
     [HttpPost]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripUserThingDto>> Add([FromBody] CreateTripUserThingRequest request)
+    public async Task<ActionResult<TripThingDto>> Add([FromBody] CreateTripUserThingRequest request)
     {
         try
         {

@@ -8,7 +8,7 @@ public class TripUserThingMappingProfile : Profile
 {
     public TripUserThingMappingProfile()
     {
-        CreateMap<TripUserThing, TripUserThingDto>()
+        CreateMap<TripUserThing, TripThingDto>()
             .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.TripUserPackage != null ? src.TripUserPackage.Name : null))
             .ForMember(dest => dest.PackageLabel, opt => opt.MapFrom(src => src.TripUserPackage != null ? src.TripUserPackage.Label : null));
         

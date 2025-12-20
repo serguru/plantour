@@ -24,23 +24,23 @@ public class TripUserThingService(
         return await _dicTripRepository.DeleteTripUserThingsAsync(tripId, packageIds);
     }
 
-    public async Task<IEnumerable<TripUserThingDto>> GetAllAsync(Guid tripId)
+    public async Task<IEnumerable<TripThingDto>> GetAllAsync(Guid tripId)
     {
         var entities = await _tripUserThingRepository.GetAllAsync(tripId);
-        return _mapper.Map<IEnumerable<TripUserThingDto>>(entities);
+        return _mapper.Map<IEnumerable<TripThingDto>>(entities);
     }
 
-    public async Task<TripUserThingDto?> GetByIdAsync(Guid id)
+    public async Task<TripThingDto?> GetByIdAsync(Guid id)
     {
         var entity = await _tripUserThingRepository.GetByIdAsync(id);
-        return entity != null ? _mapper.Map<TripUserThingDto>(entity) : null;
+        return entity != null ? _mapper.Map<TripThingDto>(entity) : null;
     }
 
-    public async Task<TripUserThingDto> AddAsync(CreateTripUserThingRequest request)
+    public async Task<TripThingDto> AddAsync(CreateTripUserThingRequest request)
     {
         var entity = _mapper.Map<TripUserThing>(request);
         await _tripUserThingRepository.AddAsync(request.TripId, entity);
-        return _mapper.Map<TripUserThingDto>(entity);
+        return _mapper.Map<TripThingDto>(entity);
     }
 
     public async Task<bool> UpdateAsync(UpdateTripUserThingRequest request)

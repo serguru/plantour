@@ -1,7 +1,7 @@
 ﻿
 namespace plantour_server.DTOs;
 
-public class TripUserThingDto
+public class TripThingDto
 {
     public Guid Id { get; set; }
     public Guid TripUserId { get; set; }
@@ -17,4 +17,6 @@ public class TripUserThingDto
     public DateTime? PackedAt { get; set; }
     public Guid? AssignedByUserId { get; set; }
     public TripUserDto? AssignedByUser { get; set; }
+    public bool Verified { get; set; } = false;
+    
 }

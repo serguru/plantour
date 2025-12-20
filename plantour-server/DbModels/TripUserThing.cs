@@ -45,6 +45,9 @@ public partial class TripUserThing
     [Column("assigned_by_user_id")]
     public Guid? AssignedByUserId { get; set; }
 
+    [Column("verified")]
+    public bool Verified { get; set; }
+
     [ForeignKey("AssignedByUserId")]
     [InverseProperty("TripUserThingAssignedByUsers")]
     public virtual TripUser? AssignedByUser { get; set; }
