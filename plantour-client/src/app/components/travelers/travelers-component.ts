@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
 import { SignUpParticipantRequest } from '../../models/auth.models';
 import { CreateTripUserRequest, TripUserDto, TripUserService, UpdateTripUserRequest } from '../../services/trip-user-service';
+import { UpperActionType } from '../../services/enums';
 
 @Component({
   selector: 'app-travelers-component',
@@ -19,6 +20,7 @@ import { CreateTripUserRequest, TripUserDto, TripUserService, UpdateTripUserRequ
 })
 export class TravelersComponent {
   router = inject(Router);
+  public ActionType = UpperActionType;
 
   service: CrudService<AdminsParticipantDto, SignUpParticipantRequest, UpdateAdminsParticipantRequest> = inject(AdminsParticipantService);
 

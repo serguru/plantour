@@ -7,6 +7,7 @@ import { TripPackageDto } from '../../services/trip-package-service';
 import { Select } from "primeng/select";
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { UpperActionType } from '../../services/enums';
 
 @Component({
   selector: 'app-trip-things',
@@ -21,6 +22,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './trip-things-component.scss',
 })
 export class TripThingsComponent implements OnInit {
+  public ActionType = UpperActionType;
 
   tripId: string | null = null;
   route = inject(ActivatedRoute);

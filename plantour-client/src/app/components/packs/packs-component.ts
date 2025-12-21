@@ -4,6 +4,7 @@ import { CreatePackageRequest, UpdatePackageRequest, PackageDto, UserPackageServ
 import { Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
 import { CreateTripPackageRequest, TripPackageDto, TripPackageService, UpdateTripPackageRequest } from '../../services/trip-package-service';
+import { UpperActionType } from '../../services/enums';
 
 @Component({
   selector: 'app-packs',
@@ -14,6 +15,8 @@ import { CreateTripPackageRequest, TripPackageDto, TripPackageService, UpdateTri
   styleUrl: './packs-component.scss',
 })
 export class PacksComponent {
+
+  public ActionType = UpperActionType;
 
   router = inject(Router);
 

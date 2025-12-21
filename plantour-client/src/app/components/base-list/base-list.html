@@ -91,13 +91,14 @@
   >
   </app-list-actions>
 
+    <!-- [dic2tripVisible]="showDic2Trip"
+    [thing2packVisible]="thing2packVisible" -->
   <app-list-box
     [items]="entitiesToDisplay?.list || []"
     [itemTemplate]="itemTemplate"
     (selectedChange)="onSelectedChange($event)"
     (addRemoveFromDic)="onAddRemoveFromDic($event)"
-    [dic2tripVisible]="showDic2Trip"
-    [thing2packVisible]="thing2packVisible"
+    [upperActionType]="upperActionType"
     (packUnpack)="onPackUnpack($event)"
     [packages]="packages"
   ></app-list-box>

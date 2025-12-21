@@ -3,6 +3,8 @@ import { CrudService, FromDicService } from '../../services/crud-service';
 import { TripPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest, TripPackageService } from '../../services/trip-package-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
+import { UpperActionType } from '../../services/enums';
+
 
 @Component({
   selector: 'app-trip-packs',
@@ -14,6 +16,7 @@ import { BaseListComponent } from '../base-list/base-list';
   styleUrl: './trip-packs-component.scss',
 })
 export class TripPacksComponent implements OnInit {
+  public ActionType = UpperActionType;
 
   tripId: string | null = null;
 

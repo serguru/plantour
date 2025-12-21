@@ -19,6 +19,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Button } from 'primeng/button';
 import { TripPackageDto } from '../../services/trip-package-service';
+import { UpperActionType } from '../../services/enums';
 
 
 @Component({
@@ -32,8 +33,16 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     @Input() items: any[] = [];
     @Input() packages: TripPackageDto[] = [];
     @Input() itemTemplate!: TemplateRef<any>;
-    @Input() dic2tripVisible: boolean = false;
-    @Input() thing2packVisible: boolean = false;
+
+    // @Input() dic2tripVisible: boolean = false;
+    // @Input() thing2packVisible: boolean = false;
+    // @Input() thing2participantVisible: boolean = false;
+
+    @Input() upperActionType: UpperActionType = UpperActionType.None;
+
+
+
+    
     @Output() selectedChange = new EventEmitter<any | null>();
     @Output() addRemoveFromDic = new EventEmitter<any | null>();
     @Output() packUnpack = new EventEmitter<any | null>();
@@ -155,16 +164,21 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     }
 
     icon(item: any) {
-        return (this.dic2tripVisible && item.inTripId) || (this.thing2packVisible && item.tripUserPackageId) ? 'pi pi-check' : 'pi pi-plus';
+        return (
+            this.upperActionType == UpperActionType.Dic2Trip && item.inTripId) || 
+            (this.upperActionType == UpperActionType.Thing2Pack && item.tripUserPackageId) ||
+            (this.upperActionType == UpperActionType.Thing2Participant && item.assignedByUserId)             
+            ? 
+            'pi pi-check' : 'pi pi-plus';
     }
 
     onIconClick(item: any, event: MouseEvent) {
         event.stopPropagation();
-        if (this.dic2tripVisible) {
+        if (this.upperActionType == UpperActionType.Dic2Trip) {
             this.addRemoveFromDic.emit(item);
             return;
         }
-        if (this.thing2packVisible) {
+        if (this.upperActionType == UpperActionType.Thing2Pack) {
             this.packUnpack.emit(item);
         }
     }
@@ -176,5 +190,11 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
 
     packageChange(item: any) {
         this.packUnpack.emit({item, alreadyChanged: true});
+    }
+
+    get showRightSection(): boolean {
+        return this.upperActionType == UpperActionType.Thing2Pack || 
+        this.upperActionType == UpperActionType.Thing2Participant || 
+        this.upperActionType == UpperActionType.Dic2Trip;
     }
 }

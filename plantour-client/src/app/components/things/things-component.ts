@@ -5,6 +5,7 @@ import { BaseListComponent } from '../base-list/base-list';
 import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
 import { CreateTripThingRequest, TripThingService, TripThingDto, UpdateTripThingRequest } from '../../services/trip-thing-service';
+import { UpperActionType } from '../../services/enums';
 
 @Component({
   selector: 'app-things-component',
@@ -17,6 +18,7 @@ import { CreateTripThingRequest, TripThingService, TripThingDto, UpdateTripThing
 })
 export class ThingsComponent {
   router = inject(Router);
+  public ActionType = UpperActionType;
 
   service: CrudService<ThingDto, CreateThingRequest, UpdateThingRequest> = inject(ThingService);
   tripDicService: CrudService<TripThingDto, CreateTripThingRequest, UpdateTripThingRequest> = inject(TripThingService);

@@ -3,6 +3,7 @@ import { CrudService, FromDicService } from '../../services/crud-service';
 import { TripUserDto, CreateTripUserRequest, UpdateTripUserRequest, TripUserService } from '../../services/trip-user-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
+import { UpperActionType } from '../../services/enums';
 
 @Component({
   selector: 'app-trip-participants',
@@ -16,6 +17,7 @@ import { BaseListComponent } from '../base-list/base-list';
 export class TripParticipantsComponent implements OnInit {
 
   tripId: string | null = null;
+  public ActionType = UpperActionType;
 
   ngOnInit(): void {
     this.tripId = this.route.snapshot.paramMap.get('tripId');

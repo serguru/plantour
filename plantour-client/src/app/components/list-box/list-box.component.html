@@ -13,10 +13,9 @@
         packageChange: packageChange.bind(this)
         }">
       </ng-container>
-
     </div>
 
-    @if(dic2tripVisible || thing2packVisible) {
+    @if(showRightSection) {
     <div class="right">
       <p-button
         [icon]="icon(item)"

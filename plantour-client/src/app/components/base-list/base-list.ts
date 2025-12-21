@@ -18,6 +18,7 @@ import { MenuItem } from 'primeng/api';
 import { PackingComponent } from '../packing/packing.component';
 import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
 import { TripThingDto } from '../../services/trip-thing-service';
+import { UpperActionType } from '../../services/enums';
 
 export type Comparable = {
   name?: string;
@@ -59,7 +60,16 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   @Input() listActionsConfiguration: any[] = [];
   @Input() addUrl: string | null = null;
   @Input() editUrl: string | null = null;
-  @Input() dic2trip: boolean = false;
+  
+  // @Input() dic2trip: boolean = false;
+  @Input() tripPanelVisible: boolean = false;
+  // @Input() thing2pack: boolean = false;
+
+  @Input() upperActionType: UpperActionType = UpperActionType.None;
+
+
+
+
   @Input() isListReadOnly: boolean = false;
   @Input() entityNameProp: string = 'name';
   @Input() entityName: string = '';
@@ -67,8 +77,6 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   @Input() useTripId: boolean = false;
   @Output() entitySelected = new EventEmitter<any | null>();
   @Input() tripsFor: string | null = null;
-  @Input() tripPanelVisible: boolean = false;
-  @Input() thing2pack: boolean = false;
 
     @Output() registerGetter: EventEmitter<(() => TripPackageDto | null) | null> = new EventEmitter<(() => TripPackageDto | null) | null>();
 
@@ -96,13 +104,14 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     super();
   }
 
+
   get showThing2Pack(): boolean {
-    return this.thing2pack && this.thing2packVisible;
+    return this.upperActionType === UpperActionType.Thing2Pack && this.thing2packVisible;
   }
 
 
   get showDic2Trip(): boolean {
-    return this.dic2trip && this.dic2tripVisible;
+    return this.upperActionType === UpperActionType.Dic2Trip && this.dic2tripVisible;
   }
 
   onShowHideMenu(name: string) {
@@ -137,14 +146,14 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
       return result;
     }
 
-    if (!this.thing2pack && !this.dic2trip) {
+    if (this.upperActionType !== UpperActionType.Thing2Pack && this.upperActionType !== UpperActionType.Dic2Trip) {
       result.list = this.processedEntities;
       result.addedCount = 0;
       result.notAddedCount = 0;
       return result;
     }
 
-    if (this.dic2trip) {
+    if (this.upperActionType === UpperActionType.Dic2Trip) {
       if (!this.processedEntities || !this.tripEntities || this.tripEntities.length === 0) {
         result.list = this.processedEntities;
         result.addedCount = this.processedEntities?.filter(entity => (entity as any).inTripId).length || 0;
@@ -261,14 +270,14 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
 
     const items: MenuItem[] = [];
 
-    if (this.dic2trip) {
+    if (this.upperActionType === UpperActionType.Dic2Trip) {
       items.push({
         label: `${this.dic2tripVisible ? "Hide" : "Show"} trips select`,
         icon: 'pi pi-compass',
         command: () => this.onShowHideMenu('trips')
       });
     }
-    if (this.thing2pack) {
+    if (this.upperActionType === UpperActionType.Thing2Pack) {
       items.push({
         label: `${this.thing2packVisible ? "Hide" : "Show"} packs select`,
         icon: 'pi pi-box',
