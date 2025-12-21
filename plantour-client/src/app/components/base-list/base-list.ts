@@ -18,7 +18,7 @@ import { PackingComponent } from '../packing/packing.component';
 import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
 import { TripThingDto } from '../../services/trip-thing-service';
 import { UpperActionType } from '../../services/enums';
-import { ToolbarService } from '../../services/toolbar-service';
+import { ToolbarButton, ToolbarService } from '../../services/toolbar-service';
 
 export type Comparable = {
   name?: string;
@@ -75,7 +75,8 @@ export class BaseListComponent<T> implements OnInit {
   @Input() isListReadOnly: boolean = false;
   @Input() entityNameProp: string = 'name';
   @Input() entityName: string = '';
-  @Input() toolBarButtons: any[] | null = null;
+  @Input() toolBarButtons: ToolbarButton[] | null = null;
+  @Input() toolBarMenus: MenuItem[] | null = null;
   @Input() useTripId: boolean = false;
   @Output() entitySelected = new EventEmitter<any | null>();
   @Input() tripsFor: string | null = null;
@@ -297,6 +298,7 @@ export class BaseListComponent<T> implements OnInit {
     const selectId = this.route.snapshot.queryParamMap.get('selectId') || null;
     this.getAll(selectId);
     this.setupToolbarButtons();
+    this.setupToolbarMenus();
     this.restoreState();
   }
 
@@ -305,6 +307,14 @@ export class BaseListComponent<T> implements OnInit {
 
     this.toolbarService.setCurrentButtons(
       this.toolBarButtons
+    );
+  }
+
+  private setupToolbarMenus(): void {
+    if (!this.toolBarMenus) return;
+
+    this.toolbarService.setCurrentMenus(
+      this.toolBarMenus
     );
   }
 

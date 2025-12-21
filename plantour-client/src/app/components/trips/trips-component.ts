@@ -24,7 +24,8 @@ export class TripsComponent {
 
   onTripSelected = (trip: TripDto | null) => {
     this.selected = trip;
-    this.toolBarButtons.forEach((x, i)  => {if(i == 0) return; x.disabled = !this.selected});
+    //this.toolBarButtons.forEach((x, i)  => {if(i == 0) return; (x as any).disabled = !this.selected});
+    this.toolBarMenus.forEach(x  => x.disabled = !this.selected);
   };
 
   configuration: any[] = [
@@ -56,26 +57,46 @@ export class TripsComponent {
       icon: 'pi pi-chevron-left',
       tooltip: 'Back',
       command: () => this.router.navigate([""])
-    },{
-      id: 'trip-participants-button',
+    }
+    // ,{
+    //   id: 'trip-participants-button',
+    //   icon: 'pi pi-user',
+    //   tooltip: 'Trip participants',
+    //   disabled: true,
+    //   command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-participants`])
+    // },{
+    //   id: 'trip-packs-button',
+    //   icon: 'pi pi-box',
+    //   tooltip: 'Trip packs',
+    //   disabled: true,
+    //   command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-packs`])
+    // },{
+    //   id: 'trip-things-button',
+    //   icon: 'pi pi-objects-column',
+    //   tooltip: 'Trip things',
+    //   disabled: true,
+    //   command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-things`])
+    // }
+  ]
+
+  toolBarMenus = [
+    {
+      label: "Participants",
       icon: 'pi pi-user',
-      tooltip: 'Trip participants',
       disabled: true,
       command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-participants`])
     },{
-      id: 'trip-packs-button',
+      label: "Packs",
       icon: 'pi pi-box',
-      tooltip: 'Trip packs',
       disabled: true,
       command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-packs`])
     },{
-      id: 'trip-things-button',
+      label: 'Things',
       icon: 'pi pi-objects-column',
-      tooltip: 'Trip things',
       disabled: true,
       command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-things`])
     }
-  ]
+  ];
 
   onStatusClick(item: TripDto, $event: Event) {
     $event.stopPropagation();
