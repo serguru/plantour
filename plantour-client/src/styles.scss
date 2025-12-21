@@ -219,12 +219,13 @@ html {
     //    color: red !important;
   }
 
-  .ellipsis-text {
+}
+
+.ellipsis-text {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-}
 
 .error-alert {
   background: var(--red-50, #ffe6e6);
@@ -334,13 +335,31 @@ p-panel.list-actions-panel {
   color: inherit !important;
 }
 
-// .p-select {
-//   height: 2.5rem;
-// }
-
-
-
 .checkbox-container {
   display: flex;
   gap: 0.5rem;
 }
+
+
+/* Do not remove! 
+   These are necessary to prevent p-menubar switching to mobile mode
+
+.p-menubar.p-menubar-mobile .p-menubar-root-list {
+  display: flex !important;
+  position: static !important;
+}
+
+.p-menubar {
+  background: transparent !important;
+  border: none !important;
+}
+
+.p-menubar-mobile .p-menubar-submenu {
+  position: absolute !important;
+}
+*/
+
+.toolbar .p-button-icon {
+    font-size: 1.5rem !important;
+    color: white;
+  }
