@@ -123,6 +123,7 @@ create table user_things (
     name varchar(200) not null,
     units varchar(50),
     value decimal(10,3) check(value > 0),
+    common boolean not null default false,
     notes text
 );
 create unique index idx_user_things_user_id_name on user_things(user_id, name);
@@ -254,10 +255,18 @@ create table trip_user_things (
     notes text,
     trip_user_package_id uuid references trip_user_packages(id) on delete set null,
     packed_at timestamptz,
-    assigned_by_user_id uuid null references trip_users(id) on delete set null,
-    verified boolean not null default false
+    assigned_id uuid null references trip_users(id) on delete set null,
+    assigned_at timestamptz null,
+    assigned_deadline timestamptz null,
+    finished text null check (finished in ('success', 'failure') or finished is null),
+    constraint ch_trip_user_things_at_before_deadline check (
+        assigned_at is null 
+        or assigned_deadline is null 
+        or assigned_at <= assigned_deadline
+    )
 );
 create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
+
 
 
 create or replace function plantour.get_trip_user_id(

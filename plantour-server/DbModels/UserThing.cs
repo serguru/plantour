@@ -33,6 +33,9 @@ public partial class UserThing
     [Precision(10, 3)]
     public decimal? Value { get; set; }
 
+    [Column("common")]
+    public bool Common { get; set; }
+
     [Column("notes")]
     public string? Notes { get; set; }
 

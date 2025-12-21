@@ -42,15 +42,21 @@ public partial class TripUserThing
     [Column("packed_at")]
     public DateTime? PackedAt { get; set; }
 
-    [Column("assigned_by_user_id")]
-    public Guid? AssignedByUserId { get; set; }
+    [Column("assigned_id")]
+    public Guid? AssignedId { get; set; }
 
-    [Column("verified")]
-    public bool Verified { get; set; }
+    [Column("assigned_at")]
+    public DateTime? AssignedAt { get; set; }
 
-    [ForeignKey("AssignedByUserId")]
-    [InverseProperty("TripUserThingAssignedByUsers")]
-    public virtual TripUser? AssignedByUser { get; set; }
+    [Column("assigned_deadline")]
+    public DateTime? AssignedDeadline { get; set; }
+
+    [Column("finished")]
+    public string? Finished { get; set; }
+
+    [ForeignKey("AssignedId")]
+    [InverseProperty("TripUserThingAssigneds")]
+    public virtual TripUser? Assigned { get; set; }
 
     [ForeignKey("TripUserId")]
     [InverseProperty("TripUserThingTripUsers")]

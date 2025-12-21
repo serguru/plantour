@@ -13,10 +13,12 @@ public class TripThingDto
     public Guid? TripUserPackageId { get; set; }
     public string? PackageName { get; set; }
     public string? PackageLabel { get; set; }
-    public string? PackingStatus { get; set; }
     public DateTime? PackedAt { get; set; }
     public Guid? AssignedByUserId { get; set; }
-    public TripUserDto? AssignedByUser { get; set; }
-    public bool Verified { get; set; } = false;
+    public TripUserDto? Assigned { get; set; }
+    public DateTime? AssignedAt { get; set; }
+    public DateTime? AssignedDeadline { get; set; }
+    public string? Finished { get; set; }
+    public bool Common { get; set; }
     
 }

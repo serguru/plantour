@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from './crud-service';
+import { TripUserDto } from './trip-user-service';
 
 export interface TripThingDto {
   id: string;
@@ -16,7 +17,14 @@ export interface TripThingDto {
   packageName?: string | null;
   packageLabel?: string | null;
   packedAt?: string | null;
+  assignedByUserId: string | null;
+  assigned: TripUserDto | null;
+  assignedAt: string | null;
+  assignedDeadline: string | null;
+  finished: string | null;
+  common: boolean;
 }
+
 
 export interface CreateTripThingRequest {
   tripId: string;
@@ -27,11 +35,12 @@ export interface CreateTripThingRequest {
   value?: number | null;
   tripUserPackageId?: string | null;
   packedAt?: string | null;
+  finished: string | null;
+  common: boolean;
 }
 
 export interface UpdateTripThingRequest {
   id: string;
-  //tripId: string;
   category?: string | null;
   name: string;
   notes?: string | null;
@@ -39,6 +48,8 @@ export interface UpdateTripThingRequest {
   value?: number | null;
   tripUserPackageId?: string | null;
   packedAt?: string | null;
+  finished: string | null;
+  common: boolean;
 }
 
 @Injectable({
@@ -51,7 +62,7 @@ export class TripThingService implements CrudService<TripThingDto, CreateTripThi
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-   
+
     this.apiUrl = `${environment.apiUrl}/api/TripUserThing`;
   }
 
@@ -91,5 +102,5 @@ export class TripThingService implements CrudService<TripThingDto, CreateTripThi
   unpack(data: MultipleIdsRequest): Observable<number> {
     return this.http.put<number>(`${this.apiUrl}/unpack-trip-things`, data);
   }
-  
+
 }
