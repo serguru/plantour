@@ -21,23 +21,23 @@ public class UserThingService : IUserThingService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<UserThingDto>> GetAllAsync()
+    public async Task<IEnumerable<ThingDto>> GetAllAsync()
     {
         var entities = await _userThingRepository.GetAllAsync();
-        return _mapper.Map<IEnumerable<UserThingDto>>(entities);
+        return _mapper.Map<IEnumerable<ThingDto>>(entities);
     }
 
-    public async Task<UserThingDto?> GetByIdAsync(Guid id)
+    public async Task<ThingDto?> GetByIdAsync(Guid id)
     {
         var entity = await _userThingRepository.GetByIdAsync(id);
-        return entity != null ? _mapper.Map<UserThingDto>(entity) : null;
+        return entity != null ? _mapper.Map<ThingDto>(entity) : null;
     }
 
-    public async Task<UserThingDto> AddAsync(CreateThingRequest request)
+    public async Task<ThingDto> AddAsync(CreateThingRequest request)
     {
         var entity = _mapper.Map<UserThing>(request);
         await _userThingRepository.AddAsync(entity);
-        return _mapper.Map<UserThingDto>(entity);
+        return _mapper.Map<ThingDto>(entity);
     }
 
     public async Task<bool> UpdateAsync(UpdateThingRequest request)

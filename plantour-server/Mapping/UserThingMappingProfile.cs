@@ -8,7 +8,7 @@ public class UserThingMappingProfile : Profile
 {
     public UserThingMappingProfile()
     {
-        CreateMap<UserThing, UserThingDto>();
+        CreateMap<UserThing, ThingDto>();
         
         CreateMap<CreateThingRequest, UserThing>();
         

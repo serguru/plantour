@@ -93,14 +93,26 @@
       </div>
 
       @if(useService.isAdmin) {
-        <div class="form-field">
-          <label for="common">Common use</label>
+      <div class="form-field">
+        <!-- <label for="common">Common use</label>
           <input
             id="common"
             type="checkbox"
             formControlName="common"
-          />
+          /> -->
+
+
+        <div class="checkbox-container">
+          <p-checkbox
+            formControlName="common"
+            [binary]="true"
+            inputId="common"
+          >
+          </p-checkbox>
+          <label for="common">Common use</label>
         </div>
+
+      </div>
       }
     </form>
   </div>

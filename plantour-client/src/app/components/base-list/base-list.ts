@@ -125,31 +125,6 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     }
   }
 
-  get menuItems(): MenuItem[] {
-    const items: MenuItem[] = [];
-
-    if (this.dic2trip) {
-      items.push({
-        label: `${this.dic2tripVisible ? "Hide" : "Show"} trips select`,
-        icon: 'pi pi-compass',
-        command: () => this.onShowHideMenu('trips')
-      });
-    }
-    if (this.thing2pack) {
-      items.push({
-        label: `${this.thing2packVisible ? "Hide" : "Show"} packs select`,
-        icon: 'pi pi-box',
-        command: () => this.onShowHideMenu('packs')
-      });
-    }
-    items.push({
-      label: `${this.listToolsVisible ? "Hide" : "Show"} list tools`,
-      icon: 'pi pi-filter',
-      command: () => this.onShowHideMenu('tools')
-    });
-
-    return items;
-  }
 
 
   get entitiesToDisplay(): any | null {
@@ -279,9 +254,35 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     const listToolsState = localStorage.getItem(`base-list-tools`);
     this.listToolsVisible = listToolsState === '1';
   }
-
+  
+  menuItems: MenuItem[]  = [];
 
   ngOnInit() {
+
+    const items: MenuItem[] = [];
+
+    if (this.dic2trip) {
+      items.push({
+        label: `${this.dic2tripVisible ? "Hide" : "Show"} trips select`,
+        icon: 'pi pi-compass',
+        command: () => this.onShowHideMenu('trips')
+      });
+    }
+    if (this.thing2pack) {
+      items.push({
+        label: `${this.thing2packVisible ? "Hide" : "Show"} packs select`,
+        icon: 'pi pi-box',
+        command: () => this.onShowHideMenu('packs')
+      });
+    }
+    items.push({
+      label: `${this.listToolsVisible ? "Hide" : "Show"} list tools`,
+      icon: 'pi pi-filter',
+      command: () => this.onShowHideMenu('tools')
+    });
+
+    this.menuItems = items;
+
     if (this.useTripId) {
       this.tripId = this.route.snapshot.paramMap.get('tripId');
     }

@@ -1,6 +1,6 @@
 namespace plantour_server.DTOs;
 
-public class UserThingDto
+public class ThingDto
 {
     public Guid Id { get; set; }
 
@@ -12,5 +12,6 @@ public class UserThingDto
     public decimal? Value { get; set; }
 
     public string? Notes { get; set; }
+    public bool Common { get; set; }
 
 }

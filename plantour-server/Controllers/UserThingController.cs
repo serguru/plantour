@@ -20,7 +20,7 @@ public class UserThingController : ControllerBase
 
     [HttpGet]
     [AdminOrParticipant]
-    public async Task<ActionResult<IEnumerable<UserThingDto>>> GetAll()
+    public async Task<ActionResult<IEnumerable<ThingDto>>> GetAll()
     {
         try
         {
@@ -35,7 +35,7 @@ public class UserThingController : ControllerBase
 
     [HttpGet("{id}")]
     [AdminOrParticipant]
-    public async Task<ActionResult<UserThingDto>> GetById(Guid id)
+    public async Task<ActionResult<ThingDto>> GetById(Guid id)
     {
         try
         {
@@ -55,7 +55,7 @@ public class UserThingController : ControllerBase
 
     [HttpPost]
     [AdminOrParticipant]
-    public async Task<ActionResult<UserThingDto>> Add([FromBody] CreateThingRequest request)
+    public async Task<ActionResult<ThingDto>> Add([FromBody] CreateThingRequest request)
     {
         try
         {

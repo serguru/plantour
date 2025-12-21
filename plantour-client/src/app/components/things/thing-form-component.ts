@@ -8,6 +8,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
 import { AsyncPipe } from '@angular/common';
 import { UsersService } from '../../services/users-service';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-thing-form-component',
@@ -17,7 +18,8 @@ import { UsersService } from '../../services/users-service';
     ReactiveFormsModule,
     TextareaModule,
     Select,
-    AsyncPipe
+    AsyncPipe,
+    CheckboxModule
   ],
   templateUrl: './thing-form-component.html'
 })
@@ -36,7 +38,7 @@ export class ThingFormComponent implements OnInit {
     notes: new FormControl(''),
     units: new FormControl(''),
     value: new FormControl(''),
-    common: new FormControl(false)
+    common: new FormControl<boolean>(false)
   };
 
   ngOnInit(): void {
