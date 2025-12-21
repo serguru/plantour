@@ -8,7 +8,7 @@ import { ListActionsComponent } from '../list-actions/list-actions.component';
 import { MessagesService } from '../../services/messages-service';
 import { ButtonModule } from 'primeng/button';
 import { ListBoxComponent } from '../list-box/list-box.component';
-import { ToolbarAware } from '../toolbar-aware';
+import { ToolbarAware } from '../toolbar/toolbar-aware';
 import { DicTripComponent } from '../dic-trip/dic-trip.component';
 import { TripDto, TripService } from '../../services/trip-service';
 import { finalize } from 'rxjs';
@@ -133,8 +133,6 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
         break;
     }
   }
-
-
 
   get entitiesToDisplay(): any | null {
     const result: any = {};

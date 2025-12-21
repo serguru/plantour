@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessagesService } from '../../services/messages-service';
 import { Router } from '@angular/router';
 import { LookupService } from '../../services/lookup-service';
-import { ToolbarAware } from '../toolbar-aware';
+import { ToolbarAware } from '../toolbar/toolbar-aware';
 import deepEqual from 'fast-deep-equal';
 
 export type BaseFormMode = 'add' | 'edit';

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { ToolbarAware } from '../toolbar-aware';
+import { ToolbarAware } from '../toolbar/toolbar-aware';
 import { UsersService } from '../../services/users-service';
 
 @Component({

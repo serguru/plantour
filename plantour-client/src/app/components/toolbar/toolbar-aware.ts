@@ -1,5 +1,5 @@
 import { Directive, OnDestroy, inject } from '@angular/core';
-import { ToolbarButton, ToolbarService } from '../services/toolbar-service';
+import { ToolbarButton, ToolbarService } from '../../services/toolbar-service';
 
 @Directive()
 export abstract class ToolbarAware implements OnDestroy {

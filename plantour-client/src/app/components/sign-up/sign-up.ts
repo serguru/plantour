@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
-import { ToolbarAware } from '../toolbar-aware';
+import { ToolbarAware } from '../toolbar/toolbar-aware';
 import { ContentLayoutComponent } from '../layouts/content-layout.component';
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
