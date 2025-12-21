@@ -12,29 +12,32 @@ export interface ThingDto {
   notes?: string | null;
   units?: string | null;
   value?: string | null;
+  common: boolean;
 }
 
-export interface CreateUserThingRequest {
+export interface CreateThingRequest {
   category?: string | null;
   name: string;
   notes?: string | null;
   units?: string | null;
   value?: string | null;
+  common: boolean;
 }
 
-export interface UpdateUserThingRequest {
+export interface UpdateThingRequest {
   id: string;
   category?: string | null;
   name: string;
   notes?: string | null;
   units?: string | null;
   value?: string | null;
+  common: boolean;
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class UserThingService implements CrudService<ThingDto, CreateUserThingRequest, UpdateUserThingRequest> {
+export class ThingService implements CrudService<ThingDto, CreateThingRequest, UpdateThingRequest> {
   private apiUrl: string;
 
   constructor(
@@ -53,11 +56,11 @@ export class UserThingService implements CrudService<ThingDto, CreateUserThingRe
     return this.http.get<ThingDto>(`${this.apiUrl}/${id}`);
   }
 
-  add(request: CreateUserThingRequest): Observable<ThingDto> {
+  add(request: CreateThingRequest): Observable<ThingDto> {
     return this.http.post<ThingDto>(this.apiUrl, request);
   }
 
-  update(request: UpdateUserThingRequest): Observable<void> {
+  update(request: UpdateThingRequest): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}`, request);
   }
 

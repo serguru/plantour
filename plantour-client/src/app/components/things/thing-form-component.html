@@ -42,27 +42,17 @@
 
       <div class="form-field">
         <label for="category">Category</label>
-        <!-- <input
-          pInputText
+        <p-select
           id="category"
-          type="text"
           formControlName="category"
-          placeholder="Enter category (optional)"
-        /> -->
-
-          <p-select
-            id="category"
-            formControlName="category"
-            [options]="thingCategories | async"
-            optionLabel="name"
-            optionValue="name"
-            placeholder="Select category"
-            [showClear]="true"
-            styleClass="w-full"
-            [editable]="true"
-          ></p-select>
-
-
+          [options]="thingCategories | async"
+          optionLabel="name"
+          optionValue="name"
+          placeholder="Select category"
+          [showClear]="true"
+          styleClass="w-full"
+          [editable]="true"
+        ></p-select>
       </div>
 
       <div class="form-field">
@@ -78,28 +68,17 @@
 
       <div class="form-field">
         <label for="units">Units</label>
-        <!-- <input
-          pInputText
+        <p-select
           id="units"
-          type="text"
           formControlName="units"
-          placeholder="Enter units (optional)"
-        /> -->
-
-          <p-select
-            id="units"
-            formControlName="units"
-            [options]="units | async"
-            optionLabel="name"
-            optionValue="name"
-            placeholder="Select unit"
-            [showClear]="true"
-            styleClass="w-full"
-            [editable]="true"
-          ></p-select>
-
-
-
+          [options]="units | async"
+          optionLabel="name"
+          optionValue="name"
+          placeholder="Select unit"
+          [showClear]="true"
+          styleClass="w-full"
+          [editable]="true"
+        ></p-select>
       </div>
 
       <div class="form-field">
@@ -112,6 +91,17 @@
           placeholder="Enter notes (optional)"
         ></textarea>
       </div>
+
+      @if(useService.isAdmin) {
+        <div class="form-field">
+          <label for="common">Common use</label>
+          <input
+            id="common"
+            type="checkbox"
+            formControlName="common"
+          />
+        </div>
+      }
     </form>
   </div>
 </ng-template>

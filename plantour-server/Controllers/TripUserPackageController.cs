@@ -99,7 +99,7 @@ public class TripUserPackageController : ControllerBase
 
     [HttpPut]
     [AdminOrParticipant]
-    public async Task<ActionResult> Update([FromBody] UpdateTripUserPackageRequest request)
+    public async Task<ActionResult> Update([FromBody] UpdateTripPackageRequest request)
     {
         try
         {

@@ -10,8 +10,8 @@ public class UserThingMappingProfile : Profile
     {
         CreateMap<UserThing, UserThingDto>();
         
-        CreateMap<CreateUserThingRequest, UserThing>();
+        CreateMap<CreateThingRequest, UserThing>();
         
-        CreateMap<UpdateUserThingRequest, UserThing>();
+        CreateMap<UpdateThingRequest, UserThing>();
     }
 }

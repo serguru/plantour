@@ -15,7 +15,7 @@ public class TripUserPackageMappingProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.TripUser, opt => opt.Ignore());
         
-        CreateMap<UpdateTripUserPackageRequest, TripUserPackage>()
+        CreateMap<UpdateTripPackageRequest, TripUserPackage>()
             .ForMember(dest => dest.TripUserId, opt => opt.Ignore())
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.TripUserId, opt => opt.Ignore())

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CrudService, FromDicService } from '../../services/crud-service';
-import { CreateUserThingRequest, UpdateUserThingRequest, ThingDto, UserThingService } from '../../services/thing-service';
+import { CreateThingRequest, UpdateThingRequest, ThingDto, ThingService } from '../../services/thing-service';
 import { BaseListComponent } from '../base-list/base-list';
 import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
@@ -18,7 +18,7 @@ import { CreateTripThingRequest, TripThingService, TripThingDto, UpdateTripThing
 export class ThingsComponent {
   router = inject(Router);
 
-  service: CrudService<ThingDto, CreateUserThingRequest, UpdateUserThingRequest> = inject(UserThingService);
+  service: CrudService<ThingDto, CreateThingRequest, UpdateThingRequest> = inject(ThingService);
   tripDicService: CrudService<TripThingDto, CreateTripThingRequest, UpdateTripThingRequest> = inject(TripThingService);
   fromDicService: FromDicService = inject(TripThingService);
 

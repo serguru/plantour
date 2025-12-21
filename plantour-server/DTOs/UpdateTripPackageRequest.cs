@@ -1,6 +1,6 @@
 namespace plantour_server.DTOs;
 
-public class UpdateTripUserPackageRequest
+public class UpdateTripPackageRequest
 {
     public Guid Id { get; set; }
     public Guid? ParentPackageId { get; set; }

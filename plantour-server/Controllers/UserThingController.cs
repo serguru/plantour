@@ -55,7 +55,7 @@ public class UserThingController : ControllerBase
 
     [HttpPost]
     [AdminOrParticipant]
-    public async Task<ActionResult<UserThingDto>> Add([FromBody] CreateUserThingRequest request)
+    public async Task<ActionResult<UserThingDto>> Add([FromBody] CreateThingRequest request)
     {
         try
         {
@@ -70,7 +70,7 @@ public class UserThingController : ControllerBase
 
     [HttpPut]
     [AdminOrParticipant]
-    public async Task<ActionResult> Update([FromBody] UpdateUserThingRequest request)
+    public async Task<ActionResult> Update([FromBody] UpdateThingRequest request)
     {
         try
         {

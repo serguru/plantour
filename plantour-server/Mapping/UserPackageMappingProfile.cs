@@ -10,11 +10,11 @@ public class UserPackageMappingProfile : Profile
     {
         CreateMap<UserPackage, UserPackageDto>();
         
-        CreateMap<CreateUserPackageRequest, UserPackage>()
+        CreateMap<CreatePackageRequest, UserPackage>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.User, opt => opt.Ignore());
         
-        CreateMap<UpdateUserPackageRequest, UserPackage>()
+        CreateMap<UpdatePackageRequest, UserPackage>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.UserId, opt => opt.Ignore())
             .ForMember(dest => dest.User, opt => opt.Ignore());

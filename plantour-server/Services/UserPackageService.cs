@@ -30,14 +30,14 @@ public class UserPackageService : IUserPackageService
         return entity != null ? _mapper.Map<UserPackageDto>(entity) : null;
     }
 
-    public async Task<UserPackageDto> AddAsync(CreateUserPackageRequest request)
+    public async Task<UserPackageDto> AddAsync(CreatePackageRequest request)
     {
         var entity = _mapper.Map<UserPackage>(request);
         await _userPackageRepository.AddAsync(entity);
         return _mapper.Map<UserPackageDto>(entity);
     }
 
-    public async Task<bool> UpdateAsync(UpdateUserPackageRequest request)
+    public async Task<bool> UpdateAsync(UpdatePackageRequest request)
     {
         var entity = await _userPackageRepository.GetByIdAsync(request.Id);
         if (entity == null)

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { UserThingService } from '../../services/thing-service';
+import { ThingService } from '../../services/thing-service';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BaseFormComponent, BaseFormMode } from '../base-form/base-form-component';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
 import { AsyncPipe } from '@angular/common';
+import { UsersService } from '../../services/users-service';
 
 @Component({
   selector: 'app-thing-form-component',
@@ -26,13 +27,16 @@ export class ThingFormComponent implements OnInit {
   public mode!: BaseFormMode;
   public id: string | null = null;
 
-  service = inject(UserThingService);
+  service = inject(ThingService);
+  useService = inject(UsersService); 
+
   fieldsConfig = {
     name: new FormControl('', Validators.required),
     category: new FormControl(''),
     notes: new FormControl(''),
     units: new FormControl(''),
     value: new FormControl(''),
+    common: new FormControl(false)
   };
 
   ngOnInit(): void {

@@ -44,7 +44,7 @@ public class TripUserPackageService(
         return _mapper.Map<TripUserPackageDto>(entity);
     }
 
-    public async Task<bool> UpdateAsync(UpdateTripUserPackageRequest request)
+    public async Task<bool> UpdateAsync(UpdateTripPackageRequest request)
     {
         var entity = await _tripUserPackageRepository.GetByIdAsync(request.Id);
         if (entity == null)

@@ -2,10 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace plantour_server.DTOs;
 
-public class UpdateUserThingRequest
+public class CreateThingRequest
 {
-    public Guid Id { get; set; }
-
     public string? Category { get; set; }
 
     public string Name { get; set; } = null!;
@@ -15,6 +13,6 @@ public class UpdateUserThingRequest
 
     public string? Notes { get; set; }
 
-
+    public bool Common { get; set; }
 
 }

@@ -33,14 +33,14 @@ public class UserThingService : IUserThingService
         return entity != null ? _mapper.Map<UserThingDto>(entity) : null;
     }
 
-    public async Task<UserThingDto> AddAsync(CreateUserThingRequest request)
+    public async Task<UserThingDto> AddAsync(CreateThingRequest request)
     {
         var entity = _mapper.Map<UserThing>(request);
         await _userThingRepository.AddAsync(entity);
         return _mapper.Map<UserThingDto>(entity);
     }
 
-    public async Task<bool> UpdateAsync(UpdateUserThingRequest request)
+    public async Task<bool> UpdateAsync(UpdateThingRequest request)
     {
         var entity = await _userThingRepository.GetByIdAsync(request.Id);
         if (entity == null)

@@ -6,8 +6,8 @@ public interface IUserThingService
 {
     Task<IEnumerable<UserThingDto>> GetAllAsync();
     Task<UserThingDto?> GetByIdAsync(Guid id);
-    Task<UserThingDto> AddAsync(CreateUserThingRequest request);
-    Task<bool> UpdateAsync(UpdateUserThingRequest request);
+    Task<UserThingDto> AddAsync(CreateThingRequest request);
+    Task<bool> UpdateAsync(UpdateThingRequest request);
     Task<bool> DeleteAsync(Guid id);
     Task<IEnumerable<ThingCategoryDto>> GetAllThingCategoriesAsync();
 }

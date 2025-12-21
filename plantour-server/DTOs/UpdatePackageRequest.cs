@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace plantour_server.DTOs;
 
-public class UpdateUserPackageRequest
+public class UpdatePackageRequest
 {
     public Guid Id { get; set; }
     

@@ -53,7 +53,7 @@ public class UserPackageController : ControllerBase
 
     [HttpPost]
     [AdminOrParticipant]
-    public async Task<ActionResult<UserPackageDto>> Add([FromBody] CreateUserPackageRequest request)
+    public async Task<ActionResult<UserPackageDto>> Add([FromBody] CreatePackageRequest request)
     {
         try
         {
@@ -68,7 +68,7 @@ public class UserPackageController : ControllerBase
 
     [HttpPut]
     [AdminOrParticipant]
-    public async Task<ActionResult> Update([FromBody] UpdateUserPackageRequest request)
+    public async Task<ActionResult> Update([FromBody] UpdatePackageRequest request)
     {
         try
         {
