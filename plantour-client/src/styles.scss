@@ -190,8 +190,6 @@ html {
   }
 
   .header-left {
-    // display: flex;
-    // align-items: center;
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 0.75rem;

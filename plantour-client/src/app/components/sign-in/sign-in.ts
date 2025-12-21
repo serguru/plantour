@@ -7,10 +7,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
-import { ToolbarAware } from '../toolbar/toolbar-aware';
 import { ContentLayoutComponent } from '../layouts/content-layout.component';
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
+import { ToolbarService } from '../../services/toolbar-service';
 
 @Component({
   selector: 'app-sign-in',
@@ -26,7 +26,7 @@ import { MessagesService } from '../../services/messages-service';
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.scss',
 })
-export class SignInComponent extends ToolbarAware {
+export class SignInComponent {
   signInForm: FormGroup;
   isLoading = false;
   errorMessage = '';
@@ -36,9 +36,9 @@ export class SignInComponent extends ToolbarAware {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private location = inject(Location);
+  toolbarService = inject(ToolbarService);
 
   constructor() {
-    super();
     this.signInForm = this.fb.group({
       email: ['serguru@gmail.com', [Validators.required, Validators.email]],
       password: ['Binary_09', [Validators.required]]

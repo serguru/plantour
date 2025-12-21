@@ -159,3 +159,5 @@ I need a solution to apply different templates inside p-listbox depending on T. 
 
 
 
+Есть Angular приложение. Есть тулбар. Есть router-outlet, в котором сменяются компоненты. Как мне из тулбара реагировать на появление и уход компонента и получать данные из компонента на момент появления в router-outlet?
+

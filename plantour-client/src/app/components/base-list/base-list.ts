@@ -8,7 +8,6 @@ import { ListActionsComponent } from '../list-actions/list-actions.component';
 import { MessagesService } from '../../services/messages-service';
 import { ButtonModule } from 'primeng/button';
 import { ListBoxComponent } from '../list-box/list-box.component';
-import { ToolbarAware } from '../toolbar/toolbar-aware';
 import { DicTripComponent } from '../dic-trip/dic-trip.component';
 import { TripDto, TripService } from '../../services/trip-service';
 import { finalize } from 'rxjs';
@@ -19,6 +18,7 @@ import { PackingComponent } from '../packing/packing.component';
 import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
 import { TripThingDto } from '../../services/trip-thing-service';
 import { UpperActionType } from '../../services/enums';
+import { ToolbarService } from '../../services/toolbar-service';
 
 export type Comparable = {
   name?: string;
@@ -43,12 +43,14 @@ export type Comparable = {
   templateUrl: './base-list.html',
   styleUrl: './base-list.scss'
 })
-export class BaseListComponent<T> extends ToolbarAware implements OnInit {
+export class BaseListComponent<T> implements OnInit {
 
   @ViewChild('listboxPlantour', { read: ElementRef }) listboxRef!: ElementRef;
 
   private messagesService = inject(MessagesService);
   private tripPackageService = inject(TripPackageService);
+  toolbarService = inject(ToolbarService);
+
 
   @Input() service!: CrudService<any, any, any>;
   @Input() tripDicService: CrudService<T, any, any> | null = null;
@@ -101,7 +103,6 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
     protected router: Router,
     protected route: ActivatedRoute
   ) {
-    super();
   }
 
 
@@ -302,7 +303,7 @@ export class BaseListComponent<T> extends ToolbarAware implements OnInit {
   private setupToolbarButtons(): void {
     if (!this.toolBarButtons) return;
 
-    this.setToolbarButtons(
+    this.toolbarService.setCurrentButtons(
       this.toolBarButtons
     );
   }

@@ -8,8 +8,8 @@ import { ButtonModule } from 'primeng/button';
 import { MessagesService } from '../../services/messages-service';
 import { Router } from '@angular/router';
 import { LookupService } from '../../services/lookup-service';
-import { ToolbarAware } from '../toolbar/toolbar-aware';
 import deepEqual from 'fast-deep-equal';
+import { ToolbarService } from '../../services/toolbar-service';
 
 export type BaseFormMode = 'add' | 'edit';
 
@@ -25,15 +25,16 @@ export type BaseFormMode = 'add' | 'edit';
   templateUrl: './base-form-component.html',
   styleUrl: './base-form-component.scss',
 })
-export class BaseFormComponent<T, TA, TU> extends ToolbarAware implements OnInit {
+export class BaseFormComponent<T, TA, TU> implements OnInit {
 
   constructor() {
-    super();
   }
 
   private initialValue!: any;
 
   messagesService = inject(MessagesService);
+
+  toolbarService = inject(ToolbarService);
 
   router = inject(Router);
 
@@ -66,7 +67,7 @@ export class BaseFormComponent<T, TA, TU> extends ToolbarAware implements OnInit
   private setupToolbarButtons(): void {
     if (!this.toolBarButtons) return;
 
-    this.setToolbarButtons(
+    this.toolbarService.setCurrentButtons(
       this.toolBarButtons
     );
   }

@@ -24,7 +24,7 @@ export class TripsComponent {
 
   onTripSelected = (trip: TripDto | null) => {
     this.selected = trip;
-    this.toolBarButtons.forEach(x => x.disabled = !this.selected);
+    this.toolBarButtons.forEach((x, i)  => {if(i == 0) return; x.disabled = !this.selected});
   };
 
   configuration: any[] = [
@@ -79,6 +79,5 @@ export class TripsComponent {
 
   onStatusClick(item: TripDto, $event: Event) {
     $event.stopPropagation();
-    console.log('Status: ' + item.tripStatus);
   }
 }

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { ToolbarAware } from '../toolbar/toolbar-aware';
 import { UsersService } from '../../services/users-service';
 
 @Component({
@@ -13,7 +12,7 @@ import { UsersService } from '../../services/users-service';
   templateUrl: './landing-registered-user.component.html',
   styleUrl: './landing-registered-user.component.scss'
 })
-export class LandingRegisteredUserComponent extends ToolbarAware {
+export class LandingRegisteredUserComponent {
 
   // Stub data for user statistics
   userData = {
@@ -29,7 +28,6 @@ export class LandingRegisteredUserComponent extends ToolbarAware {
   };
 
   constructor(private router: Router) {
-    super();
   }
 
   usersService = inject(UsersService);

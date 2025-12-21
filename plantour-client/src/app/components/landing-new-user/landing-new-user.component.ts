@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { ToolbarAware } from '../toolbar/toolbar-aware';
 
 @Component({
   selector: 'app-landing-new-user',
@@ -12,7 +11,7 @@ import { ToolbarAware } from '../toolbar/toolbar-aware';
   templateUrl: './landing-new-user.component.html',
   styleUrl: './landing-new-user.component.scss'
 })
-export class LandingNewUserComponent extends ToolbarAware {
+export class LandingNewUserComponent {
   
   features = [
     {
@@ -48,8 +47,8 @@ export class LandingNewUserComponent extends ToolbarAware {
   ];
 
   constructor(private router: Router) {
-    super();
   }
+
 
   onSignUp(): void {
     this.router.navigate(['sign-up']);
