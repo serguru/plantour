@@ -6,12 +6,12 @@ using plantour_server.Repositories;
 namespace plantour_server.Services;
 
 public class TripUserThingService(
-    TripUserThingRepository tripUserThingRepository,
+    TripThingRepository TripThingRepository,
     DicTripRepository dicTripRepository,
     ThingRepository ThingRepository,
-    IMapper mapper) : ITripUserThingService
+    IMapper mapper) : ITripThingService
 {
-    private readonly TripUserThingRepository _tripUserThingRepository = tripUserThingRepository;
+    private readonly TripThingRepository _tripUserThingRepository = TripThingRepository;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
     private readonly ThingRepository _userThingRepository = ThingRepository;
     private readonly IMapper _mapper = mapper;

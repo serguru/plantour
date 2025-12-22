@@ -3,28 +3,26 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
-public class TripUserThingRepository : BaseRepository
+public class TripPackageRepository : BaseRepository
 {
-    private readonly DbSet<TripUserThing> _dbSet;
+    private readonly DbSet<TripUserPackage> _dbSet;
     private readonly PlantourContext _context;
 
-    public TripUserThingRepository(PlantourContext context, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+    public TripPackageRepository(PlantourContext context, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
     {
-        _dbSet = context.Set<TripUserThing>();
+        _dbSet = context.Set<TripUserPackage>();
         _context = context;
     }
 
-    public async Task<TripUserThing?> GetByIdAsync(Guid id)
+    public async Task<TripUserPackage?> GetByIdAsync(Guid id)
     {
         if (CurrentUser == null)
         {
             return null;
         }
-
         if (CurrentUser.IsAdmin)
         {
             return await _dbSet
-                .Include(x => x.TripUserPackage)
                 .FirstOrDefaultAsync(x =>
                     x.Id == id &&
                     x.TripUser.Trip.UserId == CurrentUser.UserId &&
@@ -36,7 +34,6 @@ public class TripUserThingRepository : BaseRepository
         if (CurrentUser.IsParticipant)
         {
             return await _dbSet
-                .Include(x => x.TripUserPackage)
                 .FirstOrDefaultAsync(x =>
                     x.Id == id &&
                     x.TripUser.Trip.UserId == CurrentUser.AdminId &&
@@ -48,17 +45,15 @@ public class TripUserThingRepository : BaseRepository
         return null;
     }
 
-    public async Task<IEnumerable<TripUserThing>> GetAllAsync(Guid tripId)
+    public async Task<IEnumerable<TripUserPackage>> GetAllAsync(Guid tripId)
     {
         if (CurrentUser == null)
         {
-            return Array.Empty<TripUserThing>();
+            return Array.Empty<TripUserPackage>();
         }
-
         if (CurrentUser.IsAdmin)
         {
             return await _dbSet
-                .Include(x => x.TripUserPackage)
                 .Where(x =>
                     x.TripUser.TripId == tripId &&
                     x.TripUser.Trip.UserId == CurrentUser.UserId &&
@@ -70,7 +65,6 @@ public class TripUserThingRepository : BaseRepository
         if (CurrentUser.IsParticipant)
         {
             return await _dbSet
-                .Include(x => x.TripUserPackage)
                 .Where(x =>
                     x.TripUser.TripId == tripId &&
                     x.TripUser.Trip.UserId == CurrentUser.AdminId &&
@@ -78,17 +72,16 @@ public class TripUserThingRepository : BaseRepository
                     x.TripUser.AdminParticipant.ParticipantId == CurrentUser.UserId
                 ).ToListAsync();
         }
-
-        return Array.Empty<TripUserThing>();
+        
+        return Array.Empty<TripUserPackage>();
     }
 
-    public async Task AddAsync(Guid tripId, TripUserThing entity)
+    public async Task AddAsync(Guid tripId, TripUserPackage entity)
     {
         if (CurrentUser == null)
         {
             throw new InvalidOperationException("Access denied");
         }
-
 
         TripUser? tripUser = null;
 
@@ -119,11 +112,11 @@ public class TripUserThingRepository : BaseRepository
 
         entity.Id = Guid.NewGuid();
         entity.TripUserId = tripUser.Id;
-        _context.TripUserThings.Add(entity);
+        _context.TripUserPackages.Add(entity);
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(TripUserThing entity)
+    public async Task UpdateAsync(TripUserPackage entity)
     {
         if (CurrentUser == null)
         {
@@ -133,10 +126,10 @@ public class TripUserThingRepository : BaseRepository
         var existingEntity = await GetByIdAsync(entity.Id);
         if (existingEntity == null)
         {
-            throw new InvalidOperationException("TripUserThing not found");
+            throw new InvalidOperationException("TripUserPackage not found");
         }
 
-        _context.TripUserThings.Attach(entity);
+        _context.TripUserPackages.Attach(entity);
         _context.Entry(entity).State = EntityState.Modified;
         await _context.SaveChangesAsync();
     }
@@ -154,7 +147,7 @@ public class TripUserThingRepository : BaseRepository
             return;
         }
 
-        _context.TripUserThings.Remove(entity);
+        _context.TripUserPackages.Remove(entity);
         await _context.SaveChangesAsync();
     }
 }

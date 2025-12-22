@@ -5,7 +5,7 @@ using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
-public class UserThingService : IUserThingService
+public class UserThingService : IThingService
 {
     private readonly ThingRepository _userThingRepository;
     private readonly ThingCategoryRepository _thingCategoryRepository;

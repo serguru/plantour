@@ -2,7 +2,7 @@ using plantour_server.DTOs;
 
 namespace plantour_server.Services;
 
-public interface IUserPackageService
+public interface IPackageService
 {
     Task<IEnumerable<UserPackageDto>> GetAllAsync();
     Task<UserPackageDto?> GetByIdAsync(Guid id);

@@ -5,7 +5,7 @@ using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
-public class UserPackageService : IUserPackageService
+public class UserPackageService : IPackageService
 {
     private readonly PackageRepository _userPackageRepository;
     private readonly IMapper _mapper;

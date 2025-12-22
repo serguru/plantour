@@ -75,12 +75,12 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IUserPackageService, UserPackageService>();
-builder.Services.AddScoped<IUserThingService, UserThingService>();
+builder.Services.AddScoped<IPackageService, UserPackageService>();
+builder.Services.AddScoped<IThingService, UserThingService>();
 builder.Services.AddScoped<ITripService, TripService>();
 builder.Services.AddScoped<ITripUserService, TripUserService>();
-builder.Services.AddScoped<ITripUserThingService, TripUserThingService>();
-builder.Services.AddScoped<ITripUserPackageService, TripUserPackageService>();
+builder.Services.AddScoped<ITripThingService, TripUserThingService>();
+builder.Services.AddScoped<ITripPackageService, TripUserPackageService>();
 builder.Services.AddScoped<ILookupsService, LookupsService>();
 builder.Services.AddScoped<IAdminsParticipantService, AdminsParticipantService>();
 
@@ -90,8 +90,8 @@ builder.Services.AddScoped<plantour_server.Repositories.ThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripUserRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.TripUserThingRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.TripUserPackageRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripThingRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripPackageRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.LookupsRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AuthRepository>();

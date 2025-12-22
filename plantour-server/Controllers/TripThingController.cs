@@ -9,9 +9,9 @@ namespace plantour_server.Controllers;
 [Route("api/[controller]")]
 public class TripThingController : ControllerBase
 {
-    private readonly ITripUserThingService _service;
+    private readonly ITripThingService _service;
 
-    public TripThingController(ITripUserThingService service)
+    public TripThingController(ITripThingService service)
     {
         _service = service;
     }

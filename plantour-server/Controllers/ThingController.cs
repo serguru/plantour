@@ -11,9 +11,9 @@ namespace plantour_server.Controllers;
 
 public class ThingController : ControllerBase
 {
-    private readonly IUserThingService _service;
+    private readonly IThingService _service;
 
-    public ThingController(IUserThingService service)
+    public ThingController(IThingService service)
     {
         _service = service;
     }

@@ -2,7 +2,7 @@ using plantour_server.DTOs;
 
 namespace plantour_server.Services;
 
-public interface ITripUserThingService
+public interface ITripThingService
 {
     Task<IEnumerable<TripThingDto>> GetAllAsync(Guid tripId);
     Task<TripThingDto?> GetByIdAsync(Guid id);

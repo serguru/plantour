@@ -6,11 +6,11 @@ using plantour_server.Repositories;
 namespace plantour_server.Services;
 
 public class TripUserPackageService(
-    TripUserPackageRepository tripUserPackageRepository,
+    TripPackageRepository TripPackageRepository,
     DicTripRepository dicTripRepository,
-    IMapper mapper) : ITripUserPackageService
+    IMapper mapper) : ITripPackageService
 {
-    private readonly TripUserPackageRepository _tripUserPackageRepository = tripUserPackageRepository;
+    private readonly TripPackageRepository _tripUserPackageRepository = TripPackageRepository;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
     private readonly IMapper _mapper = mapper;
 
