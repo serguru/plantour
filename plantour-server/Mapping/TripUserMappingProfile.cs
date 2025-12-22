@@ -19,7 +19,8 @@ public class TripUserMappingProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.AdminParticipant, opt => opt.Ignore())
             .ForMember(dest => dest.Trip, opt => opt.Ignore())
-            .ForMember(dest => dest.TripSharedThings, opt => opt.Ignore())
+            .ForMember(dest => dest.TripSharedThingAssignedBies, opt => opt.Ignore())
+            .ForMember(dest => dest.TripSharedThingAssignedTos, opt => opt.Ignore())
             .ForMember(dest => dest.TripUserPackages, opt => opt.Ignore())
             .ForMember(dest => dest.TripUserThings, opt => opt.Ignore());
         
@@ -27,7 +28,8 @@ public class TripUserMappingProfile : Profile
             .ForMember(dest => dest.AdminParticipant, opt => opt.Ignore())
             .ForMember(dest => dest.Trip, opt => opt.Ignore())
             .ForMember(dest => dest.TripUserPackages, opt => opt.Ignore())
-            .ForMember(dest => dest.TripSharedThings, opt => opt.Ignore())
+            .ForMember(dest => dest.TripSharedThingAssignedBies, opt => opt.Ignore())
+            .ForMember(dest => dest.TripSharedThingAssignedTos, opt => opt.Ignore())
             .ForMember(dest => dest.TripUserPackages, opt => opt.Ignore())
             .ForMember(dest => dest.TripUserThings, opt => opt.Ignore());
     }
