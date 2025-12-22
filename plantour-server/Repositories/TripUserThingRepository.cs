@@ -84,8 +84,50 @@ public class TripUserThingRepository : BaseRepository
         }
 
         return Array.Empty<TripUserThing>();
+    }
+
+    public async Task<IEnumerable<TripUserThing>> GetAllAssignmentsAsync(Guid tripId, Guid? participantId)
+    {
+        if (CurrentUser == null)
+        {
+            return Array.Empty<TripUserThing>();
+        }
+
+        if (CurrentUser.IsAdmin)
+        {
+            return await _dbSet
+                .Include(x => x.TripUserPackage)
+                .Include(x => x.Assigned!.AdminParticipant.Participant)
+                .Where(x =>
+                    x.TripUser.TripId == tripId &&
+                    x.TripUser.Trip.UserId == CurrentUser.UserId &&
+                    x.AssignedId == CurrentUser.UserId &&
+                    x.Assigned != null &&
+                    x.Assigned.AdminParticipant.AdminId == CurrentUser.UserId && 
+                    (x.Assigned.AdminParticipant.ParticipantId == participantId || participantId == null)
+                ).ToListAsync();
+        }
+
+        if (CurrentUser.IsParticipant)
+        {
+
+            return await _dbSet
+                .Include(x => x.TripUserPackage)
+                .Include(x => x.Assigned!.AdminParticipant.Participant)
+                .Where(x =>
+                    x.TripUser.TripId == tripId &&
+                    x.TripUser.Trip.UserId == CurrentUser.AdminId &&
+                    x.AssignedId == CurrentUser.UserId &&
+                    x.Assigned != null &&
+                    x.Assigned.AdminParticipant.AdminId == CurrentUser.AdminId && 
+                    (x.Assigned.AdminParticipant.ParticipantId == participantId || participantId == null)
+                ).ToListAsync();
+        }
+
+        return Array.Empty<TripUserThing>();
 
     }
+
 
     public async Task AddAsync(Guid tripId, TripUserThing entity)
     {

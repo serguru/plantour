@@ -371,6 +371,105 @@ public class DicTripRepository : BaseRepository
         return updatedCount;
     }
 
+    public async Task<int> InsertThingAssignmentsAsync(
+        Guid tripId,
+        DateTimeOffset deadline,
+        Guid[] tripThingIds 
+        )
+    {
+        if (CurrentUser == null || !tripThingIds.Any())
+        {
+            return 0;
+        }
+
+        Guid adminId, participantId;
+
+        if (CurrentUser.IsAdmin)
+        {
+            adminId = CurrentUser.UserId!.Value;
+            participantId = adminId;
+        }
+        else if (CurrentUser.IsParticipant)
+        {
+            adminId = CurrentUser.AdminId!.Value;
+            participantId = CurrentUser.UserId!.Value;
+        }
+        else
+        {
+            return 0;
+        }   
+
+        int insertedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.insert_thing_assignments(@adminId, @participantId, @tripId, @deadline, @tripThingIds);";
+
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@participantId", participantId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@deadline", deadline));
+                command.Parameters.Add(new NpgsqlParameter("@tripThingIds", tripThingIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    insertedCount = count;
+                }
+            }
+        }
+        return insertedCount;
+    }
+
+    public async Task<int> DeleteThingAssignmentsAsync(
+        Guid tripId,
+        Guid[] tripThingIds 
+        )
+    {
+        if (CurrentUser == null || tripThingIds.Length == 0)
+        {
+            return 0;
+        }
+
+        Guid adminId, participantId;
+
+        if (CurrentUser.IsAdmin)
+        {
+            adminId = CurrentUser.UserId!.Value;
+            participantId = adminId;
+        }
+        else if (CurrentUser.IsParticipant)
+        {
+            adminId = CurrentUser.AdminId!.Value;
+            participantId = CurrentUser.UserId!.Value;
+        }
+        else
+        {
+            return 0;
+        }   
+
+        int deletedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.delete_thing_assignments(@adminId, @participantId, @tripId, @tripThingIds);";
+
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@participantId", participantId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@tripThingIds", tripThingIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    deletedCount = count;
+                }
+            }
+        }
+        return deletedCount;
+    }
 
 }
 

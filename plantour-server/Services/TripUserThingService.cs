@@ -8,10 +8,12 @@ namespace plantour_server.Services;
 public class TripUserThingService(
     TripUserThingRepository tripUserThingRepository,
     DicTripRepository dicTripRepository,
+    UserThingRepository userThingRepository,
     IMapper mapper) : ITripUserThingService
 {
     private readonly TripUserThingRepository _tripUserThingRepository = tripUserThingRepository;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
+    private readonly UserThingRepository _userThingRepository = userThingRepository;
     private readonly IMapper _mapper = mapper;
 
     public async Task<int> InsertTripUserThingsAsync(Guid tripId, Guid[] packageIds)
@@ -28,6 +30,31 @@ public class TripUserThingService(
     {
         var entities = await _tripUserThingRepository.GetAllAsync(tripId);
         return _mapper.Map<IEnumerable<TripThingDto>>(entities);
+    }
+
+    public async Task<IEnumerable<TripThingDto>> GetAllAssignmentsAsync(Guid tripId, Guid participantId)
+    {
+
+//нужно обрабатывать finiished и удаление старых записей перед вставкой новых
+
+        var assignmentsEnumerable = await _tripUserThingRepository.GetAllAssignmentsAsync(tripId, participantId);
+        var assignments = assignmentsEnumerable.ToList();
+
+        var userThings = await _userThingRepository.GetAllAsync();
+
+        assignments.AddRange(userThings
+            .Where(ut => ut.Common && !assignments.Any(a => a.Name.Equals(ut.Name, StringComparison.InvariantCultureIgnoreCase)))
+            .Select(ut => new TripUserThing
+            {
+                Id = Guid.NewGuid(),
+                Category = ut.Category,
+                Name = ut.Name,
+                Value = ut.Value,
+                Notes = ut.Notes,
+            })
+        );
+
+        return _mapper.Map<IEnumerable<TripThingDto>>(assignments);
     }
 
     public async Task<TripThingDto?> GetByIdAsync(Guid id)
@@ -76,5 +103,14 @@ public class TripUserThingService(
     public async Task<int> UnpackTripThingsAsync(Guid tripId, Guid packageId, Guid[] tripThingIds)
     {
         return await _dicTripRepository.PackTripThingsAsync(tripId, packageId, tripThingIds, true);
+    }
+
+    public async Task<int> InsertThingAssignmentsAsync(Guid tripId, DateTimeOffset deadline, Guid[] tripThingIds)
+    {
+        return await _dicTripRepository.InsertThingAssignmentsAsync(tripId, deadline, tripThingIds);
+    }
+    public async Task<int> DeleteThingAssignmentsAsync(Guid tripId, Guid[] tripThingIds)
+    {
+        return await _dicTripRepository.DeleteThingAssignmentsAsync(tripId, tripThingIds);
     }
 }
