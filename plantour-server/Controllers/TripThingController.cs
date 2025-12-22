@@ -7,11 +7,11 @@ namespace plantour_server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TripUserThingController : ControllerBase
+public class TripThingController : ControllerBase
 {
     private readonly ITripUserThingService _service;
 
-    public TripUserThingController(ITripUserThingService service)
+    public TripThingController(ITripUserThingService service)
     {
         _service = service;
     }

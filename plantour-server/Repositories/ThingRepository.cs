@@ -3,13 +3,13 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
-public class UserThingRepository : BaseRepository
+public class ThingRepository : BaseRepository
 {
 
     private readonly DbSet<UserThing> _dbSet;
     private readonly PlantourContext _context;
 
-    public UserThingRepository(PlantourContext context, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+    public ThingRepository(PlantourContext context, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
     {
         _dbSet = context.Set<UserThing>();
         _context = context;

@@ -7,16 +7,16 @@ namespace plantour_server.Services;
 
 public class UserThingService : IUserThingService
 {
-    private readonly UserThingRepository _userThingRepository;
+    private readonly ThingRepository _userThingRepository;
     private readonly ThingCategoryRepository _thingCategoryRepository;
     private readonly IMapper _mapper;
 
     public UserThingService(
-        UserThingRepository userThingRepository,
+        ThingRepository ThingRepository,
         ThingCategoryRepository thingCategoryRepository,
         IMapper mapper)
     {
-        _userThingRepository = userThingRepository;
+        _userThingRepository = ThingRepository;
         _thingCategoryRepository = thingCategoryRepository;
         _mapper = mapper;
     }

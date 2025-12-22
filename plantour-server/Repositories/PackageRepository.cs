@@ -3,13 +3,13 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
-public class UserPackageRepository : BaseRepository
+public class PackageRepository : BaseRepository
 {
 
     private readonly DbSet<UserPackage> _dbSet;
     private readonly PlantourContext _context;
 
-    public UserPackageRepository(PlantourContext context, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+    public PackageRepository(PlantourContext context, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
     {
         _dbSet = context.Set<UserPackage>();
         _context = context;

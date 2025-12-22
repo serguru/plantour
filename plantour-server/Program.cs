@@ -85,8 +85,8 @@ builder.Services.AddScoped<ILookupsService, LookupsService>();
 builder.Services.AddScoped<IAdminsParticipantService, AdminsParticipantService>();
 
 // Register repositories
-builder.Services.AddScoped<plantour_server.Repositories.UserPackageRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.UserThingRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.PackageRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.ThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripUserRepository>();

@@ -19,9 +19,9 @@
  Мне нужны тестовые SQL DB данные. Смотри структуру БД в plantour-server\DB\Scripts\plantour.sql. Создай трёх юзеров: одного Админа и двух Участников этого админа. Посмотри в коде plantour-server API как хэшируются и записываются в БД пароли юзеров. Используй Binary_09 пароль для Админа. Для Участников пароль не нужен, но нужен будет AccessCode. Заполни соответоствующие таблицы так, чтобы в них было 10-20 строк. Запиши SQL script в файл plantour-server\DB\Scripts\populate.sql.
 
  
-Создай generic репозиторий GenericRepository<T> в папке Repositories. Создай UserPackageRepository там же. Включи в него CRUD для UserPackage.
+Создай generic репозиторий GenericRepository<T> в папке Repositories. Создай PackageRepository там же. Включи в него CRUD для UserPackage.
 
-Рефактор UserPackageController. Не вызывай UserPackageRepository из контнроллера. Создай Services/UserPackageService. В сервисе используй UserPackageRepository. Переделай вызовы Add, Edit и другие в UserPackageController с репозитория на сервис. Используй Riok.Mapperly для маппинга.
+Рефактор PackageController. Не вызывай PackageRepository из контнроллера. Создай Services/UserPackageService. В сервисе используй PackageRepository. Переделай вызовы Add, Edit и другие в PackageController с репозитория на сервис. Используй Riok.Mapperly для маппинга.
 
 Добаавь в UserPackageDto поле CategoryName. Заполняй это поле значением Name из PackageCategory, соответствующим UserPackageDto.CategoryId. Добавь в UserPackageDto список категорий из PackageCategory. Назови его CategoriesLookup. Включи в него Id и Name. Не забудь переделать mappinng соответственно.
 

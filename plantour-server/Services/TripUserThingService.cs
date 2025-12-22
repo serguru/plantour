@@ -8,12 +8,12 @@ namespace plantour_server.Services;
 public class TripUserThingService(
     TripUserThingRepository tripUserThingRepository,
     DicTripRepository dicTripRepository,
-    UserThingRepository userThingRepository,
+    ThingRepository ThingRepository,
     IMapper mapper) : ITripUserThingService
 {
     private readonly TripUserThingRepository _tripUserThingRepository = tripUserThingRepository;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
-    private readonly UserThingRepository _userThingRepository = userThingRepository;
+    private readonly ThingRepository _userThingRepository = ThingRepository;
     private readonly IMapper _mapper = mapper;
 
     public async Task<int> InsertTripUserThingsAsync(Guid tripId, Guid[] packageIds)

@@ -7,14 +7,14 @@ namespace plantour_server.Services;
 
 public class UserPackageService : IUserPackageService
 {
-    private readonly UserPackageRepository _userPackageRepository;
+    private readonly PackageRepository _userPackageRepository;
     private readonly IMapper _mapper;
 
     public UserPackageService(
-        UserPackageRepository userPackageRepository,
+        PackageRepository PackageRepository,
         IMapper mapper)
     {
-        _userPackageRepository = userPackageRepository;
+        _userPackageRepository = PackageRepository;
         _mapper = mapper;
     }
 
