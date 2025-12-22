@@ -31,8 +31,8 @@ public partial class TripUser
     [InverseProperty("TripUsers")]
     public virtual Trip Trip { get; set; } = null!;
 
-    [InverseProperty("AssignedBy")]
-    public virtual ICollection<TripSharedThing> TripSharedThingAssignedBies { get; set; } = new List<TripSharedThing>();
+    [InverseProperty("AddedBy")]
+    public virtual ICollection<TripSharedThing> TripSharedThingAddedBies { get; set; } = new List<TripSharedThing>();
 
     [InverseProperty("AssignedTo")]
     public virtual ICollection<TripSharedThing> TripSharedThingAssignedTos { get; set; } = new List<TripSharedThing>();

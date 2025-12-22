@@ -36,8 +36,8 @@ public partial class TripSharedThing
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [Column("assigned_by_id")]
-    public Guid AssignedById { get; set; }
+    [Column("added_by_id")]
+    public Guid AddedById { get; set; }
 
     [Column("assigned_to_id")]
     public Guid? AssignedToId { get; set; }
@@ -51,9 +51,9 @@ public partial class TripSharedThing
     [Column("assigned_deadline")]
     public DateTime? AssignedDeadline { get; set; }
 
-    [ForeignKey("AssignedById")]
-    [InverseProperty("TripSharedThingAssignedBies")]
-    public virtual TripUser AssignedBy { get; set; } = null!;
+    [ForeignKey("AddedById")]
+    [InverseProperty("TripSharedThingAddedBies")]
+    public virtual TripUser AddedBy { get; set; } = null!;
 
     [ForeignKey("AssignedThingId")]
     [InverseProperty("TripSharedThings")]
