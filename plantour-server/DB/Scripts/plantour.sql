@@ -271,6 +271,7 @@ create table trip_shared_things (
     value decimal(10,3) check(value > 0),
     notes text,
     assigned_id uuid null references trip_users(id) on delete set null,
+    assigned_thing_id uuid null references trip_user_things(id) on delete set null,
     assigned_at timestamptz null,
     assigned_deadline timestamptz null,
     constraint ch_trip_shared_things_at_before_deadline check (

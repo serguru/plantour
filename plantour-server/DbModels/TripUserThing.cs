@@ -45,6 +45,9 @@ public partial class TripUserThing
     [Column("finished")]
     public string? Finished { get; set; }
 
+    [InverseProperty("AssignedThing")]
+    public virtual ICollection<TripSharedThing> TripSharedThings { get; set; } = new List<TripSharedThing>();
+
     [ForeignKey("TripUserId")]
     [InverseProperty("TripUserThings")]
     public virtual TripUser TripUser { get; set; } = null!;

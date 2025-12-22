@@ -115,6 +115,10 @@ public partial class PlantourContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("trip_shared_things_assigned_id_fkey");
 
+            entity.HasOne(d => d.AssignedThing).WithMany(p => p.TripSharedThings)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("trip_shared_things_assigned_thing_id_fkey");
+
             entity.HasOne(d => d.Trip).WithMany(p => p.TripSharedThings).HasConstraintName("trip_shared_things_trip_id_fkey");
         });
 
