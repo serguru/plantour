@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 // }
 export interface CrudService<T, TA, TU> {
   getAll(tripId?: string): Observable<T[]>;
-  getById(id: string): Observable<T>;
+  getById(id: string, tripI?: string | null): Observable<T>;
   add(item: TA): Observable<T>;
   update(item: TU): Observable<void>;
   delete(id: string): Observable<void>;

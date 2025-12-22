@@ -43,6 +43,7 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
   @Input() formTemplate!: any;
   @Input() mode!: BaseFormMode;
   @Input() id: string | null = null;
+  @Input() tripId: string | null = null;
   @Input() entityIcon!: string;
   @Input() entityName!: string;
   @Input() backUrl: string | null = null;
@@ -90,7 +91,7 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
 
     this.isLoading = true;
 
-    this.service.getById(this.id!).pipe(
+    this.service.getById(this.id!, this.tripId).pipe(
       catchError((error) => {
         this.errorMessage = error.error?.message || 'Operatiopn failed. Please try again.';
         return EMPTY;

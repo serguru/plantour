@@ -14,7 +14,7 @@ public class TripThingRepository : BaseRepository
         _context = context;
     }
 
-    public async Task<TripUserThing?> GetByIdAsync(Guid id)
+    public async Task<TripUserThing?> GetByIdAsync(Guid tripId, Guid id)
     {
         if (CurrentUser == null)
         {
@@ -26,6 +26,7 @@ public class TripThingRepository : BaseRepository
             return await _dbSet
                 .Include(x => x.TripUserPackage)
                 .FirstOrDefaultAsync(x =>
+                    x.TripUser.TripId == tripId &&
                     x.Id == id &&
                     x.TripUser.Trip.UserId == CurrentUser.UserId &&
                     x.TripUser.AdminParticipant.AdminId == CurrentUser.UserId &&
@@ -38,6 +39,7 @@ public class TripThingRepository : BaseRepository
             return await _dbSet
                 .Include(x => x.TripUserPackage)
                 .FirstOrDefaultAsync(x =>
+                    x.TripUser.TripId == tripId &&
                     x.Id == id &&
                     x.TripUser.Trip.UserId == CurrentUser.AdminId &&
                     x.TripUser.AdminParticipant.AdminId == CurrentUser.AdminId &&
@@ -123,14 +125,14 @@ public class TripThingRepository : BaseRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(TripUserThing entity)
+    public async Task UpdateAsync(Guid tripId, TripUserThing entity)
     {
         if (CurrentUser == null)
         {
             throw new InvalidOperationException("Access denied");
         }
 
-        var existingEntity = await GetByIdAsync(entity.Id);
+        var existingEntity = await GetByIdAsync(tripId, entity.Id);
         if (existingEntity == null)
         {
             throw new InvalidOperationException("TripUserThing not found");
@@ -141,14 +143,14 @@ public class TripThingRepository : BaseRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid tripId, Guid id)
     {
         if (CurrentUser == null)
         {
             throw new InvalidOperationException("Access denied");
         }
 
-        var entity = await GetByIdAsync(id);
+        var entity = await GetByIdAsync(tripId, id);
         if (entity == null)
         {
             return;

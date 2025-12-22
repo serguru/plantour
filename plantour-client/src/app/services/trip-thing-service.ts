@@ -63,7 +63,7 @@ export class TripThingService implements CrudService<TripThingDto, CreateTripThi
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
 
-    this.apiUrl = `${environment.apiUrl}/api/TripUserThing`;
+    this.apiUrl = `${environment.apiUrl}/api/TripThing`;
   }
 
   addFromDic(data: MultipleIdsRequest): Observable<number> {
@@ -79,8 +79,8 @@ export class TripThingService implements CrudService<TripThingDto, CreateTripThi
     return this.http.get<TripThingDto[]>(`${this.apiUrl}/trip/${tripId}`);
   }
 
-  getById(id: string): Observable<TripThingDto> {
-    return this.http.get<TripThingDto>(`${this.apiUrl}/${id}`);
+  getById(id: string, tripId: string): Observable<TripThingDto> {
+    return this.http.get<TripThingDto>(`${this.apiUrl}/${tripId}/${id}`);
   }
 
   add(request: CreateTripThingRequest): Observable<TripThingDto> {

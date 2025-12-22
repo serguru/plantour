@@ -48,7 +48,7 @@ export class TripPackageService implements CrudService<TripPackageDto, CreateTri
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    this.apiUrl = `${environment.apiUrl}/api/TripUserPackage`;
+    this.apiUrl = `${environment.apiUrl}/api/TripPackage`;
   }
 
   addFromDic(data: MultipleIdsRequest): Observable<number> {

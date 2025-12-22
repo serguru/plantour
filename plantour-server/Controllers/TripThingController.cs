@@ -61,13 +61,13 @@ public class TripThingController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{tripId}/{id}")]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripThingDto>> GetById(Guid id)
+    public async Task<ActionResult<TripThingDto>> GetById(Guid tripId, Guid id)
     {
         try
         {
-            var dto = await _service.GetByIdAsync(id);
+            var dto = await _service.GetByIdAsync(tripId, id);
             if (dto == null)
             {
                 return NotFound(new { message = "Trip user thing not found" });
@@ -116,13 +116,13 @@ public class TripThingController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{tripId}/{id}")]
     [AdminOrParticipant]
-    public async Task<ActionResult> Delete(Guid id)
+    public async Task<ActionResult> Delete(Guid tripId, Guid id)
     {
         try
         {
-            var deleted = await _service.DeleteAsync(id);
+            var deleted = await _service.DeleteAsync(tripId, id);
             if (!deleted)
             {
                 return NotFound(new { message = "Trip user thing not found" });
