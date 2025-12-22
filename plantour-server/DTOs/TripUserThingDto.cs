@@ -14,11 +14,7 @@ public class TripThingDto
     public string? PackageName { get; set; }
     public string? PackageLabel { get; set; }
     public DateTime? PackedAt { get; set; }
-    public Guid? AssignedByUserId { get; set; }
-    public TripUserDto? Assigned { get; set; }
-    public DateTime? AssignedAt { get; set; }
-    public DateTime? AssignedDeadline { get; set; }
     public string? Finished { get; set; }
-    public bool Common { get; set; }
+    public bool Shared { get; set; }
     
 }

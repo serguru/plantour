@@ -12,6 +12,6 @@ public class ThingDto
     public decimal? Value { get; set; }
 
     public string? Notes { get; set; }
-    public bool Common { get; set; }
+    public bool Shared { get; set; }
 
 }

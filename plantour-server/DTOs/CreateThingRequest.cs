@@ -13,6 +13,6 @@ public class CreateThingRequest
 
     public string? Notes { get; set; }
 
-    public bool Common { get; set; }
+    public bool Shared { get; set; }
 
 }

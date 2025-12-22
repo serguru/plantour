@@ -23,6 +23,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Trip> Trips { get; set; }
 
+    public virtual DbSet<TripSharedThing> TripSharedThings { get; set; }
+
     public virtual DbSet<TripStatus> TripStatuses { get; set; }
 
     public virtual DbSet<TripUser> TripUsers { get; set; }
@@ -103,6 +105,19 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Trips).HasConstraintName("trips_user_id_fkey");
         });
 
+        modelBuilder.Entity<TripSharedThing>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("trip_shared_things_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.Assigned).WithMany(p => p.TripSharedThings)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("trip_shared_things_assigned_id_fkey");
+
+            entity.HasOne(d => d.Trip).WithMany(p => p.TripSharedThings).HasConstraintName("trip_shared_things_trip_id_fkey");
+        });
+
         modelBuilder.Entity<TripStatus>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("trip_status_pkey");
@@ -136,11 +151,7 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            entity.HasOne(d => d.Assigned).WithMany(p => p.TripUserThingAssigneds)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("trip_user_things_assigned_id_fkey");
-
-            entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserThingTripUsers).HasConstraintName("trip_user_things_trip_user_id_fkey");
+            entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserThings).HasConstraintName("trip_user_things_trip_user_id_fkey");
 
             entity.HasOne(d => d.TripUserPackage).WithMany(p => p.TripUserThings)
                 .OnDelete(DeleteBehavior.SetNull)

@@ -123,7 +123,7 @@ create table user_things (
     name varchar(200) not null,
     units varchar(50),
     value decimal(10,3) check(value > 0),
-    common boolean not null default false,
+    shared boolean not null default false,
     notes text
 );
 create unique index idx_user_things_user_id_name on user_things(user_id, name);
@@ -255,18 +255,31 @@ create table trip_user_things (
     notes text,
     trip_user_package_id uuid references trip_user_packages(id) on delete set null,
     packed_at timestamptz,
+    finished text null check (finished in ('success', 'failure') or finished is null)
+);
+create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
+
+-----------------------------------------------------------------------
+-- TRIP SHARED THINGS
+-----------------------------------------------------------------------
+create table trip_shared_things (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_id uuid not null references trips(id) on delete cascade,
+    category varchar(50),      
+    name varchar(200) not null,
+    units varchar(50),
+    value decimal(10,3) check(value > 0),
+    notes text,
     assigned_id uuid null references trip_users(id) on delete set null,
     assigned_at timestamptz null,
     assigned_deadline timestamptz null,
-    finished text null check (finished in ('success', 'failure') or finished is null),
-    constraint ch_trip_user_things_at_before_deadline check (
+    constraint ch_trip_shared_things_at_before_deadline check (
         assigned_at is null 
         or assigned_deadline is null 
         or assigned_at <= assigned_deadline
     )
 );
-create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
-
+create unique index idx_trip_shared_things_trip_id_name on trip_shared_things(trip_id, name);
 
 
 create or replace function plantour.get_trip_user_id(
@@ -624,83 +637,6 @@ begin
 end;
 $$;
 
-create or replace function plantour.insert_thing_assignments(
-    p_admin_id uuid,
-    p_participant_id uuid,
-    p_trip_id uuid,
-    p_deadline timestamptz,
-    p_ids uuid[]
-)
-returns integer
-language plpgsql
-as $$
-declare
-    v_trip_user_id uuid;
-    v_inserted_count integer;
-begin
-    select plantour.get_trip_user_id(
-        p_admin_id,
-        p_participant_id,
-        p_trip_id
-    )
-    into v_trip_user_id;
-
-    insert into plantour.trip_user_things (trip_user_id, name, category, units, value, assigned_id, assigned_at, assigned_deadline)
-    select
-        v_trip_user_id,
-        b.name,
-        b.catgory,
-        b.units,
-        b.value,
-        p_admin_id,
-        now(),
-        p_deadline
-    from plantour.user_things b
-    left join plantour.trip_user_things c on 
-        c.trip_user_id = v_trip_user_id and 
-        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
-    where
-        b.id = any (p_ids)
-        and b.user_id = p_admin_id
-        and c.id is null;
-
-    get diagnostics v_inserted_count = row_count;
-
-    return v_inserted_count;
-end;
-$$;
-
-create or replace function plantour.delete_thing_assignments(
-    p_admin_id uuid,
-    p_participant_id uuid,
-    p_trip_id uuid,
-    p_ids uuid[]
-)
-returns integer
-language plpgsql
-as $$
-declare
-    v_trip_user_id uuid;
-    v_deleted_count integer;
-begin
-    select plantour.get_trip_user_id(
-        p_admin_id,
-        p_participant_id,
-        p_trip_id
-    )
-    into v_trip_user_id;
-
-    delete from plantour.trip_user_things a
-    where
-        a.id = any (p_ids) and
-        a.trip_user_id = v_trip_user_id and
-        a.assigned_id = p_admin_id;
-
-    get diagnostics v_deleted_count = row_count;
-
-    return v_deleted_count;
-end;
-$$;
 
 -- ====================================================================
 -- USERS (2 admins + 2 participants + 2 extra users)

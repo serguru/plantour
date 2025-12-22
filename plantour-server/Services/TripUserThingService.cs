@@ -32,30 +32,6 @@ public class TripUserThingService(
         return _mapper.Map<IEnumerable<TripThingDto>>(entities);
     }
 
-    public async Task<IEnumerable<TripThingDto>> GetAllAssignmentsAsync(Guid tripId, Guid participantId)
-    {
-
-//нужно обрабатывать finiished и удаление старых записей перед вставкой новых
-
-        var assignmentsEnumerable = await _tripUserThingRepository.GetAllAssignmentsAsync(tripId, participantId);
-        var assignments = assignmentsEnumerable.ToList();
-
-        var userThings = await _userThingRepository.GetAllAsync();
-
-        assignments.AddRange(userThings
-            .Where(ut => ut.Common && !assignments.Any(a => a.Name.Equals(ut.Name, StringComparison.InvariantCultureIgnoreCase)))
-            .Select(ut => new TripUserThing
-            {
-                Id = Guid.NewGuid(),
-                Category = ut.Category,
-                Name = ut.Name,
-                Value = ut.Value,
-                Notes = ut.Notes,
-            })
-        );
-
-        return _mapper.Map<IEnumerable<TripThingDto>>(assignments);
-    }
 
     public async Task<TripThingDto?> GetByIdAsync(Guid id)
     {
@@ -105,12 +81,4 @@ public class TripUserThingService(
         return await _dicTripRepository.PackTripThingsAsync(tripId, packageId, tripThingIds, true);
     }
 
-    public async Task<int> InsertThingAssignmentsAsync(Guid tripId, DateTimeOffset deadline, Guid[] tripThingIds)
-    {
-        return await _dicTripRepository.InsertThingAssignmentsAsync(tripId, deadline, tripThingIds);
-    }
-    public async Task<int> DeleteThingAssignmentsAsync(Guid tripId, Guid[] tripThingIds)
-    {
-        return await _dicTripRepository.DeleteThingAssignmentsAsync(tripId, tripThingIds);
-    }
 }
