@@ -92,7 +92,6 @@ builder.Services.AddScoped<plantour_server.Repositories.PackageRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.TripRepository2>();
 builder.Services.AddScoped<plantour_server.Repositories.TripUserRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripPackageRepository>();

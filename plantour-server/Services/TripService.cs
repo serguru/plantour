@@ -2,69 +2,134 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using PlantourApi.Models;
 
 namespace plantour_server.Services;
 
 public class TripService(
-    TripRepository tripRepository,
-    IMapper mapper) : ITripService
+    TripRepository tripRepository2,
+    ICheckAccessService checkAccessService,
+    IMapper mapper,
+    HttpCurrentUser httpCurrentUser) : ITripService
 {
-    private readonly TripRepository _tripRepository = tripRepository;
+    private readonly TripRepository _tripRepository2 = tripRepository2;
+    private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly IMapper _mapper = mapper;
+    private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
+
 
     public async Task<IEnumerable<TripDto>> GetAllAsync()
     {
-        var entities = await _tripRepository.GetAllAsync();
+        _currentUser.RaiseIfNotAuthenticated();
+
+        var entities = await _tripRepository2.GetAllAsync();
         return _mapper.Map<IEnumerable<TripDto>>(entities);
+
     }
 
     public async Task<IEnumerable<TripDto>> GetAllForParticipantAsync()
     {
-        var entities = await _tripRepository.GetAllForParticipantAsync();
+        _currentUser.RaiseIfNotAuthenticated();
+
+        var entities = await _tripRepository2.GetAllAsync();
+
+        entities = entities.Where(x =>
+            x.UserId == _currentUser.AdminId &&
+            x.TripUsers.Any(y =>
+            y.AdminParticipant.ParticipantId == _currentUser.UserId &&
+            y.AdminParticipant.AdminId == _currentUser.AdminId
+            ));
+
         return _mapper.Map<IEnumerable<TripDto>>(entities);
     }
 
     public async Task<TripDto?> GetByIdAsync(Guid id)
     {
-        var entity = await _tripRepository.GetByIdAsync(id);
+        var entity = await _tripRepository2.GetByIdAsync(id);
         return entity != null ? _mapper.Map<TripDto>(entity) : null;
     }
 
     public async Task<TripDto> AddAsync(CreateTripRequest request)
     {
+        _currentUser.RaiseIfNotAdmin();
+        if (_tripRepository2.AnyAsync(x => x.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase) && x.UserId == _currentUser.UserId).Result)
+        {
+            throw new InvalidOperationException("A trip with the same name already exists for this user");
+        }
         var entity = _mapper.Map<Trip>(request);
-        await _tripRepository.AddAsync(entity);
+        entity.Id = Guid.NewGuid();
+        entity.UserId = _currentUser.AdminId;
+        await _tripRepository2.AddAsync(entity);
         return _mapper.Map<TripDto>(entity);
     }
 
     public async Task<bool> UpdateAsync(UpdateTripRequest request)
     {
-        var entity = await _tripRepository.GetByIdAsync(request.Id);
-        if (entity == null)
+        _currentUser.RaiseIfNotAdmin();
+
+        if (_tripRepository2.AnyAsync(x => x.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase) && x.UserId == _currentUser.UserId && x.Id != request.Id).Result)
         {
-            return false;
+            throw new InvalidOperationException("A trip with the same name already exists for this user");
         }
-        
+
+        if (!_checkAccessService.CurrentUserHasAccessToTripAsync(request.Id).Result)
+        {
+            throw new UnauthorizedAccessException("User does not have access to this trip");
+        }
+
+        var entity = await _tripRepository2.GetByIdAsync(request.Id);
         _mapper.Map(request, entity);
-        await _tripRepository.UpdateAsync(entity);
+        await _tripRepository2.UpdateAsync(entity!);
         return true;
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var entity = await _tripRepository.GetByIdAsync(id);
-        if (entity == null)
+        _currentUser.RaiseIfNotAdmin();
+
+        if (!_checkAccessService.CurrentUserHasAccessToTripAsync(id).Result)
         {
-            return false;
+            throw new UnauthorizedAccessException("User does not have access to this trip");
         }
-        
-        await _tripRepository.DeleteAsync(id);
+
+        await _tripRepository2.DeleteAsync(id);
         return true;
     }
 
+
     public async Task<TripStatDto?> GetTripStatsAsync(Guid id)
     {
-        TripStatDto? result = await _tripRepository.GetTripStats(id);
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!_checkAccessService.CurrentUserHasAccessToTripAsync(id).Result)
+        {
+            throw new UnauthorizedAccessException("User does not have access to this trip");
+        }
+
+        var entities = await _tripRepository2.GetAllFullByIdAsync();
+
+        TripStatDto? result = entities
+            .Select(x => new TripStatDto
+            {
+                Trip = new TripDto
+                {
+                    Id = x.Id,
+                    UserId = x.UserId,
+                    TripStatusId = x.TripStatusId,
+                    TripStatus = x.TripStatus.Name,
+                    Name = x.Name,
+                    Notes = x.Notes,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate
+                },
+                TotalDays = (x.EndDate.HasValue && x.StartDate.HasValue) ? (x.EndDate.Value.DayNumber - x.StartDate.Value.DayNumber + 1) : 0,
+                TotalParticipants = x.TripUsers.Count,
+                TotalPacks = x.TripUsers.Sum(tu => tu.TripUserPackages.Count),
+                TotalThings = x.TripUsers.Sum(tu => tu.TripUserPackages.Sum(tp => tp.TripUserThings.Count))
+            })
+            .FirstOrDefault(x => x.Trip.Id == id);
+
         return result;
     }
 }
+

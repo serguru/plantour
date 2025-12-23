@@ -6,12 +6,12 @@ using PlantourApi.Models;
 
 namespace plantour_server.Services;
 public class CheckAccessService(
-    TripRepository2 tripRepository,
+    TripRepository tripRepository,
     AdminsParticipantRepository2 adminsParticipantRepository,
     HttpCurrentUser httpCurrentUser
     ) : ICheckAccessService
 {
-    private readonly TripRepository2 _tripRepository = tripRepository;
+    private readonly TripRepository _tripRepository = tripRepository;
     private readonly AdminsParticipantRepository2 _adminsParticipantRepository = adminsParticipantRepository;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 

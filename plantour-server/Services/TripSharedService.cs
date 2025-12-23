@@ -30,7 +30,7 @@ public class TripSharedService(
 
 
         var items = await _tripSharedRepository.GetAllFullAsync(tripId);
-        return items.Select(item => _mapper.Map<TripSharedDto>(item));
+        return _mapper.Map<IEnumerable<TripSharedDto>>(items);
     }
 
     public async Task<TripThingDto?> GetByIdAsync(Guid tripId, Guid id)

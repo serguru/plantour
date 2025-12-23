@@ -20,4 +20,11 @@ public class CurrentUser
             throw new UnauthorizedAccessException("User is not authenticated");
         }
     }   
+    public void RaiseIfNotAdmin()
+    {
+        if (!IsAdmin)
+        {
+            throw new UnauthorizedAccessException("User is not admin");
+        }
+    }   
 }
