@@ -99,7 +99,7 @@ public class AdminsParticipantRepository : BaseRepository
             throw new InvalidOperationException("Access denied");
         }
         entity.Id = Guid.NewGuid();
-        entity.AdminId = CurrentUser.UserId!.Value;
+        entity.AdminId = CurrentUser.UserId;
         _context.AdminsParticipants.Add(entity);
         try
         {

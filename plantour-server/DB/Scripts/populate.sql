@@ -151,4 +151,46 @@ VALUES
         (SELECT id FROM trip_user_packages WHERE name = 'Yellow Suitcase')
     );
 
+-----------------------------------------------------------------------
+-- TRIP SHARED THINGS
+-----------------------------------------------------------------------
+INSERT INTO trip_shared_things (trip_id, category, name, units, value, notes, added_by_id)
+VALUES
+    (
+        (SELECT trip_id FROM trip_users WHERE notes = 'Serguru is the admin and the participant'),
+        'Clothing',
+        'Rain Jacket',
+        'pcs',
+        1,
+        'Essential for mountains',
+        (SELECT id FROM trip_users WHERE notes = 'Serguru is the admin and the participant')
+    ),
+    (
+        (SELECT trip_id FROM trip_users WHERE notes = 'Serguru is the admin and the participant'),
+        'Fishing',
+        'Talles',
+        'pcs',
+        1,
+        'Essential for ocean',
+        (SELECT id FROM trip_users WHERE notes = 'Serguru is the admin and the participant')
+    ),
+    (
+        (SELECT trip_id FROM trip_users WHERE notes = 'Serguru is the admin and the participant'),
+        'Clothing',
+        'Rain Long Jacket',
+        'pcs',
+        1,
+        'Essential for mountains',
+        (SELECT id FROM trip_users WHERE notes = 'Serguru is the admin and the participant')
+    ),
+    (
+        (SELECT trip_id FROM trip_users WHERE notes = 'Serguru is the admin and the participant'),
+        'Electronics',
+        'Headlamp',
+        'pcs',
+        1,
+        'Check batteries before leaving',
+        (SELECT id FROM trip_users WHERE notes = 'Serguru is the admin and the participant')
+    );
+
 commit;

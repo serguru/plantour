@@ -5,7 +5,7 @@ using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
-public class TripUserThingService(
+public class TripThingService(
     TripThingRepository TripThingRepository,
     DicTripRepository dicTripRepository,
     ThingRepository ThingRepository,
@@ -39,14 +39,14 @@ public class TripUserThingService(
         return entity != null ? _mapper.Map<TripThingDto>(entity) : null;
     }
 
-    public async Task<TripThingDto> AddAsync(CreateTripUserThingRequest request)
+    public async Task<TripThingDto> AddAsync(CreateTripThingRequest request)
     {
         var entity = _mapper.Map<TripUserThing>(request);
         await _tripUserThingRepository.AddAsync(request.TripId, entity);
         return _mapper.Map<TripThingDto>(entity);
     }
 
-    public async Task<bool> UpdateAsync(UpdateTripUserThingRequest request)
+    public async Task<bool> UpdateAsync(UpdateTripThingRequest request)
     {
         var entity = await _tripUserThingRepository.GetByIdAsync(request.TripId, request.Id);
         if (entity == null)

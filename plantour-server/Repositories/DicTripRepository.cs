@@ -34,13 +34,13 @@ public class DicTripRepository : BaseRepository
 
         if (CurrentUser.IsAdmin)
         {
-            adminId = CurrentUser.UserId!.Value;
+            adminId = CurrentUser.UserId;
             participantId = adminId;
         }
         else if (CurrentUser.IsParticipant)
         {
-            adminId = CurrentUser.AdminId!.Value;
-            participantId = CurrentUser.UserId!.Value;
+            adminId = CurrentUser.AdminId;
+            participantId = CurrentUser.UserId;
         }
         else
         {
@@ -90,13 +90,13 @@ public class DicTripRepository : BaseRepository
 
         if (CurrentUser.IsAdmin)
         {
-            adminId = CurrentUser.UserId!.Value;
+            adminId = CurrentUser.UserId;
             participantId = adminId;
         }
         else if (CurrentUser.IsParticipant)
         {
-            adminId = CurrentUser.AdminId!.Value;
-            participantId = CurrentUser.UserId!.Value;
+            adminId = CurrentUser.AdminId;
+            participantId = CurrentUser.UserId;
         }
         else
         {
@@ -146,13 +146,13 @@ public class DicTripRepository : BaseRepository
 
         if (CurrentUser.IsAdmin)
         {
-            adminId = CurrentUser.UserId!.Value;
+            adminId = CurrentUser.UserId;
             participantId = adminId;
         }
         else if (CurrentUser.IsParticipant)
         {
-            adminId = CurrentUser.AdminId!.Value;
-            participantId = CurrentUser.UserId!.Value;
+            adminId = CurrentUser.AdminId;
+            participantId = CurrentUser.UserId;
         }
         else
         {
@@ -202,13 +202,13 @@ public class DicTripRepository : BaseRepository
 
         if (CurrentUser.IsAdmin)
         {
-            adminId = CurrentUser.UserId!.Value;
+            adminId = CurrentUser.UserId;
             participantId = adminId;
         }
         else if (CurrentUser.IsParticipant)
         {
-            adminId = CurrentUser.AdminId!.Value;
-            participantId = CurrentUser.UserId!.Value;
+            adminId = CurrentUser.AdminId;
+            participantId = CurrentUser.UserId;
         }
         else
         {
@@ -251,7 +251,7 @@ public class DicTripRepository : BaseRepository
 
         if (CurrentUser.IsAdmin)
         {
-            adminId = CurrentUser.UserId!.Value;
+            adminId = CurrentUser.UserId;
         }
         else
         {
@@ -291,7 +291,7 @@ public class DicTripRepository : BaseRepository
 
         if (CurrentUser.IsAdmin)
         {
-            adminId = CurrentUser.UserId!.Value;
+            adminId = CurrentUser.UserId;
         }
         else
         {
@@ -334,13 +334,13 @@ public class DicTripRepository : BaseRepository
 
         if (CurrentUser.IsAdmin)
         {
-            adminId = CurrentUser.UserId!.Value;
+            adminId = CurrentUser.UserId;
             participantId = adminId;
         }
         else if (CurrentUser.IsParticipant)
         {
-            adminId = CurrentUser.AdminId!.Value;
-            participantId = CurrentUser.UserId!.Value;
+            adminId = CurrentUser.AdminId;
+            participantId = CurrentUser.UserId;
         }
         else
         {

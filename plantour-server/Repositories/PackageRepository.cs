@@ -59,7 +59,7 @@ public class PackageRepository : BaseRepository
             throw new InvalidOperationException("Package with the same description already exists");
         }
         entity.Id = Guid.NewGuid();
-        entity.UserId = CurrentUser.UserId!.Value;
+        entity.UserId = CurrentUser.UserId;
         _context.UserPackages.Add(entity);
         await _context.SaveChangesAsync();
     }

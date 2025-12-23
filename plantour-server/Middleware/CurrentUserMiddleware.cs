@@ -32,26 +32,38 @@ public class CurrentUserMiddleware
 
             if (Guid.TryParse(userIdClaim, out var userId))
             {
-                currentUser.UserId = userId;
-                currentUser.Email = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.Email)?.Value;
-                currentUser.FirstName = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.FirstName)?.Value;
-                currentUser.LastName = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.LastName)?.Value;
+                var email = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.Email)?.Value;
 
-                var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.Role)?.Value;
+                if (userId != Guid.Empty && !string.IsNullOrEmpty(email))
+                {
+                    currentUser.UserId = userId;
+                    currentUser.Email = email;
+                    currentUser.FirstName = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.FirstName)?.Value;
+                    currentUser.LastName = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.LastName)?.Value;
 
-                // Determine role based on PlantourRoles constants
-                if (roleClaim == PlantourRoles.Admin)
-                {
-                    currentUser.Role = UserRole.Admin;
-                }
-                else
-                {
-                    var adminIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.AdminId)?.Value;
-                    if (roleClaim == PlantourRoles.Participant && Guid.TryParse(adminIdClaim, out var adminId))
+                    var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.Role)?.Value;
+
+                    if (roleClaim == PlantourRoles.Admin || roleClaim == PlantourRoles.Participant)
                     {
-                        currentUser.AdminId = adminId;
-                        currentUser.Role = UserRole.Participant;
-                        currentUser.AccessCode = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.AccessCode)?.Value;   
+                        // Determine role based on PlantourRoles constants
+                        if (roleClaim == PlantourRoles.Admin)
+                        {
+                            currentUser.Role = UserRole.Admin;
+                            currentUser.AdminId = userId;
+                        }
+                        else
+                        {
+                            var adminIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.AdminId)?.Value;
+
+                            if (Guid.TryParse(adminIdClaim, out var adminId))
+                            {
+                                if (adminId != Guid.Empty)
+                                {
+                                    currentUser.AdminId = adminId;
+                                    currentUser.Role = UserRole.Participant;
+                                }
+                            }
+                        }
                     }
                 }
             }

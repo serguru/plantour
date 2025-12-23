@@ -75,27 +75,35 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IPackageService, UserPackageService>();
-builder.Services.AddScoped<IThingService, UserThingService>();
+builder.Services.AddScoped<IPackageService, PackageService>();
+builder.Services.AddScoped<IThingService, ThingService>();
 builder.Services.AddScoped<ITripService, TripService>();
 builder.Services.AddScoped<ITripUserService, TripUserService>();
-builder.Services.AddScoped<ITripThingService, TripUserThingService>();
-builder.Services.AddScoped<ITripPackageService, TripUserPackageService>();
+builder.Services.AddScoped<ITripThingService, TripThingService>();
+builder.Services.AddScoped<ITripPackageService, TripPackageService>();
 builder.Services.AddScoped<ILookupsService, LookupsService>();
 builder.Services.AddScoped<IAdminsParticipantService, AdminsParticipantService>();
+builder.Services.AddScoped<ITripSharedService, TripSharedService>();
+builder.Services.AddScoped<ICheckAccessService, CheckAccessService>();
+
 
 // Register repositories
 builder.Services.AddScoped<plantour_server.Repositories.PackageRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripRepository2>();
 builder.Services.AddScoped<plantour_server.Repositories.TripUserRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripPackageRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.LookupsRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository2>();
 builder.Services.AddScoped<plantour_server.Repositories.AuthRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.DicTripRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripSharedRepository>();
+
+builder.Services.AddScoped<HttpCurrentUser>();
 
 
 // Configure CORS for Angular client

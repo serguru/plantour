@@ -20,6 +20,7 @@ public class GenericRepository<T> where T : class
         return await _dbSet.FindAsync(id);
     }
 
+
     public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
         return await _dbSet.ToListAsync();
@@ -52,10 +53,10 @@ public class GenericRepository<T> where T : class
             await _context.SaveChangesAsync();
         }
     }
-
-    public virtual async Task<bool> ExistsAsync(Guid id)
+#region Any Methods
+    public virtual async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
     {
-        var entity = await GetByIdAsync(id);
-        return entity != null;
+        return await _dbSet.AnyAsync(predicate);
     }
+#endregion
 }

@@ -5,7 +5,7 @@ using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
-public class TripUserPackageService(
+public class TripPackageService(
     TripPackageRepository TripPackageRepository,
     DicTripRepository dicTripRepository,
     IMapper mapper) : ITripPackageService

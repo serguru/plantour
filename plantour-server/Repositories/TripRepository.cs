@@ -132,7 +132,7 @@ public class TripRepository : BaseRepository
         }
 
         entity.Id = Guid.NewGuid();
-        entity.UserId = CurrentUser!.UserId!.Value;
+        entity.UserId = CurrentUser!.UserId;
         _context.Trips.Add(entity);
         await _context.SaveChangesAsync();
     }

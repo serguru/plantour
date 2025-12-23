@@ -83,7 +83,7 @@ public class TripThingController : ControllerBase
 
     [HttpPost]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripThingDto>> Add([FromBody] CreateTripUserThingRequest request)
+    public async Task<ActionResult<TripThingDto>> Add([FromBody] CreateTripThingRequest request)
     {
         try
         {
@@ -98,7 +98,7 @@ public class TripThingController : ControllerBase
 
     [HttpPut]
     [AdminOrParticipant]
-    public async Task<ActionResult> Update([FromBody] UpdateTripUserThingRequest request)
+    public async Task<ActionResult> Update([FromBody] UpdateTripThingRequest request)
     {
         try
         {

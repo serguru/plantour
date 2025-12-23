@@ -8,6 +8,10 @@ public class TripUserMappingProfile : Profile
 {
     public TripUserMappingProfile()
     {
+
+        CreateMap<User, UserDto>();
+
+
         CreateMap<TripUser, TripUserDto>()
         .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.AdminParticipant.Participant.Email))
         .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.AdminParticipant.Participant.FirstName))

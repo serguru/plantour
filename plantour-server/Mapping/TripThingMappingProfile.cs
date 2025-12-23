@@ -4,21 +4,25 @@ using plantour_server.DTOs;
 
 namespace plantour_server.Mapping;
 
-public class TripUserThingMappingProfile : Profile
+public class TripThingMappingProfile : Profile
 {
-    public TripUserThingMappingProfile()
+    public TripThingMappingProfile()
     {
+        CreateMap<TripSharedThing, TripSharedDto>()
+            .ForMember(dest => dest.AddedBy, opt => opt.MapFrom(src => src.AddedBy.Trip.User))            
+            .ForMember(dest => dest.AssignedTo, opt => opt.MapFrom(src => src.AssignedTo != null ? src.AssignedTo.Trip.User : null));            
+
         CreateMap<TripUserThing, TripThingDto>()
             .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.TripUserPackage != null ? src.TripUserPackage.Name : null))
             .ForMember(dest => dest.PackageLabel, opt => opt.MapFrom(src => src.TripUserPackage != null ? src.TripUserPackage.Label : null));
         
-        CreateMap<CreateTripUserThingRequest, TripUserThing>()
+        CreateMap<CreateTripThingRequest, TripUserThing>()
             .ForMember(dest => dest.TripUserId, opt => opt.Ignore())
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.TripUser, opt => opt.Ignore())
             .ForMember(dest => dest.TripUserPackage, opt => opt.Ignore());
         
-        CreateMap<UpdateTripUserThingRequest, TripUserThing>()
+        CreateMap<UpdateTripThingRequest, TripUserThing>()
             .ForMember(dest => dest.TripUserId, opt => opt.Ignore())
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.TripUserId, opt => opt.Ignore())

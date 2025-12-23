@@ -5,13 +5,13 @@ using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
-public class UserThingService : IThingService
+public class ThingService : IThingService
 {
     private readonly ThingRepository _userThingRepository;
     private readonly ThingCategoryRepository _thingCategoryRepository;
     private readonly IMapper _mapper;
 
-    public UserThingService(
+    public ThingService(
         ThingRepository ThingRepository,
         ThingCategoryRepository thingCategoryRepository,
         IMapper mapper)

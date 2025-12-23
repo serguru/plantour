@@ -6,8 +6,8 @@ public interface ITripThingService
 {
     Task<IEnumerable<TripThingDto>> GetAllAsync(Guid tripId);
     Task<TripThingDto?> GetByIdAsync(Guid tripId,Guid id);
-    Task<TripThingDto> AddAsync(CreateTripUserThingRequest request);
-    Task<bool> UpdateAsync(UpdateTripUserThingRequest request);
+    Task<TripThingDto> AddAsync(CreateTripThingRequest request);
+    Task<bool> UpdateAsync(UpdateTripThingRequest request);
     Task<bool> DeleteAsync(Guid tripId,Guid id);
     Task<int> InsertTripUserThingsAsync(Guid tripId, Guid[] packageIds);
     Task<int> DeleteTripUserThingsAsync(Guid tripId, Guid[] packageIds);
