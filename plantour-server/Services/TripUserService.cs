@@ -30,9 +30,9 @@ public class TripUserService(
         return _mapper.Map<IEnumerable<TripUserDto>>(entities);
     }
 
-    public async Task<TripUserDto?> GetByIdAsync(Guid id)
+    public async Task<TripUserDto?> GetByIdAsync(Guid tripId, Guid id)
     {
-        var entity = await _tripUserRepository.GetByIdAsync(id);
+        var entity = await _tripUserRepository.GetByIdAsync(tripId, id);
         return entity != null ? _mapper.Map<TripUserDto>(entity) : null;
     }
 
@@ -45,7 +45,7 @@ public class TripUserService(
 
     public async Task<bool> UpdateAsync(UpdateTripUserRequest request)
     {
-        var entity = await _tripUserRepository.GetByIdAsync(request.Id);
+        var entity = await _tripUserRepository.GetByIdAsync(request.TripId, request.Id);
         if (entity == null)
         {
             return false;
@@ -56,15 +56,15 @@ public class TripUserService(
         return true;
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(Guid tripId, Guid id)
     {
-        var entity = await _tripUserRepository.GetByIdAsync(id);
+        var entity = await _tripUserRepository.GetByIdAsync(tripId, id);
         if (entity == null)
         {
             return false;
         }
         
-        await _tripUserRepository.DeleteAsync(id);
+        await _tripUserRepository.DeleteAsync(tripId, id);
         return true;
     }
 }

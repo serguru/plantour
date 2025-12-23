@@ -14,6 +14,41 @@ public class TripThingRepository : BaseRepository
         _context = context;
     }
 
+    public async Task<bool> AnyByIdAsync(Guid tripId, Guid id)
+    {
+        if (CurrentUser == null)
+        {
+            return false;
+        }
+
+        if (CurrentUser.IsAdmin)
+        {
+            return await _dbSet
+                .Include(x => x.TripUserPackage)
+                .AnyAsync(x =>
+                    x.TripUser.TripId == tripId &&
+                    x.Id == id &&
+                    x.TripUser.Trip.UserId == CurrentUser.UserId &&
+                    x.TripUser.AdminParticipant.AdminId == CurrentUser.UserId &&
+                    x.TripUser.AdminParticipant.ParticipantId == CurrentUser.UserId
+                    );
+        }
+
+        if (CurrentUser.IsParticipant)
+        {
+            return await _dbSet
+                .Include(x => x.TripUserPackage)
+                .AnyAsync(x =>
+                    x.TripUser.TripId == tripId &&
+                    x.Id == id &&
+                    x.TripUser.Trip.UserId == CurrentUser.AdminId &&
+                    x.TripUser.AdminParticipant.AdminId == CurrentUser.AdminId &&
+                    x.TripUser.AdminParticipant.ParticipantId == CurrentUser.UserId
+                    );
+        }
+
+        return false;
+    }
     public async Task<TripUserThing?> GetByIdAsync(Guid tripId, Guid id)
     {
         if (CurrentUser == null)

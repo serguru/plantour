@@ -15,22 +15,54 @@ public class TripUserRepository : BaseRepository
         _context = context;
     }
 
-    public async Task<TripUser?> GetByIdAsync(Guid id)
+    public async Task<bool> AnyByIdAsync(Guid id, Guid tripId)
+    {
+        if (CurrentUser == null)
+        {
+            return false;
+        }
+        else if (CurrentUser.IsAdmin)
+        {
+            return await _dbSet
+                .AnyAsync(x =>
+                x.Id == id &&
+                x.AdminParticipant.AdminId == CurrentUser.UserId &&
+                x.TripId == tripId
+                );
+        }
+        else if (CurrentUser.IsParticipant)
+        {
+            return await _dbSet
+                .AnyAsync(x =>
+                x.Id == id && x.AdminParticipant.AdminId == CurrentUser.AdminId &&
+                x.TripId == tripId
+                );
+        }
+        return false;
+    }
+
+    public async Task<TripUser?> GetByIdAsync(Guid id, Guid tripId)
     {
         if (CurrentUser == null)
         {
             return null;
         }
-        if (CurrentUser.IsAdmin)
+        else if (CurrentUser.IsAdmin)
         {
             return await _dbSet
-                .FirstOrDefaultAsync(x => x.Id == id && x.AdminParticipant.AdminId == CurrentUser.UserId);
+                .FirstOrDefaultAsync(x =>
+                x.Id == id &&
+                x.AdminParticipant.AdminId == CurrentUser.UserId &&
+                x.TripId == tripId
+                );
         }
-
-        if (CurrentUser.IsParticipant)
+        else if (CurrentUser.IsParticipant)
         {
             return await _dbSet
-                .FirstOrDefaultAsync(x => x.Id == id && x.AdminParticipant.AdminId == CurrentUser.AdminId);
+                .FirstOrDefaultAsync(x =>
+                x.Id == id && x.AdminParticipant.AdminId == CurrentUser.AdminId &&
+                x.TripId == tripId
+                );
         }
         return null;
     }
@@ -86,7 +118,7 @@ public class TripUserRepository : BaseRepository
         {
             throw new InvalidOperationException("Access denied");
         }
-        var existingEntity = await GetByIdAsync(entity.Id);
+        var existingEntity = await GetByIdAsync(entity.TripId, entity.Id);
         if (existingEntity == null)
         {
             throw new InvalidOperationException("Trip user not found or access denied");
@@ -96,13 +128,13 @@ public class TripUserRepository : BaseRepository
         await _context.SaveChangesAsync();
     }
 
-    public virtual async Task DeleteAsync(Guid id)
+    public virtual async Task DeleteAsync(Guid tripId, Guid id)
     {
         if (CurrentUser == null || CurrentUser.IsParticipant)
         {
             throw new InvalidOperationException("Access denied");
         }
-        var entity = await GetByIdAsync(id);
+        var entity = await GetByIdAsync(tripId, id);
         if (entity == null)
         {
             return;
