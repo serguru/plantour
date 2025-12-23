@@ -51,6 +51,9 @@ public partial class TripSharedThing
     [Column("assigned_deadline")]
     public DateTime? AssignedDeadline { get; set; }
 
+    [Column("rejected")]
+    public bool Rejected { get; set; }
+
     [ForeignKey("AddedById")]
     [InverseProperty("TripSharedThingAddedBies")]
     public virtual TripUser AddedBy { get; set; } = null!;

@@ -17,7 +17,12 @@ public class TripAssignRepository(
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
     private readonly TripThingRepository _tripThingRepository = tripThingRepository;
 
-
+    // Rule 1. No users including admins can change AddedById and AddedAt. If admin is not happy with who added it, they can delete and re-add.
+    // Rule 2. Admins have full access to all trip shared things except Rule 1.
+    // Rule 3. Participants:
+    // - have full access to shared things they added except Rule 1.
+    // - can accept / reject shared things assigned to them
+    // - cannot set AssignedToId to other users even if they added the shared thing
 
 
     public async Task<TripSharedThing?> GetByIdAsync(Guid tripId, Guid id)
