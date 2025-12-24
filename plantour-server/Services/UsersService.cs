@@ -16,9 +16,16 @@ using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
-public class AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, AuthRepository authRepository, AdminsParticipantRepository adminsParticipantRepository, IConfiguration configuration, IWebHostEnvironment environment, HttpCurrentUser httpCurrentUser) : IAuthService
+public class UsersService(
+    IOptions<JwtSettings> jwtSettings, 
+    IMapper mapper, 
+    UsersRepository usersRepository, 
+    AdminsParticipantRepository adminsParticipantRepository, 
+    IConfiguration configuration, 
+    IWebHostEnvironment environment, 
+    HttpCurrentUser httpCurrentUser) : IUsersService
 {
-    private readonly AuthRepository _authRepository = authRepository;
+    private readonly UsersRepository _usersRepository = usersRepository;
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
 
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
@@ -33,7 +40,7 @@ public class AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, Auth
     public async Task<AuthResponse> SignUpAsync(SignUpRequest request)
     {
         // Check if user already exists
-        if (await _authRepository.AnyByEmailAsync(request.Email))
+        if (await _usersRepository.AnyAsync(x => x.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase)))
         {
             throw new InvalidOperationException("User with this email already exists");
         }
@@ -52,7 +59,7 @@ public class AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, Auth
             Phone = request.Phone
         };
 
-        await _authRepository.AddAsync(user);
+        await _usersRepository.AddAsync(user);
 
         // Generate admin tokens
         return await GenerateAdminAuthResponse(user);
@@ -61,7 +68,10 @@ public class AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, Auth
     public async Task<AuthResponse> SignInAsync(SignInRequest request)
     {
         // Find user
-        var user = await _authRepository.GetByEmailAsync(request.Email);
+        var users = await _usersRepository.FindAsync(x => x.Email.ToLower() == request.Email.ToLower());
+
+        var user = users.FirstOrDefault();
+
         if (user == null || user.PasswordHash == null || user.PasswordSalt == null)
         {
             throw new UnauthorizedAccessException("Invalid email or password");
@@ -101,7 +111,10 @@ public class AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, Auth
     {
         _currentUser.RaiseIfNotAdmin();
 
-        User? participant = _authRepository.GetByEmailAsync(request.Email).Result;
+
+        var users = await _usersRepository.FindAsync(x => x.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase));
+
+        var participant = users.FirstOrDefault();
 
         // Ensure participant user exists or create new
         if (participant == null)
@@ -116,7 +129,7 @@ public class AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, Auth
                 PasswordSalt = null,
                 Notes = $"Registered by admin {_currentUser.Email} on {DateTime.UtcNow}"
             };
-            await _authRepository.AddAsync(participant);
+            await _usersRepository.AddAsync(participant);
         }
 
         if (await _adminsParticipantRepository.AnyAsync(x => x.AdminId == _currentUser.AdminId && x.ParticipantId == participant.Id))

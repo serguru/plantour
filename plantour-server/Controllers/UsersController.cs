@@ -9,11 +9,11 @@ namespace plantour_server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
+public class UsersController : ControllerBase
 {
-    private readonly IAuthService _authService;
+    private readonly IUsersService _authService;
 
-    public AuthController(IAuthService authService)
+    public UsersController(IUsersService authService)
     {
         _authService = authService;
     }

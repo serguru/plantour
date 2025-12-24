@@ -2,7 +2,7 @@ using plantour_server.DTOs;
 
 namespace plantour_server.Services;
 
-public interface IAuthService
+public interface IUsersService
 {
     // Admin authentication
     Task<AuthResponse> SignUpAsync(SignUpRequest request);

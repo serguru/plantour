@@ -74,7 +74,7 @@ builder.Services.AddSingleton<IAuthorizationHandler, UserRoleHandler>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 // Register services
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPackageService, PackageService>();
 builder.Services.AddScoped<IThingService, ThingService>();
 builder.Services.AddScoped<ITripService, TripService>();
@@ -97,7 +97,7 @@ builder.Services.AddScoped<plantour_server.Repositories.TripThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripPackageRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.LookupsRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.AuthRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.UsersRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.DicTripRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripSharedRepository>();
 
