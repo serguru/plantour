@@ -33,9 +33,6 @@ public class AuthRepository : BaseRepository
             .AnyAsync(x => x.Email == email);
     }
 
-
- 
-
     public async Task<IEnumerable<User>> GetAllAsync()
     {
         if (CurrentUser == null)

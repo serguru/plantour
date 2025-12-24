@@ -7,12 +7,12 @@ using PlantourApi.Models;
 namespace plantour_server.Services;
 
 public class TripService(
-    TripRepository tripRepository2,
+    TripRepository tripRepository,
     ICheckAccessService checkAccessService,
     IMapper mapper,
     HttpCurrentUser httpCurrentUser) : ITripService
 {
-    private readonly TripRepository _tripRepository2 = tripRepository2;
+    private readonly TripRepository _tripRepository = tripRepository;
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly IMapper _mapper = mapper;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
@@ -22,7 +22,7 @@ public class TripService(
     {
         _currentUser.RaiseIfNotAuthenticated();
 
-        var entities = await _tripRepository2.GetAllAsync();
+        var entities = await _tripRepository.GetAllAsync();
         return _mapper.Map<IEnumerable<TripDto>>(entities);
 
     }
@@ -31,7 +31,7 @@ public class TripService(
     {
         _currentUser.RaiseIfNotAuthenticated();
 
-        var entities = await _tripRepository2.GetAllAsync();
+        var entities = await _tripRepository.GetAllAsync();
 
         entities = entities.Where(x =>
             x.UserId == _currentUser.AdminId &&
@@ -45,21 +45,21 @@ public class TripService(
 
     public async Task<TripDto?> GetByIdAsync(Guid id)
     {
-        var entity = await _tripRepository2.GetByIdAsync(id);
+        var entity = await _tripRepository.GetByIdAsync(id);
         return entity != null ? _mapper.Map<TripDto>(entity) : null;
     }
 
     public async Task<TripDto> AddAsync(CreateTripRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
-        if (_tripRepository2.AnyAsync(x => x.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase) && x.UserId == _currentUser.UserId).Result)
+        if (_tripRepository.AnyAsync(x => x.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase) && x.UserId == _currentUser.UserId).Result)
         {
             throw new InvalidOperationException("A trip with the same name already exists for this user");
         }
         var entity = _mapper.Map<Trip>(request);
         entity.Id = Guid.NewGuid();
         entity.UserId = _currentUser.AdminId;
-        await _tripRepository2.AddAsync(entity);
+        await _tripRepository.AddAsync(entity);
         return _mapper.Map<TripDto>(entity);
     }
 
@@ -67,7 +67,7 @@ public class TripService(
     {
         _currentUser.RaiseIfNotAdmin();
 
-        if (_tripRepository2.AnyAsync(x => x.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase) && x.UserId == _currentUser.UserId && x.Id != request.Id).Result)
+        if (_tripRepository.AnyAsync(x => x.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase) && x.UserId == _currentUser.UserId && x.Id != request.Id).Result)
         {
             throw new InvalidOperationException("A trip with the same name already exists for this user");
         }
@@ -77,9 +77,9 @@ public class TripService(
             throw new UnauthorizedAccessException("User does not have access to this trip");
         }
 
-        var entity = await _tripRepository2.GetByIdAsync(request.Id);
+        var entity = await _tripRepository.GetByIdAsync(request.Id);
         _mapper.Map(request, entity);
-        await _tripRepository2.UpdateAsync(entity!);
+        await _tripRepository.UpdateAsync(entity!);
         return true;
     }
 
@@ -92,7 +92,7 @@ public class TripService(
             throw new UnauthorizedAccessException("User does not have access to this trip");
         }
 
-        await _tripRepository2.DeleteAsync(id);
+        await _tripRepository.DeleteAsync(id);
         return true;
     }
 
@@ -106,7 +106,7 @@ public class TripService(
             throw new UnauthorizedAccessException("User does not have access to this trip");
         }
 
-        var entities = await _tripRepository2.GetAllFullByIdAsync();
+        var entities = await _tripRepository.GetAllFullAsync();
 
         TripStatDto? result = entities
             .Select(x => new TripStatDto
