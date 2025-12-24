@@ -52,7 +52,7 @@ public class TripService(
     public async Task<TripDto> AddAsync(CreateTripRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
-        if (_tripRepository.AnyAsync(x => x.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase) && x.UserId == _currentUser.UserId).Result)
+        if (_tripRepository.AnyAsync(x => x.Name.ToLower() == request.Name.ToLower() && x.UserId == _currentUser.UserId).Result)
         {
             throw new InvalidOperationException("A trip with the same name already exists for this user");
         }
@@ -67,7 +67,7 @@ public class TripService(
     {
         _currentUser.RaiseIfNotAdmin();
 
-        if (_tripRepository.AnyAsync(x => x.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase) && x.UserId == _currentUser.UserId && x.Id != request.Id).Result)
+        if (_tripRepository.AnyAsync(x => x.Name.ToLower() == request.Name.ToLower() && x.UserId == _currentUser.UserId && x.Id != request.Id).Result)
         {
             throw new InvalidOperationException("A trip with the same name already exists for this user");
         }

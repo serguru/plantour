@@ -37,7 +37,7 @@ public class AdminsParticipantService(
     {
         _currentUser.RaiseIfNotAuthenticated();
 
-        var entity = await _adminsParticipantRepository2.FindAsync(x => x.Admin.Email.Equals(email, StringComparison.OrdinalIgnoreCase) && x.AdminId == _currentUser.AdminId && x.ParticipantId == _currentUser.UserId);
+        var entity = await _adminsParticipantRepository2.FindAsync(x => x.Admin.Email.ToLower() == email.ToLower() && x.AdminId == _currentUser.AdminId && x.ParticipantId == _currentUser.UserId);
 
         return entity != null ? _mapper.Map<AdminsParticipantDto>(entity) : null;
     }

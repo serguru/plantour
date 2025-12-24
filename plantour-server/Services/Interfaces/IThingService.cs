@@ -7,7 +7,7 @@ public interface IThingService
     Task<IEnumerable<ThingDto>> GetAllAsync();
     Task<ThingDto?> GetByIdAsync(Guid id);
     Task<ThingDto> AddAsync(CreateThingRequest request);
-    Task<bool> UpdateAsync(UpdateThingRequest request);
-    Task<bool> DeleteAsync(Guid id);
+    Task UpdateAsync(UpdateThingRequest request);
+    Task DeleteAsync(Guid id);
     Task<IEnumerable<ThingCategoryDto>> GetAllThingCategoriesAsync();
 }

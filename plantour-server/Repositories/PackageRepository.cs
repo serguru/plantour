@@ -12,12 +12,12 @@ public class PackageRepository(PlantourContext context) : GenericRepository<User
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
     }
 
-    public async Task<IEnumerable<UserPackage>> GetAllAsync(Guid userId)
-    {
-        return await _dbSet
-            .Where(x => x.UserId == userId)
-            .ToListAsync();
-    }
+    // public async Task<IEnumerable<UserPackage>> GetAllAsync(Guid userId)
+    // {
+    //     return await _dbSet
+    //         .Where(x => x.UserId == userId)
+    //         .ToListAsync();
+    // }
 
     // public override async Task<UserPackage> AddAsync(UserPackage entity)
     // {

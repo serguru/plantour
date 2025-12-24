@@ -40,7 +40,7 @@ public class UsersService(
     public async Task<AuthResponse> SignUpAsync(SignUpRequest request)
     {
         // Check if user already exists
-        if (await _usersRepository.AnyAsync(x => x.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase)))
+        if (await _usersRepository.AnyAsync(x => x.Email.ToLower() == request.Email.ToLower()))
         {
             throw new InvalidOperationException("User with this email already exists");
         }
@@ -112,7 +112,7 @@ public class UsersService(
         _currentUser.RaiseIfNotAdmin();
 
 
-        var users = await _usersRepository.FindAsync(x => x.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase));
+        var users = await _usersRepository.FindAsync(x => x.Email.ToLower() == request.Email.ToLower());
 
         var participant = users.FirstOrDefault();
 

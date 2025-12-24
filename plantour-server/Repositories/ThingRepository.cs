@@ -3,88 +3,64 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
-public class ThingRepository : BaseRepository
+public class ThingRepository(PlantourContext context) : GenericRepository<UserThing>(context)
 {
 
-    private readonly DbSet<UserThing> _dbSet;
-    private readonly PlantourContext _context;
-
-    public ThingRepository(PlantourContext context, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+    public async Task<UserThing?> GetByIdAsync(Guid userId, Guid id)
     {
-        _dbSet = context.Set<UserThing>();
-        _context = context;
-    }
-
-    public async Task<UserThing?> GetByIdAsync(Guid id)
-    {
-        if (CurrentUser == null)
-        {
-            return null;
-        }
-        return await _dbSet     
-            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == CurrentUser.UserId);
-    }
-
-    public async Task<UserThing?> GetByNameAsync(string name)
-    {
-        if (CurrentUser == null)
-        {
-            return null;
-        }
         return await _dbSet
-            .FirstOrDefaultAsync(x => x.Name == name && x.UserId == CurrentUser.UserId);
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
     }
 
-    public async Task<IEnumerable<UserThing>> GetAllAsync()
-    {
-        if (CurrentUser == null)
-        {
-            return Array.Empty<UserThing>();
-        }
+    // public async Task<UserThing?> GetByNameAsync(string name)
+    // {
+    //     if (CurrentUser == null)
+    //     {
+    //         return null;
+    //     }
+    //     return await _dbSet
+    //         .FirstOrDefaultAsync(x => x.Name == name && x.UserId == CurrentUser.UserId);
+    // }
 
-        return await _dbSet
-            .Where(x => x.UserId == CurrentUser.UserId)
-            .ToListAsync();
-    }
 
-    public virtual async Task AddAsync(UserThing entity)
-    {
-        if (CurrentUser == null)
-        {
-            throw new InvalidOperationException("Access denied");
-        }
-        var existingEntity = await GetByNameAsync(entity.Name);
-        if (existingEntity != null)
-        {
-            throw new InvalidOperationException("Thing with the same description already exists");
-        }
-        entity.Id = Guid.NewGuid();
-        entity.UserId = CurrentUser.UserId;
-        _context.UserThings.Add(entity);
-        await _context.SaveChangesAsync();
-    }
+    // public virtual async Task AddAsync(UserThing entity)
+    // {
+    //     if (CurrentUser == null)
+    //     {
+    //         throw new InvalidOperationException("Access denied");
+    //     }
+    //     var existingEntity = await GetByNameAsync(entity.Name);
+    //     if (existingEntity != null)
+    //     {
+    //         throw new InvalidOperationException("Thing with the same description already exists");
+    //     }
+    //     entity.Id = Guid.NewGuid();
+    //     entity.UserId = CurrentUser.UserId;
+    //     _context.UserThings.Add(entity);
+    //     await _context.SaveChangesAsync();
+    // }
 
-    public virtual async Task UpdateAsync(UserThing entity)
-    {
-        var existingEntity = await GetByIdAsync(entity.Id);
-        if (existingEntity == null || existingEntity.UserId != CurrentUser!.UserId)
-        {
-            throw new InvalidOperationException("User thing not found or access denied");
-        }
-        entity.UserId = CurrentUser.UserId;
-        _context.UserThings.Attach(entity);
-        _context.Entry(entity).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-    }
+    // public virtual async Task UpdateAsync(UserThing entity)
+    // {
+    //     var existingEntity = await GetByIdAsync(entity.Id);
+    //     if (existingEntity == null || existingEntity.UserId != CurrentUser!.UserId)
+    //     {
+    //         throw new InvalidOperationException("User thing not found or access denied");
+    //     }
+    //     entity.UserId = CurrentUser.UserId;
+    //     _context.UserThings.Attach(entity);
+    //     _context.Entry(entity).State = EntityState.Modified;
+    //     await _context.SaveChangesAsync();
+    // }
 
-    public virtual async Task DeleteAsync(Guid id)
-    {
-        var entity = await GetByIdAsync(id);
-        if (entity == null || entity.UserId != CurrentUser!.UserId)
-        {
-            return;
-        }
-        _context.UserThings.Remove(entity);
-        await _context.SaveChangesAsync();
-    }
+    // public virtual async Task DeleteAsync(Guid id)
+    // {
+    //     var entity = await GetByIdAsync(id);
+    //     if (entity == null || entity.UserId != CurrentUser!.UserId)
+    //     {
+    //         return;
+    //     }
+    //     _context.UserThings.Remove(entity);
+    //     await _context.SaveChangesAsync();
+    // }
 }

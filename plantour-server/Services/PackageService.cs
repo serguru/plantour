@@ -18,7 +18,7 @@ HttpCurrentUser httpCurrentUser) : IPackageService
     public async Task<IEnumerable<UserPackageDto>> GetAllAsync()
     {
         _currentUser.RaiseIfNotAuthenticated();
-        var entities = await _userPackageRepository.GetAllAsync(_currentUser.UserId);
+        var entities = await _userPackageRepository.FindAsync(x => x.UserId == _currentUser.UserId);
         return _mapper.Map<IEnumerable<UserPackageDto>>(entities);
     }
 
