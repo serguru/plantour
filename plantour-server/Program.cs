@@ -96,7 +96,6 @@ builder.Services.AddScoped<plantour_server.Repositories.TripUserRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripPackageRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.LookupsRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository2>();
 builder.Services.AddScoped<plantour_server.Repositories.AuthRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.DicTripRepository>();

@@ -16,25 +16,17 @@ using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
-public class AuthService : IAuthService
+public class AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, AuthRepository authRepository, AdminsParticipantRepository2 adminsParticipantRepository, IConfiguration configuration, IWebHostEnvironment environment, HttpCurrentUser httpCurrentUser) : IAuthService
 {
-    private readonly AuthRepository _authRepository;
-    private readonly AdminsParticipantRepository _adminsParticipantRepository;
+    private readonly AuthRepository _authRepository = authRepository;
+    private readonly AdminsParticipantRepository2 _adminsParticipantRepository = adminsParticipantRepository;
 
-    private readonly IMapper _mapper;
-    private readonly JwtSettings _jwtSettings;
-    private readonly IConfiguration _configuration;
-    private readonly IWebHostEnvironment _environment;
+    private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 
-    public AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, AuthRepository authRepository, AdminsParticipantRepository adminsParticipantRepository, IConfiguration configuration, IWebHostEnvironment environment)
-    {
-        _jwtSettings = jwtSettings.Value;
-        _mapper = mapper;
-        _authRepository = authRepository;
-        _adminsParticipantRepository = adminsParticipantRepository;
-        _configuration = configuration;
-        _environment = environment;
-    }
+    private readonly IMapper _mapper = mapper;
+    private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+    private readonly IConfiguration _configuration = configuration;
+    private readonly IWebHostEnvironment _environment = environment;
 
     #region Admin Authentication
 
@@ -107,11 +99,7 @@ public class AuthService : IAuthService
 
     public async Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request)
     {
-        var currentUser = _authRepository.CurrentUser;
-        if (currentUser == null || !currentUser.IsAdmin)
-        {
-            throw new UnauthorizedAccessException("Only admins can register participants");
-        }
+        _currentUser.RaiseIfNotAdmin();
 
         User? participant = _authRepository.GetByEmailAsync(request.Email).Result;
 
@@ -126,16 +114,15 @@ public class AuthService : IAuthService
                 Phone = request.Phone,
                 PasswordHash = null,
                 PasswordSalt = null,
-                Notes = $"Registered by admin {currentUser.Email} on {DateTime.UtcNow}"
+                Notes = $"Registered by admin {_currentUser.Email} on {DateTime.UtcNow}"
             };
             await _authRepository.AddAsync(participant);
         }
 
-        if (await _adminsParticipantRepository.AnyByIdAsync(participant.Id))
+        if (await _adminsParticipantRepository.AnyAsync(x => x.AdminId == _currentUser.AdminId && x.ParticipantId == participant.Id))
         {
             throw new InvalidOperationException("Participant with this email is already registered under your admin account");
         }
-
 
         string accessCode = "";
         string accessCodeHash = "";
@@ -143,7 +130,7 @@ public class AuthService : IAuthService
         {
             accessCode = AccessCodeGenerator.GenerateAccessCode();
             accessCodeHash = AccessCode2Hash(accessCode);
-            if (!await _adminsParticipantRepository.AnyByAccessCodeHash(accessCodeHash))
+            if (!await _adminsParticipantRepository.AnyAsync(x => x.AccessCodeHash == accessCodeHash))
             {
                 break;
             }
@@ -175,8 +162,13 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request)
     {
-        AdminsParticipant? adminParticipant = _adminsParticipantRepository.GetByAccessCodeHashAsync(AccessCode2Hash(request.AccessCode)).Result;
+        var hash = AccessCode2Hash(request.AccessCode);
 
+        var adminParticipants = await _adminsParticipantRepository
+            .FindFullAsync(x => x.AccessCodeHash == hash);
+
+        var adminParticipant = adminParticipants.FirstOrDefault();
+            
         if (adminParticipant == null)
         {
             throw new UnauthorizedAccessException("Cannot signin participant with provided access code");
