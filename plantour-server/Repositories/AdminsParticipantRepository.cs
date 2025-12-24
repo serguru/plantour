@@ -26,7 +26,7 @@ public class AdminsParticipantRepository : BaseRepository
             .FirstOrDefaultAsync(x => x.Id == id && x.AdminId == CurrentUser.UserId);
     }
 
-    public async Task<AdminsParticipant?> GetByEmailAsync(string email)
+    public async Task<AdminsParticipant?> GetByEmailAsync(string email) // use 
     {
         if (CurrentUser == null)
         {

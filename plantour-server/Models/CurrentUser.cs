@@ -15,14 +15,14 @@ public class CurrentUser
 
     public void RaiseIfNotAuthenticated()
     {
-        if (!IsAuthenticated)
+        if (!IsAuthenticated && (IsAdmin || IsParticipant))
         {
-            throw new UnauthorizedAccessException("User is not authenticated");
+            throw new UnauthorizedAccessException("User is not authenticated or the role is invalid");
         }
     }   
     public void RaiseIfNotAdmin()
     {
-        if (!IsAdmin)
+        if (!IsAdmin || !IsAuthenticated)
         {
             throw new UnauthorizedAccessException("User is not admin");
         }

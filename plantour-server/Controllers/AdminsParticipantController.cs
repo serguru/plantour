@@ -94,12 +94,7 @@ public class AdminsParticipantController : ControllerBase
     {
         try
         {
-            var deleted = await _service.DeleteAsync(id);
-            if (!deleted)
-            {
-                return NotFound(new { message = "Admins participant not found" });
-            }
-
+            await _service.DeleteAsync(id);
             return NoContent();
         }
         catch (Exception ex)
