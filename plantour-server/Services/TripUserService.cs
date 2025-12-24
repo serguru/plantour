@@ -2,26 +2,30 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using PlantourApi.Models;
 
 namespace plantour_server.Services;
 
 public class TripUserService(
     TripUserRepository tripUserRepository,
     DicTripRepository dicTripRepository,
-    IMapper mapper) : ITripUserService
+    IMapper mapper,
+    HttpCurrentUser httpCurrentUser) : ITripUserService
 {
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
     private readonly IMapper _mapper = mapper;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
-
-    public async Task<int> InsertTripUsersAsync(Guid tripId, Guid[] packageIds)
+    private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
+    public async Task<int> InsertTripUsersAsync(Guid tripId, Guid[] ids)
     {
-        return await _dicTripRepository.InsertTripUsersAsync(tripId, packageIds);
+        _currentUser.RaiseIfNotAdmin();
+        return await _dicTripRepository.InsertTripUsersAsync(_currentUser.AdminId, tripId, ids);
     }
 
-    public async Task<int> DeleteTripUsersAsync(Guid tripId, Guid[] packageIds)
+    public async Task<int> DeleteTripUsersAsync(Guid tripId, Guid[] ids)
     {
-        return await _dicTripRepository.DeleteTripUsersAsync(tripId, packageIds);
+        _currentUser.RaiseIfNotAdmin();
+        return await _dicTripRepository.DeleteTripUsersAsync(_currentUser.AdminId, tripId, ids);
     }
 
     public async Task<IEnumerable<TripUserDto>> GetAllAsync(Guid tripId)

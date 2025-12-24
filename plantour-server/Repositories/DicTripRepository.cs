@@ -4,13 +4,9 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
-public class DicTripRepository : BaseRepository
+public class DicTripRepository(PlantourContext context)
 {
-    private readonly PlantourContext _context;
-    public DicTripRepository(PlantourContext context, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
-    {
-        _context = context;
-    }
+    private readonly PlantourContext _context = context;
 
     /// <summary>
     /// Inserts trip user packages from user packages.
@@ -22,30 +18,16 @@ public class DicTripRepository : BaseRepository
     /// <param name="packageIds">Array of user package IDs to add</param>
     /// <returns>Number of inserted records</returns>
     public async Task<int> InsertTripUserPackagesAsync(
+
+        Guid adminId,
+        Guid participantId,
         Guid tripId,
         Guid[] packageIds)
     {
-        if (CurrentUser == null || !packageIds.Any())
+        if (!packageIds.Any())
         {
             return 0;
         }
-
-        Guid adminId, participantId;
-
-        if (CurrentUser.IsAdmin)
-        {
-            adminId = CurrentUser.UserId;
-            participantId = adminId;
-        }
-        else if (CurrentUser.IsParticipant)
-        {
-            adminId = CurrentUser.AdminId;
-            participantId = CurrentUser.UserId;
-        }
-        else
-        {
-            return 0;
-        }   
 
         int insertedCount = 0;
         using (var connection = _context.Database.GetDbConnection())
@@ -78,30 +60,15 @@ public class DicTripRepository : BaseRepository
     /// <param name="packageIds">Array of user package IDs to delete</param>
     /// <returns>Number of inserted records</returns>
     public async Task<int> DeleteTripUserPackagesAsync(
+        Guid adminId,
+        Guid participantId,
         Guid tripId,
         Guid[] packageIds)
     {
-        if (CurrentUser == null || !packageIds.Any())
+        if (!packageIds.Any())
         {
             return 0;
         }
-
-        Guid adminId, participantId;
-
-        if (CurrentUser.IsAdmin)
-        {
-            adminId = CurrentUser.UserId;
-            participantId = adminId;
-        }
-        else if (CurrentUser.IsParticipant)
-        {
-            adminId = CurrentUser.AdminId;
-            participantId = CurrentUser.UserId;
-        }
-        else
-        {
-            return 0;
-        }   
 
         int deletedCount = 0;
         using (var connection = _context.Database.GetDbConnection())
@@ -134,30 +101,15 @@ public class DicTripRepository : BaseRepository
     /// <param name="thingIds">Array of user thing IDs to add</param>
     /// <returns>Number of inserted records</returns>
     public async Task<int> InsertTripUserThingsAsync(
+        Guid adminId,
+        Guid participantId,
         Guid tripId,
         Guid[] thingIds)
     {
-        if (CurrentUser == null || !thingIds.Any())
+        if (thingIds.Length == 0)
         {
             return 0;
         }
-
-        Guid adminId, participantId;
-
-        if (CurrentUser.IsAdmin)
-        {
-            adminId = CurrentUser.UserId;
-            participantId = adminId;
-        }
-        else if (CurrentUser.IsParticipant)
-        {
-            adminId = CurrentUser.AdminId;
-            participantId = CurrentUser.UserId;
-        }
-        else
-        {
-            return 0;
-        }   
 
         int insertedCount = 0;
         using (var connection = _context.Database.GetDbConnection())
@@ -190,30 +142,15 @@ public class DicTripRepository : BaseRepository
     /// <param name="thingIds">Array of user thing IDs to delete</param>
     /// <returns>Number of deleted records</returns>
     public async Task<int> DeleteTripUserThingsAsync(
+        Guid adminId,
+        Guid participantId,
         Guid tripId,
         Guid[] thingIds)
     {
-        if (CurrentUser == null || !thingIds.Any())
+        if (thingIds.Length == 0)
         {
             return 0;
         }
-
-        Guid adminId, participantId;
-
-        if (CurrentUser.IsAdmin)
-        {
-            adminId = CurrentUser.UserId;
-            participantId = adminId;
-        }
-        else if (CurrentUser.IsParticipant)
-        {
-            adminId = CurrentUser.AdminId;
-            participantId = CurrentUser.UserId;
-        }
-        else
-        {
-            return 0;
-        }   
 
         int deletedCount = 0;
         using (var connection = _context.Database.GetDbConnection())
@@ -236,27 +173,15 @@ public class DicTripRepository : BaseRepository
         return deletedCount;
     }
 
-
-
     public async Task<int> InsertTripUsersAsync(
+        Guid adminId,
         Guid tripId,
         Guid[] adminParticipantIds)
     {
-        if (CurrentUser == null || !adminParticipantIds.Any())
+        if (adminParticipantIds.Length == 0)
         {
             return 0;
         }
-
-        Guid adminId;
-
-        if (CurrentUser.IsAdmin)
-        {
-            adminId = CurrentUser.UserId;
-        }
-        else
-        {
-            return 0;
-        }   
 
         int insertedCount = 0;
         using (var connection = _context.Database.GetDbConnection())
@@ -279,24 +204,14 @@ public class DicTripRepository : BaseRepository
     }
 
     public async Task<int> DeleteTripUsersAsync(
+        Guid adminId,
         Guid tripId,
         Guid[] adminParticipantIds)
     {
-        if (CurrentUser == null || !adminParticipantIds.Any())
+        if (adminParticipantIds.Length == 0)
         {
             return 0;
         }
-
-        Guid adminId;
-
-        if (CurrentUser.IsAdmin)
-        {
-            adminId = CurrentUser.UserId;
-        }
-        else
-        {
-            return 0;
-        }   
 
         int deletedCount = 0;
         using (var connection = _context.Database.GetDbConnection())
@@ -319,33 +234,18 @@ public class DicTripRepository : BaseRepository
     }
 
     public async Task<int> PackTripThingsAsync(
+        Guid adminId,
+        Guid participantId,
         Guid tripId,
         Guid packageId,
         Guid[] tripThingIds,
         bool unpack
         )
     {
-        if (CurrentUser == null || !tripThingIds.Any())
+        if (tripThingIds.Length == 0)
         {
             return 0;
         }
-
-        Guid adminId, participantId;
-
-        if (CurrentUser.IsAdmin)
-        {
-            adminId = CurrentUser.UserId;
-            participantId = adminId;
-        }
-        else if (CurrentUser.IsParticipant)
-        {
-            adminId = CurrentUser.AdminId;
-            participantId = CurrentUser.UserId;
-        }
-        else
-        {
-            return 0;
-        }   
 
         int updatedCount = 0;
         using (var connection = _context.Database.GetDbConnection())

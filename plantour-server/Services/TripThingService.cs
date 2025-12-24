@@ -2,6 +2,7 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using PlantourApi.Models;
 
 namespace plantour_server.Services;
 
@@ -9,21 +10,25 @@ public class TripThingService(
     TripThingRepository TripThingRepository,
     DicTripRepository dicTripRepository,
     ThingRepository ThingRepository,
-    IMapper mapper) : ITripThingService
+    IMapper mapper,
+    HttpCurrentUser httpCurrentUser) : ITripThingService
 {
     private readonly TripThingRepository _tripUserThingRepository = TripThingRepository;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
     private readonly ThingRepository _userThingRepository = ThingRepository;
     private readonly IMapper _mapper = mapper;
+    private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 
     public async Task<int> InsertTripUserThingsAsync(Guid tripId, Guid[] packageIds)
     {
-        return await _dicTripRepository.InsertTripUserThingsAsync(tripId, packageIds);
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.InsertTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageIds);
     }
 
     public async Task<int> DeleteTripUserThingsAsync(Guid tripId, Guid[] packageIds)
     {
-        return await _dicTripRepository.DeleteTripUserThingsAsync(tripId, packageIds);
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.DeleteTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageIds);
     }
 
     public async Task<IEnumerable<TripThingDto>> GetAllAsync(Guid tripId)
@@ -73,12 +78,14 @@ public class TripThingService(
 
     public async Task<int> PackTripThingsAsync(Guid tripId, Guid packageId, Guid[] tripThingIds)
     {
-        return await _dicTripRepository.PackTripThingsAsync(tripId, packageId, tripThingIds, false);
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.PackTripThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageId, tripThingIds, false);
     }
 
     public async Task<int> UnpackTripThingsAsync(Guid tripId, Guid packageId, Guid[] tripThingIds)
     {
-        return await _dicTripRepository.PackTripThingsAsync(tripId, packageId, tripThingIds, true);
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.PackTripThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageId, tripThingIds, true);
     }
 
 }

@@ -2,26 +2,31 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using PlantourApi.Models;
 
 namespace plantour_server.Services;
 
 public class TripPackageService(
     TripPackageRepository TripPackageRepository,
     DicTripRepository dicTripRepository,
-    IMapper mapper) : ITripPackageService
+    IMapper mapper,
+    HttpCurrentUser httpCurrentUser) : ITripPackageService
 {
     private readonly TripPackageRepository _tripUserPackageRepository = TripPackageRepository;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
     private readonly IMapper _mapper = mapper;
+    private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 
     public async Task<int> InsertTripUserPackagesAsync(Guid tripId, Guid[] packageIds)
     {
-        return await _dicTripRepository.InsertTripUserPackagesAsync(tripId, packageIds);
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.InsertTripUserPackagesAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageIds);
     }
 
     public async Task<int> DeleteTripUserPackagesAsync(Guid tripId, Guid[] packageIds)
     {
-        return await _dicTripRepository.DeleteTripUserPackagesAsync(tripId, packageIds);
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.DeleteTripUserPackagesAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageIds);
     }
 
 
