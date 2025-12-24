@@ -5,11 +5,8 @@ namespace plantour_server.DTOs;
 public class CreatePackageRequest
 {
     [Required]
-    public Guid UserId { get; set; }
-    
-    [Required]
     [StringLength(200)]
-    public string name { get; set; } = null!;
+    public string Name { get; set; } = null!;
     
-    public string? Description { get; set; }
+    public string? Notes { get; set; }
 }

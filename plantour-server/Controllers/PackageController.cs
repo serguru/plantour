@@ -72,11 +72,7 @@ public class PackageController : ControllerBase
     {
         try
         {
-            var updated = await _service.UpdateAsync(request);
-            if (!updated)
-            {
-                return NotFound(new { message = "User package not found" });
-            }
+            await _service.UpdateAsync(request);
 
             return NoContent();
         }
@@ -92,12 +88,7 @@ public class PackageController : ControllerBase
     {
         try
         {
-            var deleted = await _service.DeleteAsync(id);
-            if (!deleted)
-            {
-                return NotFound(new { message = "User package not found" });
-            }
-
+            await _service.DeleteAsync(id);
             return NoContent();
         }
         catch (Exception ex)
