@@ -7,12 +7,12 @@ using PlantourApi.Models;
 namespace plantour_server.Services;
 public class CheckAccessService(
     TripRepository tripRepository,
-    AdminsParticipantRepository2 adminsParticipantRepository,
+    AdminsParticipantRepository adminsParticipantRepository,
     HttpCurrentUser httpCurrentUser
     ) : ICheckAccessService
 {
     private readonly TripRepository _tripRepository = tripRepository;
-    private readonly AdminsParticipantRepository2 _adminsParticipantRepository = adminsParticipantRepository;
+    private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 
     public async Task<bool> HasAdminAccessToTripAsync(Guid tripId, Guid userId)

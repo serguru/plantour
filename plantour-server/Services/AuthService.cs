@@ -16,10 +16,10 @@ using plantour_server.Repositories;
 
 namespace plantour_server.Services;
 
-public class AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, AuthRepository authRepository, AdminsParticipantRepository2 adminsParticipantRepository, IConfiguration configuration, IWebHostEnvironment environment, HttpCurrentUser httpCurrentUser) : IAuthService
+public class AuthService(IOptions<JwtSettings> jwtSettings, IMapper mapper, AuthRepository authRepository, AdminsParticipantRepository adminsParticipantRepository, IConfiguration configuration, IWebHostEnvironment environment, HttpCurrentUser httpCurrentUser) : IAuthService
 {
     private readonly AuthRepository _authRepository = authRepository;
-    private readonly AdminsParticipantRepository2 _adminsParticipantRepository = adminsParticipantRepository;
+    private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
 
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 

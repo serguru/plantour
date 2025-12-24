@@ -7,11 +7,11 @@ using PlantourApi.Models;
 namespace plantour_server.Services;
 
 public class AdminsParticipantService(
-    AdminsParticipantRepository2 adminsParticipantRepository2,
+    AdminsParticipantRepository adminsParticipantRepository2,
     IMapper mapper,
     HttpCurrentUser httpCurrentUser) : IAdminsParticipantService
 {
-    private readonly AdminsParticipantRepository2 _adminsParticipantRepository2 = adminsParticipantRepository2;
+    private readonly AdminsParticipantRepository _adminsParticipantRepository2 = adminsParticipantRepository2;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly IMapper _mapper = mapper;
 
