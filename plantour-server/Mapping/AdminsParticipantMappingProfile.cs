@@ -13,8 +13,7 @@ public class AdminsParticipantMappingProfile : Profile
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Participant.Email))
             .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.Participant.FirstName))
             .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.Participant.LastName))
-            .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Participant.Phone))
-            .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Participant.Notes));
+            .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Participant.Phone));
 
         CreateMap<UpdateAdminsParticipantRequest, AdminsParticipant>();
     }

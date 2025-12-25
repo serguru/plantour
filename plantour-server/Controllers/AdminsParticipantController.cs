@@ -51,36 +51,13 @@ public class AdminsParticipantController : ControllerBase
         }
     }
 
-    [HttpGet("email/{email}")]
-    public async Task<ActionResult<AdminsParticipantDto>> GetByEmail(string email)
-    {
-        try
-        {
-            var dto = await _service.GetByEmailAsync(email);
-            if (dto == null)
-            {
-                return NotFound(new { message = "Admins participant not found" });
-            }
-
-            return Ok(dto);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving the admins participant", details = ex.Message });
-        }
-    }
 
     [HttpPut]
     public async Task<ActionResult> Update([FromBody] UpdateAdminsParticipantRequest request)
     {
         try
         {
-            var updated = await _service.UpdateAsync(request);
-            if (!updated)
-            {
-                return NotFound(new { message = "Admins participant not found" });
-            }
-
+            await _service.UpdateAsync(request);
             return NoContent();
         }
         catch (Exception ex)

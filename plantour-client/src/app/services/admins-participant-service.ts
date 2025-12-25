@@ -46,10 +46,6 @@ export class AdminsParticipantService implements CrudService<AdminsParticipantDt
     return this.http.get<AdminsParticipantDto>(`${this.apiUrl}/${id}`);
   }
 
-  getByEmail(email: string): Observable<AdminsParticipantDto> {
-    return this.http.get<AdminsParticipantDto>(`${this.apiUrl}/email/${email}`);
-  }
-
   add(request: SignUpParticipantRequest): Observable<AdminsParticipantDto> {
     return this.usersService.registerParticipant(request);
   }

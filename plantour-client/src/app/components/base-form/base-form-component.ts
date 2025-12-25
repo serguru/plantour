@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { LookupService } from '../../services/lookup-service';
 import deepEqual from 'fast-deep-equal';
 import { ToolbarService } from '../../services/toolbar-service';
+import { MessagePanelComponent } from '../message-panel/message-panel-component/message-panel-component';
 
 export type BaseFormMode = 'add' | 'edit';
 
@@ -20,7 +21,8 @@ export type BaseFormMode = 'add' | 'edit';
     ReactiveFormsModule,
     ContentLayoutComponent,
     CommonModule,
-    ButtonModule
+    ButtonModule,
+    MessagePanelComponent
   ],
   templateUrl: './base-form-component.html',
   styleUrl: './base-form-component.scss',

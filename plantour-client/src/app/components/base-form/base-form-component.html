@@ -22,6 +22,10 @@
       }">
     </ng-container>
 
+    @if(errorMessage) {
+      <app-message-panel messageType="error", [messageText]="errorMessage"></app-message-panel>
+    }
+
     <div class="form-actions">
       @if(backUrl) {
       <p-button

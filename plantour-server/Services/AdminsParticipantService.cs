@@ -7,11 +7,11 @@ using PlantourApi.Models;
 namespace plantour_server.Services;
 
 public class AdminsParticipantService(
-    AdminsParticipantRepository adminsParticipantRepository2,
+    AdminsParticipantRepository adminsParticipantRepository,
     IMapper mapper,
     HttpCurrentUser httpCurrentUser) : IAdminsParticipantService
 {
-    private readonly AdminsParticipantRepository _adminsParticipantRepository2 = adminsParticipantRepository2;
+    private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly IMapper _mapper = mapper;
 
@@ -20,7 +20,7 @@ public class AdminsParticipantService(
         _currentUser.RaiseIfNotAuthenticated();
 
         // For both admin and participant, return all participants for the admin
-        IEnumerable<AdminsParticipant> entities = await _adminsParticipantRepository2.FindAsync(x => x.AdminId == _currentUser.AdminId);
+        IEnumerable<AdminsParticipant> entities = await _adminsParticipantRepository.FindFullAsync(x => x.AdminId == _currentUser.AdminId);
         return _mapper.Map<IEnumerable<AdminsParticipantDto>>(entities);
     }
 
@@ -28,25 +28,18 @@ public class AdminsParticipantService(
     {
         _currentUser.RaiseIfNotAuthenticated();
 
-        var entity = await _adminsParticipantRepository2.FindAsync(x => x.Id == id && x.AdminId == _currentUser.AdminId && x.ParticipantId == _currentUser.UserId);
+        var entities = await _adminsParticipantRepository.FindFullAsync(x => x.Id == id && x.AdminId == _currentUser.AdminId);
+
+        AdminsParticipant? entity = entities.FirstOrDefault();
         
         return entity != null ? _mapper.Map<AdminsParticipantDto>(entity) : null;
     }
 
-    public async Task<AdminsParticipantDto?> GetByEmailAsync(string email)
-    {
-        _currentUser.RaiseIfNotAuthenticated();
-
-        var entity = await _adminsParticipantRepository2.FindAsync(x => x.Admin.Email.ToLower() == email.ToLower() && x.AdminId == _currentUser.AdminId && x.ParticipantId == _currentUser.UserId);
-
-        return entity != null ? _mapper.Map<AdminsParticipantDto>(entity) : null;
-    }
-
-    public async Task<bool> UpdateAsync(UpdateAdminsParticipantRequest request)
+    public async Task UpdateAsync(UpdateAdminsParticipantRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
 
-        var entities = await _adminsParticipantRepository2.FindAsync(x => x.Id == request.Id && x.AdminId == _currentUser.AdminId);
+        var entities = await _adminsParticipantRepository.FindAsync(x => x.Id == request.Id && x.AdminId == _currentUser.AdminId);
         AdminsParticipant? entity = entities.FirstOrDefault();
 
         if (entity == null)
@@ -55,23 +48,22 @@ public class AdminsParticipantService(
         }
         
         _mapper.Map(request, entity);
-        await _adminsParticipantRepository2.UpdateAsync(entity!);
+        await _adminsParticipantRepository.UpdateAsync(entity!);
         
-        return true;
     }
 
     public async Task DeleteAsync(Guid id)
     {
         _currentUser.RaiseIfNotAdmin();
 
-        var entityExists = await _adminsParticipantRepository2.AnyAsync(x => x.Id == id && x.AdminId == _currentUser.AdminId);
+        var entityExists = await _adminsParticipantRepository.AnyAsync(x => x.Id == id && x.AdminId == _currentUser.AdminId);
 
         if (!entityExists)
         {
             throw new InvalidOperationException("Admin participant not found or access denied");
         }
 
-        await _adminsParticipantRepository2.DeleteAsync(id);
+        await _adminsParticipantRepository.DeleteAsync(id);
     }
 
 }

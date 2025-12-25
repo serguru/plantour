@@ -160,6 +160,8 @@ public class UsersService(
         // Create admin-participant relationship
         var adminParticipant = new AdminsParticipant
         {
+            Id = Guid.NewGuid(),
+            AdminId = _currentUser.AdminId,
             ParticipantId = participant.Id,
             AccessCodeHash = accessCodeHash,
             Notes = notes,

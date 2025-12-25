@@ -47,7 +47,7 @@ export class UsersService {
   }
 
   loginAdmin(email: string, password: string): Observable<any> {
-    return this.http.post<string>(`${this.apiUrl}/api/auth/admin/signin`, { email, password })
+    return this.http.post<string>(`${this.apiUrl}/api/users/admin/signin`, { email, password })
       .pipe(
         tap((r: any) => {
           let a = jwtDecode(r.accessToken);
@@ -61,7 +61,7 @@ export class UsersService {
   }
 
   loginParticipant(accessCode: string): Observable<any> {
-    return this.http.post<string>(`${this.apiUrl}/api/auth/participant/signin`, { accessCode })
+    return this.http.post<string>(`${this.apiUrl}/api/users/participant/signin`, { accessCode })
       .pipe(
         tap((r: any) => {
           this.writeTokensToStorage(r.accessToken);
@@ -70,7 +70,7 @@ export class UsersService {
   }
 
   registerAdmin(data: SignUpRequest): Observable<any> {
-    return this.http.post<string>(`${this.apiUrl}/api/auth/admin/signup`, data)
+    return this.http.post<string>(`${this.apiUrl}/api/users/admin/signup`, data)
       .pipe(
         tap((r: any) => {
           this.writeTokensToStorage(r.accessToken);
@@ -79,7 +79,7 @@ export class UsersService {
   }
 
   registerParticipant(data: SignUpParticipantRequest): Observable<any> {
-    return this.http.post<string>(`${this.apiUrl}/api/auth/participant/signup`, data)
+    return this.http.post<string>(`${this.apiUrl}/api/users/participant/signup`, data)
   }
 
   get isAdmin(): boolean {
