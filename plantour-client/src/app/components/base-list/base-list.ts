@@ -506,7 +506,11 @@ export class BaseListComponent<T> implements OnInit {
     });
 
     if (result === 'ok') {
-      this.service.delete((this.selected as any)["id"])
+
+
+
+      
+      this.service.delete((this.selected as any)["id"], this.tripId)
         .subscribe({
           next: () => {
             this.getAll();

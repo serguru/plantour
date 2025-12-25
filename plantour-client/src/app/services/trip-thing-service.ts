@@ -91,8 +91,8 @@ export class TripThingService implements CrudService<TripThingDto, CreateTripThi
     return this.http.put<void>(`${this.apiUrl}`, request);
   }
 
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  delete(id: string, tripId: string | null): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${tripId}/${id}`);
   }
 
   pack(data: MultipleIdsRequest): Observable<number> {

@@ -80,6 +80,8 @@ public class TripThingService(
         }
 
         var entity = _mapper.Map<TripUserThing>(request);
+        entity.Id = Guid.NewGuid();
+        entity.TripUserId = tripUser.Id;
         await _tripUserThingRepository.AddAsync(entity);
         return _mapper.Map<TripThingDto>(entity);
     }

@@ -59,7 +59,7 @@ public class TripUserController : ControllerBase
     public async Task<ActionResult<TripUserDto>> Add([FromBody] CreateTripUserRequest request)
     {
         var dto = await _service.AddAsync(request);
-        return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
+        return Ok(dto);
     }
 
     [HttpPut]

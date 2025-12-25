@@ -158,6 +158,9 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
     this.errorMessage = '';
 
     const newEntity = this.form.value;
+    if (this.tripId) {
+      (newEntity as any).tripId = this.tripId;
+    }
 
     for (const [key, value] of Object.entries(newEntity)) {
       if (this.isValidDate(value)) {

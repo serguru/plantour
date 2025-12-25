@@ -59,7 +59,7 @@ public class TripThingController : ControllerBase
     public async Task<ActionResult<TripThingDto>> Add([FromBody] CreateTripThingRequest request)
     {
         var dto = await _service.AddAsync(request);
-        return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
+        return Ok(dto);
     }
 
     [HttpPut]
@@ -74,7 +74,8 @@ public class TripThingController : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult> Delete(Guid tripId, Guid id)
     {
-        await _service.DeleteAsync(tripId, id);       return NoContent();
+        await _service.DeleteAsync(tripId, id);       
+        return NoContent();
     }
 
     [HttpPut("pack-trip-things")]

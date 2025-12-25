@@ -63,8 +63,8 @@ export class TripPackageService implements CrudService<TripPackageDto, CreateTri
     return this.http.get<TripPackageDto[]>(`${this.apiUrl}/trip/${tripId}`);
   }
 
-  getById(id: string): Observable<TripPackageDto> {
-    return this.http.get<TripPackageDto>(`${this.apiUrl}/${id}`);
+  getById(id: string, tripId: string): Observable<TripPackageDto> {
+    return this.http.get<TripPackageDto>(`${this.apiUrl}/${tripId}/${id}`);
   }
 
   add(request: CreateTripPackageRequest): Observable<TripPackageDto> {
@@ -75,7 +75,7 @@ export class TripPackageService implements CrudService<TripPackageDto, CreateTri
     return this.http.put<void>(`${this.apiUrl}`, request);
   }
 
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  delete(id: string, tripId: string | null): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${tripId}/${id}`);
   }
 }
