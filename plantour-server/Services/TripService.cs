@@ -2,6 +2,7 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
@@ -54,7 +55,7 @@ public class TripService(
         _currentUser.RaiseIfNotAdmin();
         if (_tripRepository.AnyAsync(x => x.Name.ToLower() == request.Name.ToLower() && x.UserId == _currentUser.UserId).Result)
         {
-            throw new InvalidOperationException("A trip with the same name already exists for this user");
+            throw new CustomException("A trip with the same name already exists for this user");
         }
         var entity = _mapper.Map<Trip>(request);
         entity.Id = Guid.NewGuid();
@@ -69,12 +70,12 @@ public class TripService(
 
         if (await _tripRepository.AnyAsync(x => x.Name.ToLower() == request.Name.ToLower() && x.UserId == _currentUser.UserId && x.Id != request.Id))
         {
-            throw new InvalidOperationException("A trip with the same name already exists for this user");
+            throw new CustomException("A trip with the same name already exists for this user");
         }
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(request.Id))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         var entity = await _tripRepository.GetByIdAsync(request.Id);
@@ -88,7 +89,7 @@ public class TripService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         await _tripRepository.DeleteAsync(id);
@@ -101,7 +102,7 @@ public class TripService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(id))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         var entities = await _tripRepository.GetAllFullAsync();

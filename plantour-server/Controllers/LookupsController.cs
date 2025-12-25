@@ -20,14 +20,7 @@ public class LookupsController : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult<LookupsResponse>> GetAllLookups()
     {
-        try
-        {
-            var lookups = await _service.GetAllLookupsAsync();
-            return Ok(lookups);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving lookups", details = ex.Message });
-        }
+        var lookups = await _service.GetAllLookupsAsync();
+        return Ok(lookups);
     }
 }

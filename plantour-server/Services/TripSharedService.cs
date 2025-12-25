@@ -2,6 +2,7 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
@@ -25,7 +26,7 @@ public class TripSharedService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
 

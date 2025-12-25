@@ -45,7 +45,7 @@ export class ThingService implements CrudService<ThingDto, CreateThingRequest, U
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
    
-    this.apiUrl = `${environment.apiUrl}/api/userthing`;
+    this.apiUrl = `${environment.apiUrl}/api/thing`;
   }
 
   getAll(): Observable<ThingDto[]> {

@@ -13,6 +13,7 @@ using plantour_server.Utils;
 using AutoMapper;
 using PlantourApi.Models;
 using plantour_server.Repositories;
+using PlantourApi.Middleware;
 
 namespace plantour_server.Services;
 
@@ -42,7 +43,7 @@ public class UsersService(
         // Check if user already exists
         if (await _usersRepository.AnyAsync(x => x.Email.ToLower() == request.Email.ToLower()))
         {
-            throw new InvalidOperationException("User with this email already exists");
+            throw new CustomException("User with this email already exists");
         }
 
         // Create password hash
@@ -74,13 +75,13 @@ public class UsersService(
 
         if (user == null || user.PasswordHash == null || user.PasswordSalt == null)
         {
-            throw new UnauthorizedAccessException("Invalid email or password");
+            throw new CustomException("Invalid email or password");
         }
 
         // Verify password
         if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
         {
-            throw new UnauthorizedAccessException("Invalid email or password");
+            throw new CustomException("Invalid email or password");
         }
 
         // Generate admin tokens
@@ -134,7 +135,7 @@ public class UsersService(
 
         if (await _adminsParticipantRepository.AnyAsync(x => x.AdminId == _currentUser.AdminId && x.ParticipantId == participant.Id))
         {
-            throw new InvalidOperationException("Participant with this email is already registered under your admin account");
+            throw new CustomException("Participant with this email is already registered under your admin account");
         }
 
         string accessCode = "";
@@ -149,7 +150,7 @@ public class UsersService(
             }
             if (i == 99)
             {
-                throw new InvalidOperationException("Failed to generate unique access code after multiple attempts");
+                throw new CustomException("Failed to generate unique access code after multiple attempts");
             }
         }
 
@@ -186,7 +187,7 @@ public class UsersService(
             
         if (adminParticipant == null)
         {
-            throw new UnauthorizedAccessException("Cannot signin participant with provided access code");
+            throw new CustomException("Cannot signin participant with provided access code");
         }
 
         var participant = adminParticipant.Participant;

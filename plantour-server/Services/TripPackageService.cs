@@ -2,6 +2,7 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
@@ -29,7 +30,7 @@ public class TripPackageService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         return await _dicTripRepository.InsertTripUserPackagesAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageIds);
@@ -41,7 +42,7 @@ public class TripPackageService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         return await _dicTripRepository.DeleteTripUserPackagesAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageIds);
@@ -54,7 +55,7 @@ public class TripPackageService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         var entities = await _tripPackageRepository.GetAllAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
@@ -67,7 +68,7 @@ public class TripPackageService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         var entity = await _tripPackageRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
@@ -80,7 +81,7 @@ public class TripPackageService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(request.TripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         var tripUser = await _tripUserRepository.GetByTripIdAsync(
@@ -90,7 +91,7 @@ public class TripPackageService(
 
         if (tripUser == null)
         {
-            throw new UnauthorizedAccessException("Trip user not found");
+            throw new CustomException("Trip user not found");
         }
 
         var exists = await _tripPackageRepository.AnyAsync(x =>
@@ -99,7 +100,7 @@ public class TripPackageService(
 
         if (exists)
         {
-            throw new InvalidOperationException("Package with the same name already exists");
+            throw new CustomException("Package with the same name already exists");
         }
 
         var entity = _mapper.Map<TripUserPackage>(request);
@@ -115,7 +116,7 @@ public class TripPackageService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(request.TripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         var tripUser = await _tripUserRepository.GetByTripIdAsync(
@@ -125,7 +126,7 @@ public class TripPackageService(
 
         if (tripUser == null)
         {
-            throw new UnauthorizedAccessException("Trip user not found");
+            throw new CustomException("Trip user not found");
         }
 
         var exists = await _tripPackageRepository.AnyAsync(x =>
@@ -135,13 +136,13 @@ public class TripPackageService(
 
         if (exists)
         {
-            throw new InvalidOperationException("Package with the same name already exists");
+            throw new CustomException("Package with the same name already exists");
         }
 
         var entity = await _tripPackageRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, request.TripId, request.Id);
         if (entity == null)
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         _mapper.Map(request, entity);
@@ -154,13 +155,13 @@ public class TripPackageService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         var exists = await _tripPackageRepository.AnyByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
         if (!exists)
         {
-            throw new InvalidOperationException("Trip package not found or access denied");
+            throw new CustomException("Trip package not found or access denied");
         }
 
         await _tripPackageRepository.DeleteAsync(id);

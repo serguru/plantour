@@ -20,81 +20,45 @@ public class PackageController : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<UserPackageDto>>> GetAll()
     {
-        try
-        {
-            var dtos = await _service.GetAllAsync();
-            return Ok(dtos);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving user packages", details = ex.Message });
-        }
+        var dtos = await _service.GetAllAsync();
+        return Ok(dtos);
     }
 
     [HttpGet("{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult<UserPackageDto>> GetById(Guid id)
     {
-        try
+        var dto = await _service.GetByIdAsync(id);
+        if (dto == null)
         {
-            var dto = await _service.GetByIdAsync(id);
-            if (dto == null)
-            {
-                return NotFound(new { message = "User package not found" });
-            }
+            return NotFound(new { message = "User package not found" });
+        }
 
-            return Ok(dto);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving the user package", details = ex.Message });
-        }
+        return Ok(dto);
     }
 
     [HttpPost]
     [AdminOrParticipant]
     public async Task<ActionResult<UserPackageDto>> Add([FromBody] CreatePackageRequest request)
     {
-        try
-        {
-            var dto = await _service.AddAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while creating the user package", details = ex.Message });
-        }
+        var dto = await _service.AddAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
     }
 
     [HttpPut]
     [AdminOrParticipant]
     public async Task<ActionResult> Update([FromBody] UpdatePackageRequest request)
     {
-        try
-        {
-            await _service.UpdateAsync(request);
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while updating the user package", details = ex.Message });
-        }
+        await _service.UpdateAsync(request);
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult> Delete(Guid id)
     {
-        try
-        {
-            await _service.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while deleting the user package", details = ex.Message });
-        }
+        await _service.DeleteAsync(id);
+        return NoContent();
     }
 
 }

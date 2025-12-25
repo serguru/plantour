@@ -13,6 +13,8 @@ using PlantourApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
@@ -134,6 +136,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

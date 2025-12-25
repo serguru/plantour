@@ -21,65 +21,37 @@ public class TripController : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<TripDto>>> GetAll()
     {
-        try
-        {
-            var dtos = await _service.GetAllAsync();
-            return Ok(dtos);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving trips", details = ex.Message });
-        }
+        var dtos = await _service.GetAllAsync();
+        return Ok(dtos);
     }
 
     [HttpGet("participant")]
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<TripDto>>> GetAllForParticipant()
     {
-        try
-        {
-            var dtos = await _service.GetAllForParticipantAsync();
-            return Ok(dtos);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving trips", details = ex.Message });
-        }
+        var dtos = await _service.GetAllForParticipantAsync();
+        return Ok(dtos);
     }
 
     [HttpGet("{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult<TripDto>> GetById(Guid id)
     {
-        try
+        var dto = await _service.GetByIdAsync(id);
+        if (dto == null)
         {
-            var dto = await _service.GetByIdAsync(id);
-            if (dto == null)
-            {
-                return NotFound(new { message = "Trip not found" });
-            }
+            return NotFound(new { message = "Trip not found" });
+        }
 
-            return Ok(dto);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving the trip", details = ex.Message });
-        }
+        return Ok(dto);
     }
 
     [HttpPost]
     [AdminOnly]
     public async Task<ActionResult<TripDto>> Add([FromBody] CreateTripRequest request)
     {
-        try
-        {
-            var dto = await _service.AddAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while creating the trip", details = ex.Message });
-        }
+        var dto = await _service.AddAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
     }
 
     [HttpPut]
@@ -87,45 +59,24 @@ public class TripController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult> Update([FromBody] UpdateTripRequest request)
     {
-        try
-        {
-            await _service.UpdateAsync(request);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while updating the trip", details = ex.Message });
-        }
+        await _service.UpdateAsync(request);
+        return NoContent();
     }
 
     [HttpDelete("{tripId}/{id}")]
     [AdminOnly]
     public async Task<ActionResult> Delete(Guid tripId, Guid id)
     {
-        try
-        {
-            await _service.DeleteAsync(tripId, id);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while deleting the trip", details = ex.Message });
-        }
+        await _service.DeleteAsync(tripId, id);
+        return NoContent();
     }
 
     [HttpGet("stat/{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult<TripStatDto?>> GetTripStats(Guid id)
     {
-        try
-        {
-            var dtos = await _service.GetTripStatsAsync(id);
-            return Ok(dtos);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving trip stats", details = ex.Message });
-        }
+        var dtos = await _service.GetTripStatsAsync(id);
+        return Ok(dtos);
     }
 
 }

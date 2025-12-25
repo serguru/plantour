@@ -2,6 +2,7 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
@@ -44,7 +45,7 @@ public class AdminsParticipantService(
 
         if (entity == null)
         {
-            throw new InvalidOperationException("Admin participant not found or access denied");
+            throw new CustomException("Admin participant not found or access denied");
         }
         
         _mapper.Map(request, entity);
@@ -60,7 +61,7 @@ public class AdminsParticipantService(
 
         if (!entityExists)
         {
-            throw new InvalidOperationException("Admin participant not found or access denied");
+            throw new CustomException("Admin participant not found or access denied");
         }
 
         await _adminsParticipantRepository.DeleteAsync(id);

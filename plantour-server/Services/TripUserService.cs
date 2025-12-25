@@ -2,6 +2,7 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
@@ -28,7 +29,7 @@ public class TripUserService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
 
@@ -41,7 +42,7 @@ public class TripUserService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         return await _dicTripRepository.DeleteTripUsersAsync(_currentUser.AdminId, tripId, ids);
@@ -53,7 +54,7 @@ public class TripUserService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         var entities = await _tripUserRepository.GetAllAsync(_currentUser.AdminId, tripId);
@@ -65,7 +66,7 @@ public class TripUserService(
         _currentUser.RaiseIfNotAuthenticated();
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
         var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, tripId, id);
         return entity != null ? _mapper.Map<TripUserDto>(entity) : null;
@@ -77,21 +78,21 @@ public class TripUserService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(request.TripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         if (!await _adminsParticipantRepository.AnyAsync(x =>
                 x.AdminId == _currentUser.AdminId &&
                 x.Id == request.AdminParticipantId))
         {
-            throw new InvalidOperationException("AdminParticipant not found or access denied");
+            throw new CustomException("AdminParticipant not found or access denied");
         }
 
         if (await _tripUserRepository.AnyAsync(x =>
                 x.TripId == request.TripId &&
                 x.AdminParticipantId == request.AdminParticipantId))
         {
-            throw new InvalidOperationException("Trip User already exists for this trip");
+            throw new CustomException("Trip User already exists for this trip");
         }
 
         var entity = _mapper.Map<TripUser>(request);
@@ -106,21 +107,21 @@ public class TripUserService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(request.TripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
 
         if (!await _adminsParticipantRepository.AnyAsync(x =>
                 x.AdminId == _currentUser.AdminId &&
                 x.Id == request.AdminParticipantId))
         {
-            throw new InvalidOperationException("AdminParticipant not found or access denied");
+            throw new CustomException("AdminParticipant not found or access denied");
         }
 
 
         var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, request.TripId, request.Id);
         if (entity == null)
         {
-            throw new InvalidOperationException("Trip User does not exist for this trip");
+            throw new CustomException("Trip User does not exist for this trip");
         }
        
         _mapper.Map(request, entity);
@@ -133,7 +134,7 @@ public class TripUserService(
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            throw new UnauthorizedAccessException("User does not have access to this trip");
+            throw new CustomException("User does not have access to this trip");
         }
         
         await _tripUserRepository.DeleteAsync(id);

@@ -21,22 +21,13 @@ public class AdminsParticipantController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AdminsParticipantDto>>> GetAll()
     {
-        try
-        {
             var dtos = await _service.GetAllAsync();
             return Ok(dtos);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving admins participants", details = ex.Message });
-        }
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<AdminsParticipantDto>> GetById(Guid id)
     {
-        try
-        {
             var dto = await _service.GetByIdAsync(id);
             if (dto == null)
             {
@@ -44,39 +35,19 @@ public class AdminsParticipantController : ControllerBase
             }
 
             return Ok(dto);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving the admins participant", details = ex.Message });
-        }
     }
-
 
     [HttpPut]
     public async Task<ActionResult> Update([FromBody] UpdateAdminsParticipantRequest request)
     {
-        try
-        {
-            await _service.UpdateAsync(request);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while updating the admins participant", details = ex.Message });
-        }
+        await _service.UpdateAsync(request);
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(Guid id)
     {
-        try
-        {
-            await _service.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while deleting the admins participant", details = ex.Message });
-        }
+        await _service.DeleteAsync(id);
+        return NoContent();
     }
 }

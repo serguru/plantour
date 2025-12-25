@@ -2,6 +2,7 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
@@ -37,7 +38,7 @@ HttpCurrentUser httpCurrentUser) : IPackageService
 
         if (exists)
         {
-            throw new InvalidOperationException("Package with the same name already exists");
+            throw new CustomException("Package with the same name already exists");
         }
 
         var entity = _mapper.Map<UserPackage>(request);
@@ -53,12 +54,12 @@ HttpCurrentUser httpCurrentUser) : IPackageService
         var entity = await _userPackageRepository.GetByIdAsync(_currentUser.UserId, request.Id);
         if (entity == null)
         {
-            throw new InvalidOperationException("Package not found or access denied");
+            throw new CustomException("Package not found or access denied");
         }
         
         if (await _userPackageRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower() && x.Id != request.Id))
         {
-            throw new InvalidOperationException("Another package with the same name already exists");
+            throw new CustomException("Another package with the same name already exists");
         }   
 
         _mapper.Map(request, entity);
@@ -72,7 +73,7 @@ HttpCurrentUser httpCurrentUser) : IPackageService
         var exists = await _userPackageRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Id == id);
         if (!exists)
         {
-            throw new InvalidOperationException("Package not found or access denied");
+            throw new CustomException("Package not found or access denied");
         }
         await _userPackageRepository.DeleteAsync(id);
     }

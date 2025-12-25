@@ -24,38 +24,16 @@ public class UsersController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> SignUpAdmin([FromBody] SignUpRequest request)
     {
-        try
-        {
             var response = await _authService.SignUpAsync(request);
             return Ok(response);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred during sign up", details = ex.Message });
-        }
     }
 
     [HttpPost("admin/signin")]
     [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> SignInAdmin([FromBody] SignInRequest request)
     {
-        try
-        {
             var response = await _authService.SignInAsync(request);
             return Ok(response);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred during sign in", details = ex.Message });
-        }
     }
 
     #endregion
@@ -66,38 +44,16 @@ public class UsersController : ControllerBase
     [AdminOnly]
     public async Task<ActionResult<AdminsParticipantDto>> SignUpParticipant([FromBody] SignUpParticipantRequest request)
     {
-        try
-        {
             AdminsParticipantDto result = await _authService.SignUpParticipantAsync(request);
             return Ok(result);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred during participant sign up", details = ex.Message });
-        }
     }
 
     [HttpPost("participant/signin")]
     [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> SignInParticipant([FromBody] SignInParticipantRequest request)
     {
-        try
-        {
             var response = await _authService.SignInParticipantAsync(request);
             return Ok(response);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred during participant sign in", details = ex.Message });
-        }
     }
 
     #endregion

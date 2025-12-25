@@ -2,6 +2,7 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
@@ -37,7 +38,7 @@ HttpCurrentUser httpCurrentUser) : IThingService
 
         if (await _userThingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower()))
         {
-            throw new InvalidOperationException("Thing with the same name already exists");
+            throw new CustomException("Thing with the same name already exists");
         }   
 
         var entity = _mapper.Map<UserThing>(request);
@@ -53,12 +54,12 @@ HttpCurrentUser httpCurrentUser) : IThingService
         var entity = await _userThingRepository.GetByIdAsync(_currentUser.UserId, request.Id);
         if (entity == null)
         {
-            throw new InvalidOperationException("Thing not found or access denied");
+            throw new CustomException("Thing not found or access denied");
         }
         
         if (await _userThingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower() && x.Id != request.Id))
         {
-            throw new InvalidOperationException("Another thing with the same name already exists");
+            throw new CustomException("Another thing with the same name already exists");
         }   
 
         _mapper.Map(request, entity);
@@ -72,7 +73,7 @@ HttpCurrentUser httpCurrentUser) : IThingService
         var exists = await _userThingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Id == id);
         if (!exists)
         {
-            throw new InvalidOperationException("Thing not found or access denied");
+            throw new CustomException("Thing not found or access denied");
         }
         await _userThingRepository.DeleteAsync(id);
     }

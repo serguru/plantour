@@ -22,95 +22,53 @@ public class ThingController : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<ThingDto>>> GetAll()
     {
-        try
-        {
-            var dtos = await _service.GetAllAsync();
-            return Ok(dtos);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving user things", details = ex.Message });
-        }
+        var dtos = await _service.GetAllAsync();
+        return Ok(dtos);
     }
 
     [HttpGet("{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult<ThingDto>> GetById(Guid id)
     {
-        try
+        var dto = await _service.GetByIdAsync(id);
+        if (dto == null)
         {
-            var dto = await _service.GetByIdAsync(id);
-            if (dto == null)
-            {
-                return NotFound(new { message = "User thing not found" });
-            }
+            return NotFound(new { message = "User thing not found" });
+        }
 
-            return Ok(dto);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving the user thing", details = ex.Message });
-        }
+        return Ok(dto);
     }
 
     [HttpPost]
     [AdminOrParticipant]
     public async Task<ActionResult<ThingDto>> Add([FromBody] CreateThingRequest request)
     {
-        try
-        {
-            var dto = await _service.AddAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while creating the user thing", details = ex.Message });
-        }
+        var dto = await _service.AddAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
     }
 
     [HttpPut]
     [AdminOrParticipant]
     public async Task<ActionResult> Update([FromBody] UpdateThingRequest request)
     {
-        try
-        {
-            await _service.UpdateAsync(request);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while updating the user thing", details = ex.Message });
-        }
+        await _service.UpdateAsync(request);
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult> Delete(Guid id)
     {
-        try
-        {
-            await _service.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while deleting the user thing", details = ex.Message });
-        }
+        await _service.DeleteAsync(id);
+        return NoContent();
     }
 
     [HttpGet("categories")]
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<ThingCategoryDto>>> GetAllCategories()
     {
-        try
-        {
-            var dtos = await _service.GetAllThingCategoriesAsync();
-            return Ok(dtos);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving categories", details = ex.Message });
-        }
+        var dtos = await _service.GetAllThingCategoriesAsync();
+        return Ok(dtos);
     }
 
 }

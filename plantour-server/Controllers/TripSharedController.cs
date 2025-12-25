@@ -20,15 +20,8 @@ public class TripSharedController : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<TripSharedDto>>> GetAll(Guid tripId)
     {
-        try
-        {
-            var dtos = await _service.GetAllFullAsync(tripId);
-            return Ok(dtos);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "An error occurred while retrieving trip shared things", details = ex.Message });
-        }
+        var dtos = await _service.GetAllFullAsync(tripId);
+        return Ok(dtos);
     }
 
 }

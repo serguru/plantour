@@ -1,3 +1,5 @@
+using PlantourApi.Middleware;
+
 namespace PlantourApi.Models;
 
 
@@ -17,14 +19,14 @@ public class CurrentUser
     {
         if (!IsAuthenticated && (IsAdmin || IsParticipant))
         {
-            throw new UnauthorizedAccessException("User is not authenticated or the role is invalid");
+            throw new CustomException("User is not authenticated or the role is invalid");
         }
     }   
     public void RaiseIfNotAdmin()
     {
         if (!IsAdmin || !IsAuthenticated)
         {
-            throw new UnauthorizedAccessException("User is not admin");
+            throw new CustomException("User is not admin");
         }
     }   
 }
