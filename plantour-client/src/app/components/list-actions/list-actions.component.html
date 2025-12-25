@@ -65,15 +65,15 @@
 
     <!-- Text filter: input -->
     @case ('filter') {
-      <input
-        pInputText
-        type="text"
-        class="w-full"
-        [(ngModel)]="filterText"
-        [ngModelOptions]="{ standalone: true }"
-        (input)="onFilterTextChange()"
-        placeholder="Type to filter..."
-      />
+    <input
+      pInputText
+      type="text"
+      class="w-full"
+      [(ngModel)]="filterText"
+      [ngModelOptions]="{ standalone: true }"
+      (input)="onFilterTextChange()"
+      placeholder="Type to filter..."
+    />
     }
 
     <!-- Sorting: field + direction -->
@@ -136,10 +136,15 @@
     } }
   </div>
 
-  <div class="side">
-    <i
-      class="pi pi-times-circle"
-      (click)="resetAll()"
-    ></i>
-  </div>
+  <p-button
+    icon="pi pi-times"
+    (click)="resetAll()"
+    [rounded]="true"
+    [text]="true"
+    severity="secondary"
+    [outlined]="true"
+    [disabled]="!isAnyFeatureActive"
+  >
+  </p-button>
+
 </div>

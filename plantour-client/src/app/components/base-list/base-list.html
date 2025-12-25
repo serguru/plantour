@@ -48,16 +48,58 @@
         aria-label="Menu"
       >
       </button>
+        <!-- styleClass="toolbar-popup-menu" -->
       <p-menu
         #menu
         [model]="menuItems"
         [popup]="true"
-        styleClass="toolbar-popup-menu"
-      ></p-menu>
+      >
+
+        <ng-template
+          pTemplate="item"
+          let-item
+        >
+          <ng-container>
+
+            <div class="menu-item-container">
+              <i [ngClass]="item.icon"></i>
+              @switch (item.id) {
+              @case ('dic2trip') {
+              <div>
+                {{`${this.dic2tripVisible ? "Hide" : "Show"} trips select`}}
+              </div>
+              }
+              @case ('things2pack') {
+              <div>
+                {{`${this.thing2packVisible ? "Hide" : "Show"} packs select`}}
+              </div>
+              }
+              @case ('tools') {
+              <div>
+                {{`${this.listToolsVisible ? "Hide" : "Show"} list tools`}}
+              </div>
+              }
+
+
+              }
+            </div>
+          </ng-container>
+        </ng-template>
+
+      </p-menu>
     </div>
   </div>
 
-  @if (showDic2Trip) {
+  <!-- [dic2tripVisible]="showDic2Trip"
+    [thing2packVisible]="thing2packVisible" -->
+
+
+  @if (tripPanelVisible && tripId) {
+  <app-trip-panel [tripId]="tripId"></app-trip-panel>
+  }
+
+
+    @if (showDic2Trip) {
   <app-dic-trip
     (selectedTripChanged)="onSelectedTripChanged($event)"
     (registerGetter)="setCheckSelectedTrip($event)"
@@ -67,32 +109,30 @@
     [tripsFor]="tripsFor"
   ></app-dic-trip>
   }
-  @if (tripPanelVisible && tripId) {
-  <app-trip-panel [tripId]="tripId"></app-trip-panel>
-  }
 
-  @if(showThing2Pack) {
-    <app-packing
-      [packages]="packages",
-      [things]="entitiesToDisplay?.list || []",
-      [pack]="pack.bind(this)"
-      [unpack]="unpack.bind(this)"
-      (registerGetter)="setCheckSelectedPack($event)"
-      (selectedTripPackageChanged)="onSelectedTripPackageChanged($event)"
-    >
-    </app-packing>
+
+  @if(thing2packVisible) {
+  <app-packing
+    [packages]="packages"
+    ,
+    [things]="entitiesToDisplay?.list || []"
+    ,
+    [pack]="pack.bind(this)"
+    [unpack]="unpack.bind(this)"
+    (registerGetter)="setCheckSelectedPack($event)"
+    (selectedTripPackageChanged)="onSelectedTripPackageChanged($event)"
+  >
+  </app-packing>
   }
 
   <app-list-actions
     [items]="entities"
     [config]="listActionsConfiguration"
     (listChanged)="onEntitiesChanged($event)"
-    [ngStyle] = "{display: listToolsVisible ? 'block':'none'}"
+    [ngStyle]="{display: listToolsVisible ? 'block':'none'}"
   >
   </app-list-actions>
 
-    <!-- [dic2tripVisible]="showDic2Trip"
-    [thing2packVisible]="thing2packVisible" -->
   <app-list-box
     [items]="entitiesToDisplay?.list || []"
     [itemTemplate]="itemTemplate"

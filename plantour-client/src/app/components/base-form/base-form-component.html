@@ -35,7 +35,7 @@
         type="button"
         (onClick)="navigateBack()"
         [loading]="isLoading"
-        [disabled]="isLoading"
+        [disabled]="cancelDisabled"
       ></p-button>
       }
 
@@ -44,7 +44,7 @@
         label="Submit"
         icon="pi pi-save"
         [loading]="isLoading"
-        [disabled]="isLoading || form.invalid || !submitEnabled"
+        [disabled]="enterDisabled"
         (click)="onSubmit()"
       >
       </p-button>

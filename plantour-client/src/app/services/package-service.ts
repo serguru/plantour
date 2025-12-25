@@ -33,7 +33,7 @@ export class UserPackageService implements CrudService<PackageDto, CreatePackage
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
    
-    this.apiUrl = `${environment.apiUrl}/api/userpackage`;
+    this.apiUrl = `${environment.apiUrl}/api/package`;
   }
 
   getAll(): Observable<PackageDto[]> {

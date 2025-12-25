@@ -32,13 +32,15 @@ public class TripService(
     {
         _currentUser.RaiseIfNotAuthenticated();
 
-        var entities = await _tripRepository.GetAllAsync();
+        var entities = await _tripRepository.GetAllFullAsync();
 
         entities = entities.Where(x =>
             x.UserId == _currentUser.AdminId &&
-            x.TripUsers.Any(y =>
-            y.AdminParticipant.ParticipantId == _currentUser.UserId &&
-            y.AdminParticipant.AdminId == _currentUser.AdminId
+            x.TripUsers.Any(x => 
+                x.AdminParticipant.AdminId == _currentUser.AdminId &&
+                (
+                    (_currentUser.IsParticipant && x.AdminParticipant.ParticipantId == _currentUser.UserId) || true
+                )
             ));
 
         return _mapper.Map<IEnumerable<TripDto>>(entities);

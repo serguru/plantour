@@ -361,3 +361,14 @@ p-panel.list-actions-panel {
     font-size: 1.5rem !important;
     color: white;
   }
+
+  .menu-item-container {
+    padding: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    cursor: pointer;
+
+    i {
+      font-size: 1rem;
+    }
+  }
