@@ -10,11 +10,11 @@
 .side {
   flex: 0 0 auto; /* ширина по содержимому */
 }
-.side i {
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--text-color-secondary, #6c757d);
-}
+// .side i {
+//   font-size: 1.5rem;
+//   cursor: pointer;
+//   color: var(--text-color-secondary, #6c757d);
+// }
 
 .middle {
   flex: 1; /* занимает всё, что осталось */

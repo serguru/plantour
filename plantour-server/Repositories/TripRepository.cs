@@ -8,14 +8,17 @@ public class TripRepository(PlantourContext context) : GenericRepository<Trip>(c
 {
 
     public async Task<IEnumerable<Trip>> GetAllFullAsync()
-    {       
-        return await  _dbSet
+    {
+        return await _dbSet
+            .Include(x => x.TripStatus)
             .Include(x => x.TripUsers)
-            .ThenInclude(x => x.TripUserPackages)
-            .ThenInclude(x => x.TripUserThings)
-            .ToListAsync(); 
+                .ThenInclude(x => x.AdminParticipant)
+            .Include(x => x.TripUsers)
+                .ThenInclude(x => x.TripUserPackages)
+                    .ThenInclude(x => x.TripUserThings)
+            .ToListAsync();
     }
 
-    
+
 
 }

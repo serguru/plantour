@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CrudService } from '../../services/crud-service';
 import { catchError, EMPTY, finalize } from 'rxjs';
@@ -30,6 +30,24 @@ export type BaseFormMode = 'add' | 'edit';
 export class BaseFormComponent<T, TA, TU> implements OnInit {
 
   constructor() {
+  }
+
+  get cancelDisabled() {
+    return this.isLoading;
+  }
+
+  get enterDisabled() {
+    return this.isLoading || !this.submitEnabled;
+  }
+
+  @HostListener('window:keydown.enter', ['$event'])
+  handleEnter(event: Event) {
+    this.onSubmit();
+  }
+
+  @HostListener('window:keydown.escape', ['$event'])
+  handleEsc(event: Event) {
+    this.navigateBack();
   }
 
   private initialValue!: any;
@@ -78,7 +96,7 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
   get submitEnabled(): boolean {
     if (this.isAddMode) {
       return true;
-    } 
+    }
     return !deepEqual(this.initialValue, this.form.getRawValue());
   }
 
@@ -125,11 +143,16 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
   }
 
   onSubmit(): void {
+    if (this.enterDisabled) {
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.errorMessage = 'Please fill in all fields correctly';
       return;
     }
+
 
     this.isLoading = true;
     this.errorMessage = '';
@@ -197,15 +220,18 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
   }
 
   navigateBack(): void {
-    if (this.backUrl) {
-      if (!this.isAddMode) {
-        this.router.navigate([this.backUrl], {
-          queryParams: { selectId: this.id }
-        });
-        return;
-      }
-      this.router.navigate([this.backUrl]);
+
+    if (this.cancelDisabled || !this.backUrl) {
+      return;
     }
+
+    if (!this.isAddMode) {
+      this.router.navigate([this.backUrl], {
+        queryParams: { selectId: this.id }
+      });
+      return;
+    }
+    this.router.navigate([this.backUrl]);
   }
 
 }

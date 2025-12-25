@@ -33,16 +33,7 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     @Input() items: any[] = [];
     @Input() packages: TripPackageDto[] = [];
     @Input() itemTemplate!: TemplateRef<any>;
-
-    // @Input() dic2tripVisible: boolean = false;
-    // @Input() thing2packVisible: boolean = false;
-    // @Input() thing2participantVisible: boolean = false;
-
     @Input() upperActionType: UpperActionType = UpperActionType.None;
-
-
-
-    
     @Output() selectedChange = new EventEmitter<any | null>();
     @Output() addRemoveFromDic = new EventEmitter<any | null>();
     @Output() packUnpack = new EventEmitter<any | null>();

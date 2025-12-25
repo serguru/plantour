@@ -16,30 +16,31 @@
 
   <div class="header-middle">
 
+      <!-- class="p-button-text p-button-rounded dynamic-button" -->
+
     @if(dynamicButtons?.length) {
-      @for (button of dynamicButtons; track $index) {
-      <button
-        pButton
-        [icon]="button.icon"
-        [label]="button.label || ''"
-        [pTooltip]="button.tooltip || ''"
-        [disabled]="button.disabled || false"
-        class="p-button-text p-button-rounded dynamic-button"
-        (click)="button.command()"
-        [attr.aria-label]="button.tooltip || button.label || 'Action'"
-      >
-      </button>
-      }
+    @for (button of dynamicButtons; track $index) {
+    <p-button
+      [icon]="button.icon"
+      [label]="button.label || ''"
+      [disabled]="button.disabled || false"
+      (click)="button.command()"
+      [rounded]="true"
+      [text]="true"
+    >
+    </p-button>
+    }
     }
 
+    <!-- class="p-button-text p-button-rounded menu-button" -->
     @if(dynamicMenus?.length) {
-    <button
-      pButton
+    <p-button
       icon="pi pi-ellipsis-v"
-      class="p-button-text p-button-rounded menu-button"
       (click)="dynamicMenu.toggle($event)"
+      [rounded]="true"
+      [text]="true"
     >
-    </button>
+    </p-button>
     <p-menu
       #dynamicMenu
       [model]="dynamicMenus || []"
@@ -49,14 +50,15 @@
     }
   </div>
 
+      <!-- class="p-button-text p-button-rounded menu-button" -->
   <div class="header-right">
-    <button
-      pButton
+    <p-button
       icon="pi pi-bars"
-      class="p-button-text p-button-rounded menu-button"
       (click)="menu.toggle($event)"
+      [rounded]="true"
+      [text]="true"
     >
-    </button>
+    </p-button>
     <p-menu
       #menu
       [model]="menuItems"

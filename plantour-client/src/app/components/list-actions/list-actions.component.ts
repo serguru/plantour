@@ -297,7 +297,6 @@ export class ListActionsComponent implements OnChanges, OnInit {
 
   }
 
-
   resetAll(): void {
     Object.keys(this.lookupValues).forEach((prop) => {
       this.lookupValues[prop] = null;

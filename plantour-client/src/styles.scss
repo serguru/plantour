@@ -326,6 +326,7 @@ p-panel.list-actions-panel {
 
 .page-header .p-button:hover .p-button-icon {
   color: black !important;
+  //color: white;
 }
 
 .p-select-option.p-select-option-selected.p-focus {
@@ -360,4 +361,15 @@ p-panel.list-actions-panel {
 .toolbar .p-button-icon {
     font-size: 1.5rem !important;
     color: white;
+  }
+
+  .menu-item-container {
+    padding: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    cursor: pointer;
+
+    i {
+      font-size: 1rem;
+    }
   }

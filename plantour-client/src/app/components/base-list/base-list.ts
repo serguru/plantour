@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, inject, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
 import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from '../../services/crud-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentLayoutComponent } from "../layouts/content-layout.component";
@@ -62,28 +62,31 @@ export class BaseListComponent<T> implements OnInit {
   @Input() listActionsConfiguration: any[] = [];
   @Input() addUrl: string | null = null;
   @Input() editUrl: string | null = null;
-  
-  // @Input() dic2trip: boolean = false;
   @Input() tripPanelVisible: boolean = false;
-  // @Input() thing2pack: boolean = false;
-
   @Input() upperActionType: UpperActionType = UpperActionType.None;
-
-
-
-
   @Input() isListReadOnly: boolean = false;
   @Input() entityNameProp: string = 'name';
   @Input() entityName: string = '';
   @Input() toolBarButtons: ToolbarButton[] | null = null;
   @Input() toolBarMenus: MenuItem[] | null = null;
   @Input() useTripId: boolean = false;
-  @Output() entitySelected = new EventEmitter<any | null>();
   @Input() tripsFor: string | null = null;
 
-    @Output() registerGetter: EventEmitter<(() => TripPackageDto | null) | null> = new EventEmitter<(() => TripPackageDto | null) | null>();
+  @Output() entitySelected = new EventEmitter<any | null>();
+  @Output() registerGetter: EventEmitter<(() => TripPackageDto | null) | null> = new EventEmitter<(() => TripPackageDto | null) | null>();
 
-  
+  @HostListener('window:keydown.escape', ['$event'])
+  handleEsc(event: Event) {
+    if (!this.toolBarButtons || this.toolBarButtons.length === 0) {
+      return;
+    }
+    const backButton = this.toolBarButtons.find(btn => btn.icon === 'pi pi-chevron-left');
+    if (!backButton || !backButton!.command) {
+      return;
+    }
+    backButton!.command();
+  }
+
   thing2packVisible: boolean = false;
   tripEntities: any[] | null = null;
   entities: T[] | null = null;
@@ -98,13 +101,55 @@ export class BaseListComponent<T> implements OnInit {
 
   processedEntities: T[] | null = null;
   packages: TripPackageDto[] = [];
-
+  menuItems: MenuItem[] = [];
 
   constructor(
     protected router: Router,
     protected route: ActivatedRoute
   ) {
   }
+
+  getMenuItems = (): MenuItem[] => {
+
+    const items: MenuItem[] = [];
+
+    if (this.upperActionType === UpperActionType.Dic2Trip) {
+      items.push({
+        id: 'dic2trip',
+        icon: 'pi pi-compass',
+        command: () => this.onShowHideMenu('trips')
+      });
+    }
+    if (this.upperActionType === UpperActionType.Thing2Pack) {
+      items.push({
+        id: 'thing2pack',
+        icon: 'pi pi-box',
+        command: () => this.onShowHideMenu('packs')
+      });
+    }
+    items.push({
+      id: 'tools',
+      icon: 'pi pi-filter',
+      command: () => this.onShowHideMenu('tools')
+    });
+
+
+    return items;
+
+  }
+
+  ngOnInit() {
+    this.menuItems = this.getMenuItems();
+    if (this.useTripId) {
+      this.tripId = this.route.snapshot.paramMap.get('tripId');
+    }
+    const selectId = this.route.snapshot.queryParamMap.get('selectId') || null;
+    this.getAll(selectId);
+    this.setupToolbarButtons();
+    this.setupToolbarMenus();
+    this.restoreState();
+  }
+
 
 
   get showThing2Pack(): boolean {
@@ -238,7 +283,7 @@ export class BaseListComponent<T> implements OnInit {
   }
 
   onSelectedTripChanged(trip: any | null) {
-    this.refreshTripEntities(trip.id)
+    this.refreshTripEntities(trip?.id)
   }
 
   refreshTripEntities(id: string | null) {
@@ -262,44 +307,6 @@ export class BaseListComponent<T> implements OnInit {
     this.dic2tripVisible = dic2tripState === '1';
     const listToolsState = localStorage.getItem(`base-list-tools`);
     this.listToolsVisible = listToolsState === '1';
-  }
-  
-  menuItems: MenuItem[]  = [];
-
-  ngOnInit() {
-
-    const items: MenuItem[] = [];
-
-    if (this.upperActionType === UpperActionType.Dic2Trip) {
-      items.push({
-        label: `${this.dic2tripVisible ? "Hide" : "Show"} trips select`,
-        icon: 'pi pi-compass',
-        command: () => this.onShowHideMenu('trips')
-      });
-    }
-    if (this.upperActionType === UpperActionType.Thing2Pack) {
-      items.push({
-        label: `${this.thing2packVisible ? "Hide" : "Show"} packs select`,
-        icon: 'pi pi-box',
-        command: () => this.onShowHideMenu('packs')
-      });
-    }
-    items.push({
-      label: `${this.listToolsVisible ? "Hide" : "Show"} list tools`,
-      icon: 'pi pi-filter',
-      command: () => this.onShowHideMenu('tools')
-    });
-
-    this.menuItems = items;
-
-    if (this.useTripId) {
-      this.tripId = this.route.snapshot.paramMap.get('tripId');
-    }
-    const selectId = this.route.snapshot.queryParamMap.get('selectId') || null;
-    this.getAll(selectId);
-    this.setupToolbarButtons();
-    this.setupToolbarMenus();
-    this.restoreState();
   }
 
   private setupToolbarButtons(): void {
@@ -420,7 +427,7 @@ export class BaseListComponent<T> implements OnInit {
       }
 
       tripUserPackageId = data.item.tripUserPackageId || item.tripUserPackageId;
-      
+
     } else {
       if (!this.thing2packVisible || !this.checkSelectedPack || !this.packingService) {
         return;
