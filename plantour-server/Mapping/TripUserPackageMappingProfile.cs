@@ -10,7 +10,7 @@ public class TripUserPackageMappingProfile : Profile
     {
         CreateMap<TripUserPackage, TripUserPackageDto>();
         
-        CreateMap<CreateTripUserPackageRequest, TripUserPackage>()
+        CreateMap<CreateTripPackageRequest, TripUserPackage>()
             .ForMember(dest => dest.TripUserId, opt => opt.Ignore())
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.TripUser, opt => opt.Ignore());

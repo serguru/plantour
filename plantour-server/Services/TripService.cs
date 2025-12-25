@@ -67,12 +67,12 @@ public class TripService(
     {
         _currentUser.RaiseIfNotAdmin();
 
-        if (_tripRepository.AnyAsync(x => x.Name.ToLower() == request.Name.ToLower() && x.UserId == _currentUser.UserId && x.Id != request.Id).Result)
+        if (await _tripRepository.AnyAsync(x => x.Name.ToLower() == request.Name.ToLower() && x.UserId == _currentUser.UserId && x.Id != request.Id))
         {
             throw new InvalidOperationException("A trip with the same name already exists for this user");
         }
 
-        if (!_checkAccessService.CurrentUserHasAccessToTripAsync(request.Id).Result)
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(request.Id))
         {
             throw new UnauthorizedAccessException("User does not have access to this trip");
         }
@@ -87,7 +87,7 @@ public class TripService(
     {
         _currentUser.RaiseIfNotAdmin();
 
-        if (!_checkAccessService.CurrentUserHasAccessToTripAsync(id).Result)
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
             throw new UnauthorizedAccessException("User does not have access to this trip");
         }
@@ -101,7 +101,7 @@ public class TripService(
     {
         _currentUser.RaiseIfNotAuthenticated();
 
-        if (!_checkAccessService.CurrentUserHasAccessToTripAsync(id).Result)
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(id))
         {
             throw new UnauthorizedAccessException("User does not have access to this trip");
         }

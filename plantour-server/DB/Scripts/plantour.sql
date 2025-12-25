@@ -254,7 +254,7 @@ create table trip_user_things (
     value decimal(10,3) check(value > 0),
     notes text,
     trip_user_package_id uuid references trip_user_packages(id) on delete set null,
-    packed_at timestamptz,
+    finished_at timestamptz,
     finished text null check (finished in ('success', 'failure') or finished is null)
 );
 create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
@@ -615,7 +615,8 @@ begin
     if (p_unpack) then
         update plantour.trip_user_things
         set 
-            packed_at = null, 
+            finished_at = null, 
+            finished = null,
             trip_user_package_id = null
         where
             trip_user_id = v_trip_user_id and
@@ -625,7 +626,8 @@ begin
     else            
         update plantour.trip_user_things
         set 
-            packed_at = now(), 
+            finished_at = now(), 
+            finished = 'success',
             trip_user_package_id = p_package_id
         where
             trip_user_id = v_trip_user_id and

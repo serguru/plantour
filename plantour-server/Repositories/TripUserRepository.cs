@@ -3,143 +3,37 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
-public class TripUserRepository : BaseRepository
+public class TripUserRepository(PlantourContext context) : GenericRepository<TripUser>(context)
 {
 
-    private readonly DbSet<TripUser> _dbSet;
-    private readonly PlantourContext _context;
-
-    public TripUserRepository(PlantourContext context, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+    public async Task<TripUser?> GetByTripIdAsync(Guid adminId, Guid userId, Guid tripId)
     {
-        _dbSet = context.Set<TripUser>();
-        _context = context;
+        return await _dbSet
+            .FirstOrDefaultAsync(x =>
+                x.TripId == tripId &&
+                x.Trip.UserId == adminId &&
+                x.AdminParticipant.AdminId == adminId &&
+                x.AdminParticipant.ParticipantId == userId);
     }
 
-    public async Task<bool> AnyByIdAsync(Guid id, Guid tripId)
+
+
+
+    public async Task<TripUser?> GetByIdAsync(Guid adminId, Guid tripId, Guid id)
     {
-        if (CurrentUser == null)
-        {
-            return false;
-        }
-        else if (CurrentUser.IsAdmin)
-        {
-            return await _dbSet
-                .AnyAsync(x =>
-                x.Id == id &&
-                x.AdminParticipant.AdminId == CurrentUser.UserId &&
-                x.TripId == tripId
-                );
-        }
-        else if (CurrentUser.IsParticipant)
-        {
-            return await _dbSet
-                .AnyAsync(x =>
-                x.Id == id && x.AdminParticipant.AdminId == CurrentUser.AdminId &&
-                x.TripId == tripId
-                );
-        }
-        return false;
+        return await _dbSet
+            .FirstOrDefaultAsync(x =>
+            x.Id == id &&
+            x.AdminParticipant.AdminId == adminId &&
+            x.TripId == tripId
+            );
     }
 
-    public async Task<TripUser?> GetByIdAsync(Guid id, Guid tripId)
+    public async Task<IEnumerable<TripUser>> GetAllAsync(Guid adminId, Guid tripId)
     {
-        if (CurrentUser == null)
-        {
-            return null;
-        }
-        else if (CurrentUser.IsAdmin)
-        {
-            return await _dbSet
-                .FirstOrDefaultAsync(x =>
-                x.Id == id &&
-                x.AdminParticipant.AdminId == CurrentUser.UserId &&
-                x.TripId == tripId
-                );
-        }
-        else if (CurrentUser.IsParticipant)
-        {
-            return await _dbSet
-                .FirstOrDefaultAsync(x =>
-                x.Id == id && x.AdminParticipant.AdminId == CurrentUser.AdminId &&
-                x.TripId == tripId
-                );
-        }
-        return null;
-    }
-
-    public async Task<IEnumerable<TripUser>> GetAllAsync(Guid tripId)
-    {
-        if (CurrentUser == null)
-        {
-            return Array.Empty<TripUser>();
-        }
-        if (CurrentUser.IsAdmin)
-        {
-            return await _dbSet
-                .Include(x => x.AdminParticipant.Participant)
-                .Where(x => x.TripId == tripId && x.AdminParticipant.AdminId == CurrentUser.UserId)
-                .ToListAsync();
-        }
-        if (CurrentUser.IsParticipant)
-        {
-            return await _dbSet
-                .Include(x => x.AdminParticipant.Participant)
-                .Where(x => x.TripId == tripId && x.AdminParticipant.AdminId == CurrentUser.AdminId)
-                .ToListAsync();
-        }
-
-        return Array.Empty<TripUser>();
-    }
-
-    public virtual async Task AddAsync(TripUser entity)
-    {
-        if (CurrentUser == null || CurrentUser.IsParticipant)
-        {
-            throw new InvalidOperationException("Access denied");
-        }
-
-        if (CurrentUser.IsAdmin)
-        {
-            var adminParticipant = await _context.AdminsParticipants
-                .FirstOrDefaultAsync(x => x.Id == entity.AdminParticipantId && x.AdminId == CurrentUser.UserId);
-            if (adminParticipant == null)
-            {
-                throw new InvalidOperationException("Admin Participant not found or access denied");
-            }
-        }
-        entity.Id = Guid.NewGuid();
-        _context.TripUsers.Add(entity);
-        await _context.SaveChangesAsync();
-    }
-
-    public virtual async Task UpdateAsync(TripUser entity)
-    {
-        if (CurrentUser == null || CurrentUser.IsParticipant)
-        {
-            throw new InvalidOperationException("Access denied");
-        }
-        var existingEntity = await GetByIdAsync(entity.TripId, entity.Id);
-        if (existingEntity == null)
-        {
-            throw new InvalidOperationException("Trip user not found or access denied");
-        }
-        _context.TripUsers.Attach(entity);
-        _context.Entry(entity).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-    }
-
-    public virtual async Task DeleteAsync(Guid tripId, Guid id)
-    {
-        if (CurrentUser == null || CurrentUser.IsParticipant)
-        {
-            throw new InvalidOperationException("Access denied");
-        }
-        var entity = await GetByIdAsync(tripId, id);
-        if (entity == null)
-        {
-            return;
-        }
-        _context.TripUsers.Remove(entity);
-        await _context.SaveChangesAsync();
+        return await _dbSet
+            .Include(x => x.AdminParticipant.Participant)
+            .Where(x => x.TripId == tripId && x.AdminParticipant.AdminId == adminId)
+            .ToListAsync();
     }
 }

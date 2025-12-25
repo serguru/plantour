@@ -62,13 +62,13 @@ public class TripPackageController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{tripId}/{id}")]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripUserPackageDto>> GetById(Guid id)
+    public async Task<ActionResult<TripUserPackageDto>> GetById(Guid tripId, Guid id)
     {
         try
         {
-            var dto = await _service.GetByIdAsync(id);
+            var dto = await _service.GetByIdAsync(tripId, id);
             if (dto == null)
             {
                 return NotFound(new { message = "Trip user package not found" });
@@ -84,7 +84,7 @@ public class TripPackageController : ControllerBase
 
     [HttpPost]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripUserPackageDto>> Add([FromBody] CreateTripUserPackageRequest request)
+    public async Task<ActionResult<TripUserPackageDto>> Add([FromBody] CreateTripPackageRequest request)
     {
         try
         {
