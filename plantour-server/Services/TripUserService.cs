@@ -100,31 +100,42 @@ public class TripUserService(
         return _mapper.Map<TripUserDto>(entity);
     }
 
-    public async Task<bool> UpdateAsync(UpdateTripUserRequest request)
+    public async Task UpdateAsync(UpdateTripUserRequest request)
     {
+        _currentUser.RaiseIfNotAdmin();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(request.TripId))
+        {
+            throw new UnauthorizedAccessException("User does not have access to this trip");
+        }
+
+        if (!await _adminsParticipantRepository.AnyAsync(x =>
+                x.AdminId == _currentUser.AdminId &&
+                x.Id == request.AdminParticipantId))
+        {
+            throw new InvalidOperationException("AdminParticipant not found or access denied");
+        }
 
 
-        
-        var entity = await _tripUserRepository.GetByIdAsync(request.TripId, request.Id);
+        var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, request.TripId, request.Id);
         if (entity == null)
         {
-            return false;
+            throw new InvalidOperationException("Trip User does not exist for this trip");
         }
-        
+       
         _mapper.Map(request, entity);
         await _tripUserRepository.UpdateAsync(entity);
-        return true;
     }
 
-    public async Task<bool> DeleteAsync(Guid tripId, Guid id)
+    public async Task DeleteAsync(Guid tripId, Guid id)
     {
-        var entity = await _tripUserRepository.GetByIdAsync(tripId, id);
-        if (entity == null)
+        _currentUser.RaiseIfNotAdmin();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            return false;
+            throw new UnauthorizedAccessException("User does not have access to this trip");
         }
         
-        await _tripUserRepository.DeleteAsync(tripId, id);
-        return true;
+        await _tripUserRepository.DeleteAsync(id);
     }
 }

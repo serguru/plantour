@@ -9,7 +9,7 @@ public interface ITripService
     
     Task<TripDto?> GetByIdAsync(Guid id);
     Task<TripDto> AddAsync(CreateTripRequest request);
-    Task<bool> UpdateAsync(UpdateTripRequest request);
-    Task<bool> DeleteAsync(Guid id);
+    Task UpdateAsync(UpdateTripRequest request);
+    Task DeleteAsync(Guid tripId, Guid id);
     Task<TripStatDto?> GetTripStatsAsync(Guid id);
 }

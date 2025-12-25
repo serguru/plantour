@@ -103,12 +103,7 @@ public class TripUserController : ControllerBase
     {
         try
         {
-            var updated = await _service.UpdateAsync(request);
-            if (!updated)
-            {
-                return NotFound(new { message = "Trip user not found" });
-            }
-
+            await _service.UpdateAsync(request);
             return NoContent();
         }
         catch (Exception ex)
@@ -123,12 +118,7 @@ public class TripUserController : ControllerBase
     {
         try
         {
-            var deleted = await _service.DeleteAsync(tripId, id);
-            if (!deleted)
-            {
-                return NotFound(new { message = "Trip user not found" });
-            }
-
+            await _service.DeleteAsync(tripId, id);
             return NoContent();
         }
         catch (Exception ex)

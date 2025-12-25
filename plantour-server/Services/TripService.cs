@@ -63,7 +63,7 @@ public class TripService(
         return _mapper.Map<TripDto>(entity);
     }
 
-    public async Task<bool> UpdateAsync(UpdateTripRequest request)
+    public async Task UpdateAsync(UpdateTripRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
 
@@ -80,10 +80,9 @@ public class TripService(
         var entity = await _tripRepository.GetByIdAsync(request.Id);
         _mapper.Map(request, entity);
         await _tripRepository.UpdateAsync(entity!);
-        return true;
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid tripId, Guid id)
     {
         _currentUser.RaiseIfNotAdmin();
 
@@ -93,7 +92,6 @@ public class TripService(
         }
 
         await _tripRepository.DeleteAsync(id);
-        return true;
     }
 
 

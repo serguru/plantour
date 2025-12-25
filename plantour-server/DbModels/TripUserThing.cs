@@ -39,8 +39,8 @@ public partial class TripUserThing
     [Column("trip_user_package_id")]
     public Guid? TripUserPackageId { get; set; }
 
-    [Column("packed_at")]
-    public DateTime? PackedAt { get; set; }
+    [Column("finished_at")]
+    public DateTime? FinishedAt { get; set; }
 
     [Column("finished")]
     public string? Finished { get; set; }

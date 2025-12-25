@@ -89,12 +89,7 @@ public class TripController : ControllerBase
     {
         try
         {
-            var updated = await _service.UpdateAsync(request);
-            if (!updated)
-            {
-                return NotFound(new { message = "Trip not found" });
-            }
-
+            await _service.UpdateAsync(request);
             return NoContent();
         }
         catch (Exception ex)
@@ -103,18 +98,13 @@ public class TripController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{tripId}/{id}")]
     [AdminOnly]
-    public async Task<ActionResult> Delete(Guid id)
+    public async Task<ActionResult> Delete(Guid tripId, Guid id)
     {
         try
         {
-            var deleted = await _service.DeleteAsync(id);
-            if (!deleted)
-            {
-                return NotFound(new { message = "Trip not found" });
-            }
-
+            await _service.DeleteAsync(tripId, id);
             return NoContent();
         }
         catch (Exception ex)

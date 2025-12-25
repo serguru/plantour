@@ -9,6 +9,8 @@ namespace plantour_server.Services;
 public class TripThingService(
     TripThingRepository TripThingRepository,
     DicTripRepository dicTripRepository,
+    ICheckAccessService checkAccessService,
+    TripUserRepository tripUserRepository,
     ThingRepository ThingRepository,
     IMapper mapper,
     HttpCurrentUser httpCurrentUser) : ITripThingService
@@ -18,6 +20,8 @@ public class TripThingService(
     private readonly ThingRepository _userThingRepository = ThingRepository;
     private readonly IMapper _mapper = mapper;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
+    private readonly ICheckAccessService _checkAccessService = checkAccessService;
+    private readonly TripUserRepository _tripUserRepository = tripUserRepository;
 
     public async Task<int> InsertTripUserThingsAsync(Guid tripId, Guid[] packageIds)
     {
@@ -33,47 +37,107 @@ public class TripThingService(
 
     public async Task<IEnumerable<TripThingDto>> GetAllAsync(Guid tripId)
     {
-        var entities = await _tripUserThingRepository.GetAllAsync(tripId);
+        _currentUser.RaiseIfNotAuthenticated();
+        var entities = await _tripUserThingRepository.GetAllAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
         return _mapper.Map<IEnumerable<TripThingDto>>(entities);
     }
 
 
     public async Task<TripThingDto?> GetByIdAsync(Guid tripId, Guid id)
     {
-        var entity = await _tripUserThingRepository.GetByIdAsync(tripId, id);
+        _currentUser.RaiseIfNotAuthenticated();
+        var entity = await _tripUserThingRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
         return entity != null ? _mapper.Map<TripThingDto>(entity) : null;
     }
 
     public async Task<TripThingDto> AddAsync(CreateTripThingRequest request)
     {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(request.TripId))
+        {
+            throw new UnauthorizedAccessException("User does not have access to this trip");
+        }
+
+        var tripUser = await _tripUserRepository.GetByTripIdAsync(
+            _currentUser.AdminId,
+            _currentUser.UserId,
+            request.TripId);
+
+        if (tripUser == null)
+        {
+            throw new UnauthorizedAccessException("Trip user not found");
+        }
+
+        var exists = await _tripUserThingRepository.AnyAsync(x =>
+            x.TripUserId == tripUser.Id &&
+            x.Name.ToLower() == request.Name.ToLower());
+
+        if (exists)
+        {
+            throw new InvalidOperationException("Thing with the same name already exists");
+        }
+
         var entity = _mapper.Map<TripUserThing>(request);
-        await _tripUserThingRepository.AddAsync(request.TripId, entity);
+        await _tripUserThingRepository.AddAsync(entity);
         return _mapper.Map<TripThingDto>(entity);
     }
 
-    public async Task<bool> UpdateAsync(UpdateTripThingRequest request)
+    public async Task UpdateAsync(UpdateTripThingRequest request)
     {
-        var entity = await _tripUserThingRepository.GetByIdAsync(request.TripId, request.Id);
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(request.TripId))
+        {
+            throw new UnauthorizedAccessException("User does not have access to this trip");
+        }
+
+        var tripUser = await _tripUserRepository.GetByTripIdAsync(
+            _currentUser.AdminId,
+            _currentUser.UserId,
+            request.TripId);
+
+        if (tripUser == null)
+        {
+            throw new UnauthorizedAccessException("Trip user not found");
+        }
+
+        var exists = await _tripUserThingRepository.AnyAsync(x =>
+            x.TripUserId == tripUser.Id &&
+            x.Name.ToLower() == request.Name.ToLower() &&
+            x.Id != request.Id);
+
+        if (exists)
+        {
+            throw new InvalidOperationException("Thing with the same name already exists");
+        }
+
+        var entity = await _tripUserThingRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, request.TripId, request.Id);
         if (entity == null)
         {
-            return false;
+            throw new UnauthorizedAccessException("User does not have access to this trip");
         }
         
         _mapper.Map(request, entity);
-        await _tripUserThingRepository.UpdateAsync(request.TripId, entity);
-        return true;
+        await _tripUserThingRepository.UpdateAsync(entity);
     }
 
-    public async Task<bool> DeleteAsync(Guid tripId, Guid id)
+    public async Task DeleteAsync(Guid tripId, Guid id)
     {
-        var entity = await _tripUserThingRepository.GetByIdAsync(tripId, id);
-        if (entity == null)
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
-            return false;
+            throw new UnauthorizedAccessException("User does not have access to this trip");
+        }
+
+        var exists = await _tripUserThingRepository.AnyByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
+        if (!exists)
+        {
+            throw new InvalidOperationException("Trip thing not found or access denied");
         }
         
-        await _tripUserThingRepository.DeleteAsync(tripId, id);
-        return true;
+        await _tripUserThingRepository.DeleteAsync(id);
     }
 
     public async Task<int> PackTripThingsAsync(Guid tripId, Guid packageId, Guid[] tripThingIds)
