@@ -10,7 +10,6 @@ public class TripSharedDto
     public string? Units { get; set; }
     public decimal? Value { get; set; }
     public string? Notes { get; set; }
-    public Guid AddedById { get; set; }
     public Guid? AssignedToId { get; set; }
     public Guid? AssignedThingId { get; set; }
     public DateTime? AssignedAt { get; set; }

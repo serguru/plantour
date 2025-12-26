@@ -68,7 +68,7 @@ public class TripUserService(
         {
             throw new CustomException("User does not have access to this trip");
         }
-        var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, tripId, id);
+        var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
         return entity != null ? _mapper.Map<TripUserDto>(entity) : null;
     }
 
@@ -118,7 +118,7 @@ public class TripUserService(
         }
 
 
-        var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, request.TripId, request.Id);
+        var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, request.TripId, request.Id);
         if (entity == null)
         {
             throw new CustomException("Trip User does not exist for this trip");

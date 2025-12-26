@@ -8,11 +8,29 @@ public class TripSharedRepository(PlantourContext context) : GenericRepository<T
     public async Task<IEnumerable<TripSharedThing>> GetAllFullAsync(Guid tripId)
     {
         return await _dbSet
-            .Include(t => t.AddedBy.Trip.User)
             .Include(t => t.AssignedTo != null ? t.AssignedTo.Trip.User : null)
             .Include(t => t.AssignedThing)
             .Where(t => t.TripId == tripId)    
             .ToListAsync();
     }
+
+    public async Task<TripSharedThing?> GetByIdFullAsync(Guid tripId, Guid id)
+    {
+        return await _dbSet
+            .Include(t => t.AssignedTo != null ? t.AssignedTo.Trip.User : null)
+            .Include(t => t.AssignedThing)
+            .FirstOrDefaultAsync(t => t.TripId == tripId && t.Id == id);
+    }
+
+    public async Task DeleteAsync(Guid tripId, Guid id)
+    {
+        var entity = await FindAsync(x => x.Id == id && x.TripId == tripId).ContinueWith(t => t.Result.FirstOrDefault());
+        if (entity != null)
+        {
+            _dbSet.Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+    }
+
 
 }

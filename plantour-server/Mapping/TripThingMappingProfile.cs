@@ -9,7 +9,6 @@ public class TripThingMappingProfile : Profile
     public TripThingMappingProfile()
     {
         CreateMap<TripSharedThing, TripSharedDto>()
-            .ForMember(dest => dest.AddedBy, opt => opt.MapFrom(src => src.AddedBy.Trip.User))            
             .ForMember(dest => dest.AssignedTo, opt => opt.MapFrom(src => src.AssignedTo != null ? src.AssignedTo.Trip.User : null));            
 
         CreateMap<TripUserThing, TripThingDto>()

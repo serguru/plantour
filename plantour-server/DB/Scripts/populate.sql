@@ -154,7 +154,7 @@ VALUES
 -----------------------------------------------------------------------
 -- TRIP SHARED THINGS
 -----------------------------------------------------------------------
-INSERT INTO trip_shared_things (trip_id, category, name, units, value, notes, added_by_id)
+INSERT INTO trip_shared_things (trip_id, category, name, units, value, notes)
 VALUES
     (
         (SELECT trip_id FROM trip_users WHERE notes = 'Serguru is the admin and the participant'),
@@ -162,8 +162,7 @@ VALUES
         'Rain Jacket',
         'pcs',
         1,
-        'Essential for mountains',
-        (SELECT id FROM trip_users WHERE notes = 'Serguru is the admin and the participant')
+        'Essential for mountains'
     ),
     (
         (SELECT trip_id FROM trip_users WHERE notes = 'Serguru is the admin and the participant'),
@@ -171,8 +170,7 @@ VALUES
         'Talles',
         'pcs',
         1,
-        'Essential for ocean',
-        (SELECT id FROM trip_users WHERE notes = 'Serguru is the admin and the participant')
+        'Essential for ocean'
     ),
     (
         (SELECT trip_id FROM trip_users WHERE notes = 'Serguru is the admin and the participant'),
@@ -180,8 +178,7 @@ VALUES
         'Rain Long Jacket',
         'pcs',
         1,
-        'Essential for mountains',
-        (SELECT id FROM trip_users WHERE notes = 'Serguru is the admin and the participant')
+        'Essential for mountains'
     ),
     (
         (SELECT trip_id FROM trip_users WHERE notes = 'Serguru is the admin and the participant'),
@@ -189,8 +186,7 @@ VALUES
         'Headlamp',
         'pcs',
         1,
-        'Check batteries before leaving',
-        (SELECT id FROM trip_users WHERE notes = 'Serguru is the admin and the participant')
+        'Check batteries before leaving'
     );
 
 commit;

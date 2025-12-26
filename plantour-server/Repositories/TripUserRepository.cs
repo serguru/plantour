@@ -13,16 +13,25 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
                 x.TripId == tripId &&
                 x.Trip.UserId == adminId &&
                 x.AdminParticipant.AdminId == adminId &&
-                x.AdminParticipant.ParticipantId == userId);
+                x.AdminParticipant.ParticipantId == userId
+                );
     }
 
-
-
-
-    public async Task<TripUser?> GetByIdAsync(Guid adminId, Guid tripId, Guid id)
+    public async Task<TripUser?> GetByIdAsync(Guid adminId, Guid userId, Guid tripId, Guid id)
     {
         return await _dbSet
             .FirstOrDefaultAsync(x =>
+            x.Id == id &&
+            x.AdminParticipant.AdminId == adminId &&
+            x.AdminParticipant.ParticipantId == userId &&
+            x.TripId == tripId
+            );
+    }
+
+    public async Task<bool> AnyByIdAsync(Guid adminId, Guid tripId, Guid id)
+    {
+        return await _dbSet
+            .AnyAsync(x =>
             x.Id == id &&
             x.AdminParticipant.AdminId == adminId &&
             x.TripId == tripId
