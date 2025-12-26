@@ -1,0 +1,38 @@
+Дай мне список вещей, которые мужчине средних лет целесообразно взять c собой в двухнедельный круиз по Средиземному  морю в марте 2026 года. На английском языке. Никаких объяснений, только txt список в формате: Категория, Название, Единицы измерения, Количество, Комментарий
+
+
+Category, Name, Units, Quantity, Comment
+Documents, Passport, pcs, 1, Must be valid 6 months past March 2026
+Documents, Cruise Boarding Pass, pcs, 1, Printed and digital copy
+Documents, Travel Insurance, pcs, 1, Must cover Mediterranean region
+Documents, Credit/Debit Cards, pcs, 2, Notify banks of international travel
+Documents, Cash (Euros), set, 1, Small bills for shore excursions
+Clothing, Lightweight Jacket, pcs, 1, For cool Mediterranean evenings
+Clothing, Waterproof Rain Shell, pcs, 1, For potential March showers
+Clothing, Blazer or Sport Coat, pcs, 1, Required for formal/elegant nights
+Clothing, Dress Trousers, pairs, 2, For dinners and formal events
+Clothing, Chinos or Jeans, pairs, 3, For shore excursions and casual wear
+Clothing, Long-sleeve Shirts, pcs, 4, Layering for variable weather
+Clothing, Polo Shirts, pcs, 5, Smart casual daytime wear
+Clothing, T-shirts, pcs, 7, Base layers or casual wear
+Clothing, Underwear, pcs, 15, Extra set included
+Clothing, Socks, pairs, 15, Mix of dress and athletic socks
+Clothing, Swim Trunks, pcs, 2, For ship pools and spa
+Clothing, Gym Clothes, sets, 2, For ship fitness center
+Footwear, Comfortable Walking Shoes, pairs, 1, Essential for European cobblestones
+Footwear, Dress Shoes, pairs, 1, To match blazer/trousers
+Footwear, Flip-flops or Slides, pairs, 1, For pool deck and cabin
+Accessories, Polarized Sunglasses, pcs, 1, UV protection for sea glare
+Accessories, Travel Umbrella, pcs, 1, Compact for shore trips
+Accessories, Daypack, pcs, 1, For carrying water/items on shore
+Toiletries, Shaving Kit, set, 1, Razors or electric trimmer
+Toiletries, Sunscreen (SPF 30+), bottle, 1, March sun is still strong at sea
+Toiletries, Toothbrush/Paste, set, 1, Travel or full size
+Health, Motion Sickness Meds, pack, 1, For potential rough spring seas
+Health, Prescription Medications, set, 1, 14-day supply plus 3 days extra
+Health, Basic First Aid Kit, set, 1, Band-aids and pain relief
+Electronics, Smartphone, pcs, 1, For photos and cruise app
+Electronics, Universal Power Adapter, pcs, 1, Type C/E/F for shore hotels
+Electronics, Portable Power Bank, pcs, 1, For long excursion days
+Electronics, Charging Cables, set, 1, For all devices
+Electronics, Noise-Canceling Headphones, pcs, 1, For flight and relaxation

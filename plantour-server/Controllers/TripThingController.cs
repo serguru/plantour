@@ -8,18 +8,13 @@ namespace plantour_server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TripThingController : ControllerBase
+public class TripThingController(ITripThingService service) : ControllerBase
 {
-    private readonly ITripThingService _service;
-
-    public TripThingController(ITripThingService service)
-    {
-        _service = service;
-    }
+    private readonly ITripThingService _service = service;
 
     [HttpPost("insert-from-dic")]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripUserPackageDto>> AddFromDic([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult> AddFromDic([FromBody] MultipleIdsRequest request)
     {
         var insertedCount = await _service.InsertTripUserThingsAsync(request.CollectionId, request.Ids);
         return Ok(new { insertedCount });
@@ -27,7 +22,7 @@ public class TripThingController : ControllerBase
 
     [HttpPost("delete-from-dic")]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripUserPackageDto>> DeleteFromDic([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult> DeleteFromDic([FromBody] MultipleIdsRequest request)
     {
         var deletedCount = await _service.DeleteTripUserThingsAsync(request.CollectionId, request.Ids);
         return Ok(new { deletedCount });

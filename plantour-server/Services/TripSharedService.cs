@@ -13,7 +13,9 @@ public class TripSharedService(
     IMapper mapper,
     HttpCurrentUser httpCurrentUser,
     DicTripRepository dicTripRepository,
-    TripUserRepository tripUserRepository
+    TripUserRepository tripUserRepository,
+    ThingRepository thingRepository,
+    TripThingRepository tripThingRepository
 
     ) : ITripSharedService
 {
@@ -23,6 +25,8 @@ public class TripSharedService(
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
+    private readonly ThingRepository _thingRepository = thingRepository;
+    private readonly TripThingRepository _tripThingRepository = tripThingRepository;
 
     public async Task<IEnumerable<TripSharedDto>> GetAllFullAsync(Guid tripId)
     {
@@ -186,10 +190,90 @@ public class TripSharedService(
 
     public async Task AcceptAssignmentAsync(Guid tripId, Guid id)
     {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var entity = await _tripSharedRepository.GetByIdFullAsync(tripId, id) ?? throw new CustomException("Trip shared thing not found");
+
+        if (entity == null || entity.AssignedToId == null)
+        {
+            throw new CustomException("User does not have this shared thing assigned or no access");
+        }
+
+        var assignedToTripUser = await _tripUserRepository.GetByIdAsync(
+            _currentUser.AdminId,
+            _currentUser.UserId,
+            entity.TripId,
+            entity.AssignedToId.Value);
+            
+        if (assignedToTripUser == null)
+        {
+            throw new CustomException("AssignedTo trip user not found");
+        }
+
+        var thing = await _tripThingRepository.FindAsync(x => x.TripUserId == assignedToTripUser.Id && x.Name.ToLower() == entity.Name.ToLower()).ContinueWith(t => t.Result.FirstOrDefault());
+
+        if (thing == null)
+        {
+            thing = new TripUserThing()
+            {
+                Id = Guid.NewGuid(),
+                TripUserId = assignedToTripUser.Id,
+                Category = entity.Category,
+                Name = entity.Name,
+                Units = entity.Units,
+                Value = entity.Value
+            };
+            thing = await _tripThingRepository.AddAsync(thing);
+        }
+
+        entity.AssignedThingId = thing.Id;
+        entity.Rejected = false;
+        entity.AssignedAt = DateTime.UtcNow;
+        await _tripSharedRepository.UpdateAsync(entity);
     }
 
     public async Task RejectAssignmentAsync(Guid tripId, Guid id)
     {
-        throw new NotImplementedException();
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var entity = await _tripSharedRepository.GetByIdFullAsync(tripId, id) ?? throw new CustomException("Trip shared thing not found");
+
+        if (entity == null || entity.AssignedToId == null)
+        {
+            throw new CustomException("User does not have this shared thing assigned or no access");
+        }
+
+        var assignedToTripUser = await _tripUserRepository.GetByIdAsync(
+            _currentUser.AdminId,
+            _currentUser.UserId,
+            entity.TripId,
+            entity.AssignedToId.Value);
+            
+        if (assignedToTripUser == null)
+        {
+            throw new CustomException("AssignedTo trip user not found");
+        }
+
+        var thing = await _tripThingRepository.FindAsync(x => x.TripUserId == assignedToTripUser.Id && x.Name.ToLower() == entity.Name.ToLower()).ContinueWith(t => t.Result.FirstOrDefault());
+
+        if (thing == null)
+        {
+            throw new CustomException("Trip thing not found");
+        }
+
+        entity.AssignedThingId = null;
+        entity.Rejected = true;
+        entity.AssignedAt = null;
+        await _tripSharedRepository.UpdateAsync(entity);
     }
 }
