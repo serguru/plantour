@@ -30,6 +30,7 @@ export class TripFormComponent implements OnInit {
   private router = inject(Router);
   public mode!: BaseFormMode;
   public id: string | null = null;
+  public readonly backUrl = 'trips';
 
   service = inject(TripService);
   lookupService = inject(LookupService);
@@ -68,6 +69,8 @@ export class TripFormComponent implements OnInit {
       }
     }
   ];
+
+
 
   onSubmit = (form: FormGroup) => {
     const value = form.value as CreateTripRequest & UpdateTripRequest;

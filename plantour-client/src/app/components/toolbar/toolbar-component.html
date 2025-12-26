@@ -16,8 +16,6 @@
 
   <div class="header-middle">
 
-      <!-- class="p-button-text p-button-rounded dynamic-button" -->
-
     @if(dynamicButtons?.length) {
     @for (button of dynamicButtons; track $index) {
     <p-button
@@ -32,8 +30,21 @@
     }
     }
 
-    <!-- class="p-button-text p-button-rounded menu-button" -->
-    @if(dynamicMenus?.length) {
+
+
+    @if(deviceMode >= DeviceMode.Desktop)
+    {
+    @for(menu of dynamicMenus || []; track $index)
+    {
+    <p-button
+      [icon]="menu.icon"
+      variant="text"
+      [label]="menu.label"
+      (click)="menu.command?.($event)"
+      [disabled]="menu.disabled"
+    />
+    }
+    } @else if(dynamicMenus?.length) {
     <p-button
       icon="pi pi-ellipsis-v"
       (click)="dynamicMenu.toggle($event)"
@@ -47,10 +58,12 @@
       [popup]="true"
       styleClass="toolbar-popup-menu"
     ></p-menu>
+
     }
+
   </div>
 
-      <!-- class="p-button-text p-button-rounded menu-button" -->
+  <!-- class="p-button-text p-button-rounded menu-button" -->
   <div class="header-right">
     <p-button
       icon="pi pi-bars"

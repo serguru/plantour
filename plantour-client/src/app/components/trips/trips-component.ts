@@ -58,25 +58,6 @@ export class TripsComponent {
       tooltip: 'Back',
       command: () => this.router.navigate([""])
     }
-    // ,{
-    //   id: 'trip-participants-button',
-    //   icon: 'pi pi-user',
-    //   tooltip: 'Trip participants',
-    //   disabled: true,
-    //   command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-participants`])
-    // },{
-    //   id: 'trip-packs-button',
-    //   icon: 'pi pi-box',
-    //   tooltip: 'Trip packs',
-    //   disabled: true,
-    //   command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-packs`])
-    // },{
-    //   id: 'trip-things-button',
-    //   icon: 'pi pi-objects-column',
-    //   tooltip: 'Trip things',
-    //   disabled: true,
-    //   command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-things`])
-    // }
   ]
 
   toolBarMenus = [
@@ -95,6 +76,11 @@ export class TripsComponent {
       icon: 'pi pi-objects-column',
       disabled: true,
       command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-things`])
+    },{
+      label: 'Shared',
+      icon: 'pi pi-share-alt',
+      disabled: true,
+      command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-shared`])
     }
   ];
 

@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { AppService } from './app-service';
 
 export interface ToolbarButton {
   icon: string;
@@ -14,6 +15,7 @@ export interface ToolbarButton {
 
 @Injectable({ providedIn: 'root' })
 export class ToolbarService {
+
   private dynamicMenus = new BehaviorSubject<MenuItem[] | null>(null);
   currentMenus$ = this.dynamicMenus.asObservable();
 
@@ -27,4 +29,6 @@ export class ToolbarService {
   setCurrentButtons(items: ToolbarButton[] | null): void   {
     this.dynamicButtons.next(items);
   }
+
+
 }

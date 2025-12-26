@@ -163,7 +163,6 @@ html {
       font-size: 0.875rem;
       padding-bottom: 0.5rem;
     }
-
   }
 
   // Form actions styling
@@ -208,6 +207,7 @@ html {
     display: flex;
     justify-content: center;
     align-content: center;
+    gap: 0.5rem;
   }
 
   .header-right {
@@ -324,9 +324,23 @@ p-panel.list-actions-panel {
   color: white;
 }
 
+
+.page-header .p-button-text {
+  color: white !important;
+}
+
+.page-header .p-button-label {
+  font-size: 1.2rem !important;
+  font-weight: 600;
+}
+
+
+.page-header .p-button:hover {
+  color: black !important;
+}
+
 .page-header .p-button:hover .p-button-icon {
   color: black !important;
-  //color: white;
 }
 
 .p-select-option.p-select-option-selected.p-focus {
@@ -338,6 +352,8 @@ p-panel.list-actions-panel {
   display: flex;
   gap: 0.5rem;
 }
+
+
 
 
 /* Do not remove! 

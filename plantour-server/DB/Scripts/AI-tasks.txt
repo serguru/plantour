@@ -67,3 +67,8 @@ where
 
 
 
+Error mapping types.
+
+Mapping types:
+List`1 -> IEnumerable`1
+System.Collections.Generic.List`1[[plantour_server.DbModels.TripSharedThing, plantour-server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]] -> System.Collections.Generic.IEnumerable`1[[plantour_server.DTOs.TripSharedDto, plantour-server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]

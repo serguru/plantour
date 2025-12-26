@@ -4,9 +4,9 @@ using plantour_server.DTOs;
 
 namespace plantour_server.Mapping;
 
-public class TripUserPackageMappingProfile : Profile
+public class TripPackageMappingProfile : Profile
 {
-    public TripUserPackageMappingProfile()
+    public TripPackageMappingProfile()
     {
         CreateMap<TripUserPackage, TripUserPackageDto>();
         

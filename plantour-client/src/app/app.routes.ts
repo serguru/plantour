@@ -131,6 +131,20 @@ export const routes: Routes = [
     data: { mode: 'edit' }
   },
   {
+    path: 'trips/:tripId/trip-shared',
+    loadComponent: () => import('./components/trip-shared/trip-shared-component').then(m => m.TripSharedComponent)
+  },
+  {
+    path: 'trips/:tripId/trip-shared/add',
+    loadComponent: () => import('./components/trip-shared/trip-shared-form-component').then(m => m.TripSharedFormComponent),
+    data: { mode: 'add' }
+  },
+  {
+    path: 'trips/:tripId/trip-shared/edit/:id',
+    loadComponent: () => import('./components/trip-shared/trip-shared-form-component').then(m => m.TripSharedFormComponent),
+    data: { mode: 'edit' }
+  },
+  {
     path: '**',
     redirectTo: ''
   }

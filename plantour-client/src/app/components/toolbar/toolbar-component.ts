@@ -1,25 +1,35 @@
 import { Component, OnInit, OnDestroy, inject, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { debounceTime, fromEvent, Subject, takeUntil } from 'rxjs';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuItem } from 'primeng/api';
 import { UsersService } from '../../services/users-service';
 import { ToolbarButton, ToolbarService } from '../../services/toolbar-service';
+import { AppService } from '../../services/app-service';
+import { DeviceMode } from '../../services/enums';
 
 @Component({
   selector: 'app-toolbar',
-  imports: [CommonModule, MenuModule, ButtonModule, TooltipModule],
+  imports: [
+    CommonModule, 
+    MenuModule, 
+    ButtonModule, 
+    TooltipModule
+  ],
   templateUrl: './toolbar-component.html',
   styleUrl: './toolbar-component.scss',
 })
-export class Toolbar implements OnInit, OnDestroy {
+export class Toolbar implements OnInit {
   private usersService = inject(UsersService);
   private toolbarService = inject(ToolbarService);
+  private appService = inject(AppService);
 
-  dynamicMenus: MenuItem[] | null = null;
+  DeviceMode = DeviceMode;
+
+  dynamicMenus: any[] | null = null;
   dynamicButtons: ToolbarButton[] | null = null;
 
   get menuItems(): MenuItem[] {
@@ -74,21 +84,34 @@ export class Toolbar implements OnInit, OnDestroy {
     ];
   }
 
+  deviceMode: DeviceMode = DeviceMode.Unknown;
+
   constructor(
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
+    this.appService.routeActivated$.subscribe(componentRef => {
+    });
+
+    this.appService.routeDeActivated$.subscribe(componentRef => {
+      this.toolbarService.setCurrentButtons(null);
+      this.toolbarService.setCurrentMenus(null);
+    });
+
+    this.appService.deviceMode$.subscribe(mode => {
+      this.deviceMode = mode;
+    });
+
     this.toolbarService.currentMenus$.subscribe(items => {
       this.dynamicMenus = items;
-    }); 
+    });
+
     this.toolbarService.currentButtons$.subscribe(items => {
       this.dynamicButtons = items;
-    }); 
+    });
   }
 
-  ngOnDestroy(): void {
-  }
 
   onLogoClick(): void {
     this.router.navigate(['/']);

@@ -1,0 +1,34 @@
+<app-generic-list
+    [service]="service"
+    [fromDicService]="fromDicservice"
+    [listActionsConfiguration]="configuration"
+    [itemTemplate]="sharedTemplate"
+    title="Trip Shared Items"
+    entityIcon="pi-objects-column"
+    [isListReadOnly]="false"
+    [addUrl]="'add'"
+    [editUrl]="'edit/:id'"
+    entityNameProp="name"
+    entityName="trip shared item"
+    [toolBarButtons]="toolBarButtons"
+    [useTripId]="true"
+    [tripPanelVisible]="true"
+>
+</app-generic-list>
+
+<ng-template
+    #sharedTemplate
+    let-item
+>
+    <div class="container">
+        <span
+            class="left"
+            [innerHTML]="item.name"
+        ></span>
+        @if(item.assignedTo) {
+        <span class="right">
+            {{ item.assignedTo.name }}
+        </span>
+        }
+    </div>
+</ng-template>
