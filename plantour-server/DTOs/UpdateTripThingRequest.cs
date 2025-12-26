@@ -1,16 +1,16 @@
 namespace plantour_server.DTOs;
 
-public class UpdateTripSharedRequest
+
+public class UpdateTripThingRequest
 {
     public Guid Id { get; set; }
     public Guid TripId { get; set; }
     public string? Category { get; set; }
     public string Name { get; set; } = null!;
+    public string? Notes { get; set; }
     public string? Units { get; set; }
     public decimal? Value { get; set; }
-    public string? Notes { get; set; }
-    public Guid? AssignedToId { get; set; }
-    public Guid? AssignedThingId { get; set; }
-    public DateTime? AssignedDeadline { get; set; }
-    public bool Rejected { get; set; }
+    public Guid? TripUserPackageId { get; set; }
+    public string? PackingStatus { get; set; }
+    public DateTime? PackedAt { get; set; }
 }

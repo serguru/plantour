@@ -3,59 +3,53 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from './crud-service';
-import { TripUserDto } from './trip-user-service';
+import { TripThingDto } from './trip-thing-service';
+import { UserDto } from './users-service';
 
 export interface TripSharedDto {
   id: string;
   tripUserId: string;
   category?: string | null;
   name: string;
-  notes?: string | null;
   units?: string | null;
   value?: number | null;
-  tripUserPackageId?: string | null;
-  packageName?: string | null;
-  packageLabel?: string | null;
-  packedAt?: string | null;
-  assignedByUserId: string | null;
-  assigned: TripUserDto | null;
+  notes?: string | null;
+  assignedToId?: string | null;
+  assignedThingId?: string | null;
   assignedAt: string | null;
   assignedDeadline: string | null;
-  finished: string | null;
-  common: boolean;
+  rejected: boolean;
+  assignedThing: TripThingDto | null;
+  assignedTo: UserDto | null;
 }
-
 
 export interface CreateTripSharedRequest {
   tripId: string;
   category?: string | null;
   name: string;
-  notes?: string | null;
   units?: string | null;
   value?: number | null;
-  tripUserPackageId?: string | null;
-  packedAt?: string | null;
-  finished: string | null;
-  common: boolean;
+  notes?: string | null;
+  assignedToId?: string | null;
+  assignedDeadline?: string | null;
 }
 
 export interface UpdateTripSharedRequest {
   id: string;
+  tripId: string;
   category?: string | null;
   name: string;
-  notes?: string | null;
   units?: string | null;
   value?: number | null;
-  tripUserPackageId?: string | null;
-  packedAt?: string | null;
-  finished: string | null;
-  common: boolean;
+  notes?: string | null;
+  assignedToId?: string | null;
+  assignedDeadline?: string | null;
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class TripSharedService implements CrudService<TripSharedDto, CreateTripSharedRequest, UpdateTripSharedRequest>, FromDicService, PackingService {
+export class TripSharedService implements CrudService<TripSharedDto, CreateTripSharedRequest, UpdateTripSharedRequest>, FromDicService {
   private apiUrl: string;
 
   constructor(
@@ -94,13 +88,4 @@ export class TripSharedService implements CrudService<TripSharedDto, CreateTripS
   delete(id: string, tripId: string | null): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${tripId}/${id}`);
   }
-
-  pack(data: MultipleIdsRequest): Observable<number> {
-    return this.http.put<number>(`${this.apiUrl}/pack-trip-shareds`, data);
-  }
-
-  unpack(data: MultipleIdsRequest): Observable<number> {
-    return this.http.put<number>(`${this.apiUrl}/unpack-trip-shareds`, data);
-  }
-
 }

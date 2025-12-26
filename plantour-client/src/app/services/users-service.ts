@@ -6,6 +6,15 @@ import { AccessToken, SignUpParticipantRequest, SignUpRequest } from '../models/
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 
 
+export interface UserDto {
+  id: string;
+  email: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: number | null;
+  notes?: string | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
