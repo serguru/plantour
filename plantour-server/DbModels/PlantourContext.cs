@@ -111,13 +111,11 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            entity.HasOne(d => d.AddedBy).WithMany(p => p.TripSharedThingAddedBies).HasConstraintName("trip_shared_things_added_by_id_fkey");
-
             entity.HasOne(d => d.AssignedThing).WithMany(p => p.TripSharedThings)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("trip_shared_things_assigned_thing_id_fkey");
 
-            entity.HasOne(d => d.AssignedTo).WithMany(p => p.TripSharedThingAssignedTos)
+            entity.HasOne(d => d.AssignedTo).WithMany(p => p.TripSharedThings)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("trip_shared_things_assigned_to_id_fkey");
 

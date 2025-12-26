@@ -15,7 +15,6 @@ public class TripSharedDto
     public DateTime? AssignedAt { get; set; }
     public DateTime? AssignedDeadline { get; set; }
     public bool Rejected { get; set; }
-    public UserDto AddedBy { get; set; } = null!;
     public TripThingDto? AssignedThing { get; set; }
     public UserDto? AssignedTo { get; set; }
 }

@@ -36,9 +36,6 @@ public partial class TripSharedThing
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [Column("added_by_id")]
-    public Guid AddedById { get; set; }
-
     [Column("assigned_to_id")]
     public Guid? AssignedToId { get; set; }
 
@@ -54,16 +51,12 @@ public partial class TripSharedThing
     [Column("rejected")]
     public bool Rejected { get; set; }
 
-    [ForeignKey("AddedById")]
-    [InverseProperty("TripSharedThingAddedBies")]
-    public virtual TripUser AddedBy { get; set; } = null!;
-
     [ForeignKey("AssignedThingId")]
     [InverseProperty("TripSharedThings")]
     public virtual TripUserThing? AssignedThing { get; set; }
 
     [ForeignKey("AssignedToId")]
-    [InverseProperty("TripSharedThingAssignedTos")]
+    [InverseProperty("TripSharedThings")]
     public virtual TripUser? AssignedTo { get; set; }
 
     [ForeignKey("TripId")]
