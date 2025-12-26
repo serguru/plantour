@@ -643,6 +643,69 @@ end;
 $$;
 
 
+create or replace function plantour.insert_trip_shared_things(
+    p_admin_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_inserted_count integer;
+begin
+    insert into plantour.trip_shared_things (trip_id, category, name, units, value)
+    select
+        v_trip_user_id,
+        b.category,
+        b.name,
+        b.units,
+        b.value
+    from plantour.user_things b
+    left join plantour.trip_shared_things c on 
+        c.trip_id = p_trip_id and 
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        b.id = any (p_ids)
+        and b.shared 
+        and b.user_id = p_admin_id
+        and c.id is null;
+
+    get diagnostics v_inserted_count = row_count;
+
+    return v_inserted_count;
+end;
+$$;
+
+create or replace function plantour.delete_trip_shared_things(
+    p_admin_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_deleted_count integer;
+begin
+    delete from plantour.trip_shared_things a
+    using plantour.user_things b
+    join plantour.trip_shared_things c on 
+        c.trip_id = p_trip_id and 
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        a.id = c.id and
+        b.id = any (p_ids)
+        and b.user_id = p_admin_id;
+
+    get diagnostics v_deleted_count = row_count;
+
+    return v_deleted_count;
+end;
+$$;
+
+
+
 -- ====================================================================
 -- USERS (2 admins + 2 participants + 2 extra users)
 -- ====================================================================

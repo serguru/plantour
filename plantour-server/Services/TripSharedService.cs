@@ -12,6 +12,7 @@ public class TripSharedService(
     ICheckAccessService checkAccessService,
     IMapper mapper,
     HttpCurrentUser httpCurrentUser,
+    DicTripRepository dicTripRepository,
     TripUserRepository tripUserRepository
 
     ) : ITripSharedService
@@ -20,6 +21,7 @@ public class TripSharedService(
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly IMapper _mapper = mapper;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
+    private readonly DicTripRepository _dicTripRepository = dicTripRepository;
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
 
     public async Task<IEnumerable<TripSharedDto>> GetAllFullAsync(Guid tripId)
@@ -132,7 +134,8 @@ public class TripSharedService(
         if (entity == null)
         {
             throw new CustomException("Trip shared thing not found");
-        };
+        }
+        ;
 
         if (request.AssignedToId != entity.AssignedToId)
         {
@@ -156,12 +159,36 @@ public class TripSharedService(
         await _tripSharedRepository.DeleteAsync(tripId, id);
     }
 
-    public Task<int> InsertTripSharedsAsync(Guid tripId, Guid[] thingIds)
+    public async Task<int> InsertTripSharedsAsync(Guid tripId, Guid[] thingIds)
     {
-        throw new NotImplementedException();
+        _currentUser.RaiseIfNotAdmin();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        return await _dicTripRepository.InsertTripSharedThingsAsync(_currentUser.AdminId, tripId, thingIds);
     }
 
-    public Task<int> DeleteTripSharedsAsync(Guid tripId, Guid[] thingIds)
+    public async Task<int> DeleteTripSharedsAsync(Guid tripId, Guid[] thingIds)
+    {
+
+        _currentUser.RaiseIfNotAdmin();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        return await _dicTripRepository.DeleteTripSharedThingsAsync(_currentUser.AdminId, tripId, thingIds);
+    }
+
+    public async Task AcceptAssignmentAsync(Guid tripId, Guid id)
+    {
+    }
+
+    public async Task RejectAssignmentAsync(Guid tripId, Guid id)
     {
         throw new NotImplementedException();
     }
