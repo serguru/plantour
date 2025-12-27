@@ -1,0 +1,21 @@
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.2s ease;
+  height: 60px;
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  img {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+  }
+}
+
+

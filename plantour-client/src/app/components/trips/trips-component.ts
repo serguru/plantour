@@ -55,7 +55,7 @@ export class TripsComponent {
     {
       id: 'back-button',
       icon: 'pi pi-chevron-left',
-      tooltip: 'Back',
+      label: 'Back',
       command: () => this.router.navigate([""])
     }
   ]

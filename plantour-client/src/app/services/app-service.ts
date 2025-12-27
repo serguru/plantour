@@ -1,29 +1,22 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { DeviceMode } from './enums';
+import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
+import { TripDto } from './trip-service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppService {
-  routeActivated$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-  routeActivated: Observable<any> = this.routeActivated$.asObservable();
+  routeActivated: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  routeActivated$: Observable<any> = this.routeActivated.asObservable();
 
-  routeDeActivated$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-  routeDeActivated: Observable<any> = this.routeActivated$.asObservable();
+  routeDeActivated: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  routeDeActivated$: Observable<any> = this.routeDeActivated
+    .pipe(
+      tap(() => {
+        this.tripSelected.next(null);
+      })
+    );
 
-  deviceMode$: BehaviorSubject<DeviceMode> = new BehaviorSubject<DeviceMode>(DeviceMode.Unknown);
-  deviceMode: Observable<DeviceMode> = this.deviceMode$.asObservable();
-
-  updateDeviceMode(windowWidth: number): void { 
-    let mode: DeviceMode;
-    if (windowWidth >= 992) {
-      mode = DeviceMode.Desktop;
-    } else if (windowWidth >= 768) {
-      mode = DeviceMode.Tablet;
-    } else {
-      mode = DeviceMode.Mobile;
-    } 
-    this.deviceMode$.next(mode);
-  }
+  tripSelected: BehaviorSubject<TripDto | null> = new BehaviorSubject<TripDto | null>(null);
+  tripSelected$: Observable<TripDto | null> = this.tripSelected.asObservable()
 }

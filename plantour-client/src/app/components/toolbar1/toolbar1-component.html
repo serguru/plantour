@@ -1,0 +1,75 @@
+<div class="view-header">
+  <div class="view-left">
+    <div
+      class="logo-container"
+      (click)="onLogoClick()"
+    >
+      <img
+        src="assets/plantour-logo.png"
+        alt="Plantour Logo"
+        class="logo-image"
+      />
+      <!-- <span class="app-title">Plantour</span> -->
+      <h2 class="ellipsis-text">Plantour</h2>
+    </div>
+  </div>
+
+
+  <div class="view-content">
+    <button
+      class="pl-button"
+      [disabled]="false"
+    >
+      <span class="pi pi-chevron-left"></span>
+      <span class="button-label">Back</span>
+    </button>
+
+
+    <button
+      class="pl-button"
+      [disabled]="false"
+      (click)="popoverDic.toggle($event)"
+    >
+      <span class="pi pi-clone"></span>
+      <span class="button-label">Dictionary</span>
+    </button>
+    <p-popover #popoverDic styleClass="no-arrow">
+      <div>AAA</div>
+      <div>BBB</div>
+    </p-popover>
+
+    <button
+      class="pl-button"
+      [disabled]="false"
+      (click)="popoverTrip.toggle($event)"
+    >
+      <span class="pi pi-compass"></span>
+      <span class="button-label">Trip</span>
+    </button>
+    <p-popover #popoverTrip styleClass="no-arrow">
+      <div>AAA</div>
+      <div>BBB</div>
+    </p-popover>
+
+
+    <button
+      class="pl-button"
+      [disabled]="false"
+      (click)="popoverFeatures.toggle($event)"
+    >
+      <span class="pi pi-bars"></span>
+      <span class="button-label">Features</span>
+    </button>
+    <p-popover #popoverFeatures styleClass="no-arrow">
+      @for (item of featuresMenuItems; track item.id) {
+        <div class="menu-item-container">
+          <span [class]="item.icon"></span>
+          <span>{{item.label}}</span>
+        </div>
+      }
+    </p-popover>
+
+
+    
+  </div>
+</div>

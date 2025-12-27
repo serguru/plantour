@@ -8,16 +8,18 @@
       <h2 class="ellipsis-text">{{ title }}</h2>
     </div>
 
+            <!-- icon="pi pi-plus" -->
     <div class="header-middle">
       @if(!isListReadOnly) {
       <!-- no format -->
         @if(addUrl) {
           <p-button
-            icon="pi pi-plus"
             (click)="onAdd()"
             [rounded]="true" 
-            [text]="true"
-            />
+            [text]="true">
+            <i class="pi pi-plus"></i>
+          <span class="button-label">Joppa</span>
+          </p-button>
         }
         @if(editUrl) {
           <p-button

@@ -5,6 +5,8 @@
 
 :root {
 
+  --primary-text-color: #1A1A1A;
+
   --primary-color: #3A9AA8;
   --primary-color-light: #4DB8C4;
   --primary-color-highlight: #caf5fa;
@@ -108,6 +110,7 @@ body {
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--primary-text-color);
 }
 
 p-button {
@@ -220,10 +223,10 @@ html {
 }
 
 .ellipsis-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .error-alert {
   background: var(--red-50, #ffe6e6);
@@ -375,17 +378,106 @@ p-panel.list-actions-panel {
 */
 
 .toolbar .p-button-icon {
-    font-size: 1.5rem !important;
+  font-size: 1.5rem !important;
+  color: white;
+}
+
+.menu-item-container {
+  padding: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  cursor: pointer;
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+
+.view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--form-header-background-color);
+  color: white;
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+
+  i {
+    font-size: 1.5rem;
     color: white;
   }
 
-  .menu-item-container {
-    padding: 0.5rem;
-    display: flex;
-    gap: 0.5rem;
-    cursor: pointer;
 
-    i {
-      font-size: 1rem;
+  .view-left {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.75rem;
+    align-items: center;
+
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      font-family: var(--font-heading);
     }
   }
+
+  .view-content {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+}
+
+.pl-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: white;
+  background-color: transparent;
+  border: none;
+  padding: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.pl-button .pi {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.pl-button:disabled {
+  color: rgb(202, 202, 202);
+}
+
+.pl-button:hover {
+  background-color: white;
+  border-radius: 2rem;
+  color: var(--primary-text-color);
+}
+
+
+.pl-button .button-label {
+  display: none;
+}
+
+@media (min-width: 576px) {
+  .pl-button .button-label {
+    display: block;
+  }
+}
+
+.no-arrow.p-popover:before, 
+.no-arrow.p-popover:after {
+    display: none !important;
+}
+
+.no-arrow.p-popover {
+    margin-top: 0 !important;
+}

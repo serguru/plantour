@@ -9,19 +9,21 @@ import { MenuItem } from 'primeng/api';
 import { UsersService } from '../../services/users-service';
 import { ToolbarButton, ToolbarService } from '../../services/toolbar-service';
 import { AppService } from '../../services/app-service';
+import { PopoverModule } from 'primeng/popover';
 
 @Component({
-  selector: 'app-toolbar',
+  selector: 'app-toolbar1',
   imports: [
     CommonModule, 
     MenuModule, 
     ButtonModule, 
-    TooltipModule
+    TooltipModule,
+    PopoverModule
   ],
-  templateUrl: './toolbar-component.html',
-  styleUrl: './toolbar-component.scss',
+  templateUrl: './toolbar1-component.html',
+  styleUrl: './toolbar1-component.scss',
 })
-export class Toolbar implements OnInit {
+export class Toolbar1 implements OnInit {
   private usersService = inject(UsersService);
   private toolbarService = inject(ToolbarService);
   private appService = inject(AppService);
@@ -30,8 +32,7 @@ export class Toolbar implements OnInit {
   dynamicMenus: any[] | null = null;
   dynamicButtons: ToolbarButton[] | null = null;
 
-  get menuItems(): MenuItem[] {
-    return [
+  featuresMenuItems: MenuItem[] = [
       {
         label: this.usersService.currentUserText,
         icon: 'pi pi-user',
@@ -80,7 +81,8 @@ export class Toolbar implements OnInit {
         }
       },
     ];
-  }
+  
+
 
   constructor(
     private router: Router
@@ -94,7 +96,6 @@ export class Toolbar implements OnInit {
       this.toolbarService.setCurrentButtons(null);
       this.toolbarService.setCurrentMenus(null);
     });
-
 
     this.toolbarService.currentMenus$.subscribe(items => {
       this.dynamicMenus = items;
@@ -112,5 +113,9 @@ export class Toolbar implements OnInit {
 
   private navigateTo(path: string): void {
     this.router.navigate([path]);
+  }
+
+  showConsole(): void {
+    console.log('Toolbar1 Component');
   }
 }

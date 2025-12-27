@@ -5,39 +5,27 @@ import { ToastContainerComponent } from './components/toast-container/toast-cont
 import { ModalDialogComponent } from './components/modal-dialog/modal-dialog-component';
 import { AppService } from './services/app-service';
 import { debounceTime, fromEvent, Subject, takeUntil } from 'rxjs';
+import { Toolbar1 } from './components/toolbar1/toolbar1-component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Toolbar, ToastContainerComponent, ModalDialogComponent],
+  imports: [RouterOutlet, Toolbar, Toolbar1, ToastContainerComponent, ModalDialogComponent],
   templateUrl: './app-component.html',
   styleUrl: './app-component.scss'
 })
-export class AppComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class AppComponent implements OnInit {
 
   ngOnInit(): void {
-    fromEvent(window, 'resize')
-      .pipe(
-        debounceTime(200),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        this.appService.updateDeviceMode(window.innerWidth);
-      });
   }
 
   appService = inject(AppService);
 
   onActivate($componentRef: any) {
-    this.appService.routeActivated$.next($componentRef);
+    this.appService.routeActivated.next($componentRef);
   }
 
   onDeactivate($componentRef) {
-    this.appService.routeDeActivated$.next($componentRef);
+    this.appService.routeDeActivated.next($componentRef);
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }
