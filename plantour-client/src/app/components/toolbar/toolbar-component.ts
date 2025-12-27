@@ -12,7 +12,7 @@ import { PopoverModule } from 'primeng/popover';
 import { TripDto } from '../../services/trip-service';
 
 @Component({
-  selector: 'app-toolbar1',
+  selector: 'app-toolbar',
   imports: [
     CommonModule, 
     MenuModule, 
@@ -20,14 +20,12 @@ import { TripDto } from '../../services/trip-service';
     TooltipModule,
     PopoverModule
   ],
-  templateUrl: './toolbar1-component.html',
-  styleUrl: './toolbar1-component.scss',
+  templateUrl: './toolbar-component.html',
+  styleUrl: './toolbar-component.scss',
 })
-export class Toolbar1 implements OnInit {
+export class Toolbar implements OnInit {
   private usersService = inject(UsersService);
   private appService = inject(AppService);
-
-
 
   featuresMenuItems: MenuItem[] = [
       {
@@ -117,7 +115,7 @@ export class Toolbar1 implements OnInit {
   }
 
   showConsole(): void {
-    console.log('Toolbar1 Component');
+    console.log('Toolbar Component');
   }
 
   onTripsClick($event): void {

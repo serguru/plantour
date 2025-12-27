@@ -4,11 +4,11 @@ import { ToastContainerComponent } from './components/toast-container/toast-cont
 import { ModalDialogComponent } from './components/modal-dialog/modal-dialog-component';
 import { AppService } from './services/app-service';
 import { debounceTime, fromEvent, Subject, takeUntil } from 'rxjs';
-import { Toolbar1 } from './components/toolbar1/toolbar1-component';
+import { Toolbar } from './components/toolbar/toolbar-component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Toolbar1, ToastContainerComponent, ModalDialogComponent],
+  imports: [RouterOutlet, Toolbar, ToastContainerComponent, ModalDialogComponent],
   templateUrl: './app-component.html',
   styleUrl: './app-component.scss'
 })
