@@ -39,13 +39,4 @@ export class PacksComponent {
     }
   ];
 
-  toolBarButtons =
-    [
-      {
-        id: 'back-button',
-        icon: 'pi pi-chevron-left',
-        tooltip: 'Back',
-        command: () => this.router.navigate([""])
-      }
-    ]
 }

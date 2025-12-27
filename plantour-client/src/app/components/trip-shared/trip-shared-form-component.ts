@@ -60,21 +60,5 @@ export class TripSharedFormComponent implements OnInit {
     }
   }
 
-  toolBarButtons = [
-    {
-      id: 'back-button',
-      icon: 'pi pi-chevron-left',
-      tooltip: 'Back',
-      command: () => {
-        if (this.mode === 'add') {
-          this.router.navigate([`/trips/${this.tripId}/trip-shared`]);
-          return;
-        }
-        this.router.navigate([`/trips/${this.tripId}/trip-shared`], {
-          queryParams: { selectId: this.id }
-        });
-      }
-    }
-  ];
 }
 

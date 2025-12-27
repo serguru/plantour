@@ -18,7 +18,6 @@ import { PackingComponent } from '../packing/packing.component';
 import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
 import { TripThingDto } from '../../services/trip-thing-service';
 import { UpperActionType } from '../../services/enums';
-import { ToolbarButton, ToolbarService } from '../../services/toolbar-service';
 
 export type Comparable = {
   name?: string;
@@ -49,8 +48,6 @@ export class BaseListComponent<T> implements OnInit {
 
   private messagesService = inject(MessagesService);
   private tripPackageService = inject(TripPackageService);
-  toolbarService = inject(ToolbarService);
-
 
   @Input() service!: CrudService<any, any, any>;
   @Input() tripDicService: CrudService<T, any, any> | null = null;
@@ -67,8 +64,6 @@ export class BaseListComponent<T> implements OnInit {
   @Input() isListReadOnly: boolean = false;
   @Input() entityNameProp: string = 'name';
   @Input() entityName: string = '';
-  @Input() toolBarButtons: ToolbarButton[] | null = null;
-  @Input() toolBarMenus: MenuItem[] | null = null;
   @Input() useTripId: boolean = false;
   @Input() tripsFor: string | null = null;
 
@@ -77,14 +72,6 @@ export class BaseListComponent<T> implements OnInit {
 
   @HostListener('window:keydown.escape', ['$event'])
   handleEsc(event: Event) {
-    if (!this.toolBarButtons || this.toolBarButtons.length === 0) {
-      return;
-    }
-    const backButton = this.toolBarButtons.find(btn => btn.icon === 'pi pi-chevron-left');
-    if (!backButton || !backButton!.command) {
-      return;
-    }
-    backButton!.command();
   }
 
   thing2packVisible: boolean = false;
@@ -145,12 +132,8 @@ export class BaseListComponent<T> implements OnInit {
     }
     const selectId = this.route.snapshot.queryParamMap.get('selectId') || null;
     this.getAll(selectId);
-    this.setupToolbarButtons();
-    this.setupToolbarMenus();
     this.restoreState();
   }
-
-
 
   get showThing2Pack(): boolean {
     return this.upperActionType === UpperActionType.Thing2Pack && this.thing2packVisible;
@@ -309,21 +292,6 @@ export class BaseListComponent<T> implements OnInit {
     this.listToolsVisible = listToolsState === '1';
   }
 
-  private setupToolbarButtons(): void {
-    if (!this.toolBarButtons) return;
-
-    this.toolbarService.setCurrentButtons(
-      this.toolBarButtons
-    );
-  }
-
-  private setupToolbarMenus(): void {
-    if (!this.toolBarMenus) return;
-
-    this.toolbarService.setCurrentMenus(
-      this.toolBarMenus
-    );
-  }
 
   getAll(selectId?: string | null) {
     this.service.getAll(this.tripId!).subscribe(list => {

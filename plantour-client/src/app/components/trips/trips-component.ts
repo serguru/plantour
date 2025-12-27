@@ -34,7 +34,6 @@ export class TripsComponent implements OnInit{
 
   onTripSelected = (trip: TripDto | null) => {
     this.appService.tripSelected.next(trip);
-    this.toolBarMenus.forEach(x  => x.disabled = !this.selected);
   };
 
   configuration: any[] = [
@@ -60,38 +59,6 @@ export class TripsComponent implements OnInit{
     return this.selected !== null;
   }
 
-  toolBarButtons = [
-    {
-      id: 'back-button',
-      icon: 'pi pi-chevron-left',
-      label: 'Back',
-      command: () => this.router.navigate([""])
-    }
-  ]
-
-  toolBarMenus = [
-    {
-      label: "Participants",
-      icon: 'pi pi-user',
-      disabled: true,
-      command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-participants`])
-    },{
-      label: "Packs",
-      icon: 'pi pi-box',
-      disabled: true,
-      command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-packs`])
-    },{
-      label: 'Things',
-      icon: 'pi pi-objects-column',
-      disabled: true,
-      command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-things`])
-    },{
-      label: 'Shared',
-      icon: 'pi pi-share-alt',
-      disabled: true,
-      command: () => this.router.navigate([`trips/${this.selected ? this.selected.id : ''}/trip-shared`])
-    }
-  ];
 
   onStatusClick(item: TripDto, $event: Event) {
     $event.stopPropagation();

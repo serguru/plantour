@@ -10,7 +10,6 @@ import { EMPTY } from 'rxjs';
 import { ContentLayoutComponent } from '../layouts/content-layout.component';
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
-import { ToolbarService } from '../../services/toolbar-service';
 
 @Component({
   selector: 'app-sign-in',
@@ -36,7 +35,6 @@ export class SignInComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private location = inject(Location);
-  toolbarService = inject(ToolbarService);
 
   constructor() {
     this.signInForm = this.fb.group({

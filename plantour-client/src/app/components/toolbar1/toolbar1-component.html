@@ -88,7 +88,7 @@
       #popoverFeatures
       styleClass="no-arrow"
     >
-      @for (item of featuresMenuItems; track item.id) {
+      @for (item of featuresMenuItems; track item.label) {
       <div class="menu-item-container">
         <span [class]="item.icon"></span>
         <span>{{item.label}}</span>

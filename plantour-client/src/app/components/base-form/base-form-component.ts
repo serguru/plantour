@@ -9,7 +9,6 @@ import { MessagesService } from '../../services/messages-service';
 import { Router } from '@angular/router';
 import { LookupService } from '../../services/lookup-service';
 import deepEqual from 'fast-deep-equal';
-import { ToolbarService } from '../../services/toolbar-service';
 import { MessagePanelComponent } from '../message-panel/message-panel-component/message-panel-component';
 
 export type BaseFormMode = 'add' | 'edit';
@@ -54,8 +53,6 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
 
   messagesService = inject(MessagesService);
 
-  toolbarService = inject(ToolbarService);
-
   router = inject(Router);
 
   @Input() service!: CrudService<T, TA, TU>;
@@ -67,7 +64,6 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
   @Input() entityIcon!: string;
   @Input() entityName!: string;
   @Input() backUrl: string | null = null;
-  @Input() toolBarButtons: any[] | null = null;
   @Output() formReady = new EventEmitter<any>();
 
 
@@ -85,14 +81,6 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
     return this.mode === 'add';
   }
 
-  private setupToolbarButtons(): void {
-    if (!this.toolBarButtons) return;
-
-    this.toolbarService.setCurrentButtons(
-      this.toolBarButtons
-    );
-  }
-
   get submitEnabled(): boolean {
     if (this.isAddMode) {
       return true;
@@ -101,7 +89,6 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
   }
 
   ngOnInit() {
-    this.setupToolbarButtons();
     this.form = this.fb.group(this.fieldsConfig);
 
     if (this.isAddMode) {

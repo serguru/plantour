@@ -43,25 +43,5 @@ export class TripPacksComponent implements OnInit {
     }
   ];
 
-  toolBarButtons = [
-    {
-      id: 'back-button',
-      icon: 'pi pi-chevron-left',
-      tooltip: 'Back',
-      command: () => {
-
-        //const tripId = this.route.snapshot.paramMap.get('tripId');
-        if (!this.tripId) {
-          this.router.navigate(["trips"]);
-          return;
-        }
-
-        this.router.navigate(["trips"], {
-          queryParams: { selectId: this.tripId }
-        });
-      }
-    }
-  ]
-
 
 }

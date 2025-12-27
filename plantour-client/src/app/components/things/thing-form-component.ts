@@ -48,21 +48,4 @@ export class ThingFormComponent implements OnInit {
       this.id = this.route.snapshot.paramMap.get('id');
     }
   }
-  toolBarButtons =
-    [
-      {
-        id: 'back-button',
-        icon: 'pi pi-chevron-left',
-        tooltip: 'Back',
-        command: () => {
-          if (this.mode === 'add') {
-            this.router.navigate(["things"]);
-            return;
-          }
-          this.router.navigate(["things"], {
-            queryParams: { selectId: this.id }
-          });
-        }
-      }
-    ]
 }

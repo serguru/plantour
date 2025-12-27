@@ -51,24 +51,6 @@ export class TripThingsComponent implements OnInit {
     }
   ];
 
-  toolBarButtons = [
-    {
-      id: 'back-button',
-      icon: 'pi pi-chevron-left',
-      tooltip: 'Back',
-      command: () => {
-        if (!this.tripId) {
-          this.router.navigate(["trips"]);
-          return;
-        }
-
-        this.router.navigate(["trips"], {
-          queryParams: { selectId: this.tripId }
-        });
-      }
-    }
-  ];
-
   ngOnInit(): void {
     this.tripId = this.route.snapshot.paramMap.get('tripId');
   }

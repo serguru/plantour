@@ -69,42 +69,6 @@ export class TripParticipantsComponent implements OnInit {
     }
   ];
 
-  toolBarButtons = [
-    {
-      id: 'back-button',
-      icon: 'pi pi-chevron-left',
-      tooltip: 'Back',
-      command: () => {
-        if (!this.tripId) {
-          this.router.navigate(["trips"]);
-          return;
-        }
 
-        this.router.navigate(["trips"], {
-          queryParams: { selectId: this.tripId }
-        });
-      }
-    }
-  ]
-
-  toolBarMenus = [
-    {
-      label: "Trips",
-      icon: 'pi pi-compass',
-      command: this.toolBarButtons[0].command
-    },{
-      label: "Packs",
-      icon: 'pi pi-box',
-      command: () => this.router.navigate([`trips/${this.tripId}/trip-packs`])
-    },{
-      label: 'Things',
-      icon: 'pi pi-objects-column',
-      command: () => this.router.navigate([`trips/${this.tripId}/trip-things`])
-    },{
-      label: 'Shared',
-      icon: 'pi pi-share-alt',
-      command: () => this.router.navigate([`trips/${this.tripId}/trip-shared`])
-    }
-  ];
 
 }

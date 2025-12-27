@@ -43,15 +43,6 @@ export class ThingsComponent {
     }
   ];
 
-  toolBarButtons =
-    [
-      {
-        id: 'back-button',
-        icon: 'pi pi-chevron-left',
-        tooltip: 'Back',
-        command: () => this.router.navigate([""])
-      }
-    ]
 
   onCategoryClick(item: ThingDto, $event: Event) {
      $event.stopPropagation(); 

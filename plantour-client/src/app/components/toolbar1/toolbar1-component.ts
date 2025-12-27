@@ -7,7 +7,6 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuItem } from 'primeng/api';
 import { UsersService } from '../../services/users-service';
-import { ToolbarButton, ToolbarService } from '../../services/toolbar-service';
 import { AppService } from '../../services/app-service';
 import { PopoverModule } from 'primeng/popover';
 import { TripDto } from '../../services/trip-service';
@@ -26,12 +25,9 @@ import { TripDto } from '../../services/trip-service';
 })
 export class Toolbar1 implements OnInit {
   private usersService = inject(UsersService);
-  private toolbarService = inject(ToolbarService);
   private appService = inject(AppService);
 
 
-  dynamicMenus: any[] | null = null;
-  dynamicButtons: ToolbarButton[] | null = null;
 
   featuresMenuItems: MenuItem[] = [
       {
@@ -107,17 +103,8 @@ export class Toolbar1 implements OnInit {
     });
 
     this.appService.routeDeActivated$.subscribe(componentRef => {
-      this.toolbarService.setCurrentButtons(null);
-      this.toolbarService.setCurrentMenus(null);
     });
 
-    this.toolbarService.currentMenus$.subscribe(items => {
-      this.dynamicMenus = items;
-    });
-
-    this.toolbarService.currentButtons$.subscribe(items => {
-      this.dynamicButtons = items;
-    });
   }
 
 
@@ -168,5 +155,59 @@ export class Toolbar1 implements OnInit {
     }
     popover.toggle($event);
   }
+
+  // get menuItems(): MenuItem[] {
+  //   return [
+  //     {
+  //       label: this.usersService.currentUserText,
+  //       icon: 'pi pi-user',
+  //       command: () => this.navigateTo('/profile')
+  //     },
+  //     {
+  //       label: 'Help',
+  //       icon: 'pi pi-question-circle',
+  //       command: () => this.navigateTo('/help')
+  //     },
+  //     {
+  //       label: 'Terms of Usage',
+  //       icon: 'pi pi-file',
+  //       command: () => this.navigateTo('/terms')
+  //     },
+  //     {
+  //       label: 'Privacy Policy',
+  //       icon: 'pi pi-shield',
+  //       command: () => this.navigateTo('/privacy')
+  //     },
+  //     {
+  //       label: 'Contact Us',
+  //       icon: 'pi pi-envelope',
+  //       command: () => this.navigateTo('/contact')
+  //     },
+  //     {
+  //       label: 'Sign Up',
+  //       // icon: 'pi pi-user-plus',
+  //       icon: 'pi pi-sign-up',
+  //       command: () => this.navigateTo('/sign-up')
+  //     },
+  //     {
+  //       separator: true
+  //     },
+  //     {
+  //       label: 'Sign In',
+  //       icon: 'pi pi-sign-in',
+  //       command: () => this.navigateTo('/sign-in')
+  //     },
+  //     {
+  //       label: 'Sign Out',
+  //       icon: 'pi pi-sign-in',
+  //       command: () => {
+  //         this.usersService.signOut();
+  //         this.navigateTo('/sign-in');
+  //       }
+  //     },
+  //   ];
+  // }
+
+
 
 }

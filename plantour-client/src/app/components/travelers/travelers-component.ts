@@ -61,16 +61,6 @@ export class TravelersComponent {
     }
   ];
 
-  toolBarButtons =
-    [
-      {
-        id: 'back-button',
-        icon: 'pi pi-chevron-left',
-        tooltip: 'Back',
-        command: () => this.router.navigate([""])
-      }
-    ]
-
   onStatusClick(item: AdminsParticipantDto, $event: Event) {
      $event.stopPropagation(); 
      console.log('Status: ' + item.participantStatus);

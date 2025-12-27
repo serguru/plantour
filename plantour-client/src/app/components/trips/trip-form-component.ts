@@ -53,24 +53,6 @@ export class TripFormComponent implements OnInit {
     }
   }
 
-  toolBarButtons = [
-    {
-      id: 'back-button',
-      icon: 'pi pi-chevron-left',
-      tooltip: 'Back',
-      command: () => {
-        if (this.mode === 'add') {
-          this.router.navigate(["trips"]);
-          return;
-        }
-        this.router.navigate(["trips"], {
-          queryParams: { selectId: this.id }
-        });
-      }
-    }
-  ];
-
-
 
   onSubmit = (form: FormGroup) => {
     const value = form.value as CreateTripRequest & UpdateTripRequest;

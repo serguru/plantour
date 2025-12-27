@@ -37,26 +37,6 @@ export class PackFormComponent implements OnInit {
     }
   }
 
-  toolBarButtons =
-    [
-      {
-        id: 'back-button',
-        icon: 'pi pi-chevron-left',
-        tooltip: 'Back',
-        command: () => {
-          if (this.mode === 'add') {
-            this.router.navigate(["packs"]);
-            return;
-          }
-          this.router.navigate(["packs"], {
-            queryParams: { selectId: this.id }
-          });
-        }
-
-
-
-      }
-    ]
 
 
 }

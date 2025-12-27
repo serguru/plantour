@@ -55,20 +55,4 @@ export class TripThingFormComponent implements OnInit {
     }
   }
 
-  toolBarButtons = [
-    {
-      id: 'back-button',
-      icon: 'pi pi-chevron-left',
-      tooltip: 'Back',
-      command: () => {
-        if (this.mode === 'add') {
-          this.router.navigate([`/trips/${this.tripId}/trip-things`]);
-          return;
-        }
-        this.router.navigate([`/trips/${this.tripId}/trip-things`], {
-          queryParams: { selectId: this.id }
-        });
-      }
-    }
-  ]
 }

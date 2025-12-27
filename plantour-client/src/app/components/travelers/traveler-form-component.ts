@@ -64,20 +64,4 @@ export class TravelerFormComponent implements OnInit {
     });
   }
 
-  toolBarButtons = [
-    {
-      id: 'back-button',
-      icon: 'pi pi-chevron-left',
-      tooltip: 'Back',
-      command: () => {
-        if (this.mode === 'add') {
-          this.router.navigate(["travelers"]);
-          return;
-        }
-        this.router.navigate(["travelers"], {
-          queryParams: { selectId: this.id }
-        });
-      }
-    }
-  ];
 }
