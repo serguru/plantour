@@ -10,6 +10,7 @@ import { UsersService } from '../../services/users-service';
 import { ToolbarButton, ToolbarService } from '../../services/toolbar-service';
 import { AppService } from '../../services/app-service';
 import { PopoverModule } from 'primeng/popover';
+import { TripDto } from '../../services/trip-service';
 
 @Component({
   selector: 'app-toolbar1',
@@ -83,13 +84,26 @@ export class Toolbar1 implements OnInit {
     ];
   
 
+  tripSelected: TripDto | null = null;
+  componentNavigated: any = null;
 
   constructor(
     private router: Router
   ) { }
 
   ngOnInit(): void {
+
+    this.appService.tripSelected$.subscribe(trip => {
+      this.tripSelected = trip;
+    });
+
+
     this.appService.routeActivated$.subscribe(componentRef => {
+      this.componentNavigated = componentRef;
+    });
+
+    this.appService.routeDeActivated$.subscribe(componentRef => {
+      this.componentNavigated = null;
     });
 
     this.appService.routeDeActivated$.subscribe(componentRef => {
@@ -118,4 +132,41 @@ export class Toolbar1 implements OnInit {
   showConsole(): void {
     console.log('Toolbar1 Component');
   }
+
+  onTripsClick($event): void {
+    $event.preventDefault();
+    this.router.navigate(['/trips']);
+  }
+
+  onTripParticipantsClick($event): void {
+    $event.preventDefault();
+
+    if (!this.tripSelected) {
+      throw new Error('No trip selected');
+    }
+    this.router.navigate([`/trips/${this.tripSelected.id}/trip-participants`]);
+  }
+
+  
+
+
+
+  isNavigatedComponent(componentName: string): boolean {
+    return this.componentNavigated && this.componentNavigated.constructor.name === componentName;
+  }
+
+  get isCurrentTrip(): boolean {
+    const result = this.tripSelected !== null;
+    return result;
+  }
+
+
+  onTripClick(popover: any, $event: any): void {
+    if (!this.isCurrentTrip) {
+      this.router.navigate(['/trips']);
+      return;
+    }
+    popover.toggle($event);
+  }
+
 }

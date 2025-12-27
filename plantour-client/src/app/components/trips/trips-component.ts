@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CrudService } from '../../services/crud-service';
 import { TripDto, TripService } from '../../services/trip-service';
 import { BaseListComponent } from '../base-list/base-list';
 import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
+import { AppService } from '../../services/app-service';
 
 @Component({
   selector: 'app-trips-component',
@@ -15,16 +16,24 @@ import { TagModule } from 'primeng/tag';
   templateUrl: './trips-component.html',
   styleUrl: './trips-component.scss',
 })
-export class TripsComponent {
+export class TripsComponent implements OnInit{
+  
   router = inject(Router);
+  appService = inject(AppService);
 
   service: CrudService<TripDto, any, any> = inject(TripService);
 
   selected: TripDto | null = null;
 
+  ngOnInit(): void {
+    this.appService.tripSelected$.subscribe(trip => {
+      this.selected = trip;
+    });
+  }
+
+
   onTripSelected = (trip: TripDto | null) => {
-    this.selected = trip;
-    //this.toolBarButtons.forEach((x, i)  => {if(i == 0) return; (x as any).disabled = !this.selected});
+    this.appService.tripSelected.next(trip);
     this.toolBarMenus.forEach(x  => x.disabled = !this.selected);
   };
 

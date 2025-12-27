@@ -33,24 +33,48 @@
       <span class="pi pi-clone"></span>
       <span class="button-label">Dictionary</span>
     </button>
-    <p-popover #popoverDic styleClass="no-arrow">
+    <p-popover
+      #popoverDic
+      styleClass="no-arrow"
+    >
       <div>AAA</div>
       <div>BBB</div>
     </p-popover>
+
+
 
     <button
       class="pl-button"
-      [disabled]="false"
-      (click)="popoverTrip.toggle($event)"
+      (click)="onTripClick(popoverTrip, $event)"
     >
       <span class="pi pi-compass"></span>
-      <span class="button-label">Trip</span>
+      <span class="button-label">{{isCurrentTrip ? 'Trip' : 'Trips'}}</span>
     </button>
-    <p-popover #popoverTrip styleClass="no-arrow">
-      <div>AAA</div>
-      <div>BBB</div>
-    </p-popover>
+    <p-popover
+      #popoverTrip
+      styleClass="no-arrow"
+    >
+      <nav class="pl-menu-container">
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('_TripsComponent')"
+          (click)="onTripsClick($event)"
+        >
+          <span class="pi pi-compass"></span>
+          <span class="button-label">Trips</span>
+        </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('_TripParticipantsComponent')"
+          (click)="onTripParticipantsClick($event)"
+        >
+          <span class="pi pi-users"></span>
+          <span class="button-label">Participants</span>
+        </a>
 
+
+      </nav>
+    </p-popover>
 
     <button
       class="pl-button"
@@ -60,16 +84,19 @@
       <span class="pi pi-bars"></span>
       <span class="button-label">Features</span>
     </button>
-    <p-popover #popoverFeatures styleClass="no-arrow">
+    <p-popover
+      #popoverFeatures
+      styleClass="no-arrow"
+    >
       @for (item of featuresMenuItems; track item.id) {
-        <div class="menu-item-container">
-          <span [class]="item.icon"></span>
-          <span>{{item.label}}</span>
-        </div>
+      <div class="menu-item-container">
+        <span [class]="item.icon"></span>
+        <span>{{item.label}}</span>
+      </div>
       }
     </p-popover>
 
 
-    
+
   </div>
 </div>
