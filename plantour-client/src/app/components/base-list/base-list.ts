@@ -133,8 +133,7 @@ export class BaseListComponent<T> implements OnInit {
     if (this.useTripId) {
       this.tripId = this.route.snapshot.paramMap.get('tripId');
     }
-    const selectId = this.route.snapshot.queryParamMap.get('selectId') || null;
-    this.getAll(selectId);
+    this.getAll(null);
     this.restoreState();
   }
 
@@ -296,11 +295,11 @@ export class BaseListComponent<T> implements OnInit {
   }
 
 
-  getAll(selectId?: string | null) {
+  getAll(id?: string | null) {
     this.service.getAll(this.tripId!).subscribe(list => {
       this.entities = list;
       this.processedEntities = this.entities;
-      this.selectEntity(selectId);
+      this.selectEntity(id);
     });
     if (this.useTripId && this.tripId) {
       this.tripPackageService.getAll(this.tripId).subscribe(packages => {

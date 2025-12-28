@@ -24,8 +24,8 @@ export class PackingComponent implements OnInit, OnDestroy {
     });
     @Input() packages: TripPackageDto[] = [];
     @Input() things: TripThingDto[] = [];
-    @Input() pack!: ((ids: string[], selectedId: string) => void);
-    @Input() unpack!: ((ids: string[], selectedId: string) => void);
+    @Input() pack!: ((ids: string[], id: string) => void);
+    @Input() unpack!: ((ids: string[], id: string) => void);
 
     @Output() selectedTripPackageChanged = new EventEmitter<TripPackageDto | null>();
     @Output() registerGetter: EventEmitter<(() => TripPackageDto | null) | null> = new EventEmitter<(() => TripPackageDto | null) | null>();

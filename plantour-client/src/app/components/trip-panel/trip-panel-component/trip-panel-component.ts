@@ -15,7 +15,7 @@ export class TripPanelComponent implements OnInit {
   tripStatDto: TripStatDto | null = null;
 
   get tripUrl(): string {
-    return `/trips?selectId=${this.tripId}`;
+    return '/trips';
   }
 
   ngOnInit(): void {

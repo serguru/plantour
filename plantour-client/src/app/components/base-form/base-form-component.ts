@@ -176,9 +176,7 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
 
           next: (response) => {
             this.messagesService.showInfo(`${this.entityName} added successfully`);
-            this.router.navigate([this.backUrl], {
-              queryParams: { selectId: (response as any).id }
-            });
+            this.router.navigate([this.backUrl]);
 
           }
         }
@@ -200,9 +198,7 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
 
           next: () => {
             this.messagesService.showInfo(`${this.entityName} updated successfully`);
-            this.router.navigate([this.backUrl], {
-              queryParams: { selectId: this.id }
-            });
+            this.router.navigate([this.backUrl]);
           }
         }
         )
@@ -216,9 +212,7 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
     }
 
     if (!this.isAddMode) {
-      this.router.navigate([this.backUrl], {
-        queryParams: { selectId: this.id }
-      });
+      this.router.navigate([this.backUrl]);
       return;
     }
     this.router.navigate([this.backUrl]);

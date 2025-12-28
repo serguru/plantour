@@ -29,7 +29,7 @@ import { UpperActionType } from '../../helpers/enums';
     templateUrl: './list-box.component.html',
     styleUrls: ['./list-box.component.scss']
 })
-export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
+export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() items: any[] = [];
     @Input() packages: TripPackageDto[] = [];
     @Input() itemTemplate!: TemplateRef<any>;
@@ -46,41 +46,9 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     selectedItem: any | null = null;
     private destroy$ = new Subject<void>();
     private shouldScrollToSelected = false;
-    private selectedIdFromUrl: string | number | null = null;
     private router = inject(Router);
 
     constructor(private route: ActivatedRoute) { }
-
-
-    removeQueryParameter(paramName: string): void {
-        this.router.navigate([], {
-            relativeTo: this.route,
-
-            queryParams: {
-                [paramName]: null,
-            },
-
-            queryParamsHandling: 'merge',
-        });
-    }
-
-    private setSelectedFromUrl() {
-        this.route.queryParams
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(params => {
-                const selectedId = params['selectId'];
-                if (selectedId) {
-                    this.selectedIdFromUrl = selectedId;
-                    this.selectItemById(selectedId);
-                }
-            });
-    }
-
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['items']) {
-            this.setSelectedFromUrl();
-        }
-    }
 
     ngOnInit(): void {
     }
@@ -127,9 +95,6 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     }
 
     private scrollToSelectedItem(): void {
-
-
-        this.removeQueryParameter('selectId');
 
         if (!this.selectedItem) {
             this.shouldScrollToSelected = false;
