@@ -4,7 +4,7 @@
     [listActionsConfiguration]="configuration"
     [itemTemplate]="sharedTemplate"
     title="Trip Shared Items"
-    entityIcon="pi-objects-column"
+    entityIcon="pi-link"
     [isListReadOnly]="false"
     [addUrl]="'add'"
     [editUrl]="'edit/:id'"
@@ -12,6 +12,7 @@
     entityName="trip shared item"
     [useTripId]="true"
     [tripPanelVisible]="true"
+    [parentId]="componentId"
 >
 </app-generic-list>
 

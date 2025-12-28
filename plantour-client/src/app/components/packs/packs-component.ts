@@ -4,7 +4,7 @@ import { CreatePackageRequest, UpdatePackageRequest, PackageDto, UserPackageServ
 import { Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
 import { CreateTripPackageRequest, TripPackageDto, TripPackageService, UpdateTripPackageRequest } from '../../services/trip-package-service';
-import { UpperActionType } from '../../services/enums';
+import { UpperActionType } from '../../helpers/enums';
 
 @Component({
   selector: 'app-packs',
@@ -15,6 +15,8 @@ import { UpperActionType } from '../../services/enums';
   styleUrl: './packs-component.scss',
 })
 export class PacksComponent {
+
+  componentId: string = 'packs';
 
   public ActionType = UpperActionType;
 

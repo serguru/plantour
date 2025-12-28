@@ -5,7 +5,7 @@ import { BaseListComponent } from '../base-list/base-list';
 import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
 import { CreateTripThingRequest, TripThingService, TripThingDto, UpdateTripThingRequest } from '../../services/trip-thing-service';
-import { UpperActionType } from '../../services/enums';
+import { UpperActionType } from '../../helpers/enums';
 
 @Component({
   selector: 'app-things-component',
@@ -17,6 +17,7 @@ import { UpperActionType } from '../../services/enums';
   styleUrl: './things-component.scss',
 })
 export class ThingsComponent {
+  componentId: string = 'things';
   router = inject(Router);
   public ActionType = UpperActionType;
 

@@ -18,6 +18,7 @@ import { AppService } from '../../services/app-service';
 })
 export class TripsComponent implements OnInit{
   
+  componentId: string = 'trips';
   router = inject(Router);
   appService = inject(AppService);
 

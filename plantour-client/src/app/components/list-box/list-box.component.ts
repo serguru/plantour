@@ -19,7 +19,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Button } from 'primeng/button';
 import { TripPackageDto } from '../../services/trip-package-service';
-import { UpperActionType } from '../../services/enums';
+import { UpperActionType } from '../../helpers/enums';
 
 
 @Component({

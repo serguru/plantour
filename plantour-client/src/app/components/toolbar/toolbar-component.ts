@@ -140,6 +140,11 @@ export class Toolbar implements OnInit {
     console.log('Toolbar Component');
   }
 
+  onDashboardClick($event): void {
+    $event.preventDefault();
+    this.router.navigate(['/']);
+  }
+
   onTripsClick($event): void {
     $event.preventDefault();
     this.router.navigate(['/trips']);
@@ -149,13 +154,40 @@ export class Toolbar implements OnInit {
     $event.preventDefault();
 
     if (!this.tripSelected) {
-      throw new Error('No trip selected');
+      return;
     }
     this.router.navigate([`/trips/${this.tripSelected.id}/trip-participants`]);
   }
 
-  isNavigatedComponent(componentName: string): boolean {
-    return this.componentNavigated && this.componentNavigated.constructor.name === componentName;
+  onTripThingsClick($event): void {
+    $event.preventDefault();
+
+    if (!this.tripSelected) {
+      return;
+    }
+    this.router.navigate([`/trips/${this.tripSelected.id}/trip-things`]);
+  }
+
+  onTripPacksClick($event): void {
+    $event.preventDefault();
+
+    if (!this.tripSelected) {
+      return;
+    }
+    this.router.navigate([`/trips/${this.tripSelected.id}/trip-packs`]);
+  }
+
+  onTripSharedClick($event): void {
+    $event.preventDefault();
+
+    if (!this.tripSelected) {
+      return;
+    }
+    this.router.navigate([`/trips/${this.tripSelected.id}/trip-shared`]);
+  }
+
+  isNavigatedComponent(componentId: string): boolean {
+    return this.componentNavigated && this.componentNavigated.componentId === componentId;
   }
 
   get isCurrentTrip(): boolean {
@@ -163,14 +195,6 @@ export class Toolbar implements OnInit {
     return result;
   }
 
-
-  onTripClick(popover: any, $event: any): void {
-    if (!this.isCurrentTrip) {
-      this.router.navigate(['/trips']);
-      return;
-    }
-    popover.toggle($event);
-  }
 
   // get menuItems(): MenuItem[] {
   //   return [

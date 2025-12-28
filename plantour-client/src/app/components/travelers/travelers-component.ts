@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
 import { SignUpParticipantRequest } from '../../models/auth.models';
 import { CreateTripUserRequest, TripUserDto, TripUserService, UpdateTripUserRequest } from '../../services/trip-user-service';
-import { UpperActionType } from '../../services/enums';
+import { UpperActionType } from '../../helpers/enums';
 
 @Component({
   selector: 'app-travelers-component',
@@ -19,6 +19,7 @@ import { UpperActionType } from '../../services/enums';
   styleUrl: './travelers-component.scss',
 })
 export class TravelersComponent {
+  componentId: string = 'travelers';
   router = inject(Router);
   public ActionType = UpperActionType;
 

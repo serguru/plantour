@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, inject, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Inject, inject, Input, OnChanges, OnInit, Optional, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
 import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from '../../services/crud-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentLayoutComponent } from "../layouts/content-layout.component";
@@ -17,7 +17,7 @@ import { MenuItem } from 'primeng/api';
 import { PackingComponent } from '../packing/packing.component';
 import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
 import { TripThingDto } from '../../services/trip-thing-service';
-import { UpperActionType } from '../../services/enums';
+import { UpperActionType } from '../../helpers/enums';
 
 export type Comparable = {
   name?: string;
@@ -49,6 +49,8 @@ export class BaseListComponent<T> implements OnInit {
   private messagesService = inject(MessagesService);
   private tripPackageService = inject(TripPackageService);
 
+  @Input() parentId: string | null = null;
+
   @Input() service!: CrudService<any, any, any>;
   @Input() tripDicService: CrudService<T, any, any> | null = null;
   @Input() fromDicService: FromDicService | null = null;
@@ -66,6 +68,7 @@ export class BaseListComponent<T> implements OnInit {
   @Input() entityName: string = '';
   @Input() useTripId: boolean = false;
   @Input() tripsFor: string | null = null;
+  
 
   @Output() entitySelected = new EventEmitter<any | null>();
   @Output() registerGetter: EventEmitter<(() => TripPackageDto | null) | null> = new EventEmitter<(() => TripPackageDto | null) | null>();
@@ -90,11 +93,11 @@ export class BaseListComponent<T> implements OnInit {
   packages: TripPackageDto[] = [];
   menuItems: MenuItem[] = [];
 
-  constructor(
-    protected router: Router,
-    protected route: ActivatedRoute
-  ) {
+  constructor() {
   }
+
+  router = inject(Router);
+  route = inject(ActivatedRoute);
 
   getMenuItems = (): MenuItem[] => {
 

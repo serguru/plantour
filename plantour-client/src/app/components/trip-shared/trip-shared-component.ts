@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { UpperActionType } from '../../services/enums';
+import { UpperActionType } from '../../helpers/enums';
 
 @Component({
   selector: 'app-trip-shared',
@@ -19,7 +19,8 @@ import { UpperActionType } from '../../services/enums';
   styleUrl: './trip-shared-component.scss'
 })
 export class TripSharedComponent implements OnInit {
-  public ActionType = UpperActionType;
+componentId: string = 'trip-shared';
+public ActionType = UpperActionType;
 
   tripId: string | null = null;
   route = inject(ActivatedRoute);

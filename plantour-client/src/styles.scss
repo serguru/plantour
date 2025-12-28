@@ -469,7 +469,7 @@ p-panel.list-actions-panel {
   display: none;
 }
 
-@media (min-width: 777px) {
+@media (min-width: 860px) {
   .pl-button .button-label {
     display: block;
   }
@@ -509,6 +509,13 @@ p-panel.list-actions-panel {
     font-weight: 600;
     cursor: default;
   }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+
 }
 
 .no-arrow.p-popover:before,

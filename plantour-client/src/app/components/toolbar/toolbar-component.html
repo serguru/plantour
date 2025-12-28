@@ -30,6 +30,15 @@
 
     <button
       class="pl-button"
+      (click)="onDashboardClick($event)"
+    >
+      <span class="pi pi-chart-bar"></span>
+      <span class="button-label">Dashboard</span>
+    </button>
+
+
+    <button
+      class="pl-button"
       (click)="popoverDic.toggle($event)"
     >
       <span class="pi pi-clone"></span>
@@ -42,7 +51,7 @@
       <nav class="pl-menu-container">
         <a
           class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('_TravelersComponent')"
+          [class.selected]="isNavigatedComponent('travelers')"
           (click)="onTravelersClick($event, popoverDic)"
         >
           <span class="pi pi-compass"></span>
@@ -50,7 +59,7 @@
         </a>
         <a
           class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('_ThingsComponent')"
+          [class.selected]="isNavigatedComponent('things')"
           (click)="onThingsClick($event, popoverDic)"
         >
           <span class="pi pi-objects-column"></span>
@@ -58,7 +67,7 @@
         </a>
         <a
           class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('_PacksComponent')"
+          [class.selected]="isNavigatedComponent('packs')"
           (click)="onPacksClick($event, popoverDic)"
         >
           <span class="pi pi-box"></span>
@@ -71,10 +80,10 @@
 
     <button
       class="pl-button"
-      (click)="onTripClick(popoverTrip, $event)"
+      (click)="popoverTrip.toggle($event);"
     >
       <span class="pi pi-compass"></span>
-      <span class="button-label">{{isCurrentTrip ? 'Trip' : 'Trips'}}</span>
+      <span class="button-label">Trip</span>
     </button>
     <p-popover
       #popoverTrip
@@ -83,7 +92,7 @@
       <nav class="pl-menu-container">
         <a
           class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('_TripsComponent')"
+          [class.selected]="isNavigatedComponent('trips')"
           (click)="onTripsClick($event)"
         >
           <span class="pi pi-compass"></span>
@@ -91,11 +100,39 @@
         </a>
         <a
           class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('_TripParticipantsComponent')"
+          [class.selected]="isNavigatedComponent('trip-participants')"
           (click)="onTripParticipantsClick($event)"
+          [class.disabled]="!isCurrentTrip"
         >
           <span class="pi pi-users"></span>
           <span class="button-label">Participants</span>
+        </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('trip-things')"
+          (click)="onTripThingsClick($event)"
+          [class.disabled]="!isCurrentTrip"
+        >
+          <span class="pi pi-objects-column"></span>
+          <span class="button-label">Things</span>
+        </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('trip-packs')"
+          (click)="onTripPacksClick($event)"
+          [class.disabled]="!isCurrentTrip"
+        >
+          <span class="pi pi-box"></span>
+          <span class="button-label">Packs</span>
+        </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('trip-shared')"
+          (click)="onTripSharedClick($event)"
+          [class.disabled]="!isCurrentTrip"
+        >
+          <span class="pi pi-link"></span>
+          <span class="button-label">Shared</span>
         </a>
 
 
