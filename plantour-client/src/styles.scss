@@ -178,6 +178,48 @@ html {
   }
 }
 
+// .page-header {
+//   display: flex;
+//   justify-content: space-between;
+//   align-items: center;
+//   padding: 1rem;
+//   background-color: var(--form-header-background-color);
+//   color: white;
+//   flex-shrink: 0;
+
+//   i {
+//     font-size: 1.5rem;
+//   }
+
+//   .header-left {
+//     display: grid;
+//     grid-template-columns: 1fr auto;
+//     gap: 0.75rem;
+//     align-items: center;
+
+//     h2 {
+//       margin: 0;
+//       font-size: 1.5rem;
+//       font-weight: 600;
+//       font-family: var(--font-heading);
+//     }
+//   }
+
+//   .header-middle {
+//     flex: 1;
+//     display: flex;
+//     justify-content: center;
+//     align-content: center;
+//     gap: 0.5rem;
+//   }
+
+//   .header-right {
+//     margin-left: auto;
+//   }
+
+// }
+
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -189,9 +231,10 @@ html {
 
   i {
     font-size: 1.5rem;
+    color: white;
   }
 
-  .header-left {
+  .page-left {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 0.75rem;
@@ -205,22 +248,15 @@ html {
     }
   }
 
-  .header-middle {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    gap: 0.5rem;
-  }
-
-  .header-right {
+  .page-content {
     margin-left: auto;
-    // display: flex;
-    // gap: 1rem;
-    //    color: red !important;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
   }
-
 }
+
+
 
 .ellipsis-text {
   white-space: nowrap;
@@ -356,27 +392,6 @@ p-panel.list-actions-panel {
   gap: 0.5rem;
 }
 
-
-
-
-/* Do not remove! 
-   These are necessary to prevent p-menubar switching to mobile mode
-
-.p-menubar.p-menubar-mobile .p-menubar-root-list {
-  display: flex !important;
-  position: static !important;
-}
-
-.p-menubar {
-  background: transparent !important;
-  border: none !important;
-}
-
-.p-menubar-mobile .p-menubar-submenu {
-  position: absolute !important;
-}
-*/
-
 .toolbar .p-button-icon {
   font-size: 1.5rem !important;
   color: white;
@@ -402,14 +417,11 @@ p-panel.list-actions-panel {
   background-color: var(--form-header-background-color);
   color: white;
   flex-shrink: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
 
   i {
     font-size: 1.5rem;
     color: white;
   }
-
 
   .view-left {
     display: grid;
@@ -431,10 +443,7 @@ p-panel.list-actions-panel {
     gap: 0.5rem;
     align-items: center;
   }
-
 }
-
-
 
 .pl-button {
   display: flex;
@@ -445,14 +454,10 @@ p-panel.list-actions-panel {
   background-color: transparent;
   border: none;
   padding: 0.5rem;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 600;
 }
 
-.pl-button .pi {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
 
 .pl-button:disabled {
   color: rgb(202, 202, 202);
@@ -492,7 +497,7 @@ p-panel.list-actions-panel {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   cursor: pointer;
   user-select: none;
   color: white;

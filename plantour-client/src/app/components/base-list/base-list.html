@@ -1,6 +1,6 @@
 <app-content-layout>
   <div class="page-header">
-    <div class="header-left">
+    <div class="page-left">
       <i
         class="pi"
         [class]="entityIcon"
@@ -8,98 +8,94 @@
       <h2 class="ellipsis-text">{{ title }}</h2>
     </div>
 
-            <!-- icon="pi pi-plus" -->
-    <div class="header-middle">
+    <!-- icon="pi pi-plus" -->
+    <div class="page-content">
       @if(!isListReadOnly) {
       <!-- no format -->
         @if(addUrl) {
-          <p-button
-            (click)="onAdd()"
-            [rounded]="true" 
-            [text]="true">
-            <i class="pi pi-plus"></i>
-          </p-button>
+
+        <button
+          class="pl-button"
+          (click)="onAdd()"
+        >
+          <span class="pi pi-plus"></span>
+          <span class="button-label">Add</span>
+        </button>
+
+
+          
         }
         @if(editUrl) {
-          <p-button
-            icon="pi pi-pencil"
-            (click)="onEdit()"
-            [disabled]="!selected"     
-            [rounded]="true" 
-            [text]="true"
-            />
+        <button
+          class="pl-button"
+          (click)="onEdit()"
+          [disabled]="!selected"     
+        >
+          <span class="pi pi-pencil"></span>
+          <span class="button-label">Update</span>
+        </button>
         }
-        <p-button
-          icon="pi pi-trash"
+        <button
+          class="pl-button"
           (click)="onDelete()"
           [disabled]="!selected"     
-          [rounded]="true" 
-          [text]="true"
-            />
+        >
+          <span class="pi pi-trash"></span>
+          <span class="button-label">Delete</span>
+        </button>
       <!-- no format -->
       }
-    </div>
 
-    <div class="header-right">
       <button
-        pButton
-        icon="pi pi-ellipsis-v"
-        class="p-button-text p-button-rounded menu-button"
-        (click)="menu.toggle($event)"
-        aria-label="Menu"
+        class="pl-button"
+        (click)="listFeatures.toggle($event)"
       >
+        <span class="pi pi-ellipsis-v"></span>
       </button>
-      <p-menu
-        #menu
-        [model]="menuItems"
-        [popup]="true"
+      <p-popover
+        #listFeatures
+        styleClass="no-arrow"
       >
+        <ul class="pl-menu-container">
+          @if (upperActionType == UpperActionType.Dic2Trip) {
+          <li
+            class="pl-menu-item"
+            (click)="onShowHideMenu('trips', listFeatures)"
+          >
+            <span class="pi pi-compass"></span>
+            <span class="button-label">{{`${this.dic2tripVisible ? "Hide" : "Show"} trips select`}}</span>
+          </li>
 
-        <ng-template
-          pTemplate="item"
-          let-item
-        >
-          <ng-container>
+          }
 
-            <div class="menu-item-container">
-              <i [ngClass]="item.icon"></i>
-              @switch (item.id) {
-              @case ('dic2trip') {
-              <div>
-                {{`${this.dic2tripVisible ? "Hide" : "Show"} trips select`}}
-              </div>
-              }
-              @case ('thing2pack') {
-              <div>
-                {{`${this.thing2packVisible ? "Hide" : "Show"} packs select`}}
-              </div>
-              }
-              @case ('tools') {
-              <div>
-                {{`${this.listToolsVisible ? "Hide" : "Show"} list tools`}}
-              </div>
-              }
+          @if (upperActionType == UpperActionType.Thing2Pack) {
+          <li
+            class="pl-menu-item"
+            (click)="onShowHideMenu('packs', listFeatures)"
+          >
+            <span class="pi pi-box"></span>
+            <span class="button-label">{{`${this.thing2packVisible ? "Hide" : "Show"} packs select`}}</span>
+          </li>
 
+          }
 
-              }
-            </div>
-          </ng-container>
-        </ng-template>
-
-      </p-menu>
+          <li
+            class="pl-menu-item"
+            (click)="onShowHideMenu('tools', listFeatures)"
+          >
+            <span class="pi pi-box"></span>
+            <span class="button-label">{{`${this.listToolsVisible ? "Hide" : "Show"} list tools`}}</span>
+          </li>
+        </ul>
+      </p-popover>
     </div>
   </div>
-
-  <!-- [dic2tripVisible]="showDic2Trip"
-    [thing2packVisible]="thing2packVisible" -->
-
 
   @if (tripPanelVisible && tripId) {
   <app-trip-panel [tripId]="tripId"></app-trip-panel>
   }
 
-
-    @if (showDic2Trip) {
+  @if (showDic2Trip) {
   <app-dic-trip
     (selectedTripChanged)="onSelectedTripChanged($event)"
     (registerGetter)="setCheckSelectedTrip($event)"
@@ -109,7 +105,6 @@
     [tripsFor]="tripsFor"
   ></app-dic-trip>
   }
-
 
   @if(thing2packVisible) {
   <app-packing

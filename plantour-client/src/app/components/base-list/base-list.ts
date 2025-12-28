@@ -18,6 +18,7 @@ import { PackingComponent } from '../packing/packing.component';
 import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
 import { TripThingDto } from '../../services/trip-thing-service';
 import { UpperActionType } from '../../helpers/enums';
+import { PopoverModule } from 'primeng/popover';
 
 export type Comparable = {
   name?: string;
@@ -37,12 +38,14 @@ export type Comparable = {
     DicTripComponent,
     TripPanelComponent,
     MenuModule,
-    PackingComponent
+    PackingComponent,
+    PopoverModule
   ],
   templateUrl: './base-list.html',
   styleUrl: './base-list.scss'
 })
 export class BaseListComponent<T> implements OnInit {
+  UpperActionType = UpperActionType;
 
   @ViewChild('listboxPlantour', { read: ElementRef }) listboxRef!: ElementRef;
 
@@ -91,7 +94,7 @@ export class BaseListComponent<T> implements OnInit {
 
   processedEntities: T[] | null = null;
   packages: TripPackageDto[] = [];
-  menuItems: MenuItem[] = [];
+  menuItems: any[] = [];
 
   constructor() {
   }
@@ -99,37 +102,8 @@ export class BaseListComponent<T> implements OnInit {
   router = inject(Router);
   route = inject(ActivatedRoute);
 
-  getMenuItems = (): MenuItem[] => {
-
-    const items: MenuItem[] = [];
-
-    if (this.upperActionType === UpperActionType.Dic2Trip) {
-      items.push({
-        id: 'dic2trip',
-        icon: 'pi pi-compass',
-        command: () => this.onShowHideMenu('trips')
-      });
-    }
-    if (this.upperActionType === UpperActionType.Thing2Pack) {
-      items.push({
-        id: 'thing2pack',
-        icon: 'pi pi-box',
-        command: () => this.onShowHideMenu('packs')
-      });
-    }
-    items.push({
-      id: 'tools',
-      icon: 'pi pi-filter',
-      command: () => this.onShowHideMenu('tools')
-    });
-
-
-    return items;
-
-  }
 
   ngOnInit() {
-    this.menuItems = this.getMenuItems();
     if (this.useTripId) {
       this.tripId = this.route.snapshot.paramMap.get('tripId');
     }
@@ -146,7 +120,7 @@ export class BaseListComponent<T> implements OnInit {
     return this.upperActionType === UpperActionType.Dic2Trip && this.dic2tripVisible;
   }
 
-  onShowHideMenu(name: string) {
+  onShowHideMenu(name: string, popup?: any) {
 
     switch (name) {
       case 'trips':
@@ -163,6 +137,10 @@ export class BaseListComponent<T> implements OnInit {
         break;
       default:
         break;
+    }
+
+    if (popup) {
+      popup.hide();
     }
   }
 
