@@ -27,6 +27,26 @@ export class Toolbar implements OnInit {
   private usersService = inject(UsersService);
   private appService = inject(AppService);
 
+
+
+  onTravelersClick($event, popover) {
+    $event.preventDefault();
+    popover.toggle($event);
+    this.router.navigate(["travelers"]);
+  }
+
+  onThingsClick($event, popover) {
+    $event.preventDefault();
+    popover.toggle($event);
+    this.router.navigate(["things"]);
+  }
+
+  onPacksClick($event, popover) {
+    $event.preventDefault();
+    popover.toggle($event);
+    this.router.navigate(["packs"]);
+  }
+
   featuresMenuItems: MenuItem[] = [
       {
         label: this.usersService.currentUserText,
@@ -85,6 +105,8 @@ export class Toolbar implements OnInit {
     private router: Router
   ) { }
 
+
+
   ngOnInit(): void {
 
     this.appService.tripSelected$.subscribe(trip => {
@@ -131,10 +153,6 @@ export class Toolbar implements OnInit {
     }
     this.router.navigate([`/trips/${this.tripSelected.id}/trip-participants`]);
   }
-
-  
-
-
 
   isNavigatedComponent(componentName: string): boolean {
     return this.componentNavigated && this.componentNavigated.constructor.name === componentName;

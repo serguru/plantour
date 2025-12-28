@@ -16,18 +16,20 @@
 
 
   <div class="view-content">
-    <button
-      class="pl-button"
-      [disabled]="false"
-    >
-      <span class="pi pi-chevron-left"></span>
-      <span class="button-label">Back</span>
-    </button>
+
+    <!-- @if(backUrl) {
+      <button
+        class="pl-button"
+        (click)="navigateBack()"
+      >
+        <span class="pi pi-chevron-left"></span>
+        <span class="button-label">Back</span>
+      </button>
+    } -->
 
 
     <button
       class="pl-button"
-      [disabled]="false"
       (click)="popoverDic.toggle($event)"
     >
       <span class="pi pi-clone"></span>
@@ -37,11 +39,35 @@
       #popoverDic
       styleClass="no-arrow"
     >
-      <div>AAA</div>
-      <div>BBB</div>
+      <nav class="pl-menu-container">
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('_TravelersComponent')"
+          (click)="onTravelersClick($event, popoverDic)"
+        >
+          <span class="pi pi-compass"></span>
+          <span class="button-label">Travelers</span>
+        </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('_ThingsComponent')"
+          (click)="onThingsClick($event, popoverDic)"
+        >
+          <span class="pi pi-objects-column"></span>
+          <span class="button-label">Things</span>
+        </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('_PacksComponent')"
+          (click)="onPacksClick($event, popoverDic)"
+        >
+          <span class="pi pi-box"></span>
+          <span class="button-label">Packs</span>
+        </a>
+
+
+      </nav>
     </p-popover>
-
-
 
     <button
       class="pl-button"
