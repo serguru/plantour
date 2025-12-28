@@ -26,6 +26,7 @@ import { MessagesService } from '../../services/messages-service';
   styleUrl: './sign-in.scss',
 })
 export class SignInComponent {
+  componentId = 'sign-in';
   signInForm: FormGroup;
   isLoading = false;
   errorMessage = '';

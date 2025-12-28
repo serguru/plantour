@@ -26,6 +26,7 @@ import { MessagesService } from '../../services/messages-service';
   styleUrl: './sign-up.scss',
 })
 export class SignUpComponent {
+  componentId = 'sign-up';
   signUpForm: FormGroup;
   isLoading = false;
   errorMessage = '';

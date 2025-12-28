@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { debounceTime, fromEvent, Subject, takeUntil } from 'rxjs';
@@ -24,6 +24,10 @@ import { TripDto } from '../../services/trip-service';
   styleUrl: './toolbar-component.scss',
 })
 export class Toolbar implements OnInit {
+
+
+  //@ViewChild('popoverFeatures') popoverFeatures!: ElementRef;
+
   private usersService = inject(UsersService);
   private appService = inject(AppService);
 
@@ -47,52 +51,64 @@ export class Toolbar implements OnInit {
     this.router.navigate(["packs"]);
   }
 
-  featuresMenuItems: MenuItem[] = [
+  featureClick($event, path: string, popover) {
+    $event.preventDefault();
+    popover.toggle($event);
+    this.navigateTo(path);
+  }
+
+  featuresMenuItems: any[] = [
       {
         label: this.usersService.currentUserText,
+        componentId: 'profile',
         icon: 'pi pi-user',
-        command: () => this.navigateTo('/profile')
-      },
-      {
-        label: 'Help',
-        icon: 'pi pi-question-circle',
-        command: () => this.navigateTo('/help')
-      },
-      {
-        label: 'Terms of Usage',
-        icon: 'pi pi-file',
-        command: () => this.navigateTo('/terms')
-      },
-      {
-        label: 'Privacy Policy',
-        icon: 'pi pi-shield',
-        command: () => this.navigateTo('/privacy')
+        command: ($event, popover) => this.featureClick($event, '/profile', popover)
       },
       {
         label: 'Contact Us',
+        componentId: 'contact',
         icon: 'pi pi-envelope',
-        command: () => this.navigateTo('/contact')
+        command: ($event, popover) => this.featureClick($event, '/contact', popover)
+      },
+      {
+        label: 'Help',
+        componentId: 'help',
+        icon: 'pi pi-question-circle',
+        command: ($event, popover) => this.featureClick($event, '/help', popover)
+      },
+      {
+        label: 'Terms of Usage',
+        componentId: 'terms',
+        icon: 'pi pi-file',
+        command: ($event, popover) => this.featureClick($event, '/terms', popover)
+      },
+      {
+        label: 'Privacy Policy',
+        componentId: 'privacy',
+        icon: 'pi pi-shield',
+        command: ($event, popover) => this.featureClick($event, '/privacy', popover)
       },
       {
         label: 'Sign Up',
-        // icon: 'pi pi-user-plus',
+        componentId: 'sign-up',
         icon: 'pi pi-sign-up',
-        command: () => this.navigateTo('/sign-up')
+        command: ($event, popover) => this.featureClick($event, '/sign-up', popover)
       },
       {
         separator: true
       },
       {
         label: 'Sign In',
+        componentId: 'sign-in',
         icon: 'pi pi-sign-in',
-        command: () => this.navigateTo('/sign-in')
+        command: ($event, popover) => this.featureClick($event, '/sign-in', popover)
       },
       {
         label: 'Sign Out',
-        icon: 'pi pi-sign-in',
-        command: () => {
+        icon: 'pi pi-sign-out',
+        command: ($event, popover) => {
           this.usersService.signOut();
-          this.navigateTo('/sign-in');
+          this.featureClick($event, '/sign-in', popover);
         }
       },
     ];

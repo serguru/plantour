@@ -145,6 +145,26 @@ export const routes: Routes = [
     data: { mode: 'edit' }
   },
   {
+    path: 'contact',
+    loadComponent: () => import('./components/features/contact-component/contact-component').then(m => m.ContactComponent)
+  },
+  {
+    path: 'help',
+    loadComponent: () => import('./components/features/help/help-component/help-component').then(m => m.HelpComponent)
+  },
+  {
+    path: 'privacy',
+    loadComponent: () => import('./components/features/privacy/privacy-component/privacy-component').then(m => m.PrivacyComponent)
+  },
+  {
+    path: 'profile',
+    loadComponent: () => import('./components/features/profile/profile-component/profile-component').then(m => m.ProfileComponent)
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./components/features/terms/terms-component/terms-component').then(m => m.TermsComponent)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

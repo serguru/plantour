@@ -152,14 +152,19 @@
       styleClass="no-arrow"
     >
       @for (item of featuresMenuItems; track item.label) {
-      <div class="menu-item-container">
-        <span [class]="item.icon"></span>
-        <span>{{item.label}}</span>
-      </div>
+        @if(!item.separator) {
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent(item.componentId)"
+          (click)="item.command($event, popoverFeatures)"
+        >
+          <span [class]="item.icon"></span>
+          <span class="button-label">{{item.label}}</span>
+        </a>
+        } @else {
+          <hr>
+        }
       }
     </p-popover>
-
-
-
   </div>
 </div>
