@@ -82,7 +82,7 @@
         <a
           class="pl-menu-item"
           [class.selected]="isNavigatedComponent('trips')"
-          (click)="onTripsClick($event)"
+          (click)="onTripsClick($event, popoverTrip)"
         >
           <span class="pi pi-compass"></span>
           <span class="button-label">Trips</span>
@@ -90,7 +90,7 @@
         <a
           class="pl-menu-item"
           [class.selected]="isNavigatedComponent('trip-participants')"
-          (click)="onTripParticipantsClick($event)"
+          (click)="onTripParticipantsClick($event, popoverTrip)"
           [class.disabled]="!isCurrentTrip"
         >
           <span class="pi pi-users"></span>
@@ -99,7 +99,7 @@
         <a
           class="pl-menu-item"
           [class.selected]="isNavigatedComponent('trip-things')"
-          (click)="onTripThingsClick($event)"
+          (click)="onTripThingsClick($event, popoverTrip)"
           [class.disabled]="!isCurrentTrip"
         >
           <span class="pi pi-objects-column"></span>
@@ -108,7 +108,7 @@
         <a
           class="pl-menu-item"
           [class.selected]="isNavigatedComponent('trip-packs')"
-          (click)="onTripPacksClick($event)"
+          (click)="onTripPacksClick($event, popoverTrip)"
           [class.disabled]="!isCurrentTrip"
         >
           <span class="pi pi-box"></span>
@@ -117,7 +117,7 @@
         <a
           class="pl-menu-item"
           [class.selected]="isNavigatedComponent('trip-shared')"
-          (click)="onTripSharedClick($event)"
+          (click)="onTripSharedClick($event, popoverTrip)"
           [class.disabled]="!isCurrentTrip"
         >
           <span class="pi pi-link"></span>

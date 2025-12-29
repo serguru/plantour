@@ -35,25 +35,25 @@ export class Toolbar implements OnInit {
 
   onTravelersClick($event, popover) {
     $event.preventDefault();
-    popover.toggle($event);
+    popover.hide();
     this.router.navigate(["travelers"]);
   }
 
   onThingsClick($event, popover) {
     $event.preventDefault();
-    popover.toggle($event);
+    popover.hide();
     this.router.navigate(["things"]);
   }
 
   onPacksClick($event, popover) {
     $event.preventDefault();
-    popover.toggle($event);
+    popover.hide();
     this.router.navigate(["packs"]);
   }
 
   featureClick($event, path: string, popover) {
     $event.preventDefault();
-    popover.toggle($event);
+    popover.hide();
     this.navigateTo(path);
   }
 
@@ -161,13 +161,16 @@ export class Toolbar implements OnInit {
     this.router.navigate(['/']);
   }
 
-  onTripsClick($event): void {
+  onTripsClick($event, popover): void {
     $event.preventDefault();
+    popover.hide();
     this.router.navigate(['/trips']);
   }
 
-  onTripParticipantsClick($event): void {
+  onTripParticipantsClick($event, popover): void {
+  
     $event.preventDefault();
+    popover.hide();
 
     if (!this.tripSelected) {
       return;
@@ -175,8 +178,9 @@ export class Toolbar implements OnInit {
     this.router.navigate([`/trips/${this.tripSelected.id}/trip-participants`]);
   }
 
-  onTripThingsClick($event): void {
+  onTripThingsClick($event, popover): void {
     $event.preventDefault();
+    popover.hide();
 
     if (!this.tripSelected) {
       return;
@@ -184,8 +188,9 @@ export class Toolbar implements OnInit {
     this.router.navigate([`/trips/${this.tripSelected.id}/trip-things`]);
   }
 
-  onTripPacksClick($event): void {
+  onTripPacksClick($event, popover): void {
     $event.preventDefault();
+    popover.hide();
 
     if (!this.tripSelected) {
       return;
@@ -193,8 +198,9 @@ export class Toolbar implements OnInit {
     this.router.navigate([`/trips/${this.tripSelected.id}/trip-packs`]);
   }
 
-  onTripSharedClick($event): void {
+  onTripSharedClick($event, popover): void {
     $event.preventDefault();
+    popover.hide();
 
     if (!this.tripSelected) {
       return;
