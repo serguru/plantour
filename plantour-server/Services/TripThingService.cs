@@ -149,10 +149,10 @@ public class TripThingService(
         return await _dicTripRepository.PackTripThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageId, tripThingIds, false);
     }
 
-    public async Task<int> UnpackTripThingsAsync(Guid tripId, Guid packageId, Guid[] tripThingIds)
+    public async Task<int> UnpackTripThingsAsync(Guid tripId, Guid[] tripThingIds)
     {
         _currentUser.RaiseIfNotAuthenticated();
-        return await _dicTripRepository.PackTripThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageId, tripThingIds, true);
+        return await _dicTripRepository.PackTripThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, Guid.Empty, tripThingIds, true);
     }
 
 }

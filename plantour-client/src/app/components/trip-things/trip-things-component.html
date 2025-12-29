@@ -3,7 +3,6 @@
     [fromDicService]="fromDicservice"
     [packingService]="packingService"
     [listActionsConfiguration]="configuration"
-    [itemTemplate]="thingTemplate"
     title="Trip Things"
     entityIcon="pi-objects-column"
     [isListReadOnly]="false"
@@ -16,32 +15,8 @@
     [upperActionType]="ActionType.Thing2Pack"
     (registerGetter)="setCheckSelectedPack($event)"
     [componentId]="componentId"
+    [itemMetaData]="packages"
+     [itemComponent]="tripThingItemComponent"
 >
 </app-generic-list>
 
-<ng-template
-    #thingTemplate
-    let-item
-    let-tripPacks="tripPacks"
-    let-packageChange="packageChange"
->
-    <div class="container">
-        <span
-            class="left"
-            [innerHTML]="item.name"
-        ></span>
-        @if(!checkSelectedPack || !checkSelectedPack()) {
-        <p-select
-            class="right"
-            [options]="tripPacks || []"
-            optionLabel="name"
-            optionValue="id"
-            [(ngModel)]="item.tripUserPackageId"
-            (onChange)="packageChange(item, $event)"
-            [showClear]="true"
-            appendTo="body"
-        />
-
-        }
-    </div>
-</ng-template>

@@ -1,13 +1,13 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { TripThingService } from '../../services/trip-thing-service';
+import { TripThingService } from '../../../services/trip-thing-service';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BaseFormComponent, BaseFormMode } from '../base-form/base-form-component';
+import { BaseFormComponent, BaseFormMode } from '../../base-form/base-form-component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { LookupService } from '../../services/lookup-service';
+import { LookupService } from '../../../services/lookup-service';
 
 @Component({
   selector: 'app-trip-thing-form-component',
@@ -54,5 +54,4 @@ export class TripThingFormComponent implements OnInit {
       this.id = this.route.snapshot.paramMap.get('id');
     }
   }
-
 }

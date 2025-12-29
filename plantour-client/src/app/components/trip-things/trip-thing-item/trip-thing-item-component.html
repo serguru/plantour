@@ -1,0 +1,17 @@
+<div class="container">
+    <span
+        class="left"
+        [innerHTML]="item.name"
+    ></span>
+    <p-select
+        class="right"
+        [options]="itemMetaData"
+        optionLabel="name"
+        optionValue="id"
+        [(ngModel)]="item.tripUserPackageId"
+        (onChange)="onPackageChange(item)"
+        [showClear]="true"
+        appendTo="body"
+    />
+</div>
+<!-- (onChange)="packageChange(item, $event)" -->

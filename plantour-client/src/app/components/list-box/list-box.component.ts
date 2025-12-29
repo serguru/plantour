@@ -42,8 +42,8 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     appService = inject(AppService);
     // Items or items and meta
     @Input() items: any[] = [];
-    @Input() itemMetaData: any = null;
-    
+    @Input() itemMetaData: any | null = null;
+
     @Input() itemComponent!: Type<any>;
 
     @Input() packages: TripPackageDto[] = [];
@@ -84,6 +84,15 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
             return;
         }
         this.selectItemById(savedId);
+    }
+
+    getInputs(item: any) {
+        const inputs: any = { item: item };
+
+        if (this.itemMetaData) {
+            inputs.itemMetaData = this.itemMetaData;
+        }
+        return inputs;
     }
 
     ngAfterViewInit(): void {

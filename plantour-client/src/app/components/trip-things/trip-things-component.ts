@@ -3,18 +3,20 @@ import { CrudService, FromDicService, PackingService } from '../../services/crud
 import { TripThingDto, CreateTripThingRequest, UpdateTripThingRequest, TripThingService } from '../../services/trip-thing-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
-import { TripPackageDto } from '../../services/trip-package-service';
+import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
 import { Select } from "primeng/select";
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UpperActionType } from '../../helpers/enums';
+import { TripThingItemComponent } from './trip-thing-item/trip-thing-item-component';
+import { AppService } from '../../services/app-service';
+import { MessagesService } from '../../services/messages-service';
 
 @Component({
   selector: 'app-trip-things',
   standalone: true,
   imports: [
     BaseListComponent,
-    Select,
     FormsModule,
     CommonModule
 ],
@@ -22,6 +24,10 @@ import { UpperActionType } from '../../helpers/enums';
   styleUrl: './trip-things-component.scss',
 })
 export class TripThingsComponent implements OnInit {
+  appService = inject(AppService);
+  messagesService = inject(MessagesService);
+  tripPackageService = inject(TripPackageService);
+  tripThingItemComponent = TripThingItemComponent;  
   componentId: string = 'trip-things';
   public ActionType = UpperActionType;
 
@@ -39,6 +45,8 @@ export class TripThingsComponent implements OnInit {
     this.checkSelectedPack = getter;
   }
 
+  packages: TripPackageDto[] | null = null;
+
   configuration: any[] = [
     {
       property: 'name',
@@ -54,5 +62,18 @@ export class TripThingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.tripId = this.route.snapshot.paramMap.get('tripId');
+
+    this.appService.tripSelected.next(this.tripId ? { id: this.tripId } as any : null);
+
+    if(!this.tripId) {
+      this.messagesService.showWarning('No trip selected. Please select a trip to view trip things.');
+      this.router.navigate(['/trips']);
+      return;
+    }
+
+    this.tripPackageService.getAll(this.tripId).subscribe(packages => {
+      this.packages = packages;
+    });
+
   }
 }

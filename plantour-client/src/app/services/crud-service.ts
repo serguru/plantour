@@ -19,7 +19,7 @@ export interface CrudService<T, TA, TU> {
 export interface MultipleIdsRequest {
   collectionId: string;
   ids: string[];
-  id?: string;
+  id?: string | null;
 }
 
 export interface FromDicService {

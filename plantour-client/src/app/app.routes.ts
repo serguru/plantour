@@ -35,12 +35,12 @@ export const routes: Routes = [
   },
   {
     path: 'things/add',
-    loadComponent: () => import('./components/things/thing-form-component').then(m => m.ThingFormComponent),
+    loadComponent: () => import('./components/things/thing-form/thing-form-component').then(m => m.ThingFormComponent),
     data: { mode: 'add' }
   },
   {
     path: 'things/edit/:id',
-    loadComponent: () => import('./components/things/thing-form-component').then(m => m.ThingFormComponent),
+    loadComponent: () => import('./components/things/thing-form/thing-form-component').then(m => m.ThingFormComponent),
     data: { mode: 'edit' }
   },
   {
@@ -122,12 +122,12 @@ export const routes: Routes = [
   },
   {
     path: 'trips/:tripId/trip-things/add',
-    loadComponent: () => import('./components/trip-things/trip-thing-form-component').then(m => m.TripThingFormComponent),
+    loadComponent: () => import('./components/trip-things/trip-thing-form/trip-thing-form-component').then(m => m.TripThingFormComponent),
     data: { mode: 'add' }
   },
   {
     path: 'trips/:tripId/trip-things/edit/:id',
-    loadComponent: () => import('./components/trip-things/trip-thing-form-component').then(m => m.TripThingFormComponent),
+    loadComponent: () => import('./components/trip-things/trip-thing-form/trip-thing-form-component').then(m => m.TripThingFormComponent),
     data: { mode: 'edit' }
   },
   {

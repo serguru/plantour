@@ -53,6 +53,7 @@ export class BaseListComponent<T> implements OnInit {
   private tripPackageService = inject(TripPackageService);
 
   @Input() service!: CrudService<any, any, any>;
+  @Input() itemMetaData: any = null;
   @Input() tripDicService: CrudService<T, any, any> | null = null;
   @Input() fromDicService: FromDicService | null = null;
   @Input() packingService: PackingService | null = null;
@@ -71,8 +72,6 @@ export class BaseListComponent<T> implements OnInit {
   @Input() tripsFor: string | null = null;
   @Input() componentId: string | null = null;
   @Input() itemComponent!: any;
-
-
 
   @Output() entitySelected = new EventEmitter<any | null>();
   @Output() registerGetter: EventEmitter<(() => TripPackageDto | null) | null> = new EventEmitter<(() => TripPackageDto | null) | null>();

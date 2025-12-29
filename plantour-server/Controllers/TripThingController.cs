@@ -85,7 +85,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult> UnpackTripThings([FromBody] MultipleIdsRequest request)
     {
-        var updated = await _service.UnpackTripThingsAsync(request.CollectionId, request.Id!.Value, request.Ids);
+        var updated = await _service.UnpackTripThingsAsync(request.CollectionId, request.Ids);
         return Ok(new { updatedCount = updated });
     }
 

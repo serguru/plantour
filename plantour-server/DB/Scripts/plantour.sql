@@ -605,12 +605,6 @@ begin
             'Trip user for participant not found';
     end if;
 
-    if not exists (
-        select null from plantour.trip_user_packages where id = p_package_id and trip_user_id = v_trip_user_id
-    ) then
-        raise exception
-            'Wrong pack id';
-    end if;
 
     if (p_unpack) then
         update plantour.trip_user_things
@@ -620,10 +614,17 @@ begin
             trip_user_package_id = null
         where
             trip_user_id = v_trip_user_id and
-            id = any (p_ids) and
-            trip_user_package_id = p_package_id;
+            id = any (p_ids);
 
     else            
+
+        if not exists (
+            select null from plantour.trip_user_packages where id = p_package_id and trip_user_id = v_trip_user_id
+        ) then
+            raise exception
+                'Wrong pack id';
+        end if;
+
         update plantour.trip_user_things
         set 
             finished_at = now(), 

@@ -41,6 +41,7 @@ export interface CreateTripThingRequest {
 
 export interface UpdateTripThingRequest {
   id: string;
+  tripId: string;
   category?: string | null;
   name: string;
   notes?: string | null;
