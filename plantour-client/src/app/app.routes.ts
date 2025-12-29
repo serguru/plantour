@@ -146,7 +146,7 @@ export const routes: Routes = [
   },
   {
     path: 'contact',
-    loadComponent: () => import('./components/features/contact-component/contact-component').then(m => m.ContactComponent)
+    loadComponent: () => import('./components/features/contact/contact-component').then(m => m.ContactComponent)
   },
   {
     path: 'help',

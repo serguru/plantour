@@ -52,8 +52,6 @@ export class BaseListComponent<T> implements OnInit {
   private messagesService = inject(MessagesService);
   private tripPackageService = inject(TripPackageService);
 
-  @Input() parentId: string | null = null;
-
   @Input() service!: CrudService<any, any, any>;
   @Input() tripDicService: CrudService<T, any, any> | null = null;
   @Input() fromDicService: FromDicService | null = null;
@@ -71,8 +69,7 @@ export class BaseListComponent<T> implements OnInit {
   @Input() entityName: string = '';
   @Input() useTripId: boolean = false;
   @Input() tripsFor: string | null = null;
-  
-
+  @Input() componentId: string | null = null;
   @Output() entitySelected = new EventEmitter<any | null>();
   @Output() registerGetter: EventEmitter<(() => TripPackageDto | null) | null> = new EventEmitter<(() => TripPackageDto | null) | null>();
 

@@ -20,9 +20,26 @@ export class AppService {
   tripSelected: BehaviorSubject<TripDto | null> = new BehaviorSubject<TripDto | null>(null);
   tripSelected$: Observable<TripDto | null> = this.tripSelected.asObservable()
 
-  // isNavigatedComponent(componentName: string): boolean {
-  //   const currentComponent = this.routeActivated.getValue();
-  //   return currentComponent && currentComponent.constructor.name === componentName;
-  // }
+
+    saveToLocalStorage(componentId: string | null, selectedId: string | null) {
+        if (!componentId) {
+            return;
+        }
+        if (selectedId) {
+            localStorage.setItem(`${componentId}-selectedId`, String(selectedId));
+        } else {
+            localStorage.removeItem(`${componentId}-selectedId`);
+        }
+    }
+
+    getFromLocalStorage(componentId: string | null) {
+        if (!componentId) {
+            return null;
+        }
+        return localStorage.getItem(`${componentId}-selectedId`);
+    }
+
+
+
 
 }

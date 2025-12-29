@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { LookupService } from '../../services/lookup-service';
 import deepEqual from 'fast-deep-equal';
 import { MessagePanelComponent } from '../message-panel/message-panel-component/message-panel-component';
+import { AppService } from '../../services/app-service';
 
 export type BaseFormMode = 'add' | 'edit';
 
@@ -27,9 +28,11 @@ export type BaseFormMode = 'add' | 'edit';
   styleUrl: './base-form-component.scss',
 })
 export class BaseFormComponent<T, TA, TU> implements OnInit {
+  appService = inject(AppService);
 
   constructor() {
   }
+
 
   get cancelDisabled() {
     return this.isLoading;
@@ -65,6 +68,7 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
   @Input() entityName!: string;
   @Input() backUrl: string | null = null;
   @Output() formReady = new EventEmitter<any>();
+  @Input() listComponentId: string | null = null;
 
 
   fb = inject(FormBuilder);
@@ -174,15 +178,12 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
       )
         .subscribe({
 
-          next: (response) => {
+          next: (response: any) => {
             this.messagesService.showInfo(`${this.entityName} added successfully`);
+            this.appService.saveToLocalStorage(this.listComponentId, response.id);
             this.router.navigate([this.backUrl]);
-
           }
-        }
-
-        )
-
+        })
     } else {
       newEntity.id = this.id;
       this.service.update(newEntity).pipe(
@@ -198,6 +199,7 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
 
           next: () => {
             this.messagesService.showInfo(`${this.entityName} updated successfully`);
+            this.appService.saveToLocalStorage(this.listComponentId, this.id);
             this.router.navigate([this.backUrl]);
           }
         }

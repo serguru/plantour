@@ -20,6 +20,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { Button } from 'primeng/button';
 import { TripPackageDto } from '../../services/trip-package-service';
 import { UpperActionType } from '../../helpers/enums';
+import { AppService } from '../../services/app-service';
 
 
 @Component({
@@ -29,11 +30,16 @@ import { UpperActionType } from '../../helpers/enums';
     templateUrl: './list-box.component.html',
     styleUrls: ['./list-box.component.scss']
 })
-export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
+    appService = inject(AppService);
     @Input() items: any[] = [];
     @Input() packages: TripPackageDto[] = [];
     @Input() itemTemplate!: TemplateRef<any>;
     @Input() upperActionType: UpperActionType = UpperActionType.None;
+
+    @Input() componentId: string | null = null;
+
+
     @Output() selectedChange = new EventEmitter<any | null>();
     @Output() addRemoveFromDic = new EventEmitter<any | null>();
     @Output() packUnpack = new EventEmitter<any | null>();
@@ -49,6 +55,18 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy {
     private router = inject(Router);
 
     constructor(private route: ActivatedRoute) { }
+    
+    ngOnChanges(changes: SimpleChanges): void {
+        if (this.selectedItem || !changes['items']) {
+            return;
+        }
+        const savedId = this.appService.getFromLocalStorage(this.componentId);
+        if (!savedId) {
+            return;
+        }
+        this.selectItemById(savedId);
+    }
+
 
     ngOnInit(): void {
     }
@@ -71,13 +89,13 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-
     selectItem(item: any): void {
         if (this.selectedItem == item) {
             this.selectedItem = null;
         } else {
             this.selectedItem = item;
         }
+        this.appService.saveToLocalStorage(this.componentId, this.selectedItem?.id);
         this.selectedChange.emit(this.selectedItem);
     }
 
@@ -121,10 +139,10 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy {
 
     icon(item: any) {
         return (
-            this.upperActionType == UpperActionType.Dic2Trip && item.inTripId) || 
+            this.upperActionType == UpperActionType.Dic2Trip && item.inTripId) ||
             (this.upperActionType == UpperActionType.Thing2Pack && item.tripUserPackageId) ||
-            (this.upperActionType == UpperActionType.Thing2Participant && item.assignedByUserId)             
-            ? 
+            (this.upperActionType == UpperActionType.Thing2Participant && item.assignedByUserId)
+            ?
             'pi pi-check' : 'pi pi-plus';
     }
 
@@ -145,12 +163,12 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     packageChange(item: any) {
-        this.packUnpack.emit({item, alreadyChanged: true});
+        this.packUnpack.emit({ item, alreadyChanged: true });
     }
 
     get showRightSection(): boolean {
-        return this.upperActionType == UpperActionType.Thing2Pack || 
-        this.upperActionType == UpperActionType.Thing2Participant || 
-        this.upperActionType == UpperActionType.Dic2Trip;
+        return this.upperActionType == UpperActionType.Thing2Pack ||
+            this.upperActionType == UpperActionType.Thing2Participant ||
+            this.upperActionType == UpperActionType.Dic2Trip;
     }
 }
