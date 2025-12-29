@@ -12,7 +12,10 @@ import {
     OnDestroy,
     OnChanges,
     SimpleChanges,
-    inject
+    inject,
+    ViewChild,
+    ViewContainerRef,
+    Type
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -23,6 +26,11 @@ import { UpperActionType } from '../../helpers/enums';
 import { AppService } from '../../services/app-service';
 
 
+// interface ListItem {
+//   id: string;
+//   [key: string]: any;
+// }
+
 @Component({
     selector: 'app-list-box',
     standalone: true,
@@ -32,7 +40,12 @@ import { AppService } from '../../services/app-service';
 })
 export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     appService = inject(AppService);
+    // Items or items and meta
     @Input() items: any[] = [];
+    @Input() itemMetaData: any = null;
+    
+    @Input() itemComponent!: Type<any>;
+
     @Input() packages: TripPackageDto[] = [];
     @Input() itemTemplate!: TemplateRef<any>;
     @Input() upperActionType: UpperActionType = UpperActionType.None;
@@ -46,6 +59,12 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
 
     @ViewChildren('listItem') listItemElements!: QueryList<ElementRef>;
 
+    @ViewChildren('dynamicContainer', { read: ViewContainerRef })
+    containers!: QueryList<ViewContainerRef>;
+
+    ngOnInit(): void {
+    }
+
     trackByFn(index: number, item: any): any {
         return item.id ?? index;
     }
@@ -55,7 +74,7 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     private router = inject(Router);
 
     constructor(private route: ActivatedRoute) { }
-    
+
     ngOnChanges(changes: SimpleChanges): void {
         if (this.selectedItem || !changes['items']) {
             return;
@@ -65,10 +84,6 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
             return;
         }
         this.selectItemById(savedId);
-    }
-
-
-    ngOnInit(): void {
     }
 
     ngAfterViewInit(): void {

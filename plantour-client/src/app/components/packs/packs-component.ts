@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
 import { CreateTripPackageRequest, TripPackageDto, TripPackageService, UpdateTripPackageRequest } from '../../services/trip-package-service';
 import { UpperActionType } from '../../helpers/enums';
+import { PackItemComponent } from './pack-item/pack-item-component/pack-item-component';
 
 @Component({
   selector: 'app-packs',
@@ -15,6 +16,8 @@ import { UpperActionType } from '../../helpers/enums';
   styleUrl: './packs-component.scss',
 })
 export class PacksComponent {
+
+  packItemComponent = PackItemComponent;
 
   componentId: string = 'packs';
 

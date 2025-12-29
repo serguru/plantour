@@ -1,10 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { UserPackageService } from '../../services/package-service';
+import { UserPackageService } from '../../../services/package-service';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BaseFormComponent, BaseFormMode } from '../base-form/base-form-component';
+import { BaseFormComponent, BaseFormMode } from '../../base-form/base-form-component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
+
 
 @Component({
   selector: 'app-pack-form-component',
@@ -18,6 +19,7 @@ import { TextareaModule } from 'primeng/textarea';
   styleUrl: './pack-form-component.scss',
 })
 export class PackFormComponent implements OnInit {
+  
   private route: ActivatedRoute = inject(ActivatedRoute);
   private router = inject(Router);
   public mode!: BaseFormMode;

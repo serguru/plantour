@@ -70,6 +70,10 @@ export class BaseListComponent<T> implements OnInit {
   @Input() useTripId: boolean = false;
   @Input() tripsFor: string | null = null;
   @Input() componentId: string | null = null;
+  @Input() itemComponent!: any;
+
+
+
   @Output() entitySelected = new EventEmitter<any | null>();
   @Output() registerGetter: EventEmitter<(() => TripPackageDto | null) | null> = new EventEmitter<(() => TripPackageDto | null) | null>();
 

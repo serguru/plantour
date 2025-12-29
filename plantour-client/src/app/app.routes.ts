@@ -80,12 +80,12 @@ export const routes: Routes = [
   },
   {
     path: 'packs/add',
-    loadComponent: () => import('./components/packs/pack-form-component').then(m => m.PackFormComponent),
+    loadComponent: () => import('./components/packs/pack-form/pack-form-component').then(m => m.PackFormComponent),
     data: { mode: 'add' }
   },
   {
     path: 'packs/edit/:id',
-    loadComponent: () => import('./components/packs/pack-form-component').then(m => m.PackFormComponent),
+    loadComponent: () => import('./components/packs/pack-form/pack-form-component').then(m => m.PackFormComponent),
     data: { mode: 'edit' }
   },
   {
