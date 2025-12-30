@@ -1,3 +1,4 @@
+<div class="toolbar-container">
 <div class="view-header">
   <div class="view-left">
     <div
@@ -140,6 +141,14 @@
       #popoverFeatures
       styleClass="no-arrow"
     >
+        <a
+          class="pl-menu-item"
+          (click)="onToggleTripTextClick($event, popoverFeatures)"
+        >
+          <span class="pi pi-compass"></span>
+          <span class="button-label">{{tripTextLabel}}</span>
+        </a>
+
       @for (item of featuresMenuItems; track item.label) {
         @if(!item.separator) {
         <a
@@ -156,4 +165,10 @@
       }
     </p-popover>
   </div>
+</div>
+@if(tripTextVisible) {
+<div class="trip-text">
+  <span class="ellipsis-text">{{tripText}}</span>
+</div>
+}
 </div>

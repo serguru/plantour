@@ -1,19 +1,37 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
-import { TripDto } from './trip-service';
+import { TripDto, TripService } from './trip-service';
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root',
 })
 export class AppService {
-  routeActivated: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-  routeActivated$: Observable<any> = this.routeActivated.asObservable();
 
-  routeDeActivated: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-  routeDeActivated$: Observable<any> = this.routeDeActivated.asObservable();
+    tripService = inject(TripService);
 
-  tripSelected: BehaviorSubject<TripDto | null> = new BehaviorSubject<TripDto | null>(null);
-  tripSelected$: Observable<TripDto | null> = this.tripSelected.asObservable()
+    constructor() {
+        const tripId = localStorage.getItem('trips-selectedId');
+        if (!tripId) {
+            this.tripSelected.next(null);
+            return;
+        }
+
+        this.tripService.getById(tripId).pipe(
+            tap((trip: TripDto) => {
+                this.tripSelected.next(trip);
+            })
+        ).subscribe();
+
+    }
+
+    routeActivated: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+    routeActivated$: Observable<any> = this.routeActivated.asObservable();
+
+    routeDeActivated: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+    routeDeActivated$: Observable<any> = this.routeDeActivated.asObservable();
+
+    tripSelected: BehaviorSubject<TripDto | null> = new BehaviorSubject<TripDto | null>(null);
+    tripSelected$: Observable<TripDto | null> = this.tripSelected.asObservable()
 
 
     saveToLocalStorage(componentId: string | null, selectedId: string | null) {
@@ -33,8 +51,4 @@ export class AppService {
         }
         return localStorage.getItem(`${componentId}-selectedId`);
     }
-
-
-
-
 }

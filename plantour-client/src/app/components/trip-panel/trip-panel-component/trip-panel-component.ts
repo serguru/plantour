@@ -1,5 +1,6 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { TripService, TripStatDto } from '../../../services/trip-service';
+import { AppService } from '../../../services/app-service';
 
 @Component({
   selector: 'app-trip-panel',
@@ -9,6 +10,10 @@ import { TripService, TripStatDto } from '../../../services/trip-service';
 })
 export class TripPanelComponent implements OnInit {
   @Input() tripId!: string;
+
+  get hideTripPanel(): boolean {
+    return localStorage.getItem('toolbar-showTripText') === 'true' || false;
+  }
 
   tripService = inject(TripService);
   

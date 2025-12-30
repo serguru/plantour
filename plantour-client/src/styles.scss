@@ -408,14 +408,27 @@ p-panel.list-actions-panel {
   }
 }
 
+.toolbar-container {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--form-header-background-color);
+  color: white;
+}
+
+.trip-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0.5rem;
+  font-size: 1.3rem;
+  color: white;
+}
 
 .view-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  background-color: var(--form-header-background-color);
-  color: white;
+  padding: 0.5rem 0.5rem 0rem 0.5rem;
   flex-shrink: 0;
 
   i {
