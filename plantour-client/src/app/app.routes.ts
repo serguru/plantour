@@ -49,12 +49,12 @@ export const routes: Routes = [
   },
   {
     path: 'trips/add',
-    loadComponent: () => import('./components/trips/trip-form-component').then(m => m.TripFormComponent),
+    loadComponent: () => import('./components/trips/trip-form/trip-form-component').then(m => m.TripFormComponent),
     data: { mode: 'add' }
   },
   {
     path: 'trips/edit/:id',
-    loadComponent: () => import('./components/trips/trip-form-component').then(m => m.TripFormComponent),
+    loadComponent: () => import('./components/trips/trip-form/trip-form-component').then(m => m.TripFormComponent),
     data: { mode: 'edit' }
   },
   {

@@ -57,7 +57,6 @@ export class BaseListComponent<T> implements OnInit {
   @Input() tripDicService: CrudService<T, any, any> | null = null;
   @Input() fromDicService: FromDicService | null = null;
   @Input() packingService: PackingService | null = null;
-  @Input() itemTemplate!: TemplateRef<any>;
   @Input() title: string | null = null;
   @Input() entityIcon: string | null = null;
   @Input() listActionsConfiguration: any[] = [];

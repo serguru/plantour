@@ -7,22 +7,8 @@
     (click)="selectItem(item)"
   >
     <div class="left">
-      @if (!itemComponent) {
-
-      <ng-container *ngTemplateOutlet="itemTemplate; context: { 
-        $implicit: item,  
-        tripPacks: packages,
-        packageChange: packageChange.bind(this)
-        }">
-      </ng-container>
-      } @else {
       <ng-container *ngComponentOutlet="itemComponent; inputs: getInputs(item)">
       </ng-container>
-      }
-
-
-
-
     </div>
 
     @if(showRightSection) {

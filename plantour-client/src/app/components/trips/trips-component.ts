@@ -5,6 +5,7 @@ import { BaseListComponent } from '../base-list/base-list';
 import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
 import { AppService } from '../../services/app-service';
+import { TripItemComponent } from './trip-item/trip-item-component';
 
 @Component({
   selector: 'app-trips-component',
@@ -17,7 +18,7 @@ import { AppService } from '../../services/app-service';
   styleUrl: './trips-component.scss',
 })
 export class TripsComponent implements OnInit{
-  
+  tripItemComponent = TripItemComponent;
   componentId: string = 'trips';
   router = inject(Router);
   appService = inject(AppService);

@@ -47,7 +47,6 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     @Input() itemComponent!: Type<any>;
 
     @Input() packages: TripPackageDto[] = [];
-    @Input() itemTemplate!: TemplateRef<any>;
     @Input() upperActionType: UpperActionType = UpperActionType.None;
 
     @Input() componentId: string | null = null;

@@ -1,7 +1,6 @@
 <app-generic-list
   [service]="service"
   [listActionsConfiguration]="configuration"
-  [itemTemplate]="tripTemplate"
   title="Trips"
   entityIcon="pi-compass"
   [isListReadOnly]="false"
@@ -11,21 +10,7 @@
   entityName="trip"
   (entitySelected)="onTripSelected($event)"
   [componentId]="componentId"
+  [itemComponent]="tripItemComponent"
 >
 </app-generic-list>
 
-<ng-template #tripTemplate let-item>
-  <div class="thing-row">
-    <span class="thing-name" [innerHTML]="item.name"></span>
-
-    @if (item.tripStatus) {
-      <p-tag
-        class="thing-category"
-        [value]="item.tripStatus"
-        severity="secondary"
-        [style]="{ 'font-size': 'large' }"
-        (click)="onStatusClick(item, $event)"
-      ></p-tag>
-    }
-  </div>
-</ng-template>
