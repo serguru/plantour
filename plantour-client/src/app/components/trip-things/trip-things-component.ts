@@ -61,6 +61,8 @@ export class TripThingsComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+
+    //TODO: продумать защиту от захода сюда без выбора валидного трипа
     this.tripId = this.route.snapshot.paramMap.get('tripId');
 
     this.appService.tripSelected.next(this.tripId ? { id: this.tripId } as any : null);

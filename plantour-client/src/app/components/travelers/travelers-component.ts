@@ -7,6 +7,7 @@ import { TagModule } from 'primeng/tag';
 import { SignUpParticipantRequest } from '../../models/auth.models';
 import { CreateTripUserRequest, TripUserDto, TripUserService, UpdateTripUserRequest } from '../../services/trip-user-service';
 import { UpperActionType } from '../../helpers/enums';
+import { TravelerItemComponent } from './traveler-item/traveler-item-component';
 
 @Component({
   selector: 'app-travelers-component',
@@ -19,6 +20,8 @@ import { UpperActionType } from '../../helpers/enums';
   styleUrl: './travelers-component.scss',
 })
 export class TravelersComponent {
+  travelerItemComponent = TravelerItemComponent;
+  
   componentId: string = 'travelers';
   router = inject(Router);
   public ActionType = UpperActionType;

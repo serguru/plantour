@@ -1,7 +1,6 @@
 <app-generic-list
   [service]="service"
   [listActionsConfiguration]="configuration"
-  [itemTemplate]="thingTemplate"
   title="Things"
   entityIcon="pi-objects-column"
   [isListReadOnly]="false"
@@ -13,30 +12,7 @@
   [tripDicService]="tripDicService"
   [fromDicService]="fromDicService"
   [componentId]="componentId"
+  [itemComponent]="thingItemComponent"
 >
 </app-generic-list>
 
-<ng-template
-  #thingTemplate
-  let-item
->
-
-  <div class="thing-row">
-    <span
-      class="thing-name"
-      [innerHTML]="item.name"
-    ></span>
-
-    @if (item.category) {
-    <p-tag
-      class="thing-category"
-      [value]="item.category"
-      severity="secondary"
-      [style]="{  'font-size': 'large' }"
-      (click)="onCategoryClick(item, $event)"
-    >
-    </p-tag>
-    }
-  </div>
-
-</ng-template>

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { AdminsParticipantService } from '../../services/admins-participant-service';
+import { AdminsParticipantService } from '../../../services/admins-participant-service';
 import { Form, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BaseFormComponent, BaseFormMode } from '../base-form/base-form-component';
+import { BaseFormComponent, BaseFormMode } from '../../base-form/base-form-component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';

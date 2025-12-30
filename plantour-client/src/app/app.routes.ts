@@ -65,13 +65,13 @@ export const routes: Routes = [
   {
     path: 'travelers/add',
     canActivate: [adminGuard],
-    loadComponent: () => import('./components/travelers/traveler-form-component').then(m => m.TravelerFormComponent),
+    loadComponent: () => import('./components/travelers/traveler-form/traveler-form-component').then(m => m.TravelerFormComponent),
     data: { mode: 'add' }
   },
   {
     path: 'travelers/edit/:id',
     canActivate: [adminGuard],
-    loadComponent: () => import('./components/travelers/traveler-form-component').then(m => m.TravelerFormComponent),
+    loadComponent: () => import('./components/travelers/traveler-form/traveler-form-component').then(m => m.TravelerFormComponent),
     data: { mode: 'edit' }
   },
   {
