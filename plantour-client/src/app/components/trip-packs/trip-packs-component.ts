@@ -4,6 +4,7 @@ import { TripPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest, Tri
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
 import { UpperActionType } from '../../helpers/enums';
+import { TripPackItemComponent } from './trip-pack-item/trip-pack-item-component';
 
 
 @Component({
@@ -16,6 +17,7 @@ import { UpperActionType } from '../../helpers/enums';
   styleUrl: './trip-packs-component.scss',
 })
 export class TripPacksComponent implements OnInit {
+  tripPackItemComponent = TripPackItemComponent;
   componentId: string = 'trip-packs';
   public ActionType = UpperActionType;
 

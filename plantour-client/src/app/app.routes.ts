@@ -94,26 +94,26 @@ export const routes: Routes = [
   },
   {
     path: 'trips/:tripId/trip-packs/add',
-    loadComponent: () => import('./components/trip-packs/trip-pack-form-component').then(m => m.TripPackFormComponent),
+    loadComponent: () => import('./components/trip-packs/trip-pack-form/trip-pack-form-component').then(m => m.TripPackFormComponent),
     data: { mode: 'add' }
   },
   {
     path: 'trips/:tripId/trip-packs/edit/:id',
-    loadComponent: () => import('./components/trip-packs/trip-pack-form-component').then(m => m.TripPackFormComponent),
+    loadComponent: () => import('./components/trip-packs/trip-pack-form/trip-pack-form-component').then(m => m.TripPackFormComponent),
     data: { mode: 'edit' }
   },
   {
     path: 'trips/:tripId/trip-participants',
-    loadComponent: () => import('./components/trip-participants/trip-participants-component').then(m => m.TripParticipantsComponent)
+    loadComponent: () => import('./components/trip-users/trip-users-component').then(m => m.TripUsersComponent)
   },
   {
     path: 'trips/:tripId/trip-participants/add',
-    loadComponent: () => import('./components/trip-participants/trip-participants-form-component').then(m => m.TripParticipantsFormComponent),
+    loadComponent: () => import('./components/trip-users/trip-user-form/trip-user-form-component').then(m => m.TripUserFormComponent),
     data: { mode: 'add' }
   },
   {
     path: 'trips/:tripId/trip-participants/edit/:id',
-    loadComponent: () => import('./components/trip-participants/trip-participants-form-component').then(m => m.TripParticipantsFormComponent),
+    loadComponent: () => import('./components/trip-users/trip-user-form/trip-user-form-component').then(m => m.TripUserFormComponent),
     data: { mode: 'edit' }
   },
   {
@@ -136,12 +136,12 @@ export const routes: Routes = [
   },
   {
     path: 'trips/:tripId/trip-shared/add',
-    loadComponent: () => import('./components/trip-shared/trip-shared-form-component').then(m => m.TripSharedFormComponent),
+    loadComponent: () => import('./components/trip-shared/trip-shared-form/trip-shared-form-component').then(m => m.TripSharedFormComponent),
     data: { mode: 'add' }
   },
   {
     path: 'trips/:tripId/trip-shared/edit/:id',
-    loadComponent: () => import('./components/trip-shared/trip-shared-form-component').then(m => m.TripSharedFormComponent),
+    loadComponent: () => import('./components/trip-shared/trip-shared-form/trip-shared-form-component').then(m => m.TripSharedFormComponent),
     data: { mode: 'edit' }
   },
   {

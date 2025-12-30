@@ -2,16 +2,17 @@
     [service]="service"
     [fromDicService]="fromDicservice"
     [listActionsConfiguration]="configuration"
-    title="Trip Shared Items"
-    entityIcon="pi-link"
+    title="Trip Participants"
+    entityIcon="pi-user"
     [isListReadOnly]="false"
     [addUrl]="'add'"
     [editUrl]="'edit/:id'"
-    entityNameProp="name"
-    entityName="trip shared item"
+    entityNameProp="email"
+    entityName="trip participant"
     [useTripId]="true"
     [tripPanelVisible]="true"
     [componentId]="componentId"
-    [itemComponent]="tripSharedItemComponent"
+    [itemComponent]="tripUserItemComponent"
 >
 </app-generic-list>
+

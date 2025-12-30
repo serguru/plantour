@@ -6,6 +6,7 @@ import { BaseListComponent } from '../base-list/base-list';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UpperActionType } from '../../helpers/enums';
+import { TripSharedItemComponent } from './trip-shared-item/trip-shared-item-component';
 
 @Component({
   selector: 'app-trip-shared',
@@ -19,6 +20,7 @@ import { UpperActionType } from '../../helpers/enums';
   styleUrl: './trip-shared-component.scss'
 })
 export class TripSharedComponent implements OnInit {
+  tripSharedItemComponent = TripSharedItemComponent;
 componentId: string = 'trip-shared';
 public ActionType = UpperActionType;
 

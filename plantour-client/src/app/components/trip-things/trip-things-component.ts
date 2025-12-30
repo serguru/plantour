@@ -24,10 +24,10 @@ import { MessagesService } from '../../services/messages-service';
   styleUrl: './trip-things-component.scss',
 })
 export class TripThingsComponent implements OnInit {
+  tripThingItemComponent = TripThingItemComponent;  
   appService = inject(AppService);
   messagesService = inject(MessagesService);
   tripPackageService = inject(TripPackageService);
-  tripThingItemComponent = TripThingItemComponent;  
   componentId: string = 'trip-things';
   public ActionType = UpperActionType;
 

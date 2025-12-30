@@ -4,6 +4,7 @@ import { TripUserDto, CreateTripUserRequest, UpdateTripUserRequest, TripUserServ
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
 import { UpperActionType } from '../../helpers/enums';
+import { TripUserItemComponent } from './trip-user-item/trip-user-item-component';
 
 @Component({
   selector: 'app-trip-participants',
@@ -11,11 +12,12 @@ import { UpperActionType } from '../../helpers/enums';
   imports: [
     BaseListComponent
   ],
-  templateUrl: './trip-participants-component.html',
-  styleUrl: './trip-participants-component.scss',
+  templateUrl: './trip-users-component.html',
+  styleUrl: './trip-users-component.scss',
 })
-export class TripParticipantsComponent implements OnInit {
-  componentId: string = 'trip-participants';
+export class TripUsersComponent implements OnInit {
+  tripUserItemComponent = TripUserItemComponent;  
+  componentId: string = 'trip-users';
 
   tripId: string | null = null;
   public ActionType = UpperActionType;

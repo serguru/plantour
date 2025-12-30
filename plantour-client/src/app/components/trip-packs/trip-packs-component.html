@@ -3,7 +3,6 @@
     [service]="service"
     [fromDicService]="fromDicservice"
     [listActionsConfiguration]="configuration"
-    [itemTemplate]="packTemplate"
     title="Trip Packs"
     entityIcon="pi-box"
     [isListReadOnly]="false"
@@ -14,14 +13,7 @@
     [useTripId]="true"
     [tripPanelVisible]="true"
     [componentId]="componentId"
+    [itemComponent]="tripPackItemComponent"
 >
 </app-generic-list>
 
-<ng-template
-    #packTemplate
-    let-item
->
-    <span
-        [innerHTML]="item.name"
-    ></span>
-</ng-template>

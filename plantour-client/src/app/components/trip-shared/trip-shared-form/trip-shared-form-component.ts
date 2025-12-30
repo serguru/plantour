@@ -1,16 +1,18 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { TripUserService } from '../../services/trip-user-service';
+import { TripSharedService } from '../../../services/trip-shared-service';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BaseFormComponent, BaseFormMode } from '../base-form/base-form-component';
+import { BaseFormComponent, BaseFormMode } from '../../base-form/base-form-component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { LookupService } from '../../services/lookup-service';
+import { LookupService } from '../../../services/lookup-service';
+import { TripUserService } from '../../../services/trip-user-service';
+import { Observable } from 'rxjs';
 
 @Component({
-  selector: 'app-trip-participants-form-component',
+  selector: 'app-trip-shared-form',
   standalone: true,
   imports: [
     BaseFormComponent,
@@ -21,41 +23,42 @@ import { LookupService } from '../../services/lookup-service';
     AsyncPipe,
     CommonModule
   ],
-  templateUrl: './trip-participants-form-component.html',
-  styleUrl: './trip-participants-form-component.scss',
+  templateUrl: './trip-shared-form-component.html',
+  styleUrl: './trip-shared-form-component.scss'
 })
-export class TripParticipantsFormComponent implements OnInit {
+export class TripSharedFormComponent implements OnInit {
   private route: ActivatedRoute = inject(ActivatedRoute);
   private router = inject(Router);
   public mode!: BaseFormMode;
   public id: string | null = null;
   public tripId: string | null = null;
 
-  service = inject(TripUserService);
+  service = inject(TripSharedService);
   private lookupService = inject(LookupService);
+  private tripUserService = inject(TripUserService);
 
-  participantStatuses$ = this.lookupService.getParticipantStatuses();
+  thingCategories$ = this.lookupService.getThingCategories();
+  tripUsers$!: Observable<any[]>;
 
   fieldsConfig = {
-    email: new FormControl('', [Validators.required, Validators.email]),
-    firstName: new FormControl('', Validators.required),
-    lastName: new FormControl('', Validators.required),
-    phone: new FormControl(''),
+    name: new FormControl('', Validators.required),
+    category: new FormControl(''),
     notes: new FormControl(''),
-    participantStatus: new FormControl(''),
-    tripId: new FormControl(''),
-    adminParticipantId: new FormControl('')
+    units: new FormControl(''),
+    value: new FormControl(''),
+    assignedToId: new FormControl(''),
+    assignedDeadline: new FormControl('')
   };
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];
     this.tripId = this.route.snapshot.paramMap.get('tripId');
+    this.tripUsers$ = this.tripUserService.getAll(this.tripId || '');
 
     if (this.mode === 'edit') {
       this.id = this.route.snapshot.paramMap.get('id');
-    } else {
-      this.fieldsConfig.tripId.setValue(this.tripId);
     }
   }
 
 }
+

@@ -1,46 +1,50 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { TripPackageService } from '../../services/trip-package-service';
+import { TripUserService } from '../../../services/trip-user-service';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BaseFormComponent, BaseFormMode } from '../base-form/base-form-component';
+import { BaseFormComponent, BaseFormMode } from '../../base-form/base-form-component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { LookupService } from '../../services/lookup-service';
+import { LookupService } from '../../../services/lookup-service';
 
 @Component({
-  selector: 'app-trip-pack-form-component',
+  selector: 'app-trip-participants-form-component',
   standalone: true,
   imports: [
     BaseFormComponent,
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
+    Select,
+    AsyncPipe,
     CommonModule
   ],
-  templateUrl: './trip-pack-form-component.html',
-  styleUrl: './trip-pack-form-component.scss',
+  templateUrl: './trip-user-form-component.html',
+  styleUrl: './trip-user-form-component.scss',
 })
-export class TripPackFormComponent implements OnInit {
+export class TripUserFormComponent implements OnInit {
   private route: ActivatedRoute = inject(ActivatedRoute);
   private router = inject(Router);
   public mode!: BaseFormMode;
   public id: string | null = null;
   public tripId: string | null = null;
 
-  service = inject(TripPackageService);
+  service = inject(TripUserService);
   private lookupService = inject(LookupService);
 
+  participantStatuses$ = this.lookupService.getParticipantStatuses();
+
   fieldsConfig = {
-    name: new FormControl('', Validators.required),
-    label: new FormControl(''),
+    email: new FormControl('', [Validators.required, Validators.email]),
+    firstName: new FormControl('', Validators.required),
+    lastName: new FormControl('', Validators.required),
+    phone: new FormControl(''),
     notes: new FormControl(''),
-    packedAt: new FormControl(''),
-    packingListIncluded: new FormControl(false),
-    weightValue: new FormControl(''),
-    weightUnit: new FormControl(''),
-    tripId: new FormControl('')
+    participantStatus: new FormControl(''),
+    tripId: new FormControl(''),
+    adminParticipantId: new FormControl('')
   };
 
   ngOnInit(): void {

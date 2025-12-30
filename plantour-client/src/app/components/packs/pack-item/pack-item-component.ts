@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { PackageDto } from '../../../../services/package-service';
+import { PackageDto } from '../../../services/package-service';
 
 @Component({
   selector: 'app-pack-item',
