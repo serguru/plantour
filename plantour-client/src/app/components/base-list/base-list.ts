@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Inject, inject, Input, OnChanges, OnInit, Optional, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
 import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from '../../services/crud-service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ContentLayoutComponent } from "../layouts/content-layout.component";
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ListActionsComponent } from '../list-actions/list-actions.component';
@@ -30,7 +29,6 @@ export type Comparable = {
   selector: 'app-generic-list',
   standalone: true,
   imports: [
-    ContentLayoutComponent,
     FormsModule,
     CommonModule,
     ListActionsComponent,

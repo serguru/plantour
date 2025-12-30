@@ -22,7 +22,8 @@ import { CheckboxModule } from 'primeng/checkbox';
     AsyncPipe,
     CheckboxModule
   ],
-  templateUrl: './thing-form-component.html'
+  templateUrl: './thing-form-component.html',
+  styleUrls: ['./thing-form-component.scss']
 })
 export class ThingFormComponent implements OnInit {
   private route: ActivatedRoute = inject(ActivatedRoute);

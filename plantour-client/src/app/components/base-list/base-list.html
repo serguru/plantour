@@ -1,17 +1,16 @@
-<app-content-layout>
-  <div class="page-header">
-    <div class="page-left">
-      <i
-        class="pi"
-        [class]="entityIcon"
-      ></i>
-      <h2 class="ellipsis-text">{{ title }}</h2>
-    </div>
+<div class="page-header">
+  <div class="page-left">
+    <i
+      class="pi"
+      [class]="entityIcon"
+    ></i>
+    <h2 class="ellipsis-text">{{ title }}</h2>
+  </div>
 
-    <!-- icon="pi pi-plus" -->
-    <div class="page-content">
-      @if(!isListReadOnly) {
-      <!-- no format -->
+  <!-- icon="pi pi-plus" -->
+  <div class="page-content">
+    @if(!isListReadOnly) {
+    <!-- no format -->
         @if(addUrl) {
 
         <button
@@ -44,52 +43,54 @@
           <span class="button-label">Delete</span>
         </button>
       <!-- no format -->
-      }
+    }
 
-      <button
-        class="pl-button"
-        (click)="listFeatures.toggle($event)"
-      >
-        <span class="pi pi-ellipsis-v"></span>
-      </button>
-      <p-popover
-        #listFeatures
-        styleClass="no-arrow"
-      >
-        <ul class="pl-menu-container">
-          @if (upperActionType == UpperActionType.Dic2Trip) {
-          <li
-            class="pl-menu-item"
-            (click)="onShowHideMenu('trips', listFeatures)"
-          >
-            <span class="pi pi-compass"></span>
-            <span class="button-label">{{`${this.dic2tripVisible ? "Hide" : "Show"} trips select`}}</span>
-          </li>
+    <button
+      class="pl-button"
+      (click)="listFeatures.toggle($event)"
+    >
+      <span class="pi pi-ellipsis-v"></span>
+    </button>
+    <p-popover
+      #listFeatures
+      styleClass="no-arrow"
+    >
+      <ul class="pl-menu-container">
+        @if (upperActionType == UpperActionType.Dic2Trip) {
+        <li
+          class="pl-menu-item"
+          (click)="onShowHideMenu('trips', listFeatures)"
+        >
+          <span class="pi pi-compass"></span>
+          <span class="button-label">{{`${this.dic2tripVisible ? "Hide" : "Show"} trips select`}}</span>
+        </li>
 
-          }
+        }
 
-          @if (upperActionType == UpperActionType.Thing2Pack) {
-          <li
-            class="pl-menu-item"
-            (click)="onShowHideMenu('packs', listFeatures)"
-          >
-            <span class="pi pi-box"></span>
-            <span class="button-label">{{`${this.thing2packVisible ? "Hide" : "Show"} packs select`}}</span>
-          </li>
+        @if (upperActionType == UpperActionType.Thing2Pack) {
+        <li
+          class="pl-menu-item"
+          (click)="onShowHideMenu('packs', listFeatures)"
+        >
+          <span class="pi pi-box"></span>
+          <span class="button-label">{{`${this.thing2packVisible ? "Hide" : "Show"} packs select`}}</span>
+        </li>
 
-          }
+        }
 
-          <li
-            class="pl-menu-item"
-            (click)="onShowHideMenu('tools', listFeatures)"
-          >
-            <span class="pi pi-box"></span>
-            <span class="button-label">{{`${this.listToolsVisible ? "Hide" : "Show"} list tools`}}</span>
-          </li>
-        </ul>
-      </p-popover>
-    </div>
+        <li
+          class="pl-menu-item"
+          (click)="onShowHideMenu('tools', listFeatures)"
+        >
+          <span class="pi pi-box"></span>
+          <span class="button-label">{{`${this.listToolsVisible ? "Hide" : "Show"} list tools`}}</span>
+        </li>
+      </ul>
+    </p-popover>
   </div>
+</div>
+
+<div class="controls-wrapper">
 
   @if (tripPanelVisible && tripId) {
   <app-trip-panel [tripId]="tripId"></app-trip-panel>
@@ -150,4 +151,4 @@
     <p>No rows</p>
   </div>
   }
-</app-content-layout>
+</div>

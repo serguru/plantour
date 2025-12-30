@@ -2,7 +2,6 @@ import { Component, EventEmitter, HostListener, Input, OnInit, Output, inject } 
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CrudService } from '../../services/crud-service';
 import { catchError, EMPTY, finalize } from 'rxjs';
-import { ContentLayoutComponent } from '../layouts/content-layout.component';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { MessagesService } from '../../services/messages-service';
@@ -19,7 +18,6 @@ export type BaseFormMode = 'add' | 'edit';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    ContentLayoutComponent,
     CommonModule,
     ButtonModule,
     MessagePanelComponent

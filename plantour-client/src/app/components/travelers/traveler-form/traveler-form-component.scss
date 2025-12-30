@@ -1,5 +1,11 @@
-.traveler-form {
+
+  .traveler-form {
   width: 100%;
 }
 
-// Use global .controls-wrapper, .form-field, .error-message, etc. from styles.scss
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
