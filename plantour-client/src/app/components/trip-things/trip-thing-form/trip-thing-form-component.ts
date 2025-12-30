@@ -29,7 +29,6 @@ export class TripThingFormComponent implements OnInit {
   private router = inject(Router);
   public mode!: BaseFormMode;
   public id: string | null = null;
-  public tripId: string | null = null;
 
   service = inject(TripThingService);
   private lookupService = inject(LookupService);
@@ -48,7 +47,6 @@ export class TripThingFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];
-    this.tripId = this.route.snapshot.paramMap.get('tripId');
 
     if (this.mode === 'edit') {
       this.id = this.route.snapshot.paramMap.get('id');

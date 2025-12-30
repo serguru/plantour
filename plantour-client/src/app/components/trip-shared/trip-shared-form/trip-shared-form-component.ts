@@ -10,6 +10,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { LookupService } from '../../../services/lookup-service';
 import { TripUserService } from '../../../services/trip-user-service';
 import { Observable } from 'rxjs';
+import { AppService } from '../../../services/app-service';
 
 @Component({
   selector: 'app-trip-shared-form',
@@ -27,11 +28,12 @@ import { Observable } from 'rxjs';
   styleUrl: './trip-shared-form-component.scss'
 })
 export class TripSharedFormComponent implements OnInit {
+  appService = inject(AppService);
   private route: ActivatedRoute = inject(ActivatedRoute);
   private router = inject(Router);
   public mode!: BaseFormMode;
   public id: string | null = null;
-  public tripId: string | null = null;
+  //public tripId: string | null = null;
 
   service = inject(TripSharedService);
   private lookupService = inject(LookupService);
@@ -52,8 +54,8 @@ export class TripSharedFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];
-    this.tripId = this.route.snapshot.paramMap.get('tripId');
-    this.tripUsers$ = this.tripUserService.getAll(this.tripId || '');
+    const tripId = this.appService.tripSelected.getValue()?.id || null;
+    this.tripUsers$ = this.tripUserService.getAll(tripId || '');
 
     if (this.mode === 'edit') {
       this.id = this.route.snapshot.paramMap.get('id');

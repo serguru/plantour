@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { landingNewUserGuard, landingRegisteredUserGuard } from './guards/landing-guard';
-import { adminGuard } from './guards/auth-guard';
+import { adminGuard, checkTripIdGuard, participantGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
   {
@@ -43,21 +43,7 @@ export const routes: Routes = [
     loadComponent: () => import('./components/things/thing-form/thing-form-component').then(m => m.ThingFormComponent),
     data: { mode: 'edit' }
   },
-  {
-    path: 'trips',
-    loadComponent: () => import('./components/trips/trips-component').then(m => m.TripsComponent)
-  },
-  {
-    path: 'trips/add',
-    loadComponent: () => import('./components/trips/trip-form/trip-form-component').then(m => m.TripFormComponent),
-    data: { mode: 'add' }
-  },
-  {
-    path: 'trips/edit/:id',
-    loadComponent: () => import('./components/trips/trip-form/trip-form-component').then(m => m.TripFormComponent),
-    data: { mode: 'edit' }
-  },
-  {
+    {
     path: 'travelers',
     canActivate: [adminGuard],
     loadComponent: () => import('./components/travelers/travelers-component').then(m => m.TravelersComponent)
@@ -88,17 +74,35 @@ export const routes: Routes = [
     loadComponent: () => import('./components/packs/pack-form/pack-form-component').then(m => m.PackFormComponent),
     data: { mode: 'edit' }
   },
+
+  {
+    path: 'trips',
+    loadComponent: () => import('./components/trips/trips-component').then(m => m.TripsComponent)
+  },
+  {
+    path: 'trips/add',
+    loadComponent: () => import('./components/trips/trip-form/trip-form-component').then(m => m.TripFormComponent),
+    data: { mode: 'add' }
+  },
+  {
+    path: 'trips/:tripId/edit/:id',
+    loadComponent: () => import('./components/trips/trip-form/trip-form-component').then(m => m.TripFormComponent),
+    data: { mode: 'edit' }
+  },
   {
     path: 'trips/:tripId/trip-packs',
+    canActivate: [checkTripIdGuard],
     loadComponent: () => import('./components/trip-packs/trip-packs-component').then(m => m.TripPacksComponent)
   },
   {
     path: 'trips/:tripId/trip-packs/add',
+    canActivate: [checkTripIdGuard],
     loadComponent: () => import('./components/trip-packs/trip-pack-form/trip-pack-form-component').then(m => m.TripPackFormComponent),
     data: { mode: 'add' }
   },
   {
     path: 'trips/:tripId/trip-packs/edit/:id',
+    canActivate: [checkTripIdGuard],
     loadComponent: () => import('./components/trip-packs/trip-pack-form/trip-pack-form-component').then(m => m.TripPackFormComponent),
     data: { mode: 'edit' }
   },

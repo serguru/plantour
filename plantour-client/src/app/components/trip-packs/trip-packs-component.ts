@@ -5,6 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
 import { UpperActionType } from '../../helpers/enums';
 import { TripPackItemComponent } from './trip-pack-item/trip-pack-item-component';
+import { AppService } from '../../services/app-service';
+import { MessagesService } from '../../services/messages-service';
 
 
 @Component({
@@ -17,6 +19,8 @@ import { TripPackItemComponent } from './trip-pack-item/trip-pack-item-component
   styleUrl: './trip-packs-component.scss',
 })
 export class TripPacksComponent implements OnInit {
+  appService = inject(AppService);
+  messagesService = inject(MessagesService);
   tripPackItemComponent = TripPackItemComponent;
   componentId: string = 'trip-packs';
   public ActionType = UpperActionType;
@@ -24,7 +28,15 @@ export class TripPacksComponent implements OnInit {
   tripId: string | null = null;
 
   ngOnInit(): void {
-    this.tripId = this.route.snapshot.paramMap.get('tripId');
+    // This component cannot be accessed unless a trip is selected
+    // This is enforced by the checkTripIdGuard in the routing configuration
+
+    
+    
+    // if (!this.appService.tripSelected.getValue()) {
+    //   this.messagesService.showError('No trip selected', 'Please select a trip first.');
+    //   this.router.navigate(['/trips']);
+    // }
   }
 
   route = inject(ActivatedRoute);

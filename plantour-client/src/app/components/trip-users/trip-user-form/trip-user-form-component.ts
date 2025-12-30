@@ -29,7 +29,6 @@ export class TripUserFormComponent implements OnInit {
   private router = inject(Router);
   public mode!: BaseFormMode;
   public id: string | null = null;
-  public tripId: string | null = null;
 
   service = inject(TripUserService);
   private lookupService = inject(LookupService);
@@ -43,18 +42,14 @@ export class TripUserFormComponent implements OnInit {
     phone: new FormControl(''),
     notes: new FormControl(''),
     participantStatus: new FormControl(''),
-    tripId: new FormControl(''),
     adminParticipantId: new FormControl('')
   };
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];
-    this.tripId = this.route.snapshot.paramMap.get('tripId');
 
     if (this.mode === 'edit') {
       this.id = this.route.snapshot.paramMap.get('id');
-    } else {
-      this.fieldsConfig.tripId.setValue(this.tripId);
     }
   }
 

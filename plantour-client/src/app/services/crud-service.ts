@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 //   abstract addFromDic(data: {tripId: string, ids: string[]}): Observable<number>;
 // }
 export interface CrudService<T, TA, TU> {
-  getAll(tripId?: string): Observable<T[]>;
+  getAll(tripId?: string | null): Observable<T[]>;
   getById(id: string, tripId?: string | null): Observable<T>;
   add(item: TA): Observable<T>;
   update(item: TU): Observable<void>;

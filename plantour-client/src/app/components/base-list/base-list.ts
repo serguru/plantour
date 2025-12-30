@@ -19,6 +19,7 @@ import { TripPackageDto, TripPackageService } from '../../services/trip-package-
 import { TripThingDto } from '../../services/trip-thing-service';
 import { UpperActionType } from '../../helpers/enums';
 import { PopoverModule } from 'primeng/popover';
+import { AppService } from '../../services/app-service';
 
 export type Comparable = {
   name?: string;
@@ -51,6 +52,7 @@ export class BaseListComponent<T> implements OnInit {
 
   private messagesService = inject(MessagesService);
   private tripPackageService = inject(TripPackageService);
+  appService = inject(AppService);
 
   @Input() service!: CrudService<any, any, any>;
   @Input() itemMetaData: any = null;
@@ -84,13 +86,9 @@ export class BaseListComponent<T> implements OnInit {
   entities: T[] | null = null;
   selected: T | null = null;
   isAnyFeatureActive: boolean = false;
-
   listToolsShown: boolean = false;
-  tripId: string | null = null;
-
   dic2tripVisible: boolean = false;
   listToolsVisible: boolean = false;
-
   processedEntities: T[] | null = null;
   packages: TripPackageDto[] = [];
   menuItems: any[] = [];
@@ -102,10 +100,14 @@ export class BaseListComponent<T> implements OnInit {
   route = inject(ActivatedRoute);
 
 
-  ngOnInit() {
-    if (this.useTripId) {
-      this.tripId = this.route.snapshot.paramMap.get('tripId');
+  get tripId(): string | null {
+    if (!this.useTripId) {
+      return null;
     }
+    return this.appService.tripSelected.getValue()?.id || null; 
+  }
+
+  ngOnInit() {
     this.getAll(null);
     this.restoreState();
   }
@@ -273,7 +275,7 @@ export class BaseListComponent<T> implements OnInit {
 
 
   getAll(id?: string | null) {
-    this.service.getAll(this.tripId!).subscribe(list => {
+    this.service.getAll(this.tripId).subscribe(list => {
       this.entities = list;
       this.processedEntities = this.entities;
       this.selectEntity(id);
@@ -453,10 +455,6 @@ export class BaseListComponent<T> implements OnInit {
     });
 
     if (result === 'ok') {
-
-
-
-      
       this.service.delete((this.selected as any)["id"], this.tripId)
         .subscribe({
           next: () => {

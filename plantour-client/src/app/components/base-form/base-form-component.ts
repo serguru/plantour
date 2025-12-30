@@ -28,6 +28,7 @@ export type BaseFormMode = 'add' | 'edit';
   styleUrl: './base-form-component.scss',
 })
 export class BaseFormComponent<T, TA, TU> implements OnInit {
+  
   appService = inject(AppService);
 
   constructor() {
@@ -63,14 +64,29 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
   @Input() formTemplate!: any;
   @Input() mode!: BaseFormMode;
   @Input() id: string | null = null;
-  @Input() tripId: string | null = null;
+  //@Input() tripId: string | null = null;
+
+  @Input() useTripId: boolean = false;
+
+
   @Input() entityIcon!: string;
   @Input() entityName!: string;
   @Input() backUrl: string | null = null;
   @Output() formReady = new EventEmitter<any>();
   @Input() listComponentId: string | null = null;
 
-
+  get tripId(): string | null {
+    if (this.useTripId) {
+      const id = this.appService.tripSelected.getValue()?.id || null;
+      if (!id) {
+        this.messagesService.showError('No trip selected', 'Please select a trip first.');
+        this.router.navigate(['/trips']);
+      }
+      return id;
+    } 
+    return null;
+  }
+  
   fb = inject(FormBuilder);
   lookupsService = inject(LookupService);
   form!: FormGroup;
@@ -181,7 +197,13 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
           next: (response: any) => {
             this.messagesService.showInfo(`${this.entityName} added successfully`);
             this.appService.saveToLocalStorage(this.listComponentId, response.id);
-            this.router.navigate([this.backUrl]);
+
+            if (!this.backUrl) {
+              return;
+            }
+
+            const bu = this.useTripId ? this.backUrl.replace(':tripId', this.tripId!) : this.backUrl;
+            this.router.navigate([bu]);
           }
         })
     } else {

@@ -6,8 +6,8 @@
   entityIcon="pi-box"
   entityName="trip shared item"
   [id]="id"
-  [tripId]="tripId"
-  [backUrl]="'/trips/' + tripId + '/trip-shared'"
+  [useTripId]="true"
+  [backUrl]="'/trips/:tripId/trip-shared'"
   listComponentId="trip-shared"
 >
 </app-base-form>

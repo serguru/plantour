@@ -27,7 +27,6 @@ export class TripPackFormComponent implements OnInit {
   private router = inject(Router);
   public mode!: BaseFormMode;
   public id: string | null = null;
-  public tripId: string | null = null;
 
   service = inject(TripPackageService);
   private lookupService = inject(LookupService);
@@ -40,18 +39,11 @@ export class TripPackFormComponent implements OnInit {
     packingListIncluded: new FormControl(false),
     weightValue: new FormControl(''),
     weightUnit: new FormControl(''),
-    tripId: new FormControl('')
   };
-
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];
-    this.tripId = this.route.snapshot.paramMap.get('tripId');
-
     if (this.mode === 'edit') {
       this.id = this.route.snapshot.paramMap.get('id');
-    } else {
-      this.fieldsConfig.tripId.setValue(this.tripId);
     }
   }
-
 }

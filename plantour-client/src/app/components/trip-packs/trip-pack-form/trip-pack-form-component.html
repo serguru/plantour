@@ -6,8 +6,8 @@
   entityIcon="pi-box"
   entityName="trip pack"
   [id]="id"
-  [tripId]="tripId"
-  [backUrl]="'/trips/' + tripId + '/trip-packs'"
+  [useTripId]="true"
+  [backUrl]="'/trips/:tripId/trip-packs'"
   listComponentId="trip-packs"
 >
 </app-base-form>

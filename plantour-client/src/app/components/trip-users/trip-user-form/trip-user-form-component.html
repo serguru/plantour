@@ -6,7 +6,8 @@
   entityIcon="pi-user"
   entityName="trip participant"
   [id]="id"
-  [backUrl]="'/trips/' + tripId + '/trip-participants'"
+  [useTripId]="true"
+  [backUrl]="'/trips/:tripId/trip-participants'"
   listComponentId="trip-participants"
 >
 </app-base-form>
