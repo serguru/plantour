@@ -418,7 +418,13 @@ p-panel.list-actions-panel {
   background-color: var(--form-header-background-color);
   color: white;
   border-bottom: 1px solid var(--primary-border-color)
+
 }
+
+.toolbar-container  a {
+    color: white !important;
+  }
+
 
 .trip-text {
   display: flex;

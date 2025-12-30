@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { debounceTime, fromEvent, Subject, takeUntil } from 'rxjs';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
@@ -18,7 +18,8 @@ import { TripDto } from '../../services/trip-service';
     MenuModule,
     ButtonModule,
     TooltipModule,
-    PopoverModule
+    PopoverModule,
+    RouterModule
   ],
   templateUrl: './toolbar-component.html',
   styleUrl: './toolbar-component.scss',

@@ -168,7 +168,7 @@
 </div>
 @if(tripTextVisible) {
 <div class="trip-text">
-  <span class="ellipsis-text">{{tripText}}</span>
+  <a [routerLink]="['/trips']" class="ellipsis-text">{{tripText}}</a>
 </div>
 }
 </div>
