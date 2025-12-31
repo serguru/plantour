@@ -68,7 +68,6 @@ export class BaseListComponent<T> implements OnInit {
   @Input() entityNameProp: string = 'name';
   @Input() entityName: string = '';
   @Input() useTripId: boolean = false;
-  @Input() tripsFor: string | null = null;
   @Input() componentId: string | null = null;
   @Input() itemComponent!: any;
 
@@ -244,10 +243,6 @@ export class BaseListComponent<T> implements OnInit {
   checkSelectedTrip() {
     return this.appService.tripSelectedValue();
   }
-
-  // setCheckSelectedTrip(getter: (() => TripDto | null) | null) {
-  //   this.checkSelectedTrip = getter;
-  // }
 
   onSelectedTripChanged(trip: any | null) {
     this.refreshTripEntities(trip?.id)
@@ -543,11 +538,26 @@ export class BaseListComponent<T> implements OnInit {
 
   }
 
+  get addAllText(): string {
+    if (this.addFromDicDisabled) {
+      return 'Nothing to add to trip';
+    }
+    return `Add ${this.entitiesToDisplay.notAddedCount} to trip`;
+  }
+
+
   get removeFromDicDisabled(): boolean {
     if (!this.entitiesToDisplay) {
       return true;
     }
     return this.entitiesToDisplay.addedCount === 0 || !this.appService.tripSelectedValue();
+  }
+
+  get removeAllText(): string {
+    if (this.removeFromDicDisabled) {
+      return 'Nothing to remove from trip';
+    }
+    return `Remove ${this.entitiesToDisplay.addedCount} from trip`;
   }
 
   getFromDicIds(added: boolean): string[] {

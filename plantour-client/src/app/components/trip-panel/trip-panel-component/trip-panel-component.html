@@ -1,14 +1,13 @@
 @if (!hideTripPanel) {
 <div class="container">
-    @if(tripStatDto) {
-    <!-- <h4>{{tripStatDto.trip.name}}</h4> -->
+    @if(tripDto) {
     <h3 class="left">
         <a [href]="tripUrl">
-            {{tripStatDto.trip.name}}
+            {{tripDto.name}}
         </a>
     </h3>
 
-    <h4  class="right">Participants: {{tripStatDto.totalParticipants}}</h4>
+    <h4  class="right">Participants: {{tripDto.totalParticipants}}</h4>
 
 
     } @else {

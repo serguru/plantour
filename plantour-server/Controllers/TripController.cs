@@ -21,23 +21,23 @@ public class TripController : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<TripDto>>> GetAll()
     {
-        var dtos = await _service.GetAllAsync();
+        var dtos = await _service.GetAllWithStatsAsync();
         return Ok(dtos);
     }
 
-    [HttpGet("participant")]
-    [AdminOrParticipant]
-    public async Task<ActionResult<IEnumerable<TripDto>>> GetAllForParticipant()
-    {
-        var dtos = await _service.GetAllForParticipantAsync();
-        return Ok(dtos);
-    }
+    // [HttpGet("participant")]
+    // [AdminOrParticipant]
+    // public async Task<ActionResult<IEnumerable<TripDto>>> GetAllForParticipant()
+    // {
+    //     var dtos = await _service.GetAllForParticipantAsync();
+    //     return Ok(dtos);
+    // }
 
     [HttpGet("{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult<TripDto>> GetById(Guid id)
     {
-        var dto = await _service.GetByIdAsync(id);
+        var dto = await _service.GetByIdWithStatsAsync(id);
         if (dto == null)
         {
             return NotFound(new { message = "Trip not found" });
@@ -55,8 +55,7 @@ public class TripController : ControllerBase
     }
 
     [HttpPut]
-    //[AdminOnly]
-    [AllowAnonymous]
+    [AdminOnly]
     public async Task<ActionResult> Update([FromBody] UpdateTripRequest request)
     {
         await _service.UpdateAsync(request);
@@ -70,13 +69,4 @@ public class TripController : ControllerBase
         await _service.DeleteAsync(tripId, id);
         return NoContent();
     }
-
-    [HttpGet("stat/{id}")]
-    [AdminOrParticipant]
-    public async Task<ActionResult<TripStatDto?>> GetTripStats(Guid id)
-    {
-        var dtos = await _service.GetTripStatsAsync(id);
-        return Ok(dtos);
-    }
-
 }

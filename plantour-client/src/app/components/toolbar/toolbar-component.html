@@ -101,7 +101,7 @@
           class="pl-menu-item"
           [class.selected]="isNavigatedComponent('trip-things')"
           (click)="onTripThingsClick($event, popoverTrip)"
-          [class.disabled]="!isCurrentTrip"
+          [class.disabled]="disableTripThings"
         >
           <span class="pi pi-objects-column"></span>
           <span class="button-label">Things</span>
@@ -110,7 +110,7 @@
           class="pl-menu-item"
           [class.selected]="isNavigatedComponent('trip-packs')"
           (click)="onTripPacksClick($event, popoverTrip)"
-          [class.disabled]="!isCurrentTrip"
+          [class.disabled]="disableTripPacks"
         >
           <span class="pi pi-box"></span>
           <span class="button-label">Packs</span>

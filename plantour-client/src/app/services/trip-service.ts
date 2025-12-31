@@ -11,16 +11,12 @@ export interface TripDto {
   description?: string | null;
   startDate?: string | null;
   endDate?: string | null;
-}
-
-export interface TripStatDto {
-  trip: TripDto;
   totalDays: number;
   totalParticipants: number;
   totalPacks: number;
   totalThings: number;
+  adminIsParticipant: boolean;
 }
-
 export interface CreateTripRequest {
   tripStatus?: string | null;
   name: string;
@@ -51,8 +47,8 @@ export class TripService implements CrudService<TripDto, CreateTripRequest, Upda
     this.apiUrl = `${environment.apiUrl}/api/trip`;
   }
 
-  getAll(extraPath?: string): Observable<TripDto[]> {
-    return this.http.get<TripDto[]>(`${this.apiUrl}${extraPath ? '/' + extraPath : ''}`);
+  getAll(): Observable<TripDto[]> {
+    return this.http.get<TripDto[]>(`${this.apiUrl}`);
   }
 
   getById(id: string): Observable<TripDto> {
@@ -70,9 +66,4 @@ export class TripService implements CrudService<TripDto, CreateTripRequest, Upda
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
-
-  getTripStatById(id: string): Observable<TripStatDto> {
-    return this.http.get<TripStatDto>(`${this.apiUrl}/stat/${id}`);
-  }
-
 }

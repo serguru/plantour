@@ -18,4 +18,13 @@ public class TripDto
 
     public DateOnly? EndDate { get; set; }
 
+    public int TotalDays { get; set; }
+
+    public int TotalParticipants { get; set; }
+
+    public int TotalPacks { get; set; }
+
+    public int TotalThings { get; set; }
+
+    public bool AdminIsParticipant { get; set; }
 }

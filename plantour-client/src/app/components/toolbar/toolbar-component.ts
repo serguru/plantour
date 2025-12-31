@@ -247,58 +247,14 @@ export class Toolbar implements OnInit {
     return result;
   }
 
+  get disableTripThings(): boolean {
+    return !this.isCurrentTrip || (this.usersService.isAdmin && !this.tripSelected!.adminIsParticipant);
+  }
 
-  // get menuItems(): MenuItem[] {
-  //   return [
-  //     {
-  //       label: this.usersService.currentUserText,
-  //       icon: 'pi pi-user',
-  //       command: () => this.navigateTo('/profile')
-  //     },
-  //     {
-  //       label: 'Help',
-  //       icon: 'pi pi-question-circle',
-  //       command: () => this.navigateTo('/help')
-  //     },
-  //     {
-  //       label: 'Terms of Usage',
-  //       icon: 'pi pi-file',
-  //       command: () => this.navigateTo('/terms')
-  //     },
-  //     {
-  //       label: 'Privacy Policy',
-  //       icon: 'pi pi-shield',
-  //       command: () => this.navigateTo('/privacy')
-  //     },
-  //     {
-  //       label: 'Contact Us',
-  //       icon: 'pi pi-envelope',
-  //       command: () => this.navigateTo('/contact')
-  //     },
-  //     {
-  //       label: 'Sign Up',
-  //       // icon: 'pi pi-user-plus',
-  //       icon: 'pi pi-sign-up',
-  //       command: () => this.navigateTo('/sign-up')
-  //     },
-  //     {
-  //       separator: true
-  //     },
-  //     {
-  //       label: 'Sign In',
-  //       icon: 'pi pi-sign-in',
-  //       command: () => this.navigateTo('/sign-in')
-  //     },
-  //     {
-  //       label: 'Sign Out',
-  //       icon: 'pi pi-sign-in',
-  //       command: () => {
-  //         this.usersService.signOut();
-  //         this.navigateTo('/sign-in');
-  //       }
-  //     },
-  //   ];
-  // }
+  get disableTripPacks(): boolean {
+    return !this.isCurrentTrip || (this.usersService.isAdmin && !this.tripSelected!.adminIsParticipant);
+  }
+
 
 
 

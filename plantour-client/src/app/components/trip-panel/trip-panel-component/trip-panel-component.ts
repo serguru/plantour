@@ -1,5 +1,5 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { TripService, TripStatDto } from '../../../services/trip-service';
+import { TripService, TripDto } from '../../../services/trip-service';
 import { AppService } from '../../../services/app-service';
 
 @Component({
@@ -18,15 +18,15 @@ export class TripPanelComponent implements OnInit {
 
   tripService = inject(TripService);
   
-  tripStatDto: TripStatDto | null = null;
+  tripDto: TripDto | null = null;
 
   get tripUrl(): string {
     return '/trips';
   }
 
   ngOnInit(): void {
-    this.tripService.getTripStatById(this.tripId).subscribe((response) => {
-      this.tripStatDto = response;
+    this.tripService.getById(this.tripId).subscribe((response) => {
+      this.tripDto = response;
     });
     
   }
