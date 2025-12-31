@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CrudService } from '../../services/crud-service';
 import { catchError, EMPTY, finalize } from 'rxjs';
@@ -25,12 +25,22 @@ export type BaseFormMode = 'add' | 'edit';
   templateUrl: './base-form-component.html',
   styleUrl: './base-form-component.scss',
 })
-export class BaseFormComponent<T, TA, TU> implements OnInit {
-  
-  appService = inject(AppService);
+export class BaseFormComponent<T, TA, TU> implements OnInit, AfterViewInit {
 
-  constructor() {
+  constructor(private el: ElementRef) {
   }
+  
+ngAfterViewInit() {
+    const firstInput = this.el.nativeElement.querySelector(
+      'input:not([type="hidden"]):not([disabled])'
+    ) as HTMLInputElement;
+
+    if (firstInput) {
+      setTimeout(() => firstInput.focus(), 0);
+    }
+  }
+
+  appService = inject(AppService);
 
 
   get cancelDisabled() {
