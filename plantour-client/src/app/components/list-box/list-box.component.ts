@@ -25,12 +25,6 @@ import { TripPackageDto } from '../../services/trip-package-service';
 import { UpperActionType } from '../../helpers/enums';
 import { AppService } from '../../services/app-service';
 
-
-// interface ListItem {
-//   id: string;
-//   [key: string]: any;
-// }
-
 @Component({
     selector: 'app-list-box',
     standalone: true,
@@ -40,7 +34,7 @@ import { AppService } from '../../services/app-service';
 })
 export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     appService = inject(AppService);
-    // Items or items and meta
+
     @Input() items: any[] = [];
     @Input() itemMetaData: any | null = null;
 
@@ -50,7 +44,6 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     @Input() upperActionType: UpperActionType = UpperActionType.None;
 
     @Input() componentId: string | null = null;
-
 
     @Output() selectedChange = new EventEmitter<any | null>();
     @Output() addRemoveFromDic = new EventEmitter<any | null>();
@@ -189,9 +182,19 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
         this.packUnpack.emit({ item, alreadyChanged: true });
     }
 
+    showDic2TripRightSection(): boolean {
+        return this.upperActionType == UpperActionType.Dic2Trip && this.appService.getTripTextVisible();
+    }
+
     get showRightSection(): boolean {
         return this.upperActionType == UpperActionType.Thing2Pack ||
             this.upperActionType == UpperActionType.Thing2Participant ||
-            this.upperActionType == UpperActionType.Dic2Trip;
+
+            this.showDic2TripRightSection();
     }
+
+    get rightSectionDisabled(): boolean {
+        return this.upperActionType == UpperActionType.Dic2Trip && !this.appService.isTripSelected;
+    }
+
 }
