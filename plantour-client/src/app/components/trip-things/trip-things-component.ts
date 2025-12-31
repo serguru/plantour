@@ -65,7 +65,7 @@ export class TripThingsComponent implements OnInit {
     //TODO: продумать защиту от захода сюда без выбора валидного трипа
     this.tripId = this.route.snapshot.paramMap.get('tripId');
 
-    this.appService.tripSelected.next(this.tripId ? { id: this.tripId } as any : null);
+    this.appService.updateTripSelected(this.tripId ? { id: this.tripId } as any : null);
 
     if(!this.tripId) {
       this.messagesService.showWarning('No trip selected. Please select a trip to view trip things.');

@@ -30,8 +30,29 @@ export class AppService {
     routeDeActivated: BehaviorSubject<any> = new BehaviorSubject<any>(null);
     routeDeActivated$: Observable<any> = this.routeDeActivated.asObservable();
 
-    tripSelected: BehaviorSubject<TripDto | null> = new BehaviorSubject<TripDto | null>(null);
-    tripSelected$: Observable<TripDto | null> = this.tripSelected.asObservable()
+    private tripSelected: BehaviorSubject<TripDto | null> = new BehaviorSubject<TripDto | null>(null);
+    tripSelected$: Observable<TripDto | null> = this.tripSelected.asObservable();
+    public updateTripSelected(trip: TripDto | null): void {
+        this.tripSelected.next(trip);
+    }
+    public get isTripSelected() {
+        return this.tripSelected.getValue() !== null;
+    }
+    public tripSelectedValue() {
+        return this.tripSelected.getValue();
+    }
+
+    private tripTextVisible: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(localStorage.getItem('toolbar-showTripText') === 'true');
+    tripTextVisible$: Observable<boolean> = this.tripTextVisible.asObservable();
+
+    public updateTripTextVisible(visible: boolean): void {
+        this.tripTextVisible.next(visible);
+        localStorage.setItem('toolbar-showTripText', visible ? 'true' : 'false') 
+    }
+
+    getTripTextVisible(): boolean {
+        return this.tripTextVisible.getValue();
+    }
 
 
     saveToLocalStorage(componentId: string | null, selectedId: string | null) {

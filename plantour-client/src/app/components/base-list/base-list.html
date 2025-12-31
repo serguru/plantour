@@ -20,9 +20,6 @@
           <span class="pi pi-plus"></span>
           <span class="button-label">Add</span>
         </button>
-
-
-          
         }
         @if(editUrl) {
         <button
@@ -44,27 +41,37 @@
         </button>
       <!-- no format -->
     }
-
     <button
       class="pl-button"
       (click)="listFeatures.toggle($event)"
     >
       <span class="pi pi-ellipsis-v"></span>
     </button>
-    <p-popover
+    <app-popover
       #listFeatures
       styleClass="no-arrow"
+      (onShow)="onListFeaturesShow()"
+      (onHide)="onListFeaturesHide()"
     >
       <ul class="pl-menu-container">
-        @if (upperActionType == UpperActionType.Dic2Trip) {
+        @if (showAddAllToTrip()) {
         <li
           class="pl-menu-item"
-          (click)="onShowHideMenu('trips', listFeatures)"
+          (click)="onAddFromDicAllClick()"
+          [class.disabled]="addFromDicDisabled"
         >
-          <span class="pi pi-compass"></span>
-          <span class="button-label">{{`${this.dic2tripVisible ? "Hide" : "Show"} trips select`}}</span>
+          <span class="pi pi-plus"></span>
+          <span class="button-label">Add all to trip</span>
         </li>
 
+        <li
+          class="pl-menu-item"
+          (click)="onRemoveFromDicAllClick()"
+          [class.disabled]="removeFromDicDisabled"
+        >
+        <span class="pi pi-plus"></span>
+          <span class="button-label">Remove all from trip</span>
+        </li>
         }
 
         @if (upperActionType == UpperActionType.Thing2Pack) {
@@ -86,7 +93,7 @@
           <span class="button-label">{{`${this.listToolsVisible ? "Hide" : "Show"} list tools`}}</span>
         </li>
       </ul>
-    </p-popover>
+    </app-popover>
   </div>
 </div>
 
@@ -94,17 +101,6 @@
 
   @if (tripPanelVisible && tripId) {
   <app-trip-panel [tripId]="tripId"></app-trip-panel>
-  }
-
-  @if (showDic2Trip) {
-  <app-dic-trip
-    (selectedTripChanged)="onSelectedTripChanged($event)"
-    (registerGetter)="setCheckSelectedTrip($event)"
-    [entitiesToDisplay]="entitiesToDisplay"
-    [addFromDic]="addFromDic.bind(this)"
-    [deleteFromDic]="deleteFromDic.bind(this)"
-    [tripsFor]="tripsFor"
-  ></app-dic-trip>
   }
 
   @if(thing2packVisible) {

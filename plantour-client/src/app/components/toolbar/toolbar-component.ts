@@ -145,11 +145,11 @@ export class Toolbar implements OnInit {
   }
 
   get tripTextVisible(): boolean {
-    return localStorage.getItem('toolbar-showTripText') === 'true';
+    return this.appService.getTripTextVisible();
   }
 
   setTripTextVisible(visible: boolean): void {
-    localStorage.setItem('toolbar-showTripText', visible ? 'true' : 'false');
+    this.appService.updateTripTextVisible(visible);
   }
 
 

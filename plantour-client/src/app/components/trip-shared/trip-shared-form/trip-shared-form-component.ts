@@ -54,7 +54,7 @@ export class TripSharedFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];
-    const tripId = this.appService.tripSelected.getValue()?.id || null;
+    const tripId = this.appService.tripSelectedValue()?.id || null;
     this.tripUsers$ = this.tripUserService.getAll(tripId || '');
 
     if (this.mode === 'edit') {

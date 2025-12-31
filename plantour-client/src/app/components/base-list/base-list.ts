@@ -7,7 +7,6 @@ import { ListActionsComponent } from '../list-actions/list-actions.component';
 import { MessagesService } from '../../services/messages-service';
 import { ButtonModule } from 'primeng/button';
 import { ListBoxComponent } from '../list-box/list-box.component';
-import { DicTripComponent } from '../dic-trip/dic-trip.component';
 import { TripDto, TripService } from '../../services/trip-service';
 import { finalize } from 'rxjs';
 import { TripPanelComponent } from '../trip-panel/trip-panel-component/trip-panel-component';
@@ -19,6 +18,7 @@ import { TripThingDto } from '../../services/trip-thing-service';
 import { UpperActionType } from '../../helpers/enums';
 import { PopoverModule } from 'primeng/popover';
 import { AppService } from '../../services/app-service';
+import { PopoverComponent } from '../popover/popover-component';
 
 export type Comparable = {
   name?: string;
@@ -34,11 +34,11 @@ export type Comparable = {
     ListActionsComponent,
     ButtonModule,
     ListBoxComponent,
-    DicTripComponent,
     TripPanelComponent,
     MenuModule,
     PackingComponent,
-    PopoverModule
+    PopoverModule,
+    PopoverComponent
   ],
   templateUrl: './base-list.html',
   styleUrl: './base-list.scss'
@@ -102,10 +102,14 @@ export class BaseListComponent<T> implements OnInit {
     if (!this.useTripId) {
       return null;
     }
-    return this.appService.tripSelected.getValue()?.id || null; 
+    return this.appService.tripSelectedValue()?.id || null;
   }
 
   ngOnInit() {
+
+    this.appService.tripSelected$.subscribe((trip) => {
+      this.onSelectedTripChanged(trip)
+    });
     this.getAll(null);
     this.restoreState();
   }
@@ -237,12 +241,13 @@ export class BaseListComponent<T> implements OnInit {
 
   }
 
-
-  checkSelectedTrip: (() => TripDto | null) | null = null;
-
-  setCheckSelectedTrip(getter: (() => TripDto | null) | null) {
-    this.checkSelectedTrip = getter;
+  checkSelectedTrip() {
+    return this.appService.tripSelectedValue();
   }
+
+  // setCheckSelectedTrip(getter: (() => TripDto | null) | null) {
+  //   this.checkSelectedTrip = getter;
+  // }
 
   onSelectedTripChanged(trip: any | null) {
     this.refreshTripEntities(trip?.id)
@@ -391,10 +396,10 @@ export class BaseListComponent<T> implements OnInit {
   }
 
   onAddRemoveFromDic(item: any) {
-    if (!this.dic2tripVisible || !this.checkSelectedTrip || !this.tripDicService) {
+    if (!this.dic2tripVisible || !this.tripDicService) {
       return;
     }
-    const tripDto = this.checkSelectedTrip!();
+    const tripDto = this.checkSelectedTrip();
     if (!tripDto) {
       return;
     }
@@ -530,6 +535,55 @@ export class BaseListComponent<T> implements OnInit {
     this.getAll();
   }
 
+  get addFromDicDisabled(): boolean {
+    if (!this.entitiesToDisplay) {
+      return true;
+    }
+    return this.entitiesToDisplay.notAddedCount === 0 || !this.appService.tripSelectedValue();
 
+  }
+
+  get removeFromDicDisabled(): boolean {
+    if (!this.entitiesToDisplay) {
+      return true;
+    }
+    return this.entitiesToDisplay.addedCount === 0 || !this.appService.tripSelectedValue();
+  }
+
+  getFromDicIds(added: boolean): string[] {
+    if (!this.entitiesToDisplay || !this.entitiesToDisplay.list || this.entitiesToDisplay.list.length === 0) {
+      return [];
+    }
+    return this.entitiesToDisplay.list
+      .filter(item => added ? item.inTripId : !item.inTripId)
+      .map(item => item.id);
+  }
+
+  onAddFromDicAllClick() {
+    const ids: string[] = this.getFromDicIds(false);
+    if (ids.length === 0 || !this.checkSelectedTrip()?.id || !this.addFromDic) {
+      return;
+    }
+    this.addFromDic({ collectionId: this.checkSelectedTrip()!.id, ids });
+  }
+
+  onRemoveFromDicAllClick() {
+    const ids: string[] = this.getFromDicIds(true);
+    if (ids.length === 0 || !this.checkSelectedTrip()?.id || !this.deleteFromDic) {
+      return;
+    }
+    this.deleteFromDic({ collectionId: this.checkSelectedTrip()!.id, ids });
+  }
+
+  onListFeaturesShow() {
+  }
+
+  onListFeaturesHide() {
+  }
+
+  showAddAllToTrip(): boolean {
+    return this.upperActionType === UpperActionType.Dic2Trip &&
+      this.appService.getTripTextVisible();
+  }
 
 }

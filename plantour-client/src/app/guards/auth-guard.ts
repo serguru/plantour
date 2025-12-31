@@ -97,7 +97,7 @@ export const checkTripIdGuard: CanActivateFn = (route, state) => {
   }
 
   const appService = inject(AppService);
-  let trip = appService.tripSelected.getValue();
+  let trip = appService.tripSelectedValue();
   if (trip && trip.id == tripId) {
     return true;
   }
@@ -119,7 +119,7 @@ export const checkTripIdGuard: CanActivateFn = (route, state) => {
         router.navigate(['/trips']);
         return false;
       }
-      appService.tripSelected.next(trip);
+      appService.updateTripSelected(trip);
       return true;
     })
   );

@@ -9,10 +9,11 @@ import { AppService } from '../../../services/app-service';
   styleUrl: './trip-panel-component.scss',
 })
 export class TripPanelComponent implements OnInit {
+  appService = inject(AppService);
   @Input() tripId!: string;
 
   get hideTripPanel(): boolean {
-    return localStorage.getItem('toolbar-showTripText') === 'true' || false;
+    return this.appService.getTripTextVisible();
   }
 
   tripService = inject(TripService);

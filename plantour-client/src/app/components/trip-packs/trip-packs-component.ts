@@ -33,7 +33,7 @@ export class TripPacksComponent implements OnInit {
 
     
     
-    // if (!this.appService.tripSelected.getValue()) {
+    // if (!this.appService.tripSelectedValue()) {
     //   this.messagesService.showError('No trip selected', 'Please select a trip first.');
     //   this.router.navigate(['/trips']);
     // }

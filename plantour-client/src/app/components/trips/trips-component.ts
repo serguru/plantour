@@ -35,7 +35,7 @@ export class TripsComponent implements OnInit{
 
 
   onTripSelected = (trip: TripDto | null) => {
-    this.appService.tripSelected.next(trip);
+    this.appService.updateTripSelected(trip);
   };
 
   configuration: any[] = [

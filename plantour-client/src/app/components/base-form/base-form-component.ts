@@ -75,7 +75,7 @@ export class BaseFormComponent<T, TA, TU> implements OnInit {
 
   get tripId(): string | null {
     if (this.useTripId) {
-      const id = this.appService.tripSelected.getValue()?.id || null;
+      const id = this.appService.tripSelectedValue()?.id || null;
       if (!id) {
         this.messagesService.showError('No trip selected', 'Please select a trip first.');
         this.router.navigate(['/trips']);
