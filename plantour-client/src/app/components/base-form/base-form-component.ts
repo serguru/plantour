@@ -32,7 +32,9 @@ export class BaseFormComponent<T, TA, TU> implements OnInit, AfterViewInit {
   
 ngAfterViewInit() {
     const firstInput = this.el.nativeElement.querySelector(
-      'input:not([type="hidden"]):not([disabled])'
+      'input:not([type="hidden"]):not([disabled])',
+      'textarea:not([disabled])',
+      'select:not([disabled])'
     ) as HTMLInputElement;
 
     if (firstInput) {
