@@ -149,6 +149,10 @@ export const routes: Routes = [
     data: { mode: 'edit' }
   },
   {
+    path: 'trips/:tripId/trip-comments',
+    loadComponent: () => import('./components/trip-comments/trip-comments-component').then(m => m.TripCommentsComponent)
+  },
+  {
     path: 'contact',
     loadComponent: () => import('./components/features/contact/contact-component').then(m => m.ContactComponent)
   },
@@ -167,6 +171,10 @@ export const routes: Routes = [
   {
     path: 'terms',
     loadComponent: () => import('./components/features/terms/terms-component/terms-component').then(m => m.TermsComponent)
+  },
+  {
+    path: 'template-things',
+    loadComponent: () => import('./components/template-things/template-things-component').then(m => m.TemplateThingsComponent)
   },
   {
     path: '**',

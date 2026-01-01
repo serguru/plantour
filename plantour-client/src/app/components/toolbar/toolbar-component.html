@@ -63,6 +63,14 @@
           <span class="pi pi-box"></span>
           <span class="button-label">Packs</span>
         </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('template-things')"
+          (click)="onTemplateThingsClick($event, popoverDic)"
+        >
+          <span class="pi pi-box"></span>
+          <span class="button-label">Thing Templates</span>
+        </a>
 
 
       </nav>
@@ -123,6 +131,15 @@
         >
           <span class="pi pi-link"></span>
           <span class="button-label">Shared</span>
+        </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('trip-comments')"
+          (click)="onTripCommentsClick($event, popoverTrip)"
+          [class.disabled]="!isCurrentTrip"
+        >
+          <span class="pi pi-comments"></span>
+          <span class="button-label">Comments</span>
         </a>
 
 

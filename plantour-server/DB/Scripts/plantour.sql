@@ -90,6 +90,131 @@ insert into participant_statuses (name) values
 ('Excluded');
 
 -----------------------------------------------------------------------
+-- ACTIVITIES
+-----------------------------------------------------------------------
+create table activities (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    notes text not null
+);
+
+-----------------------------------------------------------------------
+-- GENDERS
+-----------------------------------------------------------------------
+create table genders (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    notes text null
+);
+insert into genders (name) values
+('Male'),('Female'),('Unisex');
+
+
+-----------------------------------------------------------------------
+-- COUNTRIES
+-----------------------------------------------------------------------
+create table countries (
+    id uuid not null primary key default gen_random_uuid(),
+    name varchar(100) not null unique
+);
+
+insert into countries (name) values
+('Afghanistan'), ('Albania'), ('Algeria'), ('Andorra'), ('Angola'), 
+('Antigua and Barbuda'), ('Argentina'), ('Armenia'), ('Australia'), ('Austria'), 
+('Azerbaijan'), ('Bahamas'), ('Bahrain'), ('Bangladesh'), ('Barbados'), 
+('Belarus'), ('Belgium'), ('Belize'), ('Benin'), ('Bhutan'), 
+('Bolivia'), ('Bosnia and Herzegovina'), ('Botswana'), ('Brazil'), ('Brunei'), 
+('Bulgaria'), ('Burkina Faso'), ('Burundi'), ('Cabo Verde'), ('Cambodia'), 
+('Cameroon'), ('Canada'), ('Central African Republic'), ('Chad'), ('Chile'), 
+('China'), ('Colombia'), ('Comoros'), ('Congo (Congo-Brazzaville)'), ('Costa Rica'), 
+('Croatia'), ('Cuba'), ('Cyprus'), ('Czechia (Czech Republic)'), ('Democratic Republic of the Congo'), 
+('Denmark'), ('Djibouti'), ('Dominica'), ('Dominican Republic'), ('Ecuador'), 
+('Egypt'), ('El Salvador'), ('Equatorial Guinea'), ('Eritrea'), ('Estonia'), 
+('Eswatini'), ('Ethiopia'), ('Fiji'), ('Finland'), ('France'), 
+('Gabon'), ('Gambia'), ('Georgia'), ('Germany'), ('Ghana'), 
+('Greece'), ('Grenada'), ('Guatemala'), ('Guinea'), ('Guinea-Bissau'), 
+('Guyana'), ('Haiti'), ('Holy See'), ('Honduras'), ('Hungary'), 
+('Iceland'), ('India'), ('Indonesia'), ('Iran'), ('Iraq'), 
+('Ireland'), ('Israel'), ('Italy'), ('Jamaica'), ('Japan'), 
+('Jordan'), ('Kazakhstan'), ('Kenya'), ('Kiribati'), ('Kuwait'), 
+('Kyrgyzstan'), ('Laos'), ('Latvia'), ('Lebanon'), ('Lesotho'), 
+('Liberia'), ('Libya'), ('Liechtenstein'), ('Lithuania'), ('Luxembourg'), 
+('Madagascar'), ('Malawi'), ('Malaysia'), ('Maldives'), ('Mali'), 
+('Malta'), ('Marshall Islands'), ('Mauritania'), ('Mauritius'), ('Mexico'), 
+('Micronesia'), ('Moldova'), ('Monaco'), ('Mongolia'), ('Montenegro'), 
+('Morocco'), ('Mozambique'), ('Myanmar (Burma)'), ('Namibia'), ('Nauru'), 
+('Nepal'), ('Netherlands'), ('New Zealand'), ('Nicaragua'), ('Niger'), 
+('Nigeria'), ('North Macedonia'), ('Norway'), ('Oman'), ('Pakistan'), 
+('Palau'), ('Palestine State'), ('Panama'), ('Papua New Guinea'), ('Paraguay'), 
+('Peru'), ('Philippines'), ('Poland'), ('Portugal'), ('Qatar'), 
+('Romania'), ('Russia'), ('Rwanda'), ('Saint Kitts and Nevis'), ('Saint Lucia'), 
+('Saint Vincent and the Grenadines'), ('Samoa'), ('San Marino'), ('Sao Tome and Principe'), ('Saudi Arabia'), 
+('Senegal'), ('Serbia'), ('Seychelles'), ('Sierra Leone'), ('Singapore'), 
+('Slovakia'), ('Slovenia'), ('Solomon Islands'), ('Somalia'), ('South Africa'), 
+('South Korea'), ('South Sudan'), ('Spain'), ('Sri Lanka'), ('Sudan'), 
+('Suriname'), ('Sweden'), ('Switzerland'), ('Syria'), ('Tajikistan'), 
+('Tanzania'), ('Thailand'), ('Timor-Leste'), ('Togo'), ('Tonga'), 
+('Trinidad and Tobago'), ('Tunisia'), ('Turkey'), ('Turkmenistan'), ('Tuvalu'), 
+('Uganda'), ('Ukraine'), ('United Arab Emirates'), ('United Kingdom'), ('United States of America'), 
+('Uruguay'), ('Uzbekistan'), ('Vanuatu'), ('Venezuela'), ('Vietnam'), 
+('Yemen'), ('Zambia'), ('Zimbabwe');
+
+-----------------------------------------------------------------------
+-- THING TEMPLATES
+-----------------------------------------------------------------------
+create table thing_templates (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null,
+    activity_id uuid not null references activities(id) on delete cascade,
+    age_from int null check(age_from >= 0),
+    age_to int null check(age_to >= 0),
+    temperature_from int null,
+    temperature_to int null,
+    notes text null,
+
+    constraint ch_thing_templates_ages check (
+        age_from is null 
+        or age_to is null 
+        or age_from <= age_to
+    ),
+
+    constraint ch_thing_templates_temperatures check (
+        temperature_from is null 
+        or temperature_to is null 
+        or temperature_from <= temperature_to
+    )
+);
+create unique index idx_thing_templates_activity_id_name on thing_templates(activity_id, name);
+
+create table template_genders (
+    id uuid not null primary key default gen_random_uuid(),
+    template_id uuid not null references thing_templates(id) on delete cascade,
+    gender_id uuid not null references genders(id) on delete cascade,
+    notes text null
+);
+create unique index idx_template_genders_gender_id_template_id on template_genders(template_id,gender_id);
+
+create table template_countries (
+    id uuid not null primary key default gen_random_uuid(),
+    template_id uuid not null references thing_templates(id) on delete cascade,
+    country_id uuid not null references countries(id) on delete cascade,
+    notes text null
+);
+create unique index idx_template_countries_country_id_template_id on template_countries(template_id,country_id);
+
+create table template_things (
+    id uuid not null primary key default gen_random_uuid(),
+    template_id uuid not null references thing_templates(id) on delete cascade,
+    category varchar(50),
+    name varchar(200) not null,
+    units varchar(50),
+    value decimal(10,3) check(value > 0),
+    notes text
+);
+create unique index idx_template_things_template_id_name on template_things(template_id, name);
+
+
+-----------------------------------------------------------------------
 -- USERS
 -----------------------------------------------------------------------
 create table users (
@@ -283,6 +408,22 @@ create table trip_shared_things (
     )
 );
 create unique index idx_trip_shared_things_trip_id_name on trip_shared_things(trip_id, name);
+
+-----------------------------------------------------------------------
+-- TRIP COMMENTS
+-----------------------------------------------------------------------
+create table trip_comments (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_id uuid not null references trips(id) on delete cascade,
+    -- admin if null
+    trip_user_id uuid null references trip_users(id) on delete cascade,
+    comment text not null,
+    published_at timestamptz not null
+);
+create index idx_trip_comments_trip_id on trip_comments(trip_id);
+
+
+
 
 
 create or replace function plantour.get_trip_user_id(

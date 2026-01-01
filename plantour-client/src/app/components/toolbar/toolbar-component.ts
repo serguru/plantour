@@ -52,6 +52,14 @@ export class Toolbar implements OnInit {
     this.router.navigate(["packs"]);
   }
 
+  onTemplateThingsClick($event, popover) {
+    $event.preventDefault();
+    popover.hide();
+    this.router.navigate(["template-things"]);
+  }
+
+  
+
   featureClick($event, path: string, popover) {
     $event.preventDefault();
     popover.hide();
@@ -236,6 +244,16 @@ export class Toolbar implements OnInit {
       return;
     }
     this.router.navigate([`/trips/${this.tripSelected.id}/trip-shared`]);
+  }
+
+  onTripCommentsClick($event, popover): void {
+    $event.preventDefault();
+    popover.hide();
+
+    if (!this.tripSelected) {
+      return;
+    }
+    this.router.navigate([`/trips/${this.tripSelected.id}/trip-comments`]);
   }
 
   isNavigatedComponent(componentId: string): boolean {
