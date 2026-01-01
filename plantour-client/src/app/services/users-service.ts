@@ -88,12 +88,12 @@ export class UsersService {
 
   get isAuthenticated(): boolean {
     const user = this.currentUser();
-    if (!user) {
+    if (!user || user.exp <= Math.floor(Date.now() / 1000)) {
+      this.resetState();
+      this.appService.resetState();
       return false;
     }
-    const now = Math.floor(Date.now() / 1000);
-    const result = user.exp > now;
-    return result;
+    return true;
   }
 
   loginAdmin(email: string, password: string): Observable<any> {
