@@ -9,6 +9,7 @@ import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
+import { PlButtonComponent } from '../button/button-component';
 
 @Component({
   selector: 'app-sign-up',
@@ -19,6 +20,7 @@ import { MessagesService } from '../../services/messages-service';
     ButtonModule,
     InputTextModule,
     PasswordModule,
+    PlButtonComponent
   ],
   templateUrl: './sign-up.html',
   styleUrl: './sign-up.scss',
