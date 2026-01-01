@@ -9,8 +9,6 @@ import { Select } from 'primeng/select';
 import { AsyncPipe } from '@angular/common';
 import { UsersService } from '../../../services/users-service';
 import { CheckboxModule } from 'primeng/checkbox';
-
-
 @Component({
   selector: 'app-thing-form-component',
   imports: [

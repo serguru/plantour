@@ -29,8 +29,14 @@ export class Toolbar implements OnInit {
 
   //@ViewChild('popoverFeatures') popoverFeatures!: ElementRef;
 
-  private usersService = inject(UsersService);
-  private appService = inject(AppService);
+  usersService = inject(UsersService);
+  appService = inject(AppService);
+
+
+  onFeaturesClick($event, popoverFeatures) {
+    $event.preventDefault();
+    popoverFeatures.toggle($event);
+  }
 
 
 
@@ -58,8 +64,6 @@ export class Toolbar implements OnInit {
     this.router.navigate(["template-things"]);
   }
 
-  
-
   featureClick($event, path: string, popover) {
     $event.preventDefault();
     popover.hide();
@@ -80,61 +84,10 @@ export class Toolbar implements OnInit {
     return this.tripTextVisible ? 'Hide Trip' : 'Show Trip';
   }
 
-  featuresMenuItems: any[] = [
-    {
-      label: this.usersService.currentUserText,
-      componentId: 'profile',
-      icon: 'pi pi-user',
-      command: ($event, popover) => this.featureClick($event, '/profile', popover)
-    },
-    {
-      label: 'Contact Us',
-      componentId: 'contact',
-      icon: 'pi pi-envelope',
-      command: ($event, popover) => this.featureClick($event, '/contact', popover)
-    },
-    {
-      label: 'Help',
-      componentId: 'help',
-      icon: 'pi pi-question-circle',
-      command: ($event, popover) => this.featureClick($event, '/help', popover)
-    },
-    {
-      label: 'Terms of Usage',
-      componentId: 'terms',
-      icon: 'pi pi-file',
-      command: ($event, popover) => this.featureClick($event, '/terms', popover)
-    },
-    {
-      label: 'Privacy Policy',
-      componentId: 'privacy',
-      icon: 'pi pi-shield',
-      command: ($event, popover) => this.featureClick($event, '/privacy', popover)
-    },
-    {
-      label: 'Sign Up',
-      componentId: 'sign-up',
-      icon: 'pi pi-sign-up',
-      command: ($event, popover) => this.featureClick($event, '/sign-up', popover)
-    },
-    {
-      separator: true
-    },
-    {
-      label: 'Sign In',
-      componentId: 'sign-in',
-      icon: 'pi pi-sign-in',
-      command: ($event, popover) => this.featureClick($event, '/sign-in', popover)
-    },
-    {
-      label: 'Sign Out',
-      icon: 'pi pi-sign-out',
-      command: ($event, popover) => {
-        this.usersService.signOut();
-        this.featureClick($event, '/sign-in', popover);
-      }
-    },
-  ];
+  signOut($event, popover): void {
+    this.usersService.signOut();
+    this.featureClick($event, '/sign-in', popover);
+  }
 
 
   tripSelected: TripDto | null = null;
@@ -153,7 +106,7 @@ export class Toolbar implements OnInit {
   }
 
   get tripTextVisible(): boolean {
-    return this.appService.getTripTextVisible();
+    return this.appService.getTripTextVisible() && this.usersService.isAuthenticated;
   }
 
   setTripTextVisible(visible: boolean): void {
@@ -272,8 +225,4 @@ export class Toolbar implements OnInit {
   get disableTripPacks(): boolean {
     return !this.isCurrentTrip || (this.usersService.isAdmin && !this.tripSelected!.adminIsParticipant);
   }
-
-
-
-
 }

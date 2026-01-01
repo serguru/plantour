@@ -1,163 +1,162 @@
 <div class="toolbar-container">
-<div class="view-header">
-  <div class="view-left">
-    <div
-      class="logo-container"
-      (click)="onLogoClick()"
-    >
-      <img
-        src="assets/plantour-logo.png"
-        alt="Plantour Logo"
-        class="logo-image"
-      />
-      <!-- <span class="app-title">Plantour</span> -->
-      <h2 class="ellipsis-text">Plantour</h2>
+  <div class="view-header">
+    <div class="view-left">
+      <div
+        class="logo-container"
+        (click)="onLogoClick()"
+      >
+        <img
+          src="assets/plantour-logo.png"
+          alt="Plantour Logo"
+          class="logo-image"
+        />
+        <!-- <span class="app-title">Plantour</span> -->
+        <h2 class="ellipsis-text">Plantour</h2>
+      </div>
     </div>
-  </div>
 
 
-  <div class="view-content">
+    <div class="view-content">
 
-    <button
-      class="pl-button"
-      (click)="onDashboardClick($event)"
-    >
-      <span class="pi pi-chart-bar"></span>
-      <span class="button-label">Dashboard</span>
-    </button>
+      <button
+        class="pl-button"
+        (click)="onDashboardClick($event)"
+      >
+        <span class="pi pi-chart-bar"></span>
+        <span class="button-label">Dashboard</span>
+      </button>
 
-
-    <button
-      class="pl-button"
-      (click)="popoverDic.toggle($event)"
-    >
-      <span class="pi pi-clone"></span>
-      <span class="button-label">Dictionary</span>
-    </button>
-    <p-popover
-      #popoverDic
-      styleClass="no-arrow"
-    >
-      <nav class="pl-menu-container">
-        <a
-          class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('travelers')"
-          (click)="onTravelersClick($event, popoverDic)"
-        >
-          <span class="pi pi-compass"></span>
-          <span class="button-label">Travelers</span>
-        </a>
-        <a
-          class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('things')"
-          (click)="onThingsClick($event, popoverDic)"
-        >
-          <span class="pi pi-objects-column"></span>
-          <span class="button-label">Things</span>
-        </a>
-        <a
-          class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('packs')"
-          (click)="onPacksClick($event, popoverDic)"
-        >
-          <span class="pi pi-box"></span>
-          <span class="button-label">Packs</span>
-        </a>
-        <a
-          class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('template-things')"
-          (click)="onTemplateThingsClick($event, popoverDic)"
-        >
-          <span class="pi pi-box"></span>
-          <span class="button-label">Thing Templates</span>
-        </a>
-
-
-      </nav>
-    </p-popover>
-
-    <button
-      class="pl-button"
-      (click)="popoverTrip.toggle($event);"
-    >
-      <span class="pi pi-compass"></span>
-      <span class="button-label">Trip</span>
-    </button>
-    <p-popover
-      #popoverTrip
-      styleClass="no-arrow"
-    >
-      <nav class="pl-menu-container">
-        <a
-          class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('trips')"
-          (click)="onTripsClick($event, popoverTrip)"
-        >
-          <span class="pi pi-compass"></span>
-          <span class="button-label">Trips</span>
-        </a>
-        <a
-          class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('trip-participants')"
-          (click)="onTripParticipantsClick($event, popoverTrip)"
-          [class.disabled]="!isCurrentTrip"
-        >
-          <span class="pi pi-users"></span>
-          <span class="button-label">Participants</span>
-        </a>
-        <a
-          class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('trip-things')"
-          (click)="onTripThingsClick($event, popoverTrip)"
-          [class.disabled]="disableTripThings"
-        >
-          <span class="pi pi-objects-column"></span>
-          <span class="button-label">Things</span>
-        </a>
-        <a
-          class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('trip-packs')"
-          (click)="onTripPacksClick($event, popoverTrip)"
-          [class.disabled]="disableTripPacks"
-        >
-          <span class="pi pi-box"></span>
-          <span class="button-label">Packs</span>
-        </a>
-        <a
-          class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('trip-shared')"
-          (click)="onTripSharedClick($event, popoverTrip)"
-          [class.disabled]="!isCurrentTrip"
-        >
-          <span class="pi pi-link"></span>
-          <span class="button-label">Shared</span>
-        </a>
-        <a
-          class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('trip-comments')"
-          (click)="onTripCommentsClick($event, popoverTrip)"
-          [class.disabled]="!isCurrentTrip"
-        >
-          <span class="pi pi-comments"></span>
-          <span class="button-label">Comments</span>
-        </a>
+      @if(usersService.isAuthenticated) {
+      <button
+        class="pl-button"
+        (click)="popoverDic.toggle($event)"
+      >
+        <span class="pi pi-clone"></span>
+        <span class="button-label">Dictionary</span>
+      </button>
+      <p-popover
+        #popoverDic
+        styleClass="no-arrow"
+      >
+        <nav class="pl-menu-container">
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('travelers')"
+            (click)="onTravelersClick($event, popoverDic)"
+          >
+            <span class="pi pi-compass"></span>
+            <span class="button-label">Travelers</span>
+          </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('things')"
+            (click)="onThingsClick($event, popoverDic)"
+          >
+            <span class="pi pi-objects-column"></span>
+            <span class="button-label">Things</span>
+          </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('packs')"
+            (click)="onPacksClick($event, popoverDic)"
+          >
+            <span class="pi pi-box"></span>
+            <span class="button-label">Packs</span>
+          </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('template-things')"
+            (click)="onTemplateThingsClick($event, popoverDic)"
+          >
+            <span class="pi pi-box"></span>
+            <span class="button-label">Thing Templates</span>
+          </a>
 
 
-      </nav>
-    </p-popover>
+        </nav>
+      </p-popover>
 
-    <button
-      class="pl-button"
-      [disabled]="false"
-      (click)="popoverFeatures.toggle($event)"
-    >
-      <span class="pi pi-bars"></span>
-      <span class="button-label">Features</span>
-    </button>
-    <p-popover
-      #popoverFeatures
-      styleClass="no-arrow"
-    >
+      <button
+        class="pl-button"
+        (click)="popoverTrip.toggle($event);"
+      >
+        <span class="pi pi-compass"></span>
+        <span class="button-label">Trip</span>
+      </button>
+      <p-popover
+        #popoverTrip
+        styleClass="no-arrow"
+      >
+        <nav class="pl-menu-container">
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trips')"
+            (click)="onTripsClick($event, popoverTrip)"
+          >
+            <span class="pi pi-compass"></span>
+            <span class="button-label">Trips</span>
+          </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-participants')"
+            (click)="onTripParticipantsClick($event, popoverTrip)"
+            [class.disabled]="!isCurrentTrip"
+          >
+            <span class="pi pi-users"></span>
+            <span class="button-label">Participants</span>
+          </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-things')"
+            (click)="onTripThingsClick($event, popoverTrip)"
+            [class.disabled]="disableTripThings"
+          >
+            <span class="pi pi-objects-column"></span>
+            <span class="button-label">Things</span>
+          </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-packs')"
+            (click)="onTripPacksClick($event, popoverTrip)"
+            [class.disabled]="disableTripPacks"
+          >
+            <span class="pi pi-box"></span>
+            <span class="button-label">Packs</span>
+          </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-shared')"
+            (click)="onTripSharedClick($event, popoverTrip)"
+            [class.disabled]="!isCurrentTrip"
+          >
+            <span class="pi pi-link"></span>
+            <span class="button-label">Shared</span>
+          </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-comments')"
+            (click)="onTripCommentsClick($event, popoverTrip)"
+            [class.disabled]="!isCurrentTrip"
+          >
+            <span class="pi pi-comments"></span>
+            <span class="button-label">Comments</span>
+          </a>
+        </nav>
+      </p-popover>
+      }
+      <button
+        class="pl-button"
+        [disabled]="false"
+        (click)="popoverFeatures.toggle($event)"
+      >
+        <span class="pi pi-bars"></span>
+        
+      </button>
+      <p-popover
+        #popoverFeatures
+        styleClass="no-arrow"
+      >
+        @if (usersService.isAuthenticated) {
         <a
           class="pl-menu-item"
           (click)="onToggleTripTextClick($event, popoverFeatures)"
@@ -165,27 +164,83 @@
           <span class="pi pi-compass"></span>
           <span class="button-label">{{tripTextLabel}}</span>
         </a>
-
-      @for (item of featuresMenuItems; track item.label) {
-        @if(!item.separator) {
         <a
           class="pl-menu-item"
-          [class.selected]="isNavigatedComponent(item.componentId)"
-          (click)="item.command($event, popoverFeatures)"
+          [class.selected]="isNavigatedComponent('profile')"
+          (click)="featureClick($event, '/profile', popoverFeatures)"
         >
-          <span [class]="item.icon"></span>
-          <span class="button-label">{{item.label}}</span>
+          <span class="pi pi-user"></span>
+          <span class="button-label">{{usersService.getCurrentUserText()}}</span>
+        </a>
+        }
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('contact')"
+          (click)="featureClick($event, '/contact', popoverFeatures)"
+        >
+          <span class="pi pi-envelope"></span>
+          <span class="button-label">Contact Us</span>
+        </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('help')"
+          (click)="featureClick($event, '/help', popoverFeatures)"
+        >
+          <span class="pi pi-question-circle"></span>
+          <span class="button-label">Help</span>
+        </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('terms')"
+          (click)="featureClick($event, '/terms', popoverFeatures)"
+        >
+          <span class="pi pi-file"></span>
+          <span class="button-label">Terms of Usage</span>
+        </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('privacy')"
+          (click)="featureClick($event, '/privacy', popoverFeatures)"
+        >
+          <span class="pi pi-shield"></span>
+          <span class="button-label">Privacy Policy</span>
+        </a>
+        <hr>
+        @if (!usersService.isAuthenticated) {
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('sign-up')"
+          (click)="featureClick($event, '/sign-up', popoverFeatures)"
+        >
+          <span class="pi pi-sign-up"></span>
+          <span class="button-label">Sign Up</span>
+        </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('sign-in')"
+          (click)="featureClick($event, '/sign-in', popoverFeatures)"
+        >
+          <span class="pi pi-sign-in"></span>
+          <span class="button-label">Sign In</span>
         </a>
         } @else {
-          <hr>
+        <a
+          class="pl-menu-item"
+          (click)="signOut($event, popoverFeatures)"
+        >
+          <span class="pi pi-sign-out"></span>
+          <span class="button-label">Sign Out</span>
+        </a>
         }
-      }
-    </p-popover>
+      </p-popover>
+    </div>
   </div>
-</div>
-@if(tripTextVisible) {
-<div class="trip-text">
-  <a [routerLink]="['/trips']" class="ellipsis-text">{{tripText}}</a>
-</div>
-}
+  @if(tripTextVisible) {
+  <div class="trip-text">
+    <a
+      [routerLink]="['/trips']"
+      class="ellipsis-text"
+    >{{tripText}}</a>
+  </div>
+  }
 </div>

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -9,6 +9,7 @@ import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
+import { RadioButton } from 'primeng/radiobutton';
 
 @Component({
   selector: 'app-sign-in',
@@ -19,15 +20,19 @@ import { MessagesService } from '../../services/messages-service';
     ButtonModule,
     InputTextModule,
     PasswordModule,
+    RadioButton,
+    FormsModule
   ],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.scss',
 })
 export class SignInComponent {
   componentId = 'sign-in';
-  signInForm: FormGroup;
+  adminForm: FormGroup;
+  participantForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  signInType: 'admin' | 'participant' = 'admin';
 
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
@@ -36,15 +41,26 @@ export class SignInComponent {
   private location = inject(Location);
 
   constructor() {
-    this.signInForm = this.fb.group({
+    this.adminForm = this.fb.group({
       email: ['serguru@gmail.com', [Validators.required, Validators.email]],
-      password: ['Binary_09', [Validators.required]]
+      password: ['Binary_09', [Validators.required]],
+    });
+    this.participantForm = this.fb.group({
+      accessCode: ['', [Validators.required]],
     });
   }
 
+  get isAdmin(): boolean {
+    return this.signInType === 'admin';
+  }
+
+  get currentForm(): FormGroup {
+    return this.isAdmin ? this.adminForm : this.participantForm;
+  }
+
   onSubmit(): void {
-    if (this.signInForm.invalid) {
-      this.signInForm.markAllAsTouched();
+    if (this.currentForm.invalid) {
+      this.currentForm.markAllAsTouched();
       this.messagesService.showWarning('Validation Error', 'Please fill in all required fields correctly.');
       return;
     }
@@ -52,11 +68,34 @@ export class SignInComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const { email, password } = this.signInForm.value;
+    if (this.isAdmin) {
 
-    this.usersService.loginAdmin(email, password).pipe(
+      const { email, password } = this.currentForm.value;
+      this.usersService.loginAdmin(email, password).pipe(
+        catchError((error) => {
+          const errorMsg = error.error?.message || 'Sign in failed. Please check your credentials and try again.';
+          this.errorMessage = errorMsg;
+          this.messagesService.showError('Sign In Failed', errorMsg);
+          return EMPTY;
+        }),
+        finalize(() => {
+          this.isLoading = false;
+        })
+      ).subscribe({
+        next: () => {
+          this.messagesService.showInfo('Sign In Successful', 'Welcome back!');
+          this.router.navigate(['']);
+        }
+      });
+      return;
+    }
+
+
+    const { accessCode } = this.currentForm.value;
+
+    this.usersService.loginParticipant(accessCode).pipe(
       catchError((error) => {
-        const errorMsg = error.error?.message || 'Sign in failed. Please check your credentials and try again.';
+        const errorMsg = error.error?.message || 'Participant sign in failed. Please check your Access Code and try again.';
         this.errorMessage = errorMsg;
         this.messagesService.showError('Sign In Failed', errorMsg);
         return EMPTY;
@@ -81,7 +120,7 @@ export class SignInComponent {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.signInForm.get(fieldName);
+    const field = this.currentForm.get(fieldName);
     if (!field || !field.touched) return '';
 
     if (field.hasError('required')) {
@@ -94,7 +133,7 @@ export class SignInComponent {
   }
 
   isFieldInvalid(fieldName: string): boolean {
-    const field = this.signInForm.get(fieldName);
+    const field = this.currentForm.get(fieldName);
     return !!(field && field.invalid && field.touched);
   }
 

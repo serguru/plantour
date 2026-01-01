@@ -72,4 +72,9 @@ export class AppService {
         }
         return localStorage.getItem(`${componentId}-selectedId`);
     }
+
+    resetState(): void {
+        this.updateTripSelected(null);
+        this.updateTripTextVisible(false);
+    }
 }

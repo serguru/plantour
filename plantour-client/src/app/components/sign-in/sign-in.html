@@ -4,12 +4,38 @@
     <h2>Sign In</h2>
   </div>
 </div>
+
+<div class="radio-container">
+  <div>Please sign in as:</div>
+
+  <div class="radio-item">
+    <p-radiobutton
+      name="signInType"
+      value="admin"
+      [(ngModel)]="signInType"
+      inputId="admin"
+    />
+    <div for="admin">Admin</div>
+  </div>
+
+  <div class="radio-item">
+    <p-radiobutton
+      name="signInType"
+      value="participant"
+      [(ngModel)]="signInType"
+      inputId="participant"
+    />
+    <label for="participant">Participant</label>
+  </div>
+</div>
+
 <div class="controls-wrapper">
   <form
-    [formGroup]="signInForm"
+    [formGroup]="currentForm"
     (ngSubmit)="onSubmit()"
   >
     <!-- Email Field -->
+    @if(isAdmin) {
     <div class="form-field">
       <label for="email">Email <span class="required">*</span></label>
       <input
@@ -47,6 +73,27 @@
       </small>
       }
     </div>
+    } @else {
+    <!-- Access Code Field -->
+    <div class="form-field">
+      <label for="accessCode">Access Code <span class="required">*</span></label>
+      <p-password
+        id="accessCode"
+        formControlName="accessCode"
+        placeholder="Enter your access code"
+        [toggleMask]="true"
+        [feedback]="false"
+        [class.p-invalid]="isFieldInvalid('accessCode')"
+        styleClass="w-full"
+      >
+      </p-password>
+      @if (isFieldInvalid('accessCode')) {
+      <small class="error-message">
+        {{ getFieldError('accessCode') }}
+      </small>
+      }
+    </div>
+    }
 
     <!-- Error Message -->
     @if (errorMessage) {
@@ -55,7 +102,6 @@
       <span>{{ errorMessage }}</span>
     </div>
     }
-
     <!-- Form Actions -->
     <div class="form-actions">
       <p-button
@@ -63,7 +109,7 @@
         label="Sign In"
         icon="pi pi-sign-in"
         [loading]="isLoading"
-        [disabled]="isLoading || signInForm.invalid"
+        [disabled]="isLoading || currentForm.invalid"
       >
       </p-button>
     </div>

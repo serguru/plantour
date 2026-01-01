@@ -1,9 +1,10 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable, Inject, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { AccessToken, SignUpParticipantRequest, SignUpRequest } from '../models/auth.models';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
+import { AppService } from './app-service';
 
 
 export interface UserDto {
@@ -20,6 +21,7 @@ export interface UserDto {
 })
 export class UsersService {
   private apiUrl: string;
+  appService = inject(AppService);
 
   constructor(
     private http: HttpClient,
@@ -28,52 +30,87 @@ export class UsersService {
     this.apiUrl = environment.apiUrl;
   }
 
-  getWeather(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/weatherforecast`);
+  getUserFromLocalStorage(): AccessToken | null {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      return null;
+    }
+    return jwtDecode<AccessToken>(token);
+  }
+
+  currentUser(): AccessToken | null {
+    return this.currentUserSubject.getValue();
+  }
+
+  writeTokenToStorage(token: string | null): void {
+    if (!token) {
+      localStorage.removeItem("accessToken");
+      return;
+    }
+    localStorage.setItem("accessToken", token);
+  }
+
+  getCurrentUserText(): string {
+    const user = this.currentUser();
+    if (!user) {
+      return "Profile";
+    }
+
+    let result = "";
+    if (user.last_name && user.first_name) {
+      result += `${user.first_name} ${user.last_name}`;
+    } else {
+      result += user.email
+    }
+
+    if (user.role === 'Participant') {
+      result += ", participant";
+    }
+
+    return result;
+  }
+
+  currentUserSubject: BehaviorSubject<AccessToken | null> = new BehaviorSubject<AccessToken | null>(this.getUserFromLocalStorage());
+  currentUser$: Observable<any> = this.currentUserSubject.asObservable();
+
+  updateCurrentUser(token: string | null): void {
+    let user: any = null;
+    if (token) {
+      user = jwtDecode<AccessToken>(token);
+    }
+    this.writeTokenToStorage(token);
+    this.currentUserSubject.next(user);
   }
 
   getProfile(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/api/profile/me`);
   }
 
-  isTokenExpired(token: string): boolean {
-    if (!token) {
-      return true;
-    }
-    const { exp } = jwtDecode<{ exp: number }>(token);
-    // UTC time exp is in seconds → convert Date.now() to seconds
-    const now = Math.floor(Date.now() / 1000);
-    const result = exp < now;
-    return result;
-  }
-
   get isAuthenticated(): boolean {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
+    const user = this.currentUser();
+    if (!user) {
       return false;
     }
-    return !this.isTokenExpired(token);
+    const now = Math.floor(Date.now() / 1000);
+    const result = user.exp > now;
+    return result;
   }
 
   loginAdmin(email: string, password: string): Observable<any> {
     return this.http.post<string>(`${this.apiUrl}/api/users/admin/signin`, { email, password })
       .pipe(
         tap((r: any) => {
-          let a = jwtDecode(r.accessToken);
-          localStorage.setItem("accessToken", r.accessToken);
+          this.updateCurrentUser(r.accessToken);
         }
         ))
   }
 
-  writeTokensToStorage(accessToken: string): void {
-    localStorage.setItem("accessToken", accessToken);
-  }
 
   loginParticipant(accessCode: string): Observable<any> {
     return this.http.post<string>(`${this.apiUrl}/api/users/participant/signin`, { accessCode })
       .pipe(
         tap((r: any) => {
-          this.writeTokensToStorage(r.accessToken);
+          this.updateCurrentUser(r.accessToken);
         }
         ))
   }
@@ -82,9 +119,9 @@ export class UsersService {
     return this.http.post<string>(`${this.apiUrl}/api/users/admin/signup`, data)
       .pipe(
         tap((r: any) => {
-          this.writeTokensToStorage(r.accessToken);
-        }
-        ))
+          this.updateCurrentUser(r.accessToken);
+        })
+      )
   }
 
   registerParticipant(data: SignUpParticipantRequest): Observable<any> {
@@ -101,36 +138,15 @@ export class UsersService {
     return user?.role === 'Participant' && this.isAuthenticated;
   }
 
-  currentUser(): AccessToken | null {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      return null;
-    }
-    return jwtDecode<AccessToken>(token);
-  }
-
- get currentUserText(): string {
-    const user = this.currentUser();
-    if (!user) {
-      return "Profile";
-    }
-
-    let result = "";
-    if (user.last_name && user.first_name) {
-      result += `${user.first_name} ${user.last_name}`;
-    } else {
-      result += user.email
-    }
-
-    if (user.role === 'Participant') {
-      result += ", participant";
-    }
-    
-    return result;
-  } 
 
   signOut(): void {
+    this.resetState();
+    this.appService.resetState();
     localStorage.removeItem("accessToken");
+  }
+
+  resetState(): void {
+    this.updateCurrentUser(null);
   }
 
 }
