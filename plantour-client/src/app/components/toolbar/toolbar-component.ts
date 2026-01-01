@@ -170,6 +170,9 @@ export class Toolbar implements OnInit {
   }
 
   onTripThingsClick($event, popover): void {
+    if (this.disableTripThings) {
+      return;
+    }
     $event.preventDefault();
     popover.hide();
 
@@ -180,6 +183,9 @@ export class Toolbar implements OnInit {
   }
 
   onTripPacksClick($event, popover): void {
+    if (this.disableTripThings) {
+      return;
+    }
     $event.preventDefault();
     popover.hide();
 

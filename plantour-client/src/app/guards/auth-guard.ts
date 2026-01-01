@@ -7,6 +7,16 @@ import { TripDto, TripService } from '../services/trip-service';
 import { AppService } from '../services/app-service';
 import { catchError, map, tap, throwError } from 'rxjs';
 
+export const publicGuard: CanActivateFn = (route, state) => {
+  const usersService = inject(UsersService);
+  if (!usersService.isAuthenticated) {
+    return true;
+  }
+  const router = inject(Router);
+  router.navigate(['']);
+  return false;
+};
+
 /**
  * Auth Guard - allows access only to authenticated users
  */
@@ -18,71 +28,62 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // Redirect to login page if not authenticated
-  router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+  // Redirect to Sign In page if not authenticated
+  router.navigate(['/sign-in'], { queryParams: { returnUrl: state.url } });
   return false;
 };
 
 /**
  * Admin Guard - allows access only to authenticated admin users
  */
-export const adminGuard: CanActivateFn = (route, state) => {
+export const adminOnlyGuard: CanActivateFn = (route, state) => {
   const usersService = inject(UsersService);
-  const router = inject(Router);
 
-  const currentUser = usersService.currentUser();
-
-  if (usersService.isAuthenticated && currentUser?.role === 'Admin') {
+  if (usersService.isAdmin) {
     return true;
   }
 
-  // If authenticated but not admin, redirect to dashboard
-  if (usersService.isAuthenticated) {
-    router.navigate(['/']);
-    return false;
-  }
-
-  // If not authenticated, redirect to login
+  const router = inject(Router);
   router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
   return false;
 };
 
-/**
- * Participant Guard - allows access only to authenticated participant users
- */
-export const participantGuard: CanActivateFn = (route, state) => {
+export const adminOrParticipantGuard: CanActivateFn = (route, state) => {
   const usersService = inject(UsersService);
-  const router = inject(Router);
 
-  const currentUser = usersService.currentUser();
-
-  if (usersService.isAuthenticated && currentUser?.role === 'Participant') {
+  if (usersService.isAdmin || usersService.isParticipant) {
     return true;
   }
 
-  // If authenticated but not participant, redirect to land
-  if (usersService.isAuthenticated) {
-    router.navigate(['/']);
-    return false;
-  }
-
-  // If not authenticated, redirect to login
+  const router = inject(Router);
   router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
   return false;
 };
+
 
 export const checkTripIdGuard: CanActivateFn = (route, state) => {
-  const router = inject(Router);
-  const messagesService = inject(MessagesService);
-
-  const pathConfig = route.routeConfig?.path || '';
-  const shouldHaveTripId = pathConfig.includes(':tripId');
 
 
-  if (!shouldHaveTripId) {
+  const checkAdminIsParticipant = (trip: TripDto, path: string): boolean => {
+    if (["trip-things", "trip-packs"].some(x => path.includes(x)) && !trip.adminIsParticipant) {
+      messagesService.showWarning('Access to this page is restricted as you are not a participant of this trip');
+      router.navigate(['/trips']);
+      return false;
+    }
     return true;
   }
+
+
+  // const pathConfig = route.routeConfig?.path || '';
+  // const shouldHaveTripId = pathConfig.includes(':tripId');
+
+  // if (!shouldHaveTripId) {
+  //   return true;
+  // }
   const tripId = route.params['tripId'];
+
+  const router = inject(Router);
+  const messagesService = inject(MessagesService);
 
   if (!tripId) {
     messagesService.showWarning('No trip specified in url. Please specify a trip to proceed.');
@@ -99,8 +100,9 @@ export const checkTripIdGuard: CanActivateFn = (route, state) => {
   const appService = inject(AppService);
   let trip = appService.tripSelectedValue();
   if (trip && trip.id == tripId) {
-    return true;
+    return checkAdminIsParticipant(trip, route.routeConfig?.path || '');
   }
+
   const tripService = inject(TripService);
   return tripService.getById(tripId).pipe(
     catchError(error => {
@@ -119,6 +121,11 @@ export const checkTripIdGuard: CanActivateFn = (route, state) => {
         router.navigate(['/trips']);
         return false;
       }
+
+      if (!checkAdminIsParticipant(trip, route.routeConfig?.path || '')) {
+        return false;
+      }
+
       appService.updateTripSelected(trip);
       return true;
     })
