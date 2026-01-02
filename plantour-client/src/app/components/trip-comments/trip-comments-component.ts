@@ -2,18 +2,20 @@ import { Component, inject } from '@angular/core';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesService } from '../../services/entities-service';
 import { PlButtonComponent } from "../button/button-component";
+import { TripItemCommentComponent } from './trip-item-comment/trip-item-comment-component';
 
 @Component({
   selector: 'app-trip-comments',
   imports: [
     EntitiesComponent,
-    PlButtonComponent
+   
 ],
   templateUrl: './trip-comments-component.html',
   styleUrl: './trip-comments-component.scss',
 })
 export class TripCommentsComponent {
   componentId: string = 'trip-comments';
+  tripItemCommentComponent = TripItemCommentComponent;
 
   entitiesService = inject(EntitiesService);
 

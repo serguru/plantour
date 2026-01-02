@@ -6,10 +6,14 @@
         (click)="selectEntity(entity)"
     >
         <div class="left">
-            <span>Entity name: {{entity.name}}</span>
+
+            <ng-container *ngComponentOutlet="itemComponent; inputs: getEntityInputs(entity)">
+            </ng-container>
+
+
         </div>
     </div>
     } @empty {
-        <div>No rows</div>
+    <div>No rows</div>
     }
 </div>
