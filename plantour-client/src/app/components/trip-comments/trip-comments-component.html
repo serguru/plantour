@@ -1,1 +1,21 @@
+<app-entities-header
+
+entityIcon="pi pi-comments"
+title="Comments"
+[delete]="delete"
+entityName="component",
+entityNameProp="name"
+></app-entities-header>
+
+
 <app-entities [itemComponent]="tripItemCommentComponent"></app-entities>
+
+@for(action of actions(); track action.type)
+{
+<div>
+{{'Type: ' + action.type}}
+</div>
+<div>
+{{'Shown: ' + action.shown}}
+</div>
+}

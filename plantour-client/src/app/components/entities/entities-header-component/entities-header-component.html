@@ -1,0 +1,69 @@
+<div class="page-header">
+    <div class="page-left">
+        <i
+            class="pi"
+            [class]="entityIcon"
+        ></i>
+        <h2 class="ellipsis-text">{{ title }}</h2>
+    </div>
+
+    <!-- icon="pi pi-plus" -->
+    <div class="page-content">
+        @if(!isListReadOnly) {
+        <!-- no format -->
+        @if(addUrl) {
+
+        <button
+          class="pl-button"
+          (click)="onAdd()"
+        >
+          <span class="pi pi-plus"></span>
+          <span class="button-label">Add</span>
+        </button>
+        }
+        @if(editUrl) {
+        <button
+          class="pl-button"
+          (click)="onEdit()"
+          [disabled]="!selected()"     
+        >
+          <span class="pi pi-pencil"></span>
+          <span class="button-label">Update</span>
+        </button>
+        }
+        @if(delete) {
+        <button
+          class="pl-button"
+          (click)="onDelete()"
+          [disabled]="!selected()"     
+        >
+          <span class="pi pi-trash"></span>
+          <span class="button-label">Delete</span>
+        </button>
+        }
+      <!-- no format -->
+        }
+        @if (actions()?.length) {
+
+        <button
+            class="pl-button"
+            (click)="popover.toggle($event)"
+        >
+            <span class="pi pi-ellipsis-v"></span>
+        </button>
+        <app-popover #popover>
+            <ul class="pl-menu-container">
+                @for (action of actions(); track action.type) {
+                <li
+                    class="pl-menu-item"
+                    (click)="toggleAction(action, popover)"
+                >
+                    <span [class]="getIconByActionType(action.type)"></span>
+                    <span class="button-label">{{(action.shown ? 'Hide ' : 'Show ') + action.type}}</span>
+                </li>
+                }
+            </ul>
+        </app-popover>
+        }
+    </div>
+</div>
