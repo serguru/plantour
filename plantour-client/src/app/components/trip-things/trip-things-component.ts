@@ -40,7 +40,7 @@ export class TripThingsComponent implements OnInit {
 
   checkSelectedPack: (() => TripPackageDto | null) | null = null;
 
-  setCheckSelectedPack(getter: (() => TripPackageDto | null) | null) {
+  setCheckSelectedPack(getter: (() => any | null) | null) {
     this.checkSelectedPack = getter;
   }
 

@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
@@ -10,11 +10,13 @@ import { MessageService } from 'primeng/api';
 import { ENVIRONMENT } from '../environment.token';
 import { environment } from '../environments/environment';
 import { jwtInterceptor } from './interceptors/jwt.interceptor';
+import { GlobalErrorHandler } from './helpers/error-handler';
+import { errorInterceptor } from './interceptors/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     { provide: ENVIRONMENT, useValue: environment },
-    provideHttpClient(withInterceptors([jwtInterceptor])),
+    provideHttpClient(withInterceptors([jwtInterceptor, errorInterceptor])),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
@@ -24,6 +26,10 @@ export const appConfig: ApplicationConfig = {
         preset: Aura
       }
     }),
-    MessageService
+    MessageService,
+    {
+      provide: ErrorHandler,
+      useClass: GlobalErrorHandler,
+    },
   ]
 };
