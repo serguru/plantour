@@ -89,8 +89,8 @@ export class UsersService {
   get isAuthenticated(): boolean {
     const user = this.currentUser();
     if (!user || user.exp <= Math.floor(Date.now() / 1000)) {
-      this.resetState();
-      this.appService.resetState();
+      // this.resetState();
+      // this.appService.resetState();
       return false;
     }
     return true;

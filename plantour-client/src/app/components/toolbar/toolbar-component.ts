@@ -102,7 +102,7 @@ export class Toolbar implements OnInit {
     if (!this.tripSelected) {
       return 'No Trip Selected';
     }
-    return this.tripSelected.name;
+    return this.tripSelected.name || 'Unnamed Trip';
   }
 
   get tripTextVisible(): boolean {

@@ -40,6 +40,7 @@ export class TripPackFormComponent implements OnInit {
     weightValue: new FormControl(''),
     weightUnit: new FormControl(''),
   };
+  
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];
     if (this.mode === 'edit') {

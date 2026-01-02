@@ -245,17 +245,20 @@ export class BaseListComponent<T> implements OnInit {
   }
 
   onSelectedTripChanged(trip: any | null) {
+    if (!this.tripDicService) {
+      return;
+    }
     this.refreshTripEntities(trip?.id)
   }
 
   refreshTripEntities(id: string | null) {
+    if (!this.tripDicService) {
+      throw new Error('tripDicService is not set');
+    }
+
     if (!id) {
       this.tripEntities = [];
       return;
-    }
-
-    if (!this.tripDicService) {
-      throw new Error('tripDicService is not set');
     }
 
     this.tripDicService.getAll(id).subscribe(entities => {

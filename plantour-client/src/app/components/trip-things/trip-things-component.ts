@@ -31,7 +31,6 @@ export class TripThingsComponent implements OnInit {
   componentId: string = 'trip-things';
   public ActionType = UpperActionType;
 
-  tripId: string | null = null;
   route = inject(ActivatedRoute);
   router = inject(Router);
   service: CrudService<TripThingDto, CreateTripThingRequest, UpdateTripThingRequest> = inject(TripThingService);
@@ -62,18 +61,12 @@ export class TripThingsComponent implements OnInit {
 
   ngOnInit(): void {
 
-    //TODO: продумать защиту от захода сюда без выбора валидного трипа
-    this.tripId = this.route.snapshot.paramMap.get('tripId');
-
-    this.appService.updateTripSelected(this.tripId ? { id: this.tripId } as any : null);
-
-    if(!this.tripId) {
-      this.messagesService.showWarning('No trip selected. Please select a trip to view trip things.');
-      this.router.navigate(['/trips']);
-      return;
+    const selectedTrip = this.appService.tripSelectedValue();
+    if (!selectedTrip || !selectedTrip.id) {
+      throw new Error('No trip selected. TripThingsComponent cannot be initialized without a selected trip.');
     }
 
-    this.tripPackageService.getAll(this.tripId).subscribe(packages => {
+    this.tripPackageService.getAll(selectedTrip.id).subscribe(packages => {
       this.packages = packages;
     });
 
