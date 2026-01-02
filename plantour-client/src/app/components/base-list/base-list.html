@@ -105,14 +105,10 @@
 
   @if(thing2packVisible) {
   <app-packing
-    [packages]="packages"
-    ,
-    [things]="entitiesToDisplay?.list || []"
-    ,
+    [packages]="packages",
+    [things]="entitiesToDisplay?.list || []",
     [pack]="pack.bind(this)"
     [unpack]="unpack.bind(this)"
-    (registerGetter)="setCheckSelectedPack($event)"
-    (selectedTripPackageChanged)="onSelectedTripPackageChanged($event)"
   >
   </app-packing>
   }

@@ -10,8 +10,7 @@
                     [options]="packages"
                     optionLabel="name"
                     optionValue="id"
-                    [ngModel]="selectedTripPackageId()"
-                    (ngModelChange)="onSelectedTripPackageChange($event)"
+                    [(ngModel)]="selectedTripPackage"
                 ></p-select>
                 <div class="right">
                     <p-button

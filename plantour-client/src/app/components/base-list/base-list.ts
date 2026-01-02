@@ -72,7 +72,6 @@ export class BaseListComponent<T> implements OnInit {
   @Input() itemComponent!: any;
 
   @Output() entitySelected = new EventEmitter<any | null>();
-  @Output() registerGetter: EventEmitter<(() => TripPackageDto | null) | null> = new EventEmitter<(() => TripPackageDto | null) | null>();
 
   @HostListener('window:keydown.escape', ['$event'])
   handleEsc(event: Event) {
@@ -104,11 +103,18 @@ export class BaseListComponent<T> implements OnInit {
     return this.appService.tripSelectedValue()?.id || null;
   }
 
+  selectedPack: TripPackageDto | null = null;
+
   ngOnInit() {
 
     this.appService.tripSelected$.subscribe((trip) => {
       this.onSelectedTripChanged(trip)
     });
+
+    this.appService.packSelected$.subscribe((pack) => {
+      this.selectedPack = pack;
+    });
+
     this.getAll(null);
     this.restoreState();
   }
@@ -188,19 +194,13 @@ export class BaseListComponent<T> implements OnInit {
       return result;
     }
 
-    if (!this.checkSelectedPack) {
-      result.list = this.processedEntities;
-      return result;
-    }
-
-    const selectedPackage = this.checkSelectedPack!();
-    if (!selectedPackage) {
+    if (!this.selectedPack) {
       result.list = this.processedEntities;
       return result;
     }
 
     result.list = this.processedEntities.filter(entity => {
-      return (entity as any).tripUserPackageId === selectedPackage.id || !(entity as any).tripUserPackageId;
+      return (entity as any).tripUserPackageId === this.selectedPack!.id || !(entity as any).tripUserPackageId;
     });
     return result;
   }
@@ -379,10 +379,10 @@ export class BaseListComponent<T> implements OnInit {
       tripUserPackageId = data.item.tripUserPackageId || item.tripUserPackageId;
 
     } else {
-      if (!this.thing2packVisible || !this.checkSelectedPack || !this.packingService) {
+      if (!this.thing2packVisible || !this.packingService) {
         return;
       }
-      const tripPackageDto: any = this.checkSelectedPack!();
+      const tripPackageDto: any = this.selectedPack;
       if (!tripPackageDto) {
         return;
       }
@@ -520,17 +520,6 @@ export class BaseListComponent<T> implements OnInit {
       }
     });
 
-  }
-
-  checkSelectedPack: (() => TripPackageDto | null) | null = null;
-
-  setCheckSelectedPack(getter: (() => TripPackageDto | null) | null) {
-    this.checkSelectedPack = getter;
-    this.registerGetter.emit(this.checkSelectedPack);
-  }
-
-  onSelectedTripPackageChanged(pack: any | null) {
-    this.getAll();
   }
 
   get addFromDicDisabled(): boolean {

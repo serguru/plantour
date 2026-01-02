@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
 import { TripDto, TripService } from './trip-service';
+import { TripPackageDto } from './trip-package-service';
 
 @Injectable({
     providedIn: 'root',
@@ -76,5 +77,18 @@ export class AppService {
     resetState(): void {
         this.updateTripSelected(null);
         this.updateTripTextVisible(false);
+    }
+
+    private packSelected: BehaviorSubject<TripPackageDto | null> = new BehaviorSubject<TripPackageDto | null>(null);
+    packSelected$: Observable<TripPackageDto | null> = this.packSelected.asObservable();
+    
+    public updatePackSelected(pack: TripPackageDto | null): void {
+        this.packSelected.next(pack);
+    }
+    public get isPackSelected() {
+        return this.packSelected.getValue() !== null;
+    }
+    public packSelectedValue() {
+        return this.packSelected.getValue();
     }
 }

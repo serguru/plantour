@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, computed, inject, signal } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
 import { MessagePanelComponent } from '../message-panel/message-panel-component/message-panel-component';
 import { Button } from 'primeng/button';
 import { TripPackageDto } from '../../services/trip-package-service';
 import { TripThingDto } from '../../services/trip-thing-service';
+import { AppService } from '../../services/app-service';
 
 @Component({
     selector: 'app-packing',
@@ -14,94 +15,50 @@ import { TripThingDto } from '../../services/trip-thing-service';
     templateUrl: './packing.component.html',
     styleUrls: ['./packing.component.scss'],
 })
-export class PackingComponent implements OnInit, OnDestroy {
+export class PackingComponent implements OnInit {
+
+    appService = inject(AppService);
+
     loading = false;
 
-    selectedTripPackageId = signal<string | null>(null);
-    selectedTripPackage = computed<TripPackageDto | null>(() => {
-        const id = this.selectedTripPackageId();
-        return id ? this.packages.find(t => t.id === id) ?? null : null;
-    });
+    get selectedTripPackage(): TripPackageDto | null {
+        return this.appService.packSelectedValue();
+    }
+
+    set selectedTripPackage(value: TripPackageDto | null) {
+        this.appService.updatePackSelected(value);
+    }
+
     @Input() packages: TripPackageDto[] = [];
     @Input() things: TripThingDto[] = [];
     @Input() pack!: ((ids: string[], id: string) => void);
     @Input() unpack!: ((ids: string[], id: string) => void);
 
-    @Output() selectedTripPackageChanged = new EventEmitter<TripPackageDto | null>();
-    @Output() registerGetter: EventEmitter<(() => TripPackageDto | null) | null> = new EventEmitter<(() => TripPackageDto | null) | null>();
 
-    getCurrentTripPackage = (): TripPackageDto | null => {
-        const result = this.selectedTripPackage();
-        return result;
-    };
+    ngOnInit() {
+    }
 
     get addDisabled(): boolean {
-        if (!this.things) {
+        if (!this.things || !this.selectedTripPackage) {
             return true;
         }
+
         return this.things.filter(t => !t.tripUserPackageId).length === 0;
     }
 
     get removeDisabled(): boolean {
-        if (!this.things) {
+        if (!this.things || !this.selectedTripPackage) {
             return true;
         }
-        return this.things.filter(t => t.tripUserPackageId === this.selectedTripPackageId()).length === 0;
-    }
-
-    ngOnDestroy(): void {
-        this.registerGetter.emit(null);
-    }
-
-    ngOnInit() {
-        this.registerGetter.emit(this.getCurrentTripPackage);
-
-        if (this.packages.length === 0) {
-            this.selectedTripPackageId.set(null);
-            this.selectedTripPackageChanged.emit(null);
-            return;
-        }
-        this.selectedTripPackageId.set(this.packages[0].id);
-        this.selectedTripPackageChanged.emit(this.selectedTripPackage());
-
-
-        //  this.loading = true;
-
-        // this.tripPackageService.getAll(this.tripId)
-        //     .pipe(
-        //         catchError(error => {
-        //             this.packages = [];
-        //             this.selectedTripPackageId.set(null);
-        //             this.selectedTripPackageChanged.emit(null);
-        //             throw error;
-        //         }),
-        //         finalize(() => {
-        //             this.loading = false;
-        //         })
-        //     )
-        //     .subscribe(packages => {
-        //         this.packages = packages;
-        //         if (this.packages.length === 0) {
-        //             this.selectedTripPackageId.set(null);
-        //             this.selectedTripPackageChanged.emit(null);
-        //             return;
-        //         }
-        //         this.selectedTripPackageId.set(this.packages[0].id);
-        //         this.selectedTripPackageChanged.emit(this.selectedTripPackage());
-        //     });
-    }
-
-    onSelectedTripPackageChange(id: string | null) {
-        this.selectedTripPackageId.set(id);
-        this.selectedTripPackageChanged.emit(this.selectedTripPackage());
+        return this.things.filter(t => t.tripUserPackageId === this.selectedTripPackage!.id).length === 0;
     }
 
     getIds(added: boolean): string[] {
-        if (!this.things || this.things.length === 0) {
+        if (!this.things || this.things.length === 0 || !this.selectedTripPackage) {
             return [];
         }
         return this.things
-            .filter(t => added ? t.tripUserPackageId && t.tripUserPackageId === this.selectedTripPackageId() : !t.tripUserPackageId)
+            .filter(t => added ? t.tripUserPackageId && t.tripUserPackageId === this.selectedTripPackage!.id : !t.tripUserPackageId)
             .map(t => t.id);
     }
 
@@ -110,7 +67,7 @@ export class PackingComponent implements OnInit, OnDestroy {
         if (ids.length === 0) {
             return;
         }
-        this.pack(ids, this.selectedTripPackageId()!);
+        this.pack(ids, this.selectedTripPackage!.id);
     }
 
     onRemoveAllClick() {
@@ -118,6 +75,6 @@ export class PackingComponent implements OnInit, OnDestroy {
         if (ids.length === 0) {
             return;
         }
-        this.unpack(ids, this.selectedTripPackageId()!);
+        this.unpack(ids, this.selectedTripPackage!.id);
     }
 }
