@@ -1,12 +1,8 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
 import { MessagesService } from '../../services/messages-service';
 import { AppService } from '../../services/app-service';
-
-type Comparable = {
-  name?: string;
-  email?: string;
-};
-
+import { EntitiesService } from '../../services/entities-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-entities',
@@ -14,18 +10,45 @@ type Comparable = {
   templateUrl: './entities-component.html',
   styleUrl: './entities-component.scss',
 })
-export class EntitiesComponent {
+export class EntitiesComponent implements OnInit {
+  entitiesService = inject(EntitiesService);
 
-  entities: any[] | null = null;
+  selected = toSignal(this.entitiesService.selected$, { initialValue: null });
 
-  @Input() entitiesService!: any;
+  entities = toSignal(this.entitiesService.entities$, { initialValue: null });
 
-  getAllEntities() {
-    return this.entitiesService.getAll()
-      .subscribe({
-        next: (entities: any[]) => {
-          this.entities = entities;
-        }
-      });
+  filterQuery = signal('');
+
+  isSelected(entity: any): boolean {
+    const selectedEntity = this.selected();
+    if (!selectedEntity || !entity) {
+      return false;
+    }
+    return selectedEntity.id === entity.id;
+  }
+
+  selectEntity(entity: any | null) {
+    this.entitiesService.updateSelected(entity?.id);
+  }
+
+  processedEntities = computed(() => {
+    const query = this.filterQuery().toLowerCase();
+    const allEntities = this.entities();
+
+    if (!query || !allEntities) {
+      return allEntities;
+    }
+
+    return allEntities.filter(entity =>
+      entity.name?.toLowerCase().includes(query)
+    );
+  });
+
+  updateFilter(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.filterQuery.set(input.value);
+  }
+
+  ngOnInit(): void {
   }
 }

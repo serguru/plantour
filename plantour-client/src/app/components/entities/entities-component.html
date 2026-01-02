@@ -1,1 +1,15 @@
-<p>entities-component works!</p>
+<div class="list-container">
+    @for (entity of processedEntities(); track entity.id) {
+    <div
+        class="item-container"
+        [class.selected]="isSelected(entity)"
+        (click)="selectEntity(entity)"
+    >
+        <div class="left">
+            <span>Entity name: {{entity.name}}</span>
+        </div>
+    </div>
+    } @empty {
+        <div>No rows</div>
+    }
+</div>
