@@ -1,1 +1,39 @@
-<p>entities-actions-component works!</p>
+<div class="list-actions-content">
+  <div class="side">
+    <p-select
+      [options]="modeOptions"
+      [(ngModel)]="selectedMode"
+      optionLabel="label"
+      [showClear]="false"
+      [ngModelOptions]="{ standalone: true }"
+    >
+      <ng-template
+        pTemplate="selectedItem"
+        let-option
+      >
+        <div class="mode-option selected">
+          <i
+            [ngClass]="option.icon"
+            [class.has-dot]="isOptionModeActive(option)"
+          ></i>
+        </div>
+      </ng-template>
+
+      <ng-template
+        pTemplate="item"
+        let-option
+      >
+        <div class="mode-option">
+          <i
+            [ngClass]="option.icon"
+            [class.has-dot]="isOptionModeActive(option)"
+          ></i>
+          <span
+            class="mode-label">
+            {{ option.label }}
+          </span>
+        </div>
+      </ng-template>
+    </p-select>
+  </div>
+</div>

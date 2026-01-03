@@ -14,13 +14,13 @@ export type FilterCondition = {
   kind: 'filter';
   property: string;
   label: string;
+  icon?: string;
   filterText: string;
   comparisonType: FilterComparisonType;
 };
 export type SortCondition = {
   kind: 'sort';
   property: string;
-  label: string;
   sortType: SortType;
   direction: SortDirection;
 };

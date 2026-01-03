@@ -5,13 +5,15 @@ import { PlButtonComponent } from "../button/button-component";
 import { TripItemCommentComponent } from './trip-item-comment/trip-item-comment-component';
 import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DynamicQueryService } from '../../services/dynamic-query-service';
+import { Condition, DynamicQueryService } from '../../services/dynamic-query-service';
+import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 
 @Component({
   selector: 'app-trip-comments',
   imports: [
     EntitiesComponent,
-    EntitiesHeaderComponent
+    EntitiesHeaderComponent,
+    EntitiesActionsComponent
   ],
   templateUrl: './trip-comments-component.html',
   styleUrl: './trip-comments-component.scss',
@@ -25,6 +27,23 @@ export class TripCommentsComponent {
   dynamicQueryService = inject(DynamicQueryService);
 
   actions = toSignal(this.entitiesService.actions$, { initialValue: null });
+
+  conditions: Condition[] =
+    [
+      {
+        kind: 'sort',
+        property: 'name',
+        sortType: 'text',
+        direction: 'asc'
+      },
+      {
+        kind: 'filter',
+        property: 'name',
+        label: 'Name',
+        filterText: 'eat',
+        comparisonType: 'contains'
+      }
+    ];
 
   ngOnInit(): void {
     this.entitiesService.updateEntities([
@@ -40,26 +59,25 @@ export class TripCommentsComponent {
     ]);
 
 
-    this.dynamicQueryService.setConditions([
-      {
-        kind: 'sort', 
-        property: 'name',
-        label: 'Name',
-        sortType: 'text', 
-        direction: 'asc'
-      },
-      // {
-      //   kind: 'filter', 
-      //   property: 'name',
-      //   label: 'Name',
-      //   filterText: 'eat', 
-      //   comparisonType: 'contains'
-      // }
-    ]);
+    // this.dynamicQueryService.setConditions([
+    //   {
+    //     kind: 'sort', 
+    //     property: 'name',
+    //     sortType: 'text', 
+    //     direction: 'asc'
+    //   },
+    //   {
+    //     kind: 'filter', 
+    //     property: 'name',
+    //     label: 'Name',
+    //     filterText: 'eat', 
+    //     comparisonType: 'contains'
+    //   }
+    // ]);
   }
 
   delete(id: string): void {
-    console.log('Delete comment with id:', id); 
+    console.log('Delete comment with id:', id);
   }
 }
 
