@@ -5,6 +5,7 @@ import { PlButtonComponent } from "../button/button-component";
 import { TripItemCommentComponent } from './trip-item-comment/trip-item-comment-component';
 import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { DynamicQueryService } from '../../services/dynamic-query-service';
 
 @Component({
   selector: 'app-trip-comments',
@@ -21,6 +22,8 @@ export class TripCommentsComponent {
 
   entitiesService = inject(EntitiesService);
 
+  dynamicQueryService = inject(DynamicQueryService);
+
   actions = toSignal(this.entitiesService.actions$, { initialValue: null });
 
   ngOnInit(): void {
@@ -34,6 +37,24 @@ export class TripCommentsComponent {
       { type: 'filtering', shown: false },
       { type: 'packing', shown: false },
       { type: 'assigning', shown: false },
+    ]);
+
+
+    this.dynamicQueryService.setConditions([
+      {
+        kind: 'sort', 
+        property: 'name',
+        label: 'Name',
+        sortType: 'text', 
+        direction: 'asc'
+      },
+      // {
+      //   kind: 'filter', 
+      //   property: 'name',
+      //   label: 'Name',
+      //   filterText: 'eat', 
+      //   comparisonType: 'contains'
+      // }
     ]);
   }
 

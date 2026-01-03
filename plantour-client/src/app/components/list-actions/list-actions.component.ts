@@ -337,8 +337,6 @@ export class ListActionsComponent implements OnChanges, OnInit {
         isAnyFeatureActive: this.isAnyFeatureActive
       }
     );
-
-
   }
 
   private matchesLookup(item: any): boolean {

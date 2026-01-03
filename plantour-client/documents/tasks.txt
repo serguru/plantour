@@ -190,3 +190,30 @@ I need a solution to apply different templates inside p-listbox depending on T. 
 
 Дай мне результат в виде insert скрипта, который я могу copy paste
 
+
+Есть массив условий обработки произвольного массива объектов:
+[
+    // фильтрация, объединяются по and 
+    {
+      property: 'name',
+      filterText: 'abc',
+      comparisonType: 'contains' (может быть 'exact', case insensitive)  
+    },{
+      property: 'category',
+      filterText: 'xyz'  
+      comparisonType: 'exact'
+    }
+    ...,
+    // сортировка
+    {
+        property: 'color',
+        sortType: 'text' (может быть 'number'),
+        direction: 'asc' (может быть 'desc' или 'none')
+    }
+]
+
+Напиши TS функцию, которая вернёт новый массив, обработанный c учетом заданных условий 
+
+
+
+

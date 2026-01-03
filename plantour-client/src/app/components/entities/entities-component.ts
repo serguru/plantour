@@ -4,6 +4,7 @@ import { AppService } from '../../services/app-service';
 import { EntitiesService } from '../../services/entities-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { DynamicQueryService } from '../../services/dynamic-query-service';
 
 @Component({
   selector: 'app-entities',
@@ -17,10 +18,12 @@ export class EntitiesComponent implements OnInit {
 
 
   entitiesService = inject(EntitiesService);
+  dynamicQueryService = inject(DynamicQueryService);
+
 
   selected = toSignal(this.entitiesService.selected$, { initialValue: null });
 
-  entities = toSignal(this.entitiesService.entities$, { initialValue: null });
+  processedEntities = toSignal(this.dynamicQueryService.processedEntities$, { initialValue: null });
 
   filterQuery = signal('');
 
@@ -34,24 +37,6 @@ export class EntitiesComponent implements OnInit {
 
   selectEntity(entity: any | null) {
     this.entitiesService.updateSelected(entity?.id);
-  }
-
-  processedEntities = computed(() => {
-    const query = this.filterQuery().toLowerCase();
-    const allEntities = this.entities();
-
-    if (!query || !allEntities) {
-      return allEntities;
-    }
-
-    return allEntities.filter(entity =>
-      entity.name?.toLowerCase().includes(query)
-    );
-  });
-
-  updateFilter(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.filterQuery.set(input.value);
   }
 
   ngOnInit(): void {

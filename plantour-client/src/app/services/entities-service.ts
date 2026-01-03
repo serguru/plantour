@@ -1,10 +1,7 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, map, Observable } from 'rxjs';
+import { DynamicQueryService } from './dynamic-query-service';
 
-type Comparable = {
-  name?: string;
-  email?: string;
-};
 
 type EntitiesActionType = 'filtering' | 'packing' | 'assigning';
 
@@ -17,6 +14,16 @@ export interface EntitiesAction {
   providedIn: 'root',
 })
 export class EntitiesService {
+
+  constructor() {
+  }
+
+  private processedEntitiesSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
+  processedEntities$: Observable<any[] | null> = this.processedEntitiesSubject.asObservable();
+
+  public updateProcessedEntities(entities: any[] | null): void {
+    this.processedEntitiesSubject.next(entities);
+  }
 
   private actionsSubject: BehaviorSubject<EntitiesAction[] | null> = new BehaviorSubject<EntitiesAction[] | null>(null);
   actions$: Observable<EntitiesAction[] | null> = this.actionsSubject.asObservable();
@@ -39,16 +46,15 @@ export class EntitiesService {
   private entitiesSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
   entities$: Observable<any[] | null> = this.entitiesSubject.asObservable();
 
-
-  public updateEntities(entity: any | null): void {
-    this.entitiesSubject.next(entity);
+  public updateEntities(entities: any[] | null): void {
+    this.entitiesSubject.next(entities);
   }
 
   private selectedSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   selected$: Observable<any | null> = this.selectedSubject
     .pipe(
       map(selectedId => {
-        const entities = this.entitiesSubject.getValue();
+        const entities = this.processedEntitiesSubject.getValue();
         if (!entities || !selectedId) {
           return null;
         }
