@@ -1,13 +1,12 @@
 <app-entities-header
-
-entityIcon="pi pi-comments"
-title="Comments"
-[delete]="delete"
-entityName="component",
-entityNameProp="name"
+    entityIcon="pi pi-comments"
+    title="Comments"
+    [delete]="delete"
+    entityName="component"
+    entityNameProp="name"
 ></app-entities-header>
 
-
-<app-entities-actions [conditions]="conditions"></app-entities-actions>
+@if (entitiesActionsVisible) {
+  <app-entities-actions [conditions]="conditions"></app-entities-actions>
+}
 <app-entities [itemComponent]="tripItemCommentComponent"></app-entities>
-

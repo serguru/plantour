@@ -1,4 +1,4 @@
-import { Component, computed, inject, Input, OnInit, signal, Type } from '@angular/core';
+import { Component, computed, inject, input, Input, OnInit, signal, Type } from '@angular/core';
 import { MessagesService } from '../../services/messages-service';
 import { AppService } from '../../services/app-service';
 import { EntitiesService } from '../../services/entities-service';
@@ -13,6 +13,7 @@ import { DynamicQueryService } from '../../services/dynamic-query-service';
   styleUrl: './entities-component.scss',
 })
 export class EntitiesComponent implements OnInit {
+
   @Input() itemComponent!: Type<any>;
   @Input() itemMetaData: any | null = null;
 
@@ -37,6 +38,10 @@ export class EntitiesComponent implements OnInit {
   }
 
   selectEntity(entity: any | null) {
+    if (this.isSelected(entity)) {
+      this.entitiesService.updateSelected(null);  
+      return;
+    }
     this.entitiesService.updateSelected(entity?.id);
   }
 

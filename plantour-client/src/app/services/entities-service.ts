@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable } from 'rxjs';
 import { DynamicQueryService } from './dynamic-query-service';
+import { NavigationEnd, Router } from '@angular/router';
 
 
 type EntitiesActionType = 'filtering' | 'packing' | 'assigning';
@@ -15,7 +16,20 @@ export interface EntitiesAction {
 })
 export class EntitiesService {
 
+  router = inject(Router);
+
   constructor() {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.reset();
+    });
+  }
+
+  private componentIdSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  componentId$: Observable<string | null> = this.componentIdSubject.asObservable();
+  public updateComponentId(componentId: string | null) {
+    this.componentIdSubject.next(componentId);
   }
 
   private processedEntitiesSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
@@ -90,5 +104,12 @@ export class EntitiesService {
 
   public get isSelected() {
     return this.selected() !== null;
+  }
+
+  reset(): void {
+    this.processedEntitiesSubject.next(null);
+    this.entitiesSubject.next(null);
+    this.selectedSubject.next(null);
+    this.actionsSubject.next(null);
   }
 }

@@ -28,6 +28,10 @@ export class TripCommentsComponent {
 
   actions = toSignal(this.entitiesService.actions$, { initialValue: null });
 
+  constructor() {
+    this.entitiesService.updateComponentId(this.componentId);
+  }
+
   conditions: Condition[] =
     [
       {
@@ -45,6 +49,13 @@ export class TripCommentsComponent {
       },
       {
         kind: 'filter',
+        property: 'color',
+        label: 'Color',
+        filterText: '',
+        comparisonType: 'exact'
+      },
+      {
+        kind: 'filter',
         property: 'name',
         label: 'Name',
         filterText: '',
@@ -52,18 +63,21 @@ export class TripCommentsComponent {
       }
     ];
 
-  ngOnInit(): void {
+  get entitiesActionsVisible() {
+    return this.actions()?.find(a => a.type === 'filtering')?.shown || false;
+  } 
+
+    ngOnInit(): void {
     this.entitiesService.updateEntities([
-      { id: 'a', name: 'Great trip!' },
-      { id: 'b', name: 'Нужно собираться быстрее' },
-      { id: 'c', name: 'Захватите кто-нибудь лимонную кислоту' },
+      { id: 'a', name: 'Great trip!', color: 'blue' },
+      { id: 'b', name: 'Нужно собираться быстрее', color: 'red' },
+      { id: 'c', name: 'Захватите кто-нибудь лимонную кислоту', color: 'green' },
     ])
 
     this.entitiesService.updateActions([
       { type: 'filtering', shown: false },
-      { type: 'packing', shown: false },
-      { type: 'assigning', shown: false },
     ]);
+
 
   }
 

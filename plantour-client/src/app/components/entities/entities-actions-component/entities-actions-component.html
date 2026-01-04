@@ -37,17 +37,17 @@
   </div>
 
   <div class="middle">
-    @switch (selectedMode?.type) {
+    @switch (selectedMode()?.type) {
     <!-- Lookup: show select with lookup list for chosen property -->
     @case ('lookup') {
     <ng-container>
       <p-select
         class="w-full"
-        [options]="getLookupOptions(selectedMode!.property!)"
-        [ngModel]="getLookupValue(selectedMode!.property!)"
+        [options]="getLookupOptions(selectedMode()!.property!)"
+        [ngModel]="getLookupValue(selectedMode()!.property!)"
         [placeholder]="'Select value'"
         [ngModelOptions]="{ standalone: true }"
-        (onChange)="onLookupChange(selectedMode!.property!, $event.value)"
+        (onChange)="onLookupChange(selectedMode()!.property!, $event.value)"
         [showClear]="true"
       >
       </p-select>
@@ -56,19 +56,56 @@
     @case ('filter') {
     <input
       pInputText
+      id="filter"
       type="text"
-      class="w-full"
-      [ngModel]="getFilterValue(selectedMode!.property!)"
+      [ngModel]="getFilterValue(selectedMode()!.property!)"
       [ngModelOptions]="{ standalone: true }"
       (input)="onFilterChange($event)"
       placeholder="Type to filter..."
+      fluid
     />
     }
+    @case ('sort') {
 
+    <div class="radio-container">
 
+      <div class="radio-item">
+        <p-radiobutton
+          name="sortTypeGroup"
+          value="asc"
+          [ngModel]="sortType()"
+          (onClick)="onSortChange('asc')"
+          inputId="asc"
+        />
+        <div for="asc">Asc</div>
+      </div>
+
+      <div class="radio-item">
+        <p-radiobutton
+          name="sortTypeGroup"
+          value="desc"
+          [ngModel]="sortType()"
+          (onClick)="onSortChange('desc')"
+          inputId="desc"
+        />
+        <label for="desc">Desc</label>
+      </div>
+      <div class="radio-item">
+        <p-radiobutton
+          name="sortTypeGroup"
+          value="none"
+          [ngModel]="sortType()"
+          (onClick)="onSortChange('none')"
+          inputId="none"
+        />
+        <label for="none">None</label>
+      </div>
+    </div>
 
 
     }
+
+  }
   </div>
 
 

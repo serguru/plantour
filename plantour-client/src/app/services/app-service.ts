@@ -1,7 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
+import { BehaviorSubject, filter, Observable, Subject, tap } from 'rxjs';
 import { TripDto, TripService } from './trip-service';
 import { TripPackageDto } from './trip-package-service';
+import { NavigationEnd, Router } from '@angular/router';
 
 @Injectable({
     providedIn: 'root',
@@ -11,6 +12,7 @@ export class AppService {
     tripService = inject(TripService);
 
     constructor() {
+
         const tripId = localStorage.getItem('trips-selectedId');
         if (!tripId) {
             this.tripSelected.next(null);
@@ -48,7 +50,7 @@ export class AppService {
 
     public updateTripTextVisible(visible: boolean): void {
         this.tripTextVisible.next(visible);
-        localStorage.setItem('toolbar-showTripText', visible ? 'true' : 'false') 
+        localStorage.setItem('toolbar-showTripText', visible ? 'true' : 'false')
     }
 
     getTripTextVisible(): boolean {
@@ -81,7 +83,7 @@ export class AppService {
 
     private packSelected: BehaviorSubject<TripPackageDto | null> = new BehaviorSubject<TripPackageDto | null>(null);
     packSelected$: Observable<TripPackageDto | null> = this.packSelected.asObservable();
-    
+
     public updatePackSelected(pack: TripPackageDto | null): void {
         this.packSelected.next(pack);
     }

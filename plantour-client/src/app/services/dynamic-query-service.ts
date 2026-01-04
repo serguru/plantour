@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, map, Observable, shareReplay } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, filter, map, Observable, shareReplay } from 'rxjs';
 import { EntitiesService } from './entities-service';
+import { NavigationEnd, Router } from '@angular/router';
 
 /* =======================
    Types
@@ -36,6 +37,19 @@ export type Condition = FilterCondition | SortCondition;
 })
 export class DynamicQueryService {
 
+  router = inject(Router);
+
+  constructor() {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.reset();
+    });
+    this.processedEntities$.subscribe(entities => {
+      this.entitiesService.updateProcessedEntities(entities);
+    });
+  }
+
   entitiesService = inject(EntitiesService);
 
   public data$ = this.entitiesService.entities$;
@@ -49,14 +63,14 @@ export class DynamicQueryService {
       return;
     }
 
-    const sortConditions = conditions.filter(c => c.kind === 'sort') as SortCondition[];  
+    const sortConditions = conditions.filter(c => c.kind === 'sort') as SortCondition[];
     if (sortConditions.length > 1) {
       throw new Error('Only one sort condition is allowed');
     }
-    const filterConditions = conditions.filter(c => c.kind === 'filter' && c.comparisonType === 'contains') as FilterCondition[];  
+    const filterConditions = conditions.filter(c => c.kind === 'filter' && c.comparisonType === 'contains') as FilterCondition[];
     if (filterConditions.length > 1) {
       throw new Error('Only one "contains" filter condition is allowed');
-    } 
+    }
 
     this.conditions$.next(conditions);
   }
@@ -70,11 +84,6 @@ export class DynamicQueryService {
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
-  constructor() { 
-    this.processedEntities$.subscribe(entities => {
-      this.entitiesService.updateProcessedEntities(entities);
-    });
-  }
 
   /* =======================
      Core logic
@@ -185,5 +194,9 @@ export class DynamicQueryService {
         : String(av).localeCompare(String(bv));
 
     return sort.direction === 'desc' ? -result : result;
+  }
+
+  reset(): void {
+    this.conditions$.next([]);
   }
 }

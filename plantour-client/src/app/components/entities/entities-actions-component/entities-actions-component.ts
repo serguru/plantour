@@ -1,11 +1,13 @@
-import { Component, inject, input, Input, OnInit } from '@angular/core';
+import { Component, inject, input, Input, model, OnInit } from '@angular/core';
 import { EntitiesService } from '../../../services/entities-service';
 import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, map, shareReplay } from 'rxjs';
-import { Condition, DynamicQueryService, FilterCondition } from '../../../services/dynamic-query-service';
+import { Condition, DynamicQueryService, FilterCondition, SortCondition, SortDirection, SortType } from '../../../services/dynamic-query-service';
 import deepEqual from 'fast-deep-equal';
 import { Select, SelectChangeEvent } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { InputTextModule } from 'primeng/inputtext';
+import { RadioButton } from 'primeng/radiobutton';
 
 type ModeType = 'lookup' | 'filter' | 'sort';
 
@@ -21,20 +23,21 @@ interface ModeOption {
   imports: [
     Select,
     FormsModule,
-    CommonModule
+    CommonModule,
+    InputTextModule,
+    RadioButton
   ],
   templateUrl: './entities-actions-component.html',
   styleUrl: './entities-actions-component.scss',
 })
 export class EntitiesActionsComponent implements OnInit {
-
   conditions = input<Condition[]>([]);
   entitiesService = inject(EntitiesService);
   dynamicQueryService = inject(DynamicQueryService);
   lookups: any[] | null = null;
 
   modeOptions: ModeOption[] = [];
-  selectedMode: ModeOption | null = null;
+  selectedMode = model<ModeOption | null>(null);
 
   ngOnInit(): void {
     this.entitiesService.entities$.subscribe(entities => {
@@ -69,7 +72,6 @@ export class EntitiesActionsComponent implements OnInit {
 
     const options: ModeOption[] = [];
 
-    // 1. lookups first
     this.conditions()
       .filter(x => x.kind === 'filter' && x.comparisonType === 'exact')
       .sort((a, b) => (a as FilterCondition).label!.localeCompare((b as FilterCondition).label!))
@@ -82,7 +84,6 @@ export class EntitiesActionsComponent implements OnInit {
         });
       });
 
-    // 2. filter icon (if at least one filterable property)
     if (this.conditions().find(x => x.kind === 'filter' && x.comparisonType === 'contains')) {
       options.push({
         type: 'filter',
@@ -91,7 +92,6 @@ export class EntitiesActionsComponent implements OnInit {
       });
     }
 
-    // 3. sort icon (if at least one sortable property)
     if (this.conditions().find(x => x.kind === 'sort')) {
       options.push({
         type: 'sort',
@@ -102,8 +102,8 @@ export class EntitiesActionsComponent implements OnInit {
 
     this.modeOptions = options;
 
-    if (!this.selectedMode && this.modeOptions.length) {
-      this.selectedMode = this.modeOptions[0];
+    if (!this.selectedMode() && this.modeOptions.length) {
+      this.selectedMode.set(this.modeOptions[0]);
     }
   }
 
@@ -158,5 +158,17 @@ export class EntitiesActionsComponent implements OnInit {
     this.updateConditions();
   }
 
+  sortType() : SortDirection | null {
+    const condition = this.conditions()
+      .find(x => x.kind === 'sort') as SortCondition | undefined;
+    return condition ? condition.direction : null;
+  }
 
+  onSortChange(sortType: SortDirection): void {
+    const condition = this.conditions()
+      .find(x => x.kind === 'sort') as SortCondition; 
+    condition.direction = sortType;       
+    
+    this.updateConditions();
+  }
 }
