@@ -3,7 +3,7 @@ import { EntitiesService } from '../../../services/entities-service';
 import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, map, shareReplay } from 'rxjs';
 import { Condition, DynamicQueryService, FilterCondition } from '../../../services/dynamic-query-service';
 import deepEqual from 'fast-deep-equal';
-import { Select } from 'primeng/select';
+import { Select, SelectChangeEvent } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -61,12 +61,12 @@ export class EntitiesActionsComponent implements OnInit {
     this.lookups = lookups;
   }
 
-
   updateConditions(): void {
     this.dynamicQueryService.setConditions(this.conditions());
   }
 
   private buildModeOptions(): void {
+
     const options: ModeOption[] = [];
 
     // 1. lookups first
@@ -101,6 +101,7 @@ export class EntitiesActionsComponent implements OnInit {
     }
 
     this.modeOptions = options;
+
     if (!this.selectedMode && this.modeOptions.length) {
       this.selectedMode = this.modeOptions[0];
     }
@@ -109,4 +110,53 @@ export class EntitiesActionsComponent implements OnInit {
   isOptionModeActive(option: ModeOption): boolean {
     return false;
   }
+
+  getLookupOptions(property: string) {
+    const list = this.lookups?.[property];
+    if (!list) {
+      return [];
+    }
+    return list.map(v => ({ label: v, value: v }));
+  }
+
+  getLookupValue(property: string) {
+    const condition = this.conditions().find(c =>
+      c.kind === 'filter' &&
+      c.property === property &&
+      c.comparisonType === 'exact'
+    ) as FilterCondition | undefined;
+    return condition ? condition.filterText : null;
+  }
+
+  getFilterValue(property: string) {
+    const condition = this.conditions().find(c =>
+      c.kind === 'filter' &&
+      c.property === property &&
+      c.comparisonType === 'contains'
+    ) as FilterCondition | undefined;
+    return condition ? condition.filterText : null;
+  }
+
+  onLookupChange(property: string, value: string | null): void {
+    const condition = this.conditions()
+      .find(x => x.kind === 'filter' && 
+        x.comparisonType === 'exact' &&
+        x.property === property) as FilterCondition;
+
+    condition.filterText = value!;        
+
+    this.updateConditions();
+  }
+
+  onFilterChange($event: Event): void {
+    const condition = this.conditions()
+      .find(x => x.kind === 'filter' && 
+        x.comparisonType === 'contains') as FilterCondition;
+
+    condition.filterText = ($event.target as HTMLInputElement).value;        
+
+    this.updateConditions();
+  }
+
+
 }

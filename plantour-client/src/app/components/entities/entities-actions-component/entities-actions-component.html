@@ -28,12 +28,51 @@
             [ngClass]="option.icon"
             [class.has-dot]="isOptionModeActive(option)"
           ></i>
-          <span
-            class="mode-label">
+          <span class="mode-label">
             {{ option.label }}
           </span>
         </div>
       </ng-template>
     </p-select>
   </div>
+
+  <div class="middle">
+    @switch (selectedMode?.type) {
+    <!-- Lookup: show select with lookup list for chosen property -->
+    @case ('lookup') {
+    <ng-container>
+      <p-select
+        class="w-full"
+        [options]="getLookupOptions(selectedMode!.property!)"
+        [ngModel]="getLookupValue(selectedMode!.property!)"
+        [placeholder]="'Select value'"
+        [ngModelOptions]="{ standalone: true }"
+        (onChange)="onLookupChange(selectedMode!.property!, $event.value)"
+        [showClear]="true"
+      >
+      </p-select>
+    </ng-container>
+    }
+    @case ('filter') {
+    <input
+      pInputText
+      type="text"
+      class="w-full"
+      [ngModel]="getFilterValue(selectedMode!.property!)"
+      [ngModelOptions]="{ standalone: true }"
+      (input)="onFilterChange($event)"
+      placeholder="Type to filter..."
+    />
+    }
+
+
+
+
+    }
+  </div>
+
+
+
+
+
 </div>

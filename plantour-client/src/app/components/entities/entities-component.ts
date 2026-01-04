@@ -18,12 +18,13 @@ export class EntitiesComponent implements OnInit {
 
 
   entitiesService = inject(EntitiesService);
-  dynamicQueryService = inject(DynamicQueryService);
 
 
   selected = toSignal(this.entitiesService.selected$, { initialValue: null });
 
-  processedEntities = toSignal(this.dynamicQueryService.processedEntities$, { initialValue: null });
+  processedEntities = this.entitiesService.processedEntities$;
+
+  entities$ = this.entitiesService.entities$;
 
   filterQuery = signal('');
 

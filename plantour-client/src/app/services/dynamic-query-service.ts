@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, map, Observable, shareReplay } from 'rxjs';
-import deepEqual from 'fast-deep-equal';
 import { EntitiesService } from './entities-service';
 
 /* =======================
@@ -24,6 +23,8 @@ export type SortCondition = {
   sortType: SortType;
   direction: SortDirection;
 };
+
+// in the collection allowed only one sort condition and only one filter condition 
 export type Condition = FilterCondition | SortCondition;
 
 
@@ -37,16 +38,34 @@ export class DynamicQueryService {
 
   entitiesService = inject(EntitiesService);
 
-  private readonly data$ = this.entitiesService.entities$;
+  public data$ = this.entitiesService.entities$;
 
-  private readonly conditions$ = new BehaviorSubject<readonly Condition[]>([]);
+  private conditions$ = new BehaviorSubject<Condition[]>([]);
+  setConditions(conditions: Condition[]): void {
+    // in the collection allowed only one sort condition and only one filter condition 
 
-  readonly processedEntities$: Observable<any[]> = combineLatest([
+    if (conditions.length === 0) {
+      this.conditions$.next([]);
+      return;
+    }
+
+    const sortConditions = conditions.filter(c => c.kind === 'sort') as SortCondition[];  
+    if (sortConditions.length > 1) {
+      throw new Error('Only one sort condition is allowed');
+    }
+    const filterConditions = conditions.filter(c => c.kind === 'filter' && c.comparisonType === 'contains') as FilterCondition[];  
+    if (filterConditions.length > 1) {
+      throw new Error('Only one "contains" filter condition is allowed');
+    } 
+
+    this.conditions$.next(conditions);
+  }
+
+  processedEntities$: Observable<any[] | null> = combineLatest([
     this.data$,
     this.conditions$
   ]).pipe(
     debounceTime(300),
-    distinctUntilChanged(deepEqual),
     map(([data, conditions]) => this.applyConditions(data, conditions)),
     shareReplay({ bufferSize: 1, refCount: true })
   );
@@ -57,25 +76,27 @@ export class DynamicQueryService {
     });
   }
 
-
-  setConditions(conditions: readonly Condition[]): void {
-    this.conditions$.next(conditions);
-  }
-
   /* =======================
      Core logic
      ======================= */
 
   public applyConditions(
-    source: readonly any[],
-    conditions: readonly Condition[]
+    source: any[] | null,
+    conditions: Condition[] | null
   ): any[] {
 
-    // 1. Фильтрация (AND)
+    if (!source || source.length === 0) {
+      return [];
+    }
+
+    if (!conditions || conditions.length === 0) {
+      return [...source];
+    }
+
     let filtered = [...source];
 
     for (const c of conditions) {
-      if (c.kind === 'filter') {
+      if (c.kind === 'filter' && c.filterText) {
         filtered = filtered.filter(item =>
           this.matchesFilter(item, c)
         );

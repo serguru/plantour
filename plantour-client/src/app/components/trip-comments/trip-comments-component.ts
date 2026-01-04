@@ -38,9 +38,16 @@ export class TripCommentsComponent {
       },
       {
         kind: 'filter',
+        property: 'id',
+        label: 'ID',
+        filterText: '',
+        comparisonType: 'exact'
+      },
+      {
+        kind: 'filter',
         property: 'name',
         label: 'Name',
-        filterText: 'eat',
+        filterText: '',
         comparisonType: 'contains'
       }
     ];
@@ -58,22 +65,6 @@ export class TripCommentsComponent {
       { type: 'assigning', shown: false },
     ]);
 
-
-    // this.dynamicQueryService.setConditions([
-    //   {
-    //     kind: 'sort', 
-    //     property: 'name',
-    //     sortType: 'text', 
-    //     direction: 'asc'
-    //   },
-    //   {
-    //     kind: 'filter', 
-    //     property: 'name',
-    //     label: 'Name',
-    //     filterText: 'eat', 
-    //     comparisonType: 'contains'
-    //   }
-    // ]);
   }
 
   delete(id: string): void {

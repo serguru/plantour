@@ -1,5 +1,6 @@
 <div class="list-container">
-    @for (entity of processedEntities(); track entity.id) {
+    <!-- @for (entity of processedEntities(); track entity.id) { -->
+    @for (entity of processedEntities | async; track entity.id) {
     <div
         class="item-container"
         [class.selected]="isSelected(entity)"
