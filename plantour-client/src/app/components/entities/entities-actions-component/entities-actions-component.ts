@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { RadioButton } from 'primeng/radiobutton';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 type ModeType = 'lookup' | 'filter' | 'sort';
 
@@ -29,10 +30,30 @@ interface ModeOption {
   ],
   templateUrl: './entities-actions-component.html',
   styleUrl: './entities-actions-component.scss',
+
+// animations: [
+//     trigger('slideInOut', [
+//       state('closed', style({
+//         transform: 'translateY(-100%)',
+//         opacity: 0
+//       })),
+//       state('open', style({
+//         transform: 'translateY(0)',
+//         opacity: 1
+//       })),
+//       transition('closed <=> open', [
+//         animate('300ms ease-in-out')
+//       ])
+//     ])
+
+
 })
 export class EntitiesActionsComponent implements OnInit {
   conditions = input<Condition[]>([]);
   entitiesService = inject(EntitiesService);
+
+  visible = toSignal(this.entitiesService.entitiesActionsVisible$, { initialValue: false });
+
   dynamicQueryService = inject(DynamicQueryService);
   lookups: any[] | null = null;
 
@@ -172,3 +193,11 @@ export class EntitiesActionsComponent implements OnInit {
     this.updateConditions();
   }
 }
+
+function trigger(arg0: string, arg1: any[]): any {
+  throw new Error('Function not implemented.');
+}
+function state(arg0: string, arg1: any): any {
+  throw new Error('Function not implemented.');
+}
+

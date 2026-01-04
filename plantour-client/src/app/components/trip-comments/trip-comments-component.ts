@@ -26,8 +26,6 @@ export class TripCommentsComponent {
 
   dynamicQueryService = inject(DynamicQueryService);
 
-  actions = toSignal(this.entitiesService.actions$, { initialValue: null });
-
   constructor() {
     this.entitiesService.updateComponentId(this.componentId);
   }
@@ -63,9 +61,6 @@ export class TripCommentsComponent {
       }
     ];
 
-  get entitiesActionsVisible() {
-    return this.actions()?.find(a => a.type === 'filtering')?.shown || false;
-  } 
 
     ngOnInit(): void {
     this.entitiesService.updateEntities([
@@ -73,12 +68,6 @@ export class TripCommentsComponent {
       { id: 'b', name: 'Нужно собираться быстрее', color: 'red' },
       { id: 'c', name: 'Захватите кто-нибудь лимонную кислоту', color: 'green' },
     ])
-
-    this.entitiesService.updateActions([
-      { type: 'filtering', shown: false },
-    ]);
-
-
   }
 
   delete(id: string): void {

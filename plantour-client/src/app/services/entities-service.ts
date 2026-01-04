@@ -6,11 +6,6 @@ import { NavigationEnd, Router } from '@angular/router';
 
 type EntitiesActionType = 'filtering' | 'packing' | 'assigning';
 
-export interface EntitiesAction {
-  type: EntitiesActionType;
-  shown: boolean;
-}
-
 @Injectable({
   providedIn: 'root',
 })
@@ -26,12 +21,14 @@ export class EntitiesService {
     });
   }
 
+  // Component ID to identify which component is using the service
   private componentIdSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   componentId$: Observable<string | null> = this.componentIdSubject.asObservable();
   public updateComponentId(componentId: string | null) {
     this.componentIdSubject.next(componentId);
   }
 
+  // Processed entities after filtering, sorting, etc.
   private processedEntitiesSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
   processedEntities$: Observable<any[] | null> = this.processedEntitiesSubject.asObservable();
 
@@ -39,23 +36,15 @@ export class EntitiesService {
     this.processedEntitiesSubject.next(entities);
   }
 
-  private actionsSubject: BehaviorSubject<EntitiesAction[] | null> = new BehaviorSubject<EntitiesAction[] | null>(null);
-  actions$: Observable<EntitiesAction[] | null> = this.actionsSubject.asObservable();
+  // If entities actions panel is visible
+  private entitiesActionsVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  entitiesActionsVisible$: Observable<boolean> = this.entitiesActionsVisibleSubject.asObservable();
 
-  public updateActions(actions: EntitiesAction[] | null): void {
-    this.actionsSubject.next(actions);
+  public toggleEntitiesActionsVisible(): void {
+    const current = this.entitiesActionsVisibleSubject.getValue();
+    this.entitiesActionsVisibleSubject.next(!current);
   }
 
-  public updateAction(type: EntitiesActionType, shown: boolean): void {
-    const actions = this.actionsSubject.getValue() || [];
-    const action = actions.find(a => a.type === type);  
-    if (action) {
-      action.shown = shown;
-    } else {
-      throw new Error(`Action of type ${type} not found`);
-    }
-    this.actionsSubject.next(actions);
-  }
 
   private entitiesSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
   entities$: Observable<any[] | null> = this.entitiesSubject.asObservable();
@@ -110,6 +99,6 @@ export class EntitiesService {
     this.processedEntitiesSubject.next(null);
     this.entitiesSubject.next(null);
     this.selectedSubject.next(null);
-    this.actionsSubject.next(null);
+    this.entitiesActionsVisibleSubject.next(false);
   }
 }

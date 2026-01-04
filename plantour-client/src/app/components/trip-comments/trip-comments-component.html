@@ -6,7 +6,6 @@
     entityNameProp="name"
 ></app-entities-header>
 
-@if (entitiesActionsVisible) {
-  <app-entities-actions [conditions]="conditions"></app-entities-actions>
-}
+<app-entities-actions [conditions]="conditions"></app-entities-actions>
+
 <app-entities [itemComponent]="tripItemCommentComponent"></app-entities>

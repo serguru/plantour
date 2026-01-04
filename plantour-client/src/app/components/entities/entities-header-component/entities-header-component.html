@@ -43,27 +43,13 @@
         }
       <!-- no format -->
         }
-        @if (actions()?.length) {
-
+        @if (useEntitiesActions()) {
         <button
-            class="pl-button"
-            (click)="popover.toggle($event)"
+          class="pl-button"
+          (click)="toggleEntitiesActions()"
         >
-            <span class="pi pi-ellipsis-v"></span>
+            <span [class]='getEntitiesActionClass()'></span>
         </button>
-        <app-popover #popover>
-            <ul class="pl-menu-container">
-                @for (action of actions(); track action.type) {
-                <li
-                    class="pl-menu-item"
-                    (click)="toggleAction(action, popover)"
-                >
-                    <span [class]="getIconByActionType(action.type)"></span>
-                    <span class="button-label">{{(action.shown ? 'Hide ' : 'Show ') + action.type}}</span>
-                </li>
-                }
-            </ul>
-        </app-popover>
         }
     </div>
 </div>

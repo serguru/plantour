@@ -1,14 +1,14 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, input, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EntitiesAction, EntitiesService } from '../../../services/entities-service';
+import { EntitiesService } from '../../../services/entities-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MessagesService } from '../../../services/messages-service';
-import { PopoverComponent } from '../../popover/popover-component';
+import { PlButtonComponent } from '../../button/button-component';
 
 @Component({
   selector: 'app-entities-header',
   imports: [
-    PopoverComponent
+    
   ],
   templateUrl: './entities-header-component.html',
   styleUrl: './entities-header-component.scss',
@@ -23,15 +23,22 @@ export class EntitiesHeaderComponent implements OnInit {
   @Input() entityName: string = '';
   @Input() entityNameProp: string = 'name';
 
+  useEntitiesActions = input<boolean>(true);
+  entitiesService = inject(EntitiesService);
+
+  entitiesActionsVisible = toSignal(this.entitiesService.entitiesActionsVisible$, { initialValue: false });
+
+  toggleEntitiesActions() {
+    this.entitiesService.toggleEntitiesActionsVisible();
+  }
+
   router = inject(Router);
   route = inject(ActivatedRoute);
-  entitiesService = inject(EntitiesService)
   messagesService = inject(MessagesService);
 
   selected = toSignal(this.entitiesService.selected$, { initialValue: null });
 
-  actions = toSignal(this.entitiesService.actions$, { initialValue: null });
-
+  
   ngOnInit(): void {
 
   }
@@ -67,11 +74,6 @@ export class EntitiesHeaderComponent implements OnInit {
     this.delete((this.selected() as any)["id"]);
   }
 
-  toggleAction(action: EntitiesAction, popover: PopoverComponent) {
-    this.entitiesService.updateAction(action.type, !action.shown);
-    popover.hide();
-  }
-
   getIconByActionType(type: string): string {
     switch (type) {
       case 'filtering': return 'pi pi-filter';
@@ -79,6 +81,10 @@ export class EntitiesHeaderComponent implements OnInit {
       case 'assigning': return 'pi pi-user';
       default: return '';
     } 
+  }
+
+  getEntitiesActionClass(): string {
+    return this.entitiesActionsVisible() ? 'pi pi-chevron-up' : 'pi pi-chevron-down';
   }
 
 }
