@@ -59,6 +59,12 @@ export class EntitiesService {
     this.conditionsSubject.next(conditions);
   }
 
+  conditionSet$ = this.conditions$.pipe(
+    map(conditions => this.dynamicQueryService.anyConditionSet(conditions))
+  );
+
+
+
   private componentInitializer$ = this.componentInitSubject.pipe(
     distinctUntilChanged(),
     tap(init => {

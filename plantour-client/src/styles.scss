@@ -604,3 +604,19 @@ app-base-form, app-generic-list {
     display: flex;
     gap: 0.5rem;
 }
+
+.list-actions-content .p-select-label
+ {
+  display: flex !important;
+  align-items: center;
+}
+
+.list-actions-content .p-select {
+  height: 2.5rem;
+
+}
+
+.list-actions-content input {
+  height: 2.5rem;
+}
+

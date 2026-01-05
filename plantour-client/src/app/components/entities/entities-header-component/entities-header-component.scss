@@ -1,0 +1,15 @@
+.corner-triangle {
+  position: relative;
+  display: inline-block;
+}
+
+.corner-triangle::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 0;
+  
+  border-style: solid;
+  border-width: 0 8px 8px 0;
+  border-color: transparent white transparent transparent;
+}

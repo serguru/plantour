@@ -8,6 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RadioButton } from 'primeng/radiobutton';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest } from 'rxjs';
+import { ButtonModule } from 'primeng/button';
 
 type ModeType = 'lookup' | 'filter' | 'sort';
 
@@ -26,7 +27,8 @@ interface ModeOption {
     FormsModule,
     CommonModule,
     InputTextModule,
-    RadioButton
+    RadioButton,
+    ButtonModule
   ],
   templateUrl: './entities-actions-component.html',
   styleUrl: './entities-actions-component.scss',
@@ -108,7 +110,7 @@ export class EntitiesActionsComponent implements OnInit {
           type: 'lookup',
           label: (c as FilterCondition).label!,
           property: c.property,
-          icon: `pi pi-${(c as FilterCondition).icon}`,
+          icon: `pi pi-${(c as FilterCondition).icon || 'tag'}`,
           condition: c
         });
       });
@@ -222,4 +224,12 @@ export class EntitiesActionsComponent implements OnInit {
 
     this.updateConditions();
   }
+
+  isActiveOption(option: ModeOption): boolean {
+    if(option.condition.kind === 'sort') {
+      return option.condition.direction !== 'none';
+    }
+    return !!option.condition.filterText;
+  }
+
 }

@@ -28,6 +28,8 @@ export class EntitiesHeaderComponent implements OnInit {
 
   entitiesActionsVisible = toSignal(this.entitiesService.entitiesActionsVisible$, { initialValue: false });
 
+  anyConditionSet = toSignal(this.entitiesService.conditionSet$, { initialValue: false });
+
   toggleEntitiesActions() {
     this.entitiesService.toggleEntitiesActionsVisible();
   }

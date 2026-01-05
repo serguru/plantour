@@ -28,6 +28,8 @@
 
 .mode-option i {
   font-size: 1.1rem;
+  padding-top: 0.1rem;
+  margin-top: 0.1rem;
 }
 
 .mode-label {
@@ -49,18 +51,37 @@
   width: 100%;
 }
 
+// .pi.has-dot {
+//     position: relative;
+// }
+
+// .pi.has-dot::after {
+//     content: "";
+//     position: absolute;
+//     top: -7px;
+//     right: -7px;
+//     width: 8px;
+//     height: 8px;
+//     background: black;
+//     border-radius: 50%;
+// }
+
 .pi.has-dot {
-    position: relative;
+  position: relative; /* Чтобы позиционировать треугольник относительно span */
+  display: inline-block;
+  //padding: 10px 20px;
+  //background: #f0f0f0;
+  //border: 1px solid #ccc;
 }
 
 .pi.has-dot::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 8px;
-    height: 8px;
-    background: black;
-    border-radius: 50%;
+  content: "";
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  
+  /* Размер треугольника регулируется толщиной границ */
+  border-style: solid;
+  border-width: 0 8px 8px 0; /* Высота 0, ширина 10px */
+  border-color: transparent black transparent transparent; /* Цвет только для правой стороны */
 }
-

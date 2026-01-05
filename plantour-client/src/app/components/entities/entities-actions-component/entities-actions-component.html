@@ -16,7 +16,7 @@
         <div class="mode-option selected">
           <i
             [ngClass]="option.icon"
-            [class.has-dot]="option.isSelected"
+            [class.has-dot]="isActiveOption(option)"
           ></i>
         </div>
       </ng-template>
@@ -28,7 +28,7 @@
         <div class="mode-option">
           <i
             [ngClass]="option.icon"
-            [class.has-dot]="option.isSelected"
+            [class.has-dot]="isActiveOption(option)"
           ></i>
           <span class="mode-label">
             {{ option.label }}

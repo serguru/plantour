@@ -18,6 +18,7 @@ export type SortCondition = {
   property: string;
   sortType: SortType;
   direction: SortDirection;
+  icon?: string;
   isSelected?: boolean;
   isTarget?: boolean;
 };
@@ -70,7 +71,6 @@ export class DynamicQueryService {
       this.applyHighlighting(item, containsFilters)
     );
   }
-
 
   private matchesFilter(
     item: any,
@@ -153,5 +153,19 @@ export class DynamicQueryService {
       }
     });
     return conditions;
+  }
+
+  anyConditionSet(conditions: Condition[] | null): boolean {
+    if (!conditions || conditions.length === 0) {
+      return false;
+    } 
+    return conditions.some(c => {
+      if (c.kind === 'filter') {
+        return !!(c as FilterCondition).filterText;
+      } else if (c.kind === 'sort') {
+        return (c as SortCondition).direction !== 'none';
+      } 
+      return false;
+    });
   }
 }

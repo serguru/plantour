@@ -40,14 +40,16 @@ export class TripCommentsComponent {
         label: 'ID',
         filterText: '',
         comparisonType: 'exact',
-        isSelected: true
+        isSelected: true,
+        icon: 'user'
       },
       {
         kind: 'filter',
         property: 'color',
         label: 'Color',
         filterText: '',
-        comparisonType: 'exact'
+        comparisonType: 'exact',
+        icon: 'palette'
       },
       {
         kind: 'filter',

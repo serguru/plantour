@@ -48,7 +48,7 @@
           class="pl-button"
           (click)="toggleEntitiesActions()"
         >
-            <span [class]='getEntitiesActionClass()'></span>
+            <span [class]='getEntitiesActionClass()' [class.corner-triangle]="anyConditionSet()"></span>
         </button>
         }
     </div>
