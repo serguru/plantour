@@ -168,4 +168,17 @@ export class DynamicQueryService {
       return false;
     });
   }
+
+
+  resetConditions(conditions: Condition[]): void {
+    conditions.forEach(cond => {
+      cond.isSelected = false;
+      if (cond.kind === 'filter') {
+        (cond as FilterCondition).filterText = '';
+      } else if (cond.kind === 'sort') {
+        (cond as SortCondition).direction = 'none';
+      }
+    }); 
+  }
+
 }

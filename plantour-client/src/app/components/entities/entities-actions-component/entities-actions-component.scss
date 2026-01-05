@@ -6,15 +6,9 @@
   padding: 1rem;
 }
 
-
 .side {
-  flex: 0 0 auto; /* ширина по содержимому */
+  flex: 0 0 auto;
 }
-// .side i {
-//   font-size: 1.5rem;
-//   cursor: pointer;
-//   color: var(--text-color-secondary, #6c757d);
-// }
 
 .middle {
   flex: 1; /* занимает всё, что осталось */
@@ -51,27 +45,9 @@
   width: 100%;
 }
 
-// .pi.has-dot {
-//     position: relative;
-// }
-
-// .pi.has-dot::after {
-//     content: "";
-//     position: absolute;
-//     top: -7px;
-//     right: -7px;
-//     width: 8px;
-//     height: 8px;
-//     background: black;
-//     border-radius: 50%;
-// }
-
 .pi.has-dot {
-  position: relative; /* Чтобы позиционировать треугольник относительно span */
+  position: relative;
   display: inline-block;
-  //padding: 10px 20px;
-  //background: #f0f0f0;
-  //border: 1px solid #ccc;
 }
 
 .pi.has-dot::after {
@@ -80,8 +56,7 @@
   top: -7px;
   right: -7px;
   
-  /* Размер треугольника регулируется толщиной границ */
   border-style: solid;
-  border-width: 0 8px 8px 0; /* Высота 0, ширина 10px */
-  border-color: transparent black transparent transparent; /* Цвет только для правой стороны */
+  border-width: 0 8px 8px 0;
+  border-color: transparent var(--primary-text-color) transparent transparent;
 }

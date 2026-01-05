@@ -71,6 +71,11 @@ export class EntitiesActionsComponent implements OnInit {
       });
   }
 
+  resetConditions() {
+    this.dynamicQueryService.resetConditions(this.conditions);
+    this.updateConditions();
+  }
+
   private setLookups(entities: any[] | null): void {
     if (!entities || entities.length === 0 || !this.conditions.length) {
       this.lookups = null;

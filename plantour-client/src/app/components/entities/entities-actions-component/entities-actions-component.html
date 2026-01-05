@@ -35,7 +35,9 @@
           </span>
         </div>
       </ng-template>
+
     </p-select>
+
   </div>
 
   <div class="middle">
@@ -107,7 +109,20 @@
 
     }
 
-  }
+    }
+  </div>
+
+  <div class="side">
+    <p-button
+      icon="pi pi-times"
+      severity="secondary"
+      [text]="true"
+      rounded="true"
+      type="button"
+      (onClick)="resetConditions()"
+      [disabled]="!dynamicQueryService.anyConditionSet(conditions)"
+      title="Reset all"
+    ></p-button>
   </div>
 </div>
 }
