@@ -47,6 +47,8 @@
     <ng-container>
       <p-select
         class="w-full"
+        optionLabel="name"
+        optionValue="id"
         [options]="getLookupOptions(selectedMode()!.property!)"
         [ngModel]="getLookupValue(selectedMode()!.property!)"
         [placeholder]="'Select value'"
@@ -105,10 +107,7 @@
         <label for="none">None</label>
       </div>
     </div>
-
-
     }
-
     }
   </div>
 

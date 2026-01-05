@@ -53,6 +53,14 @@ export class TripCommentsComponent {
       },
       {
         kind: 'filter',
+        property: 'target',
+        label: 'Target',
+        filterText: '',
+        comparisonType: 'exact',
+        icon: 'users'
+      },
+      {
+        kind: 'filter',
         property: 'name',
         label: 'Name',
         filterText: '',
@@ -76,6 +84,14 @@ export class TripCommentsComponent {
       { id: '4a1b7e62-0d9c-4e3f-8f21-3c6b9a2e5d44', name: 'Нужно собираться быстрее', color: 'red' },
       { id: 'c8e5a2f9-3b4d-4a7c-b6e1-0f9d2a8c7b53', name: 'Захватите кто-нибудь лимонную кислоту', color: 'green' },
     ])
+
+
+    this.entitiesService.updateTargetLookup([
+      { id: '7f3a1b8c-5d2e-4a9f-8b3c-1d0e9f8a7b6c', name: 'Alice' },
+      { id: 'a2d4c6e8-b0f1-4d2a-9c3e-5f7a9b1c3d5e', name: 'Bob' },
+      { id: 'e9b8d7c6-a5f4-4321-b0a9-876543210fed', name: 'Charlie' }
+    ]); 
+
   }
 
   delete(id: string): void {

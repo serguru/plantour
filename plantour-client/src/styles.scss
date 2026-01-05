@@ -612,7 +612,6 @@ app-base-form, app-generic-list {
 
 .list-actions-content .p-select {
   height: 2.5rem;
-
 }
 
 .list-actions-content input {
@@ -623,3 +622,7 @@ app-base-form, app-generic-list {
   border-color: var(--primary-color) !important;
 }
 
+.p-radiobutton-checked .p-radiobutton-box {
+    border-color: var(--primary-color) !important;
+    background: var(--primary-color) !important;
+}

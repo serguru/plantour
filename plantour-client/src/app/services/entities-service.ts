@@ -89,6 +89,15 @@ export class EntitiesService {
     })
   );
 
+  // 
+  // Что нужно получить для target
+  // Для Packs -> список trip packs 
+  // Для Things -> список own trip things или shared trip things
+  // Для Travelers -> список trip participants
+  // Для упаковки trip things в trip packs -> список own trip things
+  // Для assign shared trip things to trip participants -> список trip participants
+  //
+
   // Processed entities after componentId, conditions, raw entities 
   public processedEntities$: Observable<any[] | null> = this.componentInitializer$.pipe(
     switchMap(() => combineLatest([
@@ -98,7 +107,7 @@ export class EntitiesService {
     map(([entities, conditions]) => {
       const processed = this.dynamicQueryService.applyConditions(entities, conditions);
       return processed;
-    } )
+    })
   );
 
   // If entities actions panel is visible
@@ -123,6 +132,31 @@ export class EntitiesService {
     this.selectedSubject.next(entityId);
   }
 
+
+  // A lookup list for the target-type condition
+  private targetLookupSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
+  targetLookup$: Observable<any | null> = this.targetLookupSubject.asObservable();
+  public updateTargetLookup(lookup: any[] | null): void {
+    this.targetLookupSubject.next(lookup);
+  }
+
+  public lookups$: Observable<any[] | null> = this.componentInitializer$.pipe(
+    switchMap(() => combineLatest([
+      this.entities$,
+      this.targetLookup$
+    ])),
+    map(([entities, targetLookup]) => {
+      if (!entities || entities.length === 0) {
+        return null;
+      } 
+      const lookups = this.dynamicQueryService.getLookupsFromEntities(entities, this.conditionsSubject.getValue() || []);
+
+      if (targetLookup) {
+        lookups['target'] = targetLookup;
+      }
+      return lookups;
+    })
+  );
 
   reset(): void {
     this.componentInitSubject.next(null);

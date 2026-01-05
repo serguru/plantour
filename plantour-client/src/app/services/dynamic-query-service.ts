@@ -11,7 +11,6 @@ export type FilterCondition = {
   filterText: string;
   comparisonType: FilterComparisonType;
   isSelected?: boolean;
-  isTarget?: boolean;
 };
 export type SortCondition = {
   kind: 'sort';
@@ -20,7 +19,6 @@ export type SortCondition = {
   direction: SortDirection;
   icon?: string;
   isSelected?: boolean;
-  isTarget?: boolean;
 };
 
 export type Condition = FilterCondition | SortCondition;
@@ -76,6 +74,10 @@ export class DynamicQueryService {
     item: any,
     filter: FilterCondition
   ): boolean {
+    if (filter.property == 'target') {
+      return true;
+    }
+        
     const value = item[filter.property];
     if (value == null) return false;
 
@@ -134,7 +136,7 @@ export class DynamicQueryService {
   }
 
   initConditions(saved: any, conditions: Condition[]): Condition[] {
-    if (!saved  || !Array.isArray(saved) || saved.length === 0 || !conditions || conditions.length === 0) {
+    if (!saved || !Array.isArray(saved) || saved.length === 0 || !conditions || conditions.length === 0) {
       return conditions;
     }
 
@@ -158,13 +160,13 @@ export class DynamicQueryService {
   anyConditionSet(conditions: Condition[] | null): boolean {
     if (!conditions || conditions.length === 0) {
       return false;
-    } 
+    }
     return conditions.some(c => {
       if (c.kind === 'filter') {
         return !!(c as FilterCondition).filterText;
       } else if (c.kind === 'sort') {
         return (c as SortCondition).direction !== 'none';
-      } 
+      }
       return false;
     });
   }
@@ -178,7 +180,25 @@ export class DynamicQueryService {
       } else if (cond.kind === 'sort') {
         (cond as SortCondition).direction = 'none';
       }
-    }); 
+    });
   }
+
+  public getLookupsFromEntities(entities: any[], conditions: Condition[]) {
+    const result: any = {};
+
+    conditions.filter(x => x.property !== 'target')
+      .forEach(condition => {
+        if (condition.kind === 'filter' && condition.comparisonType === 'exact') {
+          const values = Array.from(new Set(entities.map(e => e[condition.property])))
+            .filter(v => v != null)
+            .sort((a, b) => a.toString().localeCompare(b.toString()))
+            .map(x => ({id: x.toString(), name: x.toString()}));
+          result[condition.property] = values;
+      }
+      });
+    return result;
+  }
+
+
 
 }

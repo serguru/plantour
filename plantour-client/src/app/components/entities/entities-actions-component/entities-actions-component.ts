@@ -60,13 +60,23 @@ export class EntitiesActionsComponent implements OnInit {
 
   ngOnInit(): void {
 
+    // combineLatest([
+    //   this.entitiesService.entities$,
+    //   this.entitiesService.conditions$
+    // ])
+    //   .subscribe(([entities, conditions]) => {
+    //     this.conditions = conditions || [];
+    //     this.setLookups(entities);
+    //     this.modeOptions = this.buildModeOptions();
+    //   });
     combineLatest([
-      this.entitiesService.entities$,
+      this.entitiesService.lookups$,
       this.entitiesService.conditions$
     ])
-      .subscribe(([entities, conditions]) => {
+      .subscribe(([lookups, conditions]) => {
         this.conditions = conditions || [];
-        this.setLookups(entities);
+//        this.setLookups(lookups);
+        this.lookups = lookups;
         this.modeOptions = this.buildModeOptions();
       });
   }
@@ -74,24 +84,6 @@ export class EntitiesActionsComponent implements OnInit {
   resetConditions() {
     this.dynamicQueryService.resetConditions(this.conditions);
     this.updateConditions();
-  }
-
-  private setLookups(entities: any[] | null): void {
-    if (!entities || entities.length === 0 || !this.conditions.length) {
-      this.lookups = null;
-      return;
-    }
-    const lookups: any = {};
-
-    this.conditions.forEach(condition => {
-      if (condition.kind === 'filter' && condition.comparisonType === 'exact') {
-        lookups[condition.property] =
-          Array.from(new Set(entities.map(e => e[condition.property])))
-            .filter(v => v != null)
-            .sort((a, b) => a.toString().localeCompare(b.toString()))
-      }
-    });
-    this.lookups = lookups;
   }
 
   updateConditions(): void {
@@ -155,7 +147,7 @@ export class EntitiesActionsComponent implements OnInit {
     if (!list) {
       return [];
     }
-    return list.map(v => ({ label: v, value: v }));
+    return list;
   }
 
   getLookupValue(property: string) {
