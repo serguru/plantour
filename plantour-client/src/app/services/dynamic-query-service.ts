@@ -10,12 +10,16 @@ export type FilterCondition = {
   icon?: string;
   filterText: string;
   comparisonType: FilterComparisonType;
+  isSelected?: boolean;
+  isTarget?: boolean;
 };
 export type SortCondition = {
   kind: 'sort';
   property: string;
   sortType: SortType;
   direction: SortDirection;
+  isSelected?: boolean;
+  isTarget?: boolean;
 };
 
 export type Condition = FilterCondition | SortCondition;
@@ -140,6 +144,7 @@ export class DynamicQueryService {
         sc.property === cond.property
       );
       if (savedCond) {
+        cond.isSelected = savedCond.isSelected || false;
         if (cond.kind === 'filter') {
           (cond as FilterCondition).filterText = savedCond.filterText || '';
         } else if (cond.kind === 'sort') {

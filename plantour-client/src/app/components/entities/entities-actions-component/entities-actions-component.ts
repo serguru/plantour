@@ -16,6 +16,7 @@ interface ModeOption {
   label: string;
   icon: string;
   property?: string;
+  condition: FilterCondition | SortCondition;
 }
 
 @Component({
@@ -33,7 +34,7 @@ interface ModeOption {
 })
 export class EntitiesActionsComponent implements OnInit {
   entitiesService = inject(EntitiesService);
-  conditions: Condition[]  = [];
+  conditions: Condition[] = [];
 
   visible = toSignal(this.entitiesService.entitiesActionsVisible$, { initialValue: false });
 
@@ -43,21 +44,33 @@ export class EntitiesActionsComponent implements OnInit {
   modeOptions: ModeOption[] = [];
   selectedMode = model<ModeOption | null>(null);
 
+  onOptionChange($event)  {
+    this.selectedMode.set($event.value);
+
+    this.modeOptions.forEach(option => {
+      option.condition.isSelected =
+        $event.value.condition === option.condition;
+    });
+
+
+    this.updateConditions();
+  }
+
   ngOnInit(): void {
 
     combineLatest([
       this.entitiesService.entities$,
       this.entitiesService.conditions$
     ])
-    .subscribe(([entities, conditions]) => {
-      this.conditions = conditions || [];
-      this.setLookups(entities);
-      this.modeOptions = this.buildModeOptions();
-    });
+      .subscribe(([entities, conditions]) => {
+        this.conditions = conditions || [];
+        this.setLookups(entities);
+        this.modeOptions = this.buildModeOptions();
+      });
   }
 
   private setLookups(entities: any[] | null): void {
-    if (!entities || entities.length === 0  || !this.conditions.length) {
+    if (!entities || entities.length === 0 || !this.conditions.length) {
       this.lookups = null;
       return;
     }
@@ -95,37 +108,39 @@ export class EntitiesActionsComponent implements OnInit {
           type: 'lookup',
           label: (c as FilterCondition).label!,
           property: c.property,
-          icon: `pi pi-${(c as FilterCondition).icon}`
+          icon: `pi pi-${(c as FilterCondition).icon}`,
+          condition: c
         });
       });
 
-    if (this.conditions.find(x => x.kind === 'filter' && x.comparisonType === 'contains')) {
+
+    const filterCondition = this.conditions.find(x => x.kind === 'filter' && x.comparisonType === 'contains');
+    if (filterCondition) {
       options.push({
         type: 'filter',
         label: 'Filter',
-        icon: 'pi pi-filter'
+        icon: 'pi pi-filter',
+        condition: filterCondition
       });
     }
 
-    if (this.conditions.find(x => x.kind === 'sort')) {
+
+    const sortCondition = this.conditions.find(x => x.kind === 'sort');
+    if (sortCondition) {
       options.push({
         type: 'sort',
         label: 'Sort',
-        icon: 'pi pi-sort-alt'
+        icon: 'pi pi-sort-alt',
+        condition: sortCondition
       });
     }
 
-    
-
     if (!this.selectedMode() && options.length) {
-      this.selectedMode.set(options[0]);
+      const option = options.find(o => o.condition.isSelected) || options[0];
+      this.selectedMode.set(option);
     }
 
     return options;
-  }
-
-  isOptionModeActive(option: ModeOption): boolean {
-    return false;
   }
 
   getLookupOptions(property: string) {
@@ -150,13 +165,12 @@ export class EntitiesActionsComponent implements OnInit {
     return condition ? condition.filterText : null;
   }
 
-  getFilterValue(property: string) {
+  getFilterValue() {
     if (!this.conditions.length) {
       return null;
     }
     const condition = this.conditions.find(c =>
       c.kind === 'filter' &&
-      c.property === property &&
       c.comparisonType === 'contains'
     ) as FilterCondition | undefined;
     return condition ? condition.filterText : null;
@@ -167,11 +181,11 @@ export class EntitiesActionsComponent implements OnInit {
       return;
     }
     const condition = this.conditions
-      .find(x => x.kind === 'filter' && 
+      .find(x => x.kind === 'filter' &&
         x.comparisonType === 'exact' &&
         x.property === property) as FilterCondition;
 
-    condition.filterText = value!;        
+    condition.filterText = value!;
 
     this.updateConditions();
   }
@@ -181,15 +195,15 @@ export class EntitiesActionsComponent implements OnInit {
       return;
     }
     const condition = this.conditions
-      .find(x => x.kind === 'filter' && 
+      .find(x => x.kind === 'filter' &&
         x.comparisonType === 'contains') as FilterCondition;
 
-    condition.filterText = ($event.target as HTMLInputElement).value;        
+    condition.filterText = ($event.target as HTMLInputElement).value;
 
     this.updateConditions();
   }
 
-  sortType() : SortDirection | null {
+  sortType(): SortDirection | null {
     if (!this.conditions.length) {
       return null;
     }
@@ -203,9 +217,9 @@ export class EntitiesActionsComponent implements OnInit {
       return;
     }
     const condition = this.conditions
-      .find(x => x.kind === 'sort') as SortCondition; 
-    condition.direction = sortType;       
-    
+      .find(x => x.kind === 'sort') as SortCondition;
+    condition.direction = sortType;
+
     this.updateConditions();
   }
 }

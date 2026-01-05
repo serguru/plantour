@@ -6,8 +6,6 @@ import { LocalStorageService, SettingsPersistenceService } from './settings-pers
 import { isGuid } from '../helpers/utils';
 
 
-type EntitiesActionType = 'filtering' | 'packing' | 'assigning';
-
 type ComponentInit = { 
   componentId: string;
   initialConditions: Condition[];

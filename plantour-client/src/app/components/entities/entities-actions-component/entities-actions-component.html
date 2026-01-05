@@ -7,6 +7,7 @@
       optionLabel="label"
       [showClear]="false"
       [ngModelOptions]="{ standalone: true }"
+      (onChange)="onOptionChange($event)"
     >
       <ng-template
         pTemplate="selectedItem"
@@ -15,7 +16,7 @@
         <div class="mode-option selected">
           <i
             [ngClass]="option.icon"
-            [class.has-dot]="isOptionModeActive(option)"
+            [class.has-dot]="option.isSelected"
           ></i>
         </div>
       </ng-template>
@@ -27,7 +28,7 @@
         <div class="mode-option">
           <i
             [ngClass]="option.icon"
-            [class.has-dot]="isOptionModeActive(option)"
+            [class.has-dot]="option.isSelected"
           ></i>
           <span class="mode-label">
             {{ option.label }}
@@ -59,7 +60,7 @@
       pInputText
       id="filter"
       type="text"
-      [ngModel]="getFilterValue(selectedMode()!.property!)"
+      [ngModel]="getFilterValue()"
       [ngModelOptions]="{ standalone: true }"
       (input)="onFilterChange($event)"
       placeholder="Type to filter..."

@@ -39,7 +39,8 @@ export class TripCommentsComponent {
         property: 'id',
         label: 'ID',
         filterText: '',
-        comparisonType: 'exact'
+        comparisonType: 'exact',
+        isSelected: true
       },
       {
         kind: 'filter',
