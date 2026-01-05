@@ -8,5 +8,5 @@ import { PackageDto } from '../../../services/package-service';
   styleUrl: './pack-item-component.scss',
 })
 export class PackItemComponent {
-  @Input() item: PackageDto = {} as PackageDto;
+  @Input() entity: PackageDto = {} as PackageDto;
 }

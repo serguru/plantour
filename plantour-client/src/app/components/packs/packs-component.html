@@ -1,4 +1,4 @@
-<app-generic-list
+<!-- <app-generic-list
     [service]="service"
     [listActionsConfiguration]="configuration"
     title="Packs"
@@ -15,4 +15,15 @@
     [itemComponent]="packItemComponent"
 >
 </app-generic-list>
+ -->
 
+ <app-entities-header
+    entityIcon="pi pi-box"
+    title="Packs"
+    [delete]="deletePack"
+    entityName="pack"
+    entityNameProp="name"
+></app-entities-header>
+
+<app-entities-actions></app-entities-actions>
+<app-entities [itemComponent]="packItemComponent"></app-entities>

@@ -19,7 +19,6 @@
   --info-background-color: rgb(223, 251, 223);
   --info-color: rgb(12, 155, 12);
 
-
   --red-500: #ef4444;
   --form-header-background-color: #2F7C87;
   /* ---------------------------------------
@@ -618,5 +617,9 @@ app-base-form, app-generic-list {
 
 .list-actions-content input {
   height: 2.5rem;
+}
+
+.p-inputtext:enabled:focus, .p-select:not(.p-disabled).p-focus {
+  border-color: var(--primary-color) !important;
 }
 

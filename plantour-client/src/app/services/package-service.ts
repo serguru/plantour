@@ -26,7 +26,6 @@ export interface UpdatePackageRequest {
 })
 export class UserPackageService implements CrudService<PackageDto, CreatePackageRequest, UpdatePackageRequest> {
   private apiUrl: string;
-  public packages: PackageDto[] = [];
 
   constructor(
     private http: HttpClient,
@@ -37,9 +36,7 @@ export class UserPackageService implements CrudService<PackageDto, CreatePackage
   }
 
   getAll(): Observable<PackageDto[]> {
-    return this.http.get<PackageDto[]>(this.apiUrl).pipe(
-      tap(packages => this.packages = packages)
-    );
+    return this.http.get<PackageDto[]>(this.apiUrl);
   }
 
   getById(id: string): Observable<PackageDto> {
