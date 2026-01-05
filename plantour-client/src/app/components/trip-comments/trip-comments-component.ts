@@ -1,11 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesService } from '../../services/entities-service';
-import { PlButtonComponent } from "../button/button-component";
 import { TripItemCommentComponent } from './trip-item-comment/trip-item-comment-component';
 import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Condition, DynamicQueryService } from '../../services/dynamic-query-service';
+import { Condition } from '../../services/dynamic-query-service';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 
 @Component({
@@ -24,10 +22,8 @@ export class TripCommentsComponent {
 
   entitiesService = inject(EntitiesService);
 
-  dynamicQueryService = inject(DynamicQueryService);
 
   constructor() {
-    this.entitiesService.updateComponentId(this.componentId);
   }
 
   conditions: Condition[] =
@@ -62,7 +58,16 @@ export class TripCommentsComponent {
     ];
 
 
-    ngOnInit(): void {
+  ngOnInit(): void {
+
+    this.entitiesService.updateComponentInit(
+      {
+        componentId: this.componentId,
+        initialConditions: this.conditions
+      }
+    );
+
+
     this.entitiesService.updateEntities([
       { id: 'a', name: 'Great trip!', color: 'blue' },
       { id: 'b', name: 'Нужно собираться быстрее', color: 'red' },
@@ -72,6 +77,18 @@ export class TripCommentsComponent {
 
   delete(id: string): void {
     console.log('Delete comment with id:', id);
+  }
+
+  send() : void {
+    this.entitiesService.updateEntities([
+      { id: 'a', name: 'Great trip!', color: 'blue' },
+      { id: 'b', name: 'Нужно собираться быстрее', color: 'red' },
+      { id: 'c', name: 'Захватите кто-нибудь лимонную кислоту', color: 'green' },
+      { id: 'd', name: 'Great trip!', color: 'blue' },
+      { id: 'e', name: 'Нужно собираться быстрее', color: 'red' },
+      { id: 'f', name: 'Захватите кто-нибудь лимонную кислоту', color: 'green' },
+    ])
+    
   }
 }
 

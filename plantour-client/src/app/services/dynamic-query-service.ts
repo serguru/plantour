@@ -1,11 +1,4 @@
-import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, filter, map, Observable, shareReplay } from 'rxjs';
-import { EntitiesService } from './entities-service';
-import { NavigationEnd, Router } from '@angular/router';
-
-/* =======================
-   Types
-   ======================= */
+import { Injectable } from '@angular/core';
 
 export type FilterComparisonType = 'contains' | 'exact';
 export type SortType = 'text' | 'number';
@@ -25,84 +18,27 @@ export type SortCondition = {
   direction: SortDirection;
 };
 
-// in the collection allowed only one sort condition and only one filter condition 
 export type Condition = FilterCondition | SortCondition;
 
-
-/* =======================
-   Service
-   ======================= */
 @Injectable({
   providedIn: 'root'
 })
 export class DynamicQueryService {
 
-  router = inject(Router);
-
-  constructor() {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      this.reset();
-    });
-    this.processedEntities$.subscribe(entities => {
-      this.entitiesService.updateProcessedEntities(entities);
-    });
-  }
-
-  entitiesService = inject(EntitiesService);
-
-  public data$ = this.entitiesService.entities$;
-
-  private conditions$ = new BehaviorSubject<Condition[]>([]);
-  setConditions(conditions: Condition[]): void {
-    // in the collection allowed only one sort condition and only one filter condition 
-
-    if (conditions.length === 0) {
-      this.conditions$.next([]);
-      return;
-    }
-
-    const sortConditions = conditions.filter(c => c.kind === 'sort') as SortCondition[];
-    if (sortConditions.length > 1) {
-      throw new Error('Only one sort condition is allowed');
-    }
-    const filterConditions = conditions.filter(c => c.kind === 'filter' && c.comparisonType === 'contains') as FilterCondition[];
-    if (filterConditions.length > 1) {
-      throw new Error('Only one "contains" filter condition is allowed');
-    }
-
-    this.conditions$.next(conditions);
-  }
-
-  processedEntities$: Observable<any[] | null> = combineLatest([
-    this.data$,
-    this.conditions$
-  ]).pipe(
-    debounceTime(300),
-    map(([data, conditions]) => this.applyConditions(data, conditions)),
-    shareReplay({ bufferSize: 1, refCount: true })
-  );
-
-
-  /* =======================
-     Core logic
-     ======================= */
-
   public applyConditions(
-    source: any[] | null,
+    rawEntities: any[] | null,
     conditions: Condition[] | null
   ): any[] {
 
-    if (!source || source.length === 0) {
+    if (!rawEntities || rawEntities.length === 0) {
       return [];
     }
 
     if (!conditions || conditions.length === 0) {
-      return [...source];
+      return [...rawEntities];
     }
 
-    let filtered = [...source];
+    let filtered = [...rawEntities];
 
     for (const c of conditions) {
       if (c.kind === 'filter' && c.filterText) {
@@ -131,9 +67,6 @@ export class DynamicQueryService {
     );
   }
 
-  /* =======================
-     Helpers
-     ======================= */
 
   private matchesFilter(
     item: any,
@@ -196,7 +129,24 @@ export class DynamicQueryService {
     return sort.direction === 'desc' ? -result : result;
   }
 
-  reset(): void {
-    this.conditions$.next([]);
+  initConditions(saved: any, conditions: Condition[]): Condition[] {
+    if (!saved  || !Array.isArray(saved) || saved.length === 0 || !conditions || conditions.length === 0) {
+      return conditions;
+    }
+
+    conditions.forEach(cond => {
+      const savedCond = saved.find((sc: any) =>
+        sc.kind === cond.kind &&
+        sc.property === cond.property
+      );
+      if (savedCond) {
+        if (cond.kind === 'filter') {
+          (cond as FilterCondition).filterText = savedCond.filterText || '';
+        } else if (cond.kind === 'sort') {
+          (cond as SortCondition).direction = savedCond.direction || 'none';
+        }
+      }
+    });
+    return conditions;
   }
 }
