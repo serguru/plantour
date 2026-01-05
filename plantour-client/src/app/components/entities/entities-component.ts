@@ -21,7 +21,7 @@ export class EntitiesComponent implements OnInit {
   entitiesService = inject(EntitiesService);
 
 
-  selected = toSignal(this.entitiesService.selected$, { initialValue: null });
+  selectedId = toSignal(this.entitiesService.selected$, { initialValue: null });
 
   processedEntities = this.entitiesService.processedEntities$;
 
@@ -30,19 +30,21 @@ export class EntitiesComponent implements OnInit {
   filterQuery = signal('');
 
   isSelected(entity: any): boolean {
-    const selectedEntity = this.selected();
-    if (!selectedEntity || !entity) {
+    const selectedId = this.selectedId();
+    if (!selectedId || !entity) {
       return false;
     }
-    return selectedEntity.id === entity.id;
+    return selectedId === entity.id;
   }
 
   selectEntity(entity: any | null) {
     if (this.isSelected(entity)) {
       this.entitiesService.updateSelected(null);  
+      this.entitiesService.saveValue('selectedId', null);
       return;
     }
     this.entitiesService.updateSelected(entity?.id);
+    this.entitiesService.saveValue('selectedId', entity?.id);
   }
 
   ngOnInit(): void {

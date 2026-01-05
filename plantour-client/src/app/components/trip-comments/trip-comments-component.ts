@@ -69,9 +69,9 @@ export class TripCommentsComponent {
 
 
     this.entitiesService.updateEntities([
-      { id: 'a', name: 'Great trip!', color: 'blue' },
-      { id: 'b', name: 'Нужно собираться быстрее', color: 'red' },
-      { id: 'c', name: 'Захватите кто-нибудь лимонную кислоту', color: 'green' },
+      { id: '9f3c2c3d-6e8f-4f7d-9a4a-8c5b1b4d2e91', name: 'Great trip!', color: 'blue' },
+      { id: '4a1b7e62-0d9c-4e3f-8f21-3c6b9a2e5d44', name: 'Нужно собираться быстрее', color: 'red' },
+      { id: 'c8e5a2f9-3b4d-4a7c-b6e1-0f9d2a8c7b53', name: 'Захватите кто-нибудь лимонную кислоту', color: 'green' },
     ])
   }
 
@@ -79,17 +79,6 @@ export class TripCommentsComponent {
     console.log('Delete comment with id:', id);
   }
 
-  send() : void {
-    this.entitiesService.updateEntities([
-      { id: 'a', name: 'Great trip!', color: 'blue' },
-      { id: 'b', name: 'Нужно собираться быстрее', color: 'red' },
-      { id: 'c', name: 'Захватите кто-нибудь лимонную кислоту', color: 'green' },
-      { id: 'd', name: 'Great trip!', color: 'blue' },
-      { id: 'e', name: 'Нужно собираться быстрее', color: 'red' },
-      { id: 'f', name: 'Захватите кто-нибудь лимонную кислоту', color: 'green' },
-    ])
-    
-  }
 }
 
 

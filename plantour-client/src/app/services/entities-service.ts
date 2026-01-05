@@ -85,8 +85,6 @@ export class EntitiesService {
     })
   );
 
-  processedEntities: any[] | null = null;
-
   // Processed entities after componentId, conditions, raw entities 
   public processedEntities$: Observable<any[] | null> = this.componentInitializer$.pipe(
     switchMap(() => combineLatest([
@@ -95,7 +93,6 @@ export class EntitiesService {
     ])),
     map(([entities, conditions]) => {
       const processed = this.dynamicQueryService.applyConditions(entities, conditions);
-      this.processedEntities = processed;
       return processed;
     } )
   );
@@ -114,64 +111,14 @@ export class EntitiesService {
     this.entitiesActionsVisibleSubject.next(!current);
   }
 
-  getSavedSelectedId() {
-    const componentId = this.componentInitSubject.getValue()?.componentId;
-    if (!componentId) {
-      return null;
-    }
-    const key = this.settingsPersistenceService.getComponentKey(componentId, 'selectedId');
-
-    if (!isGuid(key)) {
-      return null;
-    }
-    return key;
-  }
 
   // Currently selected entity ID, must be one of the processed entities
   private selectedSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
-  selected$: Observable<any | null> = this.selectedSubject
-    .pipe(
-      tap(selectedId => {
-        this.saveValue('selectedId', selectedId);
-      }),
-      map(selectedId => {
-        const entities = this.processedEntities;
-        if (!entities || !selectedId) {
-          return null;
-        }
-        return entities.find(e => e.id === selectedId) || null;
-      }
-      )
-    );
-
-  public updateSelected(id: string | null): void {
-    if (!id) {
-      this.selectedSubject.next(null);
-      return;
-    }
-    const entities = this.entitiesSubject.getValue();
-    if (!entities) {
-      this.selectedSubject.next(null);
-      return;
-    }
-    this.selectedSubject.next(id);
+  selected$: Observable<any | null> = this.selectedSubject.asObservable();
+  public updateSelected(entityId: string | null): void {
+    this.selectedSubject.next(entityId);
   }
 
-  public selected() {
-    const selectedId = this.selectedSubject.getValue();
-    if (!selectedId) {
-      return null;
-    }
-    const entities = this.entitiesSubject.getValue();
-    if (!entities) {
-      return null;
-    }
-    return entities.find(e => e.id === selectedId) || null;
-  }
-
-  public get isSelected() {
-    return this.selected() !== null;
-  }
 
   reset(): void {
     this.componentInitSubject.next(null);
@@ -181,18 +128,4 @@ export class EntitiesService {
     this.entitiesActionsVisibleSubject.next(false);
   }
 
-  saveConfig() {
-    const componentId = this.componentInitSubject.getValue()?.componentId;
-    if (!componentId) {
-      return;
-    }
-    const conditions = this.conditionsSubject.getValue();
-    this.settingsPersistenceService.setComponentKey(componentId, 'conditions', conditions);
-
-    const selectedId = this.selectedSubject.getValue();
-    this.settingsPersistenceService.setComponentKey(componentId, 'selectedId', selectedId);
-
-    const visible = this.entitiesActionsVisibleSubject.getValue();
-    this.settingsPersistenceService.setComponentKey(componentId, 'entitiesActionsVisible', visible);
-  }
 }
