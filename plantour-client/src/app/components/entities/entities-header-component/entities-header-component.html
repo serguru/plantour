@@ -25,7 +25,7 @@
         <button
           class="pl-button"
           (click)="onEdit()"
-          [disabled]="!selected()"     
+          [disabled]="!selectedId()"     
         >
           <span class="pi pi-pencil"></span>
           <span class="button-label">Update</span>
@@ -35,7 +35,7 @@
         <button
           class="pl-button"
           (click)="onDelete()"
-          [disabled]="!selected()"     
+          [disabled]="!selectedId()"     
         >
           <span class="pi pi-trash"></span>
           <span class="button-label">Delete</span>

@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EntitiesService } from '../../../services/entities-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MessagesService } from '../../../services/messages-service';
-import { PlButtonComponent } from '../../button/button-component';
 
 @Component({
   selector: 'app-entities-header',
@@ -38,7 +37,7 @@ export class EntitiesHeaderComponent implements OnInit {
   route = inject(ActivatedRoute);
   messagesService = inject(MessagesService);
 
-  selected = toSignal(this.entitiesService.selected$, { initialValue: null });
+  selectedId = toSignal(this.entitiesService.selectedId$, { initialValue: null });
 
   
   ngOnInit(): void {
@@ -50,22 +49,22 @@ export class EntitiesHeaderComponent implements OnInit {
   }
 
   onEdit() {
-    if (!this.selected() || this.isListReadOnly || !this.editUrl) {
+    if (!this.selectedId() || this.isListReadOnly || !this.editUrl) {
       return;
     }
-    const id = (this.selected() as any).id;
-    this.router.navigate([this.editUrl.replace(':id', id)], { relativeTo: this.route });
+    const id = this.selectedId();
+    this.router.navigate([this.editUrl.replace(':id', id!)], { relativeTo: this.route });
   }
 
   async onDelete(): Promise<void> {
 
-    if (!this.selected() || !this.delete) {
+    if (!this.selectedId() || !this.delete) {
       return;
     }
 
     const result = await this.messagesService.openOkCancel({
       title: `Delete ${this.entityName}`,
-      message: `Are you sure you want to delete "${(this.selected() as any)[this.entityNameProp]}"?`,
+      message: `Are you sure you want to delete this ${this.entityName}?`,
       okLabel: 'Delete',
       cancelLabel: 'Cancel'
     });
@@ -73,7 +72,7 @@ export class EntitiesHeaderComponent implements OnInit {
     if (result !== 'ok') {
       return;
     }
-    this.delete((this.selected() as any)["id"]);
+    this.delete(this.selectedId()!);
   }
 
   getIconByActionType(type: string): string {

@@ -183,7 +183,7 @@ export class EntitiesService {
 
   // Currently selected entity ID, must be one of the processed entities
   private selectedSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
-  selected$: Observable<any | null> = this.selectedSubject.asObservable();
+  selectedId$: Observable<string | null> = this.selectedSubject.asObservable();
   public updateSelected(entityId: string | null): void {
     this.selectedSubject.next(entityId);
   }

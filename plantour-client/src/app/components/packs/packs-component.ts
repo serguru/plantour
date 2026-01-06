@@ -128,7 +128,7 @@ export class PacksComponent implements OnInit {
         const tripId = this.appService.tripSelectedValue()?.id;
         if (tripId && trips.find(t => t.id === tripId)) {
           condition.filterText = tripId;
-        } 
+        }
 
         const lookup = trips.sort((a, b) => {
           const aDate = a.startDate ?? '';
@@ -175,10 +175,20 @@ export class PacksComponent implements OnInit {
 
   deletePack(id: string): void {
     this.packageService.delete(id).pipe(
-      switchMap(() => this.packageService.getAll())
-    ).subscribe((packages) => {
-      this.entitiesService.updateEntities(packages);
-    });
+
+        switchMap(x => {
+          return this.entitiesService.targetCondition$.pipe(
+            switchMap(tripId => {
+              if (tripId) {
+                return this.packageService.getAllForTrip(tripId);
+              }
+              return this.packageService.getAll();
+            })
+          );
+        })
+      ).subscribe((packages) => {
+        this.entitiesService.updateEntities(packages);
+      });
   }
 
   targetEntityClick(tripId: string, entity: any) {

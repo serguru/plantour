@@ -1,17 +1,20 @@
 <div class="page-container">
-<app-entities-header
-    entityIcon="pi pi-box"
-    title="Packs"
-    [delete]="deletePack"
-    entityName="pack"
-    entityNameProp="name"
-></app-entities-header>
+    <app-entities-header
+        entityIcon="pi pi-box"
+        title="Packs"
+        [delete]="deletePack.bind(this)"
+        entityName="pack"
+        entityNameProp="name"
+        addUrl="add"
+        editUrl="edit/:id"
+    ></app-entities-header>
 
-<app-entities-actions
-    [onAddTargetClick]="onAddTargetClick.bind(this)" 
-    [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"></app-entities-actions>
-<app-entities
-    [itemComponent]="packItemComponent"
-    [targetEntityClick]="targetEntityClick.bind(this)"
-></app-entities>
+    <app-entities-actions
+        [onAddTargetClick]="onAddTargetClick.bind(this)"
+        [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"
+    ></app-entities-actions>
+    <app-entities
+        [itemComponent]="packItemComponent"
+        [targetEntityClick]="targetEntityClick.bind(this)"
+    ></app-entities>
 </div>

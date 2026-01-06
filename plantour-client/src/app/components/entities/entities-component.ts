@@ -37,7 +37,7 @@ export class EntitiesComponent implements OnInit {
     return this.targetEntityClick() !== null && this.targetId() !== null;
   });
 
-  selectedId = toSignal(this.entitiesService.selected$, { initialValue: null });
+  selectedId = toSignal(this.entitiesService.selectedId$, { initialValue: null });
 
   processedEntities = this.entitiesService.processedEntities$;
 
