@@ -226,7 +226,7 @@ html {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   background-color: var(--form-header-background-color);
   color: white;
   flex-shrink: 0;
@@ -437,7 +437,7 @@ p-panel.list-actions-panel {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0.5rem 0rem 0.5rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
   flex-shrink: 0;
 
   i {
@@ -625,4 +625,10 @@ app-base-form, app-generic-list {
 .p-radiobutton-checked .p-radiobutton-box {
     border-color: var(--primary-color) !important;
     background: var(--primary-color) !important;
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
 }

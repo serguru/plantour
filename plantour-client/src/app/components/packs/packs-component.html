@@ -1,22 +1,4 @@
-<!-- <app-generic-list
-    [service]="service"
-    [listActionsConfiguration]="configuration"
-    title="Packs"
-    entityIcon="pi-box"
-    [isListReadOnly]="false"
-    [addUrl]="'add'"
-    [editUrl]="'edit/:id'"
-    entityNameProp="name"
-    entityName="package"
-    [upperActionType]="ActionType.Dic2Trip"
-    [tripDicService]="tripDicService"
-    [fromDicService]="fromDicService"
-    [componentId]="componentId"
-    [itemComponent]="packItemComponent"
->
-</app-generic-list>
- -->
-
+<div class="page-container">
 <app-entities-header
     entityIcon="pi pi-box"
     title="Packs"
@@ -32,3 +14,4 @@
     [itemComponent]="packItemComponent"
     [targetEntityClick]="targetEntityClick.bind(this)"
 ></app-entities>
+</div>
