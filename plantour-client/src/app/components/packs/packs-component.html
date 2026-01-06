@@ -17,7 +17,7 @@
 </app-generic-list>
  -->
 
- <app-entities-header
+<app-entities-header
     entityIcon="pi pi-box"
     title="Packs"
     [delete]="deletePack"
@@ -26,4 +26,7 @@
 ></app-entities-header>
 
 <app-entities-actions></app-entities-actions>
-<app-entities [itemComponent]="packItemComponent"></app-entities>
+<app-entities
+    [itemComponent]="packItemComponent"
+    [targetEntityClick]="targetEntityClick.bind(this)"
+></app-entities>

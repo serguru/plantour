@@ -25,6 +25,14 @@ public class TripController : ControllerBase
         return Ok(dtos);
     }
 
+    [HttpGet("where-participant")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<IEnumerable<TripDto>>> GetAllWhereParticipant()
+    {
+        var dtos = await _service.GetAllWithStatsWhereParticipantAsync();
+        return Ok(dtos);
+    }
+
     [HttpGet("{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult<TripDto>> GetById(Guid id)

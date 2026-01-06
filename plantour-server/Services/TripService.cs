@@ -160,5 +160,20 @@ public class TripService(
 
         return result;
     }
+    
+    public async Task<IEnumerable<TripDto>> GetAllWithStatsWhereParticipantAsync()
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        var entities = await _tripRepository.GetAllFullAsync(_currentUser);
+        
+        var result = entities
+            .Select(x => StatsByTripDto(x))
+            .Where(x => _currentUser.IsParticipant || x.AdminIsParticipant);
+
+        return result;
+    }
+
+    
 }
 

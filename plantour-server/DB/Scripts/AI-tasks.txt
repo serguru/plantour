@@ -72,7 +72,7 @@ public class PackageDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;
-    public bool? AddedToCurrentTrip { get; set; }
+    public bool? IsTargeted { get; set; }
 }
 
 и 
@@ -99,7 +99,7 @@ public class TripPackage
 
 Есть AutoMapper c помощью которго можно маппить Package в PackageDto.
 
-Напиши код, который вернет все записи из dicPackages c маппионгом в PackageDto и при этом выставит в true флаг AddedToCurrentTrip, если в tripPackages найдется запись c таким же Name. Сравнение Names должно работать для любых языков case insensitive.
+Напиши код, который вернет все записи из dicPackages c маппионгом в PackageDto и при этом выставит в true флаг IsTargeted, если в tripPackages найдется запись c таким же Name. Сравнение Names должно работать для любых языков case insensitive.
 
 
 

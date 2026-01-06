@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CrudService, FromDicService } from '../../services/crud-service';
+import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
 import { CreatePackageRequest, UpdatePackageRequest, PackageDto, PackageService } from '../../services/package-service';
 import { Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
@@ -8,7 +8,7 @@ import { UpperActionType } from '../../helpers/enums';
 import { PackItemComponent } from './pack-item/pack-item-component';
 import { Condition } from '../../services/dynamic-query-service';
 import { EntitiesService } from '../../services/entities-service';
-import { map, of, switchMap, tap } from 'rxjs';
+import { filter, map, of, switchMap, tap } from 'rxjs';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
@@ -33,6 +33,7 @@ export class PacksComponent implements OnInit {
   settingsPersistenceService = inject(EntitiesService).settingsPersistenceService;
   dynamicQueryService = inject(EntitiesService).dynamicQueryService;
   tripService = inject(TripService);
+  tripPackageService = inject(TripPackageService);
 
   constructor() {
     // this.entitiesService.targetCondition$.pipe(
@@ -81,7 +82,8 @@ export class PacksComponent implements OnInit {
     const savedConditions = this.settingsPersistenceService.getComponentKey(this.componentId, 'conditions');
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
 
-    this.tripService.getAll().pipe(
+
+    this.tripService.getAllWhereParticipant().pipe(
       tap((trips: TripDto[]) => {
 
         const condition: any = initialConditions.find(c => c.kind === 'filter' && c.comparisonType == 'exact' && c.property === 'target');
@@ -106,7 +108,7 @@ export class PacksComponent implements OnInit {
         this.entitiesService.updateTargetLookup(lookup);
 
       }),
-      switchMap( x => {
+      switchMap(x => {
         return this.entitiesService.targetCondition$.pipe(
           switchMap(tripId => {
             if (tripId) {
@@ -118,26 +120,41 @@ export class PacksComponent implements OnInit {
         )
 
       })
-    
+
     ).subscribe(packages =>
-       this.entitiesService.updateEntities(packages)
+      this.entitiesService.updateEntities(packages)
     );
 
 
   }
 
-    // 
-    // Что нужно получить для target
-    // Для Packs -> список trip packs 
-    // Для Things -> список own trip things или shared trip things
-    // Для Travelers -> список trip participants
-    // Для упаковки trip things в trip packs -> список own trip things
-    // Для assign shared trip things to trip participants -> список trip participants
-    //
-  
+  // 
+  // Что нужно получить для target
+  // Для Packs -> список trip packs 
+  // Для Things -> список own trip things или shared trip things
+  // Для Travelers -> список trip participants
+  // Для упаковки trip things в trip packs -> список own trip things
+  // Для assign shared trip things to trip participants -> список trip participants
+  //
+
   deletePack(id: string): void {
     this.packageService.delete(id).pipe(
       switchMap(() => this.packageService.getAll())
+    ).subscribe((packages) => {
+      this.entitiesService.updateEntities(packages);
+    });
+  }
+
+  targetEntityClick(tripId: string, entity: any) {
+    const request: MultipleIdsRequest = {
+      collectionId: tripId,
+      ids: [entity.id]
+    };
+
+    const o = entity.isTargeted ? this.tripPackageService.deleteFromDic(request) : this.tripPackageService.addFromDic(request);
+
+    o.pipe(
+      switchMap(() => this.packageService.getAllForTrip(tripId))
     ).subscribe((packages) => {
       this.entitiesService.updateEntities(packages);
     });

@@ -9,7 +9,7 @@ public class PackageMappingProfile : Profile
     public PackageMappingProfile()
     {
         CreateMap<UserPackage, PackageDto>()
-            .ForMember(dest => dest.AddedToCurrentTrip, opt => opt.MapFrom(src => false));
+            .ForMember(dest => dest.IsTargeted, opt => opt.MapFrom(src => false));
         
         CreateMap<CreatePackageRequest, UserPackage>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())

@@ -7,13 +7,23 @@
         (click)="selectEntity(entity)"
     >
         <div class="left">
-
             <ng-container *ngComponentOutlet="itemComponent; inputs: getEntityInputs(entity)">
             </ng-container>
-
-
         </div>
+
+        @if(showEntityButton()) {
+        <div class="right">
+            <p-button
+                [icon]="icon(entity)"
+                (click)="onTargetEntityClick(entity, $event)"
+                [rounded]="true"
+                severity="secondary"
+                [outlined]="true"
+            ></p-button>
+        </div>
+        }
     </div>
+
     } @empty {
     <div>No rows</div>
     }

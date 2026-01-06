@@ -8,6 +8,7 @@ export interface PackageDto {
   id: string;
   name: string;
   description?: string | null;
+  isTargeted: boolean;
 }
 
 export interface CreatePackageRequest {

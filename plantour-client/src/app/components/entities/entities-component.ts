@@ -5,10 +5,12 @@ import { EntitiesService } from '../../services/entities-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { DynamicQueryService } from '../../services/dynamic-query-service';
+import { map } from 'rxjs';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-entities',
-  imports: [CommonModule],
+  imports: [CommonModule, Button],
   templateUrl: './entities-component.html',
   styleUrl: './entities-component.scss',
 })
@@ -17,17 +19,33 @@ export class EntitiesComponent implements OnInit {
   @Input() itemComponent!: Type<any>;
   @Input() itemMetaData: any | null = null;
 
+  
+  targetEntityClick = input<Function | null>(null);
+
+  onTargetEntityClick(entity: any, event: Event) {
+    event.stopPropagation();
+    if (!this.targetEntityClick()) {
+      throw new Error('targetEntityClick is not defined');
+    } 
+    this.targetEntityClick()!(this.targetId(), entity);
+  }
 
   entitiesService = inject(EntitiesService);
 
+
+  showEntityButton = computed(() => {
+    return this.targetEntityClick() !== null && this.targetId() !== null;
+  });
 
   selectedId = toSignal(this.entitiesService.selected$, { initialValue: null });
 
   processedEntities = this.entitiesService.processedEntities$;
 
-  entities$ = this.entitiesService.entities$;
+  //entities$ = this.entitiesService.entities$;
 
   filterQuery = signal('');
+
+  targetId = toSignal(this.entitiesService.targetCondition$, { initialValue: false });
 
   isSelected(entity: any): boolean {
     const selectedId = this.selectedId();
@@ -58,5 +76,9 @@ export class EntitiesComponent implements OnInit {
     }
     return inputs;
   }
+
+   icon(item: any) {
+          return (item.isTargeted) ? 'pi pi-check' : 'pi pi-plus';
+   }
 
 }

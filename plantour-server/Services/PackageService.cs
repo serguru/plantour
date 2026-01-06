@@ -42,7 +42,7 @@ public class PackageService(
         var result = dicPackages.Select(p =>
         {
             var dto = mapper.Map<PackageDto>(p);
-            dto.AddedToCurrentTrip = tripPackageNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
+            dto.IsTargeted = tripPackageNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
             return dto;
         }).ToList();
 
