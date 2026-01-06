@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
 import { CreatePackageRequest, UpdatePackageRequest, PackageDto, PackageService } from '../../services/package-service';
 import { Router } from '@angular/router';
@@ -7,12 +7,14 @@ import { CreateTripPackageRequest, TripPackageDto, TripPackageService, UpdateTri
 import { UpperActionType } from '../../helpers/enums';
 import { PackItemComponent } from './pack-item/pack-item-component';
 import { Condition } from '../../services/dynamic-query-service';
-import { EntitiesService } from '../../services/entities-service';
+import { EntitiesCounts, EntitiesService } from '../../services/entities-service';
 import { filter, map, of, switchMap, tap } from 'rxjs';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { TripDto, TripService } from '../../services/trip-service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { AppService } from '../../services/app-service';
 
 @Component({
   selector: 'app-packs',
@@ -28,6 +30,7 @@ export class PacksComponent implements OnInit {
   componentId: string = 'packs';
   packItemComponent = PackItemComponent;
 
+  appService = inject(AppService);
   entitiesService = inject(EntitiesService);
   packageService = inject(PackageService);
   settingsPersistenceService = inject(EntitiesService).settingsPersistenceService;
@@ -35,19 +38,50 @@ export class PacksComponent implements OnInit {
   tripService = inject(TripService);
   tripPackageService = inject(TripPackageService);
 
-  constructor() {
-    // this.entitiesService.targetCondition$.pipe(
-    //   switchMap(tripId => {
-    //     if (tripId) {
-    //       return this.packageService.getAllForTrip(tripId);
-    //     }
-    //     return this.packageService.getAll();
-    //   }
-    //   )
-    // )
-    // .subscribe(packages => {
-    //   this.entitiesService.updateEntities(packages);
-    // });
+  targetId = toSignal(this.entitiesService.targetCondition$);
+  targetedIds = toSignal(this.entitiesService.targetedIds$);
+  notTargetedIds = toSignal(this.entitiesService.notTargetedIds$);
+  tripSelected = toSignal(this.appService.tripSelected$);
+
+
+  onAddTargetClick(): void {
+    const targetId = this.targetId();
+    if (!targetId) {
+      throw new Error('Target Id is not set');
+    }
+    const ids = this.notTargetedIds();
+    if (!ids || ids.length === 0) {
+      throw new Error('No not targeted ids available');
+    }
+    const request: MultipleIdsRequest = {
+      collectionId: targetId,
+      ids: ids
+    };
+    this.tripPackageService.addFromDic(request).pipe(
+      switchMap(() => this.packageService.getAllForTrip(targetId))
+    ).subscribe((packages) => {
+      this.entitiesService.updateEntities(packages);
+    });
+  }
+
+  onDeleteTargetClick(): void {
+    const targetId = this.targetId();
+    if (!targetId) {
+      throw new Error('Target Id is not set');
+    }
+    const ids = this.targetedIds();
+    if (!ids || ids.length === 0) {
+      throw new Error('No targeted ids available');
+    }
+    const request: MultipleIdsRequest = {
+      collectionId: targetId,
+      ids: ids
+    };
+    this.tripPackageService.deleteFromDic(request).pipe(
+      switchMap(() => this.packageService.getAllForTrip(targetId))
+    ).subscribe((packages) => {
+      this.entitiesService.updateEntities(packages);
+    });
   }
 
   conditions: Condition[] =
@@ -82,7 +116,6 @@ export class PacksComponent implements OnInit {
     const savedConditions = this.settingsPersistenceService.getComponentKey(this.componentId, 'conditions');
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
 
-
     this.tripService.getAllWhereParticipant().pipe(
       tap((trips: TripDto[]) => {
 
@@ -91,6 +124,11 @@ export class PacksComponent implements OnInit {
         if (condition && condition.filterText && !trips.find(t => t.id === condition.filterText)) {
           condition.filterText = '';
         }
+
+        const tripId = this.appService.tripSelectedValue()?.id;
+        if (tripId && trips.find(t => t.id === tripId)) {
+          condition.filterText = tripId;
+        } 
 
         const lookup = trips.sort((a, b) => {
           const aDate = a.startDate ?? '';
@@ -124,8 +162,6 @@ export class PacksComponent implements OnInit {
     ).subscribe(packages =>
       this.entitiesService.updateEntities(packages)
     );
-
-
   }
 
   // 

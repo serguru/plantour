@@ -1,5 +1,5 @@
-import { Component, inject, input, model, OnInit } from '@angular/core';
-import { EntitiesService } from '../../../services/entities-service';
+import { Component, computed, inject, input, model, OnInit } from '@angular/core';
+import { EntitiesCounts, EntitiesService } from '../../../services/entities-service';
 import { Condition, DynamicQueryService, FilterCondition, SortCondition, SortDirection, SortType } from '../../../services/dynamic-query-service';
 import { Select } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
@@ -35,7 +35,52 @@ interface ModeOption {
 
 })
 export class EntitiesActionsComponent implements OnInit {
+
   entitiesService = inject(EntitiesService);
+
+  targetCondition = toSignal(this.entitiesService.targetCondition$, { initialValue: null });
+
+  onAddTargetClick = input<Function>();
+  onDeleteTargetClick = input<Function>();
+
+  onAddClick(event: Event): void {
+    event.preventDefault();
+    if (!this.onAddTargetClick()) {
+      throw new Error('onAddTargetClick is not provided');
+    }
+
+    this.onAddTargetClick()!();
+  }
+
+  onDeleteClick(event: Event): void {
+    event.preventDefault();
+    if (!this.onDeleteTargetClick()) {
+      throw new Error('onDeleteTargetClick is not provided');
+    }
+
+    this.onDeleteTargetClick()!();
+  }
+
+  counts = toSignal(this.entitiesService.entitiesCounts$, {
+    initialValue: {
+      allTotal: 0,
+      allTargeted: 0,
+      allNotTargeted: 0,
+      processedTotal: 0,
+      processedTargeted: 0,
+      processedNotTargeted: 0,
+    } as EntitiesCounts
+  });
+
+  addTargetDisabled = computed(() => {
+    return this.counts().processedNotTargeted === 0 || !this.targetCondition();
+  });
+ 
+  deleteTargetDisabled = computed(() => {
+    return this.counts().processedTargeted === 0 || !this.targetCondition();
+  });
+
+
   conditions: Condition[] = [];
 
   visible = toSignal(this.entitiesService.entitiesActionsVisible$, { initialValue: false });
@@ -46,7 +91,16 @@ export class EntitiesActionsComponent implements OnInit {
   modeOptions: ModeOption[] = [];
   selectedMode = model<ModeOption | null>(null);
 
-  onOptionChange($event)  {
+
+  isSelectedModeTarget = computed(() => {
+    const selectedMode = this.selectedMode();
+    return selectedMode ? selectedMode.property === 'target' : false;
+  });
+
+  
+
+
+  onOptionChange($event) {
     this.selectedMode.set($event.value);
 
     this.modeOptions.forEach(option => {
@@ -75,7 +129,7 @@ export class EntitiesActionsComponent implements OnInit {
     ])
       .subscribe(([lookups, conditions]) => {
         this.conditions = conditions || [];
-//        this.setLookups(lookups);
+        //        this.setLookups(lookups);
         this.lookups = lookups;
         this.modeOptions = this.buildModeOptions();
       });
@@ -223,10 +277,14 @@ export class EntitiesActionsComponent implements OnInit {
   }
 
   isActiveOption(option: ModeOption): boolean {
-    if(option.condition.kind === 'sort') {
+    if (option.condition.kind === 'sort') {
       return option.condition.direction !== 'none';
     }
     return !!option.condition.filterText;
   }
 
 }
+function compute(arg0: () => boolean, arg1: any, arg2: { this: any; }, arg3: any, arg4: undefined) {
+  throw new Error('Function not implemented.');
+}
+

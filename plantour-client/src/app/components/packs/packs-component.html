@@ -25,7 +25,9 @@
     entityNameProp="name"
 ></app-entities-header>
 
-<app-entities-actions></app-entities-actions>
+<app-entities-actions
+    [onAddTargetClick]="onAddTargetClick.bind(this)" 
+    [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"></app-entities-actions>
 <app-entities
     [itemComponent]="packItemComponent"
     [targetEntityClick]="targetEntityClick.bind(this)"

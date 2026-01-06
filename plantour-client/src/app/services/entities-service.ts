@@ -1,10 +1,19 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, Observable, of, ReplaySubject, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, distinct, distinctUntilChanged, filter, map, Observable, of, ReplaySubject, switchMap, tap } from 'rxjs';
 import { Condition, DynamicQueryService } from './dynamic-query-service';
 import { NavigationEnd, Router } from '@angular/router';
 import { LocalStorageService, SettingsPersistenceService } from './settings-persistence-service';
 import { isGuid } from '../helpers/utils';
 
+export  interface EntitiesCounts {
+  allTotal: number;
+  allTargeted: number;
+  allNotTargeted: number;
+
+  processedTotal: number;
+  processedTargeted: number;
+  processedNotTargeted: number;
+}
 
 type ComponentInit = { 
   componentId: string;
@@ -41,7 +50,6 @@ export class EntitiesService {
   public updateEntities(entities: any[] | null): void {
     this.entitiesSubject.next(entities);
   }
-
 
   saveValue(key: string, value: any): void {
     const componentId = this.componentInitSubject.getValue()?.componentId;  
@@ -112,6 +120,50 @@ export class EntitiesService {
       const processed = this.dynamicQueryService.applyConditions(entities, conditions);
       return processed;
     })
+  );
+
+  targetedIds$: Observable<string[]> = this.processedEntities$.pipe(
+    map(entities => {
+      if (!entities) {
+        return [];
+      }
+      return entities.filter(x => x && x.isTargeted).map(x => x.id);
+    })
+  );
+
+  notTargetedIds$: Observable<string[]> = this.processedEntities$.pipe(
+    map(entities => {
+      if (!entities) {
+        return [];
+      }
+      return entities.filter(x => x && !x.isTargeted).map(x => x.id);
+    })
+  );
+
+
+  entitiesCounts$ = combineLatest([
+    this.entities$,
+    this.processedEntities$])
+    .pipe(
+      map(([entities, processedEntities]) => {
+        const allTotal = entities ? entities.length : 0;
+        const allTargeted = processedEntities ? processedEntities.filter(x => x.isTargeted).length : 0;
+        const allNotTargeted = allTotal - allTargeted;
+
+        const processedTotal = processedEntities ? processedEntities.length : 0;
+        const processedTargeted = processedEntities ? processedEntities.filter(x => x.isTargeted).length : 0;
+        const processedNotTargeted = processedTotal - processedTargeted;
+
+        return {
+          allTotal,
+          allTargeted,  
+          allNotTargeted,
+          processedTotal,
+          processedTargeted,
+          processedNotTargeted
+        };
+      }
+    )
   );
 
   // If entities actions panel is visible

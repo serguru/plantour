@@ -56,7 +56,24 @@
         (onChange)="onLookupChange(selectedMode()!.property!, $event.value)"
         [showClear]="true"
       >
+
+      <ng-template
+        pTemplate="selectedItem"
+        let-option
+      >
+        <div class="ellipsis-text">
+          {{option.name}}
+        </div>
+      </ng-template>
+
+
       </p-select>
+
+
+
+
+
+
     </ng-container>
     }
     @case ('filter') {
@@ -112,6 +129,25 @@
   </div>
 
   <div class="side">
+    @if(isSelectedModeTarget()) {
+    <p-button
+      icon="pi pi-plus"
+      (click)="onAddClick($event)"
+      [rounded]="true"
+      severity="secondary"
+      [outlined]="true"
+      [disabled]="addTargetDisabled()"
+    ></p-button>
+    <p-button
+      icon="pi pi-minus"
+      (click)="onDeleteClick($event)"
+      [rounded]="true"
+      severity="secondary"
+      [outlined]="true"
+      [disabled]="deleteTargetDisabled()"
+    ></p-button>
+
+    } @else {
     <p-button
       icon="pi pi-times"
       severity="secondary"
@@ -122,6 +158,8 @@
       [disabled]="!dynamicQueryService.anyConditionSet(conditions)"
       title="Reset all"
     ></p-button>
+
+    }
   </div>
 </div>
 }
