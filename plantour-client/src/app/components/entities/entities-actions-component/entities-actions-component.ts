@@ -97,6 +97,9 @@ export class EntitiesActionsComponent implements OnInit {
     return selectedMode ? selectedMode.property === 'target' : false;
   });
 
+  isOptionTarget(option: ModeOption): boolean {
+    return option.property === 'target';
+  }
   
 
 

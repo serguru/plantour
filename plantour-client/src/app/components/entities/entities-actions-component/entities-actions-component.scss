@@ -28,7 +28,7 @@
 }
 
 .mode-label {
-  font-size: 0.9rem;
+  font-size: 1.1rem;
 }
 
 .sort-controls {
@@ -62,7 +62,18 @@
   border-color: transparent var(--primary-text-color) transparent transparent;
 }
 
+.option-container {
+  display: flex;
+  gap: 1rem;
+}
+
 .right-container {
   display: flex;
   gap: 0.5rem;
+}
+
+.target-option {
+  font-weight: 600;
+  // color: white;
+  // background-color: var(--form-header-background-color);
 }
