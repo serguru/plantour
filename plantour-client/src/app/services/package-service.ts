@@ -24,7 +24,7 @@ export interface UpdatePackageRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class UserPackageService implements CrudService<PackageDto, CreatePackageRequest, UpdatePackageRequest> {
+export class PackageService {
   private apiUrl: string;
 
   constructor(
@@ -37,6 +37,10 @@ export class UserPackageService implements CrudService<PackageDto, CreatePackage
 
   getAll(): Observable<PackageDto[]> {
     return this.http.get<PackageDto[]>(this.apiUrl);
+  }
+
+  getAllForTrip(tripId: string): Observable<PackageDto[]> {
+    return this.http.get<PackageDto[]>(`${this.apiUrl}/trip/${tripId}`);
   }
 
   getById(id: string): Observable<PackageDto> {

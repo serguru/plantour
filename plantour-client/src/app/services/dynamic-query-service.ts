@@ -17,7 +17,6 @@ export type SortCondition = {
   property: string;
   sortType: SortType;
   direction: SortDirection;
-  icon?: string;
   isSelected?: boolean;
 };
 

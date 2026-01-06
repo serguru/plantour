@@ -31,7 +31,7 @@ export class LocalStorageService extends SettingsPersistenceService {
     try {
       result = JSON.parse(value!);
     } catch (error) {
-      throw new Error(`Error parsing localStorage item for key ${fullKey}`);
+      result = null;
     }    
 
     return result;

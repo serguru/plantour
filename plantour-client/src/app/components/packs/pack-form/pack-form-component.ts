@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { UserPackageService } from '../../../services/package-service';
+import { PackageService } from '../../../services/package-service';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BaseFormComponent, BaseFormMode } from '../../base-form/base-form-component';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -25,7 +25,7 @@ export class PackFormComponent implements OnInit {
   public mode!: BaseFormMode;
   public id: string | null = null;
 
-  service = inject(UserPackageService);
+  service = inject(PackageService);
   fieldsConfig = {
     name: new FormControl('', Validators.required),
     description: new FormControl(''),

@@ -1,7 +1,7 @@
 
 namespace plantour_server.DTOs;
 
-public class TripUserPackageDto
+public class TripPackageDto
 {
     public Guid Id { get; set; }
     public Guid? ParentPackageId { get; set; }

@@ -10,27 +10,53 @@ namespace plantour_server.Services;
 public class PackageService(
     PackageRepository PackageRepository,
     IMapper mapper,
-HttpCurrentUser httpCurrentUser) : IPackageService
+    ICheckAccessService checkAccessService,
+    TripPackageRepository tripPackageRepository,
+    HttpCurrentUser httpCurrentUser) : IPackageService
 {
     private readonly PackageRepository _userPackageRepository = PackageRepository;
+    private readonly TripPackageRepository _tripPackageRepository = tripPackageRepository;
     private readonly IMapper _mapper = mapper;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
+    private readonly ICheckAccessService _checkAccessService = checkAccessService;
 
-    public async Task<IEnumerable<UserPackageDto>> GetAllAsync()
+    public async Task<IEnumerable<PackageDto>> GetAllAsync()
     {
         _currentUser.RaiseIfNotAuthenticated();
         var entities = await _userPackageRepository.FindAsync(x => x.UserId == _currentUser.UserId);
-        return _mapper.Map<IEnumerable<UserPackageDto>>(entities);
+        return _mapper.Map<IEnumerable<PackageDto>>(entities);
     }
+    public async Task<IEnumerable<PackageDto>> GetAllForTripAsync(Guid tripId)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
 
-    public async Task<UserPackageDto?> GetByIdAsync(Guid id)
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var tripPackages = await _tripPackageRepository.GetAllAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
+        var tripPackageNames = new HashSet<string>(tripPackages.Select(tp => tp.Name), StringComparer.OrdinalIgnoreCase);
+        var dicPackages = await _userPackageRepository.FindAsync(x => x.UserId == _currentUser.UserId);
+
+        var result = dicPackages.Select(p =>
+        {
+            var dto = mapper.Map<PackageDto>(p);
+            dto.AddedToCurrentTrip = tripPackageNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
+            return dto;
+        }).ToList();
+
+        return result;
+    }   
+
+    public async Task<PackageDto?> GetByIdAsync(Guid id)
     {
         _currentUser.RaiseIfNotAuthenticated();
         var entity = await _userPackageRepository.GetByIdAsync(_currentUser.UserId, id);
-        return entity != null ? _mapper.Map<UserPackageDto>(entity) : null;
+        return entity != null ? _mapper.Map<PackageDto>(entity) : null;
     }
 
-    public async Task<UserPackageDto> AddAsync(CreatePackageRequest request)
+    public async Task<PackageDto> AddAsync(CreatePackageRequest request)
     {
         _currentUser.RaiseIfNotAuthenticated();
 
@@ -45,7 +71,7 @@ HttpCurrentUser httpCurrentUser) : IPackageService
         entity.Id = Guid.NewGuid();
         entity.UserId = _currentUser.UserId;
         await _userPackageRepository.AddAsync(entity);
-        return _mapper.Map<UserPackageDto>(entity);
+        return _mapper.Map<PackageDto>(entity);
     }
 
     public async Task UpdateAsync(UpdatePackageRequest request)
@@ -56,11 +82,11 @@ HttpCurrentUser httpCurrentUser) : IPackageService
         {
             throw new CustomException("Package not found or access denied");
         }
-        
+
         if (await _userPackageRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower() && x.Id != request.Id))
         {
             throw new CustomException("Another package with the same name already exists");
-        }   
+        }
 
         _mapper.Map(request, entity);
         entity.UserId = _currentUser.UserId;

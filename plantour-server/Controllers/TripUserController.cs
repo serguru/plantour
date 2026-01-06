@@ -19,7 +19,7 @@ public class TripUserController : ControllerBase
 
     [HttpPost("insert-from-dic")]
     [AdminOnly]
-    public async Task<ActionResult<TripUserPackageDto>> AddFromDic([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult<TripPackageDto>> AddFromDic([FromBody] MultipleIdsRequest request)
     {
         var insertedCount = await _service.InsertTripUsersAsync(request.CollectionId, request.Ids);
         return Ok(new { insertedCount });
@@ -27,7 +27,7 @@ public class TripUserController : ControllerBase
 
     [HttpPost("delete-from-dic")]
     [AdminOnly]
-    public async Task<ActionResult<TripUserPackageDto>> DeleteFromDic([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult<TripPackageDto>> DeleteFromDic([FromBody] MultipleIdsRequest request)
     {
         var deletedCount = await _service.DeleteTripUsersAsync(request.CollectionId, request.Ids);
         return Ok(new { deletedCount });

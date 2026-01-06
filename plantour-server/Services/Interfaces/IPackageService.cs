@@ -4,9 +4,10 @@ namespace plantour_server.Services;
 
 public interface IPackageService
 {
-    Task<IEnumerable<UserPackageDto>> GetAllAsync();
-    Task<UserPackageDto?> GetByIdAsync(Guid id);
-    Task<UserPackageDto> AddAsync(CreatePackageRequest request);
+    Task<IEnumerable<PackageDto>> GetAllAsync();
+    Task<IEnumerable<PackageDto>> GetAllForTripAsync(Guid tripId);
+    Task<PackageDto?> GetByIdAsync(Guid id);
+    Task<PackageDto> AddAsync(CreatePackageRequest request);
     Task UpdateAsync(UpdatePackageRequest request);
     Task DeleteAsync(Guid id);
 }

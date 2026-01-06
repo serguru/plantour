@@ -63,7 +63,20 @@ export class EntitiesService {
     map(conditions => this.dynamicQueryService.anyConditionSet(conditions))
   );
 
+  targetCondition$ = this.conditions$.pipe(
+    map(conditions => {
+        if (!conditions || !conditions.length) {
+          return null;
+        }
+        const target = conditions.find(x => x.property == 'target' && x.kind == 'filter' && x.comparisonType == 'exact');
 
+        if (!target) {
+          return null;
+        }
+        return (target as any).filterText;
+    }),
+    distinctUntilChanged()
+  );
 
   private componentInitializer$ = this.componentInitSubject.pipe(
     distinctUntilChanged(),
@@ -72,9 +85,8 @@ export class EntitiesService {
         this.reset();
         return;
       }
-      const savedConditions = this.settingsPersistenceService.getComponentKey(init.componentId, 'conditions');
-      const initialConditions = this.dynamicQueryService.initConditions(savedConditions, init.initialConditions);
-      this.conditionsSubject.next(initialConditions);
+      // 
+      this.conditionsSubject.next(init.initialConditions);
 
       const savedSelectedId = this.settingsPersistenceService.getComponentKey(init.componentId, 'selectedId');
       if (isGuid(savedSelectedId)) {
@@ -89,14 +101,6 @@ export class EntitiesService {
     })
   );
 
-  // 
-  // Что нужно получить для target
-  // Для Packs -> список trip packs 
-  // Для Things -> список own trip things или shared trip things
-  // Для Travelers -> список trip participants
-  // Для упаковки trip things в trip packs -> список own trip things
-  // Для assign shared trip things to trip participants -> список trip participants
-  //
 
   // Processed entities after componentId, conditions, raw entities 
   public processedEntities$: Observable<any[] | null> = this.componentInitializer$.pipe(
@@ -136,7 +140,7 @@ export class EntitiesService {
   // A lookup list for the target-type condition
   private targetLookupSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
   targetLookup$: Observable<any | null> = this.targetLookupSubject.asObservable();
-  public updateTargetLookup(lookup: any[] | null): void {
+  public updateTargetLookup(lookup: any[] | null): void  {
     this.targetLookupSubject.next(lookup);
   }
 

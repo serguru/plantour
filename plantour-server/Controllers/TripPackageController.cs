@@ -19,7 +19,7 @@ public class TripPackageController : ControllerBase
 
     [HttpPost("insert-from-dic")]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripUserPackageDto>> AddFromDic([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult<TripPackageDto>> AddFromDic([FromBody] MultipleIdsRequest request)
     {
         var insertedCount = await _service.InsertTripUserPackagesAsync(request.CollectionId, request.Ids);
         return Ok(new { insertedCount });
@@ -27,7 +27,7 @@ public class TripPackageController : ControllerBase
 
     [HttpPost("delete-from-dic")]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripUserPackageDto>> DeleteFromDic([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult<TripPackageDto>> DeleteFromDic([FromBody] MultipleIdsRequest request)
     {
         var deletedCount = await _service.DeleteTripUserPackagesAsync(request.CollectionId, request.Ids);
         return Ok(new { deletedCount });
@@ -35,7 +35,7 @@ public class TripPackageController : ControllerBase
 
     [HttpGet("trip/{tripId}")]
     [AdminOrParticipant]
-    public async Task<ActionResult<IEnumerable<TripUserPackageDto>>> GetAll(Guid tripId)
+    public async Task<ActionResult<IEnumerable<TripPackageDto>>> GetAll(Guid tripId)
     {
         var dtos = await _service.GetAllAsync(tripId);
         return Ok(dtos);
@@ -43,7 +43,7 @@ public class TripPackageController : ControllerBase
 
     [HttpGet("{tripId}/{id}")]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripUserPackageDto>> GetById(Guid tripId, Guid id)
+    public async Task<ActionResult<TripPackageDto>> GetById(Guid tripId, Guid id)
     {
         var dto = await _service.GetByIdAsync(tripId, id);
         if (dto == null)
@@ -56,7 +56,7 @@ public class TripPackageController : ControllerBase
 
     [HttpPost]
     [AdminOrParticipant]
-    public async Task<ActionResult<TripUserPackageDto>> Add([FromBody] CreateTripPackageRequest request)
+    public async Task<ActionResult<TripPackageDto>> Add([FromBody] CreateTripPackageRequest request)
     {
         var dto = await _service.AddAsync(request);
         return Ok(dto);

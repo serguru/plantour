@@ -3,8 +3,11 @@ import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesService } from '../../services/entities-service';
 import { TripItemCommentComponent } from './trip-item-comment/trip-item-comment-component';
 import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
-import { Condition } from '../../services/dynamic-query-service';
+import { Condition, FilterComparisonType } from '../../services/dynamic-query-service';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
+import { TripService } from '../../services/trip-service';
+import { switchMap, tap } from 'rxjs';
+import { PackageService } from '../../services/package-service';
 
 @Component({
   selector: 'app-trip-comments',
@@ -21,6 +24,10 @@ export class TripCommentsComponent {
   tripItemCommentComponent = TripItemCommentComponent;
 
   entitiesService = inject(EntitiesService);
+  settingsPersistenceService = inject(EntitiesService).settingsPersistenceService;
+  dynamicQueryService = inject(EntitiesService).dynamicQueryService;
+  tripService = inject(TripService);
+  packageService = inject(PackageService)
 
 
   constructor() {
@@ -36,40 +43,18 @@ export class TripCommentsComponent {
       },
       {
         kind: 'filter',
-        property: 'id',
-        label: 'ID',
-        filterText: '',
-        comparisonType: 'exact',
-        isSelected: true,
-        icon: 'user'
-      },
-      {
-        kind: 'filter',
-        property: 'color',
-        label: 'Color',
-        filterText: '',
-        comparisonType: 'exact',
-        icon: 'palette'
-      },
-      {
-        kind: 'filter',
-        property: 'target',
-        label: 'Target',
-        filterText: '',
-        comparisonType: 'exact',
-        icon: 'users'
-      },
-      {
-        kind: 'filter',
         property: 'name',
         label: 'Name',
         filterText: '',
-        comparisonType: 'contains'
+        comparisonType: 'contains',
+        icon: 'box'
       }
     ];
 
 
   ngOnInit(): void {
+
+
 
     this.entitiesService.updateComponentInit(
       {
@@ -90,7 +75,7 @@ export class TripCommentsComponent {
       { id: '7f3a1b8c-5d2e-4a9f-8b3c-1d0e9f8a7b6c', name: 'Alice' },
       { id: 'a2d4c6e8-b0f1-4d2a-9c3e-5f7a9b1c3d5e', name: 'Bob' },
       { id: 'e9b8d7c6-a5f4-4321-b0a9-876543210fed', name: 'Charlie' }
-    ]); 
+    ]);
 
   }
 

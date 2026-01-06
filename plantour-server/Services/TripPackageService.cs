@@ -49,7 +49,7 @@ public class TripPackageService(
     }
 
 
-    public async Task<IEnumerable<TripUserPackageDto>> GetAllAsync(Guid tripId)
+    public async Task<IEnumerable<TripPackageDto>> GetAllAsync(Guid tripId)
     {
         _currentUser.RaiseIfNotAuthenticated();
 
@@ -59,10 +59,10 @@ public class TripPackageService(
         }
 
         var entities = await _tripPackageRepository.GetAllAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
-        return _mapper.Map<IEnumerable<TripUserPackageDto>>(entities);
+        return _mapper.Map<IEnumerable<TripPackageDto>>(entities);
     }
 
-    public async Task<TripUserPackageDto?> GetByIdAsync(Guid tripId, Guid id)
+    public async Task<TripPackageDto?> GetByIdAsync(Guid tripId, Guid id)
     {
         _currentUser.RaiseIfNotAuthenticated();
 
@@ -72,10 +72,10 @@ public class TripPackageService(
         }
 
         var entity = await _tripPackageRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
-        return entity != null ? _mapper.Map<TripUserPackageDto>(entity) : null;
+        return entity != null ? _mapper.Map<TripPackageDto>(entity) : null;
     }
 
-    public async Task<TripUserPackageDto> AddAsync(CreateTripPackageRequest request)
+    public async Task<TripPackageDto> AddAsync(CreateTripPackageRequest request)
     {
         _currentUser.RaiseIfNotAuthenticated();
 
@@ -107,7 +107,7 @@ public class TripPackageService(
         entity.Id = Guid.NewGuid();
         entity.TripUserId = tripUser.Id;
         await _tripPackageRepository.AddAsync(entity);
-        return _mapper.Map<TripUserPackageDto>(entity);
+        return _mapper.Map<TripPackageDto>(entity);
     }
 
     public async Task UpdateAsync(UpdateTripPackageRequest request)
