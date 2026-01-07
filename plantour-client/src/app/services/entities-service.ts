@@ -32,14 +32,14 @@ export class EntitiesService {
   usersService = inject(UsersService);
   appService = inject(AppService);
 
-  router = inject(Router);
+  //router = inject(Router);
 
   constructor() {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      this.reset();
-    });
+    // this.router.events.pipe(
+    //   filter(event => event instanceof NavigationEnd)
+    // ).subscribe(() => {
+    //   this.reset();
+    // });
   }
 
   // Component Init to identify which component is using the service and initialize its state
@@ -110,7 +110,6 @@ export class EntitiesService {
 
       const savedEntitiesActionsVisible = this.settingsPersistenceService.getComponentKey(init.componentId, 'entitiesActionsVisible');
       this.entitiesActionsVisibleSubject.next(!!savedEntitiesActionsVisible);
-
     })
   );
 
@@ -205,10 +204,11 @@ export class EntitiesService {
       this.targetLookup$
     ])),
     map(([entities, targetLookup]) => {
-      if (!entities || entities.length === 0) {
-        return null;
+      let lookups = []
+
+      if (entities && entities.length > 0) {
+         lookups = this.dynamicQueryService.getLookupsFromEntities(entities, this.conditionsSubject.getValue() || []);
       }
-      const lookups = this.dynamicQueryService.getLookupsFromEntities(entities, this.conditionsSubject.getValue() || []);
 
       if (targetLookup) {
         lookups['target'] = targetLookup;
@@ -217,8 +217,9 @@ export class EntitiesService {
     })
   );
 
-  thingsToSharedAllowed$: Observable<boolean> = combineLatest([this.usersService.isAdmin$, this.appService.currentComponentId$]).pipe(
-    map(([isAdmin, componentId]) => isAdmin && componentId == 'things')
+  thingsToSharedAllowed$: Observable<boolean> = combineLatest([this.usersService.isAdmin$, 
+    this.componentInit$]).pipe(
+    map(([isAdmin, componentInit]) => isAdmin && componentInit?.componentId == 'things')
   );
 
   private thingsToSharedModeSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -227,7 +228,6 @@ export class EntitiesService {
       map(allowed => allowed ? value : false)
     )
     ));
-
 
   public updateThingsToSharedMode(value: boolean): void {
     this.settingsPersistenceService.setComponentKey('things', 'thingsToSharedMode', value);

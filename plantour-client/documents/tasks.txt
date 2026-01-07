@@ -229,3 +229,22 @@ I need a solution to apply different templates inside p-listbox depending on T. 
 
 
 
+Есть Angular 20 приложение. Использует router-outlet. Есть сервис AppService. Каждый компонент, который попадает в router-outlet, имеет собственный componentId.  AppService должен настраиваться на обслуживание текущего активного в  router-outlet компонента по его componentId. Например, читать настройки и получать данные для компонента c сервера. Как правильно построить такую архитектуру на основе RxJs?
+
+
+Объясни подробно, как будет работать код:
+
+a$.pipe(
+    swithMap(_ => b$.pipe(
+        switchMap(_ => c$)
+        )
+    )
+)
+.subscribe()
+
+
+
+
+
+
+

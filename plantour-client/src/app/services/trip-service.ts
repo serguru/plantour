@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService } from './crud-service';
 
