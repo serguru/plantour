@@ -13,5 +13,6 @@ public class ThingDto
 
     public string? Notes { get; set; }
     public bool Shared { get; set; }
+    public bool IsTargeted { get; set; }
 
 }

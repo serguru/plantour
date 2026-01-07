@@ -8,7 +8,5 @@ import { ThingDto } from '../../../services/thing-service';
   styleUrl: './thing-item-component.scss',
 })
 export class ThingItemComponent {
-  @Input() item: ThingDto = {} as ThingDto;
-  
-
+  @Input() entity: ThingDto = {} as ThingDto;
 }

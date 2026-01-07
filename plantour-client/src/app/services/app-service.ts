@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, filter, Observable, Subject, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, map, Observable, Subject, tap } from 'rxjs';
 import { TripDto, TripService } from './trip-service';
 import { TripPackageDto } from './trip-package-service';
 import { NavigationEnd, Router } from '@angular/router';
@@ -28,10 +28,21 @@ export class AppService {
     }
 
     routeActivated: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-    routeActivated$: Observable<any> = this.routeActivated.asObservable();
+    routeActivated$: Observable<any> = this.routeActivated.pipe(
+        tap(activated => {
+            this.currentComponentIdSubject.next(activated?.componentId || null);        
+        })
+    )
 
     routeDeActivated: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-    routeDeActivated$: Observable<any> = this.routeDeActivated.asObservable();
+    routeDeActivated$: Observable<any> = this.routeDeActivated.pipe(
+        tap(() => {
+            this.currentComponentIdSubject.next(null);        
+        })
+    )
+
+    currentComponentIdSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+    currentComponentId$: Observable<string | null> = this.currentComponentIdSubject.asObservable();
 
     private tripSelected: BehaviorSubject<TripDto | null> = new BehaviorSubject<TripDto | null>(null);
     tripSelected$: Observable<TripDto | null> = this.tripSelected.asObservable();

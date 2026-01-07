@@ -26,5 +26,7 @@ public class TripDto
 
     public int TotalThings { get; set; }
 
-    public bool AdminIsParticipant { get; set; }
+// The current user is included into the trip_users table for this trip
+    public bool CurrentUserIncluded { get; set; }
+
 }

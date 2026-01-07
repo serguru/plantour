@@ -10,4 +10,6 @@ public interface IThingService
     Task UpdateAsync(UpdateThingRequest request);
     Task DeleteAsync(Guid id);
     Task<IEnumerable<ThingCategoryDto>> GetAllThingCategoriesAsync();
+    Task<IEnumerable<ThingDto>> GetAllForTripAsync(Guid tripId);
+    Task<IEnumerable<ThingDto>> GetAllForTripSharedAsync(Guid tripId);
 }

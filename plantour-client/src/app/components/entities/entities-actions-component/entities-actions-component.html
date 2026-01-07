@@ -8,6 +8,7 @@
       [showClear]="false"
       [ngModelOptions]="{ standalone: true }"
       (onChange)="onOptionChange($event)"
+      appendTo="body"
     >
       <ng-template
         pTemplate="selectedItem"
@@ -41,81 +42,113 @@
   </div>
 
   <div class="middle">
-    @switch (selectedMode()?.type) {
-    <!-- Lookup: show select with lookup list for chosen property -->
-    @case ('lookup') {
-    <ng-container>
-      <p-select
-        class="w-full"
-        optionLabel="name"
-        optionValue="id"
-        [options]="getLookupOptions(selectedMode()!.property!)"
-        [ngModel]="getLookupValue(selectedMode()!.property!)"
-        [placeholder]="'Select value'"
+    <div>
+      @switch (selectedMode()?.type) {
+      <!-- Lookup: show select with lookup list for chosen property -->
+      @case ('lookup') {
+      <ng-container>
+        <div class="middle-container">
+          <p-select
+            class="w-full"
+            optionLabel="name"
+            optionValue="id"
+            [options]="getLookupOptions(selectedMode()!.property!)"
+            [ngModel]="getLookupValue(selectedMode()!.property!)"
+            [placeholder]="'Select value'"
+            [ngModelOptions]="{ standalone: true }"
+            (onChange)="onLookupChange(selectedMode()!.property!, $event.value)"
+            [showClear]="true"
+            appendTo="body"
+          >
+            <ng-template
+              pTemplate="selectedItem"
+              let-option
+            >
+              <div class="ellipsis-text">
+                {{option.name}}
+              </div>
+            </ng-template>
+          </p-select>
+        </div>
+      </ng-container>
+      }
+      @case ('filter') {
+      <input
+        pInputText
+        id="filter"
+        type="text"
+        [ngModel]="getFilterValue()"
         [ngModelOptions]="{ standalone: true }"
-        (onChange)="onLookupChange(selectedMode()!.property!, $event.value)"
-        [showClear]="true"
-      >
-        <ng-template
-          pTemplate="selectedItem"
-          let-option
-        >
-          <div class="ellipsis-text">
-            {{option.name}}
-          </div>
-        </ng-template>
-      </p-select>
-    </ng-container>
-    }
-    @case ('filter') {
-    <input
-      pInputText
-      id="filter"
-      type="text"
-      [ngModel]="getFilterValue()"
-      [ngModelOptions]="{ standalone: true }"
-      (input)="onFilterChange($event)"
-      placeholder="Type to filter..."
-      fluid
-    />
-    }
-    @case ('sort') {
+        (input)="onFilterChange($event)"
+        placeholder="Type to filter..."
+        fluid
+      />
+      }
+      @case ('sort') {
 
-    <div class="radio-container">
+      <div class="radio-container">
 
-      <div class="radio-item">
-        <p-radiobutton
-          name="sortTypeGroup"
-          value="asc"
-          [ngModel]="sortType()"
-          (onClick)="onSortChange('asc')"
-          inputId="asc"
-        />
-        <div for="asc">Asc</div>
-      </div>
+        <div class="radio-item">
+          <p-radiobutton
+            name="sortTypeGroup"
+            value="asc"
+            [ngModel]="sortType()"
+            (onClick)="onSortChange('asc')"
+            inputId="asc"
+          />
+          <div for="asc">Asc</div>
+        </div>
 
-      <div class="radio-item">
-        <p-radiobutton
-          name="sortTypeGroup"
-          value="desc"
-          [ngModel]="sortType()"
-          (onClick)="onSortChange('desc')"
-          inputId="desc"
-        />
-        <label for="desc">Desc</label>
+        <div class="radio-item">
+          <p-radiobutton
+            name="sortTypeGroup"
+            value="desc"
+            [ngModel]="sortType()"
+            (onClick)="onSortChange('desc')"
+            inputId="desc"
+          />
+          <label for="desc">Desc</label>
+        </div>
+        <div class="radio-item">
+          <p-radiobutton
+            name="sortTypeGroup"
+            value="none"
+            [ngModel]="sortType()"
+            (onClick)="onSortChange('none')"
+            inputId="none"
+          />
+          <label for="none">None</label>
+        </div>
       </div>
-      <div class="radio-item">
-        <p-radiobutton
-          name="sortTypeGroup"
-          value="none"
-          [ngModel]="sortType()"
-          (onClick)="onSortChange('none')"
-          inputId="none"
-        />
-        <label for="none">None</label>
-      </div>
+      }
+      }
     </div>
-    }
+    @if (showThingsToShared()) {
+      <div class="radio-container">
+        <div class="radio-item">
+          <p-radiobutton
+            name="sharedRadiobuttons"
+            value="true"
+            [ngModel]="thingsToSharedMode()"
+            (onClick)="onThingsToSharedModeChange(true)"
+            binary="true"
+            inputId="shared"
+          />
+          <div for="shared">Shared</div>
+        </div>
+
+        <div class="radio-item">
+          <p-radiobutton
+            name="sharedRadiobuttons"
+            value="false"
+            [ngModel]="!thingsToSharedMode()"
+            (onClick)="onThingsToSharedModeChange(false)"
+            binary="true"
+            inputId="own"
+          />
+          <label for="own">Own</label>
+        </div>
+      </div>
     }
   </div>
 

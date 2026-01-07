@@ -217,3 +217,15 @@ I need a solution to apply different templates inside p-listbox depending on T. 
 
 
 
+  // 
+  // Что нужно получить для target
+  // Для Packs -> список trip packs 
+  // Для Things -> список own trip things или shared trip things
+  // Для Travelers -> список trip participants
+  // Для упаковки trip things в trip packs -> список own trip things
+  // Для assign shared trip things to trip participants -> список trip participants
+  //
+
+
+
+

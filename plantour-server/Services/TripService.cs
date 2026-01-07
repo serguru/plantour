@@ -107,7 +107,7 @@ public class TripService(
         var totalParticipants = entity.TripUsers.Count;
         var totalPacks = entity.TripUsers.Sum(tu => tu.TripUserPackages.Count);
         var totalThings = entity.TripUsers.Sum(tu => tu.TripUserPackages.Sum(tp => tp.TripUserThings.Count));
-        var adminIsParticipant = entity.TripUsers.Any(tu => tu.AdminParticipant.AdminId == tu.AdminParticipant.ParticipantId);
+        var currentUserIncluded = entity.TripUsers.Any(x => x.AdminParticipant.ParticipantId == _currentUser.UserId );
 
         TripDto tripDto = new TripDto
         {
@@ -123,7 +123,7 @@ public class TripService(
             TotalParticipants = totalParticipants,
             TotalPacks = totalPacks,
             TotalThings = totalThings,
-            AdminIsParticipant = adminIsParticipant
+            CurrentUserIncluded = currentUserIncluded
         };
         return tripDto;
     }
@@ -169,7 +169,7 @@ public class TripService(
         
         var result = entities
             .Select(x => StatsByTripDto(x))
-            .Where(x => _currentUser.IsParticipant || x.AdminIsParticipant);
+            .Where(x => x.CurrentUserIncluded);
 
         return result;
     }

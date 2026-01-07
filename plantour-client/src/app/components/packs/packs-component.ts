@@ -47,7 +47,7 @@ export class PacksComponent implements OnInit {
   onAddTargetClick(): void {
     const targetId = this.targetId();
     if (!targetId) {
-      throw new Error('Target Id is not set');
+      throw new Error('Target Trip Id is not set');
     }
     const ids = this.notTargetedIds();
     if (!ids || ids.length === 0) {
@@ -116,6 +116,11 @@ export class PacksComponent implements OnInit {
     const savedConditions = this.settingsPersistenceService.getComponentKey(this.componentId, 'conditions');
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
 
+
+
+
+
+    
     this.tripService.getAllWhereParticipant().pipe(
       tap((trips: TripDto[]) => {
 
@@ -125,9 +130,11 @@ export class PacksComponent implements OnInit {
           condition.filterText = '';
         }
 
-        const tripId = this.appService.tripSelectedValue()?.id;
-        if (tripId && trips.find(t => t.id === tripId)) {
-          condition.filterText = tripId;
+        if (!condition.filterText) {
+          const tripId = this.appService.tripSelectedValue()?.id;
+          if (tripId && trips.find(t => t.id === tripId)) {
+            condition.filterText = tripId;
+          }
         }
 
         const lookup = trips.sort((a, b) => {
@@ -164,31 +171,23 @@ export class PacksComponent implements OnInit {
     );
   }
 
-  // 
-  // Что нужно получить для target
-  // Для Packs -> список trip packs 
-  // Для Things -> список own trip things или shared trip things
-  // Для Travelers -> список trip participants
-  // Для упаковки trip things в trip packs -> список own trip things
-  // Для assign shared trip things to trip participants -> список trip participants
-  //
 
   deletePack(id: string): void {
     this.packageService.delete(id).pipe(
 
-        switchMap(x => {
-          return this.entitiesService.targetCondition$.pipe(
-            switchMap(tripId => {
-              if (tripId) {
-                return this.packageService.getAllForTrip(tripId);
-              }
-              return this.packageService.getAll();
-            })
-          );
-        })
-      ).subscribe((packages) => {
-        this.entitiesService.updateEntities(packages);
-      });
+      switchMap(x => {
+        return this.entitiesService.targetCondition$.pipe(
+          switchMap(tripId => {
+            if (tripId) {
+              return this.packageService.getAllForTrip(tripId);
+            }
+            return this.packageService.getAll();
+          })
+        );
+      })
+    ).subscribe((packages) => {
+      this.entitiesService.updateEntities(packages);
+    });
   }
 
   targetEntityClick(tripId: string, entity: any) {
@@ -207,3 +206,59 @@ export class PacksComponent implements OnInit {
   }
 }
 
+
+
+  // ngOnInit(): void {
+
+  //   const savedConditions = this.settingsPersistenceService.getComponentKey(this.componentId, 'conditions');
+  //   const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
+
+  //   this.tripService.getAllWhereParticipant().pipe(
+  //     tap((trips: TripDto[]) => {
+
+  //       const condition: any = initialConditions.find(c => c.kind === 'filter' && c.comparisonType == 'exact' && c.property === 'target');
+
+  //       if (condition && condition.filterText && !trips.find(t => t.id === condition.filterText)) {
+  //         condition.filterText = '';
+  //       }
+
+  //       if (!condition.filterText) {
+  //         const tripId = this.appService.tripSelectedValue()?.id;
+  //         if (tripId && trips.find(t => t.id === tripId)) {
+  //           condition.filterText = tripId;
+  //         }
+  //       }
+
+  //       const lookup = trips.sort((a, b) => {
+  //         const aDate = a.startDate ?? '';
+  //         const bDate = b.startDate ?? '';
+  //         return aDate.localeCompare(bDate);
+  //       }).map((t: any) => ({ id: t.id, name: t.name }));
+
+  //       this.entitiesService.updateComponentInit(
+  //         {
+  //           componentId: this.componentId,
+  //           initialConditions: initialConditions
+  //         }
+  //       );
+
+  //       this.entitiesService.updateTargetLookup(lookup);
+
+  //     }),
+  //     switchMap(x => {
+  //       return this.entitiesService.targetCondition$.pipe(
+  //         switchMap(tripId => {
+  //           if (tripId) {
+  //             return this.packageService.getAllForTrip(tripId);
+  //           }
+  //           return this.packageService.getAll();
+  //         }
+  //         )
+  //       )
+
+  //     })
+
+  //   ).subscribe(packages =>
+  //     this.entitiesService.updateEntities(packages)
+  //   );
+  // }

@@ -52,6 +52,15 @@ export class ThingService implements CrudService<ThingDto, CreateThingRequest, U
     return this.http.get<ThingDto[]>(this.apiUrl);
   }
 
+  getAllForTrip(tripId: string): Observable<ThingDto[]> {
+    return this.http.get<ThingDto[]>(`${this.apiUrl}/trip/${tripId}`);
+  }
+  
+  getAllForSharedTrip(tripId: string): Observable<ThingDto[]> {
+    return this.http.get<ThingDto[]>(`${this.apiUrl}/trip-shared/${tripId}`);
+  }
+
+
   getById(id: string): Observable<ThingDto> {
     return this.http.get<ThingDto>(`${this.apiUrl}/${id}`);
   }

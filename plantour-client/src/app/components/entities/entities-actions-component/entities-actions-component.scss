@@ -1,9 +1,9 @@
 
 .list-actions-content {
   display: flex;
-  align-items: center;
+ // align-items: center;
   gap: 1rem;
-  padding: 1rem;
+  padding: 0.5rem 0.5rem 0rem 0.5rem
 }
 
 .side {
@@ -76,4 +76,9 @@
   font-weight: 600;
   // color: white;
   // background-color: var(--form-header-background-color);
+}
+
+.shared-radios {
+  display: flex;
+  gap: 0.5rem;
 }

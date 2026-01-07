@@ -64,8 +64,8 @@ export const adminOrParticipantGuard: CanActivateFn = (route, state) => {
 export const checkTripIdGuard: CanActivateFn = (route, state) => {
 
 
-  const checkAdminIsParticipant = (trip: TripDto, path: string): boolean => {
-    if (["trip-things", "trip-packs"].some(x => path.includes(x)) && !trip.adminIsParticipant) {
+  const checkCurrentUserIncluded = (trip: TripDto, path: string): boolean => {
+    if (["trip-things", "trip-packs"].some(x => path.includes(x)) && !trip.currentUserIncluded) {
       messagesService.showWarning('Access to this page is restricted as you are not a participant of this trip');
       router.navigate(['/trips']);
       return false;
@@ -100,7 +100,7 @@ export const checkTripIdGuard: CanActivateFn = (route, state) => {
   const appService = inject(AppService);
   let trip = appService.tripSelectedValue();
   if (trip && trip.id == tripId) {
-    return checkAdminIsParticipant(trip, route.routeConfig?.path || '');
+    return checkCurrentUserIncluded(trip, route.routeConfig?.path || '');
   }
 
   const tripService = inject(TripService);
@@ -122,7 +122,7 @@ export const checkTripIdGuard: CanActivateFn = (route, state) => {
         return false;
       }
 
-      if (!checkAdminIsParticipant(trip, route.routeConfig?.path || '')) {
+      if (!checkCurrentUserIncluded(trip, route.routeConfig?.path || '')) {
         return false;
       }
 

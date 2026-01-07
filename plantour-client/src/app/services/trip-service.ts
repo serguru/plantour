@@ -15,7 +15,7 @@ export interface TripDto {
   totalParticipants: number;
   totalPacks: number;
   totalThings: number;
-  adminIsParticipant: boolean;
+  currentUserIncluded: boolean;
 }
 export interface CreateTripRequest {
   tripStatus?: string | null;

@@ -225,10 +225,10 @@ export class Toolbar implements OnInit {
   }
 
   get disableTripThings(): boolean {
-    return !this.isCurrentTrip || (this.usersService.isAdmin && !this.tripSelected!.adminIsParticipant);
+    return !this.isCurrentTrip || (!this.tripSelected!.currentUserIncluded);
   }
 
   get disableTripPacks(): boolean {
-    return !this.isCurrentTrip || (this.usersService.isAdmin && !this.tripSelected!.adminIsParticipant);
+    return !this.isCurrentTrip || (!this.tripSelected!.currentUserIncluded);
   }
 }

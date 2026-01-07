@@ -73,6 +73,13 @@ export class UsersService {
   currentUserSubject: BehaviorSubject<AccessToken | null> = new BehaviorSubject<AccessToken | null>(this.getUserFromLocalStorage());
   currentUser$: Observable<any> = this.currentUserSubject.asObservable();
 
+  isAdmin$ = this.currentUser$.pipe(
+    tap(user => {
+      return user?.role === 'Admin' && this.isAuthenticated;
+    })
+  ) 
+
+
   updateCurrentUser(token: string | null): void {
     let user: any = null;
     if (token) {

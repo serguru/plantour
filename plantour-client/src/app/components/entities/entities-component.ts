@@ -34,7 +34,9 @@ export class EntitiesComponent implements OnInit {
 
 
   showEntityButton = computed(() => {
-    return this.targetEntityClick() !== null && this.targetId() !== null;
+    const x = this.targetEntityClick;
+    const y = this.targetId();
+    return x !== null && y;
   });
 
   selectedId = toSignal(this.entitiesService.selectedId$, { initialValue: null });
@@ -45,7 +47,7 @@ export class EntitiesComponent implements OnInit {
 
   filterQuery = signal('');
 
-  targetId = toSignal(this.entitiesService.targetCondition$, { initialValue: false });
+  targetId = toSignal(this.entitiesService.targetCondition$, { initialValue: null });
 
   isSelected(entity: any): boolean {
     const selectedId = this.selectedId();

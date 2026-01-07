@@ -43,6 +43,21 @@ export class EntitiesActionsComponent implements OnInit {
   onAddTargetClick = input<Function>();
   onDeleteTargetClick = input<Function>();
 
+  thingsToSharedAllowed = toSignal(this.entitiesService.thingsToSharedAllowed$, { initialValue: false });
+
+  thingsToSharedMode = toSignal(this.entitiesService.thingsToSharedMode$, { initialValue: false });
+
+
+  showThingsToShared = computed(() => {
+    const x = this.thingsToSharedAllowed();
+    const y = this.isSelectedModeTarget();
+    return  x && y;
+  });
+
+  onThingsToSharedModeChange(value: boolean): void {
+    this.entitiesService.updateThingsToSharedMode(value);
+  }
+
   onAddClick(event: Event): void {
     event.preventDefault();
     if (!this.onAddTargetClick()) {
@@ -75,7 +90,7 @@ export class EntitiesActionsComponent implements OnInit {
   addTargetDisabled = computed(() => {
     return this.counts().processedNotTargeted === 0 || !this.targetCondition();
   });
- 
+
   deleteTargetDisabled = computed(() => {
     return this.counts().processedTargeted === 0 || !this.targetCondition();
   });
@@ -100,8 +115,6 @@ export class EntitiesActionsComponent implements OnInit {
   isOptionTarget(option: ModeOption): boolean {
     return option.property === 'target';
   }
-  
-
 
   onOptionChange($event) {
     this.selectedMode.set($event.value);
@@ -117,22 +130,12 @@ export class EntitiesActionsComponent implements OnInit {
 
   ngOnInit(): void {
 
-    // combineLatest([
-    //   this.entitiesService.entities$,
-    //   this.entitiesService.conditions$
-    // ])
-    //   .subscribe(([entities, conditions]) => {
-    //     this.conditions = conditions || [];
-    //     this.setLookups(entities);
-    //     this.modeOptions = this.buildModeOptions();
-    //   });
     combineLatest([
       this.entitiesService.lookups$,
       this.entitiesService.conditions$
     ])
       .subscribe(([lookups, conditions]) => {
         this.conditions = conditions || [];
-        //        this.setLookups(lookups);
         this.lookups = lookups;
         this.modeOptions = this.buildModeOptions();
       });

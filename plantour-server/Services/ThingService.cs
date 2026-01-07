@@ -11,12 +11,18 @@ public class ThingService(
     ThingRepository ThingRepository,
     ThingCategoryRepository thingCategoryRepository,
     IMapper mapper,
-HttpCurrentUser httpCurrentUser) : IThingService
+    ICheckAccessService checkAccessService,
+    TripThingRepository tripThingRepository,
+    TripSharedRepository tripSharedRepository,
+    HttpCurrentUser httpCurrentUser) : IThingService
 {
     private readonly ThingRepository _userThingRepository = ThingRepository;
     private readonly ThingCategoryRepository _thingCategoryRepository = thingCategoryRepository;
     private readonly IMapper _mapper = mapper;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
+    private readonly ICheckAccessService _checkAccessService = checkAccessService;
+    private readonly TripThingRepository _tripThingRepository = tripThingRepository;
+    private readonly TripSharedRepository _tripSharedRepository = tripSharedRepository;
 
     public async Task<IEnumerable<ThingDto>> GetAllAsync()
     {
@@ -24,6 +30,53 @@ HttpCurrentUser httpCurrentUser) : IThingService
         var entities = await _userThingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
         return _mapper.Map<IEnumerable<ThingDto>>(entities);
     }
+
+
+    public async Task<IEnumerable<ThingDto>> GetAllForTripAsync(Guid tripId)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var tripThings = await _tripThingRepository.GetAllAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
+        var tripThingNames = new HashSet<string>(tripThings.Select(tp => tp.Name), StringComparer.OrdinalIgnoreCase);
+        var dicThings = await _userThingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
+
+        var result = dicThings.Select(p =>
+        {
+            var dto = _mapper.Map<ThingDto>(p);
+            dto.IsTargeted = tripThingNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
+            return dto;
+        }).ToList();
+
+        return result;
+    }   
+
+    public async Task<IEnumerable<ThingDto>> GetAllForTripSharedAsync(Guid tripId)
+    {
+        _currentUser.RaiseIfNotAdmin();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var tripSharedThings = await _tripSharedRepository.GetAllFullAsync(tripId);
+        var tripThingNames = new HashSet<string>(tripSharedThings.Select(tp => tp.Name), StringComparer.OrdinalIgnoreCase);
+        var dicThings = await _userThingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
+
+        var result = dicThings.Select(p =>
+        {
+            var dto = _mapper.Map<ThingDto>(p);
+            dto.IsTargeted = tripThingNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
+            return dto;
+        }).ToList();
+
+        return result;
+    }   
 
     public async Task<ThingDto?> GetByIdAsync(Guid id)
     {

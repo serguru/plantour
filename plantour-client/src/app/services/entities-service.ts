@@ -4,8 +4,10 @@ import { Condition, DynamicQueryService } from './dynamic-query-service';
 import { NavigationEnd, Router } from '@angular/router';
 import { LocalStorageService, SettingsPersistenceService } from './settings-persistence-service';
 import { isGuid } from '../helpers/utils';
+import { UsersService } from './users-service';
+import { AppService } from './app-service';
 
-export  interface EntitiesCounts {
+export interface EntitiesCounts {
   allTotal: number;
   allTargeted: number;
   allNotTargeted: number;
@@ -15,7 +17,7 @@ export  interface EntitiesCounts {
   processedNotTargeted: number;
 }
 
-type ComponentInit = { 
+type ComponentInit = {
   componentId: string;
   initialConditions: Condition[];
 };
@@ -27,6 +29,9 @@ export class EntitiesService {
 
   settingsPersistenceService = inject(LocalStorageService);
   dynamicQueryService = inject(DynamicQueryService);
+  usersService = inject(UsersService);
+  appService = inject(AppService);
+
   router = inject(Router);
 
   constructor() {
@@ -52,10 +57,10 @@ export class EntitiesService {
   }
 
   saveValue(key: string, value: any): void {
-    const componentId = this.componentInitSubject.getValue()?.componentId;  
-    if (!componentId) { 
+    const componentId = this.componentInitSubject.getValue()?.componentId;
+    if (!componentId) {
       return;
-    } 
+    }
     this.settingsPersistenceService.setComponentKey(componentId, key, value);
   }
 
@@ -73,15 +78,15 @@ export class EntitiesService {
 
   targetCondition$ = this.conditions$.pipe(
     map(conditions => {
-        if (!conditions || !conditions.length) {
-          return null;
-        }
-        const target = conditions.find(x => x.property == 'target' && x.kind == 'filter' && x.comparisonType == 'exact');
+      if (!conditions || !conditions.length) {
+        return null;
+      }
+      const target = conditions.find(x => x.property == 'target' && x.kind == 'filter' && x.comparisonType == 'exact');
 
-        if (!target) {
-          return null;
-        }
-        return (target as any).filterText;
+      if (!target) {
+        return null;
+      }
+      return (target as any).filterText;
     }),
     distinctUntilChanged()
   );
@@ -108,7 +113,6 @@ export class EntitiesService {
 
     })
   );
-
 
   // Processed entities after componentId, conditions, raw entities 
   public processedEntities$: Observable<any[] | null> = this.componentInitializer$.pipe(
@@ -140,7 +144,6 @@ export class EntitiesService {
     })
   );
 
-
   entitiesCounts$ = combineLatest([
     this.entities$,
     this.processedEntities$])
@@ -156,24 +159,24 @@ export class EntitiesService {
 
         return {
           allTotal,
-          allTargeted,  
+          allTargeted,
           allNotTargeted,
           processedTotal,
           processedTargeted,
           processedNotTargeted
         };
       }
-    )
-  );
+      )
+    );
 
   // If entities actions panel is visible
   private entitiesActionsVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   entitiesActionsVisible$: Observable<boolean> = this.entitiesActionsVisibleSubject
-  .pipe(
-    tap(visible => {
-      this.saveValue('entitiesActionsVisible', visible);
-    })
-  );
+    .pipe(
+      tap(visible => {
+        this.saveValue('entitiesActionsVisible', visible);
+      })
+    );
 
   public toggleEntitiesActionsVisible(): void {
     const current = this.entitiesActionsVisibleSubject.getValue();
@@ -192,7 +195,7 @@ export class EntitiesService {
   // A lookup list for the target-type condition
   private targetLookupSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
   targetLookup$: Observable<any | null> = this.targetLookupSubject.asObservable();
-  public updateTargetLookup(lookup: any[] | null): void  {
+  public updateTargetLookup(lookup: any[] | null): void {
     this.targetLookupSubject.next(lookup);
   }
 
@@ -204,7 +207,7 @@ export class EntitiesService {
     map(([entities, targetLookup]) => {
       if (!entities || entities.length === 0) {
         return null;
-      } 
+      }
       const lookups = this.dynamicQueryService.getLookupsFromEntities(entities, this.conditionsSubject.getValue() || []);
 
       if (targetLookup) {
@@ -213,6 +216,23 @@ export class EntitiesService {
       return lookups;
     })
   );
+
+  thingsToSharedAllowed$: Observable<boolean> = combineLatest([this.usersService.isAdmin$, this.appService.currentComponentId$]).pipe(
+    map(([isAdmin, componentId]) => isAdmin && componentId == 'things')
+  );
+
+  private thingsToSharedModeSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  thingsToSharedMode$: Observable<boolean> = this.thingsToSharedModeSubject.pipe(
+    switchMap(value => this.thingsToSharedAllowed$.pipe(
+      map(allowed => allowed ? value : false)
+    )
+    ));
+
+
+  public updateThingsToSharedMode(value: boolean): void {
+    this.settingsPersistenceService.setComponentKey('things', 'thingsToSharedMode', value);
+    this.thingsToSharedModeSubject.next(value);
+  }
 
   reset(): void {
     this.componentInitSubject.next(null);
