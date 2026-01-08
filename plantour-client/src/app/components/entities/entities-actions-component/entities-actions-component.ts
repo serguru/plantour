@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, model, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, model, OnInit } from '@angular/core';
 import { EntitiesCounts, EntitiesService } from '../../../services/entities-service';
 import { Condition, DynamicQueryService, FilterCondition, SortCondition, SortDirection, SortType } from '../../../services/dynamic-query-service';
 import { Select } from 'primeng/select';
@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { RadioButton } from 'primeng/radiobutton';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 
@@ -47,6 +47,7 @@ export class EntitiesActionsComponent implements OnInit {
 
   thingsToSharedMode = toSignal(this.entitiesService.thingsToSharedMode$, { initialValue: false });
 
+  private destroyRef = inject(DestroyRef);
 
   showThingsToShared = computed(() => {
     const x = this.thingsToSharedAllowed();
@@ -133,8 +134,9 @@ export class EntitiesActionsComponent implements OnInit {
     combineLatest([
       this.entitiesService.lookups$,
       this.entitiesService.conditions$
-    ])
-      .subscribe(([lookups, conditions]) => {
+    ]).pipe(      
+      takeUntilDestroyed(this.destroyRef)
+      ).subscribe(([lookups, conditions]) => {
         this.conditions = conditions || [];
         this.lookups = lookups;
         this.modeOptions = this.buildModeOptions();
@@ -148,7 +150,7 @@ export class EntitiesActionsComponent implements OnInit {
 
   updateConditions(): void {
     this.entitiesService.updateConditions(this.conditions);
-    this.entitiesService.saveValue('conditions', this.conditions);
+    this.entitiesService.persistValue('conditions', this.conditions);
   }
 
   private buildModeOptions(): ModeOption[] {

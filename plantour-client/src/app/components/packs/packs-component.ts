@@ -73,10 +73,7 @@ export class PacksComponent implements OnInit {
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
-
   }
-
-
 
   initTargetLookup(trips: TripDto[] | null) {
 

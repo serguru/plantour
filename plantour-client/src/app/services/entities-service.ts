@@ -32,14 +32,14 @@ export class EntitiesService {
   usersService = inject(UsersService);
   appService = inject(AppService);
 
-  //router = inject(Router);
+  router = inject(Router);
 
   constructor() {
-    // this.router.events.pipe(
-    //   filter(event => event instanceof NavigationEnd)
-    // ).subscribe(() => {
-    //   this.reset();
-    // });
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.reset();
+    });
   }
 
   // Component Init to identify which component is using the service and initialize its state
@@ -52,11 +52,11 @@ export class EntitiesService {
   // Raw entities as fetched from the backend
   private entitiesSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
   entities$: Observable<any[] | null> = this.entitiesSubject.asObservable();
-  public updateEntities(entities: any[] | null): void {
+  updateEntities(entities: any[] | null): void {
     this.entitiesSubject.next(entities);
   }
 
-  saveValue(key: string, value: any): void {
+  persistValue(key: string, value: any): void {
     const componentId = this.componentInitSubject.getValue()?.componentId;
     if (!componentId) {
       return;
@@ -173,7 +173,7 @@ export class EntitiesService {
   entitiesActionsVisible$: Observable<boolean> = this.entitiesActionsVisibleSubject
     .pipe(
       tap(visible => {
-        this.saveValue('entitiesActionsVisible', visible);
+        this.persistValue('entitiesActionsVisible', visible);
       })
     );
 
@@ -236,10 +236,12 @@ export class EntitiesService {
 
   reset(): void {
     this.componentInitSubject.next(null);
-    this.conditionsSubject.next(null);
     this.entitiesSubject.next(null);
-    this.selectedSubject.next(null);
+    this.conditionsSubject.next(null);
     this.entitiesActionsVisibleSubject.next(false);
+    this.selectedSubject.next(null);
+    this.targetLookupSubject.next(null);
+    this.thingsToSharedModeSubject.next(false);
   }
 
 }

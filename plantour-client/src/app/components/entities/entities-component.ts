@@ -60,11 +60,11 @@ export class EntitiesComponent implements OnInit {
   selectEntity(entity: any | null) {
     if (this.isSelected(entity)) {
       this.entitiesService.updateSelected(null);  
-      this.entitiesService.saveValue('selectedId', null);
+      this.entitiesService.persistValue('selectedId', null);
       return;
     }
     this.entitiesService.updateSelected(entity?.id);
-    this.entitiesService.saveValue('selectedId', entity?.id);
+    this.entitiesService.persistValue('selectedId', entity?.id);
   }
 
   ngOnInit(): void {
