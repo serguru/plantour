@@ -54,5 +54,5 @@ public partial class TripUserThing
 
     [ForeignKey("TripUserPackageId")]
     [InverseProperty("TripUserThings")]
-    public virtual TripUserPackage? TripUserPackage { get; set; }
+    public virtual TripPack? TripPack { get; set; }
 }

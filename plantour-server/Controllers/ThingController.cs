@@ -28,7 +28,7 @@ public class ThingController : ControllerBase
 
     [HttpGet("trip/{tripId}")]
     [AdminOrParticipant]
-    public async Task<ActionResult<IEnumerable<PackageDto>>> GetAllForTrip(Guid tripId)
+    public async Task<ActionResult<IEnumerable<PackDto>>> GetAllForTrip(Guid tripId)
     {
         var dtos = await _service.GetAllForTripAsync(tripId);
         return Ok(dtos);
@@ -36,7 +36,7 @@ public class ThingController : ControllerBase
 
     [HttpGet("trip-shared/{tripId}")]
     [AdminOnly]
-    public async Task<ActionResult<IEnumerable<PackageDto>>> GetAllForTripShared(Guid tripId)
+    public async Task<ActionResult<IEnumerable<PackDto>>> GetAllForTripShared(Guid tripId)
     {
         var dtos = await _service.GetAllForTripSharedAsync(tripId);
         return Ok(dtos);

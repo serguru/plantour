@@ -20,6 +20,8 @@ interface ModeOption {
   condition: FilterCondition | SortCondition;
 }
 
+// TODO: process empty props
+
 @Component({
   selector: 'app-entities-actions',
   imports: [

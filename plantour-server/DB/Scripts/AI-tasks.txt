@@ -19,11 +19,11 @@
  Мне нужны тестовые SQL DB данные. Смотри структуру БД в plantour-server\DB\Scripts\plantour.sql. Создай трёх юзеров: одного Админа и двух Участников этого админа. Посмотри в коде plantour-server API как хэшируются и записываются в БД пароли юзеров. Используй Binary_09 пароль для Админа. Для Участников пароль не нужен, но нужен будет AccessCode. Заполни соответоствующие таблицы так, чтобы в них было 10-20 строк. Запиши SQL script в файл plantour-server\DB\Scripts\populate.sql.
 
  
-Создай generic репозиторий GenericRepository<T> в папке Repositories. Создай PackageRepository там же. Включи в него CRUD для UserPackage.
+Создай generic репозиторий GenericRepository<T> в папке Repositories. Создай PackRepository там же. Включи в него CRUD для UserPackage.
 
-Рефактор PackageController. Не вызывай PackageRepository из контнроллера. Создай Services/PackageService. В сервисе используй PackageRepository. Переделай вызовы Add, Edit и другие в PackageController с репозитория на сервис. Используй Riok.Mapperly для маппинга.
+Рефактор PackageController. Не вызывай PackRepository из контнроллера. Создай Services/PackService. В сервисе используй PackRepository. Переделай вызовы Add, Edit и другие в PackageController с репозитория на сервис. Используй Riok.Mapperly для маппинга.
 
-Добаавь в PackageDto поле CategoryName. Заполняй это поле значением Name из PackageCategory, соответствующим PackageDto.CategoryId. Добавь в PackageDto список категорий из PackageCategory. Назови его CategoriesLookup. Включи в него Id и Name. Не забудь переделать mappinng соответственно.
+Добаавь в PackDto поле CategoryName. Заполняй это поле значением Name из PackageCategory, соответствующим PackDto.CategoryId. Добавь в PackDto список категорий из PackageCategory. Назови его CategoriesLookup. Включи в него Id и Name. Не забудь переделать mappinng соответственно.
 
 Нужно создать сервис, который вернет клиенту полный набор lookups. Создай repository Repositories/LookupsRepository и включи в него только методы для чтения следующих сущностей: PackingStatus, CommunicationType, ThingCategory, TripStatus, ParticipantStatus, Unit. Создай Services/LookupsService и включи в него единственный метод GetAllLookups, который вернет все lookups из Repositories/LookupsRepository  . Создай контролер LookupsController с единственной  endpoint для GetAllLookups.
 
@@ -68,7 +68,7 @@ where
 
 Есть 
 
-public class PackageDto
+public class PackDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;
@@ -85,7 +85,7 @@ public class Package
 
 и
 
-public class TripPackage
+public class TripPack
 {
     public Guid Id { get; set; }
     public Guid TripId { get; set; }
@@ -94,12 +94,12 @@ public class TripPackage
 
 Есть коллекции
 
-    IEnumerable<TripPackage> tripPackages = await _tripPackageRepository.GetAllAsync();
+    IEnumerable<TripPack> tripPackages = await _tripPackageRepository.GetAllAsync();
     IEnumerable<Package> dicPackages = await _userPackageRepository.GetAllAsync();
 
-Есть AutoMapper c помощью которго можно маппить Package в PackageDto.
+Есть AutoMapper c помощью которго можно маппить Package в PackDto.
 
-Напиши код, который вернет все записи из dicPackages c маппионгом в PackageDto и при этом выставит в true флаг IsTargeted, если в tripPackages найдется запись c таким же Name. Сравнение Names должно работать для любых языков case insensitive.
+Напиши код, который вернет все записи из dicPackages c маппионгом в PackDto и при этом выставит в true флаг IsTargeted, если в tripPackages найдется запись c таким же Name. Сравнение Names должно работать для любых языков case insensitive.
 
 
 

@@ -77,7 +77,7 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 // Register services
 builder.Services.AddScoped<IUsersService, UsersService>();
-builder.Services.AddScoped<IPackageService, PackageService>();
+builder.Services.AddScoped<IPackageService, PackService>();
 builder.Services.AddScoped<IThingService, ThingService>();
 builder.Services.AddScoped<ITripService, TripService>();
 builder.Services.AddScoped<ITripUserService, TripUserService>();
@@ -90,13 +90,13 @@ builder.Services.AddScoped<ICheckAccessService, CheckAccessService>();
 
 
 // Register repositories
-builder.Services.AddScoped<plantour_server.Repositories.PackageRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.PackRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ThingRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripUserRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripThingRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.TripPackageRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripPackRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.LookupsRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.UsersRepository>();

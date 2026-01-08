@@ -5,6 +5,7 @@ import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService } from './crud-service';
 import { SignUpParticipantRequest } from '../models/auth.models';
 import { UsersService } from './users-service';
+import { PackageDto } from './package-service';
 
 export interface AdminsParticipantDto {
   id: string;
@@ -34,12 +35,16 @@ export class AdminsParticipantService implements CrudService<AdminsParticipantDt
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-   
+
     this.apiUrl = `${environment.apiUrl}/api/AdminsParticipant`;
   }
 
   getAll(): Observable<AdminsParticipantDto[]> {
     return this.http.get<AdminsParticipantDto[]>(this.apiUrl);
+  }
+
+  getAllForTrip(tripId: string): Observable<AdminsParticipantDto[]> {
+    return this.http.get<AdminsParticipantDto[]>(`${this.apiUrl}/trip/${tripId}`);
   }
 
   getById(id: string): Observable<AdminsParticipantDto> {

@@ -8,14 +8,10 @@ import { AdminsParticipantDto } from '../../../services/admins-participant-servi
   styleUrl: './traveler-item-component.scss',
 })
 export class TravelerItemComponent {
-  @Input() item: AdminsParticipantDto = {} as AdminsParticipantDto;
+  @Input() entity: AdminsParticipantDto = {} as AdminsParticipantDto;
 
-  get mainInfo(): string {
-
-    if (!this.item.firstName && !this.item.lastName) {
-      return this.item.email;
-    }
-    return `${this.item.firstName} ${this.item.lastName}`;
+  get fullName(): string {
+    return `${this.entity.firstName ? (this.entity.firstName + ' ') : ''}${this.entity.lastName}`;
   }
 
 }

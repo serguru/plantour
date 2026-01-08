@@ -1,17 +1,20 @@
-<app-generic-list
-  [service]="service"
-  [listActionsConfiguration]="configuration"
-  title="Travelers"
-  entityIcon="pi-user"
-  [isListReadOnly]="false"
-  [addUrl]="'add'"
-  [editUrl]="'edit/:id'"
-  entityNameProp="email"
-  entityName="traveler"
-  [upperActionType]="ActionType.Dic2Trip"
-  [tripDicService]="tripDicService"
-  [fromDicService]="fromDicService"
-  [componentId]="componentId"
-  [itemComponent]="travelerItemComponent"
->
-</app-generic-list>
+<div class="page-container">
+    <app-entities-header
+        entityIcon="pi pi-user"
+        title="Traveler"
+        [delete]="delete.bind(this)"
+        entityName="email"
+        entityNameProp="email"
+        addUrl="add"
+        editUrl="edit/:id"
+    ></app-entities-header>
+
+    <app-entities-actions
+        [onAddTargetClick]="onAddTargetClick.bind(this)"
+        [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"
+    ></app-entities-actions>
+    <app-entities
+        [itemComponent]="travelerItemComponent"
+        [targetEntityClick]="targetEntityClick.bind(this)"
+    ></app-entities>
+</div>

@@ -29,7 +29,7 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<TripUser> TripUsers { get; set; }
 
-    public virtual DbSet<TripUserPackage> TripUserPackages { get; set; }
+    public virtual DbSet<TripPack> TripUserPackages { get; set; }
 
     public virtual DbSet<TripUserThing> TripUserThings { get; set; }
 
@@ -140,7 +140,7 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Trip).WithMany(p => p.TripUsers).HasConstraintName("trip_users_trip_id_fkey");
         });
 
-        modelBuilder.Entity<TripUserPackage>(entity =>
+        modelBuilder.Entity<TripPack>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("trip_user_packages_pkey");
 
@@ -157,7 +157,7 @@ public partial class PlantourContext : DbContext
 
             entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserThings).HasConstraintName("trip_user_things_trip_user_id_fkey");
 
-            entity.HasOne(d => d.TripUserPackage).WithMany(p => p.TripUserThings)
+            entity.HasOne(d => d.TripPack).WithMany(p => p.TripUserThings)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("trip_user_things_trip_user_package_id_fkey");
         });

@@ -1,6 +1,6 @@
 namespace plantour_server.DTOs;
 
-public class PackageDto
+public class PackDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;

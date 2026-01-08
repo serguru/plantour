@@ -19,13 +19,23 @@ public class AdminsParticipantController : ControllerBase
     }
 
     [HttpGet]
+    [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<AdminsParticipantDto>>> GetAll()
     {
             var dtos = await _service.GetAllAsync();
             return Ok(dtos);
     }
 
+    [HttpGet("trip/{tripId}")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<IEnumerable<AdminsParticipantDto>>> GetAllForTrip(Guid tripId)
+    {
+        var dtos = await _service.GetAllForTripAsync(tripId);
+        return Ok(dtos);
+    }
+
     [HttpGet("{id}")]
+    [AdminOrParticipant]
     public async Task<ActionResult<AdminsParticipantDto>> GetById(Guid id)
     {
             var dto = await _service.GetByIdAsync(id);
@@ -38,6 +48,7 @@ public class AdminsParticipantController : ControllerBase
     }
 
     [HttpPut]
+    [AdminOnly]
     public async Task<ActionResult> Update([FromBody] UpdateAdminsParticipantRequest request)
     {
         await _service.UpdateAsync(request);
@@ -45,6 +56,7 @@ public class AdminsParticipantController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [AdminOnly]
     public async Task<ActionResult> Delete(Guid id)
     {
         await _service.DeleteAsync(id);

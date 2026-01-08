@@ -18,7 +18,7 @@ public class PackageController : ControllerBase
 
     [HttpGet]
     [AdminOrParticipant]
-    public async Task<ActionResult<IEnumerable<PackageDto>>> GetAll()
+    public async Task<ActionResult<IEnumerable<PackDto>>> GetAll()
     {
         var dtos = await _service.GetAllAsync();
         return Ok(dtos);
@@ -26,7 +26,7 @@ public class PackageController : ControllerBase
 
     [HttpGet("trip/{tripId}")]
     [AdminOrParticipant]
-    public async Task<ActionResult<IEnumerable<PackageDto>>> GetAllForTrip(Guid tripId)
+    public async Task<ActionResult<IEnumerable<PackDto>>> GetAllForTrip(Guid tripId)
     {
         var dtos = await _service.GetAllForTripAsync(tripId);
         return Ok(dtos);
@@ -34,7 +34,7 @@ public class PackageController : ControllerBase
 
     [HttpGet("{id}")]
     [AdminOrParticipant]
-    public async Task<ActionResult<PackageDto>> GetById(Guid id)
+    public async Task<ActionResult<PackDto>> GetById(Guid id)
     {
         var dto = await _service.GetByIdAsync(id);
         if (dto == null)
@@ -47,7 +47,7 @@ public class PackageController : ControllerBase
 
     [HttpPost]
     [AdminOrParticipant]
-    public async Task<ActionResult<PackageDto>> Add([FromBody] CreatePackageRequest request)
+    public async Task<ActionResult<PackDto>> Add([FromBody] CreatePackageRequest request)
     {
         var dto = await _service.AddAsync(request);
         return Ok(dto);

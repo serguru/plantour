@@ -8,14 +8,14 @@ using PlantourApi.Models;
 namespace plantour_server.Services;
 
 public class TripPackageService(
-    TripPackageRepository tripPackageRepository,
+    TripPackRepository tripPackageRepository,
     TripUserRepository tripUserRepository,
     DicTripRepository dicTripRepository,
     ICheckAccessService checkAccessService,
     IMapper mapper,
     HttpCurrentUser httpCurrentUser) : ITripPackageService
 {
-    private readonly TripPackageRepository _tripPackageRepository = tripPackageRepository;
+    private readonly TripPackRepository _tripPackageRepository = tripPackageRepository;
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
        
 
@@ -103,7 +103,7 @@ public class TripPackageService(
             throw new CustomException("Package with the same name already exists");
         }
 
-        var entity = _mapper.Map<TripUserPackage>(request);
+        var entity = _mapper.Map<TripPack>(request);
         entity.Id = Guid.NewGuid();
         entity.TripUserId = tripUser.Id;
         await _tripPackageRepository.AddAsync(entity);

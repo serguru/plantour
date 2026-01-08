@@ -20,6 +20,8 @@ export type SortCondition = {
   isSelected?: boolean;
 };
 
+// TODO: add bool
+// TODO: add isTarget
 export type Condition = FilterCondition | SortCondition;
 
 @Injectable({

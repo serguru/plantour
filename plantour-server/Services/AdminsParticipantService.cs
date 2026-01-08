@@ -9,12 +9,19 @@ namespace plantour_server.Services;
 
 public class AdminsParticipantService(
     AdminsParticipantRepository adminsParticipantRepository,
+    TripUserRepository tripUserRepository,
     IMapper mapper,
+    ICheckAccessService checkAccessService,
     HttpCurrentUser httpCurrentUser) : IAdminsParticipantService
 {
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
+    private readonly TripUserRepository _tripUserRepository = tripUserRepository;
+
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly IMapper _mapper = mapper;
+
+    private readonly ICheckAccessService _checkAccessService = checkAccessService;
+
 
     public async Task<IEnumerable<AdminsParticipantDto>> GetAllAsync()
     {
@@ -24,6 +31,29 @@ public class AdminsParticipantService(
         IEnumerable<AdminsParticipant> entities = await _adminsParticipantRepository.FindFullAsync(x => x.AdminId == _currentUser.AdminId);
         return _mapper.Map<IEnumerable<AdminsParticipantDto>>(entities);
     }
+
+    public async Task<IEnumerable<AdminsParticipantDto>> GetAllForTripAsync(Guid tripId)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var tripParticipants = await _tripUserRepository.GetAllAsync(_currentUser.AdminId, tripId);
+        var tripParticipantsEmails = new HashSet<string>(tripParticipants.Select(tp => tp.AdminParticipant.Participant.Email), StringComparer.OrdinalIgnoreCase);
+        var dicParticipants = await _adminsParticipantRepository.FindFullAsync(x => x.AdminId == _currentUser.AdminId);
+
+        var result = dicParticipants.Select(p =>
+        {
+            var dto = _mapper.Map<AdminsParticipantDto>(p);
+            dto.IsTargeted = tripParticipantsEmails.Contains(dto.Email, StringComparer.OrdinalIgnoreCase);
+            return dto;
+        }).ToList();
+
+        return result;
+    }   
 
     public async Task<AdminsParticipantDto?> GetByIdAsync(Guid id)
     {

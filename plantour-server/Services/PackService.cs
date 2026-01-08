@@ -7,26 +7,26 @@ using PlantourApi.Models;
 
 namespace plantour_server.Services;
 
-public class PackageService(
-    PackageRepository PackageRepository,
+public class PackService(
+    PackRepository PackRepository,
     IMapper mapper,
     ICheckAccessService checkAccessService,
-    TripPackageRepository tripPackageRepository,
+    TripPackRepository tripPackageRepository,
     HttpCurrentUser httpCurrentUser) : IPackageService
 {
-    private readonly PackageRepository _userPackageRepository = PackageRepository;
-    private readonly TripPackageRepository _tripPackageRepository = tripPackageRepository;
+    private readonly PackRepository _userPackageRepository = PackRepository;
+    private readonly TripPackRepository _tripPackageRepository = tripPackageRepository;
     private readonly IMapper _mapper = mapper;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
 
-    public async Task<IEnumerable<PackageDto>> GetAllAsync()
+    public async Task<IEnumerable<PackDto>> GetAllAsync()
     {
         _currentUser.RaiseIfNotAuthenticated();
         var entities = await _userPackageRepository.FindAsync(x => x.UserId == _currentUser.UserId);
-        return _mapper.Map<IEnumerable<PackageDto>>(entities);
+        return _mapper.Map<IEnumerable<PackDto>>(entities);
     }
-    public async Task<IEnumerable<PackageDto>> GetAllForTripAsync(Guid tripId)
+    public async Task<IEnumerable<PackDto>> GetAllForTripAsync(Guid tripId)
     {
         _currentUser.RaiseIfNotAuthenticated();
 
@@ -41,7 +41,7 @@ public class PackageService(
 
         var result = dicPackages.Select(p =>
         {
-            var dto = mapper.Map<PackageDto>(p);
+            var dto = mapper.Map<PackDto>(p);
             dto.IsTargeted = tripPackageNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
             return dto;
         }).ToList();
@@ -49,14 +49,14 @@ public class PackageService(
         return result;
     }   
 
-    public async Task<PackageDto?> GetByIdAsync(Guid id)
+    public async Task<PackDto?> GetByIdAsync(Guid id)
     {
         _currentUser.RaiseIfNotAuthenticated();
         var entity = await _userPackageRepository.GetByIdAsync(_currentUser.UserId, id);
-        return entity != null ? _mapper.Map<PackageDto>(entity) : null;
+        return entity != null ? _mapper.Map<PackDto>(entity) : null;
     }
 
-    public async Task<PackageDto> AddAsync(CreatePackageRequest request)
+    public async Task<PackDto> AddAsync(CreatePackageRequest request)
     {
         _currentUser.RaiseIfNotAuthenticated();
 
@@ -71,7 +71,7 @@ public class PackageService(
         entity.Id = Guid.NewGuid();
         entity.UserId = _currentUser.UserId;
         await _userPackageRepository.AddAsync(entity);
-        return _mapper.Map<PackageDto>(entity);
+        return _mapper.Map<PackDto>(entity);
     }
 
     public async Task UpdateAsync(UpdatePackageRequest request)

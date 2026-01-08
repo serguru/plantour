@@ -8,7 +8,7 @@ public class PackageMappingProfile : Profile
 {
     public PackageMappingProfile()
     {
-        CreateMap<UserPackage, PackageDto>()
+        CreateMap<UserPackage, PackDto>()
             .ForMember(dest => dest.IsTargeted, opt => opt.MapFrom(src => false));
         
         CreateMap<CreatePackageRequest, UserPackage>()
