@@ -422,10 +422,6 @@ create table trip_comments (
 );
 create index idx_trip_comments_trip_id on trip_comments(trip_id);
 
-
-
-
-
 create or replace function plantour.get_trip_user_id(
     p_admin_id uuid,
     p_participant_id uuid,
@@ -794,11 +790,12 @@ returns integer
 language plpgsql
 as $$
 declare
+    v_trip_user_id uuid;
     v_inserted_count integer;
 begin
     insert into plantour.trip_shared_things (trip_id, category, name, units, value)
     select
-        v_trip_user_id,
+        p_trip_id,
         b.category,
         b.name,
         b.units,
@@ -809,7 +806,6 @@ begin
         lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
     where
         b.id = any (p_ids)
-        and b.shared 
         and b.user_id = p_admin_id
         and c.id is null;
 
@@ -836,8 +832,8 @@ begin
         c.trip_id = p_trip_id and 
         lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
     where
-        a.id = c.id and
-        b.id = any (p_ids)
+        a.id = c.id 
+        and b.id = any (p_ids)
         and b.user_id = p_admin_id;
 
     get diagnostics v_deleted_count = row_count;
