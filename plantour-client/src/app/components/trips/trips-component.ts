@@ -7,6 +7,8 @@ import { TagModule } from 'primeng/tag';
 import { AppService } from '../../services/app-service';
 import { TripItemComponent } from './trip-item/trip-item-component';
 
+
+// TODO: Add a method to create a new trip from the existing one 
 @Component({
   selector: 'app-trips-component',
   imports: [

@@ -8,14 +8,14 @@ public class TripPackageMappingProfile : Profile
 {
     public TripPackageMappingProfile()
     {
-        CreateMap<TripPack, TripPackageDto>();
+        CreateMap<TripUserPackage, TripPackageDto>();
         
-        CreateMap<CreateTripPackageRequest, TripPack>()
+        CreateMap<CreateTripPackageRequest, TripUserPackage>()
             .ForMember(dest => dest.TripUserId, opt => opt.Ignore())
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.TripUser, opt => opt.Ignore());
         
-        CreateMap<UpdateTripPackageRequest, TripPack>()
+        CreateMap<UpdateTripPackageRequest, TripUserPackage>()
             .ForMember(dest => dest.TripUserId, opt => opt.Ignore())
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.TripUserId, opt => opt.Ignore())

@@ -41,7 +41,7 @@ public class PackService(
 
         var result = dicPackages.Select(p =>
         {
-            var dto = mapper.Map<PackDto>(p);
+            var dto = _mapper.Map<PackDto>(p);
             dto.IsTargeted = tripPackageNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
             return dto;
         }).ToList();

@@ -3,10 +3,10 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
-public class TripPackRepository(PlantourContext context) : GenericRepository<TripPack>(context)
+public class TripPackRepository(PlantourContext context) : GenericRepository<TripUserPackage>(context)
 {
 
-    public async Task<TripPack?> GetByIdAsync(Guid adminId, Guid userId, Guid tripId, Guid id)
+    public async Task<TripUserPackage?> GetByIdAsync(Guid adminId, Guid userId, Guid tripId, Guid id)
     {
         return await _dbSet
             .FirstOrDefaultAsync(x =>
@@ -28,7 +28,7 @@ public class TripPackRepository(PlantourContext context) : GenericRepository<Tri
                 x.TripUser.AdminParticipant.ParticipantId == userId);
     }
 
-    public async Task<IEnumerable<TripPack>> GetAllAsync(Guid adminId, Guid userId, Guid tripId)
+    public async Task<IEnumerable<TripUserPackage>> GetAllAsync(Guid adminId, Guid userId, Guid tripId)
     {
         return await _dbSet
             .Where(x =>

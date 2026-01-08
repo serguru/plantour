@@ -85,7 +85,7 @@ public class Package
 
 и
 
-public class TripPack
+public class TripUserPackage
 {
     public Guid Id { get; set; }
     public Guid TripId { get; set; }
@@ -94,16 +94,12 @@ public class TripPack
 
 Есть коллекции
 
-    IEnumerable<TripPack> tripPackages = await _tripPackageRepository.GetAllAsync();
+    IEnumerable<TripUserPackage> tripPackages = await _tripPackageRepository.GetAllAsync();
     IEnumerable<Package> dicPackages = await _userPackageRepository.GetAllAsync();
 
 Есть AutoMapper c помощью которго можно маппить Package в PackDto.
 
 Напиши код, который вернет все записи из dicPackages c маппионгом в PackDto и при этом выставит в true флаг IsTargeted, если в tripPackages найдется запись c таким же Name. Сравнение Names должно работать для любых языков case insensitive.
-
-
-
-
 
 insert into plantour.trip_shared_things (trip_id, category, name, units, value)
     select
@@ -121,3 +117,90 @@ insert into plantour.trip_shared_things (trip_id, category, name, units, value)
         and b.shared 
         and b.user_id = p_admin_id
         and c.id is null
+
+
+Смотри PostgreSQL скрипт. Это шаблоны для сборов вещей в путешествия. Создай новый PostgreSQL скрипт. Начиная c activites заполни таблицы данными на английском языке. Не нужно включать "Warm sweater" для диапазона температур "Extreme Heat". Данные должны реально помочь путешественникам подобрать набор вещей в дорогу по activity, gender, temperature, age.   Не используй имена полей  таблиц без префикса, т.е. используй "tt.name" вмсето "name". Внимательно следи за тем, чтобы твой код не нарушал constraints, в том числе duplicate keys.  Верни результат в виде, пригодном для копирования c экрана.
+
+
+
+-----------------------------------------------------------------------
+-- ACTIVITIES
+-----------------------------------------------------------------------
+create table activities (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    notes text not null
+);
+
+-----------------------------------------------------------------------
+-- GENDERS
+-----------------------------------------------------------------------
+create table genders (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    notes text null
+);
+insert into genders (name) values
+('Male'),('Female'),('Unisex');
+
+-----------------------------------------------------------------------
+-- TEMPERATURE RANGES
+-----------------------------------------------------------------------
+create table temperature_ranges (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    fromTemp int null,
+    toTemp int null check(toTemp >= fromTemp),
+    notes text null
+);
+insert into temperature_ranges (name, fromTemp, toTemp) values
+('Extreme Heat', 31, null),
+('Warm', 21, 30),
+('Mild', 11, 20),
+('Cool', 1, 10),
+('Cold', -10, 0),
+('Extreme Cold', null, -11);
+
+-----------------------------------------------------------------------
+-- AGE RANGES
+-----------------------------------------------------------------------
+create table age_ranges (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    fromAge int not null check(fromAge >= 0),
+    toAge int null check(toAge >= fromAge),
+    notes text null
+);
+insert into age_ranges (name, fromAge, toAge) values
+('Children', 0, 18),
+('Early Adulthood', 18, 24),
+('Prime Youth', 25, 34),
+('Middle Youth', 35, 44),
+('Early Seniority', 55, 64),
+('Seniority', 65, null);
+
+
+-----------------------------------------------------------------------
+-- THING TEMPLATES
+-----------------------------------------------------------------------
+create table thing_templates (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    activity_id uuid not null references activities(id) on delete cascade,
+    temperature_ranges_id uuid null references temperature_ranges(id) on delete cascade,
+    age_ranges_id uuid null references age_ranges(id) on delete cascade,
+    notes text null
+);
+
+create table template_things (
+    id uuid not null primary key default gen_random_uuid(),
+    template_id uuid not null references thing_templates(id) on delete cascade,
+    category varchar(50),
+    name varchar(200) not null,
+    units varchar(50),
+    value decimal(10,3) check(value > 0),
+    notes text
+);
+create unique index idx_template_things_template_id_name on template_things(template_id, name);
+
+

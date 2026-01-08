@@ -6,21 +6,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("packing_status", Schema = "plantour")]
-[Index("Name", Name = "packing_status_name_key", IsUnique = true)]
-public partial class PackingStatus
+[Table("age_ranges", Schema = "plantour")]
+[Index("Name", Name = "age_ranges_name_key", IsUnique = true)]
+public partial class AgeRange
 {
     [Key]
     [Column("id")]
     public Guid Id { get; set; }
 
     [Column("name")]
-    [StringLength(50)]
     public string Name { get; set; } = null!;
+
+    [Column("fromage")]
+    public int Fromage { get; set; }
+
+    [Column("toage")]
+    public int? Toage { get; set; }
 
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [InverseProperty("PackingStatus")]
-    public virtual ICollection<TripUserPackage> TripUserPackages { get; set; } = new List<TripUserPackage>();
+    [InverseProperty("AgeRanges")]
+    public virtual ICollection<ThingTemplate> ThingTemplates { get; set; } = new List<ThingTemplate>();
 }

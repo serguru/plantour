@@ -8,7 +8,7 @@ namespace plantour_server.DbModels;
 
 [Table("trip_user_packages", Schema = "plantour")]
 [Index("TripUserId", "Name", Name = "idx_trip_user_packages_trip_user_id_name", IsUnique = true)]
-public partial class TripPack
+public partial class TripUserPackage
 {
     [Key]
     [Column("id")]
@@ -46,6 +46,6 @@ public partial class TripPack
     [InverseProperty("TripUserPackages")]
     public virtual TripUser TripUser { get; set; } = null!;
 
-    [InverseProperty("TripPack")]
+    [InverseProperty("TripUserPackage")]
     public virtual ICollection<TripUserThing> TripUserThings { get; set; } = new List<TripUserThing>();
 }

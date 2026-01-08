@@ -37,6 +37,9 @@ public partial class Trip
     public virtual ICollection<Invitation> Invitations { get; set; } = new List<Invitation>();
 
     [InverseProperty("Trip")]
+    public virtual ICollection<TripComment> TripComments { get; set; } = new List<TripComment>();
+
+    [InverseProperty("Trip")]
     public virtual ICollection<TripSharedThing> TripSharedThings { get; set; } = new List<TripSharedThing>();
 
     [ForeignKey("TripStatusId")]

@@ -109,98 +109,54 @@ create table genders (
 insert into genders (name) values
 ('Male'),('Female'),('Unisex');
 
-
 -----------------------------------------------------------------------
--- COUNTRIES
+-- TEMPERATURE RANGES
 -----------------------------------------------------------------------
-create table countries (
+create table temperature_ranges (
     id uuid not null primary key default gen_random_uuid(),
-    name varchar(100) not null unique
+    name text not null unique,
+    fromTemp int null,
+    toTemp int null check(toTemp >= fromTemp),
+    notes text null
 );
+insert into temperature_ranges (name, fromTemp, toTemp) values
+('Extreme Heat', 31, null),
+('Warm', 21, 30),
+('Mild', 11, 20),
+('Cool', 1, 10),
+('Cold', -10, 0),
+('Extreme Cold', null, -11);
 
-insert into countries (name) values
-('Afghanistan'), ('Albania'), ('Algeria'), ('Andorra'), ('Angola'), 
-('Antigua and Barbuda'), ('Argentina'), ('Armenia'), ('Australia'), ('Austria'), 
-('Azerbaijan'), ('Bahamas'), ('Bahrain'), ('Bangladesh'), ('Barbados'), 
-('Belarus'), ('Belgium'), ('Belize'), ('Benin'), ('Bhutan'), 
-('Bolivia'), ('Bosnia and Herzegovina'), ('Botswana'), ('Brazil'), ('Brunei'), 
-('Bulgaria'), ('Burkina Faso'), ('Burundi'), ('Cabo Verde'), ('Cambodia'), 
-('Cameroon'), ('Canada'), ('Central African Republic'), ('Chad'), ('Chile'), 
-('China'), ('Colombia'), ('Comoros'), ('Congo (Congo-Brazzaville)'), ('Costa Rica'), 
-('Croatia'), ('Cuba'), ('Cyprus'), ('Czechia (Czech Republic)'), ('Democratic Republic of the Congo'), 
-('Denmark'), ('Djibouti'), ('Dominica'), ('Dominican Republic'), ('Ecuador'), 
-('Egypt'), ('El Salvador'), ('Equatorial Guinea'), ('Eritrea'), ('Estonia'), 
-('Eswatini'), ('Ethiopia'), ('Fiji'), ('Finland'), ('France'), 
-('Gabon'), ('Gambia'), ('Georgia'), ('Germany'), ('Ghana'), 
-('Greece'), ('Grenada'), ('Guatemala'), ('Guinea'), ('Guinea-Bissau'), 
-('Guyana'), ('Haiti'), ('Holy See'), ('Honduras'), ('Hungary'), 
-('Iceland'), ('India'), ('Indonesia'), ('Iran'), ('Iraq'), 
-('Ireland'), ('Israel'), ('Italy'), ('Jamaica'), ('Japan'), 
-('Jordan'), ('Kazakhstan'), ('Kenya'), ('Kiribati'), ('Kuwait'), 
-('Kyrgyzstan'), ('Laos'), ('Latvia'), ('Lebanon'), ('Lesotho'), 
-('Liberia'), ('Libya'), ('Liechtenstein'), ('Lithuania'), ('Luxembourg'), 
-('Madagascar'), ('Malawi'), ('Malaysia'), ('Maldives'), ('Mali'), 
-('Malta'), ('Marshall Islands'), ('Mauritania'), ('Mauritius'), ('Mexico'), 
-('Micronesia'), ('Moldova'), ('Monaco'), ('Mongolia'), ('Montenegro'), 
-('Morocco'), ('Mozambique'), ('Myanmar (Burma)'), ('Namibia'), ('Nauru'), 
-('Nepal'), ('Netherlands'), ('New Zealand'), ('Nicaragua'), ('Niger'), 
-('Nigeria'), ('North Macedonia'), ('Norway'), ('Oman'), ('Pakistan'), 
-('Palau'), ('Palestine State'), ('Panama'), ('Papua New Guinea'), ('Paraguay'), 
-('Peru'), ('Philippines'), ('Poland'), ('Portugal'), ('Qatar'), 
-('Romania'), ('Russia'), ('Rwanda'), ('Saint Kitts and Nevis'), ('Saint Lucia'), 
-('Saint Vincent and the Grenadines'), ('Samoa'), ('San Marino'), ('Sao Tome and Principe'), ('Saudi Arabia'), 
-('Senegal'), ('Serbia'), ('Seychelles'), ('Sierra Leone'), ('Singapore'), 
-('Slovakia'), ('Slovenia'), ('Solomon Islands'), ('Somalia'), ('South Africa'), 
-('South Korea'), ('South Sudan'), ('Spain'), ('Sri Lanka'), ('Sudan'), 
-('Suriname'), ('Sweden'), ('Switzerland'), ('Syria'), ('Tajikistan'), 
-('Tanzania'), ('Thailand'), ('Timor-Leste'), ('Togo'), ('Tonga'), 
-('Trinidad and Tobago'), ('Tunisia'), ('Turkey'), ('Turkmenistan'), ('Tuvalu'), 
-('Uganda'), ('Ukraine'), ('United Arab Emirates'), ('United Kingdom'), ('United States of America'), 
-('Uruguay'), ('Uzbekistan'), ('Vanuatu'), ('Venezuela'), ('Vietnam'), 
-('Yemen'), ('Zambia'), ('Zimbabwe');
+-----------------------------------------------------------------------
+-- AGE RANGES
+-----------------------------------------------------------------------
+create table age_ranges (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    fromAge int not null check(fromAge >= 0),
+    toAge int null check(toAge >= fromAge),
+    notes text null
+);
+insert into age_ranges (name, fromAge, toAge) values
+('Children', 0, 18),
+('Early Adulthood', 18, 24),
+('Prime Youth', 25, 34),
+('Middle Youth', 35, 44),
+('Early Seniority', 55, 64),
+('Seniority', 65, null);
+
 
 -----------------------------------------------------------------------
 -- THING TEMPLATES
 -----------------------------------------------------------------------
 create table thing_templates (
     id uuid not null primary key default gen_random_uuid(),
-    name text not null,
+    name text not null unique,
     activity_id uuid not null references activities(id) on delete cascade,
-    age_from int null check(age_from >= 0),
-    age_to int null check(age_to >= 0),
-    temperature_from int null,
-    temperature_to int null,
-    notes text null,
-
-    constraint ch_thing_templates_ages check (
-        age_from is null 
-        or age_to is null 
-        or age_from <= age_to
-    ),
-
-    constraint ch_thing_templates_temperatures check (
-        temperature_from is null 
-        or temperature_to is null 
-        or temperature_from <= temperature_to
-    )
-);
-create unique index idx_thing_templates_activity_id_name on thing_templates(activity_id, name);
-
-create table template_genders (
-    id uuid not null primary key default gen_random_uuid(),
-    template_id uuid not null references thing_templates(id) on delete cascade,
-    gender_id uuid not null references genders(id) on delete cascade,
+    temperature_ranges_id uuid null references temperature_ranges(id) on delete cascade,
+    age_ranges_id uuid null references age_ranges(id) on delete cascade,
     notes text null
 );
-create unique index idx_template_genders_gender_id_template_id on template_genders(template_id,gender_id);
-
-create table template_countries (
-    id uuid not null primary key default gen_random_uuid(),
-    template_id uuid not null references thing_templates(id) on delete cascade,
-    country_id uuid not null references countries(id) on delete cascade,
-    notes text null
-);
-create unique index idx_template_countries_country_id_template_id on template_countries(template_id,country_id);
 
 create table template_things (
     id uuid not null primary key default gen_random_uuid(),
@@ -212,6 +168,36 @@ create table template_things (
     notes text
 );
 create unique index idx_template_things_template_id_name on template_things(template_id, name);
+
+
+
+CREATE OR REPLACE VIEW v_template_things_full AS
+SELECT 
+    tt.id AS thing_id,
+    tt.name AS thing_name,
+    tt.category,
+    tt.units,
+    tt.value,
+    tt.notes AS thing_notes,
+
+    tpl.id AS template_id,
+    tpl.name AS template_name,
+
+    act.name AS activity_name,
+
+    tr.name AS temperature_range_name,
+    tr.fromtemp,
+    tr.totemp,
+
+    ar.name AS age_range_name,
+    ar.fromage,
+    ar.toage
+
+FROM template_things tt
+JOIN thing_templates tpl ON tt.template_id = tpl.id
+JOIN activities act ON tpl.activity_id = act.id
+LEFT JOIN temperature_ranges tr ON tpl.temperature_ranges_id = tr.id
+LEFT JOIN age_ranges ar ON tpl.age_ranges_id = ar.id;
 
 
 -----------------------------------------------------------------------

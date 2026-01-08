@@ -11,17 +11,31 @@ public partial class PlantourContext : DbContext
     {
     }
 
+    public virtual DbSet<Activity> Activities { get; set; }
+
     public virtual DbSet<AdminsParticipant> AdminsParticipants { get; set; }
 
+    public virtual DbSet<AgeRange> AgeRanges { get; set; }
+
     public virtual DbSet<CommunicationType> CommunicationTypes { get; set; }
+
+    public virtual DbSet<Gender> Genders { get; set; }
 
     public virtual DbSet<Invitation> Invitations { get; set; }
 
     public virtual DbSet<ParticipantStatus> ParticipantStatuses { get; set; }
 
+    public virtual DbSet<TemperatureRange> TemperatureRanges { get; set; }
+
+    public virtual DbSet<TemplateThing> TemplateThings { get; set; }
+
     public virtual DbSet<ThingCategory> ThingCategories { get; set; }
 
+    public virtual DbSet<ThingTemplate> ThingTemplates { get; set; }
+
     public virtual DbSet<Trip> Trips { get; set; }
+
+    public virtual DbSet<TripComment> TripComments { get; set; }
 
     public virtual DbSet<TripSharedThing> TripSharedThings { get; set; }
 
@@ -29,7 +43,7 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<TripUser> TripUsers { get; set; }
 
-    public virtual DbSet<TripPack> TripUserPackages { get; set; }
+    public virtual DbSet<TripUserPackage> TripUserPackages { get; set; }
 
     public virtual DbSet<TripUserThing> TripUserThings { get; set; }
 
@@ -41,9 +55,18 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<UserThing> UserThings { get; set; }
 
+    public virtual DbSet<VTemplateThingsFull> VTemplateThingsFulls { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("pldbgapi");
+
+        modelBuilder.Entity<Activity>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("activities_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
 
         modelBuilder.Entity<AdminsParticipant>(entity =>
         {
@@ -61,9 +84,23 @@ public partial class PlantourContext : DbContext
                 .HasConstraintName("admins_participants_participant_status_id_fkey");
         });
 
+        modelBuilder.Entity<AgeRange>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("age_ranges_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
         modelBuilder.Entity<CommunicationType>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("communication_types_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
+        modelBuilder.Entity<Gender>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("genders_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
@@ -85,11 +122,44 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
+        modelBuilder.Entity<TemperatureRange>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("temperature_ranges_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
+        modelBuilder.Entity<TemplateThing>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("template_things_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.Template).WithMany(p => p.TemplateThings).HasConstraintName("template_things_template_id_fkey");
+        });
+
         modelBuilder.Entity<ThingCategory>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("thing_categories_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
+        modelBuilder.Entity<ThingTemplate>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("thing_templates_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.Activity).WithMany(p => p.ThingTemplates).HasConstraintName("thing_templates_activity_id_fkey");
+
+            entity.HasOne(d => d.AgeRanges).WithMany(p => p.ThingTemplates)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("thing_templates_age_ranges_id_fkey");
+
+            entity.HasOne(d => d.TemperatureRanges).WithMany(p => p.ThingTemplates)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("thing_templates_temperature_ranges_id_fkey");
         });
 
         modelBuilder.Entity<Trip>(entity =>
@@ -103,6 +173,19 @@ public partial class PlantourContext : DbContext
                 .HasConstraintName("trips_trip_status_id_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.Trips).HasConstraintName("trips_user_id_fkey");
+        });
+
+        modelBuilder.Entity<TripComment>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("trip_comments_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.Trip).WithMany(p => p.TripComments).HasConstraintName("trip_comments_trip_id_fkey");
+
+            entity.HasOne(d => d.TripUser).WithMany(p => p.TripComments)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("trip_comments_trip_user_id_fkey");
         });
 
         modelBuilder.Entity<TripSharedThing>(entity =>
@@ -140,7 +223,7 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Trip).WithMany(p => p.TripUsers).HasConstraintName("trip_users_trip_id_fkey");
         });
 
-        modelBuilder.Entity<TripPack>(entity =>
+        modelBuilder.Entity<TripUserPackage>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("trip_user_packages_pkey");
 
@@ -157,7 +240,7 @@ public partial class PlantourContext : DbContext
 
             entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserThings).HasConstraintName("trip_user_things_trip_user_id_fkey");
 
-            entity.HasOne(d => d.TripPack).WithMany(p => p.TripUserThings)
+            entity.HasOne(d => d.TripUserPackage).WithMany(p => p.TripUserThings)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("trip_user_things_trip_user_package_id_fkey");
         });
@@ -192,6 +275,11 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserThings).HasConstraintName("user_things_user_id_fkey");
+        });
+
+        modelBuilder.Entity<VTemplateThingsFull>(entity =>
+        {
+            entity.ToView("v_template_things_full", "plantour");
         });
 
         OnModelCreatingPartial(modelBuilder);

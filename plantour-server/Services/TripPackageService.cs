@@ -103,7 +103,7 @@ public class TripPackageService(
             throw new CustomException("Package with the same name already exists");
         }
 
-        var entity = _mapper.Map<TripPack>(request);
+        var entity = _mapper.Map<TripUserPackage>(request);
         entity.Id = Guid.NewGuid();
         entity.TripUserId = tripUser.Id;
         await _tripPackageRepository.AddAsync(entity);
