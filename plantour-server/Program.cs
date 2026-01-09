@@ -102,6 +102,7 @@ builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantReposit
 builder.Services.AddScoped<plantour_server.Repositories.UsersRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.DicTripRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripSharedRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
 
 builder.Services.AddScoped<HttpCurrentUser>();
 

@@ -31,9 +31,6 @@ export class ThingsComponent {
   appService = inject(AppService);
   tripService = inject(TripService);
 
-  // This does not work syncronously
-  trips = toSignal(this.tripService.getAllWhereParticipant(), { initialValue: null });
-
   entitiesService = inject(EntitiesService);
   thingService = inject(ThingService);
   settingsPersistenceService = inject(EntitiesService).settingsPersistenceService;

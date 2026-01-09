@@ -211,10 +211,10 @@ export const routes: Routes = [
     data: { componentId: 'terms' }
   },
   {
-    path: 'template-things',
+    path: 'templates',
     canActivate: [adminOrParticipantGuard],
-    loadComponent: () => import('./components/template-things/template-things-component').then(m => m.TemplateThingsComponent),
-    data: { componentId: 'template-things' }
+    loadComponent: () => import('./components/templats/templates-component').then(m => m.TemplatesComponent),
+    data: { componentId: 'templates' }
   },
   {
     path: '**',

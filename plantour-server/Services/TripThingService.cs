@@ -37,22 +37,14 @@ public class TripThingService(
         _currentUser.RaiseIfNotAuthenticated();
         return await _dicTripRepository.DeleteTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageIds);
     }
-    public async Task<int> InsertTemplateTripSharedThingsAsync(Guid tripId, Guid[] ids)
-    {
-        _currentUser.RaiseIfNotAdmin();
-        return await _dicTripRepository.InsertTemplateTripSharedThingsAsync(_currentUser.AdminId, tripId, ids);
-    }
 
-    public async Task<int> DeleteTemplateTripSharedThingsAsync(Guid tripId, Guid[] ids)
-    {
-        _currentUser.RaiseIfNotAdmin();
-        return await _dicTripRepository.DeleteTemplateTripSharedThingsAsync(_currentUser.AdminId, tripId, ids);
-    }
+
     public async Task<int> InsertTemplateTripUserThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAdmin();
         return await _dicTripRepository.InsertTemplateTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
+
 
     public async Task<int> DeleteTemplateTripUserThingsAsync(Guid tripId, Guid[] ids)
     {

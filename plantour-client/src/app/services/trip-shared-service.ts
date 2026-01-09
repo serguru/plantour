@@ -69,6 +69,16 @@ export class TripSharedService implements CrudService<TripSharedDto, CreateTripS
   }
 
 
+  addFromTemplate(data: MultipleIdsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/insert-from-template`, data);
+  }
+
+  deleteFromTemplate(data: MultipleIdsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/delete-from-template`, data);
+  }
+
+
+
   getAll(tripId: string): Observable<TripSharedDto[]> {
     return this.http.get<TripSharedDto[]>(`${this.apiUrl}/trip/${tripId}`);
   }

@@ -5,3 +5,11 @@ export enum UpperActionType {
     Thing2Participant
 }
 
+export enum TargetMode {
+    None,
+    TripThings,
+    TripShared,
+    DicThings,
+    Packing,
+    Assigning
+}

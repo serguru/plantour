@@ -276,4 +276,18 @@ public class TripSharedService(
         entity.AssignedAt = null;
         await _tripSharedRepository.UpdateAsync(entity);
     }
+
+
+    public async Task<int> InsertTemplateTripSharedThingsAsync(Guid tripId, Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAdmin();
+        return await _dicTripRepository.InsertTemplateTripSharedThingsAsync(_currentUser.AdminId, tripId, ids);
+    }
+
+    public async Task<int> DeleteTemplateTripSharedThingsAsync(Guid tripId, Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAdmin();
+        return await _dicTripRepository.DeleteTemplateTripSharedThingsAsync(_currentUser.AdminId, tripId, ids);
+    }
+
 }

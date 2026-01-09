@@ -75,6 +75,14 @@ export class TripThingService implements CrudService<TripThingDto, CreateTripThi
     return this.http.post<number>(`${this.apiUrl}/delete-from-dic`, data);
   }
 
+  addFromTemplate(data: MultipleIdsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/insert-from-template`, data);
+  }
+
+  deleteFromTemplate(data: MultipleIdsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/delete-from-template`, data);
+  }
+
 
   getAll(tripId: string): Observable<TripThingDto[]> {
     return this.http.get<TripThingDto[]>(`${this.apiUrl}/trip/${tripId}`);

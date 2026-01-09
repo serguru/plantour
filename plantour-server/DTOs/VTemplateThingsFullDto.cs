@@ -22,15 +22,15 @@ public class VTemplateThingsFullDto
 
     public string? TemperatureRangeName { get; set; }
 
-    public int? Fromtemp { get; set; }
+    public int? FromTemp { get; set; }
 
-    public int? Totemp { get; set; }
+    public int? ToTemp { get; set; }
 
     public string? AgeRangeName { get; set; }
 
-    public int? Fromage { get; set; }
+    public int? FromAge { get; set; }
 
-    public int? Toage { get; set; }
+    public int? ToAge { get; set; }
 
     public bool IsTargeted { get; set; } = false;
 

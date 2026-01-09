@@ -91,7 +91,7 @@ public class ThingController : ControllerBase
 
     [HttpPost("insert-from-template")]
     [AdminOrParticipant]
-    public async Task<ActionResult> InsertTemplateUserThingsAsync([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult> AddFromTemplate([FromBody] MultipleIdsRequest request)
     {
         var insertedCount = await _service.InsertTemplateUserThingsAsync(request.CollectionId, request.Ids);
         return Ok(new { insertedCount });
@@ -99,7 +99,7 @@ public class ThingController : ControllerBase
 
     [HttpPost("delete-from-template")]
     [AdminOrParticipant]
-    public async Task<ActionResult> DeleteTemplateUserThingsAsync([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult> DeleteFromTemplate([FromBody] MultipleIdsRequest request)
     {
         var deletedCount = await _service.DeleteTemplateUserThingsAsync(request.CollectionId, request.Ids);
         return Ok(new { deletedCount });

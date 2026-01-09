@@ -29,6 +29,23 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
         return Ok(new { deletedCount });
     }
 
+    [HttpPost("insert-from-template")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> AddFromTemplate([FromBody] MultipleIdsRequest request)
+    {
+        var insertedCount = await _service.InsertTemplateTripSharedThingsAsync(request.CollectionId, request.Ids);
+        return Ok(new { insertedCount });
+    }
+
+    [HttpPost("delete-from-template")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> DeleteFromTemplate([FromBody] MultipleIdsRequest request)
+    {
+        var deletedCount = await _service.DeleteTemplateTripSharedThingsAsync(request.CollectionId, request.Ids);
+        return Ok(new { deletedCount });
+    }
+
+
     [HttpGet("trip/{tripId}")]
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<TripSharedDto>>> GetAll(Guid tripId)

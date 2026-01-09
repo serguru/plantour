@@ -13,4 +13,8 @@ public interface ITripSharedService
     Task<int> DeleteTripSharedsAsync(Guid tripId, Guid[] thingIds);
     Task AcceptAssignmentAsync(Guid tripId, Guid id);
     Task RejectAssignmentAsync(Guid tripId, Guid id);
+    Task<int> InsertTemplateTripSharedThingsAsync(Guid tripId, Guid[] ids);
+
+    Task<int> DeleteTemplateTripSharedThingsAsync(Guid tripId, Guid[] ids);
+
 }
