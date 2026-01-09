@@ -162,14 +162,11 @@ create table template_things (
     id uuid not null primary key default gen_random_uuid(),
     template_id uuid not null references thing_templates(id) on delete cascade,
     category varchar(50),
-    name varchar(200) not null,
+    name varchar(200) not null unique,
     units varchar(50),
     value decimal(10,3) check(value > 0),
     notes text
 );
-create unique index idx_template_things_template_id_name on template_things(template_id, name);
-
-
 
 CREATE OR REPLACE VIEW v_template_things_full AS
 SELECT 

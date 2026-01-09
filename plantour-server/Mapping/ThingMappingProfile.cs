@@ -13,5 +13,9 @@ public class ThingMappingProfile : Profile
         CreateMap<CreateThingRequest, UserThing>();
         
         CreateMap<UpdateThingRequest, UserThing>();
+
+        CreateMap<VTemplateThingsFull, VTemplateThingsFullDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ThingId))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ThingName));
     }
 }
