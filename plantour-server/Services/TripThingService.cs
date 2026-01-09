@@ -13,11 +13,13 @@ public class TripThingService(
     ICheckAccessService checkAccessService,
     TripUserRepository tripUserRepository,
     ThingRepository ThingRepository,
+    TemplateRepository templateRepository,
     IMapper mapper,
     HttpCurrentUser httpCurrentUser) : ITripThingService
 {
     private readonly TripThingRepository _tripUserThingRepository = TripThingRepository;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
+    private readonly TemplateRepository _templateRepository = templateRepository;
     private readonly ThingRepository _userThingRepository = ThingRepository;
     private readonly IMapper _mapper = mapper;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
@@ -34,6 +36,17 @@ public class TripThingService(
     {
         _currentUser.RaiseIfNotAuthenticated();
         return await _dicTripRepository.DeleteTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageIds);
+    }
+    public async Task<int> InsertFromTemplateAsync(Guid tripId, Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.InsertFromTemplateAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
+    }
+
+    public async Task<int> DeleteFromTemplateAsync(Guid tripId, Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.DeleteFromTemplateAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
     public async Task<IEnumerable<TripThingDto>> GetAllAsync(Guid tripId)
@@ -154,5 +167,4 @@ public class TripThingService(
         _currentUser.RaiseIfNotAuthenticated();
         return await _dicTripRepository.PackTripThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, Guid.Empty, tripThingIds, true);
     }
-
 }

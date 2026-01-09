@@ -44,6 +44,4 @@ public class TemplateController(ITemplateService service) : ControllerBase
         var dtos = await _service.GetAllForDicAsync(tripId);
         return Ok(dtos);
     }
-
-
 }

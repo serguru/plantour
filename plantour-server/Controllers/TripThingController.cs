@@ -28,6 +28,22 @@ public class TripThingController(ITripThingService service) : ControllerBase
         return Ok(new { deletedCount });
     }
 
+    [HttpPost("insert-from-template")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> AddFromTemplate([FromBody] MultipleIdsRequest request)
+    {
+        var insertedCount = await _service.InsertFromTemplateAsync(request.CollectionId, request.Ids);
+        return Ok(new { insertedCount });
+    }
+
+    [HttpPost("delete-from-template")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> DeleteFromTemplate([FromBody] MultipleIdsRequest request)
+    {
+        var deletedCount = await _service.DeleteFromTemplateAsync(request.CollectionId, request.Ids);
+        return Ok(new { deletedCount });
+    }
+
     [HttpGet("trip/{tripId}")]
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<TripThingDto>>> GetAll(Guid tripId)

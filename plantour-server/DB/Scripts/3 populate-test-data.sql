@@ -1,6 +1,103 @@
 SET search_path TO plantour, public;
 
 begin;
+
+
+-- ====================================================================
+-- USERS (2 admins + 2 participants + 2 extra users)
+-- ====================================================================
+INSERT INTO users (email, password_hash, password_salt, first_name, last_name, phone, notes)
+VALUES
+    (
+        'serguru@gmail.com',
+        '\x35c846498f41a7ed1513b765c264ab222f7c3b015163fc07c78f6af00554436d2bb8f3d105a848584a0103f228132affc301505136188d50194e14f9a32d0f64',
+        '\x727465da121430b0bf747ea4a4cc3c21f458c61b824b15d354fc8e10adb5d2a7e82a3aa26363d48178341995f078275e2d5b3c5df70536c6af73a6dff32e15b7',
+        'Serge',
+        'Cherny',
+        '+1-604-000-0000',
+        'Primary admin user'
+    ),
+    (
+        'sechevan@gmail.com',
+        '\x35c846498f41a7ed1513b765c264ab222f7c3b015163fc07c78f6af00554436d2bb8f3d105a848584a0103f228132affc301505136188d50194e14f9a32d0f64',
+        '\x727465da121430b0bf747ea4a4cc3c21f458c61b824b15d354fc8e10adb5d2a7e82a3aa26363d48178341995f078275e2d5b3c5df70536c6af73a6dff32e15b7',
+        'Bill',
+        'Gates',
+        '+1-604-000-0001',
+        'Secondary admin test user'
+    ),
+    (
+        'alice.participant@plantour.test',
+        NULL,
+        NULL,
+        'Alice',
+        'Participant',
+        '+1-604-000-0001',
+        'First participant linked to admin'
+    ),
+    (
+        'bob.participant@plantour.test',
+        NULL,
+        NULL,
+        'Bob',
+        'Participant',
+        '+1-604-000-0002',
+        'Second participant linked to admin'
+    ),
+    (
+        'carol.tester@plantour.test',
+        NULL,
+        NULL,
+        'Carol',
+        'Tester',
+        '+1-604-000-0003',
+        'Extra test user'
+    ),
+    (
+        'dave.tester@plantour.test',
+        NULL,
+        NULL,
+        'Dave',
+        'Tester',
+        '+1-604-000-0004',
+        'Extra test user'
+    );
+
+
+-- ====================================================================
+-- ADMINS / PARTICIPANTS LINKS
+-- ====================================================================
+INSERT INTO admins_participants (id, admin_id, participant_id,participant_status_id, access_code_hash, notes)
+VALUES
+    (
+        gen_random_uuid(),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
+        (SELECT id FROM participant_statuses WHERE name = 'Active'),
+        'a',
+        'Same participant as admin'
+    ),
+    (
+        gen_random_uuid(),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
+        (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
+        (SELECT id FROM participant_statuses WHERE name = 'Active'),
+        'aa',
+        'First participant linked to admin'
+
+    ),
+    (
+        gen_random_uuid(),
+        (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
+        (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
+        (SELECT id FROM participant_statuses WHERE name = 'Planned'),
+        'b',
+        'Second participant linked to admin'
+    );
+
+
+
+
 -----------------------------------------------------------------------
 -- USER THINGS
 -----------------------------------------------------------------------
