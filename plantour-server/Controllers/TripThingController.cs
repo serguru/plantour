@@ -30,17 +30,33 @@ public class TripThingController(ITripThingService service) : ControllerBase
 
     [HttpPost("insert-from-template")]
     [AdminOrParticipant]
-    public async Task<ActionResult> AddFromTemplate([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult> InsertTemplateTripUserThingsAsync([FromBody] MultipleIdsRequest request)
     {
-        var insertedCount = await _service.InsertFromTemplateAsync(request.CollectionId, request.Ids);
+        var insertedCount = await _service.InsertTemplateTripUserThingsAsync(request.CollectionId, request.Ids);
         return Ok(new { insertedCount });
     }
 
     [HttpPost("delete-from-template")]
     [AdminOrParticipant]
-    public async Task<ActionResult> DeleteFromTemplate([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult> DeleteTemplateTripUserThingsAsync([FromBody] MultipleIdsRequest request)
     {
-        var deletedCount = await _service.DeleteFromTemplateAsync(request.CollectionId, request.Ids);
+        var deletedCount = await _service.DeleteTemplateTripUserThingsAsync(request.CollectionId, request.Ids);
+        return Ok(new { deletedCount });
+    }
+
+    [HttpPost("insert-from-template-shared")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> InsertTemplateTripSharedThingsAsync([FromBody] MultipleIdsRequest request)
+    {
+        var insertedCount = await _service.InsertTemplateTripSharedThingsAsync(request.CollectionId, request.Ids);
+        return Ok(new { insertedCount });
+    }
+
+    [HttpPost("delete-from-template-shared")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> DeleteTemplateTripSharedThingsAsync([FromBody] MultipleIdsRequest request)
+    {
+        var deletedCount = await _service.DeleteTemplateTripSharedThingsAsync(request.CollectionId, request.Ids);
         return Ok(new { deletedCount });
     }
 

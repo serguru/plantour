@@ -14,6 +14,7 @@ public class ThingService(
     ICheckAccessService checkAccessService,
     TripThingRepository tripThingRepository,
     TripSharedRepository tripSharedRepository,
+    DicTripRepository dicTripRepository,
     HttpCurrentUser httpCurrentUser) : IThingService
 {
     private readonly ThingRepository _userThingRepository = ThingRepository;
@@ -23,6 +24,7 @@ public class ThingService(
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly TripThingRepository _tripThingRepository = tripThingRepository;
     private readonly TripSharedRepository _tripSharedRepository = tripSharedRepository;
+    private readonly DicTripRepository _dicTripRepository = dicTripRepository;
 
     public async Task<IEnumerable<ThingDto>> GetAllAsync()
     {
@@ -141,4 +143,19 @@ public class ThingService(
             Notes = c.Notes
         });
     }
+
+
+    public async Task<int> InsertTemplateUserThingsAsync(Guid tripId, Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.InsertTemplateUserThingsAsync(_currentUser.UserId, ids);
+    }
+
+    public async Task<int> DeleteTemplateUserThingsAsync(Guid tripId, Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.DeleteTemplateUserThingsAsync(_currentUser.UserId, ids);
+    }
+
+
 }

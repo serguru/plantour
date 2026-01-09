@@ -502,7 +502,6 @@ $$;
 --#endregion
 
 
-
 --#region insert_template_trip_user_things
 -- insert from template_things to trip_user_things
 create or replace function plantour.insert_template_trip_user_things(

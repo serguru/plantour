@@ -12,4 +12,13 @@ public interface IThingService
     Task<IEnumerable<ThingCategoryDto>> GetAllThingCategoriesAsync();
     Task<IEnumerable<ThingDto>> GetAllForTripAsync(Guid tripId);
     Task<IEnumerable<ThingDto>> GetAllForTripSharedAsync(Guid tripId);
+    Task<int> InsertTemplateUserThingsAsync(Guid tripId, Guid[] ids);
+    Task<int> DeleteTemplateUserThingsAsync(Guid tripId, Guid[] ids);
+
+
+
+
+
+
+    
 }

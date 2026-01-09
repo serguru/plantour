@@ -314,9 +314,9 @@ public class DicTripRepository(PlantourContext context)
     }
 
 
+//-----------------------------------
 
-
-    public async Task<int> InsertTripTemplateThingsAsync(
+    public async Task<int> InsertTemplateTripSharedThingsAsync(
         Guid adminId,
         Guid tripId,
         Guid[] thingIds)
@@ -332,7 +332,7 @@ public class DicTripRepository(PlantourContext context)
             await connection.OpenAsync();
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT plantour.insert_trip_shared_things(@adminId, @tripId, @thingIds);";
+                command.CommandText = "SELECT plantour.insert_template_trip_shared_things(@adminId, @tripId, @thingIds);";
                 command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
                 command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
                 command.Parameters.Add(new NpgsqlParameter("@thingIds", thingIds));
@@ -346,7 +346,8 @@ public class DicTripRepository(PlantourContext context)
         return insertedCount;
     }
 
-    public async Task<int> DeleteTripTemplateThingsAsync(
+
+    public async Task<int> DeleteTemplateTripSharedThingsAsync(
         Guid adminId,
         Guid tripId,
         Guid[] thingIds)
@@ -362,7 +363,7 @@ public class DicTripRepository(PlantourContext context)
             await connection.OpenAsync();
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT plantour.delete_trip_shared_things(@adminId,  @tripId, @thingIds);";
+                command.CommandText = "SELECT plantour.delete_template_trip_shared_things(@adminId,  @tripId, @thingIds);";
                 command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
                 command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
                 command.Parameters.Add(new NpgsqlParameter("@thingIds", thingIds));
@@ -377,20 +378,127 @@ public class DicTripRepository(PlantourContext context)
     }
 
 
+    public async Task<int> InsertTemplateTripUserThingsAsync(
+        Guid adminId,
+        Guid participantId,
+        Guid tripId,
+        Guid[] thingIds)
+    {
+        if (thingIds.Length == 0)
+        {
+            return 0;
+        }
 
-//public async Task<int> InsertTripTemplateSharedAsync(
+        int insertedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.insert_template_trip_user_things(@adminId, @participantId, @tripId, @thingIds);";
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@participantId", participantId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@thingIds", thingIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    insertedCount = count;
+                }
+            }
+        }
+        return insertedCount;
+    }
+
+    public async Task<int> DeleteTemplateTripUserThingsAsync(
+        Guid adminId,
+        Guid participantId,
+        Guid tripId,
+        Guid[] thingIds)
+    {
+        if (thingIds.Length == 0)
+        {
+            return 0;
+        }
+
+        int deletedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.delete_template_trip_user_things(@adminId, @participantId, @tripId, @thingIds);";
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@participantId", participantId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@thingIds", thingIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    deletedCount = count;
+                }
+            }
+        }
+        return deletedCount;
+    }
 
 
-//public async Task<int> DeleteTripTemplateSharedAsync(    
+    public async Task<int> InsertTemplateUserThingsAsync(
+        Guid userId,
+        Guid[] thingIds)
+    {
+        if (thingIds.Length == 0)
+        {
+            return 0;
+        }
+
+        int insertedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.insert_template_user_things(@userId, @thingIds);";
+                command.Parameters.Add(new NpgsqlParameter("@userId", userId));
+                command.Parameters.Add(new NpgsqlParameter("@thingIds", thingIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    insertedCount = count;
+                }
+            }
+        }
+        return insertedCount;
+    }
 
 
+    public async Task<int> DeleteTemplateUserThingsAsync(
+        Guid userId,
+        Guid[] thingIds)
+    {
+        if (thingIds.Length == 0)
+        {
+            return 0;
+        }
 
-
-//public async Task<int> InsertTemplateDicAsync(
-
-
-//public async Task<int> DeleteTemplateDicAsync(    
-
+        int deletedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.delete_template_user_things(@userId, @thingIds);";
+                command.Parameters.Add(new NpgsqlParameter("@userId", userId));
+                command.Parameters.Add(new NpgsqlParameter("@thingIds", thingIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    deletedCount = count;
+                }
+            }
+        }
+        return deletedCount;
+    }
 
 
 
