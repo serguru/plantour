@@ -1,6 +1,6 @@
 import { Component, inject, input, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EntitiesService } from '../../../services/entities-service';
+import { ComponentService } from '../../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MessagesService } from '../../../services/messages-service';
 
@@ -23,21 +23,21 @@ export class EntitiesHeaderComponent implements OnInit {
   @Input() entityNameProp: string = 'name';
 
   useEntitiesActions = input<boolean>(true);
-  entitiesService = inject(EntitiesService);
+  componentService = inject(ComponentService);
 
-  entitiesActionsVisible = toSignal(this.entitiesService.entitiesActionsVisible$, { initialValue: false });
+  entitiesActionsVisible = toSignal(this.componentService.entitiesActionsVisible$, { initialValue: false });
 
-  anyConditionSet = toSignal(this.entitiesService.conditionSet$, { initialValue: false });
+  anyConditionSet = toSignal(this.componentService.conditionSet$, { initialValue: false });
 
   toggleEntitiesActions() {
-    this.entitiesService.toggleEntitiesActionsVisible();
+    this.componentService.updateEntitiesActionsVisible(!this.entitiesActionsVisible());
   }
 
   router = inject(Router);
   route = inject(ActivatedRoute);
   messagesService = inject(MessagesService);
 
-  selectedId = toSignal(this.entitiesService.selectedId$, { initialValue: null });
+  selectedId = toSignal(this.componentService.selectedId$, { initialValue: null });
 
   
   ngOnInit(): void {

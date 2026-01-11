@@ -6,9 +6,9 @@ import { BaseListComponent } from '../base-list/base-list';
 import { CreateTripPackageRequest, TripPackageDto, TripPackageService, UpdateTripPackageRequest } from '../../services/trip-package-service';
 import { UpperActionType } from '../../helpers/enums';
 import { PackItemComponent } from './pack-item/pack-item-component';
-import { Condition } from '../../services/dynamic-query-service';
-import { EntitiesCounts, EntitiesService } from '../../services/entities-service';
-import { filter, map, of, shareReplay, switchMap, tap } from 'rxjs';
+import { Condition, Target, TargetCondition, TargetMode, TargetOption } from '../../services/dynamic-query-service';
+import { ComponentService } from '../../services/component-service';
+import { EMPTY, filter, map, mergeMap, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
@@ -34,51 +34,83 @@ export class PacksComponent implements OnInit {
   appService = inject(AppService);
   tripService = inject(TripService);
 
-  // This does not work
-  trips = toSignal(this.tripService.getAllWhereParticipant(), { initialValue: null });
-
-  entitiesService = inject(EntitiesService);
+  componentService = inject(ComponentService);
   packageService = inject(PackageService);
-  settingsPersistenceService = inject(EntitiesService).settingsPersistenceService;
-  dynamicQueryService = inject(EntitiesService).dynamicQueryService;
+  settingsPersistenceService = inject(ComponentService).settingsPersistenceService;
+  dynamicQueryService = inject(ComponentService).dynamicQueryService;
   tripPackageService = inject(TripPackageService);
 
-  targetId = toSignal(this.entitiesService.targetCondition$);
-  targetedIds = toSignal(this.entitiesService.targetedIds$);
-  notTargetedIds = toSignal(this.entitiesService.notTargetedIds$);
+  targetCondition = toSignal(this.componentService.targetCondition$);
+  targetedIds = toSignal(this.componentService.targetedIds$);
+  notTargetedIds = toSignal(this.componentService.notTargetedIds$);
   tripSelected = toSignal(this.appService.tripSelected$);
   private destroyRef = inject(DestroyRef);
 
-  constructor() {
-  }
+  conditions: Condition[] =
+    [
+      {
+        kind: 'sort',
+        label: 'Sort by Name',
+        icon: 'sort-alpha-down',
+        property: 'name',
+        sortType: 'text',
+        direction: 'none'
+      },
+      {
+        kind: 'target',
+        label: 'Trip',
+        icon: 'compass',
+        target: null
+      },
+      {
+        kind: 'filter',
+        property: 'name',
+        label: 'Filter by Name',
+        filterText: '',
+        comparisonType: 'contains',
+        isSelected: true,
+        icon: 'box'
+      }
+    ];
 
   ngOnInit(): void {
-    this.entitiesService.targetCondition$.pipe(
-      switchMap(tripId => {
-        if (tripId) {
-          return this.packageService.getAllForTrip(tripId);
-        }
-        return this.packageService.getAll();
-      }
-      ),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(packages =>
-      this.entitiesService.updateEntities(packages || [])
-    );
+
+    this.componentService.updateComponentId(this.componentId);
 
     this.tripService.getAllWhereParticipant().pipe(
       tap((trips: TripDto[]) => {
-        this.initState(this.componentId, trips);
+        this.initConditions(this.componentId, trips);
         this.initTargetLookup(trips);
+        this.initSavedFeatures();
       }),
+      switchMap((trips: TripDto[]) =>
+        this.componentService.targetCondition$.pipe(
+          switchMap((targetCondition: TargetCondition | null) => {
+            if (targetCondition && targetCondition.target?.id) {
+              return this.packageService.getAllForTrip(targetCondition.target.id);
+            }
+            return this.packageService.getAll();
+          }),
+        )
+      ),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe();
+    ).subscribe(packages =>
+      this.componentService.updateEntities(packages || [])
+    );
+  }
+
+  initSavedFeatures() {
+    const v = !!this.settingsPersistenceService.getComponentKey(this.componentId, 'entitiesActionsVisible');
+    this.componentService.updateEntitiesActionsVisible(v);
+
+    const id = this.settingsPersistenceService.getComponentKey(this.componentId, 'selectedId');
+    this.componentService.updateSelectedId(id);
   }
 
   initTargetLookup(trips: TripDto[] | null) {
 
     if (!trips) {
-      this.entitiesService.updateTargetLookup([]);
+      this.componentService.updateTargetLookup([]);
       return;
     }
 
@@ -86,45 +118,45 @@ export class PacksComponent implements OnInit {
       const aDate = a.startDate ?? '';
       const bDate = b.startDate ?? '';
       return aDate.localeCompare(bDate);
-    }).map((t: any) => ({ id: t.id, name: t.name }));
+    }).map((t: any) => ({
+      id: t.id,
+      name: t.name
+    }));
 
-    this.entitiesService.updateTargetLookup(lookup);
+    this.componentService.updateTargetLookup(lookup);
   }
 
-  initState(componentId: string | null, trips: TripDto[] | null = null): void {
+  initConditions(componentId: string | null, trips: TripDto[] | null = null): void {
     if (!componentId) {
-      return;
+      throw new Error('ComponentId is null');
     }
     const savedConditions = this.settingsPersistenceService.getComponentKey(componentId, 'conditions');
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
+    const targetCondition: TargetCondition | undefined = initialConditions.find(c => c.kind === 'target');
 
-    const targetCondition: any = initialConditions.find(c => c.kind === 'filter' && c.comparisonType == 'exact' && c.property === 'target');
-
-    if (targetCondition && targetCondition.filterText) {
-      const trip = trips?.find(t => t.id === targetCondition.filterText);
+    if (targetCondition) {
+      const trip = trips?.find(t => t.id === targetCondition.target?.id);
       if (!trip) {
-        targetCondition.filterText = '';
+        const trip = this.appService.tripSelectedValue();
+        if (trip && trips?.find(t => t.id === trip.id)) {
+          targetCondition.target = {
+            id: trip.id, name: trip.name, selectedMode: TargetMode.TripThings, options: [{
+              label: 'Trip Things',
+              mode: TargetMode.TripThings
+            }]
+          };
+        }
       }
     }
 
-    if (!targetCondition.filterText) {
-      const tripId = this.appService.tripSelectedValue()?.id;
-      if (tripId && trips?.find(t => t.id === tripId)) {
-        targetCondition.filterText = tripId;
-      }
-    }
-
-    this.entitiesService.updateComponentInit(
-      {
-        componentId: componentId,
-        initialConditions: initialConditions
-      }
-    );
-
+    this.componentService.updateConditions(initialConditions);
+    this.componentService.persistValue('conditions', initialConditions);
   }
 
   onAddTargetClick(): void {
-    const targetId = this.targetId();
+    const targetCondition = this.targetCondition();
+    const targetId = targetCondition?.target?.id;
+
     if (!targetId) {
       throw new Error('Target Trip Id is not set');
     }
@@ -140,12 +172,13 @@ export class PacksComponent implements OnInit {
       switchMap(() => this.packageService.getAllForTrip(targetId)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((packages) => {
-      this.entitiesService.updateEntities(packages);
+      this.componentService.updateEntities(packages);
     });
   }
 
   onDeleteTargetClick(): void {
-    const targetId = this.targetId();
+    const targetCondition = this.targetCondition();
+    const targetId = targetCondition?.target?.id;
     if (!targetId) {
       throw new Error('Target Id is not set');
     }
@@ -161,45 +194,17 @@ export class PacksComponent implements OnInit {
       switchMap(() => this.packageService.getAllForTrip(targetId)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((packages) => {
-      this.entitiesService.updateEntities(packages);
+      this.componentService.updateEntities(packages);
     });
   }
-
-  conditions: Condition[] =
-    [
-      {
-        kind: 'sort',
-        property: 'name',
-        sortType: 'text',
-        direction: 'none'
-      },
-      {
-        kind: 'filter',
-        property: 'target',
-        label: 'Trip',
-        filterText: '',
-        comparisonType: 'exact',
-        icon: 'compass'
-      },
-      {
-        kind: 'filter',
-        property: 'name',
-        label: 'Name',
-        filterText: '',
-        comparisonType: 'contains',
-        isSelected: true,
-        icon: 'box'
-      }
-    ];
-
-
 
   deletePack(id: string): void {
     this.packageService.delete(id).pipe(
 
       switchMap(x => {
-        return this.entitiesService.targetCondition$.pipe(
-          switchMap(tripId => {
+        return this.componentService.targetCondition$.pipe(
+          switchMap(targetCondition => {
+            const tripId = targetCondition?.target?.id;
             if (tripId) {
               return this.packageService.getAllForTrip(tripId);
             }
@@ -209,23 +214,23 @@ export class PacksComponent implements OnInit {
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((packages) => {
-      this.entitiesService.updateEntities(packages);
+      this.componentService.updateEntities(packages);
     });
   }
 
-  targetEntityClick(tripId: string, entity: any) {
+  targetEntityClick(targetCondition: TargetCondition, entity: any) {
     const request: MultipleIdsRequest = {
-      collectionId: tripId,
+      collectionId: targetCondition.target!.id!,
       ids: [entity.id]
     };
 
     const o = entity.isTargeted ? this.tripPackageService.deleteFromDic(request) : this.tripPackageService.addFromDic(request);
 
     o.pipe(
-      switchMap(() => this.packageService.getAllForTrip(tripId)),
+      switchMap(() => this.packageService.getAllForTrip(targetCondition.target!.id!)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((packages) => {
-      this.entitiesService.updateEntities(packages);
+      this.componentService.updateEntities(packages);
     });
   }
 }

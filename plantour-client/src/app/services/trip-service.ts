@@ -55,9 +55,6 @@ export class TripService implements CrudService<TripDto, CreateTripRequest, Upda
     return this.http.get<TripDto[]>(`${this.apiUrl}/where-participant`);
   }
 
-
-  
-
   getById(id: string): Observable<TripDto> {
     return this.http.get<TripDto>(`${this.apiUrl}/${id}`);
   }

@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, Input, OnInit, signal, Type } from '@angular/core';
 import { MessagesService } from '../../services/messages-service';
 import { AppService } from '../../services/app-service';
-import { EntitiesService } from '../../services/entities-service';
+import { ComponentService } from '../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { DynamicQueryService } from '../../services/dynamic-query-service';
@@ -30,7 +30,7 @@ export class EntitiesComponent implements OnInit {
     this.targetEntityClick()!(this.targetId(), entity);
   }
 
-  entitiesService = inject(EntitiesService);
+  componentService = inject(ComponentService);
 
 
   showEntityButton = computed(() => {
@@ -39,15 +39,15 @@ export class EntitiesComponent implements OnInit {
     return x !== null && y;
   });
 
-  selectedId = toSignal(this.entitiesService.selectedId$, { initialValue: null });
+  selectedId = toSignal(this.componentService.selectedId$, { initialValue: null });
 
-  processedEntities = this.entitiesService.processedEntities$;
+  processedEntities = this.componentService.processedEntities$;
 
-  //entities$ = this.entitiesService.entities$;
+  //entities$ = this.componentService.entities$;
 
   filterQuery = signal('');
 
-  targetId = toSignal(this.entitiesService.targetCondition$, { initialValue: null });
+  targetId = toSignal(this.componentService.targetCondition$, { initialValue: null });
 
   isSelected(entity: any): boolean {
     const selectedId = this.selectedId();
@@ -59,12 +59,12 @@ export class EntitiesComponent implements OnInit {
 
   selectEntity(entity: any | null) {
     if (this.isSelected(entity)) {
-      this.entitiesService.updateSelected(null);  
-      this.entitiesService.persistValue('selectedId', null);
+      this.componentService.updateSelectedId(null);  
+      this.componentService.saveSelectedId(null);
       return;
     }
-    this.entitiesService.updateSelected(entity?.id);
-    this.entitiesService.persistValue('selectedId', entity?.id);
+    this.componentService.updateSelectedId(entity?.id);
+    this.componentService.saveSelectedId(entity?.id);
   }
 
   ngOnInit(): void {

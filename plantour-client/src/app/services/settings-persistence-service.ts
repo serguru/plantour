@@ -11,6 +11,9 @@ export abstract class SettingsPersistenceService {
 export class LocalStorageService extends SettingsPersistenceService {
 
   setComponentKey(componentId: string, key: string, value: any) {
+    if (!componentId || componentId.trim().length === 0) {
+      throw new Error(`Cannot persist value: no componentId specified for ${key} and value ${value}`);
+    }
     const fullKey = `${componentId}-${key}`;
     if (value === null || value === undefined) {
       localStorage.removeItem(fullKey);

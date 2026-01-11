@@ -1,6 +1,6 @@
 import { Component, computed, DestroyRef, inject, input, model, OnInit } from '@angular/core';
-import { EntitiesCounts, EntitiesService } from '../../../services/entities-service';
-import { Condition, DynamicQueryService, FilterCondition, SortCondition, SortDirection, SortType } from '../../../services/dynamic-query-service';
+import { EntitiesCounts, ComponentService } from '../../../services/component-service';
+import { Condition, DynamicQueryService, FilterCondition, SortCondition, SortDirection, SortType, Target, TargetCondition, TargetMode, TargetOption } from '../../../services/dynamic-query-service';
 import { Select } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -10,17 +10,8 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 
-type ModeType = 'lookup' | 'filter' | 'sort';
 
-interface ModeOption {
-  type: ModeType;
-  label: string;
-  icon: string;
-  property?: string;
-  condition: FilterCondition | SortCondition;
-}
-
-// TODO: process empty props
+// TODO: process empty props in filters
 
 @Component({
   selector: 'app-entities-actions',
@@ -38,28 +29,53 @@ interface ModeOption {
 })
 export class EntitiesActionsComponent implements OnInit {
 
-  entitiesService = inject(EntitiesService);
+  componentService = inject(ComponentService);
 
-  targetCondition = toSignal(this.entitiesService.targetCondition$, { initialValue: null });
+  targetCondition = toSignal(this.componentService.targetCondition$, { initialValue: null });
+  selectedCondition = toSignal(this.componentService.selectedCondition$, { initialValue: null });
 
   onAddTargetClick = input<Function>();
   onDeleteTargetClick = input<Function>();
-
-  thingsToSharedAllowed = toSignal(this.entitiesService.thingsToSharedAllowed$, { initialValue: false });
-
-  thingsToSharedMode = toSignal(this.entitiesService.thingsToSharedMode$, { initialValue: false });
-
   private destroyRef = inject(DestroyRef);
+  visible = toSignal(this.componentService.entitiesActionsVisible$, { initialValue: false });
+  dynamicQueryService = inject(DynamicQueryService);
 
-  showThingsToShared = computed(() => {
-    const x = this.thingsToSharedAllowed();
-    const y = this.isSelectedModeTarget();
-    return  x && y;
+  conditions: Condition[] = [];
+  lookups: any[] | null = null;
+
+  ngOnInit(): void {
+    combineLatest([
+      this.componentService.lookups$,
+      this.componentService.conditions$
+    ]).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(([lookups, conditions]) => {
+      this.conditions = conditions ? [...conditions] : [];
+      this.lookups = lookups;
+    });
+  }
+
+
+  //thingsToSharedAllowed = toSignal(this.componentService.thingsToSharedAllowed$, { initialValue: false });
+
+  //thingsToSharedMode = toSignal(this.componentService.thingsToSharedMode$, { initialValue: false });
+
+
+  // showThingsToShared = computed(() => {
+  //   const x = this.thingsToSharedAllowed();
+  //   const y = this.isSelectedModeTarget();
+  //   return  x && y;
+  // });
+
+  // onThingsToSharedModeChange(value: boolean): void {
+  //   this.componentService.updateThingsToSharedMode(value);
+  // }
+
+  showRadios = computed(() => {
+    const targetCondition = this.targetCondition();
+    return targetCondition?.target?.options?.length! > 1;
   });
 
-  onThingsToSharedModeChange(value: boolean): void {
-    this.entitiesService.updateThingsToSharedMode(value);
-  }
 
   onAddClick(event: Event): void {
     event.preventDefault();
@@ -79,7 +95,7 @@ export class EntitiesActionsComponent implements OnInit {
     this.onDeleteTargetClick()!();
   }
 
-  counts = toSignal(this.entitiesService.entitiesCounts$, {
+  counts = toSignal(this.componentService.entitiesCounts$, {
     initialValue: {
       allTotal: 0,
       allTargeted: 0,
@@ -99,50 +115,42 @@ export class EntitiesActionsComponent implements OnInit {
   });
 
 
-  conditions: Condition[] = [];
 
-  visible = toSignal(this.entitiesService.entitiesActionsVisible$, { initialValue: false });
-
-  dynamicQueryService = inject(DynamicQueryService);
-  lookups: any[] | null = null;
-
-  modeOptions: ModeOption[] = [];
-  selectedMode = model<ModeOption | null>(null);
+  //modeOptions: ModeOption[] = [];
+  //selectedMode = model<ModeOption | null>(null);
 
 
-  isSelectedModeTarget = computed(() => {
-    const selectedMode = this.selectedMode();
-    return selectedMode ? selectedMode.property === 'target' : false;
-  });
+  // isSelectedModeTarget = computed(() => {
+  //   const selectedMode = this.selectedMode();
+  //   return selectedMode ? selectedMode.property === 'target' : false;
+  // });
 
-  isOptionTarget(option: ModeOption): boolean {
-    return option.property === 'target';
+  // isOptionTarget(option: ModeOption): boolean {
+  //   return option.property === 'target';
+  // }
+
+  updateConditions(): void {
+    this.componentService.updateConditions(this.conditions);
+    this.componentService.persistValue('conditions', this.conditions);
   }
 
-  onOptionChange($event) {
-    this.selectedMode.set($event.value);
+  // onOptionChange($event) {
+  //   this.selectedMode.set($event.value);
 
-    this.modeOptions.forEach(option => {
-      option.condition.isSelected =
-        $event.value.condition === option.condition;
+  //   this.modeOptions.forEach(option => {
+  //     option.condition.isSelected =
+  //       $event.value.condition === option.condition;
+  //   });
+
+
+  //   this.updateConditions();
+  // }
+
+  setSelectedCondition(condition: Condition): void {
+    this.conditions.forEach(c => {
+      c.isSelected = c === condition;
     });
-
-
     this.updateConditions();
-  }
-
-  ngOnInit(): void {
-
-    combineLatest([
-      this.entitiesService.lookups$,
-      this.entitiesService.conditions$
-    ]).pipe(      
-      takeUntilDestroyed(this.destroyRef)
-      ).subscribe(([lookups, conditions]) => {
-        this.conditions = conditions || [];
-        this.lookups = lookups;
-        this.modeOptions = this.buildModeOptions();
-      });
   }
 
   resetConditions() {
@@ -150,151 +158,246 @@ export class EntitiesActionsComponent implements OnInit {
     this.updateConditions();
   }
 
-  updateConditions(): void {
-    this.entitiesService.updateConditions(this.conditions);
-    this.entitiesService.persistValue('conditions', this.conditions);
-  }
+  // private buildModeOptions(): ModeOption[] {
 
-  private buildModeOptions(): ModeOption[] {
+  //   if (!this.conditions.length) {
+  //     return [];
+  //   }
 
-    if (!this.conditions.length) {
+  //   const options: ModeOption[] = [];
+
+  //   this.conditions
+  //     .filter(x => x.kind === 'filter' && x.comparisonType === 'exact')
+  //     .sort((a, b) => (a as FilterCondition).label!.localeCompare((b as FilterCondition).label!))
+  //     .forEach(c => {
+  //       options.push({
+  //         type: 'lookup',
+  //         label: (c as FilterCondition).label!,
+  //         property: c.property,
+  //         icon: `pi pi-${(c as FilterCondition).icon || 'tag'}`,
+  //         condition: c
+  //       });
+  //     });
+
+
+  //   const filterCondition = this.conditions.find(x => x.kind === 'filter' && x.comparisonType === 'contains');
+  //   if (filterCondition) {
+  //     options.push({
+  //       type: 'filter',
+  //       label: 'Filter',
+  //       icon: 'pi pi-filter',
+  //       condition: filterCondition
+  //     });
+  //   }
+
+
+  //   const sortCondition = this.conditions.find(x => x.kind === 'sort');
+  //   if (sortCondition) {
+  //     options.push({
+  //       type: 'sort',
+  //       label: 'Sort',
+  //       icon: 'pi pi-sort-alt',
+  //       condition: sortCondition
+  //     });
+  //   }
+
+  //   if (!this.selectedMode() && options.length) {
+  //     const option = options.find(o => o.condition.isSelected) || options[0];
+  //     this.selectedMode.set(option);
+  //   }
+
+  //   return options;
+  // }
+
+  // Get lookup options for the selected condition 
+  getLookupOptions() {
+    if (!this.lookups || !this.conditions.length) {
       return [];
     }
 
-    const options: ModeOption[] = [];
-
-    this.conditions
-      .filter(x => x.kind === 'filter' && x.comparisonType === 'exact')
-      .sort((a, b) => (a as FilterCondition).label!.localeCompare((b as FilterCondition).label!))
-      .forEach(c => {
-        options.push({
-          type: 'lookup',
-          label: (c as FilterCondition).label!,
-          property: c.property,
-          icon: `pi pi-${(c as FilterCondition).icon || 'tag'}`,
-          condition: c
-        });
-      });
-
-
-    const filterCondition = this.conditions.find(x => x.kind === 'filter' && x.comparisonType === 'contains');
-    if (filterCondition) {
-      options.push({
-        type: 'filter',
-        label: 'Filter',
-        icon: 'pi pi-filter',
-        condition: filterCondition
-      });
+    if (this.targetCondition()) {
+      return this.lookups['target'];
     }
 
-
-    const sortCondition = this.conditions.find(x => x.kind === 'sort');
-    if (sortCondition) {
-      options.push({
-        type: 'sort',
-        label: 'Sort',
-        icon: 'pi pi-sort-alt',
-        condition: sortCondition
-      });
+    const condition = this.selectedCondition();
+    if (!condition || condition.kind !== 'filter' || condition.comparisonType !== 'exact') {
+      return [];
     }
 
-    if (!this.selectedMode() && options.length) {
-      const option = options.find(o => o.condition.isSelected) || options[0];
-      this.selectedMode.set(option);
-    }
-
-    return options;
-  }
-
-  getLookupOptions(property: string) {
-    const list = this.lookups?.[property];
+    const list = this.lookups[condition.property];
     if (!list) {
       return [];
     }
     return list;
   }
 
-  getLookupValue(property: string) {
+  getLookupValue() {
 
-    if (!this.conditions.length) {
+    if (this.targetCondition()) {
+      const v = this.targetCondition();
+      return v ? v.target : null;
+    }
+
+
+    const condition = this.selectedCondition();
+    const property = condition && condition.kind === 'filter' && condition.comparisonType === 'exact'
+      ? (condition as FilterCondition).property
+      : null;
+
+    if (!this.conditions.length || !property) {
       return null;
     }
 
-    const condition = this.conditions.find(c =>
-      c.kind === 'filter' &&
-      c.property === property &&
-      c.comparisonType === 'exact'
-    ) as FilterCondition | undefined;
-    return condition ? condition.filterText : null;
+    return condition ? (condition as FilterCondition).filterText : null;
   }
 
-  getFilterValue() {
-    if (!this.conditions.length) {
-      return null;
-    }
-    const condition = this.conditions.find(c =>
-      c.kind === 'filter' &&
-      c.comparisonType === 'contains'
-    ) as FilterCondition | undefined;
-    return condition ? condition.filterText : null;
+  conditionIsTarget(condition: Condition): boolean {
+    return condition.kind === 'target';
   }
 
-  onLookupChange(property: string, value: string | null): void {
-    if (!this.conditions.length) {
-      return;
-    }
-    const condition = this.conditions
-      .find(x => x.kind === 'filter' &&
-        x.comparisonType === 'exact' &&
-        x.property === property) as FilterCondition;
+  onLookupValueChange(value: any | null): void {
 
-    condition.filterText = value!;
+    if (this.targetCondition()) {
+      const v = this.targetCondition();
+      if (!v) {
+        return;
+      }
+      v.target = value as Target;
+    } else {
+
+      const condition = this.selectedCondition();
+      const property = condition && condition.kind === 'filter' && condition.comparisonType === 'exact'
+        ? (condition as FilterCondition).property
+        : null;
+
+      if (!this.conditions.length || !property) {
+        return;
+      }
+      (condition as FilterCondition).filterText = value as string || '';
+    }
 
     this.updateConditions();
   }
 
+  getFilterValue() {
+    const condition = this.selectedCondition();
+    const property = condition && condition.kind === 'filter' && condition.comparisonType === 'contains'
+      ? (condition as FilterCondition).property
+      : null;
+
+    if (!this.conditions.length || !property) {
+      return null;
+    }
+    return condition ? (condition as FilterCondition).filterText : '';
+  }
+
+
   onFilterChange($event: Event): void {
-    if (!this.conditions.length) {
+    // if (!this.conditions.length) {
+    //   return;
+    // }
+    // const condition = this.conditions
+    //   .find(x => x.kind === 'filter' &&
+    //     x.comparisonType === 'contains') as FilterCondition;
+
+    // condition.filterText = ($event.target as HTMLInputElement).value;
+
+    // this.updateConditions();
+
+    const condition = this.selectedCondition();
+    const property = condition && condition.kind === 'filter' && condition.comparisonType === 'contains'
+      ? (condition as FilterCondition).property
+      : null;
+
+    if (!this.conditions.length || !property) {
       return;
     }
-    const condition = this.conditions
-      .find(x => x.kind === 'filter' &&
-        x.comparisonType === 'contains') as FilterCondition;
 
-    condition.filterText = ($event.target as HTMLInputElement).value;
+    (condition as FilterCondition).filterText = ($event.target as HTMLInputElement).value || '';
 
     this.updateConditions();
   }
 
   sortType(): SortDirection | null {
-    if (!this.conditions.length) {
+    const condition = this.selectedCondition();
+    const property = condition && condition.kind === 'sort'
+      ? (condition as SortCondition).property
+      : null;
+
+    if (!this.conditions.length || !property) {
       return null;
     }
-    const condition = this.conditions
-      .find(x => x.kind === 'sort') as SortCondition | undefined;
-    return condition ? condition.direction : null;
+    return condition ? (condition as SortCondition).direction : null;
   }
 
   onSortChange(sortType: SortDirection): void {
-    if (!this.conditions.length) {
+    // if (!this.conditions.length) {
+    //   return;
+    // }
+    // const condition = this.conditions
+    //   .find(x => x.kind === 'sort') as SortCondition;
+    // condition.direction = sortType;
+
+    // this.updateConditions();
+
+
+    const condition = this.selectedCondition();
+    const property = condition && condition.kind === 'sort'
+      ? (condition as SortCondition).property
+      : null;
+
+    if (!this.conditions.length || !property) {
       return;
     }
-    const condition = this.conditions
-      .find(x => x.kind === 'sort') as SortCondition;
-    condition.direction = sortType;
+
+    (condition as SortCondition).direction = sortType;
 
     this.updateConditions();
   }
 
-  isActiveOption(option: ModeOption): boolean {
-    if (option.condition.kind === 'sort') {
-      return option.condition.direction !== 'none';
+  conditionHasValue(condition: Condition): boolean {
+    if (condition.kind === 'sort') {
+      return condition.direction !== 'none';
     }
-    return !!option.condition.filterText;
+    if (condition.kind === 'filter') {
+      return !!(condition as FilterCondition).filterText;
+    }
+    if (condition.kind === 'target') {
+      return !!(condition as TargetCondition).target;
+    }
+    throw new Error('Unknown condition kind');
+
   }
 
-}
-function compute(arg0: () => boolean, arg1: any, arg2: { this: any; }, arg3: any, arg4: undefined) {
-  throw new Error('Function not implemented.');
-}
+  selectedConditionToOptionType = computed(() => {
 
+    const condition = this.selectedCondition();
+
+    if (!condition) {
+      return null;
+    }
+    if (condition && condition.kind === 'sort') {
+      return 'sort';
+    }
+    if (condition && condition.kind === 'filter' && condition.comparisonType === 'contains') {
+      return 'filter';
+    }
+    if (condition && condition.kind === 'filter' && condition.comparisonType === 'exact') {
+      return 'lookup';
+    }
+    if (condition.kind === 'target') {
+      return 'target';
+    }
+    return null;
+  });
+
+  onTargetOptionClick(mode: TargetMode): void {
+    const targetCondition = this.targetCondition();
+    if (!targetCondition || !targetCondition.target) {
+      return;
+    }
+    targetCondition.target.selectedMode = mode;
+    this.updateConditions();
+  }
+  
+}

@@ -7,17 +7,17 @@ import { TripService } from '../../services/trip-service';
 import { AppService } from '../../services/app-service';
 import { ThingService } from '../../services/thing-service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { EntitiesService } from '../../services/entities-service';
+import { ComponentService } from '../../services/component-service';
 import { TripSharedService } from '../../services/trip-shared-service';
 import { TripThingService } from '../../services/trip-thing-service';
-import { combineLatest } from 'rxjs';
+import { combineLatest, of, switchMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-template-things-component',
   imports: [
-    EntitiesComponent,
-    EntitiesHeaderComponent,
-    EntitiesActionsComponent
+    // EntitiesComponent,
+    // EntitiesHeaderComponent,
+    // EntitiesActionsComponent
   ],
   templateUrl: './templates-component.html',
   styleUrl: './templates-component.scss',
@@ -28,32 +28,31 @@ export class TemplatesComponent {
   appService = inject(AppService);
   tripService = inject(TripService);
   thingService = inject(ThingService);
-   
-  entitiesService = inject(EntitiesService);
-  settingsPersistenceService = inject(EntitiesService).settingsPersistenceService;
-  dynamicQueryService = inject(EntitiesService).dynamicQueryService;
+
+  componentService = inject(ComponentService);
+  settingsPersistenceService = inject(ComponentService).settingsPersistenceService;
+  dynamicQueryService = inject(ComponentService).dynamicQueryService;
   tripThingService = inject(TripThingService);
   tripSharedService = inject(TripSharedService);
 
-  targetId = toSignal(this.entitiesService.targetCondition$);
-  targetedIds = toSignal(this.entitiesService.targetedIds$);
-  notTargetedIds = toSignal(this.entitiesService.notTargetedIds$);
+  targetId = toSignal(this.componentService.targetCondition$);
+  targetedIds = toSignal(this.componentService.targetedIds$);
+  notTargetedIds = toSignal(this.componentService.notTargetedIds$);
   tripSelected = toSignal(this.appService.tripSelected$);
 
   private destroyRef = inject(DestroyRef);
 
   constructor() {
-
   }
 
   // ngOnInit(): void {
 
   //   const savedSharedMode = this.settingsPersistenceService.getComponentKey(this.componentId, 'thingsToSharedMode');
-  //   this.entitiesService.updateThingsToSharedMode(!!savedSharedMode);
+  //   this.componentService.updateThingsToSharedMode(!!savedSharedMode);
 
   //   combineLatest([
-  //     this.entitiesService.thingsToSharedMode$,
-  //     this.entitiesService.targetCondition$
+  //     this.componentService.thingsToSharedMode$,
+  //     this.componentService.targetCondition$
   //   ]).pipe(
   //     switchMap(([isSharedMode, tripId]) => {
   //       if (!tripId) {
@@ -66,10 +65,10 @@ export class TemplatesComponent {
   //     }),
   //     takeUntilDestroyed(this.destroyRef)
   //   ).subscribe(things =>
-  //     this.entitiesService.updateEntities(things || [])
+  //     this.componentService.updateEntities(things || [])
   //   );
 
-  //   this.entitiesService.thingsToSharedMode$
+  //   this.componentService.thingsToSharedMode$
   //     .pipe(
   //       switchMap(isSharedMode => {
   //         if (isSharedMode) {
@@ -85,7 +84,7 @@ export class TemplatesComponent {
   //     ).subscribe();
 
 
-  //   this.entitiesService.thingsToSharedMode$
+  //   this.componentService.thingsToSharedMode$
   //     .pipe(
   //       switchMap(isSharedMode => {
   //         if (isSharedMode) {
@@ -105,7 +104,7 @@ export class TemplatesComponent {
   // initTargetLookup(trips: TripDto[] | null) {
 
   //   if (!trips) {
-  //     this.entitiesService.updateTargetLookup([]);
+  //     this.componentService.updateTargetLookup([]);
   //     return;
   //   }
 
@@ -115,7 +114,7 @@ export class TemplatesComponent {
   //     return aDate.localeCompare(bDate);
   //   }).map((t: any) => ({ id: t.id, name: t.name }));
 
-  //   this.entitiesService.updateTargetLookup(lookup);
+  //   this.componentService.updateTargetLookup(lookup);
   // }
 
   // initState(componentId: string | null, trips: TripDto[] | null = null): void {
@@ -141,7 +140,7 @@ export class TemplatesComponent {
   //     }
   //   }
 
-  //   this.entitiesService.updateComponentInit(
+  //   this.componentService.updateComponentInit(
   //     {
   //       componentId: componentId,
   //       initialConditions: initialConditions
@@ -168,7 +167,7 @@ export class TemplatesComponent {
   // }
 
   // private addTripIds(tripId: string, request: MultipleIdsRequest): void {
-  //   this.entitiesService.thingsToSharedMode$
+  //   this.componentService.thingsToSharedMode$
   //     .pipe(
   //       switchMap(isSharedMode => {
   //         if (isSharedMode) {
@@ -182,7 +181,7 @@ export class TemplatesComponent {
   //       }),
   //       takeUntilDestroyed(this.destroyRef)
   //     ).subscribe(things =>
-  //       this.entitiesService.updateEntities(things)
+  //       this.componentService.updateEntities(things)
   //     );
   // }
 
@@ -203,7 +202,7 @@ export class TemplatesComponent {
   // }
 
   // private deleteTripIds(tripId: string, request: MultipleIdsRequest): void {
-  //   this.entitiesService.thingsToSharedMode$
+  //   this.componentService.thingsToSharedMode$
   //     .pipe(
   //       switchMap(isSharedMode => {
   //         if (isSharedMode) {
@@ -217,7 +216,7 @@ export class TemplatesComponent {
   //       }),
   //       takeUntilDestroyed(this.destroyRef)
   //     ).subscribe(things =>
-  //       this.entitiesService.updateEntities(things)
+  //       this.componentService.updateEntities(things)
   //     );
   // }
 
@@ -260,7 +259,7 @@ export class TemplatesComponent {
   //   this.thingService.delete(id).pipe(
 
   //     switchMap(x => {
-  //       return this.entitiesService.targetCondition$.pipe(
+  //       return this.componentService.targetCondition$.pipe(
   //         switchMap(tripId => {
   //           if (tripId) {
   //             return this.thingService.getAllForTrip(tripId);
@@ -271,7 +270,7 @@ export class TemplatesComponent {
   //     }),
   //     takeUntilDestroyed(this.destroyRef)
   //   ).subscribe((things) => {
-  //     this.entitiesService.updateEntities(things);
+  //     this.componentService.updateEntities(things);
   //   });
   // }
 

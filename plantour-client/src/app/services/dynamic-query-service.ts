@@ -3,26 +3,57 @@ import { Injectable } from '@angular/core';
 export type FilterComparisonType = 'contains' | 'exact';
 export type SortType = 'text' | 'number';
 export type SortDirection = 'asc' | 'desc' | 'none';
+
+export enum TargetMode {
+  TripThings,
+  TripShared,
+  DicThings,
+  Packing,
+  Assigning
+}
+
+export type TargetOption = {
+  label: string;
+  mode: TargetMode;
+}
+
+export type Target = {
+  id: string | null; // tripId or packId or participantId ...
+  name: string | null;
+  selectedMode: TargetMode | null;
+  options: TargetOption[] | null;
+}
+
 export type FilterCondition = {
   kind: 'filter';
-  property: string;
   label: string;
-  icon?: string;
+  icon: string;
+  isSelected?: boolean;
+
+  property: string;
   filterText: string;
   comparisonType: FilterComparisonType;
-  isSelected?: boolean;
 };
 export type SortCondition = {
   kind: 'sort';
+  label: string;
+  icon: string;
+  isSelected?: boolean;
+
   property: string;
   sortType: SortType;
   direction: SortDirection;
+};
+export type TargetCondition = {
+  kind: 'target';
+  label: string;
+  icon: string;
   isSelected?: boolean;
+
+  target: Target | null;
 };
 
-// TODO: add bool
-// TODO: add isTarget
-export type Condition = FilterCondition | SortCondition;
+export type Condition = FilterCondition | SortCondition | TargetCondition;
 
 @Injectable({
   providedIn: 'root'
@@ -75,12 +106,9 @@ export class DynamicQueryService {
     item: any,
     filter: FilterCondition
   ): boolean {
-    if (filter.property == 'target') {
-      return true;
-    }
-        
+
     const value = item[filter.property];
-    if (value == null) return false;
+    if (value == null || value == undefined) return false;
 
     const left = String(value).toLowerCase();
     const right = filter.filterText.toLowerCase();
@@ -136,24 +164,46 @@ export class DynamicQueryService {
     return sort.direction === 'desc' ? -result : result;
   }
 
-  initConditions(saved: any, conditions: Condition[]): Condition[] {
+  initConditions(saved: any[], conditions: Condition[]): Condition[] {
     if (!saved || !Array.isArray(saved) || saved.length === 0 || !conditions || conditions.length === 0) {
       return conditions;
     }
 
-    conditions.forEach(cond => {
+    conditions.forEach((cond: any) => {
       const savedCond = saved.find((sc: any) =>
         sc.kind === cond.kind &&
-        sc.property === cond.property
+        (
+          sc.property === cond.property
+          ||
+          sc.targetMode === cond.targetMode
+        )
       );
-      if (savedCond) {
-        cond.isSelected = savedCond.isSelected || false;
-        if (cond.kind === 'filter') {
-          (cond as FilterCondition).filterText = savedCond.filterText || '';
-        } else if (cond.kind === 'sort') {
-          (cond as SortCondition).direction = savedCond.direction || 'none';
+
+      if (!savedCond) {
+        return;
+      }
+      cond.isSelected = savedCond.isSelected || false;
+      if (cond.kind === 'filter') {
+        (cond as FilterCondition).filterText = savedCond.filterText && typeof savedCond.filterText === 'string' ? savedCond.filterText : '';
+      } else if (cond.kind === 'sort') {
+        (cond as SortCondition).direction = savedCond.direction && ["asc", "desc", "none"].includes(savedCond.direction) ? savedCond.direction : 'none';
+      } else if (cond.kind === 'target') {
+
+        if (savedCond.target && typeof savedCond.target === 'object') {
+          cond.target = {
+            id: savedCond.target.id && typeof savedCond.target.id === 'string' ? savedCond.target.id : null,
+            name: savedCond.target.name && typeof savedCond.target.name === 'string' ? savedCond.target.name : null,
+            selectedMode: savedCond.target.selectedMode && Object.values(TargetMode).includes(savedCond.target.selectedMode) ? savedCond.target.selectedMode : null,
+            options: Array.isArray(savedCond.target.options) ? savedCond.target.options.map((opt: any) => ({
+              label: opt.label && typeof opt.label === 'string' ? opt.label : '',
+              mode: Object.values(TargetMode).includes(opt.mode) ? opt.mode : TargetMode.TripThings
+            })) : null
+          };
+        } else {
+          cond.target = null;
         }
       }
+
     });
     return conditions;
   }
@@ -167,6 +217,8 @@ export class DynamicQueryService {
         return !!(c as FilterCondition).filterText;
       } else if (c.kind === 'sort') {
         return (c as SortCondition).direction !== 'none';
+      } else if (c.kind === 'target') {
+        return (c as TargetCondition).target !== null;
       }
       return false;
     });
@@ -180,6 +232,8 @@ export class DynamicQueryService {
         (cond as FilterCondition).filterText = '';
       } else if (cond.kind === 'sort') {
         (cond as SortCondition).direction = 'none';
+      } else if (cond.kind === 'target') {
+        cond.target = null;
       }
     });
   }
@@ -187,15 +241,15 @@ export class DynamicQueryService {
   public getLookupsFromEntities(entities: any[], conditions: Condition[]) {
     const result: any = {};
 
-    conditions.filter(x => x.property !== 'target')
+    conditions.filter(x => x.kind !== 'target')
       .forEach(condition => {
         if (condition.kind === 'filter' && condition.comparisonType === 'exact') {
           const values = Array.from(new Set(entities.map(e => e[condition.property])))
             .filter(v => v != null)
             .sort((a, b) => a.toString().localeCompare(b.toString()))
-            .map(x => ({id: x.toString(), name: x.toString()}));
+            .map(x => ({ id: x.toString(), name: x.toString() }));
           result[condition.property] = values;
-      }
+        }
       });
     return result;
   }

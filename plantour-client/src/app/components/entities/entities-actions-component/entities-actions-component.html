@@ -2,12 +2,12 @@
 <div class="list-actions-content">
   <div class="side">
     <p-select
-      [options]="modeOptions"
-      [(ngModel)]="selectedMode"
+      [options]="conditions"
+      [ngModel]="selectedCondition()"
       optionLabel="label"
       [showClear]="false"
       [ngModelOptions]="{ standalone: true }"
-      (onChange)="onOptionChange($event)"
+      (onChange)="setSelectedCondition($event.value)"
       appendTo="body"
     >
       <ng-template
@@ -16,8 +16,8 @@
       >
         <div class="mode-option ">
           <i
-            [ngClass]="option.icon"
-            [class.has-dot]="isActiveOption(option)"
+            [ngClass]="'pi pi-' + option.icon"
+            [class.has-dot]="conditionHasValue(option)"
           ></i>
         </div>
       </ng-template>
@@ -28,10 +28,10 @@
       >
         <div class="option-container">
           <i
-            [ngClass]="option.icon"
-            [class.has-dot]="isActiveOption(option)"
+            [ngClass]="'pi pi-' + option.icon"
+            [class.has-dot]="conditionHasValue(option)"
           ></i>
-          <span [class.target-option]="isOptionTarget(option)">
+          <span [class.target-option]="conditionIsTarget(option)">
             {{ option.label }}
           </span>
         </div>
@@ -41,9 +41,38 @@
 
   </div>
 
+            <!-- optionValue="id" -->
+            <!-- [ngModelOptions]="{ standalone: true }" -->
   <div class="middle">
     <div>
-      @switch (selectedMode()?.type) {
+      @switch (selectedConditionToOptionType()) {
+      @case('target') {
+      <ng-container>
+        <div class="middle-container">
+          <p-select
+            [options]="getLookupOptions()"
+            [ngModel]="getLookupValue()"
+            class="w-full"
+            optionLabel="name"
+            dataKey="id"
+            [placeholder]="'Select value'"
+            (onChange)="onLookupValueChange($event.value)"
+            [showClear]="true"
+            appendTo="body"
+          >
+            <ng-template
+              pTemplate="selectedItem"
+              let-option
+            >
+              <div class="ellipsis-text">
+                {{option.name}}
+              </div>
+            </ng-template>
+          </p-select>
+        </div>
+      </ng-container>
+
+      }
       <!-- Lookup: show select with lookup list for chosen property -->
       @case ('lookup') {
       <ng-container>
@@ -52,11 +81,11 @@
             class="w-full"
             optionLabel="name"
             optionValue="id"
-            [options]="getLookupOptions(selectedMode()!.property!)"
-            [ngModel]="getLookupValue(selectedMode()!.property!)"
+            [options]="getLookupOptions()"
+            [ngModel]="getLookupValue()"
             [placeholder]="'Select value'"
             [ngModelOptions]="{ standalone: true }"
-            (onChange)="onLookupChange(selectedMode()!.property!, $event.value)"
+            (onChange)="onLookupValueChange($event.value)"
             [showClear]="true"
             appendTo="body"
           >
@@ -123,37 +152,40 @@
       }
       }
     </div>
-    @if (showThingsToShared()) {
-      <div class="radio-container">
-        <div class="radio-item">
-          <p-radiobutton
-            name="sharedRadiobuttons"
-            value="true"
-            [ngModel]="thingsToSharedMode()"
-            (onClick)="onThingsToSharedModeChange(true)"
-            binary="true"
-            inputId="shared"
-          />
-          <div for="shared">Shared</div>
-        </div>
-
-        <div class="radio-item">
-          <p-radiobutton
-            name="sharedRadiobuttons"
-            value="false"
-            [ngModel]="!thingsToSharedMode()"
-            (onClick)="onThingsToSharedModeChange(false)"
-            binary="true"
-            inputId="own"
-          />
-          <label for="own">Own</label>
-        </div>
+    @if (showRadios()) {
+    <div class="radio-container">
+      @for(option of targetCondition()!.target?.options; track option) {
+      <div class="radio-item">
+        <p-radiobutton
+          name="sharedRadiobuttons"
+          [value]="option.mode"
+          [ngModel]="option.mode"
+          (onClick)="onTargetOptionClick(option.mode)"
+          binary="true"
+          [inputId]="option.label"
+        />
+        <div [id]="option.label">{{option.label}}</div>
       </div>
+
+      }
+
+      <!-- <div class="radio-item">
+        <p-radiobutton
+          name="sharedRadiobuttons"
+          value="false"
+          [ngModel]="!thingsToSharedMode()"
+          (onClick)="onThingsToSharedModeChange(false)"
+          binary="true"
+          inputId="own"
+        />
+        <label for="own">Own</label>
+      </div> -->
+    </div>
     }
   </div>
 
   <div class="side">
-    @if(isSelectedModeTarget()) {
+    @if(targetCondition()) {
     <div class="right-container">
       <p-button
         icon="pi pi-plus"
