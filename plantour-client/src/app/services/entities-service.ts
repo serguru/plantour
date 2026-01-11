@@ -271,7 +271,7 @@ export class EntitiesService {
     this.componentInitSubject.next(null);
     this.entitiesSubject.next(null);
     this.conditionsSubject.next(null);
-    this.entitiesActionsVisibleSubject.next(false);
+    //this.entitiesActionsVisibleSubject.next(false);
     this.selectedSubject.next(null);
     this.targetLookupSubject.next(null);
     //this.thingsToSharedModeSubject.next(false);

@@ -312,9 +312,9 @@ export class ThingsComponent {
     this.thingService.delete(id).pipe(
 
       switchMap(x => {
-        return this.componentService.targetCondition$.pipe(
-          switchMap(targetCondition => {
-            const tripId = targetCondition?.target?.id;
+        return this.componentService.target$.pipe(
+          switchMap(target => {
+            const tripId = target?.id;
             if (tripId) {
               return this.thingService.getAllForTrip(tripId);
             }

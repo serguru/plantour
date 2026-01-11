@@ -41,6 +41,9 @@ export class PacksComponent implements OnInit {
   tripPackageService = inject(TripPackageService);
 
   targetCondition = toSignal(this.componentService.targetCondition$);
+  target = toSignal(this.componentService.target$);
+
+
   targetedIds = toSignal(this.componentService.targetedIds$);
   notTargetedIds = toSignal(this.componentService.notTargetedIds$);
   tripSelected = toSignal(this.appService.tripSelected$);
@@ -65,10 +68,17 @@ export class PacksComponent implements OnInit {
       {
         kind: 'filter',
         property: 'name',
+        label: 'Lookup by Name',
+        filterText: '',
+        comparisonType: 'exact',
+        icon: 'box'
+      },
+      {
+        kind: 'filter',
+        property: 'name',
         label: 'Filter by Name',
         filterText: '',
         comparisonType: 'contains',
-        isSelected: true,
         icon: 'box'
       }
     ];
@@ -84,10 +94,10 @@ export class PacksComponent implements OnInit {
         this.initSavedFeatures();
       }),
       switchMap(_ =>
-        this.componentService.targetCondition$.pipe(
-          switchMap((targetCondition: TargetCondition | null) => {
-            if (targetCondition && targetCondition.target?.id) {
-              return this.packageService.getAllForTrip(targetCondition.target.id);
+        this.componentService.target$.pipe(
+          switchMap((target: Target | null) => {
+            if (target && target.id) {
+              return this.packageService.getAllForTrip(target.id);
             }
             return this.packageService.getAll();
           }),
@@ -154,8 +164,7 @@ export class PacksComponent implements OnInit {
   }
 
   onAddTargetClick(): void {
-    const targetCondition = this.targetCondition();
-    const targetId = targetCondition?.target?.id;
+    const targetId = this.target()?.id;
 
     if (!targetId) {
       throw new Error('Target Trip Id is not set');
@@ -177,8 +186,8 @@ export class PacksComponent implements OnInit {
   }
 
   onDeleteTargetClick(): void {
-    const targetCondition = this.targetCondition();
-    const targetId = targetCondition?.target?.id;
+    const targetId = this.target()?.id;
+
     if (!targetId) {
       throw new Error('Target Id is not set');
     }
@@ -202,9 +211,9 @@ export class PacksComponent implements OnInit {
     this.packageService.delete(id).pipe(
 
       switchMap(x => {
-        return this.componentService.targetCondition$.pipe(
-          switchMap(targetCondition => {
-            const tripId = targetCondition?.target?.id;
+        return this.componentService.target$.pipe(
+          switchMap(target => {
+            const tripId = target?.id;
             if (tripId) {
               return this.packageService.getAllForTrip(tripId);
             }
@@ -218,19 +227,43 @@ export class PacksComponent implements OnInit {
     });
   }
 
-  targetEntityClick(targetCondition: TargetCondition, entity: any) {
+  targetEntityButtonClick(entity: any) {
+    const target = this.target();
+
     const request: MultipleIdsRequest = {
-      collectionId: targetCondition.target!.id!,
+      collectionId: target!.id!,
       ids: [entity.id]
     };
 
     const o = entity.isTargeted ? this.tripPackageService.deleteFromDic(request) : this.tripPackageService.addFromDic(request);
 
     o.pipe(
-      switchMap(() => this.packageService.getAllForTrip(targetCondition.target!.id!)),
+      switchMap(() => this.packageService.getAllForTrip(target!.id!)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((packages) => {
       this.componentService.updateEntities(packages);
     });
+
+
+
   }
+
+  
+  
+  // targetEntityButtonClick(targetCondition: TargetCondition, entity: any) {
+
+  //   const request: MultipleIdsRequest = {
+  //     collectionId: targetCondition.target!.id!,
+  //     ids: [entity.id]
+  //   };
+
+  //   const o = entity.isTargeted ? this.tripPackageService.deleteFromDic(request) : this.tripPackageService.addFromDic(request);
+
+  //   o.pipe(
+  //     switchMap(() => this.packageService.getAllForTrip(targetCondition.target!.id!)),
+  //     takeUntilDestroyed(this.destroyRef)
+  //   ).subscribe((packages) => {
+  //     this.componentService.updateEntities(packages);
+  //   });
+  // }
 }

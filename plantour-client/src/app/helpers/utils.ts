@@ -4,3 +4,6 @@ export const isGuid = (value: string | null): boolean => {
   return guidRegex.test(value);
 };
 
+export const isNumber = (value: any): boolean => {
+  return typeof value === 'number' && Number.isFinite(value); 
+}

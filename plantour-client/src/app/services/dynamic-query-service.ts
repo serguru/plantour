@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
+import { isNumber } from '../helpers/utils';
 
 export type FilterComparisonType = 'contains' | 'exact';
 export type SortType = 'text' | 'number';
 export type SortDirection = 'asc' | 'desc' | 'none';
 
 export enum TargetMode {
-  TripThings,
-  TripShared,
-  DicThings,
-  Packing,
-  Assigning
+  TripThings = 1,
+  TripShared = 2,
+  DicThings = 3,
+  Packing = 4,
+  Assigning = 5
 }
 
 export type TargetOption = {
@@ -54,6 +55,10 @@ export type TargetCondition = {
 };
 
 export type Condition = FilterCondition | SortCondition | TargetCondition;
+
+export function isTargetMode(targetMode: TargetMode): boolean {
+  return isNumber(targetMode) &&  Object.values(TargetMode).includes(targetMode);
+}
 
 @Injectable({
   providedIn: 'root'
@@ -169,44 +174,147 @@ export class DynamicQueryService {
       return conditions;
     }
 
-    conditions.forEach((cond: any) => {
-      const savedCond = saved.find((sc: any) =>
-        sc.kind === cond.kind &&
-        (
-          sc.property === cond.property
-          ||
-          sc.targetMode === cond.targetMode
-        )
-      );
+    let alreadySelected = false;
 
-      if (!savedCond) {
-        return;
+    saved.forEach((sc: any) => {
+
+      const isSelected = !alreadySelected && sc.isSelected;
+
+      if (isSelected) {
+        alreadySelected = true;
       }
-      cond.isSelected = savedCond.isSelected || false;
-      if (cond.kind === 'filter') {
-        (cond as FilterCondition).filterText = savedCond.filterText && typeof savedCond.filterText === 'string' ? savedCond.filterText : '';
-      } else if (cond.kind === 'sort') {
-        (cond as SortCondition).direction = savedCond.direction && ["asc", "desc", "none"].includes(savedCond.direction) ? savedCond.direction : 'none';
-      } else if (cond.kind === 'target') {
 
-        if (savedCond.target && typeof savedCond.target === 'object') {
+      switch (sc.kind) {
+        case 'filter': {
+
+          let ft = '';
+          if (sc.filterText && typeof sc.filterText === 'string') {
+            ft = sc.filterText.trim();
+          }
+
+          if (sc.comparisonType == 'contains') {
+            const cond: any = conditions.find(x => x.kind == 'filter' && x.comparisonType == "contains");
+            if (!cond) {
+              break;
+            }
+            cond.filterText = ft;
+            cond.isSelected = isSelected;
+            break;
+
+          }
+
+          if (sc.comparisonType == 'exact') {
+            const cond: any = conditions.find(x => x.kind == 'filter' && x.comparisonType == "exact" && x.property == sc.property);
+            if (!cond) {
+              break;
+            }
+            cond.filterText = ft;
+            cond.isSelected = isSelected;
+            break;
+
+          }
+
+          break;
+        }
+        case 'target': {
+          const cond = conditions.find(c => c.kind === 'target');
+          if (!cond) {
+            break;
+          }
+          cond.isSelected = isSelected;
+          if (sc.target == null || typeof sc.target !== 'object') {
+            cond.target = null;
+            cond.isSelected = isSelected;
+            break;
+          }
+
+          let options = sc.target.options; 
+          if (!options || !Array.isArray(options) || options.find((x: any) => !isTargetMode(x.mode)))
+          {
+            options = null;
+          }
+
+          let selectedMode = sc.target.selectedMode;
+          if (!isTargetMode(selectedMode) || (options && !options.find((x: any) => x.mode === sc.target.selectedMode))) {
+            selectedMode = null;
+          }
+
           cond.target = {
-            id: savedCond.target.id && typeof savedCond.target.id === 'string' ? savedCond.target.id : null,
-            name: savedCond.target.name && typeof savedCond.target.name === 'string' ? savedCond.target.name : null,
-            selectedMode: savedCond.target.selectedMode && Object.values(TargetMode).includes(savedCond.target.selectedMode) ? savedCond.target.selectedMode : null,
-            options: Array.isArray(savedCond.target.options) ? savedCond.target.options.map((opt: any) => ({
-              label: opt.label && typeof opt.label === 'string' ? opt.label : '',
-              mode: Object.values(TargetMode).includes(opt.mode) ? opt.mode : TargetMode.TripThings
-            })) : null
+            id: sc.target.id && typeof sc.target.id === 'string' ? sc.target.id : null,
+            name: sc.target.name && typeof sc.target.name === 'string' ? sc.target.name : null,
+            selectedMode: selectedMode,
+            options: options
           };
-        } else {
-          cond.target = null;
+          cond.isSelected = isSelected;
+          break;
+        }
+        case 'sort': {
+          const cond = conditions.find(c => c.kind === 'sort');
+          if (!cond) {
+            break;
+          }
+          cond.direction = sc.direction && ["asc", "desc", "none"].includes(sc.direction) ? sc.direction : 'none';
+          cond.isSelected = isSelected;
         }
       }
-
     });
+
     return conditions;
   }
+  // initConditions(saved: any[], conditions: Condition[]): Condition[] {
+  //   if (!saved || !Array.isArray(saved) || saved.length === 0 || !conditions || conditions.length === 0) {
+  //     return conditions;
+  //   }
+
+  //   conditions.forEach((cond: any) => {
+
+  //     let alreadySelected = false;
+
+  //     const savedCond = saved.find((sc: any) =>
+  //       sc.kind === cond.kind &&
+  //       (
+  //         ['target', 'sort'].includes(cond.kind) ||
+  //         (cond.kind === 'filter' && cond.comparisonType === 'contains') ||
+  //         (cond.kind === 'filter' && cond.comparisonType === 'exact' && sc.property == cond.property)
+  //       )
+  //     );
+
+  //     if (!savedCond) {
+  //       return;
+  //     }
+
+
+  //     cond.isSelected = savedCond.isSelected && !alreadySelected;
+
+  //     if (cond.isSelected) {
+  //       alreadySelected = true;
+  //     }
+
+
+  //     if (cond.kind === 'filter' && (cond.comparisonType === 'contains' || (cond.comparisonType === 'exact' && savedCond.property === cond.property))) {
+  //       (cond as FilterCondition).filterText = savedCond.filterText && typeof savedCond.filterText === 'string' ? savedCond.filterText : '';
+  //     } else if (cond.kind === 'sort') {
+  //       (cond as SortCondition).direction = savedCond.direction && ["asc", "desc", "none"].includes(savedCond.direction) ? savedCond.direction : 'none';
+  //     } else if (cond.kind === 'target') {
+
+  //       if (savedCond.target && typeof savedCond.target === 'object') {
+  //         cond.target = {
+  //           id: savedCond.target.id && typeof savedCond.target.id === 'string' ? savedCond.target.id : null,
+  //           name: savedCond.target.name && typeof savedCond.target.name === 'string' ? savedCond.target.name : null,
+  //           selectedMode: savedCond.target.selectedMode && Object.values(TargetMode).includes(savedCond.target.selectedMode) ? savedCond.target.selectedMode : null,
+  //           options: Array.isArray(savedCond.target.options) ? savedCond.target.options.map((opt: any) => ({
+  //             label: opt.label && typeof opt.label === 'string' ? opt.label : '',
+  //             mode: Object.values(TargetMode).includes(opt.mode) ? opt.mode : TargetMode.TripThings
+  //           })) : null
+  //         };
+  //       } else {
+  //         cond.target = null;
+  //       }
+  //     }
+
+  //   });
+  //   return conditions;
+  // }
 
   anyConditionSet(conditions: Condition[] | null): boolean {
     if (!conditions || conditions.length === 0) {
@@ -227,7 +335,7 @@ export class DynamicQueryService {
 
   resetConditions(conditions: Condition[]): void {
     conditions.forEach(cond => {
-      cond.isSelected = false;
+      //cond.isSelected = false;
       if (cond.kind === 'filter') {
         (cond as FilterCondition).filterText = '';
       } else if (cond.kind === 'sort') {

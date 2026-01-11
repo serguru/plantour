@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, withLatestFrom, distinct, distinctUntilChanged, filter, map, Observable, of, ReplaySubject, switchMap, tap, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, combineLatest, withLatestFrom, distinct, distinctUntilChanged, filter, map, Observable, of, ReplaySubject, switchMap, tap, Subject, throwError, concatMap } from 'rxjs';
 import { Condition, DynamicQueryService, Target, TargetCondition } from './dynamic-query-service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { LocalStorageService, SettingsPersistenceService } from './settings-persistence-service';
@@ -47,9 +47,13 @@ export class ComponentService {
 
   private persistAction$ = new Subject<{ key: string, value: any }>();
 
-  persistValue$ = combineLatest([this.persistAction$, this.componentId$]).pipe(
-    filter(([action, componentId]) => {
-      return !!componentId;
+  persistValue$ = this.persistAction$.pipe(
+    withLatestFrom(this.componentId$),
+    concatMap(componentId => {
+      if (!componentId) {
+        return throwError(() => new Error('Cannot persist a value - no componentId'));
+      }
+      return of(componentId);
     }),
     takeUntilDestroyed()
   ).subscribe(([action, componentId]) => {
@@ -58,7 +62,7 @@ export class ComponentService {
       action.key,
       action.value
     );
-  });
+  })
 
   persistValue(key: string, value: any): void {
     this.persistAction$.next({ key, value });
@@ -190,7 +194,10 @@ export class ComponentService {
         return null;
       }
       const result = conditions.find(x => x.isSelected);
-      return result || null;
+      if (!result) {
+        return conditions[0];
+      }
+      return result;
     }),
     //distinctUntilChanged()
   );
@@ -215,7 +222,7 @@ export class ComponentService {
     //distinctUntilChanged()
   );
 
-  
+
 
   conditionSet$ = this.conditions$.pipe(
     map(conditions => this.dynamicQueryService.anyConditionSet(conditions))
@@ -224,5 +231,5 @@ export class ComponentService {
   //#endregion
 
 
-  
+
 }

@@ -392,11 +392,11 @@ export class EntitiesActionsComponent implements OnInit {
   });
 
   onTargetOptionClick(mode: TargetMode): void {
-    const targetCondition = this.targetCondition();
-    if (!targetCondition || !targetCondition.target) {
+    const target = this.target();
+    if (!target) {
       return;
     }
-    targetCondition.target.selectedMode = mode;
+    target.selectedMode = mode;
     this.updateConditions();
   }
   
