@@ -1,8 +1,8 @@
-<!-- <div class="page-container">
+<div class="page-container">
     <app-entities-header
         entityIcon="pi pi-user"
         title="Traveler"
-        [delete]="delete.bind(this)"
+        [delete]="deleteTraveler.bind(this)"
         entityName="email"
         entityNameProp="email"
         addUrl="add"
@@ -15,6 +15,6 @@
     ></app-entities-actions>
     <app-entities
         [itemComponent]="travelerItemComponent"
-        [targetEntityClick]="targetEntityClick.bind(this)"
+        [targetEntityClick]="targetEntityButtonClick.bind(this)"
     ></app-entities>
-</div> -->
+</div>

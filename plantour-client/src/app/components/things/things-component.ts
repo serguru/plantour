@@ -53,14 +53,14 @@ export class ThingsComponent {
       {
         kind: 'sort',
         label: 'Sort by Name',
-        icon: 'sort-alpha-down',
+        icon: 'sort-alt',
         property: 'name',
         sortType: 'text',
         direction: 'none'
       },
       {
         kind: 'target',
-        label: 'Trip',
+        label: 'Trip things',
         icon: 'compass',
         target: null
       },

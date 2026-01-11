@@ -54,24 +54,16 @@ export class PacksComponent implements OnInit {
       {
         kind: 'sort',
         label: 'Sort by Name',
-        icon: 'sort-alpha-down',
+        icon: 'sort-alt',
         property: 'name',
         sortType: 'text',
         direction: 'none'
       },
       {
         kind: 'target',
-        label: 'Trip',
+        label: 'Trip packs',
         icon: 'compass',
         target: null
-      },
-      {
-        kind: 'filter',
-        property: 'name',
-        label: 'Lookup by Name',
-        filterText: '',
-        comparisonType: 'exact',
-        icon: 'box'
       },
       {
         kind: 'filter',
@@ -243,27 +235,5 @@ export class PacksComponent implements OnInit {
     ).subscribe((packages) => {
       this.componentService.updateEntities(packages);
     });
-
-
-
   }
-
-  
-  
-  // targetEntityButtonClick(targetCondition: TargetCondition, entity: any) {
-
-  //   const request: MultipleIdsRequest = {
-  //     collectionId: targetCondition.target!.id!,
-  //     ids: [entity.id]
-  //   };
-
-  //   const o = entity.isTargeted ? this.tripPackageService.deleteFromDic(request) : this.tripPackageService.addFromDic(request);
-
-  //   o.pipe(
-  //     switchMap(() => this.packageService.getAllForTrip(targetCondition.target!.id!)),
-  //     takeUntilDestroyed(this.destroyRef)
-  //   ).subscribe((packages) => {
-  //     this.componentService.updateEntities(packages);
-  //   });
-  // }
 }
