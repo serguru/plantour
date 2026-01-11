@@ -152,16 +152,16 @@
       }
       }
     </div>
+          <!-- binary="true" -->
     @if (showRadios()) {
     <div class="radio-container">
-      @for(option of targetCondition()!.target?.options; track option) {
+      @for(option of target()!.options; track option) {
       <div class="radio-item">
         <p-radiobutton
           name="sharedRadiobuttons"
           [value]="option.mode"
-          [ngModel]="option.mode"
-          (onClick)="onTargetOptionClick(option.mode)"
-          binary="true"
+          [ngModel]="target()!.selectedMode"
+          (onClick)="onTargetOptionClick($event.value)"
           [inputId]="option.label"
         />
         <div [id]="option.label">{{option.label}}</div>

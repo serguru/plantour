@@ -192,7 +192,7 @@ export class ComponentService {
       const result = conditions.find(x => x.isSelected);
       return result || null;
     }),
-    distinctUntilChanged()
+    //distinctUntilChanged()
   );
 
   targetCondition$ = this.selectedCondition$.pipe(
@@ -202,8 +202,20 @@ export class ComponentService {
       }
       return null;
     }),
-    distinctUntilChanged()
+    //distinctUntilChanged()
   );
+
+  target$ = this.targetCondition$.pipe(
+    map(condition => {
+      if (condition && condition.kind === 'target') {
+        return condition.target as Target;
+      }
+      return null;
+    }),
+    //distinctUntilChanged()
+  );
+
+  
 
   conditionSet$ = this.conditions$.pipe(
     map(conditions => this.dynamicQueryService.anyConditionSet(conditions))

@@ -83,7 +83,7 @@ export class PacksComponent implements OnInit {
         this.initTargetLookup(trips);
         this.initSavedFeatures();
       }),
-      switchMap((trips: TripDto[]) =>
+      switchMap(_ =>
         this.componentService.targetCondition$.pipe(
           switchMap((targetCondition: TargetCondition | null) => {
             if (targetCondition && targetCondition.target?.id) {
@@ -130,7 +130,7 @@ export class PacksComponent implements OnInit {
     if (!componentId) {
       throw new Error('ComponentId is null');
     }
-    const savedConditions = this.settingsPersistenceService.getComponentKey(componentId, 'conditions');
+    const savedConditions = this.settingsPersistenceService.getComponentKey(componentId, 'conditions') || [];
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
     const targetCondition: TargetCondition | undefined = initialConditions.find(c => c.kind === 'target');
 

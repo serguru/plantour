@@ -32,6 +32,7 @@ export class EntitiesActionsComponent implements OnInit {
   componentService = inject(ComponentService);
 
   targetCondition = toSignal(this.componentService.targetCondition$, { initialValue: null });
+  target = toSignal(this.componentService.target$, { initialValue: null });
   selectedCondition = toSignal(this.componentService.selectedCondition$, { initialValue: null });
 
   onAddTargetClick = input<Function>();
@@ -72,8 +73,8 @@ export class EntitiesActionsComponent implements OnInit {
   // }
 
   showRadios = computed(() => {
-    const targetCondition = this.targetCondition();
-    return targetCondition?.target?.options?.length! > 1;
+    const target = this.target();
+    return target?.options?.length! > 0;
   });
 
 
@@ -107,13 +108,12 @@ export class EntitiesActionsComponent implements OnInit {
   });
 
   addTargetDisabled = computed(() => {
-    return this.counts().processedNotTargeted === 0 || !this.targetCondition();
+    return this.counts().processedNotTargeted === 0 || !this.target();
   });
 
   deleteTargetDisabled = computed(() => {
-    return this.counts().processedTargeted === 0 || !this.targetCondition();
+    return this.counts().processedTargeted === 0 || !this.target();
   });
-
 
 
   //modeOptions: ModeOption[] = [];

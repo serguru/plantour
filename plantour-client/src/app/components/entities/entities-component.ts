@@ -27,7 +27,7 @@ export class EntitiesComponent implements OnInit {
     if (!this.targetEntityClick()) {
       throw new Error('targetEntityClick is not defined');
     } 
-    this.targetEntityClick()!(this.targetId(), entity);
+    this.targetEntityClick()!(entity);
   }
 
   componentService = inject(ComponentService);
@@ -35,9 +35,15 @@ export class EntitiesComponent implements OnInit {
 
   showEntityButton = computed(() => {
     const x = this.targetEntityClick;
-    const y = this.targetId();
+    const y = this.targetCondition();
     return x !== null && y;
   });
+
+  entityButtonDisabled = computed(() => {
+    const target = this.target();
+    return !target;
+  });
+
 
   selectedId = toSignal(this.componentService.selectedId$, { initialValue: null });
 
@@ -47,7 +53,9 @@ export class EntitiesComponent implements OnInit {
 
   filterQuery = signal('');
 
-  targetId = toSignal(this.componentService.targetCondition$, { initialValue: null });
+  targetCondition = toSignal(this.componentService.targetCondition$, { initialValue: null });
+  target = toSignal(this.componentService.target$, { initialValue: null });
+  
 
   isSelected(entity: any): boolean {
     const selectedId = this.selectedId();
