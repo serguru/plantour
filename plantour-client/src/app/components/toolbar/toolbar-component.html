@@ -100,7 +100,7 @@
             class="pl-menu-item"
             [class.selected]="isNavigatedComponent('trip-participants')"
             (click)="onTripParticipantsClick($event, popoverTrip)"
-            [class.disabled]="!isCurrentTrip"
+            [class.disabled]="!isCurrentTrip()"
           >
             <span class="pi pi-users"></span>
             <span class="button-label">Participants</span>
@@ -109,7 +109,7 @@
             class="pl-menu-item"
             [class.selected]="isNavigatedComponent('trip-things')"
             (click)="onTripThingsClick($event, popoverTrip)"
-            [class.disabled]="disableTripThings"
+            [class.disabled]="disableParticipantOnlyFeatures()"
           >
             <span class="pi pi-objects-column"></span>
             <span class="button-label">Things</span>
@@ -118,7 +118,7 @@
             class="pl-menu-item"
             [class.selected]="isNavigatedComponent('trip-packs')"
             (click)="onTripPacksClick($event, popoverTrip)"
-            [class.disabled]="disableTripPacks"
+            [class.disabled]="disableParticipantOnlyFeatures()"
           >
             <span class="pi pi-box"></span>
             <span class="button-label">Packs</span>
@@ -127,7 +127,7 @@
             class="pl-menu-item"
             [class.selected]="isNavigatedComponent('trip-shared')"
             (click)="onTripSharedClick($event, popoverTrip)"
-            [class.disabled]="!isCurrentTrip"
+            [class.disabled]="!isCurrentTrip()"
           >
             <span class="pi pi-link"></span>
             <span class="button-label">Shared</span>
@@ -136,7 +136,7 @@
             class="pl-menu-item"
             [class.selected]="isNavigatedComponent('trip-comments')"
             (click)="onTripCommentsClick($event, popoverTrip)"
-            [class.disabled]="!isCurrentTrip"
+            [class.disabled]="!isCurrentTrip()"
           >
             <span class="pi pi-comments"></span>
             <span class="button-label">Comments</span>
@@ -235,12 +235,12 @@
       </p-popover>
     </div>
   </div>
-  @if(tripTextVisible) {
+  @if(tripTextVisible()) {
   <div class="trip-text">
     <a
       [routerLink]="['/trips']"
       class="ellipsis-text"
-    >{{tripText}}</a>
+    >{{tripText()}}</a>
   </div>
   }
 </div>

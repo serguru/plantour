@@ -99,6 +99,10 @@ export class ComponentService {
     this.persistValue('selectedId', selectedId);
   }
 
+  
+
+
+
   // Is entities actions panel visible
   private entitiesActionsVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   entitiesActionsVisible$: Observable<boolean> = this.entitiesActionsVisibleSubject.asObservable();

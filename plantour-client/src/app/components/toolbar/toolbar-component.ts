@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ElementRef, HostListener, ViewChild, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { debounceTime, fromEvent, Subject, takeUntil } from 'rxjs';
@@ -10,6 +10,8 @@ import { UsersService } from '../../services/users-service';
 import { AppService } from '../../services/app-service';
 import { PopoverModule } from 'primeng/popover';
 import { TripDto } from '../../services/trip-service';
+import { CurrentTripService } from '../../services/current-trip-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-toolbar',
@@ -26,19 +28,15 @@ import { TripDto } from '../../services/trip-service';
 })
 export class Toolbar implements OnInit {
 
-
-  //@ViewChild('popoverFeatures') popoverFeatures!: ElementRef;
-
   usersService = inject(UsersService);
   appService = inject(AppService);
-
+  currentTripService = inject(CurrentTripService);
+  currentTrip = toSignal(this.currentTripService.currentTripDto$);
 
   onFeaturesClick($event, popoverFeatures) {
     $event.preventDefault();
     popoverFeatures.toggle($event);
   }
-
-
 
   onTravelersClick($event, popover) {
     $event.preventDefault();
@@ -68,7 +66,7 @@ export class Toolbar implements OnInit {
     $event.preventDefault();
     popover.hide();
     if (path === 'trip-text') {
-      this.setTripTextVisible(!this.tripTextVisible);
+      this.setTripTextVisible(!this.tripTextVisible());
       return;
     }
     this.navigateTo(path);
@@ -77,11 +75,11 @@ export class Toolbar implements OnInit {
   onToggleTripTextClick($event, popover) {
     $event.preventDefault();
     popover.hide();
-    this.setTripTextVisible(!this.tripTextVisible);
+    this.setTripTextVisible(!this.tripTextVisible());
   }
 
   get tripTextLabel() {
-    return this.tripTextVisible ? 'Hide Trip' : 'Show Trip';
+    return this.tripTextVisible() ? 'Hide Trip' : 'Show Trip';
   }
 
   signOut($event, popover): void {
@@ -98,28 +96,18 @@ export class Toolbar implements OnInit {
   ) { }
 
 
-  get tripText(): string {
-    if (!this.tripSelected) {
-      return 'No Trip Selected';
-    }
-    return this.tripSelected.name || 'Unnamed Trip';
-  }
+  tripText = computed(() => {
+     return this.currentTrip() ? this.currentTrip()!.name : 'No Trip Selected';
+  });
+        
 
-  get tripTextVisible(): boolean {
-    return this.appService.getTripTextVisible() && this.usersService.isAuthenticated;
-  }
+  tripTextVisible = toSignal(this.currentTripService.currentTripVisible$);
 
   setTripTextVisible(visible: boolean): void {
-    this.appService.updateTripTextVisible(visible);
+    this.currentTripService.updateCurrentTripVisible(visible);
   }
 
-
   ngOnInit(): void {
-
-    this.appService.tripSelected$.subscribe(trip => {
-      this.tripSelected = trip;
-    });
-
 
     this.appService.routeActivated$.subscribe(componentRef => {
       this.componentNavigated = componentRef;
@@ -128,10 +116,6 @@ export class Toolbar implements OnInit {
     this.appService.routeDeActivated$.subscribe(componentRef => {
       this.componentNavigated = null;
     });
-
-    this.appService.routeDeActivated$.subscribe(componentRef => {
-    });
-
   }
 
 
@@ -170,7 +154,7 @@ export class Toolbar implements OnInit {
   }
 
   onTripThingsClick($event, popover): void {
-    if (this.disableTripThings) {
+    if (this.disableParticipantOnlyFeatures()) {
       return;
     }
     $event.preventDefault();
@@ -183,7 +167,7 @@ export class Toolbar implements OnInit {
   }
 
   onTripPacksClick($event, popover): void {
-    if (this.disableTripThings) {
+    if (this.disableParticipantOnlyFeatures()) {
       return;
     }
     $event.preventDefault();
@@ -219,16 +203,12 @@ export class Toolbar implements OnInit {
     return this.componentNavigated && this.componentNavigated.componentId === componentId;
   }
 
-  get isCurrentTrip(): boolean {
-    const result = this.tripSelected !== null;
-    return result;
-  }
+  isCurrentTrip = computed(() => {
+    return this.currentTrip() !== null;
+  });
 
-  get disableTripThings(): boolean {
-    return !this.isCurrentTrip || (!this.tripSelected!.currentUserIncluded);
-  }
+  disableParticipantOnlyFeatures = computed(() => {
+    return !this.isCurrentTrip() || !this.currentTrip()!.currentUserIncluded;
+  })
 
-  get disableTripPacks(): boolean {
-    return !this.isCurrentTrip || (!this.tripSelected!.currentUserIncluded);
-  }
 }

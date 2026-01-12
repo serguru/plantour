@@ -30,17 +30,17 @@ export class AppService {
 
     constructor() {
 
-        const tripId = localStorage.getItem('trips-selectedId');
-        if (!tripId) {
-            this.tripSelected.next(null);
-            return;
-        }
+        // const tripId = localStorage.getItem('trips-selectedId');
+        // if (!tripId) {
+        //     this.tripSelected.next(null);
+        //     return;
+        // }
 
-        this.tripService.getById(tripId).pipe(
-            tap((trip: TripDto) => {
-                this.tripSelected.next(trip);
-            })
-        ).subscribe();
+        // this.tripService.getById(tripId).pipe(
+        //     tap((trip: TripDto) => {
+        //         this.tripSelected.next(trip);
+        //     })
+        // ).subscribe();
 
     }
 

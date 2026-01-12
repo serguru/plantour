@@ -14,7 +14,8 @@ import { TripThingService } from '../../services/trip-thing-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Condition, TargetCondition } from '../../services/dynamic-query-service';
 import { UsersService } from '../../services/users-service';
-import { switchMap, tap } from 'rxjs';
+import { concatMap, distinctUntilChanged, filter, switchMap, tap, withLatestFrom } from 'rxjs';
+import { CurrentTripService } from '../../services/current-trip-service';
 
 
 // TODO: Add a method to create a new trip from the existing one 
@@ -29,21 +30,24 @@ import { switchMap, tap } from 'rxjs';
   templateUrl: './trips-component.html',
   styleUrl: './trips-component.scss',
 })
-export class TripsComponent implements OnInit{
+export class TripsComponent implements OnInit {
   tripItemComponent = TripItemComponent;
   componentId: string = 'trips';
 
-  appService = inject(AppService);
+ // appService = inject(AppService);
   tripService = inject(TripService);
 
   componentService = inject(ComponentService);
-  
+
   settingsPersistenceService = inject(ComponentService).settingsPersistenceService;
   dynamicQueryService = inject(ComponentService).dynamicQueryService;
-    
-  tripSelected = toSignal(this.appService.tripSelected$);
-  usersService = inject(UsersService);
+
+  currentTripService = inject(CurrentTripService);
+  tripSelected = toSignal(this.currentTripService.currentTripDto$);
   
+  usersService = inject(UsersService);
+
+
   private destroyRef = inject(DestroyRef);
 
   conditions: Condition[] =
@@ -70,17 +74,35 @@ export class TripsComponent implements OnInit{
 
     this.componentService.updateComponentId(this.componentId);
 
+
+
     var o = this.usersService.isAdmin ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
- 
+
     o.pipe(
       tap((trips: TripDto[]) => {
         this.initConditions(this.componentId, trips);
         this.initSavedFeatures();
+        this.componentService.updateEntities(trips || [])
       }),
+      concatMap(trips =>
+        this.componentService.selectedId$.pipe(
+          withLatestFrom(
+            this.componentService.componentId$,
+          ),
+          filter(([id, componentId]) => componentId === this.componentId),
+          distinctUntilChanged(),
+          tap(([id, componentId]) => {
+            if (!id || !trips || trips.length === 0) {
+              this.currentTripService.updateCurrentTripId(null);
+              return;
+            }
+            const selected = trips.find(e => e.id === id) || null;
+            this.currentTripService.updateCurrentTripId(selected ? selected.id : null);
+          }),
+        )
+      ),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(trips =>
-      this.componentService.updateEntities(trips || [])
-    );
+    ).subscribe();
   }
 
   initSavedFeatures() {

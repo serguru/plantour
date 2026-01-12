@@ -1,6 +1,6 @@
 import { Injectable, Inject, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, of, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { AccessToken, SignUpParticipantRequest, SignUpRequest } from '../models/auth.models';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
@@ -42,6 +42,7 @@ export class UsersService {
     return this.currentUserSubject.getValue();
   }
 
+
   writeTokenToStorage(token: string | null): void {
     if (!token) {
       localStorage.removeItem("accessToken");
@@ -71,13 +72,7 @@ export class UsersService {
   }
 
   currentUserSubject: BehaviorSubject<AccessToken | null> = new BehaviorSubject<AccessToken | null>(this.getUserFromLocalStorage());
-  currentUser$: Observable<any> = this.currentUserSubject.asObservable();
-
-  isAdmin$ = this.currentUser$.pipe(
-    tap(user => {
-      return user?.role === 'Admin' && this.isAuthenticated;
-    })
-  ) 
+  currentUser$: Observable<AccessToken | null> = this.currentUserSubject.asObservable();
 
 
   updateCurrentUser(token: string | null): void {
@@ -148,7 +143,7 @@ export class UsersService {
 
   signOut(): void {
     this.resetState();
-    this.appService.resetState();
+    //this.appService.resetState();
     localStorage.removeItem("accessToken");
   }
 
