@@ -1,16 +1,17 @@
-<app-generic-list
-  [service]="service"
-  [listActionsConfiguration]="configuration"
-  title="Trips"
-  entityIcon="pi-compass"
-  [isListReadOnly]="false"
-  [addUrl]="'add'"
-  [editUrl]="'edit/:id'"
-  entityNameProp="name"
-  entityName="trip"
-  (entitySelected)="onTripSelected($event)"
-  [componentId]="componentId"
-  [itemComponent]="tripItemComponent"
->
-</app-generic-list>
+<div class="page-container">
+    <app-entities-header
+        entityIcon="pi pi-compass"
+        title="Trips"
+        [delete]="deleteTrip.bind(this)"
+        entityName="trip"
+        entityNameProp="name"
+        addUrl="add"
+        editUrl="edit/:id"
+    ></app-entities-header>
 
+    <app-entities-actions
+    ></app-entities-actions>
+    <app-entities
+        [itemComponent]="tripItemComponent"
+    ></app-entities>
+</div>

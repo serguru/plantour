@@ -9,6 +9,6 @@ import { TripDto } from '../../../services/trip-service';
 })
 export class TripItemComponent {
 
-  @Input() item: TripDto = {} as TripDto;
+  @Input() entity: TripDto = {} as TripDto;
   
 }
