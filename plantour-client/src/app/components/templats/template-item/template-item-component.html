@@ -1,16 +1,22 @@
-  <div class="thing-row">
-    <span
-      class="thing-name"
-      [innerHTML]="entity.name"
-    ></span>
-    <!-- @if (item.category) {
-    <p-tag
-      class="thing-category"
-      [value]="item.category"
-      severity="secondary"
-      [style]="{  'font-size': 'large' }"
-      (click)="onCategoryClick(item, $event)"
-    >
-    </p-tag> 
-    }-->
+<div class="container">
+  <div
+    class="row"
+    [innerHTML]="entity.name"
+  ></div>
+
+  <div class="row">
+    <div>
+      @if (entity.category) {
+      <p-tag
+        [value]="entity.category"
+        severity="secondary"
+        [style]="{  'font-size': 'large' }"
+      >
+      </p-tag>
+      }
+    </div>
+    <div>
+      {{entity.activityName}}
+    </div>
   </div>
+</div>

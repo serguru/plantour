@@ -204,3 +204,5 @@ create table template_things (
 create unique index idx_template_things_template_id_name on template_things(template_id, name);
 
 
+
+

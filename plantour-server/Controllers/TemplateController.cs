@@ -37,11 +37,11 @@ public class TemplateController(ITemplateService service) : ControllerBase
         return Ok(dtos);
     }
 
-    [HttpGet("dic/{tripId}")]
+    [HttpGet("dic")]
     [AdminOnly]
-    public async Task<ActionResult<IEnumerable<VTemplateThingsFullDto>>> GetAllForDic(Guid tripId)
+    public async Task<ActionResult<IEnumerable<VTemplateThingsFullDto>>> GetAllForDic()
     {
-        var dtos = await _service.GetAllForDicAsync(tripId);
+        var dtos = await _service.GetAllForDicAsync();
         return Ok(dtos);
     }
 }

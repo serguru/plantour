@@ -61,7 +61,7 @@ export class Toolbar implements OnInit {
   onTemplateThingsClick($event, popover) {
     $event.preventDefault();
     popover.hide();
-    this.router.navigate(["template-things"]);
+    this.router.navigate(["templates"]);
   }
 
   featureClick($event, path: string, popover) {

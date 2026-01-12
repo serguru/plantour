@@ -87,6 +87,8 @@ builder.Services.AddScoped<ILookupsService, LookupsService>();
 builder.Services.AddScoped<IAdminsParticipantService, AdminsParticipantService>();
 builder.Services.AddScoped<ITripSharedService, TripSharedService>();
 builder.Services.AddScoped<ICheckAccessService, CheckAccessService>();
+builder.Services.AddScoped<ITemplateService, TemplateService>();
+
 
 
 // Register repositories

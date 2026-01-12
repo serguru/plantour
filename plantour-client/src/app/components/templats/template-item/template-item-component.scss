@@ -1,21 +1,10 @@
-
-
-.thing-row {
+.container {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
   gap: 0.5rem;
-  width: 100%;
 }
 
-.thing-name {
-  flex: 1 1 auto;
-  min-width: 0;             
-  white-space: normal;
-  overflow-wrap: break-word;
-  word-break: break-word;
-}
-
-.thing-category {
-  flex: 0 0 auto;
-  margin-left: auto;        
+.row {
+  display: flex;
+  gap: 0.5rem;
 }

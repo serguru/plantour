@@ -3,21 +3,25 @@ import { EntitiesActionsComponent } from '../entities/entities-actions-component
 import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { TemplateItemComponent } from './template-item/template-item-component';
-import { TripService } from '../../services/trip-service';
+import { TripDto, TripService } from '../../services/trip-service';
 import { AppService } from '../../services/app-service';
-import { ThingService } from '../../services/thing-service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ComponentService } from '../../services/component-service';
 import { TripSharedService } from '../../services/trip-shared-service';
 import { TripThingService } from '../../services/trip-thing-service';
 import { combineLatest, of, switchMap, tap } from 'rxjs';
+import { TemplateService } from '../../services/template-service';
+import { ThingService } from '../../services/thing-service';
+import { UsersService } from '../../services/users-service';
+import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
+import { ArrayOfGuidsRequest, MultipleIdsRequest } from '../../services/crud-service';
 
 @Component({
   selector: 'app-template-things-component',
   imports: [
-    // EntitiesComponent,
-    // EntitiesHeaderComponent,
-    // EntitiesActionsComponent
+    EntitiesComponent,
+    EntitiesHeaderComponent,
+    EntitiesActionsComponent
   ],
   templateUrl: './templates-component.html',
   styleUrl: './templates-component.scss',
@@ -27,264 +31,407 @@ export class TemplatesComponent {
   componentId: string = 'templates';
   appService = inject(AppService);
   tripService = inject(TripService);
-  thingService = inject(ThingService);
 
   componentService = inject(ComponentService);
+  templateService = inject(TemplateService);
   settingsPersistenceService = inject(ComponentService).settingsPersistenceService;
   dynamicQueryService = inject(ComponentService).dynamicQueryService;
+
+  thingService = inject(ThingService);
   tripThingService = inject(TripThingService);
   tripSharedService = inject(TripSharedService);
 
-  targetId = toSignal(this.componentService.targetCondition$);
+  targetCondition = toSignal(this.componentService.targetCondition$);
+  target = toSignal(this.componentService.target$);
+
   targetedIds = toSignal(this.componentService.targetedIds$);
   notTargetedIds = toSignal(this.componentService.notTargetedIds$);
   tripSelected = toSignal(this.appService.tripSelected$);
-
+  usersService = inject(UsersService);
   private destroyRef = inject(DestroyRef);
 
-  constructor() {
+  conditions: Condition[] =
+    [
+      {
+        kind: 'sort',
+        label: 'Sort by Name',
+        icon: 'sort-alt',
+        property: 'name',
+        sortType: 'text',
+        direction: 'none'
+      },
+      {
+        kind: 'target',
+        label: 'Trip or dic things',
+        icon: 'compass',
+        target: null
+      }, {
+        kind: 'filter',
+        property: 'category',
+        label: 'Category',
+        icon: 'folder-open',
+        filterText: '',
+        comparisonType: 'exact',
+        
+      }, {
+        kind: 'filter',
+        property: 'activityName',
+        label: 'Activity',
+        icon: 'folder-open',
+        filterText: '',
+        comparisonType: 'exact',
+      }, {
+        kind: 'filter',
+        property: 'templateName',
+        label: 'Template',
+        icon: 'folder-open',
+        filterText: '',
+        comparisonType: 'exact',
+      }, {
+        kind: 'filter',
+        property: 'temperatureRangeName',
+        label: 'Temperature Range',
+        icon: 'folder-open',
+        filterText: '',
+        comparisonType: 'exact',
+      }, {
+        kind: 'filter',
+        property: 'ageRangeName',
+        label: 'Age',
+        icon: 'folder-open',
+        filterText: '',
+        comparisonType: 'exact',
+      }, {
+        kind: 'filter',
+        property: 'name',
+        label: 'Filter by Name',
+        filterText: '',
+        comparisonType: 'contains',
+        isSelected: true,
+        icon: 'box'
+      }
+    ];
+
+  ngOnInit(): void {
+
+    this.componentService.updateComponentId(this.componentId);
+    var o = this.usersService.isAdmin ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
+
+    o.pipe(
+      tap((trips: TripDto[]) => {
+        this.initConditions(this.componentId, trips);
+        this.initTargetLookup(trips);
+        this.initSavedFeatures();
+      }),
+      switchMap(_ =>
+        this.componentService.target$.pipe(
+          switchMap((target: Target | null) => {
+            if (target && target.selectedMode === TargetMode.DicThings) {
+              return this.templateService.getAllForDic();
+            }
+            if (target && target.selectedMode === TargetMode.TripShared) {
+              return this.templateService.getAllForSharedTrip(target.id!);
+            }
+            if (target && target?.id) {
+              return this.templateService.getAllForTrip(target.id);
+            }
+            return this.templateService.getAll();
+          }),
+        )
+      ),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(things =>
+      this.componentService.updateEntities(things || [])
+    );
   }
 
-  // ngOnInit(): void {
+  initSavedFeatures() {
+    const v = !!this.settingsPersistenceService.getComponentKey(this.componentId, 'entitiesActionsVisible');
+    this.componentService.updateEntitiesActionsVisible(v);
 
-  //   const savedSharedMode = this.settingsPersistenceService.getComponentKey(this.componentId, 'thingsToSharedMode');
-  //   this.componentService.updateThingsToSharedMode(!!savedSharedMode);
+    const id = this.settingsPersistenceService.getComponentKey(this.componentId, 'selectedId');
+    this.componentService.updateSelectedId(id);
+  }
 
-  //   combineLatest([
-  //     this.componentService.thingsToSharedMode$,
-  //     this.componentService.targetCondition$
-  //   ]).pipe(
-  //     switchMap(([isSharedMode, tripId]) => {
-  //       if (!tripId) {
-  //         return this.thingService.getAll();
-  //       }
-  //       if (isSharedMode) {
-  //         return this.thingService.getAllForSharedTrip(tripId!);
-  //       }
-  //       return this.thingService.getAllForTrip(tripId);
-  //     }),
-  //     takeUntilDestroyed(this.destroyRef)
-  //   ).subscribe(things =>
-  //     this.componentService.updateEntities(things || [])
-  //   );
+  initTargetLookup(trips: TripDto[] | null) {
 
-  //   this.componentService.thingsToSharedMode$
-  //     .pipe(
-  //       switchMap(isSharedMode => {
-  //         if (isSharedMode) {
-  //           return this.tripService.getAllWhereParticipant();
-  //         }
-  //         return this.tripService.getAll();
-  //       }),
-  //       take(1),
-  //       tap((trips: TripDto[]) => {
-  //         this.initState(this.componentId, trips);
-  //       }),
-  //       takeUntilDestroyed(this.destroyRef)
-  //     ).subscribe();
+    const dicTarget: Target = {
+      id: null,
+      name: "Things Dictionary",
+      selectedMode: TargetMode.DicThings,
+      options: [{
+        label: 'Dictionary',
+        mode: TargetMode.DicThings
+      }]
+    }
+
+    if (!trips) {
+      this.componentService.updateTargetLookup([dicTarget]);
+      return;
+    }
+
+    const lookup = (trips).sort((a, b) => {
+      const aDate = a.startDate ?? '';
+      const bDate = b.startDate ?? '';
+      return aDate.localeCompare(bDate);
+    }).map((t: TripDto) => {
+
+      const result: Target = {
+        id: t.id,
+        name: t.name,
+        selectedMode: null,
+        options: null
+      }
+
+      if (this.usersService.isAdmin) {
+        result.selectedMode = TargetMode.TripShared;
+        result.options = [
+          {
+            label: 'Shared',
+            mode: TargetMode.TripShared
+          }
+        ];
+
+        if (t.currentUserIncluded) {
+          result.options.push({
+            label: 'Own',
+            mode: TargetMode.TripThings
+
+          })
+        }
+      }
+      return result;
+    });
+
+    lookup.push(dicTarget);
+
+    this.componentService.updateTargetLookup(lookup);
+  }
+
+  getTargetByTrip(trip: TripDto) {
+    const result: Target = {
+      id: trip.id,
+      name: trip.name,
+      selectedMode: null,
+      options: null
+    }
+    if (this.usersService.isAdmin) {
+      result.selectedMode = TargetMode.TripShared;
+      result.options = [
+        {
+          label: 'Shared',
+          mode: TargetMode.TripShared
+        }
+      ];
+      if (trip.currentUserIncluded) {
+        result.options.push({
+          label: 'Own',
+          mode: TargetMode.TripThings
+        })
+      }
+    }
+    return result;
+  }
+
+  initConditions(componentId: string | null, trips: TripDto[] | null = null): void {
+    if (!componentId) {
+      throw new Error('ComponentId is null');
+    }
+    const savedConditions = this.settingsPersistenceService.getComponentKey(componentId, 'conditions') || [];
+    const savedTargetCondition: TargetCondition | undefined = savedConditions.find(c => c.kind === 'target');
+    const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
+    const targetCondition: TargetCondition | undefined = initialConditions.find(c => c.kind === 'target');
+
+    if (targetCondition) {
+      if (targetCondition.target?.selectedMode === TargetMode.DicThings) {
+        targetCondition.target = {
+          id: null,
+          name: "Things Dictionary",
+          selectedMode: TargetMode.DicThings,
+          options: [{
+            label: 'Dictionary',
+            mode: TargetMode.DicThings
+          }]
+        };
+      } else {
+        const trip = trips?.find(t => t.id === targetCondition.target?.id);
+        if (trip) {
+          targetCondition.target = this.getTargetByTrip(trip);
+        } else {
+          const trip = this.appService.tripSelectedValue();
+          if (trip && trips?.find(t => t.id === trip.id)) {
+            targetCondition.target = this.getTargetByTrip(trip);
+          }
+        }
+        if (savedTargetCondition?.target?.selectedMode && targetCondition.target?.options?.map(x => x.mode).includes(savedTargetCondition.target.selectedMode)) {
+          targetCondition.target.selectedMode = savedTargetCondition.target.selectedMode;
+        };
+      }
+    }
+
+    this.componentService.updateConditions(initialConditions);
+    this.componentService.persistValue('conditions', initialConditions);
+  }
+
+  onAddTargetClick(): void {
+    const target = this.target();
+
+    if (!target) {
+      throw new Error('Target is not set');
+    }
+
+    const ids = this.notTargetedIds();
+    
+    if (!ids || ids.length === 0) {
+      throw new Error('No not targeted ids available');
+    }
+
+    if (target.selectedMode === TargetMode.DicThings) {
+      const request: ArrayOfGuidsRequest = {
+        ids: ids
+      };
+
+      this.thingService.addFromTemplate(request).pipe(
+        switchMap(() => this.templateService.getAllForDic()),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe((things) => {
+        this.componentService.updateEntities(things);
+      }); 
+
+      return;
+    }
 
 
-  //   this.componentService.thingsToSharedMode$
-  //     .pipe(
-  //       switchMap(isSharedMode => {
-  //         if (isSharedMode) {
-  //           return this.tripService.getAllWhereParticipant();
-  //         }
-  //         return this.tripService.getAll();
-  //       }),
-  //       tap((trips: TripDto[]) => {
-  //         this.initTargetLookup(trips);
-  //       }),
-  //       takeUntilDestroyed(this.destroyRef)
-  //     ).subscribe();
+    const targetId = target.id;
+
+    if (!targetId) {
+      throw new Error('Target Trip Id is not set');
+    }
+    const request: MultipleIdsRequest = {
+      collectionId: targetId,
+      ids: ids
+    };
+
+    let o, m;
+
+    if (target?.selectedMode === TargetMode.TripShared) {
+      o = this.tripSharedService.addFromTemplate(request);
+      m = this.templateService.getAllForSharedTrip(targetId);
+    } else {
+      o = this.tripThingService.addFromTemplate(request);
+      m = this.templateService.getAllForTrip(targetId);
+    }
+    o.pipe(
+      switchMap(() => m),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((things) => {
+      this.componentService.updateEntities(things);
+    });
+  }
+
+  onDeleteTargetClick(): void {
+
+    const target = this.target();
+
+    if (!target) {
+      throw new Error('Target is not set');
+    }
+
+    const ids = this.targetedIds();
+    if (!ids || ids.length === 0) {
+      throw new Error('No targeted ids available');
+    }
+
+    if (target.selectedMode === TargetMode.DicThings) {
+      const request: ArrayOfGuidsRequest = {
+        ids: ids
+      };
+
+      this.thingService.deleteFromTemplate(request).pipe(
+        switchMap(() => this.templateService.getAllForDic()),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe((things) => {
+        this.componentService.updateEntities(things);
+      });
+      return;
+    }
 
 
-  // }
+    const targetId = target?.id;
 
-  // initTargetLookup(trips: TripDto[] | null) {
+    if (!targetId) {
+      throw new Error('Target Trip Id is not set');
+    }
+    const request: MultipleIdsRequest = {
+      collectionId: targetId,
+      ids: ids
+    };
 
-  //   if (!trips) {
-  //     this.componentService.updateTargetLookup([]);
-  //     return;
-  //   }
+    let o, m;
 
-  //   const lookup = (trips).sort((a, b) => {
-  //     const aDate = a.startDate ?? '';
-  //     const bDate = b.startDate ?? '';
-  //     return aDate.localeCompare(bDate);
-  //   }).map((t: any) => ({ id: t.id, name: t.name }));
+    if (target?.selectedMode === TargetMode.TripShared) {
+      o = this.tripSharedService.deleteFromTemplate(request);
+      m = this.templateService.getAllForSharedTrip(targetId);
+    } else {
+      o = this.tripThingService.deleteFromTemplate(request);
+      m = this.templateService.getAllForTrip(targetId);
+    }
+    o.pipe(
+      switchMap(() => m),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((things) => {
+      this.componentService.updateEntities(things);
+    });
+  }
 
-  //   this.componentService.updateTargetLookup(lookup);
-  // }
+  targetEntityClick(entity: any) {
+    const target = this.target();
 
-  // initState(componentId: string | null, trips: TripDto[] | null = null): void {
-  //   if (!componentId) {
-  //     return;
-  //   }
-  //   const savedConditions = this.settingsPersistenceService.getComponentKey(componentId, 'conditions');
-  //   const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
+    if (!target) {
+      throw new Error('Target is not set');
+    }
 
-  //   const targetCondition: any = initialConditions.find(c => c.kind === 'filter' && c.comparisonType == 'exact' && c.property === 'target');
+    if (target.selectedMode === TargetMode.DicThings) {
+      const request: ArrayOfGuidsRequest = {
+        ids: [entity.id]
+      };  
+      const o = entity.isTargeted ? this.thingService.deleteFromTemplate(request) : this.thingService.addFromTemplate(request);
+      const m = this.templateService.getAllForDic();
 
-  //   if (targetCondition && targetCondition.filterText) {
-  //     const trip = trips?.find(t => t.id === targetCondition.filterText);
-  //     if (!trip) {
-  //       targetCondition.filterText = '';
-  //     }
-  //   }
+      o.pipe(
+        switchMap(() => m),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe((things) => {
+        this.componentService.updateEntities(things);
+      });
+      return;
+    }
 
-  //   if (!targetCondition.filterText) {
-  //     const tripId = this.appService.tripSelectedValue()?.id;
-  //     if (tripId && trips?.find(t => t.id === tripId)) {
-  //       targetCondition.filterText = tripId;
-  //     }
-  //   }
+    if (!target.id) {
+      throw new Error('Target Trip Id is not set');
+    }
 
-  //   this.componentService.updateComponentInit(
-  //     {
-  //       componentId: componentId,
-  //       initialConditions: initialConditions
-  //     }
-  //   );
+    const request: MultipleIdsRequest = {
+      collectionId: target.id,
+      ids: [entity.id]
+    };
 
-  // }
+    let o, m;
 
-  // onAddTargetClick(): void {
-  //   const targetId = this.targetId();
-  //   if (!targetId) {
-  //     throw new Error('Target Trip Id is not set');
-  //   }
-  //   const ids = this.notTargetedIds();
-  //   if (!ids || ids.length === 0) {
-  //     throw new Error('No not targeted ids available');
-  //   }
-  //   const request: MultipleIdsRequest = {
-  //     collectionId: targetId,
-  //     ids: ids
-  //   };
+    if (target?.selectedMode === TargetMode.TripShared) {
+      o = entity.isTargeted ? this.tripSharedService.deleteFromTemplate(request) : this.tripSharedService.addFromTemplate(request);
+      m = this.templateService.getAllForSharedTrip(target!.id!);
 
-  //   this.addTripIds(targetId, request);
-  // }
+    } else {
+      o = entity.isTargeted ? this.tripThingService.deleteFromTemplate(request) : this.tripThingService.addFromTemplate(request);
+      m = this.templateService.getAllForTrip(target!.id!);
+    }
 
-  // private addTripIds(tripId: string, request: MultipleIdsRequest): void {
-  //   this.componentService.thingsToSharedMode$
-  //     .pipe(
-  //       switchMap(isSharedMode => {
-  //         if (isSharedMode) {
-  //           return this.tripSharedService.addFromDic(request).pipe(
-  //             switchMap(() => this.thingService.getAllForSharedTrip(tripId))
-  //           )
-  //         }
-  //         return this.tripThingService.addFromDic(request).pipe(
-  //           switchMap(() => this.thingService.getAllForTrip(tripId))
-  //         )
-  //       }),
-  //       takeUntilDestroyed(this.destroyRef)
-  //     ).subscribe(things =>
-  //       this.componentService.updateEntities(things)
-  //     );
-  // }
-
-  // onDeleteTargetClick(): void {
-  //   const targetId = this.targetId();
-  //   if (!targetId) {
-  //     throw new Error('Target Id is not set');
-  //   }
-  //   const ids = this.targetedIds();
-  //   if (!ids || ids.length === 0) {
-  //     throw new Error('No targeted ids available');
-  //   }
-  //   const request: MultipleIdsRequest = {
-  //     collectionId: targetId,
-  //     ids: ids
-  //   };
-  //   this.deleteTripIds(targetId, request);
-  // }
-
-  // private deleteTripIds(tripId: string, request: MultipleIdsRequest): void {
-  //   this.componentService.thingsToSharedMode$
-  //     .pipe(
-  //       switchMap(isSharedMode => {
-  //         if (isSharedMode) {
-  //           return this.tripSharedService.deleteFromDic(request).pipe(
-  //             switchMap(() => this.thingService.getAllForSharedTrip(tripId))
-  //           )
-  //         }
-  //         return this.tripThingService.deleteFromDic(request).pipe(
-  //           switchMap(() => this.thingService.getAllForTrip(tripId))
-  //         )
-  //       }),
-  //       takeUntilDestroyed(this.destroyRef)
-  //     ).subscribe(things =>
-  //       this.componentService.updateEntities(things)
-  //     );
-  // }
-
-  // conditions: Condition[] =
-  //   [
-  //     {
-  //       kind: 'sort',
-  //       property: 'name',
-  //       sortType: 'text',
-  //       direction: 'none'
-  //     },
-  //     {
-  //       kind: 'filter',
-  //       property: 'category',
-  //       label: 'Category',
-  //       filterText: '',
-  //       comparisonType: 'exact',
-  //       icon: 'folder-open'
-  //     },
-  //     {
-  //       kind: 'filter',
-  //       property: 'target',
-  //       label: 'Trip',
-  //       filterText: '',
-  //       comparisonType: 'exact',
-  //       icon: 'compass'
-  //     },
-  //     {
-  //       kind: 'filter',
-  //       property: 'name',
-  //       label: 'Name',
-  //       filterText: '',
-  //       comparisonType: 'contains',
-  //       isSelected: true,
-  //       icon: 'box'
-  //     }
-  //   ];
-
-  // deleteThing(id: string): void {
-  //   this.thingService.delete(id).pipe(
-
-  //     switchMap(x => {
-  //       return this.componentService.targetCondition$.pipe(
-  //         switchMap(tripId => {
-  //           if (tripId) {
-  //             return this.thingService.getAllForTrip(tripId);
-  //           }
-  //           return this.thingService.getAll();
-  //         })
-  //       );
-  //     }),
-  //     takeUntilDestroyed(this.destroyRef)
-  //   ).subscribe((things) => {
-  //     this.componentService.updateEntities(things);
-  //   });
-  // }
-
-  // targetEntityClick(tripId: string, entity: any) {
-  //   const request: MultipleIdsRequest = {
-  //     collectionId: tripId,
-  //     ids: [entity.id]
-  //   };
-
-  //   if (entity.isTargeted) {
-  //     this.deleteTripIds(tripId, request);
-  //     return;
-  //   }
-
-  //   this.addTripIds(tripId, request);
-  // }
+    o.pipe(
+      switchMap(() => m),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((things) => {
+      this.componentService.updateEntities(things);
+    });
+  }
 }

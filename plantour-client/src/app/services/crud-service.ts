@@ -21,6 +21,10 @@ export interface MultipleIdsRequest {
   ids: string[];
   id?: string | null;
 }
+export interface ArrayOfGuidsRequest {
+  ids: string[];
+}
+
 
 export interface FromDicService {
   addFromDic(data: MultipleIdsRequest): Observable<number>;

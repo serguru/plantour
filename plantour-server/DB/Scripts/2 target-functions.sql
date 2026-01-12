@@ -456,13 +456,18 @@ begin
         b.units,
         b.value
     from plantour.template_things b
-    left join plantour.trip_shared_things c on 
-        c.trip_id = p_trip_id and 
-        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    left join 
+        (
+            select b.name as name
+            from plantour.trips a
+            join plantour.trip_shared_things b on a.id = b.trip_id
+            where 
+                b.trip_id = p_trip_id and
+                a.user_id = p_admin_id
+        ) c on lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
     where
         b.id = any (p_ids)
-        and b.user_id = p_admin_id
-        and c.id is null;
+        and c.name is null;
 
     get diagnostics v_inserted_count = row_count;
 
@@ -485,14 +490,17 @@ declare
     v_deleted_count integer;
 begin
     delete from plantour.trip_shared_things a
-    using plantour.template_things b
-    join plantour.trip_shared_things c on 
-        c.trip_id = p_trip_id and 
-        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    using 
+        plantour.template_things b,
+        plantour.trips d
     where
-        a.id = c.id 
+        -- Link target 'a' to 'b' and 'd' via name and trip_id
+        lower(a.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+        and a.trip_id = d.id
+        -- Apply filters
         and b.id = any (p_ids)
-        and b.user_id = p_admin_id;
+        and d.user_id = p_admin_id
+        and d.id = p_trip_id;
 
     get diagnostics v_deleted_count = row_count;
 
@@ -525,17 +533,19 @@ begin
     )
     into v_trip_user_id;
 
-    insert into plantour.trip_user_things (trip_user_id, name)
+    insert into plantour.trip_user_things (trip_user_id, category, name, units, value)
     select
         v_trip_user_id,
-        b.name
+        b.category,
+        b.name,
+        b.units,
+        b.value
     from plantour.template_things b
     left join plantour.trip_user_things c on 
         c.trip_user_id = v_trip_user_id and 
         lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
     where
         b.id = any (p_ids)
-        and b.user_id = p_participant_id
         and c.id is null;
 
     get diagnostics v_inserted_count = row_count;
@@ -575,8 +585,7 @@ begin
         lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
     where
         a.id = c.id and
-        b.id = any (p_ids)
-        and b.user_id = p_participant_id;
+        b.id = any (p_ids);
 
     get diagnostics v_deleted_count = row_count;
 
@@ -598,18 +607,19 @@ as $$
 declare
     v_inserted_count integer;
 begin
-    insert into user_things (category, name, units, value)
+    insert into plantour.user_things (user_id, category, name, units, value)
     select
+        p_user_id,
         b.category,
         b.name,
         b.units,
         b.value
-    from template_things b
-    left join user_things c on 
+    from plantour.template_things b
+    left join plantour.user_things c on 
+        c.user_id = p_user_id and
         lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
     where
         b.id = any (p_ids)
-        and b.user_id = p_user_id
         and c.id is null;
 
     get diagnostics v_inserted_count = row_count;
@@ -634,11 +644,11 @@ begin
     delete from plantour.user_things a
     using plantour.template_things b
     join plantour.user_things c on 
+        c.user_id = p_user_id and
         lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
     where
         a.id = c.id 
-        and b.id = any (p_ids)
-        and b.user_id = p_user_id;
+        and b.id = any (p_ids);
 
     get diagnostics v_deleted_count = row_count;
 

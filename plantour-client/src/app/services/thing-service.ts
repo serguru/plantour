@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
-import { CrudService, MultipleIdsRequest } from './crud-service';
+import { ArrayOfGuidsRequest, CrudService, MultipleIdsRequest } from './crud-service';
 
 export interface ThingDto {
   id: string;
@@ -77,11 +77,11 @@ export class ThingService implements CrudService<ThingDto, CreateThingRequest, U
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
   
-  addFromTemplate(data: MultipleIdsRequest): Observable<number> {
+  addFromTemplate(data: ArrayOfGuidsRequest): Observable<number> {
     return this.http.post<number>(`${this.apiUrl}/insert-from-template`, data);
   }
 
-  deleteFromTemplate(data: MultipleIdsRequest): Observable<number> {
+  deleteFromTemplate(data: ArrayOfGuidsRequest): Observable<number> {
     return this.http.post<number>(`${this.apiUrl}/delete-from-template`, data);
   }
 

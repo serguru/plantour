@@ -145,13 +145,13 @@ public class ThingService(
     }
 
 
-    public async Task<int> InsertTemplateUserThingsAsync(Guid tripId, Guid[] ids)
+    public async Task<int> InsertTemplateUserThingsAsync(Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
         return await _dicTripRepository.InsertTemplateUserThingsAsync(_currentUser.UserId, ids);
     }
 
-    public async Task<int> DeleteTemplateUserThingsAsync(Guid tripId, Guid[] ids)
+    public async Task<int> DeleteTemplateUserThingsAsync(Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
         return await _dicTripRepository.DeleteTemplateUserThingsAsync(_currentUser.UserId, ids);

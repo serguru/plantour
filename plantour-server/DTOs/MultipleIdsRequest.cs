@@ -6,3 +6,11 @@ public class MultipleIdsRequest
     public Guid[] Ids { get; set; } = [];
     public Guid? Id { get; set; } = null;
 }
+
+
+public class ArrayOfGuidsRequest
+{
+    public Guid[] Ids { get; set; } = [];
+}
+
+

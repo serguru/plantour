@@ -78,14 +78,9 @@ public class TemplateService(
         return result;
     }   
 
-    public async Task<IEnumerable<VTemplateThingsFullDto>> GetAllForDicAsync(Guid tripId)
+    public async Task<IEnumerable<VTemplateThingsFullDto>> GetAllForDicAsync()
     {
-        _currentUser.RaiseIfNotAdmin();
-
-        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
-        {
-            throw new CustomException("User does not have access to this trip");
-        }
+        _currentUser.RaiseIfNotAuthenticated();
 
         var targetThings = await _thingsRepository.FindAsync(x => x.UserId == _currentUser.UserId);
         var targetThingNames = new HashSet<string>(targetThings.Select(tp => tp.Name), StringComparer.OrdinalIgnoreCase);

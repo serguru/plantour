@@ -22,7 +22,6 @@ export interface VTemplateThingsFullDto {
   isTargeted?: boolean;
 }
 
-
 @Injectable({
   providedIn: 'root',
 })
@@ -49,7 +48,7 @@ export class TemplateService {
     return this.http.get<VTemplateThingsFullDto[]>(`${this.apiUrl}/trip-shared/${tripId}`);
   }
 
-  getAllForDic(tripId: string): Observable<VTemplateThingsFullDto[]> {
-    return this.http.get<VTemplateThingsFullDto[]>(`${this.apiUrl}/dic/${tripId}`);
+  getAllForDic(): Observable<VTemplateThingsFullDto[]> {
+    return this.http.get<VTemplateThingsFullDto[]>(`${this.apiUrl}/dic`);
   }
 }
