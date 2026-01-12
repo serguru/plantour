@@ -133,7 +133,7 @@ export class PacksComponent implements OnInit {
     if (!componentId) {
       throw new Error('ComponentId is null');
     }
-    const savedConditions = this.localStorageService.getComponentKey(componentId, 'conditions') || [];
+    const savedConditions = this.localStorageService.getComponentKeyObject(componentId, 'conditions') || [];
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
     const targetCondition: TargetCondition | undefined = initialConditions.find(c => c.kind === 'target');
 

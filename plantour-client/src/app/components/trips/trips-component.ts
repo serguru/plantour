@@ -119,7 +119,7 @@ export class TripsComponent implements OnInit {
     if (!componentId) {
       throw new Error('ComponentId is null');
     }
-    const savedConditions = this.localStorageService.getComponentKey(componentId, 'conditions') || [];
+    const savedConditions = this.localStorageService.getComponentKeyObject(componentId, 'conditions') || [];
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
     this.componentService.updateConditions(initialConditions);
     this.componentService.persistValue('conditions', initialConditions);

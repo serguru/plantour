@@ -193,7 +193,7 @@ export class ThingsComponent {
     if (!componentId) {
       throw new Error('ComponentId is null');
     }
-    const savedConditions = this.localStorageService.getComponentKey(componentId, 'conditions') || [];
+    const savedConditions = this.localStorageService.getComponentKeyObject(componentId, 'conditions') || [];
     const savedTargetCondition: TargetCondition | undefined = savedConditions.find(c => c.kind === 'target');
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
     const targetCondition: TargetCondition | undefined = initialConditions.find(c => c.kind === 'target');
