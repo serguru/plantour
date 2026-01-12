@@ -86,7 +86,7 @@ export class ThingsComponent {
   ngOnInit(): void {
 
     this.componentService.updateComponentId(this.componentId);
-    var o = this.usersService.isAdmin ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
+    var o = this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
 
     o.pipe(
       tap((trips: TripDto[]) => {
@@ -141,7 +141,7 @@ export class ThingsComponent {
         options: null
       }
 
-      if (this.usersService.isAdmin) {
+      if (this.usersService.isAdminSignal()) {
         result.selectedMode = TargetMode.TripShared;
         result.options = [
           {
@@ -171,7 +171,7 @@ export class ThingsComponent {
       selectedMode: null,
       options: null
     }
-    if (this.usersService.isAdmin) {
+    if (this.usersService.isAdminSignal()) {
       result.selectedMode = TargetMode.TripShared;
       result.options = [
         {

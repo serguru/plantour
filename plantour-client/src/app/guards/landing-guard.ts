@@ -7,7 +7,7 @@ import { UsersService } from '../services/users-service';
  */
 export const landingNewUserGuard: CanMatchFn = () => {
   const usersService = inject(UsersService);
-  return !usersService.isAuthenticated;
+  return !usersService.isAuthenticatedSignal();
 };
 
 /**
@@ -15,5 +15,5 @@ export const landingNewUserGuard: CanMatchFn = () => {
  */
 export const landingRegisteredUserGuard: CanMatchFn = () => {
   const usersService = inject(UsersService);
-  return usersService.isAuthenticated;
+  return usersService.isAuthenticatedSignal();
 };

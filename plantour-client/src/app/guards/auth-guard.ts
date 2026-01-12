@@ -9,7 +9,7 @@ import { catchError, map, tap, throwError } from 'rxjs';
 
 export const publicGuard: CanActivateFn = (route, state) => {
   const usersService = inject(UsersService);
-  if (!usersService.isAuthenticated) {
+  if (!usersService.isAuthenticatedSignal()) {
     return true;
   }
   const router = inject(Router);
@@ -24,7 +24,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   const usersService = inject(UsersService);
   const router = inject(Router);
 
-  if (usersService.isAuthenticated) {
+  if (usersService.isAuthenticatedSignal()) {
     return true;
   }
 
@@ -39,7 +39,7 @@ export const authGuard: CanActivateFn = (route, state) => {
 export const adminOnlyGuard: CanActivateFn = (route, state) => {
   const usersService = inject(UsersService);
 
-  if (usersService.isAdmin) {
+  if (usersService.isAdminSignal()) {
     return true;
   }
 
@@ -51,7 +51,7 @@ export const adminOnlyGuard: CanActivateFn = (route, state) => {
 export const adminOrParticipantGuard: CanActivateFn = (route, state) => {
   const usersService = inject(UsersService);
 
-  if (usersService.isAdmin || usersService.isParticipant) {
+  if (usersService.isAdminSignal() || usersService.isParticipantSignal()) {
     return true;
   }
 

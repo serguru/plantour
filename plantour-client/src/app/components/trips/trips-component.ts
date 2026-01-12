@@ -77,7 +77,7 @@ export class TripsComponent implements OnInit {
 
 
 
-    var o = this.usersService.isAdmin ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
+    var o = this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
 
     o.pipe(
       tap((trips: TripDto[]) => {
@@ -128,7 +128,7 @@ export class TripsComponent implements OnInit {
   deleteTrip(id: string): void {
     this.tripService.delete(id).pipe(
       switchMap(x => {
-        return this.usersService.isAdmin ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
+        return this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(trips => {

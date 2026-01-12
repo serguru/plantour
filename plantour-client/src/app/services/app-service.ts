@@ -4,6 +4,7 @@ import { TripDto, TripService } from './trip-service';
 import { TripPackageDto } from './trip-package-service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { LocalStorageService } from './local-storage-service';
 
 @Injectable({
     providedIn: 'root',
@@ -27,6 +28,7 @@ export class AppService {
 
 
     tripService = inject(TripService);
+  localStorageService = inject(LocalStorageService);
 
     constructor() {
 
@@ -63,12 +65,12 @@ export class AppService {
         return this.tripSelected.getValue();
     }
 
-    private tripTextVisible: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(localStorage.getItem('toolbar-showTripText') === 'true');
+    private tripTextVisible: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this.localStorageService.getItem('toolbar-showTripText') === 'true');
     tripTextVisible$: Observable<boolean> = this.tripTextVisible.asObservable();
 
     public updateTripTextVisible(visible: boolean): void {
         this.tripTextVisible.next(visible);
-        localStorage.setItem('toolbar-showTripText', visible ? 'true' : 'false')
+        this.localStorageService.setItem('toolbar-showTripText', visible ? 'true' : 'false')
     }
 
     getTripTextVisible(): boolean {
@@ -81,9 +83,9 @@ export class AppService {
             return;
         }
         if (selectedId) {
-            localStorage.setItem(`${componentId}-selectedId`, String(selectedId));
+            this.localStorageService.setItem(`${componentId}-selectedId`, String(selectedId));
         } else {
-            localStorage.removeItem(`${componentId}-selectedId`);
+            this.localStorageService.removeItem(`${componentId}-selectedId`);
         }
     }
 
@@ -91,7 +93,7 @@ export class AppService {
         if (!componentId) {
             return null;
         }
-        return localStorage.getItem(`${componentId}-selectedId`);
+        return this.localStorageService.getItem(`${componentId}-selectedId`);
     }
 
     resetState(): void {

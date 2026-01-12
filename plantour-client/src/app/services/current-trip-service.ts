@@ -3,24 +3,27 @@ import { BehaviorSubject, catchError, combineLatest, distinctUntilChanged, Obser
 import { UsersService } from './users-service';
 import { TripService } from './trip-service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LocalStorageService } from './local-storage-service';
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root',
 })
 export class CurrentTripService {
 
-  usersService = inject(UsersService);
-  tripService = inject(TripService);
+    usersService = inject(UsersService);
+    tripService = inject(TripService);
+  localStorageService = inject(LocalStorageService);
+
 
     private currentTripIdSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
     currentTripId$: Observable<string | null> = this.currentTripIdSubject.asObservable();
     public updateCurrentTripId(tripId: string | null): void {
         this.currentTripIdSubject.next(tripId);
     }
-    currentTripDto$ = combineLatest([this.currentTripId$, this.usersService.currentUser$]).pipe(
+    currentTripDto$ = combineLatest([this.currentTripId$, this.usersService.user$]).pipe(
         distinctUntilChanged(),
-        switchMap(([tripId, currentUser]) => {
-            if (!tripId || !this.usersService.isAuthenticated) {
+        switchMap(([tripId, user]) => {
+            if (!tripId || !this.usersService.isAuthenticatedSignal()) {
                 return of(null);
             }
             return this.tripService.getById(tripId).pipe(
@@ -30,10 +33,10 @@ export class CurrentTripService {
         takeUntilDestroyed()
     );
 
-    private currentTripVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(localStorage.getItem('toolbar-showTripText') === 'true');
+    private currentTripVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this.localStorageService.getItem('toolbar-showTripText') === 'true');
     currentTripVisible$: Observable<boolean> = this.currentTripVisibleSubject.asObservable();
     public updateCurrentTripVisible(visible: boolean): void {
         this.currentTripVisibleSubject.next(visible);
-        localStorage.setItem('toolbar-showTripText', visible ? 'true' : 'false')
+        this.localStorageService.setItem('toolbar-showTripText', visible ? 'true' : 'false')
     }
 }

@@ -19,6 +19,7 @@ import { UpperActionType } from '../../helpers/enums';
 import { PopoverModule } from 'primeng/popover';
 import { AppService } from '../../services/app-service';
 import { PopoverComponent } from '../popover/popover-component';
+import { LocalStorageService } from '../../services/local-storage-service';
 
 export type Comparable = {
   name?: string;
@@ -51,6 +52,7 @@ export class BaseListComponent<T> implements OnInit {
   private messagesService = inject(MessagesService);
   private tripPackageService = inject(TripPackageService);
   appService = inject(AppService);
+  localStorageService = inject(LocalStorageService);
 
   @Input() service!: CrudService<any, any, any>;
   @Input() itemMetaData: any = null;
@@ -133,15 +135,15 @@ export class BaseListComponent<T> implements OnInit {
     switch (name) {
       case 'trips':
         this.dic2tripVisible = !this.dic2tripVisible;
-        localStorage.setItem(`base-list-${name}`, this.dic2tripVisible ? '1' : '0');
+        this.localStorageService.setItem(`base-list-${name}`, this.dic2tripVisible ? '1' : '0');
         break;
       case 'tools':
         this.listToolsVisible = !this.listToolsVisible;
-        localStorage.setItem(`base-list-${name}`, this.listToolsVisible ? '1' : '0');
+        this.localStorageService.setItem(`base-list-${name}`, this.listToolsVisible ? '1' : '0');
         break;
       case 'packs':
         this.thing2packVisible = !this.thing2packVisible;
-        localStorage.setItem(`base-list-${name}`, this.thing2packVisible ? '1' : '0');
+        this.localStorageService.setItem(`base-list-${name}`, this.thing2packVisible ? '1' : '0');
         break;
       default:
         break;
@@ -268,9 +270,9 @@ export class BaseListComponent<T> implements OnInit {
 
 
   restoreState() {
-    const dic2tripState = localStorage.getItem(`base-list-trips`);
+    const dic2tripState = this.localStorageService.getItem(`base-list-trips`);
     this.dic2tripVisible = dic2tripState === '1';
-    const listToolsState = localStorage.getItem(`base-list-tools`);
+    const listToolsState = this.localStorageService.getItem(`base-list-tools`);
     this.listToolsVisible = listToolsState === '1';
   }
 

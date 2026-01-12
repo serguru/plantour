@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class LocalStorageService {
 
-  setKey(key: string, value: any) {
+  setItem(key: string, value: any): void {
     if (!key || key.trim().length === 0) {
       throw new Error(`Cannot persist value: no key`);
     }
@@ -14,37 +14,36 @@ export class LocalStorageService {
       localStorage.removeItem(key);
       return;
     }
-    localStorage.setItem(key, JSON.stringify(value));
+//    localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(key, value);
   }
 
-  setComponentKey(componentId: string, key: string, value: any) {
+  removeItem(key: string): void {
+    if (!key || key.trim().length === 0) {
+      throw new Error(`Cannot remove value: no key`);
+    }
+    localStorage.removeItem(key);
+  }
+
+  setComponentKey(componentId: string, key: string, value: any | null) {
     if (!componentId || componentId.trim().length === 0) {
       throw new Error(`Cannot persist value: no componentId specified for ${key} and value ${value}`);
     }
     const fullKey = `${componentId}-${key}`;
-    this.setKey(fullKey, value);
+    this.setItem(fullKey, value);
   }
   
-  getKey(key: string) {
+  getItem(key: string): any | null {
     const value = localStorage.getItem(key);
-
     if (!value) {
       return null;
     }
-
-    let result: any | null = null;
-    try {
-      result = JSON.parse(value!);
-    } catch (error) {
-      result = null;
-    }    
-
-    return result;
+    return value;
   }
 
-  getComponentKey(componentId: string, key: string) {
+  getComponentKey(componentId: string, key: string): any | null {
     const fullKey = `${componentId}-${key}`;
-    return this.getKey(fullKey);
+    return this.getItem(fullKey);
   }
 
 }

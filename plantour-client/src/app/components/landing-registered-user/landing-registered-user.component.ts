@@ -33,11 +33,11 @@ export class LandingRegisteredUserComponent {
   usersService = inject(UsersService);
 
   get isAdmin(): boolean {
-    return this.usersService.isAdmin;
+    return this.usersService.isAdminSignal();
   }
 
   get isParticipant(): boolean {
-    return this.usersService.isParticipant;
+    return this.usersService.isParticipantSignal();
   }
 
   navigateToTravelers(): void {

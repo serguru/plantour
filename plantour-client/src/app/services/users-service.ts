@@ -5,6 +5,8 @@ import { jwtDecode } from 'jwt-decode';
 import { AccessToken, SignUpParticipantRequest, SignUpRequest } from '../models/auth.models';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { AppService } from './app-service';
+import { LocalStorageService } from './local-storage-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 
 export interface UserDto {
@@ -22,6 +24,7 @@ export interface UserDto {
 export class UsersService {
   private apiUrl: string;
   appService = inject(AppService);
+  localStorageService = inject(LocalStorageService);
 
   constructor(
     private http: HttpClient,
@@ -30,79 +33,108 @@ export class UsersService {
     this.apiUrl = environment.apiUrl;
   }
 
-  getUserFromLocalStorage(): AccessToken | null {
-    const token = localStorage.getItem("accessToken");
+  private getUserFromLocalStorage(): AccessToken | null {
+    const token = this.localStorageService.getItem("accessToken");
     if (!token) {
       return null;
     }
     return jwtDecode<AccessToken>(token);
   }
 
-  currentUser(): AccessToken | null {
-    return this.currentUserSubject.getValue();
-  }
-
-
-  writeTokenToStorage(token: string | null): void {
-    if (!token) {
-      localStorage.removeItem("accessToken");
+  private writeTokenToStorage(token: string | null): void {
+    if (token) {
+      this.localStorageService.setItem("accessToken", token);
       return;
     }
-    localStorage.setItem("accessToken", token);
+    this.localStorageService.setItem("accessToken", null);
   }
 
-  getCurrentUserText(): string {
-    const user = this.currentUser();
-    if (!user) {
-      return "Profile";
-    }
 
-    let result = "";
-    if (user.last_name && user.first_name) {
-      result += `${user.first_name} ${user.last_name}`;
-    } else {
-      result += user.email
-    }
-
-    if (user.role === 'Participant') {
-      result += ", participant";
-    }
-
-    return result;
-  }
-
-  currentUserSubject: BehaviorSubject<AccessToken | null> = new BehaviorSubject<AccessToken | null>(this.getUserFromLocalStorage());
-  currentUser$: Observable<AccessToken | null> = this.currentUserSubject.asObservable();
-
-
-  updateCurrentUser(token: string | null): void {
+  private userSubject: BehaviorSubject<AccessToken | null> = new BehaviorSubject<AccessToken | null>(this.getUserFromLocalStorage());
+  user$: Observable<AccessToken | null> = this.userSubject.asObservable();
+  updateUser(token: string | null): void {
     let user: any = null;
     if (token) {
       user = jwtDecode<AccessToken>(token);
     }
     this.writeTokenToStorage(token);
-    this.currentUserSubject.next(user);
+    this.userSubject.next(user);
   }
 
-  getProfile(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/api/profile/me`);
-  }
+  userSignal = toSignal(this.user$, { requireSync: true });
 
-  get isAuthenticated(): boolean {
-    const user = this.currentUser();
-    if (!user || user.exp <= Math.floor(Date.now() / 1000)) {
-      // this.resetState();
-      // this.appService.resetState();
-      return false;
+  // currentUser(): AccessToken | null {
+  //   return this.currentUserSubject.getValue();
+  // }
+
+  userText$ = this.user$.pipe(
+    map(user => {
+      if (!user) {
+        return "Profile";
+      } 
+      let result = "";
+      if (user.last_name && user.first_name) {
+        result += `${user.first_name} ${user.last_name}`;
+      } else {
+        result += user.email
+      } 
+      // if (user.role === 'Participant') {
+      //   result += ", participant";
+      // } 
+      return result;
+    })
+  );
+
+  userTextSignal = toSignal(this.userText$, { requireSync: true });
+
+
+  // getCurrentUserText(): string {
+  //   const user = this.currentUser();
+  //   if (!user) {
+  //     return "Profile";
+  //   }
+
+  //   let result = "";
+  //   if (user.last_name && user.first_name) {
+  //     result += `${user.first_name} ${user.last_name}`;
+  //   } else {
+  //     result += user.email
+  //   }
+
+  //   if (user.role === 'Participant') {
+  //     result += ", participant";
+  //   }
+
+  //   return result;
+  // }
+
+
+  isAuthenticatedSignal = toSignal(this.user$.pipe(
+    map(user => {
+      if (!user || user.exp <= Math.floor(Date.now() / 1000) || ['Admin', 'Participant'].indexOf(user.role) === -1) {
+        return false;
+      }
+      return true;
     }
-    return true;
-  }
+    )
+  ), { requireSync: true });
+
+
+  // get isAuthenticated(): boolean {
+  //   const user = this.currentUser();
+  //   if (!user || user.exp <= Math.floor(Date.now() / 1000)) {
+  //     // this.resetState();
+  //     // this.appService.resetState();
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   loginAdmin(email: string, password: string): Observable<any> {
     return this.http.post<string>(`${this.apiUrl}/api/users/admin/signin`, { email, password })
       .pipe(
         tap((r: any) => {
-          this.updateCurrentUser(r.accessToken);
+          this.updateUser(r.accessToken);
         }
         ))
   }
@@ -112,7 +144,7 @@ export class UsersService {
     return this.http.post<string>(`${this.apiUrl}/api/users/participant/signin`, { accessCode })
       .pipe(
         tap((r: any) => {
-          this.updateCurrentUser(r.accessToken);
+          this.updateUser(r.accessToken);
         }
         ))
   }
@@ -121,7 +153,7 @@ export class UsersService {
     return this.http.post<string>(`${this.apiUrl}/api/users/admin/signup`, data)
       .pipe(
         tap((r: any) => {
-          this.updateCurrentUser(r.accessToken);
+          this.updateUser(r.accessToken);
         })
       )
   }
@@ -130,25 +162,42 @@ export class UsersService {
     return this.http.post<string>(`${this.apiUrl}/api/users/participant/signup`, data)
   }
 
-  get isAdmin(): boolean {
-    const user = this.currentUser();
-    return user?.role === 'Admin' && this.isAuthenticated;
-  }
+  isAdminSignal = toSignal(this.user$.pipe(
+    map(user => {
+      if (user?.role === 'Admin' && this.isAuthenticatedSignal()) {
+        return true;
+      }
+      return false;
+    }
+    )
+  ), { requireSync: true });
 
-  get isParticipant(): boolean {
-    const user = this.currentUser();
-    return user?.role === 'Participant' && this.isAuthenticated;
-  }
+  // get isAdmin(): boolean {
+  //   const user = this.currentUser();
+  //   return user?.role === 'Admin' && this.isAuthenticated;
+  // }
+
+  isParticipantSignal = toSignal(this.user$.pipe(
+    map(user => {
+      if (user?.role === 'Participant' && this.isAuthenticatedSignal()) {
+        return true;
+      }
+      return false;
+    }
+    )
+  ), { requireSync: true });
+
+  //
+
+
+  // get isParticipant(): boolean {
+  //   const user = this.currentUser();
+  //   return user?.role === 'Participant' && this.isAuthenticated;
+  // }
 
 
   signOut(): void {
-    this.resetState();
-    //this.appService.resetState();
-    localStorage.removeItem("accessToken");
+    this.updateUser(null);
+    this.localStorageService.setItem("accessToken", null);
   }
-
-  resetState(): void {
-    this.updateCurrentUser(null);
-  }
-
 }

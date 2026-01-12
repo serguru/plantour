@@ -116,7 +116,7 @@ export class TemplatesComponent {
   ngOnInit(): void {
 
     this.componentService.updateComponentId(this.componentId);
-    var o = this.usersService.isAdmin ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
+    var o = this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
 
     o.pipe(
       tap((trips: TripDto[]) => {
@@ -184,7 +184,7 @@ export class TemplatesComponent {
         options: null
       }
 
-      if (this.usersService.isAdmin) {
+      if (this.usersService.isAdminSignal()) {
         result.selectedMode = TargetMode.TripShared;
         result.options = [
           {
@@ -216,7 +216,7 @@ export class TemplatesComponent {
       selectedMode: null,
       options: null
     }
-    if (this.usersService.isAdmin) {
+    if (this.usersService.isAdminSignal()) {
       result.selectedMode = TargetMode.TripShared;
       result.options = [
         {
