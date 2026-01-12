@@ -15,6 +15,7 @@ import { ThingService } from '../../services/thing-service';
 import { UsersService } from '../../services/users-service';
 import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
 import { ArrayOfGuidsRequest, MultipleIdsRequest } from '../../services/crud-service';
+import { LocalStorageService } from '../../services/local-storage-service';
 
 @Component({
   selector: 'app-template-things-component',
@@ -34,7 +35,7 @@ export class TemplatesComponent {
 
   componentService = inject(ComponentService);
   templateService = inject(TemplateService);
-  settingsPersistenceService = inject(ComponentService).settingsPersistenceService;
+  localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(ComponentService).dynamicQueryService;
 
   thingService = inject(ThingService);
@@ -146,10 +147,10 @@ export class TemplatesComponent {
   }
 
   initSavedFeatures() {
-    const v = !!this.settingsPersistenceService.getComponentKey(this.componentId, 'entitiesActionsVisible');
+    const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
 
-    const id = this.settingsPersistenceService.getComponentKey(this.componentId, 'selectedId');
+    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
     this.componentService.updateSelectedId(id);
   }
 
@@ -237,7 +238,7 @@ export class TemplatesComponent {
     if (!componentId) {
       throw new Error('ComponentId is null');
     }
-    const savedConditions = this.settingsPersistenceService.getComponentKey(componentId, 'conditions') || [];
+    const savedConditions = this.localStorageService.getComponentKey(componentId, 'conditions') || [];
     const savedTargetCondition: TargetCondition | undefined = savedConditions.find(c => c.kind === 'target');
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
     const targetCondition: TargetCondition | undefined = initialConditions.find(c => c.kind === 'target');

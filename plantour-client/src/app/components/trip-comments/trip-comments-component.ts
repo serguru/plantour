@@ -8,6 +8,7 @@ import { EntitiesActionsComponent } from '../entities/entities-actions-component
 import { TripService } from '../../services/trip-service';
 import { switchMap, tap } from 'rxjs';
 import { PackageService } from '../../services/package-service';
+import { LocalStorageService } from '../../services/local-storage-service';
 
 @Component({
   selector: 'app-trip-comments',
@@ -24,7 +25,7 @@ export class TripCommentsComponent {
   tripItemCommentComponent = TripItemCommentComponent;
 
   componentService = inject(ComponentService);
-  settingsPersistenceService = inject(ComponentService).settingsPersistenceService;
+  localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(ComponentService).dynamicQueryService;
   tripService = inject(TripService);
   packageService = inject(PackageService)

@@ -15,6 +15,7 @@ import { EntitiesActionsComponent } from '../entities/entities-actions-component
 import { TripDto, TripService } from '../../services/trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AppService } from '../../services/app-service';
+import { LocalStorageService } from '../../services/local-storage-service';
 
 @Component({
   selector: 'app-packs',
@@ -36,7 +37,7 @@ export class PacksComponent implements OnInit {
 
   componentService = inject(ComponentService);
   packageService = inject(PackageService);
-  settingsPersistenceService = inject(ComponentService).settingsPersistenceService;
+  localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(ComponentService).dynamicQueryService;
   tripPackageService = inject(TripPackageService);
 
@@ -102,10 +103,10 @@ export class PacksComponent implements OnInit {
   }
 
   initSavedFeatures() {
-    const v = !!this.settingsPersistenceService.getComponentKey(this.componentId, 'entitiesActionsVisible');
+    const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
 
-    const id = this.settingsPersistenceService.getComponentKey(this.componentId, 'selectedId');
+    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
     this.componentService.updateSelectedId(id);
   }
 
@@ -132,7 +133,7 @@ export class PacksComponent implements OnInit {
     if (!componentId) {
       throw new Error('ComponentId is null');
     }
-    const savedConditions = this.settingsPersistenceService.getComponentKey(componentId, 'conditions') || [];
+    const savedConditions = this.localStorageService.getComponentKey(componentId, 'conditions') || [];
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
     const targetCondition: TargetCondition | undefined = initialConditions.find(c => c.kind === 'target');
 

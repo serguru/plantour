@@ -12,7 +12,6 @@ import { environment } from '../environments/environment';
 import { jwtInterceptor } from './interceptors/jwt.interceptor';
 import { GlobalErrorHandler } from './helpers/error-handler';
 import { errorInterceptor } from './interceptors/error.interceptor';
-import { SettingsPersistenceService } from './services/settings-persistence-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -31,12 +30,6 @@ export const appConfig: ApplicationConfig = {
     {
       provide: ErrorHandler,
       useClass: GlobalErrorHandler,
-    },
-    {
-      provide: SettingsPersistenceService,
-      useFactory: () => {
-        inject(environment.settingsPersistenceService);
-      }
     }
   ]
 };

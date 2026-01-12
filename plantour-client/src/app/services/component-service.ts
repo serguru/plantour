@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, withLatestFrom, distinct, distinctUntilChanged, filter, map, Observable, of, ReplaySubject, switchMap, tap, Subject, throwError, concatMap } from 'rxjs';
 import { Condition, DynamicQueryService, Target, TargetCondition } from './dynamic-query-service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { LocalStorageService, SettingsPersistenceService } from './settings-persistence-service';
+import { LocalStorageService } from './local-storage-service';
 import { isGuid } from '../helpers/utils';
 import { UsersService } from './users-service';
 import { AppService } from './app-service';
@@ -27,7 +27,7 @@ export class ComponentService {
   router = inject(Router);
   route = inject(ActivatedRoute);
   dynamicQueryService = inject(DynamicQueryService);
-  settingsPersistenceService = inject(LocalStorageService);
+  localStorageService = inject(LocalStorageService);
 
 
   constructor() {
@@ -57,7 +57,7 @@ export class ComponentService {
     }),
     takeUntilDestroyed()
   ).subscribe(([action, componentId]) => {
-    this.settingsPersistenceService.setComponentKey(
+    this.localStorageService.setComponentKey(
       componentId!,
       action.key,
       action.value

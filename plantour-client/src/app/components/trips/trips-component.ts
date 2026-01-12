@@ -16,6 +16,7 @@ import { Condition, TargetCondition } from '../../services/dynamic-query-service
 import { UsersService } from '../../services/users-service';
 import { concatMap, distinctUntilChanged, filter, switchMap, tap, withLatestFrom } from 'rxjs';
 import { CurrentTripService } from '../../services/current-trip-service';
+import { LocalStorageService } from '../../services/local-storage-service';
 
 
 // TODO: Add a method to create a new trip from the existing one 
@@ -39,7 +40,7 @@ export class TripsComponent implements OnInit {
 
   componentService = inject(ComponentService);
 
-  settingsPersistenceService = inject(ComponentService).settingsPersistenceService;
+  localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(ComponentService).dynamicQueryService;
 
   currentTripService = inject(CurrentTripService);
@@ -106,10 +107,10 @@ export class TripsComponent implements OnInit {
   }
 
   initSavedFeatures() {
-    const v = !!this.settingsPersistenceService.getComponentKey(this.componentId, 'entitiesActionsVisible');
+    const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
 
-    const id = this.settingsPersistenceService.getComponentKey(this.componentId, 'selectedId');
+    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
     this.componentService.updateSelectedId(id);
   }
 
@@ -118,7 +119,7 @@ export class TripsComponent implements OnInit {
     if (!componentId) {
       throw new Error('ComponentId is null');
     }
-    const savedConditions = this.settingsPersistenceService.getComponentKey(componentId, 'conditions') || [];
+    const savedConditions = this.localStorageService.getComponentKey(componentId, 'conditions') || [];
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
     this.componentService.updateConditions(initialConditions);
     this.componentService.persistValue('conditions', initialConditions);

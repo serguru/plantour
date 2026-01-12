@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, distinct, distinctUntilChanged, filter, map, Observable, of, ReplaySubject, switchMap, tap } from 'rxjs';
 import { Condition, DynamicQueryService, Target, TargetCondition } from './dynamic-query-service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { LocalStorageService, SettingsPersistenceService } from './settings-persistence-service';
+import { LocalStorageService } from './local-storage-service';
 import { isGuid } from '../helpers/utils';
 import { UsersService } from './users-service';
 import { AppService } from './app-service';
@@ -27,7 +27,7 @@ type ComponentInit = {
 })
 export class EntitiesService {
 
-  settingsPersistenceService = inject(LocalStorageService);
+  localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(DynamicQueryService);
   usersService = inject(UsersService);
   appService = inject(AppService);
@@ -73,7 +73,7 @@ export class EntitiesService {
     if (!componentId) {
       return;
     }
-    this.settingsPersistenceService.setComponentKey(componentId, key, value);
+    this.localStorageService.setComponentKey(componentId, key, value);
   }
 
 
@@ -134,14 +134,14 @@ export class EntitiesService {
       // 
       this.conditionsSubject.next(init.initialConditions);
 
-      const savedSelectedId = this.settingsPersistenceService.getComponentKey(init.componentId, 'selectedId');
+      const savedSelectedId = this.localStorageService.getComponentKey(init.componentId, 'selectedId');
       if (isGuid(savedSelectedId)) {
         this.selectedSubject.next(savedSelectedId);
       } else {
         this.selectedSubject.next(null);
       }
 
-      const savedEntitiesActionsVisible = this.settingsPersistenceService.getComponentKey(init.componentId, 'entitiesActionsVisible');
+      const savedEntitiesActionsVisible = this.localStorageService.getComponentKey(init.componentId, 'entitiesActionsVisible');
       this.entitiesActionsVisibleSubject.next(!!savedEntitiesActionsVisible);
     })
   );
@@ -263,7 +263,7 @@ export class EntitiesService {
   //   ));
 
   // public updateThingsToSharedMode(value: boolean): void {
-  //   this.settingsPersistenceService.setComponentKey('things', 'thingsToSharedMode', value);
+  //   this.localStorageService.setComponentKey('things', 'thingsToSharedMode', value);
   //   this.thingsToSharedModeSubject.next(value);
   // }
 
