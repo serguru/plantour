@@ -22,11 +22,11 @@ export class PackingComponent implements OnInit {
     loading = false;
 
     get selectedTripPackage(): TripPackageDto | null {
-        return this.appService.packSelectedValue();
+        return null;
     }
 
     set selectedTripPackage(value: TripPackageDto | null) {
-        this.appService.updatePackSelected(value);
+        //this.appService.updatePackSelected(value);
     }
 
     @Input() packages: TripPackageDto[] = [];

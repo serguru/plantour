@@ -13,7 +13,7 @@ export class TripPanelComponent implements OnInit {
   @Input() tripId!: string;
 
   get hideTripPanel(): boolean {
-    return this.appService.getTripTextVisible();
+    return false;
   }
 
   tripService = inject(TripService);

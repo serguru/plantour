@@ -10,6 +10,8 @@ import { LookupService } from '../../services/lookup-service';
 import deepEqual from 'fast-deep-equal';
 import { MessagePanelComponent } from '../message-panel/message-panel-component/message-panel-component';
 import { AppService } from '../../services/app-service';
+import { CurrentTripService } from '../../services/current-trip-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 export type BaseFormMode = 'add' | 'edit';
 
@@ -30,6 +32,8 @@ export class BaseFormComponent<T, TA, TU> implements OnInit, AfterViewInit {
   constructor(private el: ElementRef) {
   }
   
+currentTripService = inject(CurrentTripService);
+
 ngAfterViewInit() {
     const firstInput = this.el.nativeElement.querySelector(
       'input:not([type="hidden"]):not([disabled])',
@@ -85,9 +89,11 @@ ngAfterViewInit() {
   @Output() formReady = new EventEmitter<any>();
   @Input() listComponentId: string | null = null;
 
+  currentTripIdSignal = toSignal(this.currentTripService.currentTripId$, { initialValue: null });
+
   get tripId(): string | null {
     if (this.useTripId) {
-      const id = this.appService.tripSelectedValue()?.id || null;
+      const id = this.currentTripIdSignal() || null;
       if (!id) {
         this.messagesService.showError('No trip selected', 'Please select a trip first.');
         this.router.navigate(['/trips']);
@@ -206,7 +212,7 @@ ngAfterViewInit() {
 
           next: (response: any) => {
             this.messagesService.showInfo(`${this.entityName} added successfully`);
-            this.appService.saveToLocalStorage(this.listComponentId, response.id);
+            //this.appService.saveToLocalStorage(this.listComponentId, response.id);
 
             if (!this.backUrl) {
               return;
@@ -231,7 +237,7 @@ ngAfterViewInit() {
 
           next: () => {
             this.messagesService.showInfo(`${this.entityName} updated successfully`);
-            this.appService.saveToLocalStorage(this.listComponentId, this.id);
+            //this.appService.saveToLocalStorage(this.listComponentId, this.id);
             this.router.navigate([this.backUrl]);
           }
         }

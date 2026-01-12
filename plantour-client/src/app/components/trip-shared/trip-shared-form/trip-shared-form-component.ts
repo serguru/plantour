@@ -11,6 +11,8 @@ import { LookupService } from '../../../services/lookup-service';
 import { TripUserService } from '../../../services/trip-user-service';
 import { Observable } from 'rxjs';
 import { AppService } from '../../../services/app-service';
+import { CurrentTripService } from '../../../services/current-trip-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-trip-shared-form',
@@ -39,6 +41,11 @@ export class TripSharedFormComponent implements OnInit {
   private lookupService = inject(LookupService);
   private tripUserService = inject(TripUserService);
 
+
+  currentTripService = inject(CurrentTripService);
+  currentTripIdSignal = toSignal(this.currentTripService.currentTripId$, { initialValue: null });
+
+
   thingCategories$ = this.lookupService.getThingCategories();
   tripUsers$!: Observable<any[]>;
 
@@ -54,7 +61,7 @@ export class TripSharedFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];
-    const tripId = this.appService.tripSelectedValue()?.id || null;
+    const tripId = this.currentTripIdSignal();
     this.tripUsers$ = this.tripUserService.getAll(tripId || '');
 
     if (this.mode === 'edit') {

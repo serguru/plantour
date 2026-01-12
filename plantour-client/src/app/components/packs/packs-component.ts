@@ -16,6 +16,7 @@ import { TripDto, TripService } from '../../services/trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AppService } from '../../services/app-service';
 import { LocalStorageService } from '../../services/local-storage-service';
+import { CurrentTripService } from '../../services/current-trip-service';
 
 @Component({
   selector: 'app-packs',
@@ -44,10 +45,12 @@ export class PacksComponent implements OnInit {
   targetCondition = toSignal(this.componentService.targetCondition$);
   target = toSignal(this.componentService.target$);
 
-
   targetedIds = toSignal(this.componentService.targetedIds$);
   notTargetedIds = toSignal(this.componentService.notTargetedIds$);
-  tripSelected = toSignal(this.appService.tripSelected$);
+
+  currentTripService = inject(CurrentTripService);
+  currentTripDtoSignal = toSignal(this.currentTripService.currentTripDto$, { initialValue: null });
+
   private destroyRef = inject(DestroyRef);
 
   conditions: Condition[] =
@@ -140,7 +143,7 @@ export class PacksComponent implements OnInit {
     if (targetCondition) {
       const trip = trips?.find(t => t.id === targetCondition.target?.id);
       if (!trip) {
-        const trip = this.appService.tripSelectedValue();
+        const trip = this.currentTripDtoSignal();
         if (trip && trips?.find(t => t.id === trip.id)) {
           targetCondition.target = {
             id: trip.id, name: trip.name, selectedMode: TargetMode.TripThings, options: [{

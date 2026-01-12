@@ -6,6 +6,8 @@ import { isGuid } from '../helpers/utils';
 import { TripDto, TripService } from '../services/trip-service';
 import { AppService } from '../services/app-service';
 import { catchError, map, tap, throwError } from 'rxjs';
+import { CurrentTripService } from '../services/current-trip-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 export const publicGuard: CanActivateFn = (route, state) => {
   const usersService = inject(UsersService);
@@ -85,6 +87,10 @@ export const checkTripIdGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const messagesService = inject(MessagesService);
 
+  const currentTripService = inject(CurrentTripService);
+  const currentTripDtoSignal = toSignal(currentTripService.currentTripDto$, { initialValue: null });
+
+
   if (!tripId) {
     messagesService.showWarning('No trip specified in url. Please specify a trip to proceed.');
     router.navigate(['/trips']);
@@ -98,7 +104,9 @@ export const checkTripIdGuard: CanActivateFn = (route, state) => {
   }
 
   const appService = inject(AppService);
-  let trip = appService.tripSelectedValue();
+  
+  let trip = currentTripDtoSignal();
+
   if (trip && trip.id == tripId) {
     return checkCurrentUserIncluded(trip, route.routeConfig?.path || '');
   }
@@ -126,7 +134,7 @@ export const checkTripIdGuard: CanActivateFn = (route, state) => {
         return false;
       }
 
-      appService.updateTripSelected(trip);
+      currentTripService.updateCurrentTripId(trip.id);
       return true;
     })
   );

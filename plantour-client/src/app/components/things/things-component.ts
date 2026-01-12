@@ -16,6 +16,7 @@ import { TripSharedService } from '../../services/trip-shared-service';
 import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
 import { UsersService } from '../../services/users-service';
 import { LocalStorageService } from '../../services/local-storage-service';
+import { CurrentTripService } from '../../services/current-trip-service';
 
 @Component({
   selector: 'app-things',
@@ -45,8 +46,13 @@ export class ThingsComponent {
 
   targetedIds = toSignal(this.componentService.targetedIds$);
   notTargetedIds = toSignal(this.componentService.notTargetedIds$);
-  tripSelected = toSignal(this.appService.tripSelected$);
+  
   usersService = inject(UsersService);
+
+  currentTripService = inject(CurrentTripService);
+  currentTripDtoSignal = toSignal(this.currentTripService.currentTripDto$, { initialValue: null });
+
+
   private destroyRef = inject(DestroyRef);
 
   conditions: Condition[] =
@@ -203,7 +209,7 @@ export class ThingsComponent {
       if (trip) {
         targetCondition.target = this.getTargetByTrip(trip);
       } else {
-        const trip = this.appService.tripSelectedValue();
+        const trip = this.currentTripDtoSignal();
         if (trip && trips?.find(t => t.id === trip.id)) {
           targetCondition.target = this.getTargetByTrip(trip);
         }

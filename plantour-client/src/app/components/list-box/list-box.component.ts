@@ -71,7 +71,7 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
         if (this.selectedItem || !changes['items']) {
             return;
         }
-        const savedId = this.appService.getFromLocalStorage(this.componentId);
+        const savedId = false //this.appService.getFromLocalStorage(this.componentId);
         if (!savedId) {
             return;
         }
@@ -111,7 +111,6 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
         } else {
             this.selectedItem = item;
         }
-        this.appService.saveToLocalStorage(this.componentId, this.selectedItem?.id);
         this.selectedChange.emit(this.selectedItem);
     }
 
@@ -183,7 +182,7 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     }
 
     showDic2TripRightSection(): boolean {
-        return this.upperActionType == UpperActionType.Dic2Trip && this.appService.getTripTextVisible();
+        return this.upperActionType == UpperActionType.Dic2Trip;
     }
 
     get showRightSection(): boolean {
@@ -194,7 +193,7 @@ export class ListBoxComponent implements OnInit, AfterViewInit, OnDestroy, OnCha
     }
 
     get rightSectionDisabled(): boolean {
-        return this.upperActionType == UpperActionType.Dic2Trip && !this.appService.isTripSelected;
+        return this.upperActionType == UpperActionType.Dic2Trip;
     }
 
 }

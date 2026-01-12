@@ -102,20 +102,20 @@ export class BaseListComponent<T> implements OnInit {
     if (!this.useTripId) {
       return null;
     }
-    return this.appService.tripSelectedValue()?.id || null;
+    return null;
   }
 
   selectedPack: TripPackageDto | null = null;
 
   ngOnInit() {
 
-    this.appService.tripSelected$.subscribe((trip) => {
-      this.onSelectedTripChanged(trip)
-    });
+    // this.appService.tripSelected$.subscribe((trip) => {
+    //   this.onSelectedTripChanged(trip)
+    // });
 
-    this.appService.packSelected$.subscribe((pack) => {
-      this.selectedPack = pack;
-    });
+    // this.appService.packSelected$.subscribe((pack) => {
+    //   this.selectedPack = pack;
+    // });
 
     this.getAll(null);
     this.restoreState();
@@ -243,7 +243,7 @@ export class BaseListComponent<T> implements OnInit {
   }
 
   checkSelectedTrip() {
-    return this.appService.tripSelectedValue();
+    return null;
   }
 
   onSelectedTripChanged(trip: any | null) {
@@ -528,7 +528,7 @@ export class BaseListComponent<T> implements OnInit {
     if (!this.entitiesToDisplay) {
       return true;
     }
-    return this.entitiesToDisplay.notAddedCount === 0 || !this.appService.tripSelectedValue();
+    return this.entitiesToDisplay.notAddedCount === 0 ;
 
   }
 
@@ -544,7 +544,7 @@ export class BaseListComponent<T> implements OnInit {
     if (!this.entitiesToDisplay) {
       return true;
     }
-    return this.entitiesToDisplay.addedCount === 0 || !this.appService.tripSelectedValue();
+    return this.entitiesToDisplay.addedCount === 0 ;
   }
 
   get removeAllText(): string {
@@ -564,19 +564,19 @@ export class BaseListComponent<T> implements OnInit {
   }
 
   onAddFromDicAllClick() {
-    const ids: string[] = this.getFromDicIds(false);
-    if (ids.length === 0 || !this.checkSelectedTrip()?.id || !this.addFromDic) {
-      return;
-    }
-    this.addFromDic({ collectionId: this.checkSelectedTrip()!.id, ids });
+    // const ids: string[] = this.getFromDicIds(false);
+    // if (ids.length === 0 || !this.checkSelectedTrip()?.id || !this.addFromDic) {
+    //   return;
+    // }
+    // this.addFromDic({ collectionId: this.checkSelectedTrip()!.id, ids });
   }
 
   onRemoveFromDicAllClick() {
-    const ids: string[] = this.getFromDicIds(true);
-    if (ids.length === 0 || !this.checkSelectedTrip()?.id || !this.deleteFromDic) {
-      return;
-    }
-    this.deleteFromDic({ collectionId: this.checkSelectedTrip()!.id, ids });
+    // const ids: string[] = this.getFromDicIds(true);
+    // if (ids.length === 0 || !this.checkSelectedTrip()?.id || !this.deleteFromDic) {
+    //   return;
+    // }
+    // this.deleteFromDic({ collectionId: this.checkSelectedTrip()!.id, ids });
   }
 
   onListFeaturesShow() {
@@ -586,8 +586,7 @@ export class BaseListComponent<T> implements OnInit {
   }
 
   showAddAllToTrip(): boolean {
-    return this.upperActionType === UpperActionType.Dic2Trip &&
-      this.appService.getTripTextVisible();
+    return this.upperActionType === UpperActionType.Dic2Trip;
   }
 
 }

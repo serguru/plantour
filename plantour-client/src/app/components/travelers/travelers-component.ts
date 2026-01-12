@@ -18,6 +18,7 @@ import { ComponentService } from '../../services/component-service';
 import { switchMap, tap } from 'rxjs';
 import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
 import { LocalStorageService } from '../../services/local-storage-service';
+import { CurrentTripService } from '../../services/current-trip-service';
 
 // TODO: make readonly for participants
 @Component({
@@ -49,7 +50,11 @@ export class TravelersComponent implements OnInit {
 
   targetedIds = toSignal(this.componentService.targetedIds$);
   notTargetedIds = toSignal(this.componentService.notTargetedIds$);
-  tripSelected = toSignal(this.appService.tripSelected$);
+
+  currentTripService = inject(CurrentTripService);
+  currentTripDtoSignal = toSignal(this.currentTripService.currentTripDto$, { initialValue: null });
+
+
   private destroyRef = inject(DestroyRef);
 
   conditions: Condition[] =
@@ -142,7 +147,7 @@ export class TravelersComponent implements OnInit {
     if (targetCondition) {
       const trip = trips?.find(t => t.id === targetCondition.target?.id);
       if (!trip) {
-        const trip = this.appService.tripSelectedValue();
+        const trip = this.currentTripDtoSignal();
         if (trip && trips?.find(t => t.id === trip.id)) {
           targetCondition.target = {
             id: trip.id, name: trip.name, selectedMode: TargetMode.TripThings, options: [{

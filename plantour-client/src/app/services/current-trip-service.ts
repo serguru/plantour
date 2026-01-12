@@ -12,8 +12,7 @@ export class CurrentTripService {
 
     usersService = inject(UsersService);
     tripService = inject(TripService);
-  localStorageService = inject(LocalStorageService);
-
+    localStorageService = inject(LocalStorageService);
 
     private currentTripIdSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
     currentTripId$: Observable<string | null> = this.currentTripIdSubject.asObservable();

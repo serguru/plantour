@@ -11,6 +11,8 @@ import { UpperActionType } from '../../helpers/enums';
 import { TripThingItemComponent } from './trip-thing-item/trip-thing-item-component';
 import { AppService } from '../../services/app-service';
 import { MessagesService } from '../../services/messages-service';
+import { CurrentTripService } from '../../services/current-trip-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-trip-things',
@@ -19,12 +21,12 @@ import { MessagesService } from '../../services/messages-service';
     BaseListComponent,
     FormsModule,
     CommonModule
-],
+  ],
   templateUrl: './trip-things-component.html',
   styleUrl: './trip-things-component.scss',
 })
 export class TripThingsComponent implements OnInit {
-  tripThingItemComponent = TripThingItemComponent;  
+  tripThingItemComponent = TripThingItemComponent;
   appService = inject(AppService);
   messagesService = inject(MessagesService);
   tripPackageService = inject(TripPackageService);
@@ -37,6 +39,10 @@ export class TripThingsComponent implements OnInit {
 
   fromDicservice: FromDicService = inject(TripThingService);
   packingService: PackingService = inject(TripThingService);
+
+  currentTripService = inject(CurrentTripService);
+  currentTripDtoSignal = toSignal(this.currentTripService.currentTripDto$, { initialValue: null });
+
 
   checkSelectedPack: (() => TripPackageDto | null) | null = null;
 
@@ -61,7 +67,8 @@ export class TripThingsComponent implements OnInit {
 
   ngOnInit(): void {
 
-    const selectedTrip = this.appService.tripSelectedValue();
+    const selectedTrip = this.currentTripDtoSignal();
+
     if (!selectedTrip || !selectedTrip.id) {
       throw new Error('No trip selected. TripThingsComponent cannot be initialized without a selected trip.');
     }
