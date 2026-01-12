@@ -1,17 +1,15 @@
-import { Component, OnInit, OnDestroy, inject, ElementRef, HostListener, ViewChild, computed } from '@angular/core';
+import { Component, OnInit, inject, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { debounceTime, fromEvent, Subject, takeUntil } from 'rxjs';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { MenuItem } from 'primeng/api';
 import { UsersService } from '../../services/users-service';
 import { AppService } from '../../services/app-service';
 import { PopoverModule } from 'primeng/popover';
 import { TripDto } from '../../services/trip-service';
 import { CurrentTripService } from '../../services/current-trip-service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-toolbar',
@@ -32,6 +30,8 @@ export class Toolbar implements OnInit {
   appService = inject(AppService);
   currentTripService = inject(CurrentTripService);
   currentTrip = toSignal(this.currentTripService.currentTripDto$);
+  private destroyRef = inject(DestroyRef);
+
 
   onFeaturesClick($event, popoverFeatures) {
     $event.preventDefault();
@@ -109,11 +109,11 @@ export class Toolbar implements OnInit {
 
   ngOnInit(): void {
 
-    this.appService.routeActivated$.subscribe(componentRef => {
+    this.appService.routeActivated$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(componentRef => {
       this.componentNavigated = componentRef;
     });
 
-    this.appService.routeDeActivated$.subscribe(componentRef => {
+    this.appService.routeDeActivated$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(componentRef => {
       this.componentNavigated = null;
     });
   }

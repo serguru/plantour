@@ -32,10 +32,10 @@ export class CurrentTripService {
         takeUntilDestroyed()
     );
 
-    private currentTripVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this.localStorageService.getItem('toolbar-showTripText') === 'true');
+    private currentTripVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this.localStorageService.getItem('toolbar-showTripText'));
     currentTripVisible$: Observable<boolean> = this.currentTripVisibleSubject.asObservable();
     public updateCurrentTripVisible(visible: boolean): void {
         this.currentTripVisibleSubject.next(visible);
-        this.localStorageService.setItem('toolbar-showTripText', visible ? 'true' : 'false')
+        this.localStorageService.setItem('toolbar-showTripText', visible);
     }
 }
