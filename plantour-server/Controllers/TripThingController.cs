@@ -53,6 +53,14 @@ public class TripThingController(ITripThingService service) : ControllerBase
         return Ok(dtos);
     }
 
+    [HttpGet("trip/{tripId}/package/{packageId}")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<IEnumerable<TripThingDto>>> getAllForPackage(Guid tripId, Guid packageId)
+    {
+        var dtos = await _service.GetAllForPackageAsync(tripId, packageId);
+        return Ok(dtos);
+    }
+
     [HttpGet("{tripId}/{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult<TripThingDto>> GetById(Guid tripId, Guid id)

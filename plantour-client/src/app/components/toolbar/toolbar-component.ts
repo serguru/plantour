@@ -88,12 +88,15 @@ export class Toolbar implements OnInit {
   }
 
 
-  tripSelected: TripDto | null = null;
+  
+
   componentNavigated: any = null;
 
   constructor(
     private router: Router
   ) { }
+
+
 
 
   tripText = computed(() => {
@@ -147,10 +150,10 @@ export class Toolbar implements OnInit {
     $event.preventDefault();
     popover.hide();
 
-    if (!this.tripSelected) {
+    if (!this.currentTrip()) {
       return;
     }
-    this.router.navigate([`/trips/${this.tripSelected.id}/trip-participants`]);
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-participants`]);
   }
 
   onTripThingsClick($event, popover): void {
@@ -160,10 +163,10 @@ export class Toolbar implements OnInit {
     $event.preventDefault();
     popover.hide();
 
-    if (!this.tripSelected) {
+    if (!this.currentTrip()) {
       return;
     }
-    this.router.navigate([`/trips/${this.tripSelected.id}/trip-things`]);
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-things`]);
   }
 
   onTripPacksClick($event, popover): void {
@@ -173,30 +176,30 @@ export class Toolbar implements OnInit {
     $event.preventDefault();
     popover.hide();
 
-    if (!this.tripSelected) {
+    if (!this.currentTrip()) {
       return;
     }
-    this.router.navigate([`/trips/${this.tripSelected.id}/trip-packs`]);
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-packs`]);
   }
 
   onTripSharedClick($event, popover): void {
     $event.preventDefault();
     popover.hide();
 
-    if (!this.tripSelected) {
+    if (!this.currentTrip()) {
       return;
     }
-    this.router.navigate([`/trips/${this.tripSelected.id}/trip-shared`]);
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-shared`]);
   }
 
   onTripCommentsClick($event, popover): void {
     $event.preventDefault();
     popover.hide();
 
-    if (!this.tripSelected) {
+    if (!this.currentTrip()) {
       return;
     }
-    this.router.navigate([`/trips/${this.tripSelected.id}/trip-comments`]);
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-comments`]);
   }
 
   isNavigatedComponent(componentId: string): boolean {

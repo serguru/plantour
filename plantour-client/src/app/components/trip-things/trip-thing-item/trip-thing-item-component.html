@@ -1,14 +1,14 @@
 <div class="pack-row">
     <span
         class="pack-name"
-        [innerHTML]="item.name"
+        [innerHTML]="entity.name"
     ></span>
     <p-select
         class="w-full"
         [options]="itemMetaData"
         optionLabel="name"
         optionValue="id"
-        [(ngModel)]="item.tripUserPackageId"
+        [(ngModel)]="entity.tripUserPackageId"
         [placeholder]="'Select package'"
         [ngModelOptions]="{ standalone: true }"
         [showClear]="true"

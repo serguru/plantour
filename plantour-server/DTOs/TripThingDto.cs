@@ -15,6 +15,6 @@ public class TripThingDto
     public string? PackageLabel { get; set; }
     public DateTime? PackedAt { get; set; }
     public string? Finished { get; set; }
-    public bool Shared { get; set; }
+    public bool IsTargeted { get; set; }
     
 }

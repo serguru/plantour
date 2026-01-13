@@ -33,7 +33,6 @@ export class PacksComponent implements OnInit {
   packItemComponent = PackItemComponent;
   componentId = 'packs';
 
-  appService = inject(AppService);
   tripService = inject(TripService);
 
   componentService = inject(ComponentService);
@@ -75,7 +74,7 @@ export class PacksComponent implements OnInit {
         label: 'Filter by Name',
         filterText: '',
         comparisonType: 'contains',
-        icon: 'box'
+        icon: 'filter'
       }
     ];
 

@@ -14,7 +14,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './trip-thing-item-component.scss',
 })
 export class TripThingItemComponent {
-  @Input() item: TripThingDto = {} as TripThingDto;
+  @Input() entity: TripThingDto = {} as TripThingDto;
   @Input() itemMetaData: TripPackageDto[] | null = null;
 
 

@@ -17,4 +17,5 @@ public class TripSharedDto
     public bool Rejected { get; set; }
     public TripThingDto? AssignedThing { get; set; }
     public UserDto? AssignedTo { get; set; }
+    public bool IsTargeted { get; set; }
 }

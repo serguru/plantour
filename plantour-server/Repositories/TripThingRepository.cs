@@ -39,4 +39,18 @@ public class TripThingRepository(PlantourContext context) : GenericRepository<Tr
             .ToListAsync();
     }
 
+
+    public async Task<IEnumerable<TripUserThing>> GetAllForPackageAsync(Guid adminId, Guid userId, Guid tripId, Guid packageId)
+    {
+        return await _dbSet
+            .Where(x =>
+                x.TripUser.Trip.Id == tripId &&
+                x.TripUser.Trip.UserId == adminId &&
+                x.TripUser.AdminParticipant.AdminId == adminId &&
+                x.TripUser.AdminParticipant.ParticipantId == userId &&
+                (x.TripUserPackageId == packageId || x.TripUserPackageId == null)
+            )
+            .ToListAsync();
+    }
+
 }

@@ -41,7 +41,7 @@ export interface UpdateTripPackageRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class TripPackageService implements CrudService<TripPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest>, FromDicService {
+export class TripPackageService {
   private apiUrl: string;
 
   constructor(

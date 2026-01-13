@@ -23,6 +23,7 @@ export type Target = {
   name: string | null;
   selectedMode: TargetMode | null;
   options: TargetOption[] | null;
+  hideOptions?: boolean;
 }
 
 export type FilterCondition = {

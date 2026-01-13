@@ -16,7 +16,6 @@ public class TripPackageController : ControllerBase
         _service = service;
     }
 
-
     [HttpPost("insert-from-dic")]
     [AdminOrParticipant]
     public async Task<ActionResult<TripPackageDto>> AddFromDic([FromBody] MultipleIdsRequest request)

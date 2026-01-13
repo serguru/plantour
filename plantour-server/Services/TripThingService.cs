@@ -59,6 +59,12 @@ public class TripThingService(
         return _mapper.Map<IEnumerable<TripThingDto>>(entities);
     }
 
+    public async Task<IEnumerable<TripThingDto>> GetAllForPackageAsync(Guid tripId, Guid packageId)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        var entities = await _tripUserThingRepository.GetAllForPackageAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageId);
+        return _mapper.Map<IEnumerable<TripThingDto>>(entities);
+    }
 
     public async Task<TripThingDto?> GetByIdAsync(Guid tripId, Guid id)
     {

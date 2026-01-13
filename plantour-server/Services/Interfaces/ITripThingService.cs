@@ -5,6 +5,7 @@ namespace plantour_server.Services;
 public interface ITripThingService
 {
     Task<IEnumerable<TripThingDto>> GetAllAsync(Guid tripId);
+    Task<IEnumerable<TripThingDto>> GetAllForPackageAsync(Guid tripId, Guid packageId);
     Task<TripThingDto?> GetByIdAsync(Guid tripId,Guid id);
     Task<TripThingDto> AddAsync(CreateTripThingRequest request);
     Task UpdateAsync(UpdateTripThingRequest request);

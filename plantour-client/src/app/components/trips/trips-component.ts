@@ -20,6 +20,7 @@ import { LocalStorageService } from '../../services/local-storage-service';
 
 
 // TODO: Add a method to create a new trip from the existing one 
+// TODO: Find out why it sends two request per a list trip click
 @Component({
   selector: 'app-trips-component',
   imports: [

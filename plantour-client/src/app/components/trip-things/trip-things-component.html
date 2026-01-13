@@ -1,21 +1,20 @@
-<app-generic-list
-    [service]="service"
-    [fromDicService]="fromDicservice"
-    [packingService]="packingService"
-    [listActionsConfiguration]="configuration"
-    title="Trip Things"
-    entityIcon="pi-objects-column"
-    [isListReadOnly]="false"
-    [addUrl]="'add'"
-    [editUrl]="'edit/:id'"
-    entityNameProp="name"
-    entityName="trip thing"
-    [useTripId]="true"
-    [tripPanelVisible]="true"
-    [upperActionType]="ActionType.Thing2Pack"
-    [componentId]="componentId"
-    [itemMetaData]="packages"
-    [itemComponent]="tripThingItemComponent"
->
-</app-generic-list>
+<div class="page-container">
+    <app-entities-header
+        entityIcon="pi pi-objects-column"
+        title="Trip things"
+        [delete]="deleteTripThing.bind(this)"
+        entityName="thing"
+        entityNameProp="name"
+        addUrl="add"
+        editUrl="edit/:id"
+    ></app-entities-header>
 
+    <app-entities-actions
+        [onAddTargetClick]="onAddTargetClick.bind(this)"
+        [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"
+    ></app-entities-actions>
+    <app-entities
+        [itemComponent]="tripThingItemComponent"
+        [targetEntityClick]="targetEntityButtonClick.bind(this)"
+    ></app-entities>
+</div>

@@ -88,6 +88,10 @@ export class TripThingService implements CrudService<TripThingDto, CreateTripThi
     return this.http.get<TripThingDto[]>(`${this.apiUrl}/trip/${tripId}`);
   }
 
+  getAllForPackage(tripId: string, packageId: string): Observable<TripThingDto[]> {
+    return this.http.get<TripThingDto[]>(`${this.apiUrl}/trip/${tripId}/package/${packageId}`);
+  }
+
   getById(id: string, tripId: string): Observable<TripThingDto> {
     return this.http.get<TripThingDto>(`${this.apiUrl}/${tripId}/${id}`);
   }
