@@ -1,18 +1,23 @@
-<div class="pack-row">
-    <span
-        class="pack-name"
+<div class="container">
+    <div
+        class="left"
         [innerHTML]="entity.name"
-    ></span>
+    ></div>
+    @if(!targetCondition()) {
     <p-select
-        class="w-full"
-        [options]="itemMetaData"
+        class="content w-full"
+        [options]="itemMetaData.packs"
         optionLabel="name"
         optionValue="id"
-        [(ngModel)]="entity.tripUserPackageId"
+        [ngModel]="entity.tripUserPackageId"
         [placeholder]="'Select package'"
         [ngModelOptions]="{ standalone: true }"
         [showClear]="true"
+        appendTo="body"
+        (onChange)="onPackChange($event.value)"
+        (onClick)="onPackClick($event)"
+        showClear="true"
     >
     </p-select>
-
+    }
 </div>

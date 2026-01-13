@@ -84,6 +84,11 @@ export class TripThingsComponent implements OnInit {
       }
     ];
 
+  itemMetaData: any = {
+    packOrUnpack: this.packOrUnpack.bind(this)
+  }
+
+
   ngOnInit(): void {
 
     this.componentService.updateComponentId(this.componentId);
@@ -125,6 +130,7 @@ export class TripThingsComponent implements OnInit {
     this.componentService.updateSelectedId(id);
   }
 
+
   initTargetLookup(packs: TripPackageDto[] | null) {
 
     if (!packs) {
@@ -138,6 +144,7 @@ export class TripThingsComponent implements OnInit {
     }));
 
     this.componentService.updateTargetLookup(lookup);
+    this.itemMetaData.packs = lookup;
   }
 
   initConditions(componentId: string | null, packs: TripPackageDto[] | null = null): void {
@@ -156,9 +163,9 @@ export class TripThingsComponent implements OnInit {
         const pack = packs?.find(p => p.id === targetPackId);
         if (pack) {
           targetCondition.target = {
-            id: pack.id, 
-            name: pack.name, 
-            selectedMode: TargetMode.Packing, 
+            id: pack.id,
+            name: pack.name,
+            selectedMode: TargetMode.Packing,
             options: [{
               label: 'Packing',
               mode: TargetMode.Packing
@@ -241,22 +248,29 @@ export class TripThingsComponent implements OnInit {
     });
   }
 
-  targetEntityButtonClick(entity: any) {
-    const target = this.target();
-
+  packOrUnpack(entity: any, packageId: string | null, repackAllowed: boolean): void {
     const request: MultipleIdsRequest = {
       collectionId: this.tripId!,
       ids: [entity.id],
-      id: target!.id!
+      id: packageId!
     };
 
-    const o = entity.isTargeted ? this.tripThingService.unpack(request) : this.tripThingService.pack(request);
+
+    const pack: boolean = repackAllowed ? !!packageId : !entity.isTargeted;
+
+
+    const o = pack ? this.tripThingService.pack(request) : this.tripThingService.unpack(request);
 
     o.pipe(
-      switchMap(() => this.tripThingService.getAllForPackage(this.tripId!, target!.id!)),
+      switchMap(() => this.target()?.id ? this.tripThingService.getAllForPackage(this.tripId!, this.target()!.id!) : this.tripThingService.getAll(this.tripId!)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((tripThings) => {
       this.componentService.updateEntities(tripThings);
     });
+  }
+
+  targetEntityButtonClick(entity: any): void {
+    const target = this.target();
+    this.packOrUnpack(entity, target?.id || null, false);
   }
 }
