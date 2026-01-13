@@ -49,7 +49,7 @@ export interface UpdateTripSharedRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class TripSharedService implements CrudService<TripSharedDto, CreateTripSharedRequest, UpdateTripSharedRequest>, FromDicService {
+export class TripSharedService {
   private apiUrl: string;
 
   constructor(
@@ -68,7 +68,6 @@ export class TripSharedService implements CrudService<TripSharedDto, CreateTripS
     return this.http.post<number>(`${this.apiUrl}/delete-from-dic`, data);
   }
 
-
   addFromTemplate(data: MultipleIdsRequest): Observable<number> {
     return this.http.post<number>(`${this.apiUrl}/insert-from-template`, data);
   }
@@ -77,10 +76,12 @@ export class TripSharedService implements CrudService<TripSharedDto, CreateTripS
     return this.http.post<number>(`${this.apiUrl}/delete-from-template`, data);
   }
 
-
-
   getAll(tripId: string): Observable<TripSharedDto[]> {
     return this.http.get<TripSharedDto[]>(`${this.apiUrl}/trip/${tripId}`);
+  }
+
+  getAllForAssignee(tripId: string, assigneeId: string): Observable<TripSharedDto[]> {
+    return this.http.get<TripSharedDto[]>(`${this.apiUrl}/trip/${tripId}/assignee/${assigneeId}`);
   }
 
   getById(id: string, tripId: string): Observable<TripSharedDto> {
@@ -97,5 +98,13 @@ export class TripSharedService implements CrudService<TripSharedDto, CreateTripS
 
   delete(id: string, tripId: string | null): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${tripId}/${id}`);
+  }
+
+  assign(data: MultipleIdsRequest): Observable<number> {
+    return this.http.put<number>(`${this.apiUrl}/assign-trip-shared-things`, data);
+  }
+
+  unassign(data: MultipleIdsRequest): Observable<number> {
+    return this.http.put<number>(`${this.apiUrl}/unassign-trip-shared-things`, data);
   }
 }

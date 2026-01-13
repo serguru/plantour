@@ -14,6 +14,15 @@ public class TripSharedRepository(PlantourContext context) : GenericRepository<T
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<TripSharedThing>> GetAllFullForAssigneeAsync(Guid tripId, Guid assigneeId)
+    {
+        return await _dbSet
+            .Include(t => t.AssignedTo != null ? t.AssignedTo.Trip.User : null)
+            .Include(t => t.AssignedThing)
+            .Where(t => t.TripId == tripId && (!t.AssignedToId.HasValue || t.AssignedToId == assigneeId))    
+            .ToListAsync();
+    }
+
     public async Task<TripSharedThing?> GetByIdFullAsync(Guid tripId, Guid id)
     {
         return await _dbSet

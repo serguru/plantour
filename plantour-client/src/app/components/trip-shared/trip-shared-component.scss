@@ -4,21 +4,3 @@
     height: 100%;
     width: 100%;
 }
-
-.container {
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  gap: 1rem;
-}
-
-.right {
-  margin-left: auto;
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-}
-
-.left {
-  flex: 1;
-}

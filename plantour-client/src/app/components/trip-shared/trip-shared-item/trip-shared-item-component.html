@@ -1,6 +1,23 @@
-<div class="pack-row">
-    <span
-        class="pack-name"
-        [innerHTML]="item.name"
-    ></span>
+<div class="container">
+    <div
+        class="left"
+        [innerHTML]="entity.name"
+    ></div>
+    @if(!targetCondition()) {
+    <p-select
+        class="content w-full"
+        [options]="itemMetaData.packs"
+        optionLabel="name"
+        optionValue="id"
+        [ngModel]="entity.assignedToId"
+        [placeholder]="'Select assignee'"
+        [ngModelOptions]="{ standalone: true }"
+        [showClear]="true"
+        appendTo="body"
+        (onChange)="onAssigneeChange($event.value)"
+        (onClick)="onAssigneeClick($event)"
+        showClear="true"
+    >
+    </p-select>
+    }
 </div>

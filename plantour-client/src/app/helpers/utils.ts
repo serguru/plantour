@@ -7,3 +7,15 @@ export const isGuid = (value: string | null): boolean => {
 export const isNumber = (value: any): boolean => {
   return typeof value === 'number' && Number.isFinite(value); 
 }
+
+export const getFullName = (firstName: string | null, lastName: string | null, email: string, mustAddEmail: boolean): string => {
+  const fullName = [firstName, lastName]
+    .filter(name => name && name.trim().length > 0)
+    .join(' ');
+
+  if (fullName && mustAddEmail) {
+    return `${fullName} (${email})`;
+  }  
+
+  return fullName || (mustAddEmail ? email : '');
+}

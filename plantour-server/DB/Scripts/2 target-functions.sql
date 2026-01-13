@@ -656,3 +656,66 @@ begin
 end;
 $$;
 --#endregion
+
+
+
+--#region assign_trip_shared_things
+create or replace function plantour.assign_trip_shared_things(
+    p_admin_id uuid,
+    p_trip_id uuid,
+    p_trip_user_id uuid,
+    p_ids uuid[],
+    p_unassign boolean
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_updated_count integer;
+begin
+    -- Exception will be raised if trip not found or not owned by admin
+    perform plantour.get_trip_id(p_admin_id, p_trip_id);
+
+    if (p_unassign) then
+        update plantour.trip_shared_things
+        set 
+            assigned_to_id = null,
+            assigned_thing_id = null,
+            assigned_at = null,
+            assigned_deadline = null,
+            rejected = false
+        where
+            trip_id = p_trip_id and
+            id = any (p_ids);
+
+    else            
+
+        if not exists (
+            select null from plantour.trip_users 
+            where 
+                id = p_trip_user_id and trip_id = p_trip_id
+        ) then
+            raise exception
+                'Wrong trip user id';
+        end if;
+
+        update plantour.trip_shared_things
+        set 
+            assigned_to_id = p_trip_user_id,
+            assigned_thing_id = null,
+            assigned_at = now(),
+            assigned_deadline = null,
+            rejected = false
+        where
+            trip_id = p_trip_id and
+            id = any (p_ids);
+
+    end if;
+
+
+    get diagnostics v_updated_count = row_count;
+
+    return v_updated_count;
+end;
+$$;
+--#endregion

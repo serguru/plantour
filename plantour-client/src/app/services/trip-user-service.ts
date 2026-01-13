@@ -14,6 +14,7 @@ export interface TripUserDto {
   lastName?: string | null;
   phone?: string | null;
   notes?: string | null;
+  fullName?: string | null;
 }
 
 export interface CreateTripUserRequest {

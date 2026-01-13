@@ -37,8 +37,23 @@ public class TripSharedService(
             throw new CustomException("User does not have access to this trip");
         }
 
+        // order by id to have consistent order for "none" client sorting
+        var items = (await _tripSharedRepository.GetAllFullAsync(tripId)).OrderBy(x => x.Id).ToList();
+        return _mapper.Map<IEnumerable<TripSharedDto>>(items);
+    }
 
-        var items = await _tripSharedRepository.GetAllFullAsync(tripId);
+
+    public async Task<IEnumerable<TripSharedDto>> GetAllForAssigneeAsync(Guid tripId, Guid assigneeId)
+    {
+        _currentUser.RaiseIfNotAdmin();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+
+        var items = (await _tripSharedRepository.GetAllFullForAssigneeAsync(tripId, assigneeId)).OrderBy(x => x.Id).ToList();
         return _mapper.Map<IEnumerable<TripSharedDto>>(items);
     }
 
@@ -288,6 +303,18 @@ public class TripSharedService(
     {
         _currentUser.RaiseIfNotAdmin();
         return await _dicTripRepository.DeleteTemplateTripSharedThingsAsync(_currentUser.AdminId, tripId, ids);
+    }
+
+    public async Task<int> AssignTripSharedThingsAsync(Guid tripId, Guid assigneeId, Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAdmin();
+        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, assigneeId, ids, false);
+    }
+
+    public async Task<int> UnassignTripSharedThingsAsync(Guid tripId, Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAdmin();
+        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, Guid.Empty, ids, true);
     }
 
 }

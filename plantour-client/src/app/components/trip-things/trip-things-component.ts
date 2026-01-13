@@ -255,10 +255,7 @@ export class TripThingsComponent implements OnInit {
       id: packageId!
     };
 
-
     const pack: boolean = repackAllowed ? !!packageId : !entity.isTargeted;
-
-
     const o = pack ? this.tripThingService.pack(request) : this.tripThingService.unpack(request);
 
     o.pipe(

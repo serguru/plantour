@@ -54,6 +54,15 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
         return Ok(dtos);
     }
 
+    [HttpGet("trip/{tripId}/assignee/{assigneeId}")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<IEnumerable<TripSharedDto>>> GetAllForAssignee(Guid tripId, Guid assigneeId)
+    {
+        var dtos = await _service.GetAllForAssigneeAsync(tripId, assigneeId);
+        return Ok(dtos);
+    }
+
+
     [HttpGet("{tripId}/{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult<TripSharedDto>> GetById(Guid tripId, Guid id)
@@ -85,5 +94,23 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
         await _service.DeleteAsync(tripId, id);       
         return NoContent();
     }
+
+    [HttpPut("assign-trip-shared-things")]
+    [AdminOnly]
+    public async Task<ActionResult> AssignTripSharedThings([FromBody] MultipleIdsRequest request)
+    {
+        var updated = await _service.AssignTripSharedThingsAsync(request.CollectionId, request.Id!.Value, request.Ids);
+        return Ok(new { updatedCount = updated });
+    }
+
+    [HttpPut("unassign-trip-shared-things")]
+    [AdminOnly]
+    public async Task<ActionResult> UnassignTripSharedThings([FromBody] MultipleIdsRequest request)
+    {
+        var updated = await _service.UnassignTripSharedThingsAsync(request.CollectionId, request.Ids);
+        return Ok(new { updatedCount = updated });
+    }
+
+
 
 }

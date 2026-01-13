@@ -1,4 +1,4 @@
-<app-generic-list
+<!-- <app-generic-list
     [service]="service"
     [fromDicService]="fromDicservice"
     [listActionsConfiguration]="configuration"
@@ -14,4 +14,26 @@
     [componentId]="componentId"
     [itemComponent]="tripSharedItemComponent"
 >
-</app-generic-list>
+</app-generic-list> -->
+
+<div class="page-container">
+    <app-entities-header
+        entityIcon="pi pi-objects-column"
+        title="Trip shared things"
+        [delete]="deleteTripThing.bind(this)"
+        entityName="thing"
+        entityNameProp="name"
+        addUrl="add"
+        editUrl="edit/:id"
+    ></app-entities-header>
+
+    <app-entities-actions
+        [onAddTargetClick]="onAddTargetClick.bind(this)"
+        [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"
+    ></app-entities-actions>
+    <app-entities
+        [itemComponent]="tripSharedItemComponent"
+        [targetEntityClick]="targetEntityButtonClick.bind(this)"
+        [itemMetaData]="itemMetaData"
+    ></app-entities>
+</div>
