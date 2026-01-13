@@ -74,7 +74,8 @@ export class EntitiesActionsComponent implements OnInit {
 
   showRadios = computed(() => {
     const target = this.target();
-    return target?.options?.length! > 0 && !target?.hideOptions;
+//    return target?.options?.length! > 0 && !target?.hideOptions;
+    return target?.options?.length! > 0;
   });
 
 

@@ -37,7 +37,6 @@ export class TripThingsComponent implements OnInit {
   tripThingItemComponent = TripThingItemComponent;
   componentId = 'trip-things';
 
-  tripService = inject(TripService);
   componentService = inject(ComponentService);
   tripThingService = inject(TripThingService);
   localStorageService = inject(LocalStorageService);
@@ -164,13 +163,7 @@ export class TripThingsComponent implements OnInit {
         if (pack) {
           targetCondition.target = {
             id: pack.id,
-            name: pack.name,
-            selectedMode: TargetMode.Packing,
-            options: [{
-              label: 'Packing',
-              mode: TargetMode.Packing
-            }],
-            hideOptions: true
+            name: pack.name
           };
         }
       } else {

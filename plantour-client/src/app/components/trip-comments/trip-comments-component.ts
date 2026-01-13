@@ -13,9 +13,6 @@ import { LocalStorageService } from '../../services/local-storage-service';
 @Component({
   selector: 'app-trip-comments',
   imports: [
-    EntitiesComponent,
-    EntitiesHeaderComponent,
-    EntitiesActionsComponent
   ],
   templateUrl: './trip-comments-component.html',
   styleUrl: './trip-comments-component.scss',

@@ -191,13 +191,13 @@ export class TripSharedComponent implements OnInit {
         if (tripUser) {
           targetCondition.target = {
             id: tripUser.id,
-            name: lookup.find(l => l.id === tripUser.id)?.name || 'No User Name',
-            selectedMode: TargetMode.TripShared,
-            options: [{
-              label: 'TripShared',
-              mode: TargetMode.TripShared
-            }],
-            hideOptions: true
+            name: lookup.find(l => l.id === tripUser.id)?.name || 'No User Name'
+            // selectedMode: TargetMode.TripShared,
+            // options: [{
+            //   label: 'TripShared',
+            //   mode: TargetMode.TripShared
+            // }],
+            // hideOptions: true
           };
         }
       } else {

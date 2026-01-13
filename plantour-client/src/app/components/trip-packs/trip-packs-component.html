@@ -1,19 +1,17 @@
+<div class="page-container">
+    <app-entities-header
+        entityIcon="pi pi-box"
+        title="Trip packs"
+        [delete]="deleteTripPack.bind(this)"
+        entityName="pack"
+        entityNameProp="name"
+        addUrl="add"
+        editUrl="edit/:id"
+    ></app-entities-header>
 
-<app-generic-list
-    [service]="service"
-    [fromDicService]="fromDicservice"
-    [listActionsConfiguration]="configuration"
-    title="Trip Packs"
-    entityIcon="pi-box"
-    [isListReadOnly]="false"
-    [addUrl]="'add'"
-    [editUrl]="'edit/:id'"
-    entityNameProp="name"
-    entityName="trip package"
-    [useTripId]="true"
-    [tripPanelVisible]="true"
-    [componentId]="componentId"
-    [itemComponent]="tripPackItemComponent"
->
-</app-generic-list>
-
+    <app-entities-actions
+    ></app-entities-actions>
+    <app-entities
+        [itemComponent]="tripPackItemComponent"
+    ></app-entities>
+</div>

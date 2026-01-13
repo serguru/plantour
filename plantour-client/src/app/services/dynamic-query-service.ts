@@ -21,9 +21,8 @@ export type TargetOption = {
 export type Target = {
   id: string | null; // tripId or packId or participantId ...
   name: string | null;
-  selectedMode: TargetMode | null;
-  options: TargetOption[] | null;
-  hideOptions?: boolean;
+  selectedMode?: TargetMode | null;
+  options?: TargetOption[] | null;
 }
 
 export type FilterCondition = {

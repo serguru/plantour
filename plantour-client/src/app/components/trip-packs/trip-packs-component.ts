@@ -1,5 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CrudService, FromDicService } from '../../services/crud-service';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
 import { TripPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest, TripPackageService } from '../../services/trip-package-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent } from '../base-list/base-list';
@@ -7,56 +7,118 @@ import { UpperActionType } from '../../helpers/enums';
 import { TripPackItemComponent } from './trip-pack-item/trip-pack-item-component';
 import { AppService } from '../../services/app-service';
 import { MessagesService } from '../../services/messages-service';
+import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
+import { EntitiesComponent } from '../entities/entities-component';
+import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
+import { ComponentService } from '../../services/component-service';
+import { LocalStorageService } from '../../services/local-storage-service';
+import { Condition, DynamicQueryService } from '../../services/dynamic-query-service';
+import { CurrentTripService } from '../../services/current-trip-service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 
 
 @Component({
   selector: 'app-trip-packs',
   standalone: true,
   imports: [
-    BaseListComponent
+    EntitiesComponent,
+    EntitiesHeaderComponent,
+    EntitiesActionsComponent
   ],
   templateUrl: './trip-packs-component.html',
   styleUrl: './trip-packs-component.scss',
 })
 export class TripPacksComponent implements OnInit {
-  appService = inject(AppService);
-  messagesService = inject(MessagesService);
   tripPackItemComponent = TripPackItemComponent;
   componentId: string = 'trip-packs';
-  public ActionType = UpperActionType;
 
-  tripId: string | null = null;
+  componentService = inject(ComponentService);
 
-  ngOnInit(): void {
-    // This component cannot be accessed unless a trip is selected
-    // This is enforced by the checkTripIdGuard in the routing configuration
+  localStorageService = inject(LocalStorageService);
+  dynamicQueryService = inject(DynamicQueryService);
 
-    
-    
-    // if (!this.appService.tripSelectedValue()) {
-    //   this.messagesService.showError('No trip selected', 'Please select a trip first.');
-    //   this.router.navigate(['/trips']);
-    // }
+  tripPackageService = inject(TripPackageService);
+
+
+  currentTripService = inject(CurrentTripService);
+
+  private route = inject(ActivatedRoute);
+
+  private destroyRef = inject(DestroyRef);
+
+  private tripId: string | null = null;
+
+  conditions: Condition[] =
+    [
+      {
+        kind: 'sort',
+        label: 'Sort by Name',
+        icon: 'sort-alt',
+        property: 'name',
+        sortType: 'text',
+        direction: 'none'
+      },
+      {
+        kind: 'filter',
+        property: 'name',
+        label: 'Filter by Name',
+        filterText: '',
+        comparisonType: 'contains',
+        icon: 'filter'
+      }
+    ];
+
+  initConditions(componentId: string | null): void {
+    if (!componentId) {
+      throw new Error('ComponentId is null');
+    }
+    const savedConditions = this.localStorageService.getComponentKeyObject(componentId, 'conditions') || [];
+    const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
+    this.componentService.updateConditions(initialConditions);
+    this.componentService.persistValue('conditions', initialConditions);
   }
 
-  route = inject(ActivatedRoute);
-  router = inject(Router);
-  service: CrudService<TripPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest> = inject(TripPackageService);
 
-  fromDicservice:FromDicService = inject(TripPackageService);
+  ngOnInit(): void {
 
-  configuration: any[] = [
-    {
-      property: 'name',
-      label: 'Name',
-      icon: 'pi pi-box',
-      config: {
-        lookupIcon: 'pi pi-box',
-        filter: true,
-        sorting: 'text'
-      }
+    this.componentService.updateComponentId(this.componentId);
+
+    this.tripId = this.route.snapshot.paramMap.get('tripId');
+
+    // The checkTripIdGuard should ensure this never happens
+    if (!this.tripId) {
+      throw new Error('Trip Id is null');
     }
-  ];
+
+    this.initConditions(this.componentId);
+
+    this.initSavedFeatures();
+
+    this.tripPackageService.getAll(this.tripId!).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(tripPacks =>
+      this.componentService.updateEntities(tripPacks || [])
+    );
+  }
+
+  initSavedFeatures() {
+    const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
+    this.componentService.updateEntitiesActionsVisible(v);
+
+    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    this.componentService.updateSelectedId(id);
+  }
 
 
+  deleteTripPack(id: string): void {
+    this.tripPackageService.delete(id, this.tripId!).pipe(
+      switchMap(_ => 
+        this.tripPackageService.getAll(this.tripId!)
+      ),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((tripPacks) => {
+      this.componentService.updateEntities(tripPacks);
+    });
+  }
 }

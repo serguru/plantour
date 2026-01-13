@@ -8,6 +8,6 @@ import { TripPackageDto } from '../../../services/trip-package-service';
   styleUrl: './trip-pack-item-component.scss',
 })
 export class TripPackItemComponent {
-  @Input() item: TripPackageDto = {} as TripPackageDto;
+  @Input() entity: TripPackageDto = {} as TripPackageDto;
 
 }
