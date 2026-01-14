@@ -1,3 +1,4 @@
+
 <div class="list-container">
     <!-- @for (entity of processedEntities(); track entity.id) { -->
     @for (entity of processedEntities | async; track entity.id) {
@@ -26,6 +27,6 @@
     </div>
 
     } @empty {
-    <div>No rows</div>
+    <div class="loading"><h2>{{emptyText()}}</h2></div>
     }
 </div>

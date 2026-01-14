@@ -19,6 +19,7 @@ export interface DialogState extends DialogConfig {
   type: DialogType;
 }
 
+// TODO: adjust messages colors and fonts 
 @Injectable({
   providedIn: 'root'
 })

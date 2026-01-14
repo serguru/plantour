@@ -99,10 +99,6 @@ export class ComponentService {
     this.persistValue('selectedId', selectedId);
   }
 
-  
-
-
-
   // Is entities actions panel visible
   private entitiesActionsVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   entitiesActionsVisible$: Observable<boolean> = this.entitiesActionsVisibleSubject.asObservable();
@@ -111,6 +107,13 @@ export class ComponentService {
     this.entitiesActionsVisibleSubject.next(visible);
   }
 
+  // Is loading
+  // TODO: make word "Loading..." appears only when loading takes more than e.g. 300ms
+  private loadingSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  loading$: Observable<boolean> = this.loadingSubject.asObservable();
+  updateLoading(loading: boolean): void {
+    this.loadingSubject.next(loading);
+  }
 
   //#endregion
 

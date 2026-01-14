@@ -13,6 +13,7 @@
   --primary-color-very-light: #ebfdff;
   --primary-color-highlight: #caf5fa;
   --primary-color-hover: #ebfdff;
+  --pale-color: #a2a2a2;
   --content-container-background-color: #ffffff;
   --error-color: #E53935;
   --error-background-color: #ffe6e6;
@@ -325,6 +326,8 @@ html {
   }
 }
 
+
+
 .pale-prompt {
   font-family: var(--font-ui);
   font-size: 0.95rem;
@@ -633,4 +636,12 @@ app-base-form, app-generic-list {
   flex-direction: column;
   overflow: auto;
   height: 100%
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pale-color);
+    height: 100%;
 }

@@ -33,8 +33,6 @@ export class EntitiesComponent implements OnInit {
   }
 
   componentService = inject(ComponentService);
-
-
   showEntityButton = computed(() => {
     const x = this.targetEntityClick;
     const y = this.targetCondition();
@@ -58,6 +56,18 @@ export class EntitiesComponent implements OnInit {
   targetCondition = toSignal(this.componentService.targetCondition$, { initialValue: null });
   target = toSignal(this.componentService.target$, { initialValue: null });
   
+
+  loading = toSignal(this.componentService.loading$, { initialValue: false });
+
+  emptyText = computed(() => {
+    if (this.loading()) {
+      return '';
+    } 
+    return 'No rows';
+  });
+
+  
+
 
   isSelected(entity: any): boolean {
     if(this.disableSelection()) {

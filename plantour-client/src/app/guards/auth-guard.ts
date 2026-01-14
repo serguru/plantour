@@ -19,6 +19,8 @@ export const publicGuard: CanActivateFn = (route, state) => {
   return false;
 };
 
+// TODO: investigate why after manually clearing entire local storage it does not redirect to sign in
+
 /**
  * Auth Guard - allows access only to authenticated users
  */

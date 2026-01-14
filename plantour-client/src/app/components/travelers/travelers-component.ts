@@ -10,7 +10,7 @@ import { AppService } from '../../services/app-service';
 import { TripDto, TripService } from '../../services/trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ComponentService } from '../../services/component-service';
-import { switchMap, tap } from 'rxjs';
+import { catchError, finalize, switchMap, tap, throwError } from 'rxjs';
 import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
@@ -82,13 +82,15 @@ export class TravelersComponent implements OnInit {
 
     this.componentService.updateComponentId(this.componentId);
 
+    this.componentService.updateLoading(true);
+
     this.tripService.getAll().pipe(
       tap((trips: TripDto[]) => {
         this.initConditions(this.componentId, trips);
         this.initTargetLookup(trips);
         this.initSavedFeatures();
       }),
-      switchMap(_ =>
+      switchMap((_: TripDto[]) =>
         this.componentService.target$.pipe(
           switchMap((target: Target | null) => {
             if (target && target.id) {
@@ -98,8 +100,13 @@ export class TravelersComponent implements OnInit {
           }),
         )
       ),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(packages =>
+      tap(() => this.componentService.updateLoading(false)),
+      catchError(err => {
+        this.componentService.updateLoading(false)
+        return throwError(() => err);
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe((packages: AdminsParticipantDto[]) =>
       this.componentService.updateEntities(packages || [])
     );
   }
