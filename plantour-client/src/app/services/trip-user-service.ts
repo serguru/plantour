@@ -1,8 +1,9 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService, FromDicService, MultipleIdsRequest } from './crud-service';
+import { findDuplicates, getFullName } from '../helpers/utils';
 
 export interface TripUserDto {
   id: string;
@@ -64,7 +65,21 @@ export class TripUserService implements CrudService<TripUserDto, CreateTripUserR
 
 
   getAll(tripId: string): Observable<TripUserDto[]> {
-    return this.http.get<TripUserDto[]>(`${this.apiUrl}/trip/${tripId}`);
+    return this.http.get<TripUserDto[]>(`${this.apiUrl}/trip/${tripId}`)
+    .pipe(
+      tap((tripUsers: TripUserDto[]) => {
+
+        const duplicatedIds = findDuplicates(tripUsers);
+
+        tripUsers.forEach((x: TripUserDto) => {
+          const isDuplicated = duplicatedIds.some(y => y === x.id);
+          const name = getFullName(x.firstName ?? null, x.lastName ?? null, x.email, isDuplicated);
+          x.fullName = name;
+        });
+      }
+      ),
+    )
+
   }
 
   getById(id: string): Observable<TripUserDto> {

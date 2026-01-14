@@ -2,7 +2,6 @@ import { Component, DestroyRef, inject } from '@angular/core';
 import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
 import { CreateThingRequest, UpdateThingRequest, ThingDto, ThingService } from '../../services/thing-service';
 import { CreateTripThingRequest, TripThingService, TripThingDto, UpdateTripThingRequest } from '../../services/trip-thing-service';
-import { UpperActionType } from '../../helpers/enums';
 import { ThingItemComponent } from './things-item/thing-item-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';

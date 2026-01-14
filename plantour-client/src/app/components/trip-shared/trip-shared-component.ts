@@ -2,10 +2,6 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
 import { TripSharedDto, CreateTripSharedRequest, UpdateTripSharedRequest, TripSharedService } from '../../services/trip-shared-service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseListComponent } from '../base-list/base-list';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { UpperActionType } from '../../helpers/enums';
 import { TripSharedItemComponent } from './trip-shared-item/trip-shared-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
@@ -18,7 +14,7 @@ import { Condition, DynamicQueryService, Target, TargetCondition, TargetMode } f
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { TripUserDto, TripUserService } from '../../services/trip-user-service';
-import { getFullName } from '../../helpers/utils';
+import { findDuplicates, getFullName } from '../../helpers/utils';
 
 @Component({
   selector: 'app-trip-shared',
@@ -129,25 +125,6 @@ export class TripSharedComponent implements OnInit {
     this.componentService.updateSelectedId(id);
   }
 
-  private findDuplicates(users: TripUserDto[] | null): string[] {
-    if (!users) {
-      return [];
-    }
-    const counts: { [key: string]: number } = {};
-    const duplicatedIds: string[] = [];
-
-    users.forEach(user => {
-      const key = `${user.firstName ?? ''}|${user.lastName ?? ''}`;
-
-      counts[key] = (counts[key] || 0) + 1;
-
-      if (counts[key] === 2) {
-        duplicatedIds.push(user.id);
-      }
-    });
-
-    return duplicatedIds;
-  }
 
   initTargetLookup(users: TripUserDto[] | null): any[] {
 
@@ -156,7 +133,7 @@ export class TripSharedComponent implements OnInit {
       return [];
     }
 
-    const duplicatedIds = this.findDuplicates(users);
+    const duplicatedIds = findDuplicates(users);
     const lookup: { id: string; name: string }[] = [];
 
     users.forEach((x: TripUserDto) => {

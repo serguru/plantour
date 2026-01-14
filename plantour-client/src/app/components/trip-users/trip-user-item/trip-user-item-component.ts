@@ -8,13 +8,6 @@ import { TripUserDto } from '../../../services/trip-user-service';
   styleUrl: './trip-user-item-component.scss',
 })
 export class TripUserItemComponent {
-  @Input() item: TripUserDto = {} as TripUserDto;
-  get mainInfo(): string {
-
-    if (!this.item.firstName && !this.item.lastName) {
-      return this.item.email;
-    }
-    return `${this.item.firstName} ${this.item.lastName}`;
-  }
+  @Input() entity: TripUserDto = {} as TripUserDto;
 
 }

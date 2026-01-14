@@ -1,10 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CrudService } from '../../services/crud-service';
 import { TripDto, TripService } from '../../services/trip-service';
-import { BaseListComponent } from '../base-list/base-list';
-import { Router } from '@angular/router';
-import { TagModule } from 'primeng/tag';
-import { AppService } from '../../services/app-service';
 import { TripItemComponent } from './trip-item/trip-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';

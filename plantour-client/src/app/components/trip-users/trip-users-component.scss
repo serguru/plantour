@@ -4,30 +4,3 @@
     height: 100%;
     width: 100%;
 }
-
-.participant-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-
-  .participant-email {
-    flex: 1;
-    font-weight: 500;
-    word-break: break-word;
-  }
-
-  .participant-name {
-    flex: 1;
-    color: var(--text-color-secondary);
-  }
-
-  .participant-status {
-    padding: 0.25rem 0.75rem;
-    background-color: var(--blue-100);
-    color: var(--blue-700);
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
-    white-space: nowrap;
-  }
-}

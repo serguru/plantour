@@ -1,3 +1,5 @@
+import { TripUserDto } from "../services/trip-user-service";
+
 export const isGuid = (value: string | null): boolean => {
   if (!value) return false;
   const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -36,3 +38,23 @@ export const formatToEnglishLocale = (isoString: string): string => {
     hour12: true,
   }).format(date);
 }
+
+  export const findDuplicates = (users: TripUserDto[] | null): string[] => {
+    if (!users) {
+      return [];
+    }
+    const counts: { [key: string]: number } = {};
+    const duplicatedIds: string[] = [];
+
+    users.forEach(user => {
+      const key = `${user.firstName ?? ''}|${user.lastName ?? ''}`;
+
+      counts[key] = (counts[key] || 0) + 1;
+
+      if (counts[key] === 2) {
+        duplicatedIds.push(user.id);
+      }
+    });
+
+    return duplicatedIds;
+  }

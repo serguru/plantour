@@ -2,15 +2,8 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from '../../services/crud-service';
 import { TripThingDto, CreateTripThingRequest, UpdateTripThingRequest, TripThingService } from '../../services/trip-thing-service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseListComponent } from '../base-list/base-list';
 import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
-import { Select } from "primeng/select";
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { UpperActionType } from '../../helpers/enums';
 import { TripThingItemComponent } from './trip-thing-item/trip-thing-item-component';
-import { AppService } from '../../services/app-service';
-import { MessagesService } from '../../services/messages-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
@@ -19,7 +12,6 @@ import { EntitiesHeaderComponent } from '../entities/entities-header-component/e
 import { ComponentService } from '../../services/component-service';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { Condition, DynamicQueryService, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
-import { TripDto, TripService } from '../../services/trip-service';
 import { switchMap, tap } from 'rxjs';
 
 @Component({

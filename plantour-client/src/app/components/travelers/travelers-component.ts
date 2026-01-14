@@ -1,12 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
 import { AdminsParticipantDto, UpdateAdminsParticipantRequest, AdminsParticipantService } from '../../services/admins-participant-service';
-import { BaseListComponent } from '../base-list/base-list';
-import { Router } from '@angular/router';
-import { TagModule } from 'primeng/tag';
-import { SignUpParticipantRequest } from '../../models/auth.models';
 import { CreateTripUserRequest, TripUserDto, TripUserService, UpdateTripUserRequest } from '../../services/trip-user-service';
-import { UpperActionType } from '../../helpers/enums';
 import { TravelerItemComponent } from './traveler-item/traveler-item-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
