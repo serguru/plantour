@@ -19,6 +19,8 @@ export class EntitiesComponent implements OnInit {
   @Input() itemComponent!: Type<any>;
   @Input() itemMetaData: any | null = null;
 
+  disableSelection = input<boolean>(false);
+
   
   targetEntityClick = input<Function | null>(null);
 
@@ -58,6 +60,9 @@ export class EntitiesComponent implements OnInit {
   
 
   isSelected(entity: any): boolean {
+    if(this.disableSelection()) {
+      return false;
+    }
     const selectedId = this.selectedId();
     if (!selectedId || !entity) {
       return false;
@@ -66,6 +71,9 @@ export class EntitiesComponent implements OnInit {
   }
 
   selectEntity(entity: any | null) {
+    if (this.disableSelection()) {
+      return;
+    }
     if (this.isSelected(entity)) {
       this.componentService.updateSelectedId(null);  
       this.componentService.saveSelectedId(null);

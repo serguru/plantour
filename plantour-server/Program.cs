@@ -88,7 +88,7 @@ builder.Services.AddScoped<IAdminsParticipantService, AdminsParticipantService>(
 builder.Services.AddScoped<ITripSharedService, TripSharedService>();
 builder.Services.AddScoped<ICheckAccessService, CheckAccessService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
-
+builder.Services.AddScoped<ITripCommentService, TripCommentService>();
 
 
 // Register repositories
@@ -105,9 +105,9 @@ builder.Services.AddScoped<plantour_server.Repositories.UsersRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.DicTripRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripSharedRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
 
 builder.Services.AddScoped<HttpCurrentUser>();
-
 
 // Configure CORS for Angular client
 builder.Services.AddCors(options =>

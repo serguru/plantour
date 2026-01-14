@@ -19,3 +19,20 @@ export const getFullName = (firstName: string | null, lastName: string | null, e
 
   return fullName || (mustAddEmail ? email : '');
 }
+
+export const formatToEnglishLocale = (isoString: string): string => {
+  const date = new Date(isoString);
+
+  if (isNaN(date.getTime())) {
+    return 'Invalid Date';
+  }
+
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  }).format(date);
+}

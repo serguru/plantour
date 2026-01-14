@@ -10,6 +10,7 @@
   --form-header-background-color: #2F7C87;
   --primary-border-color: #245b64;
   --primary-color-light: #4DB8C4;
+  --primary-color-very-light: #ebfdff;
   --primary-color-highlight: #caf5fa;
   --primary-color-hover: #ebfdff;
   --content-container-background-color: #ffffff;
@@ -631,4 +632,5 @@ app-base-form, app-generic-list {
   display: flex;
   flex-direction: column;
   overflow: auto;
+  height: 100%
 }

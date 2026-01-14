@@ -1,0 +1,37 @@
+<div class="page-container">
+  <app-entities-header
+    entityIcon="pi pi-envelope"
+    title="Trip comments"
+    entityName="comment"
+    entityNameProp="name"
+  ></app-entities-header>
+
+  <app-entities-actions></app-entities-actions>
+  <div class="message-panel">
+    <input
+      class="left"
+      pInputText
+      id="filter"
+      type="text"
+      [(ngModel)]="inputText"
+      [ngModelOptions]="{ standalone: true }"
+      placeholder="Write a message..."
+      fluid
+    />
+    <div class="right">
+      <pl-button
+        label="Send"
+        icon="pi pi-send"
+        (onClick)="onAddMessageClick()"
+        [disabled]="addMessageButtonDisabled"
+      >
+      </pl-button>
+    </div>
+  </div>
+
+
+  <app-entities
+    [itemComponent]="tripItemCommentComponent"
+    [disableSelection]="true"
+  ></app-entities>
+</div>

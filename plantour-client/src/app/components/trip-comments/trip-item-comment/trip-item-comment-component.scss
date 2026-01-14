@@ -1,4 +1,33 @@
-.row {
-    display:flex;
-    gap: 1rem;
+.container {
+    display: flex;
+    padding: 0.5rem;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background-color: var(--primary-color-very-light);
+    padding: 1rem;
+    border-radius: 1.0rem;
+    min-width: 50%;
+    max-width: 90%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    font-size: smaller;
+    opacity: 0.6;
+    gap: 0.5rem;
+    
+}
+
+
+.received {
+
+}
+
+.sent {
+    justify-content: end;
 }

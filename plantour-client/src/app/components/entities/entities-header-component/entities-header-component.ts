@@ -7,7 +7,7 @@ import { MessagesService } from '../../../services/messages-service';
 @Component({
   selector: 'app-entities-header',
   imports: [
-    
+
   ],
   templateUrl: './entities-header-component.html',
   styleUrl: './entities-header-component.scss',
@@ -16,8 +16,8 @@ export class EntitiesHeaderComponent implements OnInit {
   @Input() entityIcon: string | null = null;
   @Input() title: string | null = null;
   @Input() isListReadOnly: boolean = false;
-  @Input() addUrl: string | null = null;
-  @Input() editUrl: string | null = null;
+  @Input() addUrl: string | Function | null = null;
+  @Input() editUrl: string | Function | null = null;
   @Input() delete: ((id: string) => void) | null = null;
   @Input() entityName: string = '';
   @Input() entityNameProp: string = 'name';
@@ -39,16 +39,32 @@ export class EntitiesHeaderComponent implements OnInit {
 
   selectedId = toSignal(this.componentService.selectedId$, { initialValue: null });
 
-  
+
   ngOnInit(): void {
 
   }
 
   onAdd() {
-    this.router.navigate([this.addUrl], { relativeTo: this.route });
+    if (!this.addUrl) {
+      return;
+    }
+    if (typeof this.addUrl === 'function') {
+      this.addUrl();
+    } else {
+      this.router.navigate([this.addUrl], { relativeTo: this.route });
+    }
   }
 
   onEdit() {
+    if (!this.editUrl) {
+      return;
+    }
+
+    if (typeof this.editUrl === 'function') {
+      this.editUrl();
+      return;
+    }
+
     if (!this.selectedId() || this.isListReadOnly || !this.editUrl) {
       return;
     }
@@ -81,7 +97,7 @@ export class EntitiesHeaderComponent implements OnInit {
       case 'packing': return 'pi pi-box';
       case 'assigning': return 'pi pi-user';
       default: return '';
-    } 
+    }
   }
 
   getEntitiesActionClass(): string {

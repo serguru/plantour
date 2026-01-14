@@ -1,16 +1,15 @@
-<div class="row">
-    <span
-        class="pack-name"
-        [innerHTML]="entity?.id"
-    ></span>
-
-    <span
-        class="pack-name"
-        [innerHTML]="entity?.name"
-    ></span>
-
-    <span
-        class="pack-name"
-        [innerHTML]="entity?.color"
-    ></span>
+<div class="container" [class]="!isMyMessage ? 'sent' : 'received'">
+    <div class="content">
+        <div class="header">
+            <div class="author">
+                {{entity.fullUserName}}
+            </div>
+            <div class="date">
+                {{entity.publishedAt}}
+            </div>
+        </div>
+        <span
+            [innerHTML]="entity?.comment"
+        ></span>
+    </div>
 </div>
