@@ -1,6 +1,6 @@
 <div class="page-container">
   <app-form-header
-    title="Traveler"
+    [title]="title"
     icon="user"
   ></app-form-header>
 
@@ -19,7 +19,8 @@
           id="email"
           type="email"
           formControlName="email"
-          placeholder="Enter email address"
+          [placeholder]="isAddMode ? 'Enter email address' : ''"
+          [readonly] = "isReadOnlyMode"
         />
         @if (form.get('email')?.invalid && (form.get('email')?.touched || form.get('email')?.dirty)) {
         @if (form.get('email')?.errors?.['required']) {
@@ -42,7 +43,8 @@
           id="firstName"
           type="text"
           formControlName="firstName"
-          placeholder="Enter first name"
+          [placeholder]="isAddMode ? 'Enter first name' : ''"
+          [readonly] = "isReadOnlyMode"
         />
       </div>
 
@@ -53,7 +55,8 @@
           id="lastName"
           type="text"
           formControlName="lastName"
-          placeholder="Enter last name"
+          [placeholder]="isAddMode ? 'Enter last name' : ''"
+          [readonly] = "isReadOnlyMode"
         />
       </div>
 
@@ -64,7 +67,8 @@
           id="phone"
           type="tel"
           formControlName="phone"
-          placeholder="Enter phone number"
+          [placeholder]="isAddMode ? 'Enter phone number' : ''"
+          [readonly] = "isReadOnlyMode"
         />
       </div>
 
@@ -75,7 +79,8 @@
           id="notes"
           formControlName="notes"
           rows="5"
-          placeholder="Enter notes (optional)"
+          [placeholder]="!isReadOnlyMode ? 'Enter notes (optional)' : ''"
+          [readonly] = "isReadOnlyMode"
         ></textarea>
       </div>
 
@@ -91,7 +96,7 @@
         cancelLabel="To travelers"
         cancelIcon="chevron-left"
         [cancelDisabled]="false"
-        [onSubmit]="onSubmit.bind(this)"
+        [onSubmit]="!isReadOnlyMode ? onSubmit.bind(this) : null"
         submitLabel="Submit"
         submitIcon="save"
         [submitDisabled]="isLoading() || form.invalid"

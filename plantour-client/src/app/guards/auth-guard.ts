@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { Router, CanActivateFn } from '@angular/router';
+import { Router, CanActivateFn, ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
 import { UsersService } from '../services/users-service';
 import { MessagesService } from '../services/messages-service';
 import { isGuid } from '../helpers/utils';
@@ -40,15 +40,39 @@ export const authGuard: CanActivateFn = (route, state) => {
 /**
  * Admin Guard - allows access only to authenticated admin users
  */
-export const adminOnlyGuard: CanActivateFn = (route, state) => {
+export const adminOnlyGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state) => {
   const usersService = inject(UsersService);
 
   if (usersService.isAdminSignal()) {
     return true;
   }
 
+  const componentId = route.data['componentId'];
+  const mode = route.data['mode'];
+
   const router = inject(Router);
-  router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+  const messagesService = inject(MessagesService);
+
+  switch (componentId) {
+    case 'traveler-form':
+      switch (mode) {
+        case 'add':
+          messagesService.showWarning('You do not have permission to add travelers');
+          router.navigate(['travelers']);
+          break;
+        case 'edit':
+          messagesService.showWarning('You do not have permission to edit travelers');
+          router.navigate(['travelers']);
+          break;
+        default:
+          break;
+      }
+      break;
+    default:
+      router.navigate(['/sign-in'], { queryParams: { returnUrl: state.url } });
+      break;
+  }
+
   return false;
 };
 
@@ -60,7 +84,7 @@ export const adminOrParticipantGuard: CanActivateFn = (route, state) => {
   }
 
   const router = inject(Router);
-  router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+  router.navigate(['/sign-in'], { queryParams: { returnUrl: state.url } });
   return false;
 };
 
@@ -106,7 +130,7 @@ export const checkTripIdGuard: CanActivateFn = (route, state) => {
   }
 
   const appService = inject(AppService);
-  
+
   let trip = currentTripDtoSignal();
 
   if (trip && trip.id == tripId) {

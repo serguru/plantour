@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
 import { AdminsParticipantDto, UpdateAdminsParticipantRequest, AdminsParticipantService } from '../../services/admins-participant-service';
 import { CreateTripUserRequest, TripUserDto, TripUserService, UpdateTripUserRequest } from '../../services/trip-user-service';
@@ -14,6 +14,7 @@ import { catchError, finalize, switchMap, tap, throwError } from 'rxjs';
 import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
+import { UsersService } from '../../services/users-service';
 
 // TODO: make readonly for participants
 @Component({
@@ -38,6 +39,9 @@ export class TravelersComponent implements OnInit {
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(ComponentService).dynamicQueryService;
   tripUserService = inject(TripUserService);
+  usersService = inject(UsersService);
+
+  isReadOnly = computed(() => this.usersService.isParticipantSignal());
 
   targetCondition = toSignal(this.componentService.targetCondition$);
   target = toSignal(this.componentService.target$);
@@ -61,12 +65,6 @@ export class TravelersComponent implements OnInit {
         property: 'fullName',
         sortType: 'text',
         direction: 'none'
-      },
-      {
-        kind: 'target',
-        label: 'Trip users',
-        icon: 'compass',
-        target: null
       },
       {
         kind: 'filter',
@@ -121,7 +119,7 @@ export class TravelersComponent implements OnInit {
 
   initTargetLookup(trips: TripDto[] | null) {
 
-    if (!trips) {
+    if (!trips || this.usersService.isParticipantSignal()) {
       this.componentService.updateTargetLookup([]);
       return;
     }
@@ -143,21 +141,43 @@ export class TravelersComponent implements OnInit {
       throw new Error('ComponentId is null');
     }
     const savedConditions = this.localStorageService.getComponentKeyObject(componentId, 'conditions') || [];
-    const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
-    const targetCondition: TargetCondition | undefined = initialConditions.find(c => c.kind === 'target');
 
-    if (targetCondition) {
-      const trip = trips?.find(t => t.id === targetCondition.target?.id);
-      if (!trip) {
-        const trip = this.currentTripDtoSignal();
-        if (trip && trips?.find(t => t.id === trip.id)) {
-          targetCondition.target = {
-            id: trip.id, name: trip.name, selectedMode: TargetMode.TripThings, options: [{
-              label: 'Trip Things',
-              mode: TargetMode.TripThings
-            }]
-          };
+    const isParticipant = this.usersService.isParticipantSignal();
+
+    if (!isParticipant) {
+      this.conditions.push({
+          kind: 'target',
+          label: 'Trip users',
+          icon: 'compass',
+          target: null
+        },
+      );
+    }
+
+    const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
+
+    if (!isParticipant) {
+      const targetCondition: TargetCondition | undefined = initialConditions.find(c => c.kind === 'target');
+
+      if (targetCondition) {
+        const trip = trips?.find(t => t.id === targetCondition.target?.id);
+        if (!trip) {
+          const trip = this.currentTripDtoSignal();
+          if (trip && trips?.find(t => t.id === trip.id)) {
+            targetCondition.target = {
+              id: trip.id, name: trip.name, selectedMode: TargetMode.TripThings, options: [{
+                label: 'Trip Things',
+                mode: TargetMode.TripThings
+              }]
+            };
+          }
         }
+      }
+    } else {
+      // remove target condition for participants
+      const index = initialConditions.findIndex(c => c.kind === 'target');
+      if (index !== -1) {
+        initialConditions.splice(index, 1);
       }
     }
 

@@ -9,7 +9,6 @@
 
     <!-- icon="pi pi-plus" -->
     <div class="page-content">
-        @if(!isListReadOnly) {
         <!-- no format -->
         @if(addUrl) {
 
@@ -31,6 +30,16 @@
           <span class="button-label">Update</span>
         </button>
         }
+        @if(viewUrl) {
+        <button
+          class="pl-button"
+          (click)="onView()"
+          [disabled]="!selectedId()"     
+        >
+          <span class="pi pi-eye"></span>
+          <span class="button-label">View</span>
+        </button>
+        }
         @if(delete) {
         <button
           class="pl-button"
@@ -42,7 +51,7 @@
         </button>
         }
       <!-- no format -->
-        }
+        
         @if (useEntitiesActions()) {
         <button
           class="pl-button"

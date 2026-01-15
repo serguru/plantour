@@ -8,7 +8,7 @@ namespace plantour_server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[AdminOnly]
+
 public class AdminsParticipantController : ControllerBase
 {
     private readonly IAdminsParticipantService _service;

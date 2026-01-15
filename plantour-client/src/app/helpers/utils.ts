@@ -8,7 +8,7 @@ export const isGuid = (value: string | null): boolean => {
 };
 
 export const isNumber = (value: any): boolean => {
-  return typeof value === 'number' && Number.isFinite(value); 
+  return typeof value === 'number' && Number.isFinite(value);
 }
 
 export const getFullName = (firstName: string | null, lastName: string | null, email: string, mustAddEmail: boolean): string => {
@@ -16,7 +16,7 @@ export const getFullName = (firstName: string | null, lastName: string | null, e
     .filter(name => name && name.trim().length > 0)
     .join(' ');
 
-  if (fullName) {    
+  if (fullName) {
     fullName += mustAddEmail ? ` (${email})` : "";
   } else {
     fullName = email;
@@ -42,28 +42,34 @@ export const formatToEnglishLocale = (isoString: string): string => {
   }).format(date);
 }
 
-  export const findDuplicates = (users: TripUserDto[] | AdminsParticipantDto[] | null): string[] => {
-    if (!users) {
-      return [];
-    }
-    const counts: { [key: string]: string[] } = {};
-
-    // First pass: group user IDs by their name combination
-    users.forEach(user => {
-      const key = `${user.firstName ?? ''}|${user.lastName ?? ''}`;
-      if (!counts[key]) {
-        counts[key] = [];
-      }
-      counts[key].push(user.id);
-    });
-
-    // Second pass: collect IDs that have duplicates
-    const duplicatedIds: string[] = [];
-    Object.values(counts).forEach(ids => {
-      if (ids.length > 1) {
-        duplicatedIds.push(...ids);
-      }
-    });
-
-    return duplicatedIds;
+export const findDuplicates = (users: TripUserDto[] | AdminsParticipantDto[] | null): string[] => {
+  if (!users) {
+    return [];
   }
+  const counts: { [key: string]: string[] } = {};
+
+  // First pass: group user IDs by their name combination
+  users.forEach(user => {
+    const key = `${user.firstName ?? ''}|${user.lastName ?? ''}`;
+    if (!counts[key]) {
+      counts[key] = [];
+    }
+    counts[key].push(user.id);
+  });
+
+  // Second pass: collect IDs that have duplicates
+  const duplicatedIds: string[] = [];
+  Object.values(counts).forEach(ids => {
+    if (ids.length > 1) {
+      duplicatedIds.push(...ids);
+    }
+  });
+
+  return duplicatedIds;
+}
+
+export const capitalizeFirstLetter = (str: string): string => {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+

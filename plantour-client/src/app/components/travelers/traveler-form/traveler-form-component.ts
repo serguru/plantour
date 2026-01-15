@@ -20,6 +20,7 @@ import { FormHeader } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { ComponentService } from '../../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { capitalizeFirstLetter } from '../../../helpers/utils';
 
 @Component({
   selector: 'app-traveler-form-component',
@@ -32,7 +33,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
     ButtonModule,
     MessagePanel,
     AutoFocusDirective,
-    
     FormHeader,
     FormActions
   ],
@@ -43,7 +43,7 @@ export class TravelerFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
-  
+
   service = inject(AdminsParticipantService);
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
@@ -52,31 +52,46 @@ export class TravelerFormComponent implements OnInit {
   componentService = inject(ComponentService);
 
   isLoading = toSignal(this.componentService.loading$);
-  
-  mode: 'add' | 'edit' = 'add';
+
+  mode: 'add' | 'edit' | 'view' = 'view';
   id: string | null = null;
   form!: FormGroup;
-  
-  errorMessage = '';
-  participantId = '';
 
   get isAddMode(): boolean {
     return this.mode === 'add';
   }
 
+  errorMessage = '';
+  participantId = '';
+
+
   get title(): string {
-    return `${this.isAddMode ? 'Add' : 'Edit'} Traveler`;
+    return `${capitalizeFirstLetter(this.mode)} Traveler`;
+  }
+
+  get isReadOnlyMode(): boolean {
+    return this.mode === 'view';
   }
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];
-    
-    if (this.isAddMode) {
-      this.initAddForm();
-    } else {
-      this.id = this.route.snapshot.paramMap.get('id');
-      this.initEditForm();
-      this.loadTraveler();
+
+    switch (this.mode) {
+      case 'add':
+        this.initAddForm();
+        break;
+      case 'edit':
+        this.id = this.route.snapshot.paramMap.get('id');
+        this.initEditForm();
+        this.loadTraveler();
+        break;
+      case 'view':
+        this.id = this.route.snapshot.paramMap.get('id');
+        this.initViewForm();
+        this.loadTraveler();
+        break;
+      default:
+        break;
     }
   }
 
@@ -97,6 +112,16 @@ export class TravelerFormComponent implements OnInit {
       firstName: [{ value: '', disabled: true }],
       lastName: [{ value: '', disabled: true }],
       phone: [{ value: '', disabled: true }],
+      notes: ['']
+    });
+  }
+
+  private initViewForm(): void {
+    this.form = this.fb.group({
+      email: [{ value: '' }],
+      firstName: [{ value: '' }],
+      lastName: [{ value: '' }],
+      phone: [{ value: '' }],
       notes: ['']
     });
   }
@@ -130,7 +155,7 @@ export class TravelerFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.isLoading()) {
+    if (this.isLoading() || this.isReadOnlyMode) {
       return;
     }
 
@@ -148,6 +173,7 @@ export class TravelerFormComponent implements OnInit {
     } else {
       this.updateTraveler();
     }
+
   }
 
   private addTraveler(): void {

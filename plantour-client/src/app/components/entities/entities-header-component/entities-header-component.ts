@@ -15,13 +15,12 @@ import { MessagesService } from '../../../services/messages-service';
 export class EntitiesHeader implements OnInit {
   @Input() entityIcon: string | null = null;
   @Input() title: string | null = null;
-  @Input() isListReadOnly: boolean = false;
   @Input() addUrl: string | Function | null = null;
   @Input() editUrl: string | Function | null = null;
+  @Input() viewUrl: string | Function | null = null;
   @Input() delete: ((id: string) => void) | null = null;
   @Input() entityName: string = '';
-  @Input() entityNameProp: string = 'name';
-
+  
   useEntitiesActions = input<boolean>(true);
   componentService = inject(ComponentService);
 
@@ -65,11 +64,28 @@ export class EntitiesHeader implements OnInit {
       return;
     }
 
-    if (!this.selectedId() || this.isListReadOnly || !this.editUrl) {
+    if (!this.selectedId() || !this.editUrl) {
       return;
     }
     const id = this.selectedId();
     this.router.navigate([this.editUrl.replace(':id', id!)], { relativeTo: this.route });
+  }
+
+  onView() {
+    if (!this.viewUrl) {
+      return;
+    }
+
+    if (typeof this.viewUrl === 'function') {
+      this.viewUrl();
+      return;
+    }
+
+    if (!this.selectedId() || !this.viewUrl) {
+      return;
+    }
+    const id = this.selectedId();
+    this.router.navigate([this.viewUrl.replace(':id', id!)], { relativeTo: this.route });
   }
 
   async onDelete(): Promise<void> {

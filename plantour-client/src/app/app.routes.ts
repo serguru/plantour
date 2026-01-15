@@ -53,7 +53,7 @@ export const routes: Routes = [
   },
     {
     path: 'travelers',
-    canActivate: [adminOnlyGuard],
+    canActivate: [adminOrParticipantGuard],
     loadComponent: () => import('./components/travelers/travelers-component').then(m => m.TravelersComponent),
     data: { componentId: 'travelers' }
   },
@@ -68,6 +68,12 @@ export const routes: Routes = [
     canActivate: [adminOnlyGuard],
     loadComponent: () => import('./components/travelers/traveler-form/traveler-form-component').then(m => m.TravelerFormComponent),
     data: { mode: 'edit', componentId: 'traveler-form' }
+  },
+  {
+    path: 'travelers/view/:id',
+    canActivate: [adminOrParticipantGuard],
+    loadComponent: () => import('./components/travelers/traveler-form/traveler-form-component').then(m => m.TravelerFormComponent),
+    data: { mode: 'view', componentId: 'traveler-form' }
   },
   {
     path: 'packs',
