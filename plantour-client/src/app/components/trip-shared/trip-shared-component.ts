@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TripSharedItemComponent } from './trip-shared-item/trip-shared-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
 import { TripService } from '../../services/trip-service';
 import { ComponentService } from '../../services/component-service';
 import { switchMap, tap } from 'rxjs';
@@ -21,7 +21,7 @@ import { findDuplicates, getFullName } from '../../helpers/utils';
   standalone: true,
   imports: [
     EntitiesComponent,
-    EntitiesHeaderComponent,
+    EntitiesHeader,
     EntitiesActionsComponent
   ],
   templateUrl: './trip-shared-component.html',

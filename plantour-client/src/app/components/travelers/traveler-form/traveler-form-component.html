@@ -1,124 +1,129 @@
-<div class="page-header">
-  <div class="page-left">
-    <i class="pi pi-users"></i>
-    <h2>{{ title }}</h2>
+<div class="page-container">
+  <div class="page-header">
+    <div class="page-left">
+      <i class="pi pi-users"></i>
+      <h2>{{ title }}</h2>
+    </div>
   </div>
-</div>
 
-<div class="controls-wrapper">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div class="form-field">
-      <label for="email">Email<span class="required">*</span></label>
-      <input
-        appAutoFocus
-        pInputText
-        id="email"
-        type="email"
-        formControlName="email"
-        placeholder="Enter email address"
-      />
-      @if (form.get('email')?.invalid && (form.get('email')?.touched || form.get('email')?.dirty)) {
+  <div class="controls-wrapper">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="form-field">
+        <label for="email">Email<span class="required">*</span></label>
+        <input
+          appAutoFocus
+          pInputText
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="Enter email address"
+        />
+        @if (form.get('email')?.invalid && (form.get('email')?.touched || form.get('email')?.dirty)) {
         @if (form.get('email')?.errors?.['required']) {
-          <small class="error-message">
-            Email is required
-          </small>
+        <small class="error-message">
+          Email is required
+        </small>
         }
         @if (form.get('email')?.errors?.['email']) {
-          <small class="error-message">
-            Please enter a valid email address
-          </small>
+        <small class="error-message">
+          Please enter a valid email address
+        </small>
         }
-      }
-    </div>
+        }
+      </div>
 
-    <div class="form-field">
-      <label for="firstName">First Name</label>
-      <input
-        pInputText
-        id="firstName"
-        type="text"
-        formControlName="firstName"
-        placeholder="Enter first name"
-      />
-    </div>
+      <div class="form-field">
+        <label for="firstName">First Name</label>
+        <input
+          pInputText
+          id="firstName"
+          type="text"
+          formControlName="firstName"
+          placeholder="Enter first name"
+        />
+      </div>
 
-    <div class="form-field">
-      <label for="lastName">Last Name</label>
-      <input
-        pInputText
-        id="lastName"
-        type="text"
-        formControlName="lastName"
-        placeholder="Enter last name"
-      />
-    </div>
+      <div class="form-field">
+        <label for="lastName">Last Name</label>
+        <input
+          pInputText
+          id="lastName"
+          type="text"
+          formControlName="lastName"
+          placeholder="Enter last name"
+        />
+      </div>
 
-    <div class="form-field">
-      <label for="phone">Phone</label>
-      <input
-        pInputText
-        id="phone"
-        type="tel"
-        formControlName="phone"
-        placeholder="Enter phone number"
-      />
-    </div>
+      <div class="form-field">
+        <label for="phone">Phone</label>
+        <input
+          pInputText
+          id="phone"
+          type="tel"
+          formControlName="phone"
+          placeholder="Enter phone number"
+        />
+      </div>
 
-    <div class="form-field">
-      <label for="participantStatus">Status</label>
-      <p-select
-        id="participantStatus"
-        formControlName="participantStatus"
-        [options]="lookupsService.participantStatuses$ | async"
-        optionLabel="name"
-        optionValue="name"
-        placeholder="Select status"
-        [showClear]="true"
-        styleClass="w-full"
-      ></p-select>
-    </div>
+      <div class="form-field">
+        <label for="participantStatus">Status</label>
+        <p-select
+          id="participantStatus"
+          formControlName="participantStatus"
+          [options]="lookupsService.participantStatuses$ | async"
+          optionLabel="name"
+          optionValue="name"
+          placeholder="Select status"
+          [showClear]="true"
+          styleClass="w-full"
+        ></p-select>
+      </div>
 
-    <div class="form-field">
-      <label for="notes">Notes</label>
-      <textarea
-        pTextarea
-        id="notes"
-        formControlName="notes"
-        rows="5"
-        placeholder="Enter notes (optional)"
-      ></textarea>
-    </div>
+      <div class="form-field">
+        <label for="notes">Notes</label>
+        <textarea
+          pTextarea
+          id="notes"
+          formControlName="notes"
+          rows="5"
+          placeholder="Enter notes (optional)"
+        ></textarea>
+      </div>
 
-    @if (errorMessage) {
+      @if (errorMessage) {
       <app-message-panel
         messageType="error"
         [messageText]="errorMessage"
       ></app-message-panel>
-    }
+      }
 
-    @if (!isAddMode) {
-      <div class="warning-alert">
-        <i class="pi pi-info-circle"></i>
-        <span>In edit mode, only notes can be updated. Other fields are read-only.</span>
+      @if (!isAddMode) {
+      <app-message-panel
+        messageType="warning"
+        messageText="Only notes and status can be updated. Other fields are read-only."
+      ></app-message-panel>
+      }
+
+      <div class="form-actions">
+        <app-button
+          label="To travelers"
+          icon="pi pi-chevron-left"
+          severity="secondary"
+          (click)="onCancel($event)"
+          [disabled]="isLoading"
+          (mousedown)="$event.preventDefault()"
+        ></app-button>
+
+        <app-button
+          type="submit"
+          label="Submit"
+          icon="pi pi-save"
+          [disabled]="isLoading || form.invalid"
+        ></app-button>
       </div>
-    }
-
-    <div class="form-actions">
-      <app-button
-        label="To travelers"
-        icon="pi pi-chevron-left"
-        severity="secondary"
-        (click)="onCancel($event)"
-        [disabled]="isLoading"
-        (mousedown)="$event.preventDefault()"
-      ></app-button>
-      
-      <app-button
-        type="submit"
-        label="Submit"
-        icon="pi pi-save"
-        [disabled]="isLoading || form.invalid"
-      ></app-button>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>

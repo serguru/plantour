@@ -12,9 +12,10 @@ import { LookupService } from '../../../services/lookup-service';
 import { SignUpParticipantRequest } from '../../../models/auth.models';
 import { catchError, EMPTY, finalize } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
-import { MessagePanelComponent } from '../../message-panel/message-panel-component/message-panel-component';
+import { MessagePanel } from '../../message-panel/message-panel-component/message-panel-component';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { AppButton } from '../../button/button-component';
+import { EntitiesHeader } from '../../entities/entities-header-component/entities-header-component';
 
 @Component({
   selector: 'app-traveler-form-component',
@@ -27,9 +28,10 @@ import { AppButton } from '../../button/button-component';
     Select,
     AsyncPipe,
     ButtonModule,
-    MessagePanelComponent,
+    MessagePanel,
     AutoFocusDirective,
-    AppButton
+    AppButton,
+    EntitiesHeader
   ],
   templateUrl: './traveler-form-component.html',
   styleUrl: './traveler-form-component.scss',

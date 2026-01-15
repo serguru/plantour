@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject } from '@angular/core';
 import { EntitiesComponent } from '../entities/entities-component';
 import { ComponentService } from '../../services/component-service';
 import { TripItemCommentComponent } from './trip-item-comment/trip-item-comment-component';
-import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
 import { Condition, DynamicQueryService, FilterComparisonType } from '../../services/dynamic-query-service';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { TripService } from '../../services/trip-service';
@@ -22,7 +22,7 @@ import { AppButton } from '../button/button-component';
   selector: 'app-trip-comments',
   imports: [
     EntitiesComponent,
-    EntitiesHeaderComponent,
+    EntitiesHeader,
     EntitiesActionsComponent,
     InputText,
     FormsModule,

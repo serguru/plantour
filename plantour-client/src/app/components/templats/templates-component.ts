@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject } from '@angular/core';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
-import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { TemplateItemComponent } from './template-item/template-item-component';
 import { TripDto, TripService } from '../../services/trip-service';
@@ -22,7 +22,7 @@ import { CurrentTripService } from '../../services/current-trip-service';
   selector: 'app-template-things-component',
   imports: [
     EntitiesComponent,
-    EntitiesHeaderComponent,
+    EntitiesHeader,
     EntitiesActionsComponent
   ],
   templateUrl: './templates-component.html',

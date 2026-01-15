@@ -4,7 +4,7 @@ import { AdminsParticipantDto, UpdateAdminsParticipantRequest, AdminsParticipant
 import { CreateTripUserRequest, TripUserDto, TripUserService, UpdateTripUserRequest } from '../../services/trip-user-service';
 import { TravelerItemComponent } from './traveler-item/traveler-item-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { AppService } from '../../services/app-service';
 import { TripDto, TripService } from '../../services/trip-service';
@@ -21,7 +21,7 @@ import { CurrentTripService } from '../../services/current-trip-service';
   standalone: true,
   imports: [
     EntitiesComponent,
-    EntitiesHeaderComponent,
+    EntitiesHeader,
     EntitiesActionsComponent
   ],
   templateUrl: './travelers-component.html',

@@ -9,7 +9,7 @@ type MessageType = 'error' | 'warning' | 'info';
   templateUrl: './message-panel-component.html',
   styleUrl: './message-panel-component.scss',
 })
-export class MessagePanelComponent {
+export class MessagePanel {
   @Input() messageType: MessageType = 'info';
   @Input() messageText: string = '';
 

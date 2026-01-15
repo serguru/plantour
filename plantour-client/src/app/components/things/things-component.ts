@@ -4,7 +4,7 @@ import { CreateThingRequest, UpdateThingRequest, ThingDto, ThingService } from '
 import { CreateTripThingRequest, TripThingService, TripThingDto, UpdateTripThingRequest } from '../../services/trip-thing-service';
 import { ThingItemComponent } from './things-item/thing-item-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { AppService } from '../../services/app-service';
 import { ComponentService } from '../../services/component-service';
@@ -21,7 +21,7 @@ import { CurrentTripService } from '../../services/current-trip-service';
   selector: 'app-things',
   imports: [
     EntitiesComponent,
-    EntitiesHeaderComponent,
+    EntitiesHeader,
     EntitiesActionsComponent
   ],
   templateUrl: './things-component.html',

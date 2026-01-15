@@ -12,7 +12,7 @@ import { MessagesService } from '../../../services/messages-service';
   templateUrl: './entities-header-component.html',
   styleUrl: './entities-header-component.scss',
 })
-export class EntitiesHeaderComponent implements OnInit {
+export class EntitiesHeader implements OnInit {
   @Input() entityIcon: string | null = null;
   @Input() title: string | null = null;
   @Input() isListReadOnly: boolean = false;

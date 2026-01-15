@@ -4,7 +4,7 @@ import { TripDto, TripService } from '../../services/trip-service';
 import { TripItemComponent } from './trip-item/trip-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
 import { ComponentService } from '../../services/component-service';
 import { TripThingService } from '../../services/trip-thing-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -21,7 +21,7 @@ import { LocalStorageService } from '../../services/local-storage-service';
   selector: 'app-trips-component',
   imports: [
     EntitiesComponent,
-    EntitiesHeaderComponent,
+    EntitiesHeader,
     EntitiesActionsComponent
   ],
   standalone: true,

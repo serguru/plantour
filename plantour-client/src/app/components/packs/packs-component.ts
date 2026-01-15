@@ -8,7 +8,7 @@ import { Condition, Target, TargetCondition, TargetMode, TargetOption } from '..
 import { ComponentService } from '../../services/component-service';
 import { EMPTY, filter, map, mergeMap, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { TripDto, TripService } from '../../services/trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -20,7 +20,7 @@ import { CurrentTripService } from '../../services/current-trip-service';
   selector: 'app-packs',
   imports: [
     EntitiesComponent,
-    EntitiesHeaderComponent,
+    EntitiesHeader,
     EntitiesActionsComponent
   ],
   templateUrl: './packs-component.html',

@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TripPackItemComponent } from './trip-pack-item/trip-pack-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeaderComponent } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
 import { ComponentService } from '../../services/component-service';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { Condition, DynamicQueryService } from '../../services/dynamic-query-service';
@@ -19,7 +19,7 @@ import { switchMap } from 'rxjs';
   standalone: true,
   imports: [
     EntitiesComponent,
-    EntitiesHeaderComponent,
+    EntitiesHeader,
     EntitiesActionsComponent
   ],
   templateUrl: './trip-packs-component.html',

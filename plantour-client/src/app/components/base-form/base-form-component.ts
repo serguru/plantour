@@ -8,7 +8,7 @@ import { MessagesService } from '../../services/messages-service';
 import { Router } from '@angular/router';
 import { LookupService } from '../../services/lookup-service';
 import deepEqual from 'fast-deep-equal';
-import { MessagePanelComponent } from '../message-panel/message-panel-component/message-panel-component';
+import { MessagePanel } from '../message-panel/message-panel-component/message-panel-component';
 import { AppService } from '../../services/app-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -22,7 +22,7 @@ export type BaseFormMode = 'add' | 'edit';
     ReactiveFormsModule,
     CommonModule,
     ButtonModule,
-    MessagePanelComponent
+    MessagePanel
   ],
   templateUrl: './base-form-component.html',
   styleUrl: './base-form-component.scss',
