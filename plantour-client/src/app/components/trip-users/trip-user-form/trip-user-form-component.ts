@@ -17,8 +17,6 @@ import { LookupService } from '../../../services/lookup-service';
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
-    Select,
-    AsyncPipe,
     CommonModule
   ],
   templateUrl: './trip-user-form-component.html',
@@ -33,7 +31,6 @@ export class TripUserFormComponent implements OnInit {
   service = inject(TripUserService);
   private lookupService = inject(LookupService);
 
-  participantStatuses$ = this.lookupService.getParticipantStatuses();
 
   fieldsConfig = {
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -41,7 +38,6 @@ export class TripUserFormComponent implements OnInit {
     lastName: new FormControl('', Validators.required),
     phone: new FormControl(''),
     notes: new FormControl(''),
-    participantStatus: new FormControl(''),
     adminParticipantId: new FormControl('')
   };
 

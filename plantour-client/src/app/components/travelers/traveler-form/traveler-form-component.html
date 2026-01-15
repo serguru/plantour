@@ -1,10 +1,10 @@
 <div class="page-container">
-  <div class="page-header">
-    <div class="page-left">
-      <i class="pi pi-users"></i>
-      <h2>{{ title }}</h2>
-    </div>
-  </div>
+  <app-form-header
+    title="Traveler"
+    icon="user"
+  ></app-form-header>
+
+
 
   <div class="controls-wrapper">
     <form
@@ -69,20 +69,6 @@
       </div>
 
       <div class="form-field">
-        <label for="participantStatus">Status</label>
-        <p-select
-          id="participantStatus"
-          formControlName="participantStatus"
-          [options]="lookupsService.participantStatuses$ | async"
-          optionLabel="name"
-          optionValue="name"
-          placeholder="Select status"
-          [showClear]="true"
-          styleClass="w-full"
-        ></p-select>
-      </div>
-
-      <div class="form-field">
         <label for="notes">Notes</label>
         <textarea
           pTextarea
@@ -100,30 +86,17 @@
       ></app-message-panel>
       }
 
-      @if (!isAddMode) {
-      <app-message-panel
-        messageType="warning"
-        messageText="Only notes and status can be updated. Other fields are read-only."
-      ></app-message-panel>
-      }
-
-      <div class="form-actions">
-        <app-button
-          label="To travelers"
-          icon="pi pi-chevron-left"
-          severity="secondary"
-          (click)="onCancel($event)"
-          [disabled]="isLoading"
-          (mousedown)="$event.preventDefault()"
-        ></app-button>
-
-        <app-button
-          type="submit"
-          label="Submit"
-          icon="pi pi-save"
-          [disabled]="isLoading || form.invalid"
-        ></app-button>
-      </div>
+      <app-form-actions
+        [onCancel]="onCancel.bind(this)"
+        cancelLabel="To travelers"
+        cancelIcon="chevron-left"
+        [cancelDisabled]="false"
+        [onSubmit]="onSubmit.bind(this)"
+        submitLabel="Submit"
+        submitIcon="save"
+        [submitDisabled]="isLoading() || form.invalid"
+      >
+      </app-form-actions>
     </form>
   </div>
 </div>

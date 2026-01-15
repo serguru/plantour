@@ -1,3 +1,4 @@
+import { AdminsParticipantDto } from "../services/admins-participant-service";
 import { TripUserDto } from "../services/trip-user-service";
 
 export const isGuid = (value: string | null): boolean => {
@@ -11,15 +12,17 @@ export const isNumber = (value: any): boolean => {
 }
 
 export const getFullName = (firstName: string | null, lastName: string | null, email: string, mustAddEmail: boolean): string => {
-  const fullName = [firstName, lastName]
+  let fullName = [firstName, lastName]
     .filter(name => name && name.trim().length > 0)
     .join(' ');
 
-  if (fullName && mustAddEmail) {
-    return `${fullName} (${email})`;
-  }  
+  if (fullName) {    
+    fullName += mustAddEmail ? ` (${email})` : "";
+  } else {
+    fullName = email;
+  }
 
-  return fullName || (mustAddEmail ? email : '');
+  return fullName;
 }
 
 export const formatToEnglishLocale = (isoString: string): string => {
@@ -39,20 +42,26 @@ export const formatToEnglishLocale = (isoString: string): string => {
   }).format(date);
 }
 
-  export const findDuplicates = (users: TripUserDto[] | null): string[] => {
+  export const findDuplicates = (users: TripUserDto[] | AdminsParticipantDto[] | null): string[] => {
     if (!users) {
       return [];
     }
-    const counts: { [key: string]: number } = {};
-    const duplicatedIds: string[] = [];
+    const counts: { [key: string]: string[] } = {};
 
+    // First pass: group user IDs by their name combination
     users.forEach(user => {
       const key = `${user.firstName ?? ''}|${user.lastName ?? ''}`;
+      if (!counts[key]) {
+        counts[key] = [];
+      }
+      counts[key].push(user.id);
+    });
 
-      counts[key] = (counts[key] || 0) + 1;
-
-      if (counts[key] === 2) {
-        duplicatedIds.push(user.id);
+    // Second pass: collect IDs that have duplicates
+    const duplicatedIds: string[] = [];
+    Object.values(counts).forEach(ids => {
+      if (ids.length > 1) {
+        duplicatedIds.push(...ids);
       }
     });
 

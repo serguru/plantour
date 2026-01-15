@@ -18,6 +18,4 @@ public class SignUpParticipantRequest
     public string? Phone { get; set; }
 
     public string? Notes { get; set; }
-    [Required]
-    public Guid ParticipantStatusId { get; set; }
 }

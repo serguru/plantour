@@ -9,7 +9,6 @@ export interface TripUserDto {
   id: string;
   tripId: string;
   adminParticipantId: string;
-  participantStatus?: string | null;
   email: string;
   firstName?: string | null;
   lastName?: string | null;
@@ -21,7 +20,6 @@ export interface TripUserDto {
 export interface CreateTripUserRequest {
   tripId: string;
   adminParticipantId: string;
-  participantStatus?: string | null;
   email: string;
   firstName?: string | null;
   lastName?: string | null;
@@ -33,7 +31,6 @@ export interface UpdateTripUserRequest {
   id: string;
   tripId: string;
   adminParticipantId: string;
-  participantStatus?: string | null;
   email: string;
   firstName?: string | null;
   lastName?: string | null;

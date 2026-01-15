@@ -16,6 +16,10 @@ import { MessagePanel } from '../../message-panel/message-panel-component/messag
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { AppButton } from '../../button/button-component';
 import { EntitiesHeader } from '../../entities/entities-header-component/entities-header-component';
+import { FormHeader } from '../../form/form-header/form-header';
+import { FormActions } from '../../form/form-actions/form-actions';
+import { ComponentService } from '../../../services/component-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-traveler-form-component',
@@ -25,13 +29,12 @@ import { EntitiesHeader } from '../../entities/entities-header-component/entitie
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
-    Select,
-    AsyncPipe,
     ButtonModule,
     MessagePanel,
     AutoFocusDirective,
-    AppButton,
-    EntitiesHeader
+    
+    FormHeader,
+    FormActions
   ],
   templateUrl: './traveler-form-component.html',
   styleUrl: './traveler-form-component.scss',
@@ -45,11 +48,15 @@ export class TravelerFormComponent implements OnInit {
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
   lookupsService = inject(LookupService);
+
+  componentService = inject(ComponentService);
+
+  isLoading = toSignal(this.componentService.loading$);
   
   mode: 'add' | 'edit' = 'add';
   id: string | null = null;
   form!: FormGroup;
-  isLoading = false;
+  
   errorMessage = '';
   participantId = '';
 
@@ -80,7 +87,6 @@ export class TravelerFormComponent implements OnInit {
       lastName: [''],
       phone: [''],
       notes: [''],
-      participantStatus: ['']
     });
   }
 
@@ -91,7 +97,6 @@ export class TravelerFormComponent implements OnInit {
       firstName: [{ value: '', disabled: true }],
       lastName: [{ value: '', disabled: true }],
       phone: [{ value: '', disabled: true }],
-      participantStatus: [{ value: '', disabled: true }],
       notes: ['']
     });
   }
@@ -99,7 +104,7 @@ export class TravelerFormComponent implements OnInit {
   private loadTraveler(): void {
     if (!this.id) return;
 
-    this.isLoading = true;
+    this.componentService.updateLoading(true);
     this.errorMessage = '';
 
     this.service.getById(this.id).pipe(
@@ -108,7 +113,7 @@ export class TravelerFormComponent implements OnInit {
         return EMPTY;
       }),
       finalize(() => {
-        this.isLoading = false;
+        this.componentService.updateLoading(false);
       })
     ).subscribe({
       next: (traveler: AdminsParticipantDto) => {
@@ -118,15 +123,14 @@ export class TravelerFormComponent implements OnInit {
           firstName: traveler.firstName,
           lastName: traveler.lastName,
           phone: traveler.phone,
-          notes: traveler.notes,
-          participantStatus: traveler.participantStatus
+          notes: traveler.notes
         });
       }
     });
   }
 
   onSubmit(): void {
-    if (this.isLoading) {
+    if (this.isLoading()) {
       return;
     }
 
@@ -136,7 +140,7 @@ export class TravelerFormComponent implements OnInit {
       return;
     }
 
-    this.isLoading = true;
+    this.componentService.updateLoading(true);
     this.errorMessage = '';
 
     if (this.isAddMode) {
@@ -147,22 +151,13 @@ export class TravelerFormComponent implements OnInit {
   }
 
   private addTraveler(): void {
-    const user = this.usersService.userSignal();
-    if (!user?.user_id) {
-      this.messagesService.showError('Authentication required');
-      this.isLoading = false;
-      return;
-    }
-
     const formValue = this.form.value;
     const request: SignUpParticipantRequest = {
-      adminId: user.user_id,
       email: formValue.email?.trim(),
       firstName: formValue.firstName?.trim() || undefined,
       lastName: formValue.lastName?.trim() || undefined,
       phone: formValue.phone?.trim() || undefined,
-      notes: formValue.notes?.trim() || undefined,
-      participantStatus: formValue.participantStatus || undefined
+      notes: formValue.notes?.trim() || undefined
     };
 
     this.service.add(request).pipe(
@@ -171,7 +166,7 @@ export class TravelerFormComponent implements OnInit {
         return EMPTY;
       }),
       finalize(() => {
-        this.isLoading = false;
+        this.componentService.updateLoading(false);
       })
     ).subscribe({
       next: () => {
@@ -197,7 +192,7 @@ export class TravelerFormComponent implements OnInit {
         return EMPTY;
       }),
       finalize(() => {
-        this.isLoading = false;
+        this.componentService.updateLoading(false);
       })
     ).subscribe({
       next: () => {
@@ -209,9 +204,6 @@ export class TravelerFormComponent implements OnInit {
 
   onCancel(event: Event): void {
     event.preventDefault();
-    if (this.isLoading) {
-      return;
-    }
     this.router.navigate(['/travelers']);
   }
 }

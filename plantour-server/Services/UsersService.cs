@@ -165,8 +165,7 @@ public class UsersService(
             AdminId = _currentUser.AdminId,
             ParticipantId = participant.Id,
             AccessCodeHash = accessCodeHash,
-            Notes = notes,
-            ParticipantStatusId = request.ParticipantStatusId
+            Notes = notes
         };
 
         await _adminsParticipantRepository.AddAsync(adminParticipant);

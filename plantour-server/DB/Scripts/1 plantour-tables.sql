@@ -77,18 +77,6 @@ insert into thing_categories (name) values
 ('Toiletries'),
 ('Travel Essentials');
 
-create table participant_statuses (
-    id uuid not null primary key default gen_random_uuid(),
-    name varchar(50) not null unique,
-    notes text
-);
-
-insert into participant_statuses (name) values
-('Planned'),
-('Invited'),
-('Active'),
-('Excluded');
-
 -----------------------------------------------------------------------
 -- ACTIVITIES
 -----------------------------------------------------------------------
@@ -215,7 +203,6 @@ create table admins_participants (
     id uuid not null primary key default gen_random_uuid(),
     admin_id uuid not null references users(id) on delete cascade,
     participant_id uuid not null references users(id) on delete cascade,
-    participant_status_id uuid not null references participant_statuses(id),
     access_code_hash char(64) not null unique,
     notes text
 );

@@ -1,21 +1,21 @@
 import { Injectable, Inject, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService } from './crud-service';
 import { SignUpParticipantRequest } from '../models/auth.models';
 import { UsersService } from './users-service';
 import { PackageDto } from './package-service';
+import { findDuplicates, getFullName } from '../helpers/utils';
 
 export interface AdminsParticipantDto {
   id: string;
-  participantStatusId: string;
-  participantStatus: string;
   email: string;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
   notes?: string | null;
+  fullName?: string | null;
 }
 
 export interface UpdateAdminsParticipantRequest {
@@ -39,12 +39,29 @@ export class AdminsParticipantService {
     this.apiUrl = `${environment.apiUrl}/api/AdminsParticipant`;
   }
 
+  private setFullNames = (users: AdminsParticipantDto[]) => {
+    const duplicatedIds = findDuplicates(users);
+    users.forEach((x: AdminsParticipantDto) => {
+      const isDuplicated = duplicatedIds.some(y => y === x.id);
+      const name = getFullName(x.firstName ?? null, x.lastName ?? null, x.email, isDuplicated);
+      x.fullName = name;
+    });
+  }
+
   getAll(): Observable<AdminsParticipantDto[]> {
-    return this.http.get<AdminsParticipantDto[]>(this.apiUrl);
+    return this.http.get<AdminsParticipantDto[]>(this.apiUrl).pipe(
+      tap(users => {
+        this.setFullNames(users);
+      })
+    );
   }
 
   getAllForTrip(tripId: string): Observable<AdminsParticipantDto[]> {
-    return this.http.get<AdminsParticipantDto[]>(`${this.apiUrl}/trip/${tripId}`);
+    return this.http.get<AdminsParticipantDto[]>(`${this.apiUrl}/trip/${tripId}`).pipe(
+      tap(users => {
+        this.setFullNames(users);
+      })
+    );
   }
 
   getById(id: string): Observable<AdminsParticipantDto> {

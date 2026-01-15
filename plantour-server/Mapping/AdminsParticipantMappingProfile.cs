@@ -9,7 +9,6 @@ public class AdminsParticipantMappingProfile : Profile
     public AdminsParticipantMappingProfile()
     {
         CreateMap<AdminsParticipant, AdminsParticipantDto>()
-            .ForMember(dest => dest.ParticipantStatus, opt => opt.MapFrom(src => src.ParticipantStatus.Name))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Participant.Email))
             .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.Participant.FirstName))
             .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.Participant.LastName))

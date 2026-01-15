@@ -67,13 +67,12 @@ VALUES
 -- ====================================================================
 -- ADMINS / PARTICIPANTS LINKS
 -- ====================================================================
-INSERT INTO admins_participants (id, admin_id, participant_id,participant_status_id, access_code_hash, notes)
+INSERT INTO admins_participants (id, admin_id, participant_id,access_code_hash, notes)
 VALUES
     (
         gen_random_uuid(),
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
-        (SELECT id FROM participant_statuses WHERE name = 'Active'),
         'a',
         'Same participant as admin'
     ),
@@ -81,7 +80,6 @@ VALUES
         gen_random_uuid(),
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'alice.participant@plantour.test'),
-        (SELECT id FROM participant_statuses WHERE name = 'Active'),
         'aa',
         'First participant linked to admin'
 
@@ -90,7 +88,6 @@ VALUES
         gen_random_uuid(),
         (SELECT id FROM users WHERE email = 'serguru@gmail.com'),
         (SELECT id FROM users WHERE email = 'bob.participant@plantour.test'),
-        (SELECT id FROM participant_statuses WHERE name = 'Planned'),
         'b',
         'Second participant linked to admin'
     );

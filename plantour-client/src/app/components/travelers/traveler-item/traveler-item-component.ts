@@ -9,9 +9,4 @@ import { AdminsParticipantDto } from '../../../services/admins-participant-servi
 })
 export class TravelerItemComponent {
   @Input() entity: AdminsParticipantDto = {} as AdminsParticipantDto;
-
-  get fullName(): string {
-    return `${this.entity.firstName ? (this.entity.firstName + ' ') : ''}${this.entity.lastName}`;
-  }
-
 }

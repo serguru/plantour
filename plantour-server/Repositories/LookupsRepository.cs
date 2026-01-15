@@ -27,11 +27,6 @@ public class LookupsRepository
         return await _context.TripStatuses.OrderBy(x => x.Name).ToListAsync();
     }
 
-    public async Task<IEnumerable<ParticipantStatus>> GetAllParticipantStatusesAsync()
-    {
-        return await _context.ParticipantStatuses.OrderBy(x => x.Name).ToListAsync();
-    }
-
     public async Task<IEnumerable<Unit>> GetAllUnitsAsync()
     {
         return await _context.Units.OrderBy(x => x.Name).ToListAsync();

@@ -56,9 +56,9 @@ export class TravelersComponent implements OnInit {
     [
       {
         kind: 'sort',
-        label: 'Sort by Email',
+        label: 'Sort by Name',
         icon: 'sort-alt',
-        property: 'email',
+        property: 'fullName',
         sortType: 'text',
         direction: 'none'
       },
@@ -70,8 +70,8 @@ export class TravelersComponent implements OnInit {
       },
       {
         kind: 'filter',
-        property: 'email',
-        label: 'Filter by Email',
+        property: 'fullName',
+        label: 'Filter by Name',
         filterText: '',
         comparisonType: 'contains',
         icon: 'user'

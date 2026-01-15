@@ -12,7 +12,6 @@ public class LookupsMappingProfile : Profile
         CreateMap<CommunicationType, CommunicationTypeDto>();
         CreateMap<ThingCategory, ThingCategoryDto>();
         CreateMap<TripStatus, TripStatusDto>();
-        CreateMap<ParticipantStatus, ParticipantStatusDto>();
         CreateMap<Unit, UnitDto>();
     }
 }

@@ -1,0 +1,24 @@
+<div class="form-actions">
+
+    @if(!!onCancel) {
+    <app-button
+        [label]="cancelLabel()"
+        [icon]="'pi pi-' + cancelIcon()"
+        severity="secondary"
+        (click)="cancelClick($event)"
+        [disabled]="cancelDisabled()"
+        (mousedown)="$event.preventDefault()"
+        [loading]="isLoading()"
+    />
+    }
+
+    @if(!!onSubmit) {
+    <app-button
+        [label]="submitLabel()"
+        [icon]="'pi pi-' + submitIcon()"
+        (click)="submitClick($event)"
+        [disabled]="submitDisabled()"
+        [loading]="isLoading()"
+    />
+    }
+</div>

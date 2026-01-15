@@ -22,12 +22,6 @@ export interface TripStatusDto {
   name: string;
 }
 
-export interface ParticipantStatusDto {
-  id: string;
-  name: string;
-  notes?: string | null;
-}
-
 export interface UnitDto {
   id: string;
   name: string;
@@ -37,7 +31,6 @@ export interface LookupsResponse {
   communicationTypes: CommunicationTypeDto[];
   thingCategories: ThingCategoryDto[];
   tripStatuses: TripStatusDto[];
-  participantStatuses: ParticipantStatusDto[];
   units: UnitDto[];
 }
 
@@ -107,20 +100,6 @@ export class LookupService {
     });
   }
   tripStatuses$ = this.getTripStatuses();
-
-
-  getParticipantStatuses(): Observable<ParticipantStatusDto[]> {
-    return new Observable((observer) => {
-      this.loadLookupsIfNeeded().subscribe({
-        next: (lookups) => {
-          observer.next(lookups.participantStatuses);
-          observer.complete();
-        },
-        error: (err) => observer.error(err),
-      });
-    });
-  }
-  participantStatuses$ = this.getParticipantStatuses();
 
   getUnits(): Observable<UnitDto[]> {
     return new Observable((observer) => {

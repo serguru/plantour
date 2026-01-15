@@ -27,13 +27,11 @@ export interface SignInRequest {
 }
 
 export interface SignUpParticipantRequest {
-  adminId: string;
   email: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
   notes?: string;
-  participantStatus?: string;
 }
 
 export interface SignInParticipantRequest {

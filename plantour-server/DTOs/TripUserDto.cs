@@ -8,8 +8,6 @@ public class TripUserDto
 
     public Guid AdminParticipantId { get; set; }
 
-    public string? ParticipantStatus { get; set; }
-
     public string Email { get; set; } = null!;
 
     public string? FirstName { get; set; }

@@ -15,7 +15,6 @@
 <ng-template
   #fieldsTemplate
   let-form="form"
-  let-participantStatuses="participantStatuses$"
   let-onSubmit="onSubmit"
 >
   <div class="controls-wrapper">
@@ -84,21 +83,6 @@
           formControlName="phone"
           placeholder="Enter phone (optional)"
         />
-      </div>
-
-      <div class="form-field">
-        <label for="participantStatus">Participant Status</label>
-        <p-select
-          id="participantStatus"
-          formControlName="participantStatus"
-          [options]="participantStatuses | async"
-          optionLabel="name"
-          optionValue="name"
-          placeholder="Select status"
-          [showClear]="true"
-          styleClass="w-full"
-          [editable]="true"
-        ></p-select>
       </div>
 
       <div class="form-field">

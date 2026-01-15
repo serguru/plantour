@@ -6,6 +6,5 @@ public class LookupsResponse
     public IEnumerable<CommunicationTypeDto> CommunicationTypes { get; set; } = null!;
     public IEnumerable<ThingCategoryDto> ThingCategories { get; set; } = null!;
     public IEnumerable<TripStatusDto> TripStatuses { get; set; } = null!;
-    public IEnumerable<ParticipantStatusDto> ParticipantStatuses { get; set; } = null!;
     public IEnumerable<UnitDto> Units { get; set; } = null!;
 }

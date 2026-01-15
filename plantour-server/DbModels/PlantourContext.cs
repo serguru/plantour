@@ -23,8 +23,6 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Invitation> Invitations { get; set; }
 
-    public virtual DbSet<ParticipantStatus> ParticipantStatuses { get; set; }
-
     public virtual DbSet<TemperatureRange> TemperatureRanges { get; set; }
 
     public virtual DbSet<TemplateThing> TemplateThings { get; set; }
@@ -78,10 +76,6 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Admin).WithMany(p => p.AdminsParticipantAdmins).HasConstraintName("admins_participants_admin_id_fkey");
 
             entity.HasOne(d => d.Participant).WithMany(p => p.AdminsParticipantParticipants).HasConstraintName("admins_participants_participant_id_fkey");
-
-            entity.HasOne(d => d.ParticipantStatus).WithMany(p => p.AdminsParticipants)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("admins_participants_participant_status_id_fkey");
         });
 
         modelBuilder.Entity<AgeRange>(entity =>
@@ -113,13 +107,6 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.Trip).WithMany(p => p.Invitations).HasConstraintName("invitations_trip_id_fkey");
-        });
-
-        modelBuilder.Entity<ParticipantStatus>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("participant_statuses_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
         modelBuilder.Entity<TemperatureRange>(entity =>
