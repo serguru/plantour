@@ -2,7 +2,7 @@
 //   display: inline-block;
 // }
 
-.pl-button {
+.app-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,20 +26,35 @@
     &:hover:not(:disabled) { background-color: var(--primary-border-color); }
   }
 
-  &-success {
-    background-color: var(--pl-success, #22c55e);
-    color: white;
-    &:hover:not(:disabled) { background-color: #16a34a; }
+  &-secondary {
+    background-color: rgb(241, 245, 249);
+    color: rgb(71, 85, 105);
+    &:hover:not(:disabled) { background-color: rgb(226, 232, 240); }
   }
 
-  &-danger {
-    background-color: var(--pl-danger, #ef4444);
-    color: white;
-    &:hover:not(:disabled) { background-color: #dc2626; }
-  }
 }
 
-.pl-button-icon {
+.app-button-icon {
   font-size: 1rem;
 }
 
+.loading {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff;
+  border-bottom-color: transparent; /* Делаем разрез в круге */
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

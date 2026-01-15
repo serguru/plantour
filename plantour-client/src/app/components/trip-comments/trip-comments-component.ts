@@ -16,7 +16,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputText } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { PlButtonComponent } from '../button/button-component';
+import { AppButton } from '../button/button-component';
 
 @Component({
   selector: 'app-trip-comments',
@@ -26,7 +26,7 @@ import { PlButtonComponent } from '../button/button-component';
     EntitiesActionsComponent,
     InputText,
     FormsModule,
-    PlButtonComponent
+    AppButton
   ],
   templateUrl: './trip-comments-component.html',
   styleUrl: './trip-comments-component.scss',

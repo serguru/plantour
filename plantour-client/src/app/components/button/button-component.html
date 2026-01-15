@@ -1,13 +1,12 @@
 <button 
-  [className]="'pl-button pl-button-' + severity"
-  [disabled]="disabled"
-  
+  [className]="'app-button app-button-' + severity()"
+  [disabled]="disabled()"
   >
   
-  @if(icon) {
-    <i [class]="'pl-button-icon ' + icon"></i>
+  @if(icon() && !loading()) {
+    <i [class]="'app-button-icon ' + icon()"></i>
   }
-  <span class="pl-button-label">{{ label }}</span>
-  
+  @if (loading()) {<span class="loading"></span>}
+  <span class="app-button-label">{{ label() }}</span>
+
 </button>
-<!-- (click)="handleButtonClick($event)" -->

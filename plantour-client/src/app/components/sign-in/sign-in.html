@@ -104,14 +104,13 @@
     }
     <!-- Form Actions -->
     <div class="form-actions">
-      <pl-button
+      <app-button
         type="submit"
         label="Sign In"
         icon="pi pi-sign-in"
         [loading]="isLoading"
         [disabled]="isLoading || currentForm.invalid"
-      >
-      </pl-button>
+      />
     </div>
     <div class="pale-prompt">
       Not registered?

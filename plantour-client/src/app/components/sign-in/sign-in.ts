@@ -10,7 +10,7 @@ import { EMPTY } from 'rxjs';
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
 import { RadioButton } from 'primeng/radiobutton';
-import { PlButtonComponent } from '../button/button-component';
+import { AppButton } from '../button/button-component';
 
 @Component({
   selector: 'app-sign-in',
@@ -23,7 +23,7 @@ import { PlButtonComponent } from '../button/button-component';
     PasswordModule,
     RadioButton,
     FormsModule,
-    PlButtonComponent
+    AppButton
   ],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.scss',
