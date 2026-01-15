@@ -15,11 +15,11 @@ export class PlButtonComponent {
   @Input() disabled: boolean = false;
   @Input() loading: boolean = false;
 
-  @Output() onClick = new EventEmitter<MouseEvent>();
+  //@Output() onClick = new EventEmitter<MouseEvent>();
 
   handleButtonClick(event: MouseEvent) {
     if (!this.disabled) {
-      this.onClick.emit(event);
+    //  this.onClick.emit(event);
     }
   }
 }

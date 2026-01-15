@@ -1,17 +1,16 @@
-
-  <div class="page-header">
-    <div class="page-left">
-      <i
-        class="pi"
-        [class]="entityIcon"
-      ></i>
-      <h2>{{ title }}</h2>
-    </div>
+<div class="page-header">
+  <div class="page-left">
+    <i
+      class="pi"
+      [class]="entityIcon"
+    ></i>
+    <h2>{{ title }}</h2>
   </div>
+</div>
 
-  <div class="controls-wrapper">
+<div class="controls-wrapper">
 
-    <ng-container *ngTemplateOutlet="formTemplate; context: { 
+  <ng-container *ngTemplateOutlet="formTemplate; context: { 
         form: form, 
         thingCategories$: lookupsService.thingCategories$, 
         units$: lookupsService.units$,
@@ -19,33 +18,37 @@
         tripStatuses$: lookupsService.tripStatuses$,
         
       }">
-    </ng-container>
+  </ng-container>
 
-    @if(errorMessage) {
-      <app-message-panel messageType="error", [messageText]="errorMessage"></app-message-panel>
-    }
+  @if(errorMessage) {
+  <app-message-panel
+    messageType="error"
+    ,
+    [messageText]="errorMessage"
+  ></app-message-panel>
+  }
 
-    <div class="form-actions">
-      @if(backUrl) {
-      <p-button
+  <div class="form-actions">
+    @if(backUrl) {
+    <p-button
         label="Cancel"
         icon="pi pi-times"
         severity="secondary"
         type="button"
-        (onClick)="navigateBack()"
+        (click)="navigateBack()"
+        (mousedown)="$event.preventDefault()"
         [loading]="isLoading"
         [disabled]="cancelDisabled"
       ></p-button>
-      }
-
-      <p-button
-        type="submit"
-        label="Submit"
-        icon="pi pi-save"
-        [loading]="isLoading"
-        [disabled]="enterDisabled"
-        (click)="onSubmit()"
-      >
-      </p-button>
-    </div>
+    }
+    <p-button
+      type="submit"
+      label="Submit"
+      icon="pi pi-save"
+      [loading]="isLoading"
+      [disabled]="enterDisabled"
+      (click)="onSubmit()"
+    >
+    </p-button>
   </div>
+</div>

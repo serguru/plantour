@@ -1,7 +1,8 @@
 <button 
   [className]="'pl-button pl-button-' + severity"
   [disabled]="disabled"
-  (click)="handleButtonClick($event)">
+  
+  >
   
   @if(icon) {
     <i [class]="'pl-button-icon ' + icon"></i>
@@ -9,3 +10,4 @@
   <span class="pl-button-label">{{ label }}</span>
   
 </button>
+<!-- (click)="handleButtonClick($event)" -->

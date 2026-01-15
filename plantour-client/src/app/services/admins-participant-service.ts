@@ -27,7 +27,7 @@ export interface UpdateAdminsParticipantRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class AdminsParticipantService implements CrudService<AdminsParticipantDto, SignUpParticipantRequest, UpdateAdminsParticipantRequest> {
+export class AdminsParticipantService {
   private apiUrl: string;
   private usersService = inject(UsersService)
 

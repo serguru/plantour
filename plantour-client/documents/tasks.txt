@@ -242,9 +242,19 @@ a$.pipe(
 )
 .subscribe()
 
+Пользователь c адресом электронной почты ${} уже существует в вашем списке путешественников.
+
+Пользователь c адресом электронной почты ${} уже существует в нашей базе данных. Он будет добавлен в Ваш список путешественников. Ему будет послан код доступа к вашим путешеаствиям. Продолжить?
+
+Вы создаете нового пользователя в нашей базе данных. После внесния в базу он будет добавлен в Ваш список путешественников. Ему будет послан код доступа к вашим путешеаствиям. Только он сам сможет изменить его личные данные. Продолжить?
 
 
+A user with the email address ${} already exists in your traveler list.
+
+A user with the email address ${} already exists in our database. They will be added to your traveler list and will be sent an access code to your trips. Continue?
+
+You are creating a new user in our database. Once added, they will be added to your traveler list and will be sent an access code to your trips. Only they can edit their personal information. Continue?
 
 
-
-
+Смотри интерфейс AdminsParticipantDto в src\app\services\admins-participant-service.ts. В компонент TravelerFormComponent добавь код для создания и редактирования объектов AdminsParticipantDto. Используй Angular Reactive Forms. Форма должна работать в add и edit режима, c валидацией полей. Используй AdminsParticipantService getById для получения объекта c сервера по параметру id из route в edit режиме. Используй AdminsParticipantService add и update методы. Используй MessagesService и Standalone component.
+Максимально используй CSS классы из styles.css. Создавай классы компонента только в случае крайней необходимости. 
