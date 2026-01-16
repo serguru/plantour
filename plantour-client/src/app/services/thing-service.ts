@@ -11,8 +11,7 @@ export interface ThingDto {
   name: string;
   notes?: string | null;
   units?: string | null;
-  value?: string | null;
-  common: boolean;
+  value?: number | null;
 }
 
 export interface CreateThingRequest {
@@ -20,8 +19,7 @@ export interface CreateThingRequest {
   name: string;
   notes?: string | null;
   units?: string | null;
-  value?: string | null;
-  common: boolean;
+  value?: number | null;
 }
 
 export interface UpdateThingRequest {
@@ -30,8 +28,7 @@ export interface UpdateThingRequest {
   name: string;
   notes?: string | null;
   units?: string | null;
-  value?: string | null;
-  common: boolean;
+  value?: number | null;
 }
 
 @Injectable({

@@ -70,6 +70,9 @@ export class TravelerFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    this.componentService.reset();
+
     this.mode = this.route.snapshot.data['mode'];
 
     switch (this.mode) {

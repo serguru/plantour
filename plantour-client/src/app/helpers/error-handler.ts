@@ -6,10 +6,10 @@ export class GlobalErrorHandler implements ErrorHandler {
   constructor(private injector: Injector) {}
 
   handleError(error: any): void {
-   
-    if (error?.error.code === 'custom_exception') {
+
+    if (error?.message || error?.error.code === 'custom_exception') {
       const messagesService = this.injector.get(MessagesService);
-      messagesService.showError(error.error.message);
+      messagesService.showError(error.message);
       return;
     }
 

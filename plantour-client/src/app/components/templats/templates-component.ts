@@ -18,6 +18,7 @@ import { ArrayOfGuidsRequest, MultipleIdsRequest } from '../../services/crud-ser
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 
+// TODO: fix UI vertical scroll issues
 @Component({
   selector: 'app-template-things-component',
   imports: [
@@ -77,7 +78,7 @@ export class TemplatesComponent {
         icon: 'folder-open',
         filterText: '',
         comparisonType: 'exact',
-        
+
       }, {
         kind: 'filter',
         property: 'activityName',
@@ -119,6 +120,7 @@ export class TemplatesComponent {
 
   ngOnInit(): void {
 
+    this.componentService.reset();
     this.componentService.updateComponentId(this.componentId);
     var o = this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
 
@@ -164,10 +166,7 @@ export class TemplatesComponent {
       id: null,
       name: "Things Dictionary",
       selectedMode: TargetMode.DicThings,
-      options: [{
-        label: 'Dictionary',
-        mode: TargetMode.DicThings
-      }]
+      options: null
     }
 
     if (!trips) {
@@ -189,6 +188,12 @@ export class TemplatesComponent {
       }
 
       if (this.usersService.isAdminSignal()) {
+
+        dicTarget.options = [{
+          label: 'Dictionary',
+          mode: TargetMode.DicThings
+        }];
+
         result.selectedMode = TargetMode.TripShared;
         result.options = [
           {
@@ -253,11 +258,15 @@ export class TemplatesComponent {
           id: null,
           name: "Things Dictionary",
           selectedMode: TargetMode.DicThings,
-          options: [{
+          options: null
+        };
+
+        if (this.usersService.isAdminSignal()) {
+          targetCondition.target.options = [{
             label: 'Dictionary',
             mode: TargetMode.DicThings
-          }]
-        };
+          }];
+        }
       } else {
         const trip = trips?.find(t => t.id === targetCondition.target?.id);
         if (trip) {
@@ -286,7 +295,7 @@ export class TemplatesComponent {
     }
 
     const ids = this.notTargetedIds();
-    
+
     if (!ids || ids.length === 0) {
       throw new Error('No not targeted ids available');
     }
@@ -301,7 +310,7 @@ export class TemplatesComponent {
         takeUntilDestroyed(this.destroyRef)
       ).subscribe((things) => {
         this.componentService.updateEntities(things);
-      }); 
+      });
 
       return;
     }
@@ -399,7 +408,7 @@ export class TemplatesComponent {
     if (target.selectedMode === TargetMode.DicThings) {
       const request: ArrayOfGuidsRequest = {
         ids: [entity.id]
-      };  
+      };
       const o = entity.isTargeted ? this.thingService.deleteFromTemplate(request) : this.thingService.addFromTemplate(request);
       const m = this.templateService.getAllForDic();
 
