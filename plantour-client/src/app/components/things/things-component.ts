@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject } from '@angular/core';
-import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
-import { CreateThingRequest, UpdateThingRequest, ThingDto, ThingService } from '../../services/thing-service';
-import { CreateTripThingRequest, TripThingService, TripThingDto, UpdateTripThingRequest } from '../../services/trip-thing-service';
+import { MultipleIdsRequest } from '../../services/crud-service';
+import { ThingService } from '../../services/thing-service';
+import { TripThingService } from '../../services/trip-thing-service';
 import { ThingItemComponent } from './things-item/thing-item-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
@@ -10,7 +10,7 @@ import { AppService } from '../../services/app-service';
 import { ComponentService } from '../../services/component-service';
 import { TripDto, TripService } from '../../services/trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { combineLatest, map, switchMap, take, tap, throwError } from 'rxjs';
+import { switchMap, tap } from 'rxjs';
 import { TripSharedService } from '../../services/trip-shared-service';
 import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
 import { UsersService } from '../../services/users-service';
@@ -90,7 +90,9 @@ export class ThingsComponent {
 
   ngOnInit(): void {
 
+    this.componentService.reset();
     this.componentService.updateComponentId(this.componentId);
+
     var o = this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
 
     o.pipe(

@@ -38,7 +38,7 @@ public class TemplateController(ITemplateService service) : ControllerBase
     }
 
     [HttpGet("dic")]
-    [AdminOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<VTemplateThingsFullDto>>> GetAllForDic()
     {
         var dtos = await _service.GetAllForDicAsync();

@@ -1,6 +1,6 @@
 import { Component, computed, DestroyRef, inject, input, model, OnInit } from '@angular/core';
 import { EntitiesCounts, ComponentService } from '../../../services/component-service';
-import { Condition, DynamicQueryService, FilterCondition, SortCondition, SortDirection, SortType, Target, TargetCondition, TargetMode, TargetOption } from '../../../services/dynamic-query-service';
+import { Condition, DynamicQueryService, FilterCondition, SortCondition, SortDirection, Target, TargetCondition, TargetMode } from '../../../services/dynamic-query-service';
 import { Select } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -56,25 +56,8 @@ export class EntitiesActionsComponent implements OnInit {
     });
   }
 
-
-  //thingsToSharedAllowed = toSignal(this.componentService.thingsToSharedAllowed$, { initialValue: false });
-
-  //thingsToSharedMode = toSignal(this.componentService.thingsToSharedMode$, { initialValue: false });
-
-
-  // showThingsToShared = computed(() => {
-  //   const x = this.thingsToSharedAllowed();
-  //   const y = this.isSelectedModeTarget();
-  //   return  x && y;
-  // });
-
-  // onThingsToSharedModeChange(value: boolean): void {
-  //   this.componentService.updateThingsToSharedMode(value);
-  // }
-
   showRadios = computed(() => {
     const target = this.target();
-//    return target?.options?.length! > 0 && !target?.hideOptions;
     return target?.options?.length! > 0;
   });
 

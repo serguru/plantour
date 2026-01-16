@@ -148,9 +148,14 @@
       }
       }
     </div>
-          <!-- binary="true" -->
+    <!-- binary="true" -->
     @if (showRadios()) {
     <div class="radio-container">
+      @if (target()!.options!.length == 1) {
+      <div class="radio-item">
+        <div>{{target()!.options![0].label}}</div>
+      </div>
+      } @else {
       @for(option of target()!.options; track option) {
       <div class="radio-item">
         <p-radiobutton
@@ -162,6 +167,7 @@
         />
         <div [id]="option.label">{{option.label}}</div>
       </div>
+      }
       }
     </div>
     }

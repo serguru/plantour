@@ -103,7 +103,9 @@ export class ComponentService {
   private entitiesActionsVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   entitiesActionsVisible$: Observable<boolean> = this.entitiesActionsVisibleSubject.asObservable();
   updateEntitiesActionsVisible(visible: boolean): void {
-    this.persistValue('entitiesActionsVisible', visible);
+    if (this.componentIdSubject.value) {
+      this.persistValue('entitiesActionsVisible', visible);
+    }
     this.entitiesActionsVisibleSubject.next(visible);
   }
 
@@ -238,5 +240,13 @@ export class ComponentService {
   //#endregion
 
 
-
+  reset(): void {
+    this.updateComponentId(null);
+    this.updateConditions(null);
+    this.updateEntities(null);
+    this.updateTargetLookup(null);
+    this.updateSelectedId(null);
+    this.updateEntitiesActionsVisible(false);
+    this.updateLoading(false);
+  }
 }

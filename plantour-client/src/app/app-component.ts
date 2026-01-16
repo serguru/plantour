@@ -8,6 +8,8 @@ import { Toolbar } from './components/toolbar/toolbar-component';
 import { ComponentService } from './services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 
+
+// TODO: check user sign out и then sign in process for proper cleaning between users
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, Toolbar, ToastContainerComponent, ModalDialogComponent],

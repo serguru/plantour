@@ -81,6 +81,7 @@ export class TravelersComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.componentService.reset();
     this.componentService.updateComponentId(this.componentId);
 
     this.componentService.updateLoading(true);
