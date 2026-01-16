@@ -3,24 +3,21 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { Select } from 'primeng/select';
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { AdminsParticipantService, AdminsParticipantDto, UpdateAdminsParticipantRequest, CheckParticipantResponse, CheckParticipantStatus } from '../../../services/admins-participant-service';
 import { UsersService } from '../../../services/users-service';
 import { MessagesService } from '../../../services/messages-service';
-import { LookupService } from '../../../services/lookup-service';
 import { SignUpParticipantRequest } from '../../../models/auth.models';
 import { catchError, EMPTY, finalize, switchMap, mergeMap } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { MessagePanel } from '../../message-panel/message-panel-component/message-panel-component';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
-import { AppButton } from '../../button/button-component';
-import { EntitiesHeader } from '../../entities/entities-header-component/entities-header-component';
 import { FormHeader } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { ComponentService } from '../../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
+import { LocalStorageService } from '../../../services/local-storage-service';
 
 @Component({
   selector: 'app-traveler-form-component',
@@ -47,10 +44,7 @@ export class TravelerFormComponent implements OnInit {
   service = inject(AdminsParticipantService);
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
-  lookupsService = inject(LookupService);
-
-  localStorageService = inject(ComponentService).localStorageService;
-
+  localStorageService = inject(LocalStorageService);
   componentService = inject(ComponentService);
 
   isLoading = toSignal(this.componentService.loading$);
@@ -177,14 +171,6 @@ export class TravelerFormComponent implements OnInit {
     }
   }
 
-  private checkParticipantByEmail = (email) => {
-    return this.service.checkParticipantByEmail(email).pipe(
-    )
-
-  }
-
-
-
   private addTraveler() {
     const formValue = this.form.value;
     const request: SignUpParticipantRequest = {
@@ -275,6 +261,7 @@ export class TravelerFormComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
+        this.localStorageService.setComponentKey('travelers', 'selectedId', this.id!);
         this.messagesService.showInfo('Traveler updated successfully');
         this.router.navigate(['/travelers']);
       }

@@ -14,6 +14,8 @@ using PlantourApi.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -140,7 +142,10 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+//TODO: participant token expiration handling
+
+//app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

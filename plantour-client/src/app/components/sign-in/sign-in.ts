@@ -100,7 +100,7 @@ export class SignInComponent {
       catchError((error) => {
         const errorMsg = error.error?.message || 'Participant sign in failed. Please check your Access Code and try again.';
         this.errorMessage = errorMsg;
-        this.messagesService.showError('Sign In Failed', errorMsg);
+        //this.messagesService.showError('Sign In Failed', errorMsg);
         return EMPTY;
       }),
       finalize(() => {

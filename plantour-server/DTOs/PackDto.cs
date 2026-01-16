@@ -4,6 +4,6 @@ public class PackDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;
-    public string? Description { get; set; }
+    public string? Notes { get; set; }
     public bool IsTargeted { get; set; } = false;
 }

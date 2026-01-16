@@ -7,19 +7,19 @@ import { CrudService } from './crud-service';
 export interface PackageDto {
   id: string;
   name: string;
-  description?: string | null;
+  notes?: string | null;
   isTargeted: boolean;
 }
 
 export interface CreatePackageRequest {
   name: string;
-  description?: string | null;
+  notes?: string | null;
 }
 
 export interface UpdatePackageRequest {
   id: string;
   name: string;
-  description?: string | null;
+  notes?: string | null;
 }
 
 @Injectable({

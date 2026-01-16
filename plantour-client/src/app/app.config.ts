@@ -11,12 +11,11 @@ import { ENVIRONMENT } from '../environment.token';
 import { environment } from '../environments/environment';
 import { jwtInterceptor } from './interceptors/jwt.interceptor';
 import { GlobalErrorHandler } from './helpers/error-handler';
-import { errorInterceptor } from './interceptors/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     { provide: ENVIRONMENT, useValue: environment },
-    provideHttpClient(withInterceptors([jwtInterceptor, errorInterceptor])),
+    provideHttpClient(withInterceptors([jwtInterceptor])),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
