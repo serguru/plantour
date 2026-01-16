@@ -1,6 +1,6 @@
 <div class="form-actions">
 
-    @if(!!onCancel) {
+    @if(!!onCancel()) {
     <app-button
         [label]="cancelLabel()"
         [icon]="'pi pi-' + cancelIcon()"
@@ -12,7 +12,7 @@
     />
     }
 
-    @if(!!onSubmit) {
+    @if(!!onSubmit()) {
     <app-button
         [label]="submitLabel()"
         [icon]="'pi pi-' + submitIcon()"

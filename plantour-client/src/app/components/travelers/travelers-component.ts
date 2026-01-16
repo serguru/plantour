@@ -31,6 +31,9 @@ import { UsersService } from '../../services/users-service';
 export class TravelersComponent implements OnInit {
   travelerItemComponent = TravelerItemComponent;
   componentId: string = 'travelers';
+
+  deleteMessage = 'You are deleting a traveler. They will be removed not only from your traveler list, but from all your trips. This data cannot be restored. Continue?';
+
   appService = inject(AppService);
   tripService = inject(TripService);
 

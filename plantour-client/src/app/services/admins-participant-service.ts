@@ -8,6 +8,20 @@ import { UsersService } from './users-service';
 import { PackageDto } from './package-service';
 import { findDuplicates, getFullName } from '../helpers/utils';
 
+
+export enum CheckParticipantStatus
+{
+    AlreadyParticipant = 1,
+    UserExistsNotParticipant = 2,
+    NotFound = 3
+}
+
+export interface CheckParticipantResponse {
+    foundUserId?: string;
+    status: CheckParticipantStatus;
+}
+
+
 export interface AdminsParticipantDto {
   id: string;
   email: string;
@@ -79,4 +93,9 @@ export class AdminsParticipantService {
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  checkParticipantByEmail(email: string): Observable<CheckParticipantResponse> {
+    return this.http.get<CheckParticipantResponse>(`${this.apiUrl}/check-participant/${encodeURIComponent(email)}`);
+  }
+
 }

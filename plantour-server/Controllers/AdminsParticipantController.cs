@@ -22,8 +22,8 @@ public class AdminsParticipantController : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<AdminsParticipantDto>>> GetAll()
     {
-            var dtos = await _service.GetAllAsync();
-            return Ok(dtos);
+        var dtos = await _service.GetAllAsync();
+        return Ok(dtos);
     }
 
     [HttpGet("trip/{tripId}")]
@@ -38,13 +38,13 @@ public class AdminsParticipantController : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult<AdminsParticipantDto>> GetById(Guid id)
     {
-            var dto = await _service.GetByIdAsync(id);
-            if (dto == null)
-            {
-                return NotFound(new { message = "Admins participant not found" });
-            }
+        var dto = await _service.GetByIdAsync(id);
+        if (dto == null)
+        {
+            return NotFound(new { message = "Admins participant not found" });
+        }
 
-            return Ok(dto);
+        return Ok(dto);
     }
 
     [HttpPut]
@@ -61,5 +61,13 @@ public class AdminsParticipantController : ControllerBase
     {
         await _service.DeleteAsync(id);
         return NoContent();
+    }
+
+    [HttpGet("check-participant/{email}")]
+    [AdminOnly]
+    public async Task<ActionResult<CheckParticipantDto>> CheckParticipant(string email)
+    {
+        var result = await _service.CheckParticipant(email);
+        return Ok(result);
     }
 }

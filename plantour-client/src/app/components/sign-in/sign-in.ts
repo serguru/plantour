@@ -43,6 +43,7 @@ export class SignInComponent {
   private location = inject(Location);
 
   constructor() {
+    // TODO: remove hardcoded credentials
     this.adminForm = this.fb.group({
       email: ['serguru@gmail.com', [Validators.required, Validators.email]],
       password: ['Binary_09', [Validators.required]],

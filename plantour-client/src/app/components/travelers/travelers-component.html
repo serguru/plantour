@@ -3,6 +3,7 @@
         entityIcon="pi pi-user"
         title="Travelers"
         [delete]="isReadOnly() ? null : deleteTraveler.bind(this)"
+        [deleteMessage]="deleteMessage"
         entityName="traveler"
         entityNameProp="email"
         [addUrl]="isReadOnly() ? null : 'add'"

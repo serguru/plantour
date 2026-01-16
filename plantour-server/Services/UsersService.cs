@@ -154,6 +154,7 @@ public class UsersService(
             }
         }
 
+        // In development, we store the access code in the notes for easy retrieval
         string? notes = _environment.IsDevelopment()
             ? accessCode!
             : request.Notes;

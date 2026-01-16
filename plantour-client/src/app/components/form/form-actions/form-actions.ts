@@ -31,7 +31,7 @@ export class FormActions {
   }
   submitClick(event: Event): void {
     event.preventDefault();
-    if (this.onSubmit) {
+    if (this.onSubmit()) {
       this.onSubmit()!(event);
     }
   }

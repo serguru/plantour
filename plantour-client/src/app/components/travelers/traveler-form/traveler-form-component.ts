@@ -5,12 +5,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { AdminsParticipantService, AdminsParticipantDto, UpdateAdminsParticipantRequest } from '../../../services/admins-participant-service';
+import { AdminsParticipantService, AdminsParticipantDto, UpdateAdminsParticipantRequest, CheckParticipantResponse, CheckParticipantStatus } from '../../../services/admins-participant-service';
 import { UsersService } from '../../../services/users-service';
 import { MessagesService } from '../../../services/messages-service';
 import { LookupService } from '../../../services/lookup-service';
 import { SignUpParticipantRequest } from '../../../models/auth.models';
-import { catchError, EMPTY, finalize } from 'rxjs';
+import { catchError, EMPTY, finalize, switchMap, mergeMap } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { MessagePanel } from '../../message-panel/message-panel-component/message-panel-component';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
@@ -48,6 +48,8 @@ export class TravelerFormComponent implements OnInit {
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
   lookupsService = inject(LookupService);
+
+  localStorageService = inject(ComponentService).localStorageService;
 
   componentService = inject(ComponentService);
 
@@ -173,10 +175,17 @@ export class TravelerFormComponent implements OnInit {
     } else {
       this.updateTraveler();
     }
+  }
+
+  private checkParticipantByEmail = (email) => {
+    return this.service.checkParticipantByEmail(email).pipe(
+    )
 
   }
 
-  private addTraveler(): void {
+
+
+  private addTraveler() {
     const formValue = this.form.value;
     const request: SignUpParticipantRequest = {
       email: formValue.email?.trim(),
@@ -186,7 +195,46 @@ export class TravelerFormComponent implements OnInit {
       notes: formValue.notes?.trim() || undefined
     };
 
-    this.service.add(request).pipe(
+
+    this.service.checkParticipantByEmail(request.email).pipe(
+      switchMap(async (result: CheckParticipantResponse) => {
+        let message: string;
+        let showOkCancel = true;
+
+        switch (result.status) {
+          case CheckParticipantStatus.NotFound:
+            message = "You're creating a new user in our database. Once added, they'll be added to your traveler list and receive an access code to your trips. Only they'll be able to edit their personal information. Continue?";
+            break;
+          case CheckParticipantStatus.UserExistsNotParticipant:
+            message = `A user with the email address ${request.email} already exists in our database. They will be added to your traveler list and sent an access code to your trips. Continue?`;
+            break;
+          case CheckParticipantStatus.AlreadyParticipant:
+            message = `A user with the email address ${request.email} already exists in your traveler list`;
+            showOkCancel = false;
+            break;
+          default:
+            throw new Error("Wrong CheckParticipantStatus");
+        }
+
+        if (showOkCancel) {
+          const dialogResult = await this.messagesService.openOkCancel({
+            title: `Add Traveler`,
+            message: message,
+            okLabel: 'Add',
+            cancelLabel: 'Cancel'
+          });
+
+          if (dialogResult !== 'ok') {
+            return EMPTY;
+          }
+        } else {
+          this.messagesService.showInfo(message);
+          return EMPTY;
+        };
+
+        return this.service.add(request);
+      }),
+      mergeMap(result => result),
       catchError((error) => {
         this.errorMessage = error.error?.message || 'Failed to add traveler. Please try again.';
         return EMPTY;
@@ -195,12 +243,17 @@ export class TravelerFormComponent implements OnInit {
         this.componentService.updateLoading(false);
       })
     ).subscribe({
-      next: () => {
+      next: (traveler: AdminsParticipantDto) => {
+        this.localStorageService.setComponentKey('travelers', 'selectedId', traveler.id);
         this.messagesService.showInfo('Traveler added successfully');
         this.router.navigate(['/travelers']);
       }
     });
   }
+
+  // this.messagesService.showInfo('Traveler added successfully');
+  // this.router.navigate(['/travelers']);
+
 
   private updateTraveler(): void {
     if (!this.id) return;

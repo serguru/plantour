@@ -10,12 +10,15 @@ namespace plantour_server.Services;
 public class AdminsParticipantService(
     AdminsParticipantRepository adminsParticipantRepository,
     TripUserRepository tripUserRepository,
+    UsersRepository usersRepository,
     IMapper mapper,
     ICheckAccessService checkAccessService,
     HttpCurrentUser httpCurrentUser) : IAdminsParticipantService
 {
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
+    private readonly UsersRepository _userRepository = usersRepository;
+
 
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly IMapper _mapper = mapper;
@@ -31,6 +34,53 @@ public class AdminsParticipantService(
         IEnumerable<AdminsParticipant> entities = await _adminsParticipantRepository.FindFullAsync(x => x.AdminId == _currentUser.AdminId);
         return _mapper.Map<IEnumerable<AdminsParticipantDto>>(entities);
     }
+
+    public async Task<CheckParticipantDto> CheckParticipant(string email)
+    {
+        _currentUser.RaiseIfNotAdmin();
+
+        var adminsParticipant = (await _adminsParticipantRepository
+        .FindFullAsync(x => x.Admin.Email.ToLower() == email.ToLower() || x.Participant.Email.ToLower() == email.ToLower())).FirstOrDefault();
+        
+
+        if (adminsParticipant != null)
+        {
+            if (adminsParticipant.Admin.Email.ToLower() == email.ToLower())
+            {
+                return new CheckParticipantDto
+                {
+                    FoundUserId = adminsParticipant.Admin.Id,
+                    Status = CheckParticipantStatus.AlreadyParticipant
+                };
+            }
+            else if (adminsParticipant.Participant.Email.ToLower() == email.ToLower())
+            {
+                return new CheckParticipantDto
+                {
+                    FoundUserId = adminsParticipant.Participant.Id,
+                    Status = CheckParticipantStatus.AlreadyParticipant
+                };
+            }
+        }
+
+        var user = (await _userRepository.FindAsync(x => x.Email.ToLower() == email.ToLower())).FirstOrDefault();
+
+        if (user != null)
+        {
+            return new CheckParticipantDto
+            {
+                FoundUserId = user.Id,
+                Status = CheckParticipantStatus.UserExistsNotParticipant
+            };
+        }  
+
+
+        return new CheckParticipantDto
+        {
+            FoundUserId = null,
+            Status = CheckParticipantStatus.NotFound
+        };
+    }   
 
     public async Task<IEnumerable<AdminsParticipantDto>> GetAllForTripAsync(Guid tripId)
     {

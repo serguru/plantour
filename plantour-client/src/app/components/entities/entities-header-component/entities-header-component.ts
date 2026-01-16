@@ -20,6 +20,8 @@ export class EntitiesHeader implements OnInit {
   @Input() viewUrl: string | Function | null = null;
   @Input() delete: ((id: string) => void) | null = null;
   @Input() entityName: string = '';
+
+  deleteMessage = input<string>('');
   
   useEntitiesActions = input<boolean>(true);
   componentService = inject(ComponentService);
@@ -96,7 +98,7 @@ export class EntitiesHeader implements OnInit {
 
     const result = await this.messagesService.openOkCancel({
       title: `Delete ${this.entityName}`,
-      message: `Are you sure you want to delete this ${this.entityName}?`,
+      message: this.deleteMessage() || `Are you sure you want to delete this ${this.entityName}?`,
       okLabel: 'Delete',
       cancelLabel: 'Cancel'
     });

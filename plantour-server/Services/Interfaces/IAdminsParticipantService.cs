@@ -10,4 +10,5 @@ public interface IAdminsParticipantService
     Task<AdminsParticipantDto?> GetByIdAsync(Guid id);
     Task UpdateAsync(UpdateAdminsParticipantRequest request);
     Task DeleteAsync(Guid id);
+    Task<CheckParticipantDto> CheckParticipant(string email);
 }
