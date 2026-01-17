@@ -28,9 +28,6 @@ public partial class TripUserPackage
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [Column("packed_at")]
-    public DateTime? PackedAt { get; set; }
-
     [Column("packing_list_included")]
     public bool PackingListIncluded { get; set; }
 

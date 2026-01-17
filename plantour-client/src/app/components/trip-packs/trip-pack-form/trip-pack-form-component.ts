@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BaseFormComponent, BaseFormMode } from '../../base-form/base-form-component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
@@ -7,44 +7,234 @@ import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { LookupService } from '../../../services/lookup-service';
-import { TripPackageService } from '../../../services/trip-package-service';
+import { CreateTripPackageRequest, TripPackageDto, TripPackageService, UpdateTripPackageRequest } from '../../../services/trip-package-service';
+import { MessagePanel } from '../../message-panel/message-panel-component/message-panel-component';
+import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
+import { FormHeader } from '../../form/form-header/form-header';
+import { FormActions } from '../../form/form-actions/form-actions';
+import { TripThingService } from '../../../services/trip-thing-service';
+import { UsersService } from '../../../services/users-service';
+import { MessagesService } from '../../../services/messages-service';
+import { LocalStorageService } from '../../../services/local-storage-service';
+import { ComponentService } from '../../../services/component-service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { capitalizeFirstLetter } from '../../../helpers/utils';
+import { catchError, combineLatest, EMPTY, finalize, map } from 'rxjs';
+import { CreatePackageRequest, PackageService } from '../../../services/package-service';
+import { Checkbox } from 'primeng/checkbox';
+import { InputNumber } from 'primeng/inputnumber';
+import { allTogetherValidator } from '../../../helpers/all-together-validator';
 
 @Component({
   selector: 'app-trip-pack-form-component',
   standalone: true,
   imports: [
-    BaseFormComponent,
+    CommonModule,
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
-    CommonModule
+    MessagePanel,
+    AutoFocusDirective,
+    FormHeader,
+    FormActions,
+    Checkbox,
+    InputNumber,
+    Select
   ],
   templateUrl: './trip-pack-form-component.html',
   styleUrl: './trip-pack-form-component.scss',
 })
 export class TripPackFormComponent implements OnInit {
-  private route: ActivatedRoute = inject(ActivatedRoute);
+
+  private route = inject(ActivatedRoute);
   private router = inject(Router);
-  public mode!: BaseFormMode;
-  public id: string | null = null;
+  private fb = inject(FormBuilder);
 
   service = inject(TripPackageService);
-  private lookupService = inject(LookupService);
+  packageService = inject(PackageService);
+  usersService = inject(UsersService);
+  messagesService = inject(MessagesService);
+  localStorageService = inject(LocalStorageService);
+  componentService = inject(ComponentService);
+  lookupService = inject(LookupService);
 
-  fieldsConfig = {
-    name: new FormControl('', Validators.required),
-    label: new FormControl(''),
-    notes: new FormControl(''),
-    packedAt: new FormControl(''),
-    packingListIncluded: new FormControl(false),
-    weightValue: new FormControl(''),
-    weightUnit: new FormControl(''),
-  };
-  
+  isLoading = toSignal(this.componentService.loading$);
+  lookupPackNames$;
+  lookupUnits$;
+
+  mode: 'add' | 'edit' = 'add';
+  id: string | null = null;
+  tripId: string | null = null;
+  form!: FormGroup;
+
+  get isAddMode(): boolean {
+    return this.mode === 'add';
+  }
+
+  errorMessage = '';
+
+  get title(): string {
+    return `${capitalizeFirstLetter(this.mode)} Trip Pack`;
+  }
+
   ngOnInit(): void {
-    this.mode = this.route.snapshot.data['mode'];
-    if (this.mode === 'edit') {
-      this.id = this.route.snapshot.paramMap.get('id');
+
+    this.tripId = this.route.snapshot.params['tripId'];
+
+    // This should be ensured by the route guard
+    if (!this.tripId) {
+      throw new Error('Trip Id is required to create or edit a trip pack');
     }
+
+    this.lookupPackNames$ = combineLatest([this.packageService.getAll(), this.service.getAll(this.tripId!)]).pipe(
+      map(([packages, tripPacks]) => {
+        const packageNames = Array.from(new Set(packages.map(x => x.name).filter(x => !!x)));
+        const tripPackNames = Array.from(new Set(tripPacks.map(x => x.name).filter(x => !!x)));
+        const resultNames = packageNames.filter(x => !tripPackNames.some(y => y.toLowerCase() === x.toLowerCase()));
+        return resultNames.sort((a, b) => a.localeCompare(b));
+      })
+    );
+
+    this.lookupUnits$ = combineLatest([this.lookupService.units$, this.service.getAll(this.tripId!)]).pipe(
+      map(([units, tripPacks]) => {
+        const unitNames = Array.from(new Set(units.map(x => x.name).filter(x => !!x)));
+        const tripPackNames = Array.from(new Set(tripPacks.map(x => x.weightUnit).filter(x => !!x)));
+        const resultNames = [...unitNames, ...tripPackNames].filter((item, index, self) =>
+          index === self.findIndex(t => t!.toLowerCase() === item!.toLowerCase())
+        );
+        return resultNames.sort((a, b) => a!.localeCompare(b!));
+      })
+    );
+
+    this.componentService.reset();
+    this.mode = this.route.snapshot.data['mode'];
+    this.initForm();
+    if (this.isAddMode) {
+      return;
+    }
+    this.id = this.route.snapshot.params['id'];
+    if (!this.id) {
+      throw new Error('Id is required to edit a trip pack');
+    }
+    this.loadPack();
+  }
+
+  private initForm(): void {
+    this.form = this.fb.group({
+      name: new FormControl('', Validators.required),
+      label: new FormControl(''),
+      notes: new FormControl(''),
+      packingListIncluded: new FormControl(false),
+      weightValue: new FormControl(null),
+      weightUnit: new FormControl(''),
+    },{validators: allTogetherValidator(['weightValue', 'weightUnit'])});
+  }
+
+  private loadPack(): void {
+    if (!this.id) return;
+
+    this.componentService.updateLoading(true);
+    this.errorMessage = '';
+
+    this.service.getById(this.id, this.tripId!).pipe(
+      finalize(() => {
+        this.componentService.updateLoading(false);
+      })
+    ).subscribe({
+      next: (pack: TripPackageDto) => {
+        this.form.patchValue({
+          name: pack.name,
+          label: pack.label,
+          packingListIncluded: pack.packingListIncluded,
+          weightValue: pack.weightValue,
+          weightUnit: pack.weightUnit,
+          notes: pack.notes
+        });
+      }
+    });
+  }
+
+  onSubmit(): void {
+    if (this.isLoading()) {
+      return;
+    }
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.errorMessage = 'Please fill in all required fields correctly';
+      return;
+    }
+
+    this.componentService.updateLoading(true);
+    this.errorMessage = '';
+
+    if (this.isAddMode) {
+      this.addPack();
+    } else {
+      this.updatePack();
+    }
+  }
+
+  private addPack() {
+    const formValue = this.form.value;
+    const request: CreateTripPackageRequest = {
+      tripId: this.tripId!,
+      name: formValue.name?.trim(),
+      notes: formValue.notes?.trim() || undefined,
+      label: formValue.label?.trim() || undefined,
+      packingListIncluded: formValue.packingListIncluded,
+      weightValue: formValue.weightValue || null,
+      weightUnit: formValue.weightUnit || null
+    };
+
+    this.service.add(request).pipe(
+      finalize(() => {
+        this.componentService.updateLoading(false);
+      })
+    ).subscribe({
+      next: (pack: TripPackageDto) => {
+        this.localStorageService.setComponentKey('trip-packs', 'selectedId', pack.id);
+        this.messagesService.showInfo('Package added successfully');
+        this.router.navigate([this.tripPacksUrl]);
+      }
+    });
+  }
+
+  private updatePack(): void {
+    if (!this.id) return;
+
+    const formValue = this.form.getRawValue();
+    const request: UpdateTripPackageRequest = {
+      id: this.id,
+      tripId: this.tripId!,
+      name: formValue.name?.trim(),
+      label: formValue.label?.trim() || undefined,
+      weightValue: formValue.weightValue || null,
+      weightUnit: formValue.weightUnit || null,
+      packingListIncluded: formValue.packingListIncluded,
+      notes: formValue.notes?.trim() || undefined
+    };
+
+    this.service.update(request).pipe(
+      finalize(() => {
+        this.componentService.updateLoading(false);
+      })
+    ).subscribe({
+      next: () => {
+        this.localStorageService.setComponentKey('trip-packs', 'selectedId', this.id!);
+        this.messagesService.showInfo('Package updated successfully');
+        this.router.navigate([this.tripPacksUrl]);
+      }
+    });
+  }
+
+  onCancel(event: Event): void {
+    event.preventDefault();
+    this.router.navigate([this.tripPacksUrl]);
+  }
+
+  get tripPacksUrl(): string {
+    const url = `/trips/${this.tripId}/trip-packs`;
+    return url;
   }
 }

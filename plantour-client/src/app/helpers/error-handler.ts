@@ -7,9 +7,18 @@ export class GlobalErrorHandler implements ErrorHandler {
 
   handleError(error: any): void {
 
-    if (error?.message || error?.error.code === 'custom_exception') {
+
+    let message = '';
+
+    if (error?.error.code === 'custom_exception') {
+      message = error.error.message;
+    } else if (error?.message) {
+      message = error.message;
+    }
+
+    if (message) {
       const messagesService = this.injector.get(MessagesService);
-      messagesService.showError(error.message);
+      messagesService.showError(message);
       return;
     }
 

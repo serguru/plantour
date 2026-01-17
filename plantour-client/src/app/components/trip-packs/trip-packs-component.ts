@@ -1,7 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
-import { TripPackageDto, CreateTripPackageRequest, UpdateTripPackageRequest, TripPackageService } from '../../services/trip-package-service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { TripPackageService } from '../../services/trip-package-service';
+import { ActivatedRoute } from '@angular/router';
 import { TripPackItemComponent } from './trip-pack-item/trip-pack-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
@@ -28,21 +27,13 @@ import { switchMap } from 'rxjs';
 export class TripPacksComponent implements OnInit {
   tripPackItemComponent = TripPackItemComponent;
   componentId: string = 'trip-packs';
-
   componentService = inject(ComponentService);
-
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(DynamicQueryService);
-
   tripPackageService = inject(TripPackageService);
-
-
   currentTripService = inject(CurrentTripService);
-
   private route = inject(ActivatedRoute);
-
   private destroyRef = inject(DestroyRef);
-
   private tripId: string | null = null;
 
   conditions: Condition[] =

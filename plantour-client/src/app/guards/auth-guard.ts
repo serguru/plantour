@@ -101,13 +101,6 @@ export const checkTripIdGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-
-  // const pathConfig = route.routeConfig?.path || '';
-  // const shouldHaveTripId = pathConfig.includes(':tripId');
-
-  // if (!shouldHaveTripId) {
-  //   return true;
-  // }
   let tripId = route.params['tripId'] ?? route.params['id'];
 
   if (!tripId) {

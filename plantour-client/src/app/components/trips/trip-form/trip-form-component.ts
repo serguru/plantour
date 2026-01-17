@@ -4,7 +4,7 @@ import { FormControl, ReactiveFormsModule, Validators, FormGroup, FormBuilder } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { LookupService, TripStatusDto } from '../../../services/lookup-service';
 import { MessagesService } from '../../../services/messages-service';
 import { ButtonModule } from 'primeng/button';
@@ -18,7 +18,6 @@ import { ComponentService } from '../../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { capitalizeFirstLetter, formatDate } from '../../../helpers/utils';
 import { catchError, EMPTY, finalize, map } from 'rxjs';
-import { SignUpParticipantRequest } from '../../../models/auth.models';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
 import { dateRangeValidator } from '../../../helpers/date-range-validator';
@@ -30,7 +29,7 @@ import { dateRangeValidator } from '../../../helpers/date-range-validator';
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
-    ButtonModule,
+    //ButtonModule,
     MessagePanel,
     AutoFocusDirective,
     FormHeader,

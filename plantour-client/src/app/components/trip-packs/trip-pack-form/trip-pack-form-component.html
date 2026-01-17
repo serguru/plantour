@@ -1,34 +1,35 @@
-<app-base-form
-  [service]="service"
-  [fieldsConfig]="fieldsConfig"
-  [formTemplate]="fieldsTemplate"
-  [mode]="mode"
-  entityIcon="pi-box"
-  entityName="trip pack"
-  [id]="id"
-  [useTripId]="true"
-  [backUrl]="'/trips/:tripId/trip-packs'"
-  listComponentId="trip-packs"
->
-</app-base-form>
+<div class="page-container">
+  <app-form-header
+    [title]="title"
+    icon="box"
+  ></app-form-header>
 
-<ng-template
-  #fieldsTemplate
-  let-form="form"
-  let-onSubmit="onSubmit"
->
   <div class="controls-wrapper">
-    <form [formGroup]="form">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+    >
       <div class="form-field">
         <label for="name">Name<span class="required">*</span></label>
-        <input
+        <!-- <input
+          appAutoFocus
           pInputText
           id="name"
           type="text"
           formControlName="name"
-          placeholder="Enter trip pack name"
-        />
-        @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty) ) {
+          placeholder="Enter pack name"
+        /> -->
+        <p-select
+          appAutoFocus
+          id="name"
+          formControlName="name"
+          [options]="lookupPackNames$ | async"
+          placeholder="Select pack name"
+          styleClass="w-full"
+          [editable]="true"
+        ></p-select>
+
+        @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
         @if (form.get('name')?.errors?.['required']) {
         <small class="error-message">
           Name is required
@@ -49,34 +50,48 @@
       </div>
 
       <div class="form-field">
-        <label for="weightValue">Weight Value</label>
-        <input
-          pInputText
-          id="weightValue"
-          type="text"
+        <label for="weightValue">Weight</label>
+        <p-inputnumber
+          inputId="weightValue"
           formControlName="weightValue"
-          placeholder="Enter weight value (optional)"
+          placeholder="Enter weight (optional)"
+          mode="decimal"
+          locale="en-US"
+          [min]="0"
+          [maxFractionDigits]="3"
         />
       </div>
 
+
       <div class="form-field">
-        <label for="weightUnit">Weight Unit</label>
-        <input
-          pInputText
+        <label for="weightUnit">Unit</label>
+
+        <p-select
           id="weightUnit"
-          type="text"
           formControlName="weightUnit"
-          placeholder="Enter weight unit (optional)"
-        />
+          [options]="lookupUnits$ | async"
+          placeholder="Select weight unit (optional)"
+          styleClass="w-full"
+          [editable]="true"
+        ></p-select>
       </div>
 
+        @if (form.hasError('allTogether') && form.touched) {
+        <small class="error-message">
+          Weight and Unit must be either both filled in or both empty
+        </small>
+        }
+
+
       <div class="form-field">
-        <label for="packingListIncluded">Packing List Included</label>
-        <input
-          id="packingListIncluded"
-          type="checkbox"
-          formControlName="packingListIncluded"
-        />
+        <div class="container">
+          <p-checkbox
+            formControlName="packingListIncluded"
+            [binary]="true"
+            inputId="packingListIncluded"
+          />
+          <label for="packingListIncluded"> Packing List Included </label>
+        </div>
       </div>
 
       <div class="form-field">
@@ -89,6 +104,25 @@
           placeholder="Enter notes (optional)"
         ></textarea>
       </div>
+
+      @if (errorMessage) {
+      <app-message-panel
+        messageType="error"
+        [messageText]="errorMessage"
+      ></app-message-panel>
+      }
+
+      <app-form-actions
+        [onCancel]="onCancel.bind(this)"
+        cancelLabel="To trips"
+        cancelIcon="chevron-left"
+        [cancelDisabled]="false"
+        [onSubmit]="onSubmit.bind(this)"
+        submitLabel="Submit"
+        submitIcon="save"
+        [submitDisabled]="isLoading() || form.invalid"
+      >
+      </app-form-actions>
     </form>
   </div>
-</ng-template>
+</div>

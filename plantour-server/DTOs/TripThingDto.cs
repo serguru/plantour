@@ -13,7 +13,6 @@ public class TripThingDto
     public Guid? TripUserPackageId { get; set; }
     public string? PackageName { get; set; }
     public string? PackageLabel { get; set; }
-    public DateTime? PackedAt { get; set; }
     public string? Finished { get; set; }
     public bool IsTargeted { get; set; }
     

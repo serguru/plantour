@@ -330,7 +330,6 @@ create table trip_user_packages (
     name varchar(200) not null,
     label varchar(100),
     notes text,
-    packed_at timestamptz,
     packing_list_included boolean not null default(false),
     weight_value decimal(10,3) check(weight_value > 0),
     weight_unit varchar(50)

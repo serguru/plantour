@@ -12,5 +12,4 @@ public class UpdateTripThingRequest
     public decimal? Value { get; set; }
     public Guid? TripUserPackageId { get; set; }
     public string? PackingStatus { get; set; }
-    public DateTime? PackedAt { get; set; }
 }

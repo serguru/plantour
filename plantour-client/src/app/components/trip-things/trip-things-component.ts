@@ -28,25 +28,18 @@ import { switchMap, tap } from 'rxjs';
 export class TripThingsComponent implements OnInit {
   tripThingItemComponent = TripThingItemComponent;
   componentId = 'trip-things';
-
   componentService = inject(ComponentService);
   tripThingService = inject(TripThingService);
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(DynamicQueryService);
   tripPackageService = inject(TripPackageService);
-
   targetCondition = toSignal(this.componentService.targetCondition$);
   target = toSignal(this.componentService.target$);
-
   targetedIds = toSignal(this.componentService.targetedIds$);
   notTargetedIds = toSignal(this.componentService.notTargetedIds$);
-
   currentTripService = inject(CurrentTripService);
-  //currentTripDtoSignal = toSignal(this.currentTripService.currentTripDto$, { initialValue: null });
   private route = inject(ActivatedRoute);
-
   private destroyRef = inject(DestroyRef);
-
   private tripId: string | null = null;
 
   conditions: Condition[] =
@@ -78,7 +71,6 @@ export class TripThingsComponent implements OnInit {
   itemMetaData: any = {
     packOrUnpack: this.packOrUnpack.bind(this)
   }
-
 
   ngOnInit(): void {
 
