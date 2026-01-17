@@ -6,7 +6,7 @@ public class CreateTripRequest
 {
     [Required]
     
-    public string? TripStatus { get; set; }
+    public Guid? TripStatusId { get; set; }
     
     [Required]
     [StringLength(200)]

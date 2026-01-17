@@ -62,11 +62,11 @@ public class TripController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{tripId}/{id}")]
+    [HttpDelete("{id}")]
     [AdminOnly]
-    public async Task<ActionResult> Delete(Guid tripId, Guid id)
+    public async Task<ActionResult> Delete(Guid id)
     {
-        await _service.DeleteAsync(tripId, id);
+        await _service.DeleteAsync(id);
         return NoContent();
     }
 }

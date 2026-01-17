@@ -4,13 +4,14 @@
         title="Trips"
         [delete]="deleteTrip.bind(this)"
         entityName="trip"
-        
-        addUrl="add"
-        editUrl="edit/:id"
+        [addUrl]="isReadOnly() ? null : 'add'"
+        [editUrl]="isReadOnly() ? null : 'edit/:id'"
+        [viewUrl]="!isReadOnly() ? null : 'view/:id'"
     ></app-entities-header>
 
     <app-entities-actions
     ></app-entities-actions>
+
     <app-entities
         [itemComponent]="tripItemComponent"
     ></app-entities>

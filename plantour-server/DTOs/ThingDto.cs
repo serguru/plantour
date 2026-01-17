@@ -12,7 +12,6 @@ public class ThingDto
     public decimal? Value { get; set; }
 
     public string? Notes { get; set; }
-    public bool Shared { get; set; }
     public bool IsTargeted { get; set; }
 
 }

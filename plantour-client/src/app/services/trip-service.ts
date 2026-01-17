@@ -6,9 +6,10 @@ import { CrudService } from './crud-service';
 
 export interface TripDto {
   id: string;
-  tripStatus?: string | null;
+  tripStatusId?: string | null;
+  tripStatus: string | null;
   name: string;
-  description?: string | null;
+  notes?: string | null;
   startDate?: string | null;
   endDate?: string | null;
   totalDays: number;
@@ -18,18 +19,18 @@ export interface TripDto {
   currentUserIncluded: boolean;
 }
 export interface CreateTripRequest {
-  tripStatus?: string | null;
+  tripStatusId: string | null;
   name: string;
-  description?: string | null;
+  notes?: string | null;
   startDate?: string | null;
   endDate?: string | null;
 }
 
 export interface UpdateTripRequest {
   id: string;
-  tripStatus?: string | null;
+  tripStatusId: string | null;
   name: string;
-  description?: string | null;
+  notes?: string | null;
   startDate?: string | null;
   endDate?: string | null;
 }

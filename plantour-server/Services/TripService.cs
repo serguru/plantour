@@ -88,11 +88,11 @@ public class TripService(
         await _tripRepository.UpdateAsync(entity!);
     }
 
-    public async Task DeleteAsync(Guid tripId, Guid id)
+    public async Task DeleteAsync(Guid id)
     {
         _currentUser.RaiseIfNotAdmin();
 
-        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(id))
         {
             throw new CustomException("User does not have access to this trip");
         }

@@ -7,7 +7,7 @@ public class UpdateTripRequest
     [Required]
     public Guid Id { get; set; }
     
-    public string? TripStatus { get; set; }
+    public Guid? TripStatusId { get; set; }
     
     [Required]
     [StringLength(200)]

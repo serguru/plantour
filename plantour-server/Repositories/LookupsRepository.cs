@@ -24,7 +24,7 @@ public class LookupsRepository
 
     public async Task<IEnumerable<TripStatus>> GetAllTripStatusesAsync()
     {
-        return await _context.TripStatuses.OrderBy(x => x.Name).ToListAsync();
+        return await _context.TripStatuses.ToListAsync();
     }
 
     public async Task<IEnumerable<Unit>> GetAllUnitsAsync()

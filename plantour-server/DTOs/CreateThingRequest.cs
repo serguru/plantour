@@ -12,7 +12,4 @@ public class CreateThingRequest
     public decimal? Value { get; set; }
 
     public string? Notes { get; set; }
-
-    public bool Shared { get; set; }
-
 }

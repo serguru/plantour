@@ -19,7 +19,21 @@ public class LookupsService : ILookupsService
     {
         var communicationTypes = await _lookupsRepository.GetAllCommunicationTypesAsync();
         var thingCategories = await _lookupsRepository.GetAllThingCategoriesAsync();
-        var tripStatuses = await _lookupsRepository.GetAllTripStatusesAsync();
+
+        var tripStatusesRaw = await _lookupsRepository.GetAllTripStatusesAsync();
+
+        List<string> statusNames = new()
+        {
+            "Planning",
+            "Preparation",
+            "Active",
+            "Completed"
+        };
+
+        var tripStatuses = tripStatusesRaw
+            .OrderBy(x => statusNames.IndexOf(x.Name))
+            .ToList();
+
         var units = await _lookupsRepository.GetAllUnitsAsync();
 
         return new LookupsResponse

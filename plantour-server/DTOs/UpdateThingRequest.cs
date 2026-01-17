@@ -15,6 +15,4 @@ public class UpdateThingRequest
 
     public string? Notes { get; set; }
 
-    public bool Shared { get; set; }
-
 }

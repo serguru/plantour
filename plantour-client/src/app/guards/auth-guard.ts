@@ -108,7 +108,11 @@ export const checkTripIdGuard: CanActivateFn = (route, state) => {
   // if (!shouldHaveTripId) {
   //   return true;
   // }
-  const tripId = route.params['tripId'];
+  let tripId = route.params['tripId'] ?? route.params['id'];
+
+  if (!tripId) {
+    throw new Error('TripId parameter is missing in route');
+  }
 
   const router = inject(Router);
   const messagesService = inject(MessagesService);

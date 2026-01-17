@@ -1,34 +1,26 @@
-<app-base-form
-  [service]="service"
-  [fieldsConfig]="fieldsConfig"
-  [formTemplate]="fieldsTemplate"
-  [mode]="mode"
-  entityIcon="pi-compass"
-  entityName="trip"
-  [id]="id"
-  backUrl="trips"
-  listComponentId="trips"
->
-</app-base-form>
+<div class="page-container">
+  <app-form-header
+    [title]="title"
+    icon="compass"
+  ></app-form-header>
 
-<ng-template
-  #fieldsTemplate
-  let-form="form"
-  let-tripStatuses="tripStatuses$"
-  let-onSubmit="onSubmit"
->
   <div class="controls-wrapper">
-    <form [formGroup]="form">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+    >
       <div class="form-field">
         <label for="name">Name<span class="required">*</span></label>
         <input
+          appAutoFocus
           pInputText
           id="name"
           type="text"
           formControlName="name"
-          placeholder="Enter trip name"
+          [placeholder]="!isReadOnlyMode ? 'Enter trip name' : ''"
+          [readonly]="isReadOnlyMode"
         />
-        @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty) ) {
+        @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
         @if (form.get('name')?.errors?.['required']) {
         <small class="error-message">
           Name is required
@@ -38,20 +30,45 @@
       </div>
 
       <div class="form-field">
-        <label for="tripStatus">Status</label>
+        <label for="tripStatusId">Status</label>
         <p-select
-          id="tripStatus"
-          formControlName="tripStatus"
-          [options]="tripStatuses | async"
+          id="tripStatusId"
+          formControlName="tripStatusId"
+          [options]="tripStatuses"
           optionLabel="name"
-          optionValue="name"
-          placeholder="Select status"
-          [showClear]="true"
+          optionValue="id"
+          [placeholder]="!isReadOnlyMode ? 'Select status (optional)' : ''"
+          [readonly]="isReadOnlyMode"
+          [showClear]="false"
           styleClass="w-full"
-          [editable]="true"
+          [editable]="false"
         ></p-select>
       </div>
 
+      @if (isReadOnlyMode) {
+      <div class="form-field">
+        <label for="startDate">Start date</label>
+        <input
+          pInputText
+          id="startDate"
+          type="text"
+          formControlName="startDate"
+          [readonly]="true"
+        />
+      </div>
+      <div class="form-field">
+        <label for="endDate">End date</label>
+        <input
+          pInputText
+          id="endDate"
+          type="text"
+          formControlName="startDate"
+          [readonly]="true"
+        />
+      </div>
+
+
+      } @else {
       <div class="form-field">
         <label for="startDate">Start date</label>
         <p-datepicker
@@ -60,6 +77,7 @@
           dateFormat="yy-mm-dd"
           [showIcon]="true"
           styleClass="w-full"
+          appendTo="body"
         ></p-datepicker>
       </div>
 
@@ -71,19 +89,48 @@
           dateFormat="yy-mm-dd"
           [showIcon]="true"
           styleClass="w-full"
+          appendTo="body"
         ></p-datepicker>
       </div>
+      }
+
+      @if (form.hasError('dateRangeInvalid') ) {
+        <small class="error-message">
+          Start date cannot be before end date
+        </small>
+        }
+
 
       <div class="form-field">
-        <label for="description">Description</label>
+        <label for="notes">Notes</label>
         <textarea
           pTextarea
-          id="description"
-          formControlName="description"
+          id="notes"
+          formControlName="notes"
           rows="5"
-          placeholder="Enter description (optional)"
+          [placeholder]="!isReadOnlyMode ? 'Enter notes (optional)' : ''"
+          [readonly]="isReadOnlyMode"
         ></textarea>
       </div>
+
+      @if (errorMessage) {
+      <app-message-panel
+        messageType="error"
+        [messageText]="errorMessage"
+      ></app-message-panel>
+      }
+
+      <app-form-actions
+        [onCancel]="onCancel.bind(this)"
+        cancelLabel="To trips"
+        cancelIcon="chevron-left"
+        [cancelDisabled]="false"
+        [onSubmit]="!isReadOnlyMode ? onSubmit.bind(this) : null"
+        submitLabel="Submit"
+        submitIcon="save"
+        [submitDisabled]="isLoading() || form.invalid"
+      >
+      </app-form-actions>
     </form>
   </div>
-</ng-template>
+</div>

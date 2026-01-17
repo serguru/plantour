@@ -134,29 +134,29 @@ body {
 }
 
 router-outlet {
-    display: contents;
+  display: contents;
 }
 
 @media (max-width: 768px) {
-    .outlet-container {
-        width: 100%;
-    }
+  .outlet-container {
+    width: 100%;
+  }
 }
 
 @media (min-width: 769px) {
-    .outlet-container {
-        margin: 0 auto;
-        max-width: 1200px;
-        width: 100%;
-    }
+  .outlet-container {
+    margin: 0 auto;
+    max-width: 1200px;
+    width: 100%;
+  }
 }
 
 @media (min-width: 769px) {
-    .outlet-container:has(form){
-        margin: 0 auto;
-        max-width: 700px;
-        width: 100%;
-    }
+  .outlet-container:has(form) {
+    margin: 0 auto;
+    max-width: 700px;
+    width: 100%;
+  }
 }
 
 p-button {
@@ -207,11 +207,12 @@ html {
       //margin-bottom: 0.5rem;
     }
 
-    .error-message {
-      color: var(--error-color);
-      font-size: 0.875rem;
-      padding-bottom: 0.5rem;
-    }
+  }
+
+  .error-message {
+    color: var(--error-color);
+    font-size: 0.875rem;
+    padding-bottom: 0.5rem;
   }
 
   // Form actions styling
@@ -420,12 +421,11 @@ p-panel.list-actions-panel {
   background-color: var(--form-header-background-color);
   color: white;
   border-bottom: 1px solid var(--primary-border-color)
-
 }
 
-.toolbar-container  a {
-    color: white !important;
-  }
+.toolbar-container a {
+  color: white !important;
+}
 
 
 .trip-text {
@@ -583,33 +583,33 @@ p-panel.list-actions-panel {
   }
 }
 
-app-base-form, app-generic-list {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
+app-base-form,
+app-generic-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 }
 
 .radio-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  gap: 1rem;
 
-    font-weight: 500;
-    font-family: var(--font-label);
-    color: var(--text-color);
-    padding-bottom: 0.5rem;
+  font-weight: 500;
+  font-family: var(--font-label);
+  color: var(--text-color);
+  padding-bottom: 0.5rem;
 }
 
 .radio-item {
-    display: flex;
-    gap: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
 }
 
-.list-actions-content .p-select-label
- {
+.list-actions-content .p-select-label {
   display: flex !important;
   align-items: center;
 }
@@ -622,13 +622,14 @@ app-base-form, app-generic-list {
   height: 2.5rem;
 }
 
-.p-inputtext:enabled:focus, .p-select:not(.p-disabled).p-focus {
+.p-inputtext:enabled:focus,
+.p-select:not(.p-disabled).p-focus {
   border-color: var(--primary-color) !important;
 }
 
 .p-radiobutton-checked .p-radiobutton-box {
-    border-color: var(--primary-color) !important;
-    background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  background: var(--primary-color) !important;
 }
 
 .page-container {
@@ -639,9 +640,9 @@ app-base-form, app-generic-list {
 }
 
 .loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--pale-color);
-    height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pale-color);
+  height: 100%;
 }

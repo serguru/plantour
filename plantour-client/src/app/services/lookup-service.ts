@@ -72,8 +72,6 @@ export class LookupService {
     });
   }
 
-  
-
   getThingCategories(): Observable<ThingCategoryDto[]> {
     return new Observable((observer) => {
       this.loadLookupsIfNeeded().subscribe({

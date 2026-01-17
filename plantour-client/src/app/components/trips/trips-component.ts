@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { CrudService } from '../../services/crud-service';
 import { TripDto, TripService } from '../../services/trip-service';
 import { TripItemComponent } from './trip-item/trip-item-component';
@@ -32,7 +32,6 @@ export class TripsComponent implements OnInit {
   tripItemComponent = TripItemComponent;
   componentId: string = 'trips';
 
- // appService = inject(AppService);
   tripService = inject(TripService);
 
   componentService = inject(ComponentService);
@@ -42,9 +41,10 @@ export class TripsComponent implements OnInit {
 
   currentTripService = inject(CurrentTripService);
   tripSelected = toSignal(this.currentTripService.currentTripDto$);
-  
+
   usersService = inject(UsersService);
 
+  isReadOnly = computed(() => this.usersService.isParticipantSignal());
 
   private destroyRef = inject(DestroyRef);
 
@@ -71,8 +71,6 @@ export class TripsComponent implements OnInit {
   ngOnInit(): void {
 
     this.componentService.updateComponentId(this.componentId);
-
-
 
     var o = this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
 
@@ -110,7 +108,6 @@ export class TripsComponent implements OnInit {
     const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
     this.componentService.updateSelectedId(id);
   }
-
 
   initConditions(componentId: string | null, trips: TripDto[] | null = null): void {
     if (!componentId) {
