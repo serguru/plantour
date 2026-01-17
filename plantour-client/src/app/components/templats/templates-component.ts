@@ -163,7 +163,7 @@ export class TemplatesComponent {
   initTargetLookup(trips: TripDto[] | null) {
 
     const dicTarget: Target = {
-      id: null,
+      id: "00000000-0000-0000-0000-000000000000", //  this is required by the p-select component
       name: "Things Dictionary",
       selectedMode: TargetMode.DicThings,
       options: null
