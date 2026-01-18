@@ -113,7 +113,6 @@ export class TripThingsComponent implements OnInit {
     this.componentService.updateSelectedId(id);
   }
 
-
   initTargetLookup(packs: TripPackageDto[] | null) {
 
     if (!packs) {

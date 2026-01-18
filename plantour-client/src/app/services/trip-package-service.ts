@@ -6,7 +6,6 @@ import { CrudService, FromDicService, MultipleIdsRequest } from './crud-service'
 
 export interface TripPackageDto {
   id: string;
-  tripId: string;
   name: string;
   label?: string | null;
   notes?: string | null;

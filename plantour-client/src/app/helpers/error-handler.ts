@@ -6,8 +6,6 @@ export class GlobalErrorHandler implements ErrorHandler {
   constructor(private injector: Injector) {}
 
   handleError(error: any): void {
-
-
     let message = '';
 
     if (error?.error.code === 'custom_exception') {

@@ -11,5 +11,5 @@ public class UpdateTripThingRequest
     public string? Units { get; set; }
     public decimal? Value { get; set; }
     public Guid? TripUserPackageId { get; set; }
-    public string? PackingStatus { get; set; }
+    public string? Finished { get; set; }
 }

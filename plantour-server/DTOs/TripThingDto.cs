@@ -4,7 +4,6 @@ namespace plantour_server.DTOs;
 public class TripThingDto
 {
     public Guid Id { get; set; }
-    public Guid TripUserId { get; set; }
     public string? Category { get; set; }
     public string Name { get; set; } = null!;
     public string? Notes { get; set; }
@@ -15,5 +14,9 @@ public class TripThingDto
     public string? PackageLabel { get; set; }
     public string? Finished { get; set; }
     public bool IsTargeted { get; set; }
-    
+
+    public Guid? TripSharedThingId { get; set; }
+    public DateOnly? AssignedAt { get; set; }
+    public DateOnly? AssignedDeadline { get; set; }
 }
+
