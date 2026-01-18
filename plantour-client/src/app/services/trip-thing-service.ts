@@ -31,7 +31,6 @@ export interface CreateTripThingRequest {
   units?: string | null;
   value?: number | null;
   tripUserPackageId?: string | null;
-  finished: string | null;
 }
 
 export interface UpdateTripThingRequest {
@@ -43,7 +42,6 @@ export interface UpdateTripThingRequest {
   units?: string | null;
   value?: number | null;
   tripUserPackageId?: string | null;
-  finished: string | null;
 }
 
 @Injectable({

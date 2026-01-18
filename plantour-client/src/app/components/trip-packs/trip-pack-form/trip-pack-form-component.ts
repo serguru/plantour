@@ -132,9 +132,9 @@ export class TripPackFormComponent implements OnInit {
   private loadPack(): void {
     if (!this.id) return;
 
-    this.componentService.updateLoading(true);
     this.errorMessage = '';
 
+    this.componentService.updateLoading(true);
     this.service.getById(this.id, this.tripId!).pipe(
       finalize(() => {
         this.componentService.updateLoading(false);
@@ -164,7 +164,6 @@ export class TripPackFormComponent implements OnInit {
       return;
     }
 
-    this.componentService.updateLoading(true);
     this.errorMessage = '';
 
     if (this.isAddMode) {
@@ -186,6 +185,7 @@ export class TripPackFormComponent implements OnInit {
       weightUnit: formValue.weightUnit || null
     };
 
+    this.componentService.updateLoading(true);
     this.service.add(request).pipe(
       finalize(() => {
         this.componentService.updateLoading(false);
@@ -214,6 +214,7 @@ export class TripPackFormComponent implements OnInit {
       notes: formValue.notes?.trim() || undefined
     };
 
+    this.componentService.updateLoading(true);
     this.service.update(request).pipe(
       finalize(() => {
         this.componentService.updateLoading(false);

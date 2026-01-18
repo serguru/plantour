@@ -113,9 +113,9 @@ export class TripFormComponent implements OnInit {
   private loadTrip(): void {
     if (!this.id) return;
 
-    this.componentService.updateLoading(true);
     this.errorMessage = '';
 
+    this.componentService.updateLoading(true);
     this.service.getById(this.id).pipe(
       catchError((error) => {
         this.errorMessage = error.error?.message || 'Failed to load trip. Please try again.';
@@ -149,7 +149,6 @@ export class TripFormComponent implements OnInit {
       return;
     }
 
-    this.componentService.updateLoading(true);
     this.errorMessage = '';
 
     if (this.isAddMode) {
@@ -169,11 +168,8 @@ export class TripFormComponent implements OnInit {
       endDate: formatDate(formValue.endDate) || null
     };
 
+    this.componentService.updateLoading(true);
     this.service.add(request).pipe(
-      catchError((error) => {
-        this.errorMessage = error.error?.message || 'Failed to add trip. Please try again.';
-        return EMPTY;
-      }),
       finalize(() => {
         this.componentService.updateLoading(false);
       })
@@ -199,11 +195,8 @@ export class TripFormComponent implements OnInit {
       endDate: formatDate(formValue.endDate) || null
     };
 
+    this.componentService.updateLoading(true);
     this.service.update(request).pipe(
-      catchError((error) => {
-        this.errorMessage = error.error?.message || 'Failed to update trip. Please try again.';
-        return EMPTY;
-      }),
       finalize(() => {
         this.componentService.updateLoading(false);
       })

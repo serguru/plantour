@@ -1,4 +1,129 @@
+<div class="page-container">
+  <app-form-header
+    [title]="title"
+    icon="objects-column"
+  ></app-form-header>
 
+  <div class="controls-wrapper">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="form-field">
+        <label for="name">Name<span class="required">*</span></label>
+        <p-select
+          appAutoFocus
+          id="name"
+          formControlName="name"
+          [options]="lookupTripThings$ | async"
+          placeholder="Select thing name"
+          styleClass="w-full"
+          [editable]="true"
+        ></p-select>
+
+        @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
+        @if (form.get('name')?.errors?.['required']) {
+        <small class="error-message">
+          Name is required
+        </small>
+        }
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="category">Category</label>
+        <p-select
+          id="category"
+          formControlName="category"
+          [options]="lookupCategories$ | async"
+          placeholder="Select category"
+          styleClass="w-full"
+          [editable]="true"
+        ></p-select>
+      </div>
+
+      <div class="form-field">
+        <label for="value">Value</label>
+        <p-inputnumber
+          inputId="value"
+          formControlName="value"
+          placeholder="Enter value (optional)"
+          mode="decimal"
+          locale="en-US"
+          [min]="0"
+          [maxFractionDigits]="3"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="unit">Unit</label>
+        <p-select
+          id="unit"
+          formControlName="units"
+          [options]="lookupUnits$ | async"
+          placeholder="Select unit (optional)"
+          styleClass="w-full"
+          [editable]="true"
+        ></p-select>
+      </div>
+
+
+      @if (form.hasError('allTogether') && form.touched) {
+      <small class="error-message">
+        Value and Unit must be either both filled in or both empty
+      </small>
+      }
+
+
+
+      <div class="form-field">
+        <label for="notes">Notes</label>
+        <textarea
+          pTextarea
+          id="notes"
+          formControlName="notes"
+          rows="5"
+          placeholder="Enter notes (optional)"
+        ></textarea>
+      </div>
+
+      <div class="form-field">
+        <label for="pack">Pack</label>
+        <p-select
+          id="pack"
+          formControlName="tripUserPackageId"
+          [options]="lookupTripPacks$ | async"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Select pack (optional)"
+          styleClass="w-full"
+          showClear="true"
+          [editable]="false"
+        ></p-select>
+      </div>
+
+
+      @if (errorMessage) {
+      <app-message-panel
+        messageType="error"
+        [messageText]="errorMessage"
+      ></app-message-panel>
+      }
+
+      <app-form-actions
+        [onCancel]="onCancel.bind(this)"
+        cancelLabel="To trips"
+        cancelIcon="chevron-left"
+        [cancelDisabled]="false"
+        [onSubmit]="onSubmit.bind(this)"
+        submitLabel="Submit"
+        submitIcon="save"
+        [submitDisabled]="isLoading() || form.invalid"
+      >
+      </app-form-actions>
+    </form>
+  </div>
+</div>
 
 
 <!-- 
