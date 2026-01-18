@@ -126,7 +126,7 @@ export class TripThingFormComponent implements OnInit {
     ]).pipe(
       map(([units, thingUnits, tripThings]) => {
         const unitNames = Array.from(new Set(units.map(x => x.name).filter(x => !!x)));
-        const thingUnitNames = Array.from(new Set(thingUnits.map(x => x.name).filter(x => !!x)));
+        const thingUnitNames = Array.from(new Set(thingUnits.map(x => x.units).filter(x => !!x)));
         const tripThingUnits = Array.from(new Set(tripThings.map(x => x.units).filter(x => !!x)));
         const resultNames = [...unitNames, ...thingUnitNames, ...tripThingUnits].filter((item, index, self) =>
           index === self.findIndex(t => t!.toLowerCase() === item!.toLowerCase())
