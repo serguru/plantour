@@ -34,7 +34,6 @@ import { ThingService } from '../../../services/thing-service';
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
-    MessagePanel,
     AutoFocusDirective,
     FormHeader,
     FormActions,
@@ -74,8 +73,6 @@ export class TripThingFormComponent implements OnInit {
   get isAddMode(): boolean {
     return this.mode === 'add';
   }
-
-  errorMessage = '';
 
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Trip Thing`;
@@ -165,8 +162,6 @@ export class TripThingFormComponent implements OnInit {
   private loadThing(): void {
     if (!this.id) return;
 
-    this.errorMessage = '';
-
     this.componentService.updateLoading(true);
     this.service.getById(this.id, this.tripId!).pipe(
       finalize(() => {
@@ -193,12 +188,9 @@ export class TripThingFormComponent implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMessage = 'Please fill in all required fields correctly';
+      this.messagesService.showWarning('Please fill in all required fields correctly');
       return;
     }
-
-    this.errorMessage = '';
-
     if (this.isAddMode) {
       this.addThing();
     } else {

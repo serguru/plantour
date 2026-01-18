@@ -29,8 +29,6 @@ import { dateRangeValidator } from '../../../helpers/date-range-validator';
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
-    //ButtonModule,
-    MessagePanel,
     AutoFocusDirective,
     FormHeader,
     FormActions,
@@ -65,7 +63,6 @@ export class TripFormComponent implements OnInit {
     return this.mode === 'add';
   }
 
-  errorMessage = '';
   participantId = '';
 
 
@@ -113,14 +110,8 @@ export class TripFormComponent implements OnInit {
   private loadTrip(): void {
     if (!this.id) return;
 
-    this.errorMessage = '';
-
     this.componentService.updateLoading(true);
     this.service.getById(this.id).pipe(
-      catchError((error) => {
-        this.errorMessage = error.error?.message || 'Failed to load trip. Please try again.';
-        return EMPTY;
-      }),
       finalize(() => {
         this.componentService.updateLoading(false);
       })
@@ -145,12 +136,9 @@ export class TripFormComponent implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMessage = 'Please fill in all required fields correctly';
+      this.messagesService.showWarning('Please fill in all required fields correctly');
       return;
     }
-
-    this.errorMessage = '';
-
     if (this.isAddMode) {
       this.addTrip();
     } else {

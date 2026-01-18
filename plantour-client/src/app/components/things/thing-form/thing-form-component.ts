@@ -30,7 +30,6 @@ import { InputNumber } from 'primeng/inputnumber';
     ReactiveFormsModule,
     TextareaModule,
     ButtonModule,
-    MessagePanel,
     AutoFocusDirective,
     FormHeader,
     FormActions,
@@ -91,8 +90,6 @@ export class ThingFormComponent implements OnInit {
     return this.mode === 'add';
   }
 
-  errorMessage = '';
-  
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Thing`;
   }
@@ -124,13 +121,7 @@ export class ThingFormComponent implements OnInit {
     if (!this.id) return;
 
     this.componentService.updateLoading(true);
-    this.errorMessage = '';
-
     this.service.getById(this.id).pipe(
-      catchError((error) => {
-        this.errorMessage = error.error?.message || 'Failed to load traveler. Please try again.';
-        return EMPTY;
-      }),
       finalize(() => {
         this.componentService.updateLoading(false);
       })
@@ -154,12 +145,10 @@ export class ThingFormComponent implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMessage = 'Please fill in all required fields correctly';
+      this.messagesService.showWarning('Please fill in all required fields correctly');
       return;
     }
 
-    this.componentService.updateLoading(true);
-    this.errorMessage = '';
 
     if (this.isAddMode) {
       this.addThing();
@@ -180,6 +169,7 @@ export class ThingFormComponent implements OnInit {
     };
 
 
+    this.componentService.updateLoading(true);
     this.service.add(request).pipe(
       finalize(() => {
         this.componentService.updateLoading(false);
@@ -206,6 +196,7 @@ export class ThingFormComponent implements OnInit {
       value: formValue.value || undefined
     };
 
+    this.componentService.updateLoading(true);
     this.service.update(request).pipe(
       finalize(() => {
         this.componentService.updateLoading(false);

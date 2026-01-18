@@ -32,7 +32,6 @@ import { allTogetherValidator } from '../../../helpers/all-together-validator';
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
-    MessagePanel,
     AutoFocusDirective,
     FormHeader,
     FormActions,
@@ -69,8 +68,6 @@ export class TripPackFormComponent implements OnInit {
   get isAddMode(): boolean {
     return this.mode === 'add';
   }
-
-  errorMessage = '';
 
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Trip Pack`;
@@ -132,8 +129,6 @@ export class TripPackFormComponent implements OnInit {
   private loadPack(): void {
     if (!this.id) return;
 
-    this.errorMessage = '';
-
     this.componentService.updateLoading(true);
     this.service.getById(this.id, this.tripId!).pipe(
       finalize(() => {
@@ -160,11 +155,10 @@ export class TripPackFormComponent implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMessage = 'Please fill in all required fields correctly';
+      this.messagesService.showWarning('Please fill in all required fields correctly');
       return;
     }
 
-    this.errorMessage = '';
 
     if (this.isAddMode) {
       this.addPack();

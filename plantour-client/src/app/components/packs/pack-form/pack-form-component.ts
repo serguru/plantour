@@ -23,7 +23,6 @@ import { MessagePanel } from '../../message-panel/message-panel-component/messag
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
-    MessagePanel,
     AutoFocusDirective,
     FormHeader,
     FormActions
@@ -53,8 +52,6 @@ export class PackFormComponent implements OnInit {
     return this.mode === 'add';
   }
 
-  errorMessage = '';
-
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Pack`;
   }
@@ -76,13 +73,7 @@ export class PackFormComponent implements OnInit {
     if (!this.id) return;
 
     this.componentService.updateLoading(true);
-    this.errorMessage = '';
-
     this.service.getById(this.id).pipe(
-      catchError((error) => {
-        this.errorMessage = error.error?.message || 'Failed to load package. Please try again.';
-        return EMPTY;
-      }),
       finalize(() => {
         this.componentService.updateLoading(false);
       })
@@ -103,12 +94,10 @@ export class PackFormComponent implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMessage = 'Please fill in all required fields correctly';
+      this.messagesService.showWarning('Please fill in all required fields correctly');
       return;
     }
 
-    this.componentService.updateLoading(true);
-    this.errorMessage = '';
 
     if (this.isAddMode) {
       this.addPackage();
@@ -123,11 +112,9 @@ export class PackFormComponent implements OnInit {
       name: formValue.name?.trim(),
       notes: formValue.notes?.trim() || undefined
     };
+
+    this.componentService.updateLoading(true);
     this.service.add(request).pipe(
-      // catchError((error) => {
-      //   this.errorMessage = error.error?.message || 'Failed to add package. Please try again.';
-      //   return EMPTY;
-      // }),
       finalize(() => {
         this.componentService.updateLoading(false);
       })
@@ -152,11 +139,8 @@ export class PackFormComponent implements OnInit {
       notes: formValue.notes?.trim() || undefined
     };
 
+    this.componentService.updateLoading(true);
     this.service.update(request).pipe(
-      // catchError((error) => {
-      //   this.errorMessage = error.error?.message || 'Failed to update package. Please try again.';
-      //   return EMPTY;
-      // }),
       finalize(() => {
         this.componentService.updateLoading(false);
       })

@@ -113,13 +113,6 @@
         ></textarea>
       </div>
 
-      @if (errorMessage) {
-      <app-message-panel
-        messageType="error"
-        [messageText]="errorMessage"
-      ></app-message-panel>
-      }
-
       <app-form-actions
         [onCancel]="onCancel.bind(this)"
         cancelLabel="To trips"

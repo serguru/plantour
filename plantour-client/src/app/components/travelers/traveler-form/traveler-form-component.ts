@@ -28,7 +28,6 @@ import { LocalStorageService } from '../../../services/local-storage-service';
     ReactiveFormsModule,
     TextareaModule,
     ButtonModule,
-    MessagePanel,
     AutoFocusDirective,
     FormHeader,
     FormActions
@@ -57,7 +56,6 @@ export class TravelerFormComponent implements OnInit {
     return this.mode === 'add';
   }
 
-  errorMessage = '';
   participantId = '';
 
 
@@ -129,13 +127,7 @@ export class TravelerFormComponent implements OnInit {
     if (!this.id) return;
 
     this.componentService.updateLoading(true);
-    this.errorMessage = '';
-
     this.service.getById(this.id).pipe(
-      catchError((error) => {
-        this.errorMessage = error.error?.message || 'Failed to load traveler. Please try again.';
-        return EMPTY;
-      }),
       finalize(() => {
         this.componentService.updateLoading(false);
       })
@@ -160,12 +152,10 @@ export class TravelerFormComponent implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMessage = 'Please fill in all required fields correctly';
+      this.messagesService.showWarning('Please fill in all required fields correctly');
       return;
     }
 
-    this.componentService.updateLoading(true);
-    this.errorMessage = '';
 
     if (this.isAddMode) {
       this.addTraveler();
@@ -184,6 +174,7 @@ export class TravelerFormComponent implements OnInit {
       notes: formValue.notes?.trim() || undefined
     };
 
+    this.componentService.updateLoading(true);
 
     this.service.checkParticipantByEmail(request.email).pipe(
       switchMap(async (result: CheckParticipantResponse) => {
@@ -224,10 +215,6 @@ export class TravelerFormComponent implements OnInit {
         return this.service.add(request);
       }),
       mergeMap(result => result),
-      catchError((error) => {
-        this.errorMessage = error.error?.message || 'Failed to add traveler. Please try again.';
-        return EMPTY;
-      }),
       finalize(() => {
         this.componentService.updateLoading(false);
       })
@@ -240,10 +227,6 @@ export class TravelerFormComponent implements OnInit {
     });
   }
 
-  // this.messagesService.showInfo('Traveler added successfully');
-  // this.router.navigate(['/travelers']);
-
-
   private updateTraveler(): void {
     if (!this.id) return;
 
@@ -254,11 +237,8 @@ export class TravelerFormComponent implements OnInit {
       notes: formValue.notes?.trim() || null
     };
 
+    this.componentService.updateLoading(true);
     this.service.update(request).pipe(
-      catchError((error) => {
-        this.errorMessage = error.error?.message || 'Failed to update traveler. Please try again.';
-        return EMPTY;
-      }),
       finalize(() => {
         this.componentService.updateLoading(false);
       })
