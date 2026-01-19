@@ -1,23 +1,65 @@
-<div class="container">
-    <div
-        class="left"
-        [innerHTML]="entity.name"
-    ></div>
-    @if(!targetCondition()) {
-    <p-select
-        class="content w-full"
-        [options]="itemMetaData.packs"
-        optionLabel="name"
-        optionValue="id"
-        [ngModel]="entity.assignedToId"
-        [placeholder]="'Select assignee'"
-        [ngModelOptions]="{ standalone: true }"
-        [showClear]="true"
-        appendTo="body"
-        (onChange)="onAssigneeChange($event.value)"
-        (onClick)="onAssigneeClick($event)"
-        showClear="true"
-    >
-    </p-select>
+<div class=".item-component-container">
+    <div class="container">
+        <div
+            class="left"
+            [innerHTML]="entity.name"
+        ></div>
+        @if(!targetCondition()) {
+        <p-select
+            class="content w-full"
+            [options]="itemMetaData.packs"
+            optionLabel="name"
+            optionValue="id"
+            [ngModel]="entity.assignedToId"
+            [placeholder]="'Select assignee'"
+            [ngModelOptions]="{ standalone: true }"
+            [showClear]="true"
+            appendTo="body"
+            (onChange)="onAssigneeChange($event.value)"
+            (onClick)="onAssigneeClick($event)"
+            showClear="true"
+        >
+        </p-select>
+        }
+    </div>
+    @if (this.selectedId() === entity.id) {
+    <div class="selected-container">
+        <div class="checkboxes">
+
+            <div class="checkbox-container" > 
+                <p-checkbox
+                    [(ngModel)] = "accepted"
+                    [binary]="true"
+                    inputId="accepted"
+                    (click)="handleAcceptedClick($event)">
+                </p-checkbox>
+                
+                <label for="accepted" (click)="handleAcceptedClick($event)"> Accepted </label>
+            </div>
+
+            <div class="checkbox-container">
+                <p-checkbox
+                    [(ngModel)] = "rejected"
+                    [binary]="true"
+                    inputId="rejected"
+                    (click)="handleRejectedClick($event)">
+                </p-checkbox>
+                <label for="rejected" (click)="handleRejectedClick($event)">Rejected</label>
+            </div>
+        </div>
+        <div>
+            <label>Assigned At</label>
+            <div>{{entity.assignedAt | formatDate}}</div>
+        </div>
+        <div>
+            <label>Deadline</label>
+            <div>{{entity.assignedDeadline | formatDate}}</div>
+        </div>
+        @if (days) {
+        <div>{{days}}</div>
+        }
+
+
+    </div>
     }
 </div>

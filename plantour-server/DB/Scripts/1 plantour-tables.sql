@@ -369,12 +369,7 @@ create table trip_shared_things (
     assigned_thing_id uuid null references trip_user_things(id) on delete set null,
     assigned_at timestamptz null,
     assigned_deadline timestamptz null,
-    rejected boolean not null default false,
-    constraint ch_trip_shared_things_at_before_deadline check (
-        assigned_at is null 
-        or assigned_deadline is null 
-        or assigned_at <= assigned_deadline
-    )
+    rejected boolean not null default false
 );
 create unique index idx_trip_shared_things_trip_id_name on trip_shared_things(trip_id, name);
 

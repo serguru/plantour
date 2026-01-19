@@ -27,3 +27,22 @@
     width: 200px;
   }
 }
+
+
+.selected-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checkboxes {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.checkbox-container{
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}

@@ -651,3 +651,9 @@ app-generic-list {
     border-color: var(--primary-color) !important;
     background: var(--primary-color) !important;
 }
+
+.item-component-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
