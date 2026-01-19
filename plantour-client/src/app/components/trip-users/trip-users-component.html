@@ -2,11 +2,12 @@
     <app-entities-header
         entityIcon="pi pi-user"
         title="Trip participants"
-        [delete]="deleteTripUser.bind(this)"
-        entityName="thing"
+        [delete]="isReadOnly() ? null : deleteTripUser.bind(this)"
+        entityName="participant"
         
-        addUrl="add"
-        editUrl="edit/:id"
+        [addUrl]="isReadOnly() ? null : 'add'"
+        [editUrl]="isReadOnly() ? null : 'edit/:id'"
+        [viewUrl]="!isReadOnly() ? null : 'view/:id'"
     ></app-entities-header>
 
     <app-entities-actions

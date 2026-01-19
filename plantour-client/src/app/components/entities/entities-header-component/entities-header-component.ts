@@ -40,7 +40,6 @@ export class EntitiesHeader implements OnInit {
 
   selectedId = toSignal(this.componentService.selectedId$, { initialValue: null });
 
-
   ngOnInit(): void {
 
   }

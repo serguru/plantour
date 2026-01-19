@@ -20,7 +20,6 @@ public class GlobalExceptionHandler : IExceptionHandler
     {
         _logger.LogError(exception, "Unhandled exception: {Message}", exception.Message);
 
-        // Явное указание типов в кортеже (int, ErrorResponse) исправляет ошибку CS8130
         (int statusCode, ErrorResponse response) = exception switch
         {
             CustomException x => (
@@ -39,10 +38,8 @@ public class GlobalExceptionHandler : IExceptionHandler
 
         await httpContext.Response.WriteAsJsonAsync(response, cancellationToken);
 
-        // Возвращаем true, чтобы подтвердить, что ошибка обработана и не пошла дальше
         return true;
     }
 }
 
-// Модель ответа (убедитесь, что свойства публичные)
 public record ErrorResponse(string Code, string Message);

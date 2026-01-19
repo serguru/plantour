@@ -155,6 +155,12 @@ export const routes: Routes = [
     data: { mode: 'edit', componentId: 'trip-user-form' }
   },
   {
+    path: 'trips/:tripId/trip-participants/view/:id',
+    canActivate: [checkTripIdGuard, adminOrParticipantGuard],
+    loadComponent: () => import('./components/trip-users/trip-user-form/trip-user-form-component').then(m => m.TripUserFormComponent),
+    data: { mode: 'view', componentId: 'trip-user-form' }
+  },
+  {
     path: 'trips/:tripId/trip-things',
     canActivate: [checkTripIdGuard],
     loadComponent: () => import('./components/trip-things/trip-things-component').then(m => m.TripThingsComponent),

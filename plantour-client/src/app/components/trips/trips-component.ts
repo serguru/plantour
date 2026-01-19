@@ -44,7 +44,7 @@ export class TripsComponent implements OnInit {
 
   usersService = inject(UsersService);
 
-  isReadOnly = computed(() => this.usersService.isParticipantSignal());
+  isReadOnly = this.usersService.isParticipantSignal;
 
   private destroyRef = inject(DestroyRef);
 
@@ -70,6 +70,8 @@ export class TripsComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.componentService.reset();
+
     this.componentService.updateComponentId(this.componentId);
 
     var o = this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
@@ -77,7 +79,7 @@ export class TripsComponent implements OnInit {
     o.pipe(
       tap((trips: TripDto[]) => {
         this.initConditions(this.componentId, trips);
-        this.initSavedFeatures();
+        this.initSavedFeatures(trips);
         this.componentService.updateEntities(trips || [])
       }),
       concatMap(trips =>
@@ -101,12 +103,18 @@ export class TripsComponent implements OnInit {
     ).subscribe();
   }
 
-  initSavedFeatures() {
+  initSavedFeatures(trips: TripDto[] | null = null): void {
     const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
 
-    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
-    this.componentService.updateSelectedId(id);
+    let id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+
+    if (id && trips?.some(t => t.id === id)) {
+      this.componentService.updateSelectedId(id);
+    } else {
+      this.componentService.updateSelectedId(null);
+    }
+
   }
 
   initConditions(componentId: string | null, trips: TripDto[] | null = null): void {

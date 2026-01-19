@@ -6,6 +6,7 @@ public interface ITripUserService
 {
     Task<IEnumerable<TripUserDto>> GetAllAsync(Guid tripId);
     Task<TripUserDto?> GetByIdAsync(Guid tripId, Guid id);
+    Task<TripUserDto?> GetByIdForAllAsync(Guid tripId, Guid id);
     Task<TripUserDto> AddAsync(CreateTripUserRequest request);
     Task UpdateAsync(UpdateTripUserRequest request);
     Task DeleteAsync(Guid tripId, Guid id);

@@ -20,10 +20,6 @@ export interface TripUserDto {
 export interface CreateTripUserRequest {
   tripId: string;
   adminParticipantId: string;
-  email: string;
-  firstName?: string | null;
-  lastName?: string | null;
-  phone?: string | null;
   notes?: string | null;
 }
 
@@ -31,17 +27,13 @@ export interface UpdateTripUserRequest {
   id: string;
   tripId: string;
   adminParticipantId: string;
-  email: string;
-  firstName?: string | null;
-  lastName?: string | null;
-  phone?: string | null;
   notes?: string | null;
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class TripUserService implements CrudService<TripUserDto, CreateTripUserRequest, UpdateTripUserRequest>, FromDicService {
+export class TripUserService {
   private apiUrl: string;
 
   constructor(
@@ -76,11 +68,14 @@ export class TripUserService implements CrudService<TripUserDto, CreateTripUserR
       }
       ),
     )
-
   }
 
-  getById(id: string): Observable<TripUserDto> {
-    return this.http.get<TripUserDto>(`${this.apiUrl}/${id}`);
+  getById(tripId: string, id: string): Observable<TripUserDto> {
+    return this.http.get<TripUserDto>(`${this.apiUrl}/trip/${tripId}/user/${id}`);
+  }
+
+  getByIdForAll(tripId: string, id: string): Observable<TripUserDto> {
+    return this.http.get<TripUserDto>(`${this.apiUrl}/trip/${tripId}/all-users/${id}`);
   }
 
   add(request: CreateTripUserRequest): Observable<TripUserDto> {
@@ -91,7 +86,7 @@ export class TripUserService implements CrudService<TripUserDto, CreateTripUserR
     return this.http.put<void>(`${this.apiUrl}`, request);
   }
 
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  delete(tripId: string, id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/trip/${tripId}/user/${id}`);
   }
 }

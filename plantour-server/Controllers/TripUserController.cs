@@ -34,15 +34,15 @@ public class TripUserController : ControllerBase
     }
 
     [HttpGet("trip/{tripId}")]
-    [AdminOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<TripUserDto>>> GetAll(Guid tripId)
     {
         var dtos = await _service.GetAllAsync(tripId);
         return Ok(dtos);
     }
 
-    [HttpGet("{id}")]
-    [AdminOnly]
+    [HttpGet("trip/{tripId}/user/{id}")]
+    [AdminOrParticipant]
     public async Task<ActionResult<TripUserDto>> GetById(Guid tripId, Guid id)
     {
         var dto = await _service.GetByIdAsync(tripId, id);
@@ -50,6 +50,19 @@ public class TripUserController : ControllerBase
         {
             return NotFound(new { message = "Trip user not found" });
         }
+
+        return Ok(dto);
+    }
+
+    [HttpGet("trip/{tripId}/all-users/{id}")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<TripUserDto>> GetByIdForAll(Guid tripId, Guid id)
+    {
+        var dto = await _service.GetByIdForAllAsync(tripId, id);
+        // if (dto == null)
+        // {
+        //     return NotFound(new { message = "Trip user not found" });
+        // }
 
         return Ok(dto);
     }
@@ -70,7 +83,7 @@ public class TripUserController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("trip/{tripId}/user/{id}")]
     [AdminOnly]
     public async Task<ActionResult> Delete(Guid tripId, Guid id)
     {

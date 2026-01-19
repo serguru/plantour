@@ -12,6 +12,7 @@ import { Condition, DynamicQueryService } from '../../services/dynamic-query-ser
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { switchMap, tap } from 'rxjs';
+import { UsersService } from '../../services/users-service';
 
 
 // TODO: make read only for participants
@@ -38,6 +39,10 @@ export class TripUsersComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
   private tripId: string | null = null;
+
+  usersService = inject(UsersService);
+  isReadOnly = this.usersService.isParticipantSignal;
+
 
   conditions: Condition[] =
     [
@@ -102,7 +107,7 @@ export class TripUsersComponent implements OnInit {
   }
 
   deleteTripUser(id: string): void {
-    this.tripUsersService.delete(id).pipe(
+    this.tripUsersService.delete(this.tripId!, id).pipe(
       switchMap(_ =>
         this.tripUsersService.getAll(this.tripId!)
       ),

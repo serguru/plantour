@@ -28,6 +28,17 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
             );
     }
 
+    public async Task<TripUser?> GetByIdForAllAsync(Guid adminId, Guid tripId, Guid id)
+    {
+        return await _dbSet
+            .Include(x => x.AdminParticipant.Participant)
+            .FirstOrDefaultAsync(x =>
+            x.Id == id &&
+            x.AdminParticipant.AdminId == adminId &&
+            x.TripId == tripId
+            );
+    }
+
     public async Task<bool> AnyByIdAsync(Guid adminId, Guid tripId, Guid id)
     {
         return await _dbSet

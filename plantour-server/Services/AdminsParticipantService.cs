@@ -116,6 +116,7 @@ public class AdminsParticipantService(
         return entity != null ? _mapper.Map<AdminsParticipantDto>(entity) : null;
     }
 
+    // TODO: Ensure in UI it is not possible to change AdminId or ParticipantId
     public async Task UpdateAsync(UpdateAdminsParticipantRequest request)
     {
         _currentUser.RaiseIfNotAdmin();

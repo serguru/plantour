@@ -1,34 +1,33 @@
-<app-base-form
-  [service]="service"
-  [fieldsConfig]="fieldsConfig"
-  [formTemplate]="fieldsTemplate"
-  [mode]="mode"
-  entityIcon="pi-user"
-  entityName="trip participant"
-  [id]="id"
-  [useTripId]="true"
-  [backUrl]="'/trips/:tripId/trip-participants'"
-  listComponentId="trip-participants"
->
-</app-base-form>
+<div class="page-container">
+  <app-form-header
+    [title]="title"
+    icon="user"
+  ></app-form-header>
 
-<ng-template
-  #fieldsTemplate
-  let-form="form"
-  let-onSubmit="onSubmit"
->
   <div class="controls-wrapper">
-    <form [formGroup]="form">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+    >
       <div class="form-field">
-        <label for="email">Email<span class="required">*</span></label>
-        <input
-          pInputText
-          id="email"
-          type="email"
-          formControlName="email"
-          placeholder="Enter participant email"
-        />
-        @if (form.get('email')?.invalid && (form.get('email')?.touched || form.get('email')?.dirty) ) {
+        @if (isAddMode) {
+
+        <label for="adminParticipantId">Traveler<span class="required">*</span></label>
+        <p-select
+          appAutoFocus
+          class="w-full"
+          [options]="lookupTravelers"
+          optionLabel="fullName"
+          optionValue="id"
+          [placeholder]="isAddMode ? 'Select traveler' : ''"
+          [showClear]="false"
+          appendTo="body"
+          (onChange)="onTravelerChange($event.value)"
+          [readonly]="isViewMode"
+          formControlName="adminParticipantId"
+        >
+        </p-select>
+        @if (form.get('email')?.invalid && (form.get('email')?.touched || form.get('email')?.dirty)) {
         @if (form.get('email')?.errors?.['required']) {
         <small class="error-message">
           Email is required
@@ -36,42 +35,53 @@
         }
         @if (form.get('email')?.errors?.['email']) {
         <small class="error-message">
-          Invalid email format
+          Please enter a valid email address
         </small>
         }
+        }
+        } @else {
+        <label for="fullName">Traveler</label>
+        <input
+          pInputText
+          id="fullName"
+          type="text"
+          formControlName="fullName"
+          [readonly]="true"
+        />
         }
       </div>
 
       <div class="form-field">
-        <label for="firstName">First Name<span class="required">*</span></label>
+        <label for="email">Email</label>
+        <input
+          pInputText
+          id="email"
+          type="email"
+          formControlName="email"
+          [readonly]="true"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="firstName">First Name</label>
         <input
           pInputText
           id="firstName"
           type="text"
           formControlName="firstName"
-          placeholder="Enter first name"
+          [readonly]="true"
         />
-        @if (form.get('firstName')?.invalid && (form.get('firstName')?.touched || form.get('firstName')?.dirty) ) {
-        <small class="error-message">
-          First name is required
-        </small>
-        }
       </div>
 
       <div class="form-field">
-        <label for="lastName">Last Name<span class="required">*</span></label>
+        <label for="lastName">Last Name</label>
         <input
           pInputText
           id="lastName"
           type="text"
           formControlName="lastName"
-          placeholder="Enter last name"
+          [readonly]="true"
         />
-        @if (form.get('lastName')?.invalid && (form.get('lastName')?.touched || form.get('lastName')?.dirty) ) {
-        <small class="error-message">
-          Last name is required
-        </small>
-        }
       </div>
 
       <div class="form-field">
@@ -79,22 +89,35 @@
         <input
           pInputText
           id="phone"
-          type="text"
+          type="tel"
           formControlName="phone"
-          placeholder="Enter phone (optional)"
+          [readonly]="true"
         />
       </div>
 
       <div class="form-field">
         <label for="notes">Notes</label>
         <textarea
-          pInputTextarea
+          pTextarea
           id="notes"
           formControlName="notes"
-          rows="3"
-          placeholder="Enter notes (optional)"
+          rows="5"
+          [placeholder]="isAddMode ? 'Enter notes (optional)' : ''"
+          [readonly]="isViewMode"
         ></textarea>
       </div>
+
+      <app-form-actions
+        [onCancel]="onCancel.bind(this)"
+        cancelLabel="To trips"
+        cancelIcon="chevron-left"
+        [cancelDisabled]="false"
+        [onSubmit]="!isViewMode ? onSubmit.bind(this) : null"
+        submitLabel="Submit"
+        submitIcon="save"
+        [submitDisabled]="isLoading() || form.invalid"
+      >
+      </app-form-actions>
     </form>
   </div>
-</ng-template>
+</div>

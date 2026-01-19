@@ -2,7 +2,7 @@
     <app-entities-header
         entityIcon="pi pi-compass"
         title="Trips"
-        [delete]="deleteTrip.bind(this)"
+        [delete]="isReadOnly() ? null : deleteTrip.bind(this)"
         entityName="trip"
         [addUrl]="isReadOnly() ? null : 'add'"
         [editUrl]="isReadOnly() ? null : 'edit/:id'"

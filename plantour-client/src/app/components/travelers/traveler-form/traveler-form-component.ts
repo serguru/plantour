@@ -102,6 +102,8 @@ export class TravelerFormComponent implements OnInit {
     });
   }
 
+
+  // TODO: replace disabled with readonly 
   private initEditForm(): void {
     // In edit mode, only notes can be updated based on UpdateAdminsParticipantRequest
     this.form = this.fb.group({

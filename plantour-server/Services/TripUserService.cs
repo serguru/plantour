@@ -72,6 +72,17 @@ public class TripUserService(
         return entity != null ? _mapper.Map<TripUserDto>(entity) : null;
     }
 
+    public async Task<TripUserDto?> GetByIdForAllAsync(Guid tripId, Guid id)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+        var entity = await _tripUserRepository.GetByIdForAllAsync(_currentUser.AdminId, tripId, id);
+        return entity != null ? _mapper.Map<TripUserDto>(entity) : null;
+    }
+
     public async Task<TripUserDto> AddAsync(CreateTripUserRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
@@ -110,12 +121,15 @@ public class TripUserService(
             throw new CustomException("User does not have access to this trip");
         }
 
-        if (!await _adminsParticipantRepository.AnyAsync(x =>
-                x.AdminId == _currentUser.AdminId &&
-                x.Id == request.AdminParticipantId))
-        {
-            throw new CustomException("AdminParticipant not found or access denied");
-        }
+
+
+
+        // if (!await _adminsParticipantRepository.AnyAsync(x =>
+        //         x.AdminId == _currentUser.AdminId &&
+        //         x.Id == request.AdminParticipantId))
+        // {
+        //     throw new CustomException("AdminParticipant not found or access denied");
+        // }
 
 
         var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, request.TripId, request.Id);
@@ -123,7 +137,12 @@ public class TripUserService(
         {
             throw new CustomException("Trip User does not exist for this trip");
         }
-       
+
+        if (entity.AdminParticipantId != request.AdminParticipantId)
+        {
+            throw new CustomException("Changing AdminParticipantId is not allowed");
+        }
+
         _mapper.Map(request, entity);
         await _tripUserRepository.UpdateAsync(entity);
     }
