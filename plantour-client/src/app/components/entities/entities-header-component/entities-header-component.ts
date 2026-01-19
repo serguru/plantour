@@ -3,11 +3,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ComponentService } from '../../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MessagesService } from '../../../services/messages-service';
+import { Popover } from 'primeng/popover';
+
+export interface MenuConfig {
+  label: string;
+  icon: string;
+  action: () => void;
+}
 
 @Component({
   selector: 'app-entities-header',
   imports: [
-
+    Popover
   ],
   templateUrl: './entities-header-component.html',
   styleUrl: './entities-header-component.scss',
@@ -20,6 +27,8 @@ export class EntitiesHeader implements OnInit {
   @Input() viewUrl: string | Function | null = null;
   @Input() delete: ((id: string) => void) | null = null;
   @Input() entityName: string = '';
+
+  menuItems = input<MenuConfig[]>([]);
 
   deleteMessage = input<string>('');
   
@@ -119,6 +128,13 @@ export class EntitiesHeader implements OnInit {
 
   getEntitiesActionClass(): string {
     return this.entitiesActionsVisible() ? 'pi pi-chevron-up' : 'pi pi-chevron-down';
+  }
+
+
+  onMenuClick(event, item: MenuConfig, popover: Popover) {
+    event.stopPropagation();
+    item.action();
+    popover.hide();
   }
 
 }

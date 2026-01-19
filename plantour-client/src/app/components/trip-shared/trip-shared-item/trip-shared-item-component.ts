@@ -35,6 +35,8 @@ export class TripSharedItemComponent {
     this.rejected = !this.rejected;
   }
  
+    // assigneesVisible: this.assigneesVisible(),
+    // assignmentsVisible: this.assignmentsVisible()
 
   get days(): string {
 

@@ -4,7 +4,7 @@
             class="left"
             [innerHTML]="entity.name"
         ></div>
-        @if(!targetCondition()) {
+        @if(!targetCondition() && itemMetaData?.assigneesVisible()) {
         <p-select
             class="content w-full"
             [options]="itemMetaData.packs"
@@ -22,29 +22,37 @@
         </p-select>
         }
     </div>
-    @if (this.selectedId() === entity.id) {
+    @if (itemMetaData?.assignmentsVisible()) {
     <div class="selected-container">
         <div class="checkboxes">
 
-            <div class="checkbox-container" > 
+            <div class="checkbox-container">
                 <p-checkbox
-                    [(ngModel)] = "accepted"
+                    [(ngModel)]="accepted"
                     [binary]="true"
                     inputId="accepted"
-                    (click)="handleAcceptedClick($event)">
+                    (click)="handleAcceptedClick($event)"
+                >
                 </p-checkbox>
-                
-                <label for="accepted" (click)="handleAcceptedClick($event)"> Accepted </label>
+
+                <label
+                    for="accepted"
+                    (click)="handleAcceptedClick($event)"
+                > Accepted </label>
             </div>
 
             <div class="checkbox-container">
                 <p-checkbox
-                    [(ngModel)] = "rejected"
+                    [(ngModel)]="rejected"
                     [binary]="true"
                     inputId="rejected"
-                    (click)="handleRejectedClick($event)">
+                    (click)="handleRejectedClick($event)"
+                >
                 </p-checkbox>
-                <label for="rejected" (click)="handleRejectedClick($event)">Rejected</label>
+                <label
+                    for="rejected"
+                    (click)="handleRejectedClick($event)"
+                >Rejected</label>
             </div>
         </div>
         <div>

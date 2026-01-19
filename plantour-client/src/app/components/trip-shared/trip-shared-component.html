@@ -4,9 +4,9 @@
         title="Trip shared things"
         [delete]="deleteTripThing.bind(this)"
         entityName="thing"
-        
         addUrl="add"
         editUrl="edit/:id"
+        [menuItems]="menuItems()"
     ></app-entities-header>
 
     <app-entities-actions

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { TripSharedService } from '../../../services/trip-shared-service';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BaseFormComponent, BaseFormMode } from '../../base-form/base-form-component';
@@ -13,18 +13,17 @@ import { Observable } from 'rxjs';
 import { AppService } from '../../../services/app-service';
 import { CurrentTripService } from '../../../services/current-trip-service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FormHeader } from '../../form/form-header/form-header';
 
 @Component({
   selector: 'app-trip-shared-form',
   standalone: true,
   imports: [
-    BaseFormComponent,
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
-    Select,
-    AsyncPipe,
-    CommonModule
+    CommonModule,
+    FormHeader
   ],
   templateUrl: './trip-shared-form-component.html',
   styleUrl: './trip-shared-form-component.scss'
@@ -58,6 +57,7 @@ export class TripSharedFormComponent implements OnInit {
     assignedToId: new FormControl(''),
     assignedDeadline: new FormControl('')
   };
+
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];

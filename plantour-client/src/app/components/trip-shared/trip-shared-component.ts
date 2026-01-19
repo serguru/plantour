@@ -1,11 +1,11 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
 import { TripSharedDto, CreateTripSharedRequest, UpdateTripSharedRequest, TripSharedService } from '../../services/trip-shared-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TripSharedItemComponent } from './trip-shared-item/trip-shared-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { TripService } from '../../services/trip-service';
 import { ComponentService } from '../../services/component-service';
 import { switchMap, tap } from 'rxjs';
@@ -53,6 +53,33 @@ export class TripSharedComponent implements OnInit {
 
   private tripId: string | null = null;
 
+  assigneesVisible = signal<boolean>(true);
+  assignmentsVisible = signal<boolean>(true);
+
+  assigneesLabel = computed(() =>
+    (this.assigneesVisible() ? 'Hide' : 'Show') + ' Assignees'
+  );
+
+  menuItems = computed<MenuConfig[]>(() => [
+    {
+      label: this.assigneesLabel(),
+      icon: 'users',
+      action: () => {
+        this.assigneesVisible.set(!this.assigneesVisible());
+        this.localStorageService.setComponentKey(this.componentId, 'assigneesVisible', this.assigneesVisible());
+      }
+    },
+    {
+      label: (this.assignmentsVisible() ? 'Hide' : 'Show') + ' Assignments',
+      icon: 'check',
+      action: () => {
+        this.assignmentsVisible.set(!this.assignmentsVisible())
+        this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
+      }
+    }
+  ]);
+
+
   conditions: Condition[] =
     [
       {
@@ -80,7 +107,9 @@ export class TripSharedComponent implements OnInit {
     ];
 
   itemMetaData: any = {
-    assignOrUnassign: this.assignOrUnassign.bind(this)
+    assignOrUnassign: this.assignOrUnassign.bind(this),
+    assigneesVisible: this.assigneesVisible,
+    assignmentsVisible: this.assignmentsVisible
   }
 
 
@@ -123,6 +152,12 @@ export class TripSharedComponent implements OnInit {
 
     const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
     this.componentService.updateSelectedId(id);
+
+    const assigneesVisible = this.localStorageService.getComponentKey(this.componentId, 'assigneesVisible');
+    this.assigneesVisible.set(!!assigneesVisible);
+
+    const assignmentsVisible = this.localStorageService.getComponentKey(this.componentId, 'assignmentsVisible');
+    this.assignmentsVisible.set(!!assignmentsVisible);
   }
 
 
@@ -162,7 +197,7 @@ export class TripSharedComponent implements OnInit {
     if (targetCondition) {
 
       const targetTripUserId = targetCondition.target?.id;
-      
+
       if (targetTripUserId) {
         const tripUser = tripUsers?.find(p => p.id === targetTripUserId);
         if (tripUser) {

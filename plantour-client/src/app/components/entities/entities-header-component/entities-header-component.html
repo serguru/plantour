@@ -60,5 +60,35 @@
             <span [class]='getEntitiesActionClass()' [class.corner-triangle]="anyConditionSet()"></span>
         </button>
         }
+
+
+        @if(menuItems().length) {
+        <button
+            class="pl-button"
+            [disabled]="false"
+            (click)="popover.toggle($event)"
+        >
+            <span class="pi pi-ellipsis-v"></span>
+        </button>
+        <p-popover
+            #popover
+            styleClass="no-arrow"
+        >
+            @for(menu of menuItems(); track menu.icon) {
+            <div
+                class="pl-menu-item"
+                (click)="onMenuClick($event, menu, popover)"
+            >
+                <span [class]="'pi pi-' + menu.icon"></span>
+                <span class="button-label">{{menu.label}}</span>
+            </div>
+            }
+        </p-popover>
+
+        }
+
+
+
+
     </div>
 </div>
