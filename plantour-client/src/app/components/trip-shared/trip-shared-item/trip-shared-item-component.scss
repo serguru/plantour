@@ -1,48 +1,50 @@
-.container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
-  flex-shrink: 0;
-
-  .left {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.75rem;
-    align-items: center;
-
-    h2 {
-      margin: 0;
-      font-size: 1.5rem;
-      font-weight: 600;
-      font-family: var(--font-heading);
-    }
-  }
-
-  .content {
-    margin-left: auto;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    width: 200px;
-  }
-}
-
-
-.selected-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
 .checkboxes {
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
 }
 
-.checkbox-container{
+.checkbox-container {
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
+}
+
+.assignee {
+  width: 200px;
+}
+
+.upper-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.lower-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.item {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.assigned-not-finished {
+  color: blue;
+}
+
+.finished-failure {
+  color: red;
+}
+
+.finished-success {
+  color: green;
+}
+
+.status-text {
+  font-size: 0.97rem;
 }

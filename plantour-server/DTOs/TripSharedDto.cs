@@ -15,7 +15,10 @@ public class TripSharedDto
     public DateTime? AssignedAt { get; set; }
     public DateTime? AssignedDeadline { get; set; }
     public bool Rejected { get; set; }
-    public TripThingDto? AssignedThing { get; set; }
-    public UserDto? AssignedTo { get; set; }
+    public string? AssigneeFinished { get; set; }
+    public string? AssigneeEmail { get; set; }
+    public string? AssigneeFirstName { get; set; }
+    public string? AssigneeLastName { get; set; }
+
     public bool IsTargeted { get; set; }
 }

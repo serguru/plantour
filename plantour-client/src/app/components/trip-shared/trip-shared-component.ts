@@ -1,6 +1,6 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
-import { TripSharedDto, CreateTripSharedRequest, UpdateTripSharedRequest, TripSharedService } from '../../services/trip-shared-service';
+import { TripSharedDto, CreateTripSharedRequest, UpdateTripSharedRequest, TripSharedService, AssignmentStatus } from '../../services/trip-shared-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TripSharedItemComponent } from './trip-shared-item/trip-shared-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
@@ -8,13 +8,19 @@ import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { TripService } from '../../services/trip-service';
 import { ComponentService } from '../../services/component-service';
-import { switchMap, tap } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { Condition, DynamicQueryService, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { TripUserDto, TripUserService } from '../../services/trip-user-service';
-import { findDuplicates, getFullName } from '../../helpers/utils';
+import { findDuplicates, formatDate, getDaysDifference, getFullName, getFutureDate } from '../../helpers/utils';
+import { DatePicker } from 'primeng/datepicker';
+import { FormsModule } from '@angular/forms';
+import { InputNumber } from "primeng/inputnumber";
+import { MessagesService } from '../../services/messages-service';
+import { UsersService } from '../../services/users-service';
+
 
 @Component({
   selector: 'app-trip-shared',
@@ -22,7 +28,9 @@ import { findDuplicates, getFullName } from '../../helpers/utils';
   imports: [
     EntitiesComponent,
     EntitiesHeader,
-    EntitiesActionsComponent
+    EntitiesActionsComponent,
+    FormsModule,
+    InputNumber
   ],
   templateUrl: './trip-shared-component.html',
   styleUrl: './trip-shared-component.scss'
@@ -31,11 +39,32 @@ export class TripSharedComponent implements OnInit {
   tripSharedItemComponent = TripSharedItemComponent;
   componentId: string = 'trip-shared';
 
+  formatDate = formatDate;
+
+  deadlineDays = signal<number>(1);
+
+  onModelChangeDays(): void {
+    this.localStorageService.setComponentKey(this.componentId, 'deadlineDays', this.deadlineDays());
+  }
+
+  featureDate = computed<string>(() => {
+    const days = this.deadlineDays();
+    if (days === null) {
+      return '';
+    }
+    return formatDate(getFutureDate(days));
+  });
+
+
+  messagesService = inject(MessagesService);
   tripService = inject(TripService);
   componentService = inject(ComponentService);
   tripSharedService = inject(TripSharedService);
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(DynamicQueryService);
+  usersService = inject(UsersService);
+
+  isParticipant = this.usersService.isParticipantSignal;
 
   targetCondition = toSignal(this.componentService.targetCondition$);
   target = toSignal(this.componentService.target$);
@@ -53,6 +82,16 @@ export class TripSharedComponent implements OnInit {
 
   private tripId: string | null = null;
 
+  showCalendarForDeadline = computed(() => {
+    if (this.assigneesVisible()) {
+      return true;
+    }
+    const condition = this.targetCondition();
+    return !!condition;
+  });
+
+
+  // TODO: show a message if target visible then assignees never visible
   assigneesVisible = signal<boolean>(true);
   assignmentsVisible = signal<boolean>(true);
 
@@ -65,7 +104,11 @@ export class TripSharedComponent implements OnInit {
       label: this.assigneesLabel(),
       icon: 'users',
       action: () => {
-        this.assigneesVisible.set(!this.assigneesVisible());
+        const v = this.assigneesVisible();
+        this.assigneesVisible.set(!v);
+        if (!v && this.targetCondition()) {
+          this.messagesService.showWarning('Changing assignees visibility will have no effect while a Trip participant is selected');
+        }
         this.localStorageService.setComponentKey(this.componentId, 'assigneesVisible', this.assigneesVisible());
       }
     },
@@ -73,7 +116,7 @@ export class TripSharedComponent implements OnInit {
       label: (this.assignmentsVisible() ? 'Hide' : 'Show') + ' Assignments',
       icon: 'check',
       action: () => {
-        this.assignmentsVisible.set(!this.assignmentsVisible())
+        this.assignmentsVisible.set(!this.assignmentsVisible());
         this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
       }
     }
@@ -112,6 +155,71 @@ export class TripSharedComponent implements OnInit {
     assignmentsVisible: this.assignmentsVisible
   }
 
+  generateStatusData = (sharedThing: TripSharedDto, usersLookup) => {
+
+
+    if (!sharedThing.assignedToId) {
+      sharedThing.assignmentStatusText = "Awaiting assignment";
+      sharedThing.assignmentStatus = AssignmentStatus.NotAssigned;
+      return;
+    }
+
+    sharedThing.assignmentStatus = AssignmentStatus.AssignedNotFinished
+
+    let deadlineString = "";
+
+    if (sharedThing.assignedDeadline) {
+      const daysDiff = getDaysDifference(sharedThing.assignedDeadline);
+
+      if (daysDiff! < 0) {
+        deadlineString = ` Deadline was: ${formatDate(sharedThing.assignedDeadline)}, ${Math.abs(daysDiff!)} days ago.`;
+        sharedThing.assignmentStatus = AssignmentStatus.FinishedFailure;
+      } else if (daysDiff == 0) {
+        deadlineString = ` Deadline is today.`;
+      } else {
+        deadlineString = ` Deadline: ${formatDate(sharedThing.assignedDeadline)} in ${daysDiff} days.`;
+      }
+    }
+
+    const assignee = usersLookup.find((a: any) => a.id === sharedThing.assignedToId);
+    if (!assignee) {
+      throw new Error('Assignee not found');
+    }
+    sharedThing.assignmentStatusText = "Assigned to " + assignee.name;
+
+    if (sharedThing.assignedAt) {
+      sharedThing.assignmentStatusText += ` at ${formatDate(sharedThing.assignedAt)}`
+    }
+
+    sharedThing.assignmentStatusText += ".";
+
+    if (sharedThing.assignedThingId) {
+      sharedThing.assignmentStatusText += " Accepted.";
+    }
+
+    if (sharedThing.assigneeFinished) {
+
+      if (sharedThing.assigneeFinished === 'success') {
+        sharedThing.assignmentStatusText += " Finished successfully.";
+        sharedThing.assignmentStatus = AssignmentStatus.FinishedSuccess;
+      } else if (sharedThing.assigneeFinished === 'failure') {
+        sharedThing.assignmentStatusText += " Finished and failed.";
+        sharedThing.assignmentStatus = AssignmentStatus.FinishedFailure;
+      } else {
+        throw new Error("Unsupported finish result encountered")
+      }
+    }
+
+
+    if (sharedThing.rejected) {
+      sharedThing.assignmentStatusText += " Rejected. ";
+      sharedThing.assignmentStatus = AssignmentStatus.FinishedFailure;
+    }
+    sharedThing.assignmentStatusText += deadlineString;
+
+  };
+
+  lookup: any[] = [];
 
   ngOnInit(): void {
 
@@ -125,12 +233,13 @@ export class TripSharedComponent implements OnInit {
     }
 
     this.tripUserService.getAll(this.tripId).pipe(
-      tap((tripUsers: TripUserDto[]) => {
-        const lookup = this.initTargetLookup(tripUsers);
-        this.initConditions(this.componentId, tripUsers, lookup);
+      map((tripUsers: TripUserDto[]) => {
+        this.lookup = this.initTargetLookup(tripUsers);
+        this.initConditions(this.componentId, tripUsers, this.lookup);
         this.initSavedFeatures();
+        return this.lookup;
       }),
-      switchMap(_ =>
+      switchMap(lookup =>
         this.componentService.target$.pipe(
           switchMap((target: Target | null) => {
             if (target && target.id) {
@@ -138,8 +247,16 @@ export class TripSharedComponent implements OnInit {
             }
             return this.tripSharedService.getAll(this.tripId!);
           }),
-        )
+
+          map((tripShareds: TripSharedDto[]) => {
+            tripShareds.forEach(ts => {
+              this.generateStatusData(ts, lookup);
+            });
+            return tripShareds;
+          })
+        ),
       ),
+
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(tripShareds =>
       this.componentService.updateEntities(tripShareds || [])
@@ -158,6 +275,9 @@ export class TripSharedComponent implements OnInit {
 
     const assignmentsVisible = this.localStorageService.getComponentKey(this.componentId, 'assignmentsVisible');
     this.assignmentsVisible.set(!!assignmentsVisible);
+
+    const deadlineDays = this.localStorageService.getComponentKey(this.componentId, 'deadlineDays');
+    this.deadlineDays.set(deadlineDays ? Number(deadlineDays) : 3);
   }
 
 
@@ -182,7 +302,7 @@ export class TripSharedComponent implements OnInit {
     lookup.sort((a, b) => a.name.localeCompare(b.name));
 
     this.componentService.updateTargetLookup(lookup);
-    this.itemMetaData.packs = lookup;
+    this.itemMetaData.assignees = lookup;
     return lookup;
   }
 
@@ -204,12 +324,6 @@ export class TripSharedComponent implements OnInit {
           targetCondition.target = {
             id: tripUser.id,
             name: lookup.find(l => l.id === tripUser.id)?.name || 'No User Name'
-            // selectedMode: TargetMode.TripShared,
-            // options: [{
-            //   label: 'TripShared',
-            //   mode: TargetMode.TripShared
-            // }],
-            // hideOptions: true
           };
         }
       } else {
@@ -231,14 +345,26 @@ export class TripSharedComponent implements OnInit {
     if (!ids || ids.length === 0) {
       throw new Error('No not targeted ids available');
     }
-    const request: MultipleIdsRequest = {
+
+    if (!this.deadlineDays() || this.deadlineDays()! < 0 || this.deadlineDays()! > 365) {
+      throw new Error('Deadline days is not set or invalid');
+    }
+
+    const transport = {
       collectionId: this.tripId!,
       ids: ids,
-      id: targetId
-    };
+      id: targetId,
+      deadlineDays: this.deadlineDays()
+    }
 
-    this.tripSharedService.assign(request).pipe(
+    this.tripSharedService.assign(transport).pipe(
       switchMap(() => this.tripSharedService.getAllForAssignee(this.tripId!, targetId)),
+      map((tripShareds: TripSharedDto[]) => {
+        tripShareds.forEach(ts => {
+          this.generateStatusData(ts, this.lookup);
+        });
+        return tripShareds;
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((tripSharedThings) => {
       this.componentService.updateEntities(tripSharedThings);
@@ -262,6 +388,12 @@ export class TripSharedComponent implements OnInit {
     };
     this.tripSharedService.unassign(request).pipe(
       switchMap(() => this.tripSharedService.getAllForAssignee(this.tripId!, targetId)),
+      map((tripShareds: TripSharedDto[]) => {
+        tripShareds.forEach(ts => {
+          this.generateStatusData(ts, this.lookup);
+        });
+        return tripShareds;
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((tripSharedThings) => {
       this.componentService.updateEntities(tripSharedThings);
@@ -282,24 +414,42 @@ export class TripSharedComponent implements OnInit {
           })
         );
       }),
+      map((tripShareds: TripSharedDto[]) => {
+        tripShareds.forEach(ts => {
+          this.generateStatusData(ts, this.lookup);
+        });
+        return tripShareds;
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((tripSharedThings) => {
       this.componentService.updateEntities(tripSharedThings);
     });
   }
 
-  assignOrUnassign(entity: any, assigneeId: string | null, reassignAllowed: boolean): void {
-    const request: MultipleIdsRequest = {
+  assignOrUnassign(entity: TripSharedDto, assigneeId: string | null, reassignAllowed: boolean = true): void {
+    const transport = {
       collectionId: this.tripId!,
       ids: [entity.id],
-      id: assigneeId!
-    };
+      id: assigneeId || entity.assignedToId,
+      deadlineDays: this.deadlineDays()
+    }
 
-    const assign: boolean = reassignAllowed ? !!assigneeId : !entity.isTargeted;
-    const o = assign ? this.tripSharedService.assign(request) : this.tripSharedService.unassign(request);
+    if (!transport.id) {
+      throw new Error('Assignee Id is null');
+    }
+
+    const assign: boolean = reassignAllowed ? !!assigneeId : !entity.assignedToId;
+
+    const o = assign ? this.tripSharedService.assign(transport) : this.tripSharedService.unassign(transport);
 
     o.pipe(
       switchMap(() => this.target()?.id ? this.tripSharedService.getAllForAssignee(this.tripId!, this.target()!.id!) : this.tripSharedService.getAll(this.tripId!)),
+      map((tripShareds: TripSharedDto[]) => {
+        tripShareds.forEach(ts => {
+          this.generateStatusData(ts, this.lookup);
+        });
+        return tripShareds;
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((tripSharedThings) => {
       this.componentService.updateEntities(tripSharedThings);
@@ -308,6 +458,6 @@ export class TripSharedComponent implements OnInit {
 
   targetEntityButtonClick(entity: any): void {
     const target = this.target();
-    this.assignOrUnassign(entity, target?.id || null, false);
+    this.assignOrUnassign(entity, target!.id!, false);
   }
 }

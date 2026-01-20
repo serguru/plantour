@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
-import { CrudService, FromDicService, MultipleIdsRequest } from './crud-service';
+import { MultipleIdsRequest } from './crud-service';
 import { findDuplicates, getFullName } from '../helpers/utils';
 
 export interface TripUserDto {

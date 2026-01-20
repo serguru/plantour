@@ -13,6 +13,29 @@
         [onAddTargetClick]="onAddTargetClick.bind(this)"
         [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"
     ></app-entities-actions>
+    @if(showCalendarForDeadline()) {
+    <div class="container">
+
+        <label
+            for="datepicker"
+            class="font-bold block mb-2"
+        > Deadline in</label>
+        <p-inputNumber
+            [style]="{'width': '100px'}"
+            [(ngModel)]="deadlineDays"
+            (ngModelChange)="onModelChangeDays()"
+            fluid
+            [min]="1"
+            [max]="365"
+            [showButtons]="true"
+        />
+        @if (deadlineDays() && deadlineDays()! >= 1) {
+        <div>day{{deadlineDays() == 1 ? '' : 's'}}, </div>
+        <div>{{formatDate(featureDate())}}</div>
+        }
+    </div>
+    }
+
     <app-entities
         [itemComponent]="tripSharedItemComponent"
         [targetEntityClick]="targetEntityButtonClick.bind(this)"

@@ -256,3 +256,7 @@ A user with the email address ${} already exists in our database. They will be a
 You are creating a new user in our database. Once added, they will be added to your traveler list and will be sent an access code to your trips. Only they can edit their personal information. Continue?
 
 Вы удаляете путешественника. Они будут удалены не только из вашего списка путешественников, но и из всех ваших путешествий. Восстановить эти данные будет нельзя. Продолжить?
+
+[0].AsignedTo.AdminParicipanant.Participant -> Email, FirstName, LastName, Phone
+
+

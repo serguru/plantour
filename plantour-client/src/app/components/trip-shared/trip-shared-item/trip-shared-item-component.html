@@ -1,13 +1,10 @@
-<div class=".item-component-container">
-    <div class="container">
-        <div
-            class="left"
-            [innerHTML]="entity.name"
-        ></div>
+<div class="item-component-container">
+    <div class="upper-row">
+        <div [innerHTML]="entity.name"></div>
         @if(!targetCondition() && itemMetaData?.assigneesVisible()) {
         <p-select
-            class="content w-full"
-            [options]="itemMetaData.packs"
+            class="assignee"
+            [options]="itemMetaData.assignees"
             optionLabel="name"
             optionValue="id"
             [ngModel]="entity.assignedToId"
@@ -23,9 +20,8 @@
         }
     </div>
     @if (itemMetaData?.assignmentsVisible()) {
-    <div class="selected-container">
-        <div class="checkboxes">
-
+        @if(!isAdminSignal()) {
+        <div class="checkboxes item">
             <div class="checkbox-container">
                 <p-checkbox
                     [(ngModel)]="accepted"
@@ -40,7 +36,6 @@
                     (click)="handleAcceptedClick($event)"
                 > Accepted </label>
             </div>
-
             <div class="checkbox-container">
                 <p-checkbox
                     [(ngModel)]="rejected"
@@ -55,19 +50,9 @@
                 >Rejected</label>
             </div>
         </div>
-        <div>
-            <label>Assigned At</label>
-            <div>{{entity.assignedAt | formatDate}}</div>
-        </div>
-        <div>
-            <label>Deadline</label>
-            <div>{{entity.assignedDeadline | formatDate}}</div>
-        </div>
-        @if (days) {
-        <div>{{days}}</div>
         }
-
-
-    </div>
+        <div class="lower-row status-text" [class]="statusToClassMap">
+            {{entity.assignmentStatusText}}
+        </div>
     }
 </div>

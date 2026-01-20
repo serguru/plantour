@@ -13,4 +13,11 @@ public class ArrayOfGuidsRequest
     public Guid[] Ids { get; set; } = [];
 }
 
+public class MultipleIdsAssignRequest
+{
+    public Guid CollectionId { get; set; }
+    public Guid[] Ids { get; set; } = [];
+    public Guid Id { get; set; } = Guid.Empty;
+    public int DeadlineDays { get; set; }
+}
 

@@ -6,6 +6,15 @@ import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from 
 import { TripThingDto } from './trip-thing-service';
 import { UserDto } from './users-service';
 
+
+export enum AssignmentStatus {
+  NotAssigned = 1,  
+  AssignedNotFinished = 2,
+  FinishedSuccess = 3,
+  FinishedFailure = 4,
+}
+
+
 export interface TripSharedDto {
   id: string;
   tripUserId: string;
@@ -14,15 +23,25 @@ export interface TripSharedDto {
   units?: string | null;
   value?: number | null;
   notes?: string | null;
+
   assignedToId?: string | null;
   assignedThingId?: string | null;
   assignedAt: string | null;
   assignedDeadline: string | null;
   rejected: boolean;
-  assignedThing: TripThingDto | null;
-  assignedTo: UserDto | null;
-}
+  assigneeFinished: string | null;
 
+  assignedThing: TripThingDto | null;
+  assigneeEmail?: string | null;
+  assigneeFirstName?: string | null;
+  assigneeLastName?: string | null;
+
+  assigneeFullName?: string | null;
+  assignmentStatusText?: string | null;
+  assignmentStatus: AssignmentStatus | null;
+
+}
+ 
 export interface CreateTripSharedRequest {
   tripId: string;
   category?: string | null;
@@ -100,11 +119,11 @@ export class TripSharedService {
     return this.http.delete<void>(`${this.apiUrl}/${tripId}/${id}`);
   }
 
-  assign(data: MultipleIdsRequest): Observable<number> {
+  assign(data: any): Observable<number> {
     return this.http.put<number>(`${this.apiUrl}/assign-trip-shared-things`, data);
   }
 
-  unassign(data: MultipleIdsRequest): Observable<number> {
+  unassign(data: any): Observable<number> {
     return this.http.put<number>(`${this.apiUrl}/unassign-trip-shared-things`, data);
   }
 }

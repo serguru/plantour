@@ -665,6 +665,7 @@ create or replace function plantour.assign_trip_shared_things(
     p_trip_id uuid,
     p_trip_user_id uuid,
     p_ids uuid[],
+    p_deadline_days int,
     p_unassign boolean
 )
 returns integer
@@ -704,7 +705,7 @@ begin
             assigned_to_id = p_trip_user_id,
             assigned_thing_id = null,
             assigned_at = now(),
-            assigned_deadline = null,
+            assigned_deadline = CURRENT_DATE + p_deadline_days,
             rejected = false
         where
             trip_id = p_trip_id and

@@ -85,8 +85,11 @@ export const formatDate = (date: Date | string): string => {
 
 export const getDaysDifference = (
   date1: string | Date | null | undefined,
-  date2: string | Date | null | undefined
+  date2?: string | Date | null | undefined
 ): number | null => {
+
+  date2 = date2 ?? new Date();
+
   if (!date1 || !date2) {
     return null;
   }
@@ -103,3 +106,11 @@ export const getDaysDifference = (
 
   return Math.trunc(diffInMs / msInDay);
 }  
+
+
+export const getFutureDate = (daysFromNow: number): Date => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + daysFromNow);
+  return date;
+}

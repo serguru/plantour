@@ -305,16 +305,21 @@ public class TripSharedService(
         return await _dicTripRepository.DeleteTemplateTripSharedThingsAsync(_currentUser.AdminId, tripId, ids);
     }
 
-    public async Task<int> AssignTripSharedThingsAsync(Guid tripId, Guid assigneeId, Guid[] ids)
+    public async Task<int> AssignTripSharedThingsAsync(MultipleIdsAssignRequest request)
     {
+        var tripId = request.CollectionId;
+        var assigneeId = request.Id;    
+        var ids = request.Ids;
+        var deadlineDays = request.DeadlineDays;
+
         _currentUser.RaiseIfNotAdmin();
-        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, assigneeId, ids, false);
+        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, assigneeId, ids,deadlineDays, false);
     }
 
     public async Task<int> UnassignTripSharedThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAdmin();
-        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, Guid.Empty, ids, true);
+        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, Guid.Empty, ids, 0, true);
     }
 
 }

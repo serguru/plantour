@@ -97,15 +97,15 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
 
     [HttpPut("assign-trip-shared-things")]
     [AdminOnly]
-    public async Task<ActionResult> AssignTripSharedThings([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult> AssignTripSharedThings([FromBody] MultipleIdsAssignRequest request)
     {
-        var updated = await _service.AssignTripSharedThingsAsync(request.CollectionId, request.Id!.Value, request.Ids);
+        var updated = await _service.AssignTripSharedThingsAsync(request);
         return Ok(new { updatedCount = updated });
     }
 
     [HttpPut("unassign-trip-shared-things")]
     [AdminOnly]
-    public async Task<ActionResult> UnassignTripSharedThings([FromBody] MultipleIdsRequest request)
+    public async Task<ActionResult> UnassignTripSharedThings([FromBody] MultipleIdsAssignRequest request)
     {
         var updated = await _service.UnassignTripSharedThingsAsync(request.CollectionId, request.Ids);
         return Ok(new { updatedCount = updated });
