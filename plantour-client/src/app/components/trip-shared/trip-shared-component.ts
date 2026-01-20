@@ -64,7 +64,7 @@ export class TripSharedComponent implements OnInit {
   dynamicQueryService = inject(DynamicQueryService);
   usersService = inject(UsersService);
 
-  isParticipant = this.usersService.isParticipantSignal;
+  isReadOnly = this.usersService.isParticipantSignal;
 
   targetCondition = toSignal(this.componentService.targetCondition$);
   target = toSignal(this.componentService.target$);
@@ -91,7 +91,6 @@ export class TripSharedComponent implements OnInit {
   });
 
 
-  // TODO: show a message if target visible then assignees never visible
   assigneesVisible = signal<boolean>(true);
   assignmentsVisible = signal<boolean>(true);
 
@@ -99,28 +98,38 @@ export class TripSharedComponent implements OnInit {
     (this.assigneesVisible() ? 'Hide' : 'Show') + ' Assignees'
   );
 
-  menuItems = computed<MenuConfig[]>(() => [
-    {
-      label: this.assigneesLabel(),
-      icon: 'users',
-      action: () => {
-        const v = this.assigneesVisible();
-        this.assigneesVisible.set(!v);
-        if (!v && this.targetCondition()) {
-          this.messagesService.showWarning('Changing assignees visibility will have no effect while a Trip participant is selected');
+  menuItems = computed<MenuConfig[]>(() => {
+
+    const result =
+      [
+        {
+          label: (this.assignmentsVisible() ? 'Hide' : 'Show') + ' Assignments',
+          icon: 'check',
+          action: () => {
+            this.assignmentsVisible.set(!this.assignmentsVisible());
+            this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
+          }
         }
-        this.localStorageService.setComponentKey(this.componentId, 'assigneesVisible', this.assigneesVisible());
-      }
-    },
-    {
-      label: (this.assignmentsVisible() ? 'Hide' : 'Show') + ' Assignments',
-      icon: 'check',
-      action: () => {
-        this.assignmentsVisible.set(!this.assignmentsVisible());
-        this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
-      }
+      ];
+
+    if (!this.isReadOnly()) {
+      result.unshift({
+          label: this.assigneesLabel(),
+          icon: 'users',
+          action: () => {
+            const v = this.assigneesVisible();
+            this.assigneesVisible.set(!v);
+            if (!v && this.targetCondition()) {
+              this.messagesService.showWarning('Changing assignees visibility will have no effect while a Trip participant is selected');
+            }
+            this.localStorageService.setComponentKey(this.componentId, 'assigneesVisible', this.assigneesVisible());
+          }
+        });
     }
-  ]);
+
+    return result;
+  }
+  );
 
 
   conditions: Condition[] =
@@ -312,22 +321,31 @@ export class TripSharedComponent implements OnInit {
     }
     const savedConditions = this.localStorageService.getComponentKeyObject(componentId, 'conditions') || [];
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
-    const targetCondition: TargetCondition | undefined = initialConditions.find(c => c.kind === 'target');
 
-    if (targetCondition) {
 
-      const targetTripUserId = targetCondition.target?.id;
+    if (!this.isReadOnly()) {
+      const targetCondition: TargetCondition | undefined = initialConditions.find(c => c.kind === 'target');
+      if (targetCondition) {
 
-      if (targetTripUserId) {
-        const tripUser = tripUsers?.find(p => p.id === targetTripUserId);
-        if (tripUser) {
-          targetCondition.target = {
-            id: tripUser.id,
-            name: lookup.find(l => l.id === tripUser.id)?.name || 'No User Name'
-          };
+        const targetTripUserId = targetCondition.target?.id;
+
+        if (targetTripUserId) {
+          const tripUser = tripUsers?.find(p => p.id === targetTripUserId);
+          if (tripUser) {
+            targetCondition.target = {
+              id: tripUser.id,
+              name: lookup.find(l => l.id === tripUser.id)?.name || 'No User Name'
+            };
+          }
+        } else {
+          targetCondition.target = null;
         }
-      } else {
-        targetCondition.target = null;
+      }
+    } else {
+      // remove target condition for participants
+      const index = initialConditions.findIndex(c => c.kind === 'target');
+      if (index !== -1) {
+        initialConditions.splice(index, 1);
       }
     }
 

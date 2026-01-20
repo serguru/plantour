@@ -1,7 +1,7 @@
 <div class="item-component-container">
     <div class="upper-row">
         <div [innerHTML]="entity.name"></div>
-        @if(!targetCondition() && itemMetaData?.assigneesVisible()) {
+        @if(!targetCondition() && itemMetaData?.assigneesVisible() && isAdminSignal()) {
         <p-select
             class="assignee"
             [options]="itemMetaData.assignees"

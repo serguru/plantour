@@ -14,6 +14,8 @@ import { LocalStorageService } from '../../services/local-storage-service';
 import { Condition, DynamicQueryService, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
 import { switchMap, tap } from 'rxjs';
 
+
+// TODO: fix access to view, delete  or edit if no initial rows
 @Component({
   selector: 'app-trip-things',
   standalone: true,

@@ -25,13 +25,23 @@ export class TripSharedItemComponent {
   @Input() entity: TripSharedDto = {} as TripSharedDto;
   @Input() itemMetaData: any | null = null;
 
+  usersService = inject(UsersService);
+
+  isAdminSignal = this.usersService.isAdminSignal;
+
   handleAcceptedClick(event: Event) {
+    if (this.isAdminSignal()) {
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
     this.accepted = !this.accepted;
   }
 
   handleRejectedClick(event: Event) {
+    if (this.isAdminSignal()) {
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
     this.rejected = !this.rejected;
@@ -58,11 +68,14 @@ export class TripSharedItemComponent {
 
   componentService = inject(ComponentService);
   targetCondition = toSignal(this.componentService.targetCondition$, { initialValue: null });
-  isAdminSignal = inject(UsersService).isAdminSignal;
+  
 
   selectedId = toSignal(this.componentService.selectedId$, { initialValue: null });
 
   onAssigneeChange(id: string | null) {
+    if (!this.isAdminSignal()) {
+      return;
+    }
     if (!this.itemMetaData?.assignOrUnassign) {
       return;
     }

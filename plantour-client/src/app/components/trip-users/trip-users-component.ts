@@ -43,7 +43,6 @@ export class TripUsersComponent implements OnInit {
   usersService = inject(UsersService);
   isReadOnly = this.usersService.isParticipantSignal;
 
-
   conditions: Condition[] =
     [
       {
@@ -74,7 +73,6 @@ export class TripUsersComponent implements OnInit {
     if (!this.tripId) {
       throw new Error('Trip Id is null');
     }
-
 
     this.initConditions(this.componentId);
 
