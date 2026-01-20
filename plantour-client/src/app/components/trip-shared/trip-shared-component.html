@@ -1,9 +1,9 @@
 <div class="page-container">
     <app-entities-header
-        entityIcon="pi pi-objects-column"
+        entityIcon="pi pi-link"
         title="Trip shared things"
-        [delete]="deleteTripThing.bind(this)"
-        entityName="thing"
+        [delete]="isParticipant() ? null : deleteTripThing.bind(this)"
+        entityName="shared thing"
         [addUrl]="isParticipant() ? null : 'add'"
         [editUrl]="isParticipant() ? null : 'edit/:id'"
         [viewUrl]="!isParticipant() ? null : 'view/:id'"

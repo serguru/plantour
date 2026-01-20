@@ -39,14 +39,6 @@ import { combineLatest, finalize, map, Observable, of } from 'rxjs';
   styleUrl: './trip-user-form-component.scss',
 })
 export class TripUserFormComponent implements OnInit {
-  // fieldsConfig = {
-  //   email: new FormControl('', [Validators.required, Validators.email]),
-  //   firstName: new FormControl('', Validators.required),
-  //   lastName: new FormControl('', Validators.required),
-  //   phone: new FormControl(''),
-  //   notes: new FormControl(''),
-  //   adminParticipantId: new FormControl('')
-  // };
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -54,9 +46,6 @@ export class TripUserFormComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   service = inject(TripUserService);
-  // thingService = inject(ThingService);
-  // tripPackageService = inject(TripPackageService);
-
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
   localStorageService = inject(LocalStorageService);
@@ -182,7 +171,7 @@ export class TripUserFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.isLoading()) {
+    if (this.isLoading() || this.isViewMode) {
       return;
     }
 

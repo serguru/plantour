@@ -197,6 +197,12 @@ export const routes: Routes = [
     data: { mode: 'edit', componentId: 'trip-shared-form' }
   },
   {
+    path: 'trips/:tripId/trip-shared/view/:id',
+    canActivate: [checkTripIdGuard, adminOrParticipantGuard],
+    loadComponent: () => import('./components/trip-shared/trip-shared-form/trip-shared-form-component').then(m => m.TripSharedFormComponent),
+    data: { mode: 'view', componentId: 'trip-shared-form' }
+  },
+  {
     path: 'trips/:tripId/trip-comments',
     canActivate: [checkTripIdGuard],
     loadComponent: () => import('./components/trip-comments/trip-comments-component').then(m => m.TripCommentsComponent),

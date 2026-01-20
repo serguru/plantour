@@ -50,8 +50,6 @@ export interface CreateTripSharedRequest {
   units?: string | null;
   value?: number | null;
   notes?: string | null;
-  assignedToId?: string | null;
-  assignedDeadline?: string | null;
 }
 
 export interface UpdateTripSharedRequest {
@@ -62,8 +60,6 @@ export interface UpdateTripSharedRequest {
   units?: string | null;
   value?: number | null;
   notes?: string | null;
-  assignedToId?: string | null;
-  assignedDeadline?: string | null;
 }
 
 @Injectable({

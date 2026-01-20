@@ -24,7 +24,7 @@
         <div class="checkboxes item">
             <div class="checkbox-container">
                 <p-checkbox
-                    [ngModel]="!!entity?.assignedThingId"
+                    [ngModel]="!!entity.assignedThingId"
                     [binary]="true"
                     inputId="accepted"
                     (click)="handleAcceptedClick($event)"
@@ -38,7 +38,7 @@
             </div>
             <div class="checkbox-container">
                 <p-checkbox
-                    [ngModel]="!!entity?.rejected"
+                    [ngModel]="!!entity.rejected"
                     [binary]="true"
                     inputId="rejected"
                     (click)="handleRejectedClick($event)"

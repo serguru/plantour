@@ -1,10 +1,108 @@
 <div class="page-container">
   <app-form-header
-    [title]="'title'"
-    icon="objects-column"
+    [title]="title"
+    icon="link"
   ></app-form-header>
 
   <div class="controls-wrapper">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="form-field">
+        <label for="name">Name<span class="required">*</span></label>
+        <p-select
+          appAutoFocus
+          id="name"
+          formControlName="name"
+          [options]="lookupTripThings$ | async"
+          [placeholder]="!isViewMode ? 'Select thing name' : ''"
+          styleClass="w-full"
+          [editable]="true"
+          [readonly]="isViewMode"
+        ></p-select>
+
+        @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
+        @if (form.get('name')?.errors?.['required']) {
+        <small class="error-message">
+          Name is required
+        </small>
+        }
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="category">Category</label>
+        <p-select
+          id="category"
+          formControlName="category"
+          [options]="lookupCategories$ | async"
+          [placeholder]="!isViewMode ? 'Select category (optional)' : ''"
+          styleClass="w-full"
+          [editable]="true"
+          [readonly]="isViewMode"
+        ></p-select>
+      </div>
+
+      <div class="form-field">
+        <label for="value">Value</label>
+        <p-inputnumber
+          inputId="value"
+          formControlName="value"
+          [placeholder]="!isViewMode ? 'Enter value (optional)' : ''"
+          mode="decimal"
+          locale="en-US"
+          [min]="0"
+          [maxFractionDigits]="3"
+          [readonly]="isViewMode"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="unit">Unit</label>
+        <p-select
+          id="unit"
+          formControlName="units"
+          [options]="lookupUnits$ | async"
+          [placeholder]="isViewMode ? 'Select unit (optional)' : ''"
+          styleClass="w-full"
+          [editable]="true"
+          [readonly]="isViewMode"
+        ></p-select>
+      </div>
+
+
+      @if (form.hasError('allTogether') && form.touched) {
+      <small class="error-message">
+        Value and Unit must be either both filled in or both empty
+      </small>
+      }
+
+      <div class="form-field">
+        <label for="notes">Notes</label>
+        <textarea
+          pTextarea
+          id="notes"
+          formControlName="notes"
+          rows="5"
+          [placeholder]="isViewMode ? 'Enter notes (optional)' : ''"
+          [readonly]="isViewMode"
+
+        ></textarea>
+      </div>
+
+      <app-form-actions
+        [onCancel]="onCancel.bind(this)"
+        cancelLabel="To trips"
+        cancelIcon="chevron-left"
+        [cancelDisabled]="false"
+        [onSubmit]="!isViewMode ? onSubmit.bind(this) : null"
+        submitLabel="Submit"
+        submitIcon="save"
+        [submitDisabled]="isLoading() || form.invalid"
+      >
+      </app-form-actions>
+    </form>
   </div>
-</div>  
+</div>
 
