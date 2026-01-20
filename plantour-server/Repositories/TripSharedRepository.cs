@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using plantour_server.DbModels;
+using plantour_server.DTOs;
 
 namespace plantour_server.Repositories;
 
@@ -43,6 +44,4 @@ public class TripSharedRepository(PlantourContext context) : GenericRepository<T
             await _context.SaveChangesAsync();
         }
     }
-
-
 }

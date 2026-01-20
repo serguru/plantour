@@ -203,9 +203,9 @@ public class TripSharedService(
         return await _dicTripRepository.DeleteTripSharedThingsAsync(_currentUser.AdminId, tripId, thingIds);
     }
 
-    public async Task AcceptAssignmentAsync(Guid tripId, Guid id)
+    public async Task ToggleAcceptAssignmentAsync(Guid tripId, Guid id)
     {
-        _currentUser.RaiseIfNotAuthenticated();
+        _currentUser.RaiseIfNotParticipant();
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
@@ -216,7 +216,7 @@ public class TripSharedService(
 
         if (entity == null || entity.AssignedToId == null)
         {
-            throw new CustomException("User does not have this shared thing assigned or no access");
+            throw new CustomException("User does not have this shared thing assignee or no access");
         }
 
         var assignedToTripUser = await _tripUserRepository.GetByIdAsync(
@@ -224,37 +224,52 @@ public class TripSharedService(
             _currentUser.UserId,
             entity.TripId,
             entity.AssignedToId.Value);
-            
+
         if (assignedToTripUser == null)
         {
             throw new CustomException("AssignedTo trip user not found");
         }
 
-        var thing = await _tripThingRepository.FindAsync(x => x.TripUserId == assignedToTripUser.Id && x.Name.ToLower() == entity.Name.ToLower()).ContinueWith(t => t.Result.FirstOrDefault());
-
-        if (thing == null)
+        if (entity.AssignedThingId == null) // accept
         {
-            thing = new TripUserThing()
+            var thing = await _tripThingRepository.FindAsync(x => x.TripUserId == assignedToTripUser.Id && x.Name.ToLower() == entity.Name.ToLower()).ContinueWith(t => t.Result.FirstOrDefault());
+            if (thing == null)
             {
-                Id = Guid.NewGuid(),
-                TripUserId = assignedToTripUser.Id,
-                Category = entity.Category,
-                Name = entity.Name,
-                Units = entity.Units,
-                Value = entity.Value
-            };
-            thing = await _tripThingRepository.AddAsync(thing);
+                thing = new TripUserThing()
+                {
+                    Id = Guid.NewGuid(),
+                    TripUserId = assignedToTripUser.Id,
+                    Category = entity.Category,
+                    Name = entity.Name,
+                    Units = entity.Units,
+                    Value = entity.Value
+                };
+                thing = await _tripThingRepository.AddAsync(thing);
+            }
+            entity.AssignedThingId = thing.Id;
+            entity.Rejected = false;
         }
+        else // deaccept
+        {
+            var thing = await _tripThingRepository.GetByIdAsync(
+                _currentUser.AdminId,
+                _currentUser.UserId,
+                entity.TripId,
+                entity.AssignedThingId.Value);
 
-        entity.AssignedThingId = thing.Id;
-        entity.Rejected = false;
-        entity.AssignedAt = DateTime.UtcNow;
+            if (thing != null)
+            {
+                await _tripThingRepository.DeleteAsync(thing.Id);
+            }                
+
+            entity.AssignedThingId = null;
+        }
         await _tripSharedRepository.UpdateAsync(entity);
     }
 
-    public async Task RejectAssignmentAsync(Guid tripId, Guid id)
+    public async Task ToggleRejectAssignmentAsync(Guid tripId, Guid id)
     {
-        _currentUser.RaiseIfNotAuthenticated();
+        _currentUser.RaiseIfNotParticipant();
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
@@ -265,7 +280,7 @@ public class TripSharedService(
 
         if (entity == null || entity.AssignedToId == null)
         {
-            throw new CustomException("User does not have this shared thing assigned or no access");
+            throw new CustomException("User does not have this shared thing assignee or no access");
         }
 
         var assignedToTripUser = await _tripUserRepository.GetByIdAsync(
@@ -273,22 +288,38 @@ public class TripSharedService(
             _currentUser.UserId,
             entity.TripId,
             entity.AssignedToId.Value);
-            
+
         if (assignedToTripUser == null)
         {
             throw new CustomException("AssignedTo trip user not found");
         }
 
-        var thing = await _tripThingRepository.FindAsync(x => x.TripUserId == assignedToTripUser.Id && x.Name.ToLower() == entity.Name.ToLower()).ContinueWith(t => t.Result.FirstOrDefault());
-
-        if (thing == null)
+        if (entity.Rejected) // unreject
         {
-            throw new CustomException("Trip thing not found");
+            entity.Rejected = false;
+        }
+        else // reject
+        {   
+            entity.Rejected = true;
+
+            if (entity.AssignedThingId != null)
+            {
+                var thing1 = await _tripThingRepository.GetByIdAsync(
+                    _currentUser.AdminId,
+                    _currentUser.UserId,
+                    entity.TripId,
+                    entity.AssignedThingId.Value);
+
+                if (thing1 != null)
+                {
+                    await _tripThingRepository.DeleteAsync(thing1.Id);
+                }                
+
+                entity.AssignedThingId = null;
+            }   
+
         }
 
-        entity.AssignedThingId = null;
-        entity.Rejected = true;
-        entity.AssignedAt = null;
         await _tripSharedRepository.UpdateAsync(entity);
     }
 
@@ -308,12 +339,12 @@ public class TripSharedService(
     public async Task<int> AssignTripSharedThingsAsync(MultipleIdsAssignRequest request)
     {
         var tripId = request.CollectionId;
-        var assigneeId = request.Id;    
+        var assigneeId = request.Id;
         var ids = request.Ids;
         var deadlineDays = request.DeadlineDays;
 
         _currentUser.RaiseIfNotAdmin();
-        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, assigneeId, ids,deadlineDays, false);
+        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, assigneeId, ids, deadlineDays, false);
     }
 
     public async Task<int> UnassignTripSharedThingsAsync(Guid tripId, Guid[] ids)
@@ -321,5 +352,4 @@ public class TripSharedService(
         _currentUser.RaiseIfNotAdmin();
         return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, Guid.Empty, ids, 0, true);
     }
-
 }

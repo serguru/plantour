@@ -16,6 +16,7 @@ import { switchMap, tap } from 'rxjs';
 
 
 // TODO: fix access to view, delete  or edit if no initial rows
+// TODO: add a mark if a thing is referenced by the shared thing
 @Component({
   selector: 'app-trip-things',
   standalone: true,

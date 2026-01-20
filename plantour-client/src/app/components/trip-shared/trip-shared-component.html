@@ -4,9 +4,9 @@
         title="Trip shared things"
         [delete]="deleteTripThing.bind(this)"
         entityName="thing"
-        [addUrl]="isReadOnly() ? null : 'add'"
-        [editUrl]="isReadOnly() ? null : 'edit/:id'"
-        [viewUrl]="!isReadOnly() ? null : 'view/:id'"
+        [addUrl]="isParticipant() ? null : 'add'"
+        [editUrl]="isParticipant() ? null : 'edit/:id'"
+        [viewUrl]="!isParticipant() ? null : 'view/:id'"
         [menuItems]="menuItems()"
     ></app-entities-header>
 

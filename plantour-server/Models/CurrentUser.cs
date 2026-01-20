@@ -29,4 +29,11 @@ public class CurrentUser
             throw new CustomException("User is not admin");
         }
     }   
+    public void RaiseIfNotParticipant()
+    {
+        if (!IsParticipant || !IsAuthenticated)
+        {
+            throw new CustomException("User is not participant");
+        }
+    }   
 }

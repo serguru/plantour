@@ -8,6 +8,7 @@ import { findDuplicates, getFullName } from '../helpers/utils';
 export interface TripUserDto {
   id: string;
   tripId: string;
+  userId: string; // upper one
   adminParticipantId: string;
   email: string;
   firstName?: string | null;

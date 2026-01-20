@@ -6,6 +6,8 @@ public class TripUserDto
 
 
     public Guid AdminParticipantId { get; set; }
+    public Guid UserId { get; set; }
+
     public string Email { get; set; } = null!;
 
     public string? FirstName { get; set; }

@@ -111,6 +111,22 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
         return Ok(new { updatedCount = updated });
     }
 
+    [HttpPut("toggle-accept-trip-shared-things")]
+    [ParticipantOnly]
+    public async Task<ActionResult> ToggleAcceptAssignmentAsync([FromBody] IdTripIdRequest request)
+    {
+        await _service.ToggleAcceptAssignmentAsync(request.TripId, request.Id);
+        return Ok();
+    }
+
+    [HttpPut("toggle-reject-trip-shared-things")]
+    [ParticipantOnly]
+    public async Task<ActionResult> ToggleRejectAssignmentAsync([FromBody] IdTripIdRequest request)
+    {
+        await _service.ToggleRejectAssignmentAsync(request.TripId, request.Id);
+        return Ok();
+    }
+
 
 
 }

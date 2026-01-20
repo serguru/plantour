@@ -11,8 +11,8 @@ public class TripUserMappingProfile : Profile
 
         CreateMap<User, UserDto>();
 
-
         CreateMap<TripUser, TripUserDto>()
+        .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.AdminParticipant.Participant.Id))
         .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.AdminParticipant.Participant.Email))
         .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.AdminParticipant.Participant.FirstName))
         .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.AdminParticipant.Participant.LastName))

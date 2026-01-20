@@ -38,6 +38,7 @@ import { UsersService } from '../../services/users-service';
 export class TripSharedComponent implements OnInit {
   tripSharedItemComponent = TripSharedItemComponent;
   componentId: string = 'trip-shared';
+  currentTripUserId: string | null = null;
 
   formatDate = formatDate;
 
@@ -55,7 +56,6 @@ export class TripSharedComponent implements OnInit {
     return formatDate(getFutureDate(days));
   });
 
-
   messagesService = inject(MessagesService);
   tripService = inject(TripService);
   componentService = inject(ComponentService);
@@ -64,7 +64,7 @@ export class TripSharedComponent implements OnInit {
   dynamicQueryService = inject(DynamicQueryService);
   usersService = inject(UsersService);
 
-  isReadOnly = this.usersService.isParticipantSignal;
+  isParticipant = this.usersService.isParticipantSignal;
 
   targetCondition = toSignal(this.componentService.targetCondition$);
   target = toSignal(this.componentService.target$);
@@ -83,6 +83,9 @@ export class TripSharedComponent implements OnInit {
   private tripId: string | null = null;
 
   showCalendarForDeadline = computed(() => {
+    if (this.isParticipant()) {
+      return false;
+    }
     if (this.assigneesVisible()) {
       return true;
     }
@@ -93,6 +96,7 @@ export class TripSharedComponent implements OnInit {
 
   assigneesVisible = signal<boolean>(true);
   assignmentsVisible = signal<boolean>(true);
+  categoriesVisible = signal<boolean>(true);
 
   assigneesLabel = computed(() =>
     (this.assigneesVisible() ? 'Hide' : 'Show') + ' Assignees'
@@ -109,22 +113,30 @@ export class TripSharedComponent implements OnInit {
             this.assignmentsVisible.set(!this.assignmentsVisible());
             this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
           }
+        },
+        {
+          label: (this.assignmentsVisible() ? 'Hide' : 'Show') + ' Categories',
+          icon: 'tag',
+          action: () => {
+            this.categoriesVisible.set(!this.categoriesVisible());
+            this.localStorageService.setComponentKey(this.componentId, 'categoriesVisible', this.categoriesVisible());
+          }
         }
       ];
 
-    if (!this.isReadOnly()) {
+    if (!this.isParticipant()) {
       result.unshift({
-          label: this.assigneesLabel(),
-          icon: 'users',
-          action: () => {
-            const v = this.assigneesVisible();
-            this.assigneesVisible.set(!v);
-            if (!v && this.targetCondition()) {
-              this.messagesService.showWarning('Changing assignees visibility will have no effect while a Trip participant is selected');
-            }
-            this.localStorageService.setComponentKey(this.componentId, 'assigneesVisible', this.assigneesVisible());
+        label: this.assigneesLabel(),
+        icon: 'users',
+        action: () => {
+          const v = this.assigneesVisible();
+          this.assigneesVisible.set(!v);
+          if (!v && this.targetCondition()) {
+            this.messagesService.showWarning('Changing assignees visibility will have no effect while a Trip participant is selected');
           }
-        });
+          this.localStorageService.setComponentKey(this.componentId, 'assigneesVisible', this.assigneesVisible());
+        }
+      });
     }
 
     return result;
@@ -155,25 +167,62 @@ export class TripSharedComponent implements OnInit {
         filterText: '',
         comparisonType: 'contains',
         icon: 'filter'
+      },
+      {
+        kind: 'filter',
+        property: 'assignmentStatusName',
+        label: 'Assignment Status',
+        filterText: '',
+        comparisonType: 'exact',
+        icon: 'filter'
+      },
+      {
+        kind: 'filter',
+        property: 'assigneeFullName',
+        label: 'Assignee Full Name',
+        filterText: '',
+        comparisonType: 'exact',
+        icon: 'filter'
+      },
+      {
+        kind: 'filter',
+        property: 'category',
+        label: 'Category',
+        filterText: '',
+        comparisonType: 'exact',
+        icon: 'filter'
       }
     ];
 
   itemMetaData: any = {
     assignOrUnassign: this.assignOrUnassign.bind(this),
     assigneesVisible: this.assigneesVisible,
-    assignmentsVisible: this.assignmentsVisible
+    assignmentsVisible: this.assignmentsVisible,
+    categoriesVisible: this.categoriesVisible,
+    toggleAccept: this.toggleAcceptClick.bind(this),
+    toggleReject: this.toggleRejectClick.bind(this)
   }
+
 
   generateStatusData = (sharedThing: TripSharedDto, usersLookup) => {
 
+    sharedThing.currentUserCanAcceptOrReject = !!(sharedThing.assignedToId && sharedThing.assignedToId === this.currentTripUserId);
 
     if (!sharedThing.assignedToId) {
       sharedThing.assignmentStatusText = "Awaiting assignment";
       sharedThing.assignmentStatus = AssignmentStatus.NotAssigned;
+      sharedThing.assignmentStatusName = "Not Assigned";
       return;
     }
 
+    const assignee = usersLookup.find((a: any) => a.id === sharedThing.assignedToId);
+    if (!assignee) {
+      throw new Error('Assignee not found');
+    }
+
+    sharedThing.assigneeFullName = assignee.name;
     sharedThing.assignmentStatus = AssignmentStatus.AssignedNotFinished
+    sharedThing.assignmentStatusName = "Assigned, Not Finished";
 
     let deadlineString = "";
 
@@ -183,6 +232,7 @@ export class TripSharedComponent implements OnInit {
       if (daysDiff! < 0) {
         deadlineString = ` Deadline was: ${formatDate(sharedThing.assignedDeadline)}, ${Math.abs(daysDiff!)} days ago.`;
         sharedThing.assignmentStatus = AssignmentStatus.FinishedFailure;
+        sharedThing.assignmentStatusName = "Finished, Failed";
       } else if (daysDiff == 0) {
         deadlineString = ` Deadline is today.`;
       } else {
@@ -190,10 +240,6 @@ export class TripSharedComponent implements OnInit {
       }
     }
 
-    const assignee = usersLookup.find((a: any) => a.id === sharedThing.assignedToId);
-    if (!assignee) {
-      throw new Error('Assignee not found');
-    }
     sharedThing.assignmentStatusText = "Assigned to " + assignee.name;
 
     if (sharedThing.assignedAt) {
@@ -211,9 +257,11 @@ export class TripSharedComponent implements OnInit {
       if (sharedThing.assigneeFinished === 'success') {
         sharedThing.assignmentStatusText += " Finished successfully.";
         sharedThing.assignmentStatus = AssignmentStatus.FinishedSuccess;
+        sharedThing.assignmentStatusName = "Finished, Success";
       } else if (sharedThing.assigneeFinished === 'failure') {
         sharedThing.assignmentStatusText += " Finished and failed.";
         sharedThing.assignmentStatus = AssignmentStatus.FinishedFailure;
+        sharedThing.assignmentStatusName = "Finished, Failed";
       } else {
         throw new Error("Unsupported finish result encountered")
       }
@@ -223,6 +271,7 @@ export class TripSharedComponent implements OnInit {
     if (sharedThing.rejected) {
       sharedThing.assignmentStatusText += " Rejected. ";
       sharedThing.assignmentStatus = AssignmentStatus.FinishedFailure;
+      sharedThing.assignmentStatusName = "Finished, Failed";
     }
     sharedThing.assignmentStatusText += deadlineString;
 
@@ -243,6 +292,7 @@ export class TripSharedComponent implements OnInit {
 
     this.tripUserService.getAll(this.tripId).pipe(
       map((tripUsers: TripUserDto[]) => {
+        this.currentTripUserId = tripUsers.find(x => x.userId === this.usersService.userSignal()!.user_id)?.id ?? null;
         this.lookup = this.initTargetLookup(tripUsers);
         this.initConditions(this.componentId, tripUsers, this.lookup);
         this.initSavedFeatures();
@@ -285,6 +335,9 @@ export class TripSharedComponent implements OnInit {
     const assignmentsVisible = this.localStorageService.getComponentKey(this.componentId, 'assignmentsVisible');
     this.assignmentsVisible.set(!!assignmentsVisible);
 
+    const categoriesVisible = this.localStorageService.getComponentKey(this.componentId, 'categoriesVisible');
+    this.categoriesVisible.set(!!categoriesVisible);
+
     const deadlineDays = this.localStorageService.getComponentKey(this.componentId, 'deadlineDays');
     this.deadlineDays.set(deadlineDays ? Number(deadlineDays) : 3);
   }
@@ -323,7 +376,7 @@ export class TripSharedComponent implements OnInit {
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
 
 
-    if (!this.isReadOnly()) {
+    if (!this.isParticipant()) {
       const targetCondition: TargetCondition | undefined = initialConditions.find(c => c.kind === 'target');
       if (targetCondition) {
 
@@ -478,4 +531,53 @@ export class TripSharedComponent implements OnInit {
     const target = this.target();
     this.assignOrUnassign(entity, target!.id!, false);
   }
+
+  toggleAcceptClick(entity: TripSharedDto): void {
+    if (!this.isParticipant) {
+      throw new Error('Only participant can toggle accept')
+    }
+    const transport = {
+      id: entity.id,
+      tripId: this.tripId!
+    }
+    this.tripSharedService.toggleAccept(transport).pipe(
+      switchMap(() => this.target()?.id ? this.tripSharedService.getAllForAssignee(this.tripId!, this.target()!.id!) : this.tripSharedService.getAll(this.tripId!)),
+      map((tripShareds: TripSharedDto[]) => {
+        tripShareds.forEach(ts => {
+          this.generateStatusData(ts, this.lookup);
+        });
+        return tripShareds;
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((tripSharedThings) => {
+      this.componentService.updateEntities(tripSharedThings);
+    });
+
+  }
+
+  toggleRejectClick(entity: TripSharedDto): void {
+
+    if (!this.isParticipant) {
+      throw new Error('Only participant can toggle reject')
+    }
+
+    const transport = {
+      id: entity.id,
+      tripId: this.tripId!
+    }
+    this.tripSharedService.toggleReject(transport).pipe(
+      switchMap(() => this.target()?.id ? this.tripSharedService.getAllForAssignee(this.tripId!, this.target()!.id!) : this.tripSharedService.getAll(this.tripId!)),
+      map((tripShareds: TripSharedDto[]) => {
+        tripShareds.forEach(ts => {
+          this.generateStatusData(ts, this.lookup);
+        });
+        return tripShareds;
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((tripSharedThings) => {
+      this.componentService.updateEntities(tripSharedThings);
+    });
+  }
+
+
 }

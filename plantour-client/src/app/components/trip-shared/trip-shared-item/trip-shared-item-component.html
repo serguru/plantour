@@ -20,11 +20,11 @@
         }
     </div>
     @if (itemMetaData?.assignmentsVisible()) {
-        @if(!isAdminSignal()) {
+        @if(entity.currentUserCanAcceptOrReject) {
         <div class="checkboxes item">
             <div class="checkbox-container">
                 <p-checkbox
-                    [(ngModel)]="accepted"
+                    [ngModel]="!!entity?.assignedThingId"
                     [binary]="true"
                     inputId="accepted"
                     (click)="handleAcceptedClick($event)"
@@ -38,7 +38,7 @@
             </div>
             <div class="checkbox-container">
                 <p-checkbox
-                    [(ngModel)]="rejected"
+                    [ngModel]="!!entity?.rejected"
                     [binary]="true"
                     inputId="rejected"
                     (click)="handleRejectedClick($event)"
@@ -51,8 +51,13 @@
             </div>
         </div>
         }
-        <div class="lower-row status-text" [class]="statusToClassMap">
+        <div class="lower-row smaller-text" [class]="statusToClassMap">
             {{entity.assignmentStatusText}}
+        </div>
+    }
+    @if (itemMetaData?.categoriesVisible()) {
+        <div class="lower-row smaller-text">
+            {{entity.category}}
         </div>
     }
 </div>

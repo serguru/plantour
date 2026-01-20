@@ -9,8 +9,6 @@ import { FormatDatePipe } from '../../../pipes/format-date.pipe';
 import { formatDate, getDaysDifference } from '../../../helpers/utils';
 import { UsersService } from '../../../services/users-service';
 
-
-
 @Component({
   selector: 'app-trip-shared-item-component',
   imports: [
@@ -28,6 +26,8 @@ export class TripSharedItemComponent {
   usersService = inject(UsersService);
 
   isAdminSignal = this.usersService.isAdminSignal;
+  isParticipantSignal = this.usersService.isParticipantSignal;
+
 
   handleAcceptedClick(event: Event) {
     if (this.isAdminSignal()) {
@@ -35,7 +35,7 @@ export class TripSharedItemComponent {
     }
     event.preventDefault();
     event.stopPropagation();
-    this.accepted = !this.accepted;
+    this.itemMetaData.toggleAccept(this.entity);
   }
 
   handleRejectedClick(event: Event) {
@@ -44,11 +44,8 @@ export class TripSharedItemComponent {
     }
     event.preventDefault();
     event.stopPropagation();
-    this.rejected = !this.rejected;
+    this.itemMetaData.toggleReject(this.entity);
   }
-
-  accepted = false;
-  rejected = false;
 
   get statusToClassMap() {
     switch (this.entity.assignmentStatus) {
@@ -68,7 +65,7 @@ export class TripSharedItemComponent {
 
   componentService = inject(ComponentService);
   targetCondition = toSignal(this.componentService.targetCondition$, { initialValue: null });
-  
+
 
   selectedId = toSignal(this.componentService.selectedId$, { initialValue: null });
 
@@ -85,4 +82,6 @@ export class TripSharedItemComponent {
   onAssigneeClick(event) {
     event.stopPropagation();
   }
+
+
 }

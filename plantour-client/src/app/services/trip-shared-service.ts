@@ -2,9 +2,8 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
-import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from './crud-service';
+import { MultipleIdsRequest } from './crud-service';
 import { TripThingDto } from './trip-thing-service';
-import { UserDto } from './users-service';
 
 
 export enum AssignmentStatus {
@@ -17,7 +16,7 @@ export enum AssignmentStatus {
 
 export interface TripSharedDto {
   id: string;
-  tripUserId: string;
+  
   category?: string | null;
   name: string;
   units?: string | null;
@@ -39,7 +38,9 @@ export interface TripSharedDto {
   assigneeFullName?: string | null;
   assignmentStatusText?: string | null;
   assignmentStatus: AssignmentStatus | null;
+  assignmentStatusName: string | null;
 
+  currentUserCanAcceptOrReject: boolean;
 }
  
 export interface CreateTripSharedRequest {
@@ -126,4 +127,13 @@ export class TripSharedService {
   unassign(data: any): Observable<number> {
     return this.http.put<number>(`${this.apiUrl}/unassign-trip-shared-things`, data);
   }
+
+  toggleAccept(data: any): Observable<number> {
+    return this.http.put<number>(`${this.apiUrl}/toggle-accept-trip-shared-things`, data);
+  }
+
+  toggleReject(data: any): Observable<number> {
+    return this.http.put<number>(`${this.apiUrl}/toggle-reject-trip-shared-things`, data);
+  }
+
 }

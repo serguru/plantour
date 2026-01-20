@@ -657,3 +657,7 @@ app-generic-list {
   flex-direction: column;
   gap: 1rem;
 }
+
+.p-select-list-container {
+  max-height: none !important;
+}
