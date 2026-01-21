@@ -206,8 +206,8 @@ export class TravelersComponent implements OnInit {
     this.tripUserService.addFromDic(request).pipe(
       switchMap(() => this.adminsParticipantService.getAllForTrip(targetId)),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((packages) => {
-      this.componentService.updateEntities(packages);
+    ).subscribe(travelers => {
+      this.componentService.updateEntities(travelers);
     });
   }
 
@@ -228,8 +228,8 @@ export class TravelersComponent implements OnInit {
     this.tripUserService.deleteFromDic(request).pipe(
       switchMap(() => this.adminsParticipantService.getAllForTrip(targetId)),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((packages) => {
-      this.componentService.updateEntities(packages);
+    ).subscribe(travelers => {
+      this.componentService.updateEntities(travelers);
     });
   }
 
@@ -248,8 +248,8 @@ export class TravelersComponent implements OnInit {
         );
       }),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((packages) => {
-      this.componentService.updateEntities(packages);
+    ).subscribe(travelers => {
+      this.componentService.updateEntities(travelers);
     });
   }
 
@@ -266,8 +266,8 @@ export class TravelersComponent implements OnInit {
     o.pipe(
       switchMap(() => this.adminsParticipantService.getAllForTrip(target!.id!)),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((packages) => {
-      this.componentService.updateEntities(packages);
+    ).subscribe(travelers => {
+      this.componentService.updateEntities(travelers);
     });
   }
 }

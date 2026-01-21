@@ -8,9 +8,8 @@ import { AdminsParticipantService, AdminsParticipantDto, UpdateAdminsParticipant
 import { UsersService } from '../../../services/users-service';
 import { MessagesService } from '../../../services/messages-service';
 import { SignUpParticipantRequest } from '../../../models/auth.models';
-import { catchError, EMPTY, finalize, switchMap, mergeMap } from 'rxjs';
+import { EMPTY, finalize, switchMap, mergeMap } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
-import { MessagePanel } from '../../message-panel/message-panel-component/message-panel-component';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
@@ -67,32 +66,7 @@ export class TravelerFormComponent implements OnInit {
     return this.mode === 'view';
   }
 
-  ngOnInit(): void {
-
-    this.componentService.reset();
-
-    this.mode = this.route.snapshot.data['mode'];
-
-    switch (this.mode) {
-      case 'add':
-        this.initAddForm();
-        break;
-      case 'edit':
-        this.id = this.route.snapshot.paramMap.get('id');
-        this.initEditForm();
-        this.loadTraveler();
-        break;
-      case 'view':
-        this.id = this.route.snapshot.paramMap.get('id');
-        this.initViewForm();
-        this.loadTraveler();
-        break;
-      default:
-        break;
-    }
-  }
-
-  private initAddForm(): void {
+  private initForm(): void {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       firstName: [''],
@@ -103,30 +77,21 @@ export class TravelerFormComponent implements OnInit {
   }
 
 
-  // TODO: replace disabled with readonly 
-  private initEditForm(): void {
-    // In edit mode, only notes can be updated based on UpdateAdminsParticipantRequest
-    this.form = this.fb.group({
-      email: [{ value: '', disabled: true }],
-      firstName: [{ value: '', disabled: true }],
-      lastName: [{ value: '', disabled: true }],
-      phone: [{ value: '', disabled: true }],
-      notes: ['']
-    });
-  }
+  ngOnInit(): void {
 
-  private initViewForm(): void {
-    this.form = this.fb.group({
-      email: [{ value: '' }],
-      firstName: [{ value: '' }],
-      lastName: [{ value: '' }],
-      phone: [{ value: '' }],
-      notes: ['']
-    });
+    this.componentService.reset();
+    this.mode = this.route.snapshot.data['mode'];
+    this.initForm();
+    if (!this.isAddMode) {
+      this.id = this.route.snapshot.paramMap.get('id');
+        this.loadTraveler();
+    }
   }
 
   private loadTraveler(): void {
-    if (!this.id) return;
+    if (!this.id) {
+      throw new Error('Traveler Id is required in edit/view mode');
+    }
 
     this.componentService.updateLoading(true);
     this.service.getById(this.id).pipe(
@@ -161,7 +126,7 @@ export class TravelerFormComponent implements OnInit {
 
     if (this.isAddMode) {
       this.addTraveler();
-    } else {
+    } else if (!this.isReadOnlyMode) {
       this.updateTraveler();
     }
   }

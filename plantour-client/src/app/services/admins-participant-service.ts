@@ -54,10 +54,8 @@ export class AdminsParticipantService {
   }
 
   private setFullNames = (users: AdminsParticipantDto[]) => {
-    const duplicatedIds = findDuplicates(users);
     users.forEach((x: AdminsParticipantDto) => {
-      const isDuplicated = duplicatedIds.some(y => y === x.id);
-      const name = getFullName(x.firstName ?? null, x.lastName ?? null, x.email, isDuplicated);
+      const name = getFullName(x.firstName ?? null, x.lastName ?? null, x.email, false);
       x.fullName = name;
     });
   }

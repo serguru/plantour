@@ -9,6 +9,8 @@
   --primary-color: #3A9AA8;
   --form-header-background-color: #2F7C87;
   --primary-border-color: #245b64;
+  --primary-border-color: #245b64;
+  --secondary-border-color: #cbd5e1;
   --primary-color-light: #4DB8C4;
   --primary-color-very-light: #ebfdff;
   --primary-color-highlight: #caf5fa;
@@ -660,4 +662,8 @@ app-generic-list {
 
 .p-select-list-container {
   max-height: none !important;
+}
+
+.p-button-outlined.p-button-secondary {
+    border-color: var(--secondary-border-color) !important;
 }

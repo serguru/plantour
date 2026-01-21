@@ -1,7 +1,5 @@
-<div class="traveler-row">
-    <span
-        [innerHTML]="entity.fullName"
-    ></span>
-</div>
-
-
+<span
+    class="item ellipsis-text"
+    [innerHTML]="entity.fullName"
+></span>
+<a class="item right ellipsis-text" [href]="'mailto:'+entity.email">{{entity.email}}</a>

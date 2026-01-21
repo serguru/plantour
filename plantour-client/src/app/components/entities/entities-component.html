@@ -1,19 +1,18 @@
 
-<div class="list-container">
-    <!-- @for (entity of processedEntities(); track entity.id) { -->
+<ul class="list-container">
     @for (entity of processedEntities | async; track entity.id) {
-    <div
+    <li
         class="item-container"
         [class.selected]="isSelected(entity)"
         (click)="selectEntity(entity)"
     >
-        <div class="left">
+        <div class="item-content">
             <ng-container *ngComponentOutlet="itemComponent; inputs: getEntityInputs(entity)">
             </ng-container>
         </div>
 
         @if(showEntityButton()) {
-        <div class="right">
+        <div class="target-button">
             <p-button
                 [icon]="icon(entity)"
                 (click)="onTargetEntityClick(entity, $event)"
@@ -24,9 +23,9 @@
             ></p-button>
         </div>
         }
-    </div>
+    </li>
 
     } @empty {
-    <div class="loading"><h2>{{emptyText()}}</h2></div>
+    <div class="no-rows"><h2>{{emptyText()}}</h2></div>
     }
-</div>
+</ul>
