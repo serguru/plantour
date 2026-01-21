@@ -25,6 +25,7 @@ public class TripDto
     public int TotalPacks { get; set; }
 
     public int TotalThings { get; set; }
+    public int TotalSharedThings { get; set; }
 
 // The current user is included into the trip_users table for this trip
     public bool CurrentUserIncluded { get; set; }

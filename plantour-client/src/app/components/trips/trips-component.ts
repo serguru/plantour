@@ -1,10 +1,10 @@
-import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CrudService } from '../../services/crud-service';
 import { TripDto, TripService } from '../../services/trip-service';
 import { TripItemComponent } from './trip-item/trip-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { ComponentService } from '../../services/component-service';
 import { TripThingService } from '../../services/trip-thing-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -65,8 +65,38 @@ export class TripsComponent implements OnInit {
         filterText: '',
         comparisonType: 'contains',
         icon: 'box'
+      },
+      {
+        kind: 'filter',
+        property: 'tripStatus',
+        label: 'Trip Status',
+        filterText: '',
+        comparisonType: 'exact',
+        icon: 'flag'
       }
     ];
+
+  lowerTextVisible = signal<boolean>(true);
+
+  menuItems = computed<MenuConfig[]>(() => {
+    return [
+      {
+        label: (this.lowerTextVisible() ? 'Hide' : 'Show') + ' Lower Text',
+        icon: 'check',
+        action: () => {
+          this.lowerTextVisible.set(!this.lowerTextVisible());
+          this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
+        }
+      }
+    ];
+  }
+  );
+
+  itemMetaData: any = {
+    lowerTextVisible: this.lowerTextVisible,
+  }
+
+
 
   ngOnInit(): void {
 
@@ -121,8 +151,13 @@ export class TripsComponent implements OnInit {
     }
     const savedConditions = this.localStorageService.getComponentKeyObject(componentId, 'conditions') || [];
     const initialConditions = this.dynamicQueryService.initConditions(savedConditions, this.conditions);
+
     this.componentService.updateConditions(initialConditions);
     this.componentService.persistValue('conditions', initialConditions);
+
+    const lowerTextVisible: boolean = this.localStorageService.getComponentKey(this.componentId, 'lowerTextVisible');
+    this.lowerTextVisible.set(lowerTextVisible);
+
   }
 
   deleteTrip(id: string): void {

@@ -7,6 +7,7 @@
         [addUrl]="isReadOnly() ? null : 'add'"
         [editUrl]="isReadOnly() ? null : 'edit/:id'"
         [viewUrl]="!isReadOnly() ? null : 'view/:id'"
+        [menuItems]="menuItems()"
     ></app-entities-header>
 
     <app-entities-actions
@@ -14,5 +15,6 @@
 
     <app-entities
         [itemComponent]="tripItemComponent"
+        [itemMetaData]="itemMetaData"
     ></app-entities>
 </div>

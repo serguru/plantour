@@ -1,13 +1,10 @@
-  <div class="thing-row">
-    <span class="thing-name" [innerHTML]="entity.name"></span>
-
-    <!-- @if (item.tripStatus) {
-      <p-tag
-        class="thing-category"
-        [value]="item.tripStatus"
-        severity="secondary"
-        [style]="{ 'font-size': 'large' }"
-        (click)="onStatusClick(item, $event)"
-      ></p-tag>
-    } -->
-  </div>
+  <span
+    class="ic-2-item ellipsis-text"
+    [innerHTML]="entity.name"
+  ></span>
+  <span class="ic-2-item ic-2-right ellipsis-text">
+    {{entity.tripStatus}}
+  </span>
+  @if (lowerText.length && itemMetaData!.lowerTextVisible()) {
+    <div class="lower-text">{{lowerText}}</div>
+  }
