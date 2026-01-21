@@ -1,7 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CreatePackageRequest, PackageDto, PackageService, UpdatePackageRequest } from '../../../services/package-service';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BaseFormComponent, BaseFormMode } from '../../base-form/base-form-component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';

@@ -1,17 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CreateTripSharedRequest, TripSharedDto, TripSharedService, UpdateTripSharedRequest } from '../../../services/trip-shared-service';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BaseFormComponent, BaseFormMode } from '../../base-form/base-form-component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { LookupService } from '../../../services/lookup-service';
-import { TripUserService } from '../../../services/trip-user-service';
 import { combineLatest, finalize, map, Observable } from 'rxjs';
-import { AppService } from '../../../services/app-service';
-import { CurrentTripService } from '../../../services/current-trip-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormHeader } from '../../form/form-header/form-header';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
