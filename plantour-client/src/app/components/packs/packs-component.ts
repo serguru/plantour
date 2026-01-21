@@ -78,7 +78,6 @@ export class PacksComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.componentService.reset();
     this.componentService.updateComponentId(this.componentId);
 
     this.tripService.getAllWhereParticipant().pipe(

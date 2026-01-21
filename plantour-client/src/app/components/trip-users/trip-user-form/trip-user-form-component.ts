@@ -95,7 +95,6 @@ export class TripUserFormComponent implements OnInit {
       throw new Error('Trip Id is required to create or edit a trip pack');
     }
 
-    this.componentService.reset();
     this.mode = this.route.snapshot.data['mode'];
 
     if (this.isAddMode) {

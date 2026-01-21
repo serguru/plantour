@@ -1,16 +1,5 @@
-  <div class="thing-row">
-    <span
-      class="thing-name"
-      [innerHTML]="entity.name"
-    ></span>
-    <!-- @if (item.category) {
-    <p-tag
-      class="thing-category"
-      [value]="item.category"
-      severity="secondary"
-      [style]="{  'font-size': 'large' }"
-      (click)="onCategoryClick(item, $event)"
-    >
-    </p-tag> 
-    }-->
-  </div>
+<span
+    class="ic-2-item ellipsis-text"
+    [innerHTML]="entity.name"
+></span>
+<span class="ic-2-item ic-2-right ellipsis-text" >{{entity.category}}</span>

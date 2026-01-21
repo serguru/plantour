@@ -260,3 +260,33 @@ You are creating a new user in our database. Once added, they will be added to y
 [0].AsignedTo.AdminParicipanant.Participant -> Email, FirstName, LastName, Phone
 
 
+Мне нужно следующее:
+
+1) Есть 
+
+  private entitiesSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
+  entities$: Observable<any[] | null> = this.entitiesSubject.asObservable();
+
+2) Есть 
+
+  private conditionsSubject: BehaviorSubject<Condition[] | null> = new BehaviorSubject<Condition[] | null>(null);
+  conditions$: Observable<Condition[] | null> = this.conditionsSubject.asObservable();
+
+3) Есть 
+
+  processedEntities$: Observable<any[] | null> =
+    combineLatest([
+      this.entities$,
+      this.conditions$
+    ]).pipe(
+      map(([entities, conditions]) => {
+        const processed = this.dynamicQueryService.applyConditions(entities, conditions);
+        return processed;
+      })
+    );
+
+4) Есть неизвестное число подписок на все три Observables
+
+5) Нужно при навигации в router-outlet сначала убить все подписки и только после этого открыть новый компонент
+
+Дай мне код как это сделать

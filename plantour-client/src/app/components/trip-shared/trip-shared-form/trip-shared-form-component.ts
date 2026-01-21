@@ -141,7 +141,6 @@ export class TripSharedFormComponent implements OnInit {
       })
     );
 
-    this.componentService.reset();
     this.mode = this.route.snapshot.data['mode'];
     this.initForm();
     if (this.isAddMode) {

@@ -3,23 +3,3 @@
     flex-wrap: wrap;
 }
 
-.item {
-    flex: 0 0 100%;
-    text-align: left;
-}
-
-.right {
-    text-align: left;
-    font-size: 0.98rem;
-}
-
-@media (min-width: 600px) {
-    .item {
-        flex: 0 0 50%;
-    }
-
-    .right {
-        text-align: right;
-        font-size: inherit;
-    }
-}

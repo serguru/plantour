@@ -667,3 +667,27 @@ app-generic-list {
 .p-button-outlined.p-button-secondary {
     border-color: var(--secondary-border-color) !important;
 }
+
+
+
+
+.ic-2-item {
+    flex: 0 0 100%;
+    text-align: left;
+}
+
+.ic-2-right {
+    text-align: left;
+    font-size: 0.98rem;
+}
+
+@media (min-width: 576px) {
+    .ic-2-item {
+        flex: 0 0 50%;
+    }
+
+    .ic-2-right {
+        text-align: right;
+        font-size: inherit;
+    }
+}

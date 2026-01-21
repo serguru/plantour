@@ -9,6 +9,7 @@ import { catchError, map, tap, throwError } from 'rxjs';
 import { CurrentTripService } from '../services/current-trip-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 
+
 export const publicGuard: CanActivateFn = (route, state) => {
   const usersService = inject(UsersService);
   if (!usersService.isAuthenticatedSignal()) {

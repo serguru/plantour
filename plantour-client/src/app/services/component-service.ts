@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, withLatestFrom, distinct, distinctUntilChanged, filter, map, Observable, of, ReplaySubject, switchMap, tap, Subject, throwError, concatMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, withLatestFrom, distinct, distinctUntilChanged, filter, map, Observable, of, ReplaySubject, switchMap, tap, Subject, throwError, concatMap, takeUntil } from 'rxjs';
 import { Condition, DynamicQueryService, Target, TargetCondition } from './dynamic-query-service';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { LocalStorageService } from './local-storage-service';
 import { isGuid } from '../helpers/utils';
 import { UsersService } from './users-service';
@@ -29,15 +29,16 @@ export class ComponentService {
   dynamicQueryService = inject(DynamicQueryService);
   localStorageService = inject(LocalStorageService);
 
-
   constructor() {
   }
+
+  private destroy$ = new Subject<void>();
 
   //#region Raw subjects
 
   // ComponentId to identify which component is using the service
   private componentIdSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
-  componentId$: Observable<string | null> = this.componentIdSubject.asObservable();
+  componentId$: Observable<string | null> = this.componentIdSubject.asObservable().pipe(takeUntil(this.destroy$));
   updateComponentId(componentId: string | null) {
     if (componentId === this.componentIdSubject.value) {
       return;
@@ -45,32 +46,42 @@ export class ComponentService {
     this.componentIdSubject.next(componentId);
   }
 
-  private persistAction$ = new Subject<{ key: string, value: any }>();
+//   private persistActionSubject = new Subject<{ key: string, value: any }>();
+// //  private persistAction$ = this.persistActionSubject.asObservable().pipe(takeUntil(this.destroy$));
+//   private persistAction$ = this.persistActionSubject.asObservable().pipe();
 
-  persistValue$ = this.persistAction$.pipe(
-    withLatestFrom(this.componentId$),
-    concatMap(componentId => {
-      if (!componentId) {
-        return throwError(() => new Error('Cannot persist a value - no componentId'));
-      }
-      return of(componentId);
-    }),
-    takeUntilDestroyed()
-  ).subscribe(([action, componentId]) => {
-    this.localStorageService.setComponentKey(
-      componentId!,
-      action.key,
-      action.value
-    );
-  })
+//   persistValue$ = this.persistAction$.pipe(
+//     withLatestFrom(this.componentId$),
+//     // concatMap(componentId => {
+//     //   if (!componentId) {
+//     //     return throwError(() => new Error('Cannot persist a value - no componentId'));
+//     //   }
+//     //   return of(componentId);
+//     // }),
+//     takeUntilDestroyed()
+//   ).subscribe(([action, componentId]) => {
+//     this.localStorageService.setComponentKey(
+//       componentId!,
+//       action.key,
+//       action.value
+//     );
+//   })
+
+  // persistValue(key: string, value: any): void {
+  //   this.persistAction$.next({ key, value });
+  // }
 
   persistValue(key: string, value: any): void {
-    this.persistAction$.next({ key, value });
+    const componentId = this.componentIdSubject.value;
+    if (!componentId) {
+      return;
+    }
+    this.localStorageService.setComponentKey(componentId, key, value);
   }
 
   // Raw entities as fetched from the backend
   private entitiesSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
-  entities$: Observable<any[] | null> = this.entitiesSubject.asObservable();
+  entities$: Observable<any[] | null> = this.entitiesSubject.asObservable().pipe(takeUntil(this.destroy$));
   updateEntities(entities: any[] | null): void {
     this.entitiesSubject.next(entities);
   }
@@ -238,9 +249,8 @@ export class ComponentService {
   );
 
   //#endregion
-
-
   reset(): void {
+    this.destroy$.next();
     this.updateComponentId(null);
     this.updateConditions(null);
     this.updateEntities(null);
@@ -248,5 +258,6 @@ export class ComponentService {
     this.updateSelectedId(null);
     this.updateEntitiesActionsVisible(false);
     this.updateLoading(false);
-  }
+    this.destroy$ = new Subject<void>();
+}
 }

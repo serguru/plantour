@@ -56,7 +56,6 @@ export class PackFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.componentService.reset();
     this.mode = this.route.snapshot.data['mode'];
     if (!this.isAddMode) {
       this.id = this.route.snapshot.paramMap.get('id');

@@ -16,7 +16,6 @@ import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { UsersService } from '../../services/users-service';
 
-// TODO: make readonly for participants
 @Component({
   selector: 'app-travelers-component',
   standalone: true,
@@ -56,7 +55,6 @@ export class TravelersComponent implements OnInit {
   currentTripService = inject(CurrentTripService);
   currentTripDtoSignal = toSignal(this.currentTripService.currentTripDto$, { initialValue: null });
 
-
   private destroyRef = inject(DestroyRef);
 
   conditions: Condition[] =
@@ -81,7 +79,6 @@ export class TravelersComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.componentService.reset();
     this.componentService.updateComponentId(this.componentId);
 
     this.componentService.updateLoading(true);

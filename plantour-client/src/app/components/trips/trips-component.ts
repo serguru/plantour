@@ -70,8 +70,6 @@ export class TripsComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.componentService.reset();
-
     this.componentService.updateComponentId(this.componentId);
 
     var o = this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();

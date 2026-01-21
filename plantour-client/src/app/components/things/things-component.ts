@@ -32,25 +32,19 @@ export class ThingsComponent {
   componentId: string = 'things';
   appService = inject(AppService);
   tripService = inject(TripService);
-
   componentService = inject(ComponentService);
   thingService = inject(ThingService);
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(ComponentService).dynamicQueryService;
   tripThingService = inject(TripThingService);
   tripSharedService = inject(TripSharedService);
-
   targetCondition = toSignal(this.componentService.targetCondition$);
   target = toSignal(this.componentService.target$);
-
   targetedIds = toSignal(this.componentService.targetedIds$);
   notTargetedIds = toSignal(this.componentService.notTargetedIds$);
-  
   usersService = inject(UsersService);
-
   currentTripService = inject(CurrentTripService);
   currentTripDtoSignal = toSignal(this.currentTripService.currentTripDto$, { initialValue: null });
-
 
   private destroyRef = inject(DestroyRef);
 
@@ -90,7 +84,6 @@ export class ThingsComponent {
 
   ngOnInit(): void {
 
-    this.componentService.reset();
     this.componentService.updateComponentId(this.componentId);
 
     var o = this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
