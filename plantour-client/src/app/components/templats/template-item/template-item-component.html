@@ -1,22 +1,10 @@
-<div class="container">
-  <div
-    class="row"
+  <span
+    class="ic-2-item ellipsis-text"
     [innerHTML]="entity.name"
-  ></div>
-
-  <div class="row">
-    <div>
-      @if (entity.category) {
-      <p-tag
-        [value]="entity.category"
-        severity="secondary"
-        [style]="{  'font-size': 'large' }"
-      >
-      </p-tag>
-      }
-    </div>
-    <div>
-      {{entity.activityName}}
-    </div>
-  </div>
-</div>
+  ></span>
+  <span class="ic-2-item ic-2-right ellipsis-text">
+    {{entity.category}}
+  </span>
+  @if (lowerText.length && itemMetaData!.lowerTextVisible()) {
+    <div class="lower-text">{{lowerText}}</div>
+  }

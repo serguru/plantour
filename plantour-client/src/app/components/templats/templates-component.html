@@ -3,7 +3,7 @@
         entityIcon="pi pi-objects-column"
         title="Template things"
         entityName="template thing"
-        
+        [menuItems]="menuItems()"
     ></app-entities-header>
 
     <app-entities-actions
@@ -13,5 +13,6 @@
     <app-entities
         [itemComponent]="templateItemComponent"
         [targetEntityClick]="targetEntityClick.bind(this)"
+        [itemMetaData]="itemMetaData"
     ></app-entities>
 </div>

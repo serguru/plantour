@@ -1,6 +1,6 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
-import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { TemplateItemComponent } from './template-item/template-item-component';
 import { TripDto, TripService } from '../../services/trip-service';
@@ -52,7 +52,6 @@ export class TemplatesComponent {
   usersService = inject(UsersService);
   currentTripService = inject(CurrentTripService);
   currentTripDtoSignal = toSignal(this.currentTripService.currentTripDto$, { initialValue: null });
-
 
   private destroyRef = inject(DestroyRef);
 
@@ -118,6 +117,27 @@ export class TemplatesComponent {
       }
     ];
 
+  lowerTextVisible = signal<boolean>(true);
+
+  menuItems = computed<MenuConfig[]>(() => {
+    return [
+      {
+        label: (this.lowerTextVisible() ? 'Hide' : 'Show') + ' Lower Text',
+        icon: 'check',
+        action: () => {
+          this.lowerTextVisible.set(!this.lowerTextVisible());
+          this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
+        }
+      }
+    ];
+  }
+  );
+
+  itemMetaData: any = {
+    lowerTextVisible: this.lowerTextVisible,
+  }
+
+
   ngOnInit(): void {
 
     this.componentService.updateComponentId(this.componentId);
@@ -157,6 +177,9 @@ export class TemplatesComponent {
 
     const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
     this.componentService.updateSelectedId(id);
+
+    const lowerTextVisible: boolean = this.localStorageService.getComponentKey(this.componentId, 'lowerTextVisible');
+    this.lowerTextVisible.set(lowerTextVisible);
   }
 
   initTargetLookup(trips: TripDto[] | null) {
