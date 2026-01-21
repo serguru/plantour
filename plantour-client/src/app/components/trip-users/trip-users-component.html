@@ -4,15 +4,16 @@
         title="Trip participants"
         [delete]="isReadOnly() ? null : deleteTripUser.bind(this)"
         entityName="participant"
-        
         [addUrl]="isReadOnly() ? null : 'add'"
         [editUrl]="isReadOnly() ? null : 'edit/:id'"
         [viewUrl]="!isReadOnly() ? null : 'view/:id'"
+        [menuItems]="menuItems()"
     ></app-entities-header>
 
     <app-entities-actions
     ></app-entities-actions>
     <app-entities
         [itemComponent]="tripUserItemComponent"
+        [itemMetaData]="itemMetaData"
     ></app-entities>
 </div>

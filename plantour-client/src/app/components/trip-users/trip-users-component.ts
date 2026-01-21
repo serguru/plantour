@@ -1,11 +1,11 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CrudService, FromDicService } from '../../services/crud-service';
 import { TripUserDto, CreateTripUserRequest, UpdateTripUserRequest, TripUserService } from '../../services/trip-user-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TripUserItemComponent } from './trip-user-item/trip-user-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { ComponentService } from '../../services/component-service';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { Condition, DynamicQueryService } from '../../services/dynamic-query-service';
@@ -63,6 +63,27 @@ export class TripUsersComponent implements OnInit {
       }
     ];
 
+  lowerTextVisible = signal<boolean>(true);
+
+  menuItems = computed<MenuConfig[]>(() => {
+    return [
+      {
+        label: (this.lowerTextVisible() ? 'Hide' : 'Show') + ' Lower Text',
+        icon: 'check',
+        action: () => {
+          this.lowerTextVisible.set(!this.lowerTextVisible());
+          this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
+        }
+      }
+    ];
+  }
+  );
+
+  itemMetaData: any = {
+    lowerTextVisible: this.lowerTextVisible,
+  }
+
+
   ngOnInit(): void {
 
     this.componentService.updateComponentId(this.componentId);
@@ -91,6 +112,10 @@ export class TripUsersComponent implements OnInit {
 
     const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
     this.componentService.updateSelectedId(id);
+
+    const lowerTextVisible: boolean = this.localStorageService.getComponentKey(this.componentId, 'lowerTextVisible');
+    this.lowerTextVisible.set(lowerTextVisible);
+
   }
 
 

@@ -10,6 +10,9 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
     {
         return await _dbSet
             .Include(x => x.AdminParticipant.Participant)
+            .Include(x => x.TripUserPackages)
+            .Include(x => x.TripUserThings)
+            .Include(x => x.TripSharedThings)
             .FirstOrDefaultAsync(x =>
                 x.TripId == tripId &&
                 x.Trip.UserId == adminId &&
@@ -22,6 +25,9 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
     {
         return await _dbSet
             .Include(x => x.AdminParticipant.Participant)
+            .Include(x => x.TripUserPackages)
+            .Include(x => x.TripUserThings)
+            .Include(x => x.TripSharedThings)
             .FirstOrDefaultAsync(x =>
             x.Id == id &&
             x.AdminParticipant.AdminId == adminId &&
@@ -34,6 +40,9 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
     {
         return await _dbSet
             .Include(x => x.AdminParticipant.Participant)
+            .Include(x => x.TripUserPackages)
+            .Include(x => x.TripUserThings)
+            .Include(x => x.TripSharedThings)
             .FirstOrDefaultAsync(x =>
             x.Id == id &&
             x.AdminParticipant.AdminId == adminId &&
@@ -55,6 +64,9 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
     {
         return await _dbSet
             .Include(x => x.AdminParticipant.Participant)
+            .Include(x => x.TripUserPackages)
+            .Include(x => x.TripUserThings)
+            .Include(x => x.TripSharedThings)
             .Where(x => x.TripId == tripId && x.AdminParticipant.AdminId == adminId)
             .ToListAsync();
     }

@@ -59,10 +59,6 @@ public class TripUserController : ControllerBase
     public async Task<ActionResult<TripUserDto>> GetByIdForAll(Guid tripId, Guid id)
     {
         var dto = await _service.GetByIdForAllAsync(tripId, id);
-        // if (dto == null)
-        // {
-        //     return NotFound(new { message = "Trip user not found" });
-        // }
 
         return Ok(dto);
     }

@@ -1,6 +1,13 @@
-<div class="pack-row">
-    <span
-        class="pack-name"
-        [innerHTML]="entity.fullName"
-    ></span>
-</div>
+<span
+    class="ic-2-item ellipsis-text"
+    [innerHTML]="entity.fullName"
+></span>
+<a
+    class="ic-2-item ic-2-right ellipsis-text"
+    [href]="'mailto:'+entity.email"
+>{{entity.email}}</a>
+
+
+@if (lowerText.length && itemMetaData!.lowerTextVisible()) {
+<div class="lower-text">{{lowerText}}</div>
+}

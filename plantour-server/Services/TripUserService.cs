@@ -58,7 +58,18 @@ public class TripUserService(
         }
 
         var entities = await _tripUserRepository.GetAllAsync(_currentUser.AdminId, tripId);
-        return _mapper.Map<IEnumerable<TripUserDto>>(entities);
+
+        var dtos = _mapper.Map<IEnumerable<TripUserDto>>(entities);
+
+        dtos = dtos.Select((dto, index) =>
+        {
+            dto.TotalPacks = entities.ElementAt(index).TripUserPackages?.Count ?? 0;
+            dto.TotalThings = entities.ElementAt(index).TripUserThings?.Count ?? 0;
+            dto.TotalSharedThings = entities.ElementAt(index).TripSharedThings?.Count ?? 0;
+            return dto;
+        });
+
+        return dtos;
     }
 
     public async Task<TripUserDto?> GetByIdAsync(Guid tripId, Guid id)
@@ -69,7 +80,17 @@ public class TripUserService(
             throw new CustomException("User does not have access to this trip");
         }
         var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
-        return entity != null ? _mapper.Map<TripUserDto>(entity) : null;
+
+        if (entity == null)
+        {
+            return null;
+        }
+
+        TripUserDto dto = _mapper.Map<TripUserDto>(entity);
+        dto.TotalPacks = entity.TripUserPackages?.Count ?? 0;
+        dto.TotalThings = entity.TripUserThings?.Count ?? 0;
+        dto.TotalSharedThings = entity.TripSharedThings?.Count ?? 0;
+        return dto;
     }
 
     public async Task<TripUserDto?> GetByIdForAllAsync(Guid tripId, Guid id)
@@ -80,7 +101,17 @@ public class TripUserService(
             throw new CustomException("User does not have access to this trip");
         }
         var entity = await _tripUserRepository.GetByIdForAllAsync(_currentUser.AdminId, tripId, id);
-        return entity != null ? _mapper.Map<TripUserDto>(entity) : null;
+
+        if (entity == null)
+        {
+            return null;
+        }
+
+        TripUserDto dto = _mapper.Map<TripUserDto>(entity);
+        dto.TotalPacks = entity.TripUserPackages?.Count ?? 0;
+        dto.TotalThings = entity.TripUserThings?.Count ?? 0;
+        dto.TotalSharedThings = entity.TripSharedThings?.Count ?? 0;
+        return dto;
     }
 
     public async Task<TripUserDto> AddAsync(CreateTripUserRequest request)
@@ -121,17 +152,6 @@ public class TripUserService(
             throw new CustomException("User does not have access to this trip");
         }
 
-
-
-
-        // if (!await _adminsParticipantRepository.AnyAsync(x =>
-        //         x.AdminId == _currentUser.AdminId &&
-        //         x.Id == request.AdminParticipantId))
-        // {
-        //     throw new CustomException("AdminParticipant not found or access denied");
-        // }
-
-
         var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, request.TripId, request.Id);
         if (entity == null)
         {
@@ -155,7 +175,7 @@ public class TripUserService(
         {
             throw new CustomException("User does not have access to this trip");
         }
-        
+
         await _tripUserRepository.DeleteAsync(id);
     }
 }

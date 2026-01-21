@@ -17,4 +17,8 @@ public class TripUserDto
     public string? Phone { get; set; }
 
     public string? Notes { get; set; }
+
+    public int TotalPacks { get; set; }
+    public int TotalThings { get; set; }
+    public int TotalSharedThings { get; set; }
 }
