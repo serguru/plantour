@@ -33,6 +33,12 @@ export const routes: Routes = [
     data: { componentId: 'sign-up' }
   },
   {
+    path: 'help',
+    loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'help' }
+  },
+  {
     path: 'landing-registered',
     canActivate: [adminOrParticipantGuard],
     loadComponent: () => import('./components/landing-registered-user/landing-registered-user.component').then(m => m.LandingRegisteredUserComponent),
@@ -248,12 +254,6 @@ export const routes: Routes = [
     loadComponent: () => import('./components/features/contact/contact-component').then(m => m.ContactComponent),
     resolve: {cleanup: CleanupResolver},
     data: { componentId: 'contact' }
-  },
-  {
-    path: 'help',
-    loadComponent: () => import('./components/features/help/help-component/help-component').then(m => m.HelpComponent),
-    resolve: {cleanup: CleanupResolver},
-    data: { componentId: 'help' }
   },
   {
     path: 'privacy',

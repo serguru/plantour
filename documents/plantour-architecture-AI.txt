@@ -1,31 +1,20 @@
 Plantour project architecture
 ===============================
 
-Plantour is to provide travelers with an app to plan, organize, prepare, conduct, store, and reuse tours – alone or with others – across devices, with safe data storage and reasonable offline support.
+Plantour is to provide travelers with an app to plan, organize, prepare, conduct, store, and reuse tours across devices, with safe data storage and rich capabilities for traveler groups.
 
 1. High-Level System Overview
 ===============================
 
 - Web Client (Angular PWA)
 
-   * Browser-based application (desktop + mobile).
-   * Installable PWA with offline capabilities.
-   * Uses IndexedDB for local storage and an internal “change queue” for offline edits.
+   * Browser-based application, 100% mobile first.
 
 - Plantour API (ASP.NET / C#)
 
    * Stateless REST API.
    * Business logic: tour lifecycle, invites, collaboration rules, reporting.
-   * Uses Supabase PostgreSQL as the primary database.
-   * Integrates with Supabase Auth for identity and authentication.
-
-- Supabase PostgreSQL
-
-   * Stores:
-     * Domain data in JSONB (tours, itineraries, notes, packing lists, etc.).
-     * Relational data (users, invitations, roles, settings, audit info).
-
-   * Acts as the single source of truth for all tour data.
+   * Uses PostgreSQL as the primary database.
 
 
 2. Data Model Strategy
