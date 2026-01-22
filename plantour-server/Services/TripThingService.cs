@@ -176,4 +176,28 @@ public class TripThingService(
         _currentUser.RaiseIfNotAuthenticated();
         return await _dicTripRepository.PackTripThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, Guid.Empty, tripThingIds, true);
     }
+
+    public async Task ToggleFinishedTripThingsAsync(Guid tripId, Guid id, string? finished)
+    {
+        _currentUser.RaiseIfNotParticipant();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var entity = await _tripUserThingRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
+        if (entity == null)
+        {
+            throw new CustomException("Trip thing not found or access denied");
+        }   
+        entity.Finished = finished;
+        await  _tripUserThingRepository.UpdateAsync(entity);
+    }
+
+
+
+
+
+
 }

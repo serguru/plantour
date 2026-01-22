@@ -16,4 +16,5 @@ public interface ITripThingService
     Task<int> UnpackTripThingsAsync(Guid tripId, Guid[] tripThingIds);
     Task<int> InsertTemplateTripUserThingsAsync(Guid tripId, Guid[] ids);
     Task<int> DeleteTemplateTripUserThingsAsync(Guid tripId, Guid[] ids);
+    Task ToggleFinishedTripThingsAsync(Guid tripId, Guid id, string? finished);
 }

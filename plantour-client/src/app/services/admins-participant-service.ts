@@ -38,6 +38,8 @@ export interface UpdateAdminsParticipantRequest {
   notes?: string | null;
 }
 
+
+// TODO: if a participant is deleted all their assignments must be deleted as well
 @Injectable({
   providedIn: 'root',
 })

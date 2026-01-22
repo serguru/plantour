@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from '../../services/crud-service';
 import { TripThingDto, CreateTripThingRequest, UpdateTripThingRequest, TripThingService } from '../../services/trip-thing-service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,15 +8,16 @@ import { CurrentTripService } from '../../services/current-trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { ComponentService } from '../../services/component-service';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { Condition, DynamicQueryService, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
-import { switchMap, tap } from 'rxjs';
-
+import { map, switchMap, tap } from 'rxjs';
+import { AssignmentStatus } from '../../helpers/enums';
+import { formatDate, getDaysDifference } from '../../helpers/utils';
 
 // TODO: fix access to view, delete  or edit if no initial rows
-// TODO: add a mark if a thing is referenced by the shared thing
+// TODO: do not show shared info for not shared things and hide show shared menг if no shared things
 @Component({
   selector: 'app-trip-things',
   standalone: true,
@@ -45,6 +46,36 @@ export class TripThingsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private tripId: string | null = null;
 
+
+  assignmentsVisible = signal<boolean>(true);
+  packsVisible = signal<boolean>(true);
+
+  menuItems = computed<MenuConfig[]>(() => {
+
+    const result =
+      [
+        {
+          label: (this.assignmentsVisible() ? 'Hide' : 'Show') + ' Assignments',
+          icon: 'check',
+          action: () => {
+            this.assignmentsVisible.set(!this.assignmentsVisible());
+            this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
+          }
+        },
+        {
+          label: (this.packsVisible() ? 'Hide' : 'Show') + ' Packs',
+          icon: 'box',
+          action: () => {
+            this.packsVisible.set(!this.packsVisible());
+            this.localStorageService.setComponentKey(this.componentId, 'packsVisible', this.packsVisible());
+          }
+        }
+      ];
+    return result;
+  }
+  );
+
+
   conditions: Condition[] =
     [
       {
@@ -72,8 +103,13 @@ export class TripThingsComponent implements OnInit {
     ];
 
   itemMetaData: any = {
-    packOrUnpack: this.packOrUnpack.bind(this)
+    packOrUnpack: this.packOrUnpack.bind(this),
+    packsVisible: this.packsVisible,
+    assignmentsVisible: this.assignmentsVisible,
+    toggleFinished: this.toggleFinishedClick.bind(this)
   }
+
+
 
   ngOnInit(): void {
 
@@ -100,6 +136,12 @@ export class TripThingsComponent implements OnInit {
             }
             return this.tripThingService.getAll(this.tripId!);
           }),
+          map((tripThings: TripThingDto[]) => {
+            tripThings.forEach(ts => {
+              this.generateMessagesData(ts);
+            });
+            return tripThings;
+          })
         )
       ),
       takeUntilDestroyed(this.destroyRef)
@@ -114,6 +156,12 @@ export class TripThingsComponent implements OnInit {
 
     const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
     this.componentService.updateSelectedId(id);
+
+    const packsVisible = this.localStorageService.getComponentKey(this.componentId, 'packsVisible');
+    this.packsVisible.set(packsVisible);
+
+    const assignmentsVisible = this.localStorageService.getComponentKey(this.componentId, 'assignmentsVisible');
+    this.assignmentsVisible.set(assignmentsVisible);
   }
 
   initTargetLookup(packs: TripPackageDto[] | null) {
@@ -178,6 +226,12 @@ export class TripThingsComponent implements OnInit {
     };
     this.tripThingService.pack(request).pipe(
       switchMap(() => this.tripThingService.getAllForPackage(this.tripId!, targetId)),
+      map((tripThings: TripThingDto[]) => {
+        tripThings.forEach(ts => {
+          this.generateMessagesData(ts);
+        });
+        return tripThings;
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((tripThings) => {
       this.componentService.updateEntities(tripThings);
@@ -201,6 +255,12 @@ export class TripThingsComponent implements OnInit {
     };
     this.tripThingService.unpack(request).pipe(
       switchMap(() => this.tripThingService.getAllForPackage(this.tripId!, targetId)),
+      map((tripThings: TripThingDto[]) => {
+        tripThings.forEach(ts => {
+          this.generateMessagesData(ts);
+        });
+        return tripThings;
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((tripThings) => {
       this.componentService.updateEntities(tripThings);
@@ -219,7 +279,15 @@ export class TripThingsComponent implements OnInit {
             }
             return this.tripThingService.getAll(this.tripId!);
           })
+
+
         );
+      }),
+      map((tripThings: TripThingDto[]) => {
+        tripThings.forEach(ts => {
+          this.generateMessagesData(ts);
+        });
+        return tripThings;
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((tripThings) => {
@@ -239,6 +307,12 @@ export class TripThingsComponent implements OnInit {
 
     o.pipe(
       switchMap(() => this.target()?.id ? this.tripThingService.getAllForPackage(this.tripId!, this.target()!.id!) : this.tripThingService.getAll(this.tripId!)),
+      map((tripThings: TripThingDto[]) => {
+        tripThings.forEach(ts => {
+          this.generateMessagesData(ts);
+        });
+        return tripThings;
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((tripThings) => {
       this.componentService.updateEntities(tripThings);
@@ -249,4 +323,96 @@ export class TripThingsComponent implements OnInit {
     const target = this.target();
     this.packOrUnpack(entity, target?.id || null, false);
   }
+
+
+  generateMessagesData = (thing: TripThingDto) => {
+
+    if (thing.packageName) {
+      thing.packageText = `Packed in ${thing.packageName}`;
+      if (thing.packageLabel) {
+        thing.packageText += ` (${thing.packageLabel})`;
+      }
+    } else {
+      thing.packageText = 'Not packed';
+    }
+
+    thing.assignmentStatus = AssignmentStatus.NotAssigned
+    thing.assignmentStatusText = "Not shared";
+
+    if (!thing.tripSharedThingId) {
+      return;
+    }
+
+    const parts: string[] = [];
+
+    if (thing.assignedAt) {
+      parts.push(`Assigned on ${formatDate(thing.assignedAt)}`);
+    }
+
+    parts.push("Accepted");
+
+    let deadlineString = "";
+    if (thing.assignedDeadline) {
+      const daysDiff = getDaysDifference(thing.assignedDeadline);
+      if (daysDiff! < 0) {
+        deadlineString = ` Deadline was: ${formatDate(thing.assignedDeadline)}, ${Math.abs(daysDiff!)} days ago.`;
+      } else if (daysDiff == 0) {
+        deadlineString = ` Deadline is today.`;
+      } else {
+        deadlineString = ` Deadline: ${formatDate(thing.assignedDeadline)} in ${daysDiff} days.`;
+      }
+    }
+
+    if (thing.finished) {
+
+      if (thing.finished === 'success') {
+        parts.push("Finished successfully");
+        thing.assignmentStatus = AssignmentStatus.FinishedSuccess;
+        thing.assignmentStatusText = parts.join('. ');
+        return;
+      }
+
+      if (thing.finished === 'failure') {
+        parts.push("Finished and failed");
+        thing.assignmentStatus = AssignmentStatus.FinishedFailure;
+        if (deadlineString) {
+          parts.push(deadlineString);
+        }
+        thing.assignmentStatusText = parts.join('. ');
+        return;
+      }
+    }
+
+
+    thing.assignmentStatus = AssignmentStatus.AssignedNotFinished;
+    parts.push("Not finished yet");
+    if (deadlineString) {
+      parts.push(deadlineString);
+    }
+    thing.assignmentStatusText = parts.join('. ');
+  };
+
+  toggleFinishedClick(entity: TripThingDto): void {
+    const transport = {
+      id: entity.id,
+      tripId: this.tripId!,
+      finished: entity.finished
+    }
+    this.tripThingService.toggleFinished(transport).pipe(
+      switchMap(() => this.target()?.id ? this.tripThingService.getAllForPackage(this.tripId!, this.target()!.id!) : this.tripThingService.getAll(this.tripId!)),
+      map((tripThings: TripThingDto[]) => {
+        tripThings.forEach(ts => {
+          this.generateMessagesData(ts);
+        });
+        return tripThings;
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((tripThings) => {
+      this.componentService.updateEntities(tripThings);
+    });
+
+  }
+
+
+
 }

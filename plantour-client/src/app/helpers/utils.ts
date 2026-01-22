@@ -1,5 +1,6 @@
 import { AdminsParticipantDto } from "../services/admins-participant-service";
 import { TripUserDto } from "../services/trip-user-service";
+import { AssignmentStatus } from "./enums";
 
 export const isGuid = (value: string | null): boolean => {
   if (!value) return false;
@@ -74,13 +75,13 @@ export const capitalizeFirstLetter = (str: string): string => {
 };
 
 export const formatDate = (date: Date | string): string => {
-    if (!date) return '';
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
+  if (!date) return '';
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 
 export const getDaysDifference = (
@@ -105,7 +106,7 @@ export const getDaysDifference = (
   const diffInMs = d1.getTime() - d2.getTime();
 
   return Math.trunc(diffInMs / msInDay);
-}  
+}
 
 
 export const getFutureDate = (daysFromNow: number): Date => {
@@ -114,3 +115,35 @@ export const getFutureDate = (daysFromNow: number): Date => {
   date.setDate(date.getDate() + daysFromNow);
   return date;
 }
+
+export const mapStatusToClass = (assignmentStatus: AssignmentStatus | null): string => {
+  switch (assignmentStatus) {
+    case AssignmentStatus.NotAssigned:
+      return 'not-assigned';
+    case AssignmentStatus.AssignedNotFinished:
+      return 'assigned-not-finished';
+    case AssignmentStatus.FinishedSuccess:
+      return 'finished-success';
+    case AssignmentStatus.FinishedFailure:
+      return 'finished-failure';
+    default:
+      return '';
+  }
+};
+
+
+export const getThingText = (name: string, units: any | null, value: any | null): string => {
+  if (isNumber(value) && units && units.trim().length > 0) {
+    const text =  `${name} ${value} ${units.trim()}`;
+    return text;
+  }
+  return name;
+}
+
+export const getPackageText = (packageName: string, packageLabel: any | null): string => {
+  if (packageLabel && packageLabel.trim().length > 0) {
+    return `${packageName}/${packageLabel.trim()}`;
+  }
+  return packageName;
+}
+

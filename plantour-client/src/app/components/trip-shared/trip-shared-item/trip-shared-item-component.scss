@@ -1,50 +1,11 @@
-.checkboxes {
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
+:host {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-.checkbox-container {
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-}
 
-.assignee {
-  width: 200px;
-}
-
-.upper-row {
+.container {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.lower-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   flex-wrap: wrap;
-}
-
-.item {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.assigned-not-finished {
-  color: blue;
-}
-
-.finished-failure {
-  color: red;
-}
-
-.finished-success {
-  color: green;
-}
-
-.smaller-text {
-  font-size: 0.97rem;
 }

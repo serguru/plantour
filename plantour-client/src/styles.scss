@@ -650,8 +650,8 @@ app-generic-list {
 }
 
 .p-checkbox-checked .p-checkbox-box {
-    border-color: var(--primary-color) !important;
-    background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  background: var(--primary-color) !important;
 }
 
 .item-component-container {
@@ -665,34 +665,60 @@ app-generic-list {
 }
 
 .p-button-outlined.p-button-secondary {
-    border-color: var(--secondary-border-color) !important;
+  border-color: var(--secondary-border-color) !important;
 }
 
-
-
-
 .ic-2-item {
-    flex: 0 0 100%;
-    text-align: left;
+  flex: 0 0 100%;
 }
 
 .ic-2-right {
-    text-align: left;
-    font-size: 0.98rem;
+  display: flex;
+  justify-content: start;
+  font-size: 0.98rem;
+}
+
+.ic-2-select {
+  width: 250px;
 }
 
 @media (min-width: 576px) {
-    .ic-2-item {
-        flex: 0 0 50%;
-    }
+  .ic-2-item {
+    flex: 0 0 50%;
+  }
 
-    .ic-2-right {
-        text-align: right;
-        font-size: inherit;
-    }
+  .ic-2-right {
+    display: flex;
+    justify-content: end;
+    font-size: inherit;
+  }
 }
 
 
-.lower-text {
+.assigned-not-finished {
+  color: blue;
+}
+
+.finished-failure {
+  color: red;
+}
+
+.finished-success {
+  color: green;
+}
+
+.smaller-text {
   font-size: 0.98rem;
+}
+
+.category {
+  padding: 0.4rem 0.8rem;
+  border-radius: 1rem;
+  background-color: var(--primary-color-highlight);
+}
+
+.checkboxes-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
 }

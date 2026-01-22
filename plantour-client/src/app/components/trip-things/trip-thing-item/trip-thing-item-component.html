@@ -1,23 +1,85 @@
 <div class="container">
-    <div
-        class="left"
-        [innerHTML]="entity.name"
-    ></div>
-    @if(!targetCondition()) {
-    <p-select
-        class="content w-full"
-        [options]="itemMetaData.packs"
-        optionLabel="name"
-        optionValue="id"
-        [ngModel]="entity.tripUserPackageId"
-        [placeholder]="'Select package'"
-        [ngModelOptions]="{ standalone: true }"
-        [showClear]="true"
-        appendTo="body"
-        (onChange)="onPackChange($event.value)"
-        (onClick)="onPackClick($event)"
-        showClear="true"
-    >
-    </p-select>
-    }
+    <span
+        class="ic-2-item"
+        [innerHTML]="entity.name | thingText : entity.units : entity.value"
+    ></span>
+    <div class="ic-2-item ic-2-right">
+        @if(!targetCondition() && itemMetaData!.packsVisible()) {
+        <p-select
+            class="ic-2-select"
+            [options]="itemMetaData.packs"
+            optionLabel="name"
+            optionValue="id"
+            [ngModel]="entity.tripUserPackageId"
+            [placeholder]="'Select package'"
+            [ngModelOptions]="{ standalone: true }"
+            [showClear]="true"
+            appendTo="body"
+            (onChange)="onPackChange($event.value)"
+            (onClick)="onPackClick($event)"
+            showClear="true"
+        >
+        </p-select>
+        } @else if(entity.category){
+        <span class="ic-2-item ic-2-right ellipsis-text">
+            <div class="category">{{entity.category}}</div>
+        </span>
+        }
+    </div>
 </div>
+@if (entity.assignmentStatusText && itemMetaData!.assignmentsVisible()) {
+@if(assigned) {
+<div class="checkboxes-wrapper">
+    <div class="checkbox-container">
+        <p-checkbox
+            [ngModel]="entity.finished === 'success'"
+            [binary]="true"
+            inputId="success"
+            (onChange)="handleFinishedSuccessClick($event)"
+        >
+        </p-checkbox>
+
+        <label
+            for="success"
+        > Finished success</label>
+    </div>
+    <div class="checkbox-container">
+        <p-checkbox
+            [ngModel]="entity.finished === 'failure'"
+            [binary]="true"
+            inputId="failure"
+            (onChange)="handleFinishedFailureClick($event)"
+        >
+        </p-checkbox>
+        <label
+            for="failure"
+        >Finished failure</label>
+    </div>
+</div>
+
+
+
+<!-- <div class="checkbox-container">
+    <p-checkbox
+        [ngModel]="!!assigned"
+        [binary]="true"
+        inputId="finished"
+        (click)="handleFinishedClick($event)"
+    >
+    </p-checkbox>
+
+    <label
+        for="finished"
+        (click)="handleFinishedClick($event)"
+    > Finished </label>
+</div> -->
+
+}
+<div
+    class="smaller-text"
+    [class]="statusToClassMap"
+>{{entity.assignmentStatusText}}</div>
+}
+@if (entity.packageText && itemMetaData!.packsVisible()) {
+<div class="smaller-text">{{entity.packageText}}</div>
+}

@@ -4,19 +4,10 @@ import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { MultipleIdsRequest } from './crud-service';
 import { TripThingDto } from './trip-thing-service';
-
-
-export enum AssignmentStatus {
-  NotAssigned = 1,  
-  AssignedNotFinished = 2,
-  FinishedSuccess = 3,
-  FinishedFailure = 4,
-}
-
+import { AssignmentStatus } from '../helpers/enums';
 
 export interface TripSharedDto {
   id: string;
-  
   category?: string | null;
   name: string;
   units?: string | null;
@@ -37,8 +28,8 @@ export interface TripSharedDto {
 
   assigneeFullName?: string | null;
   assignmentStatusText?: string | null;
-  assignmentStatus: AssignmentStatus | null;
-  assignmentStatusName: string | null;
+  assignmentStatus?: AssignmentStatus | null;
+  assignmentStatusName?: string | null;
 
   currentUserCanAcceptOrReject: boolean;
 }

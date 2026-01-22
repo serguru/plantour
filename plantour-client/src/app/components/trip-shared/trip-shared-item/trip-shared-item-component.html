@@ -1,9 +1,13 @@
-<div class="item-component-container">
-    <div class="upper-row">
-        <div [innerHTML]="entity.name"></div>
+<div class="container">
+    <div
+        class="ic-2-item"
+        [innerHTML]="entity.name | thingText : entity.units : entity.value"
+    ></div>
+    <div class="ic-2-item ic-2-right">
+
         @if(!targetCondition() && itemMetaData?.assigneesVisible() && isAdminSignal()) {
         <p-select
-            class="assignee"
+            class="ic-2-select "
             [options]="itemMetaData.assignees"
             optionLabel="name"
             optionValue="id"
@@ -14,50 +18,52 @@
             appendTo="body"
             (onChange)="onAssigneeChange($event.value)"
             (onClick)="onAssigneeClick($event)"
-            showClear="true"
         >
         </p-select>
+        } @else if(entity.category){
+        <span class="ic-2-item ic-2-right ellipsis-text">
+            <div class="category">{{entity.category}}</div>
+        </span>
         }
     </div>
-    @if (itemMetaData?.assignmentsVisible()) {
-        @if(entity.currentUserCanAcceptOrReject) {
-        <div class="checkboxes item">
-            <div class="checkbox-container">
-                <p-checkbox
-                    [ngModel]="!!entity.assignedThingId"
-                    [binary]="true"
-                    inputId="accepted"
-                    (click)="handleAcceptedClick($event)"
-                >
-                </p-checkbox>
 
-                <label
-                    for="accepted"
-                    (click)="handleAcceptedClick($event)"
-                > Accepted </label>
-            </div>
-            <div class="checkbox-container">
-                <p-checkbox
-                    [ngModel]="!!entity.rejected"
-                    [binary]="true"
-                    inputId="rejected"
-                    (click)="handleRejectedClick($event)"
-                >
-                </p-checkbox>
-                <label
-                    for="rejected"
-                    (click)="handleRejectedClick($event)"
-                >Rejected</label>
-            </div>
-        </div>
-        }
-        <div class="lower-row smaller-text" [class]="statusToClassMap">
-            {{entity.assignmentStatusText}}
-        </div>
-    }
-    @if (itemMetaData?.categoriesVisible()) {
-        <div class="lower-row smaller-text">
-            {{entity.category}}
-        </div>
-    }
 </div>
+@if (itemMetaData?.assignmentsVisible()) {
+@if(entity.currentUserCanAcceptOrReject) {
+<div class="checkboxes-wrapper">
+    <div class="checkbox-container">
+        <p-checkbox
+            [ngModel]="!!entity.assignedThingId"
+            [binary]="true"
+            inputId="accepted"
+            (click)="handleAcceptedClick($event)"
+        >
+        </p-checkbox>
+
+        <label
+            for="accepted"
+            (click)="handleAcceptedClick($event)"
+        > Accepted </label>
+    </div>
+    <div class="checkbox-container">
+        <p-checkbox
+            [ngModel]="!!entity.rejected"
+            [binary]="true"
+            inputId="rejected"
+            (click)="handleRejectedClick($event)"
+        >
+        </p-checkbox>
+        <label
+            for="rejected"
+            (click)="handleRejectedClick($event)"
+        >Rejected</label>
+    </div>
+</div>
+}
+<div
+    class="smaller-text"
+    [class]="statusToClassMap"
+>
+    {{entity.assignmentStatusText}}
+</div>
+}

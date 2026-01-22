@@ -18,5 +18,6 @@ public class TripThingDto
     public Guid? TripSharedThingId { get; set; }
     public DateOnly? AssignedAt { get; set; }
     public DateOnly? AssignedDeadline { get; set; }
+
 }
 

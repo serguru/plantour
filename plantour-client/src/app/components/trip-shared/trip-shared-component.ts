@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
-import { TripSharedDto, CreateTripSharedRequest, UpdateTripSharedRequest, TripSharedService, AssignmentStatus } from '../../services/trip-shared-service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { MultipleIdsRequest } from '../../services/crud-service';
+import { TripSharedDto, TripSharedService } from '../../services/trip-shared-service';
+import { ActivatedRoute } from '@angular/router';
 import { TripSharedItemComponent } from './trip-shared-item/trip-shared-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
@@ -10,18 +10,20 @@ import { TripService } from '../../services/trip-service';
 import { ComponentService } from '../../services/component-service';
 import { map, switchMap, tap } from 'rxjs';
 import { LocalStorageService } from '../../services/local-storage-service';
-import { Condition, DynamicQueryService, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
+import { Condition, DynamicQueryService, Target, TargetCondition } from '../../services/dynamic-query-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { TripUserDto, TripUserService } from '../../services/trip-user-service';
 import { findDuplicates, formatDate, getDaysDifference, getFullName, getFutureDate } from '../../helpers/utils';
-import { DatePicker } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 import { InputNumber } from "primeng/inputnumber";
 import { MessagesService } from '../../services/messages-service';
 import { UsersService } from '../../services/users-service';
+import { AssignmentStatus } from '../../helpers/enums';
 
 
+// TODO: fix category show/hide and location
+// TODO: add a link to shared thing from trip thing
 @Component({
   selector: 'app-trip-shared',
   standalone: true,
@@ -96,7 +98,6 @@ export class TripSharedComponent implements OnInit {
 
   assigneesVisible = signal<boolean>(true);
   assignmentsVisible = signal<boolean>(true);
-  categoriesVisible = signal<boolean>(true);
 
   assigneesLabel = computed(() =>
     (this.assigneesVisible() ? 'Hide' : 'Show') + ' Assignees'
@@ -112,14 +113,6 @@ export class TripSharedComponent implements OnInit {
           action: () => {
             this.assignmentsVisible.set(!this.assignmentsVisible());
             this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
-          }
-        },
-        {
-          label: (this.assignmentsVisible() ? 'Hide' : 'Show') + ' Categories',
-          icon: 'tag',
-          action: () => {
-            this.categoriesVisible.set(!this.categoriesVisible());
-            this.localStorageService.setComponentKey(this.componentId, 'categoriesVisible', this.categoriesVisible());
           }
         }
       ];
@@ -198,7 +191,6 @@ export class TripSharedComponent implements OnInit {
     assignOrUnassign: this.assignOrUnassign.bind(this),
     assigneesVisible: this.assigneesVisible,
     assignmentsVisible: this.assignmentsVisible,
-    categoriesVisible: this.categoriesVisible,
     toggleAccept: this.toggleAcceptClick.bind(this),
     toggleReject: this.toggleRejectClick.bind(this)
   }
@@ -243,7 +235,7 @@ export class TripSharedComponent implements OnInit {
     sharedThing.assignmentStatusText = "Assigned to " + assignee.name;
 
     if (sharedThing.assignedAt) {
-      sharedThing.assignmentStatusText += ` at ${formatDate(sharedThing.assignedAt)}`
+      sharedThing.assignmentStatusText += ` on ${formatDate(sharedThing.assignedAt)}`
     }
 
     sharedThing.assignmentStatusText += ".";
@@ -334,9 +326,6 @@ export class TripSharedComponent implements OnInit {
 
     const assignmentsVisible = this.localStorageService.getComponentKey(this.componentId, 'assignmentsVisible');
     this.assignmentsVisible.set(!!assignmentsVisible);
-
-    const categoriesVisible = this.localStorageService.getComponentKey(this.componentId, 'categoriesVisible');
-    this.categoriesVisible.set(!!categoriesVisible);
 
     const deadlineDays = this.localStorageService.getComponentKey(this.componentId, 'deadlineDays');
     this.deadlineDays.set(deadlineDays ? Number(deadlineDays) : 3);

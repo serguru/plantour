@@ -1,20 +1,23 @@
 import { Component, computed, inject, Input } from '@angular/core';
-import { AssignmentStatus, TripSharedDto } from '../../../services/trip-shared-service';
+import { TripSharedDto } from '../../../services/trip-shared-service';
 import { Select } from 'primeng/select';
 import { ComponentService } from '../../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Checkbox } from 'primeng/checkbox';
 import { FormatDatePipe } from '../../../pipes/format-date.pipe';
-import { formatDate, getDaysDifference } from '../../../helpers/utils';
+import { formatDate, getDaysDifference, mapStatusToClass } from '../../../helpers/utils';
 import { UsersService } from '../../../services/users-service';
+import { AssignmentStatus } from '../../../helpers/enums';
+import { ThingTextPipe } from '../../../pipes/thing-text.pipe';
 
 @Component({
   selector: 'app-trip-shared-item-component',
   imports: [
     Select,
     FormsModule,
-    Checkbox
+    Checkbox,
+    ThingTextPipe
   ],
   templateUrl: './trip-shared-item-component.html',
   styleUrl: './trip-shared-item-component.scss',
@@ -47,21 +50,10 @@ export class TripSharedItemComponent {
     this.itemMetaData.toggleReject(this.entity);
   }
 
-  get statusToClassMap() {
-    switch (this.entity.assignmentStatus) {
-      case AssignmentStatus.NotAssigned:
-        return 'not-assigned';
-      case AssignmentStatus.AssignedNotFinished:
-        return 'assigned-not-finished';
-      case AssignmentStatus.FinishedSuccess:
-        return 'finished-success';
-      case AssignmentStatus.FinishedFailure:
-        return 'finished-failure';
-      default:
-        return '';
-    }
-  };
 
+  get statusToClassMap() {
+    return mapStatusToClass(this.entity.assignmentStatus || null);
+  }
 
   componentService = inject(ComponentService);
   targetCondition = toSignal(this.componentService.targetCondition$, { initialValue: null });

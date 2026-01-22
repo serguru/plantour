@@ -1,6 +1,6 @@
 <div class="pack-row">
     <span
         class="pack-name"
-        [innerHTML]="entity.name"
+        [innerHTML]="entity.name | packText : entity.label"
     ></span>
 </div>

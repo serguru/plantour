@@ -49,7 +49,7 @@ export class SignInComponent {
       password: ['Binary_09', [Validators.required]],
     });
     this.participantForm = this.fb.group({
-      accessCode: ['', [Validators.required]],
+      accessCode: ['UHFALK5S', [Validators.required]],
     });
   }
 

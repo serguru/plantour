@@ -3,14 +3,16 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from './crud-service';
+import { AssignmentStatus } from '../helpers/enums';
 
 export interface TripThingDto {
   id: string;
   category?: string | null;
   name: string;
-  notes?: string | null;
   units?: string | null;
   value?: number | null;
+  notes?: string | null;
+
   tripUserPackageId?: string | null;
   packageName?: string | null;
   packageLabel?: string | null;
@@ -20,6 +22,14 @@ export interface TripThingDto {
   assignedDeadline: string | null;
  
   finished: string | null;
+
+  assignmentStatus?: AssignmentStatus | null;
+  assignmentStatusText?: string | null;
+
+  packageText?: string | null;
+  
+
+
  }
 
 
@@ -107,4 +117,7 @@ export class TripThingService implements CrudService<TripThingDto, CreateTripThi
     return this.http.put<number>(`${this.apiUrl}/unpack-trip-things`, data);
   }
 
+  toggleFinished(data: any): Observable<number> {
+    return this.http.put<number>(`${this.apiUrl}/toggle-finished-trip-things`, data);
+  }
 }

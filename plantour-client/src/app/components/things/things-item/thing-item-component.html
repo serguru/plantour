@@ -1,5 +1,7 @@
 <span
     class="ic-2-item ellipsis-text"
-    [innerHTML]="entity.name"
+    [innerHTML]="entity.name | thingText : entity.units : entity.value"
 ></span>
-<span class="ic-2-item ic-2-right ellipsis-text" >{{entity.category}}</span>
+@if(entity.category) {
+<span class="ic-2-item ic-2-right ellipsis-text" ><div class="category">{{entity.category}}</div></span>
+}
