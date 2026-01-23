@@ -17,41 +17,6 @@ public class TripService(
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly IMapper _mapper = mapper;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
-
-
-    // public async Task<IEnumerable<TripDto>> GetAllAsync()
-    // {
-    //     _currentUser.RaiseIfNotAuthenticated();
-
-    //     var entities = await _tripRepository.GetAllAsync();
-    //     return _mapper.Map<IEnumerable<TripDto>>(entities);
-
-    // }
-
-    // public async Task<IEnumerable<TripDto>> GetAllForParticipantAsync()
-    // {
-    //     _currentUser.RaiseIfNotAuthenticated();
-
-    //     var entities = await _tripRepository.GetAllFullAsync();
-
-    //     entities = entities.Where(x =>
-    //         x.UserId == _currentUser.AdminId &&
-    //         x.TripUsers.Any(x =>
-    //             x.AdminParticipant.AdminId == _currentUser.AdminId &&
-    //             (
-    //                 (_currentUser.IsParticipant && x.AdminParticipant.ParticipantId == _currentUser.UserId) || true
-    //             )
-    //         ));
-
-    //     return _mapper.Map<IEnumerable<TripDto>>(entities);
-    // }
-
-    // public async Task<TripDto?> GetByIdAsync(Guid id)
-    // {
-    //     var entity = await _tripRepository.GetByIdAsync(id);
-    //     return entity != null ? _mapper.Map<TripDto>(entity) : null;
-    // }
-
     public async Task<TripDto> AddAsync(CreateTripRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
@@ -130,7 +95,6 @@ public class TripService(
         return tripDto;
     }
     
-
     public async Task<TripDto?> GetByIdWithStatsAsync(Guid id)
     {
         _currentUser.RaiseIfNotAuthenticated();

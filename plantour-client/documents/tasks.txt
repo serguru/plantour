@@ -290,3 +290,6 @@ You are creating a new user in our database. Once added, they will be added to y
 5) Нужно при навигации в router-outlet сначала убить все подписки и только после этого открыть новый компонент
 
 Дай мне код как это сделать
+
+
+Используй библиотеку QuestPDF, она уже установлена. Создай тестовый endpoint в контроллере DocumentsController. Добавь шапку метода в IDocumentsService и имплементацию в DocumentsService. Объясни как скачать этот файл из Angular web app

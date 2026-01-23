@@ -13,6 +13,7 @@ import { ButtonModule } from 'primeng/button';
 
 // TODO: process empty props in filters
 // TODO: if the currnt rows set does not contain the selected item it must be cleared in the component service
+// TODO: fif hover color in select options
 @Component({
   selector: 'app-entities-actions',
   imports: [
