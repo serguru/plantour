@@ -94,6 +94,7 @@ builder.Services.AddScoped<ITripSharedService, TripSharedService>();
 builder.Services.AddScoped<ICheckAccessService, CheckAccessService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<ITripCommentService, TripCommentService>();
+builder.Services.AddScoped<IDocumentsService, DocumentsService>();
 
 
 // Register repositories

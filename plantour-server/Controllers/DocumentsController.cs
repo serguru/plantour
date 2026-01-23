@@ -7,6 +7,7 @@ namespace plantour_server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[AdminOrParticipant]
 public class DocumentsController : ControllerBase
 {
     private readonly IDocumentsService _service;
@@ -16,11 +17,12 @@ public class DocumentsController : ControllerBase
         _service = service;
     }
 
-
-    [HttpGet("test-pdf")]
-    public IActionResult GetTestPdf()
+    [HttpGet("trip/{tripId}")]
+    [AdminOrParticipant]
+    public async Task<IActionResult> GetTripReportPdf(Guid tripId)
     {
-        return Ok("PDF generation endpoint is under construction.");
+        var pdfBytes = await _service.GenerateTripReportPdfAsync(tripId);
+        return File(pdfBytes, "application/pdf", $"trip-report-{tripId}.pdf");
     }
 
 

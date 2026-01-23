@@ -9,13 +9,14 @@ export interface MenuConfig {
   label: string;
   icon: string;
   action: () => void;
+  disabledIfNoSelection?: boolean;
 }
 
 @Component({
   selector: 'app-entities-header',
   imports: [
     Popover
-  ],
+],
   templateUrl: './entities-header-component.html',
   styleUrl: './entities-header-component.scss',
 })
@@ -133,6 +134,9 @@ export class EntitiesHeader implements OnInit {
 
   onMenuClick(event, item: MenuConfig, popover: Popover) {
     event.stopPropagation();
+    if (item.disabledIfNoSelection && !this.selectedId()) {
+      return;
+    }
     item.action();
     popover.hide();
   }

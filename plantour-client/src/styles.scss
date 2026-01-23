@@ -9,7 +9,6 @@
   --primary-color: #3A9AA8;
   --form-header-background-color: #2F7C87;
   --primary-border-color: #245b64;
-  --primary-border-color: #245b64;
   --secondary-border-color: #cbd5e1;
   --primary-color-light: #4DB8C4;
   --primary-color-very-light: #ebfdff;
@@ -548,12 +547,15 @@ p-panel.list-actions-panel {
     cursor: default;
   }
 
-  &.disabled {
-    opacity: 0.5;
+  // &:disabled {
+  //   color: rgb(202, 202, 202);
+  //   cursor: default;
+  // }
+}
+
+.pl-menu-item.disabled {
+    color: rgb(202, 202, 202);
     cursor: default;
-  }
-
-
 }
 
 .no-arrow.p-popover:before,

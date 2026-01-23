@@ -13,6 +13,7 @@ import { UsersService } from '../../services/users-service';
 import { concatMap, distinctUntilChanged, filter, switchMap, tap, withLatestFrom } from 'rxjs';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { LocalStorageService } from '../../services/local-storage-service';
+import { DocumentsService } from '../../services/documents-service';
 
 
 // TODO: Add a method to create a new trip from the existing one 
@@ -31,6 +32,8 @@ import { LocalStorageService } from '../../services/local-storage-service';
 export class TripsComponent implements OnInit {
   tripItemComponent = TripItemComponent;
   componentId: string = 'trips';
+
+  documentsService = inject(DocumentsService);
 
   tripService = inject(TripService);
 
@@ -86,6 +89,26 @@ export class TripsComponent implements OnInit {
         action: () => {
           this.lowerTextVisible.set(!this.lowerTextVisible());
           this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
+        }
+      },
+      {
+        label: 'Download Trip PDF',
+        icon: 'document',
+        disabledIfNoSelection: true,
+        action: () => {
+
+          const tripId = this.tripSelected()?.id;
+          if (!tripId) {
+            throw new Error('No trip selected');
+          }
+          this.documentsService.getTripReportPdf(tripId).subscribe(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `trip-report-${tripId}.pdf`;
+            link.click();
+            window.URL.revokeObjectURL(url);
+          });
         }
       }
     ];

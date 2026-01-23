@@ -77,6 +77,7 @@
             @for(menu of menuItems(); track menu.icon) {
             <div
                 class="pl-menu-item"
+                [class.disabled]="menu.disabledIfNoSelection && !selectedId()"
                 (click)="onMenuClick($event, menu, popover)"
             >
                 <span [class]="'pi pi-' + menu.icon"></span>

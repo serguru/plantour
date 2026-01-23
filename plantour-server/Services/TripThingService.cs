@@ -41,14 +41,14 @@ public class TripThingService(
 
     public async Task<int> InsertTemplateTripUserThingsAsync(Guid tripId, Guid[] ids)
     {
-        _currentUser.RaiseIfNotAdmin();
+        _currentUser.RaiseIfNotAuthenticated();
         return await _dicTripRepository.InsertTemplateTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
 
     public async Task<int> DeleteTemplateTripUserThingsAsync(Guid tripId, Guid[] ids)
     {
-        _currentUser.RaiseIfNotAdmin();
+        _currentUser.RaiseIfNotAuthenticated();
         return await _dicTripRepository.DeleteTemplateTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
