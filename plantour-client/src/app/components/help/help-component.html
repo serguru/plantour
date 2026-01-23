@@ -1,35 +1,44 @@
-<div class="page-header">
-  <div class="page-left">
-    <i class="pi pi-question-circle"></i>
-    <h2>Help & Documentation</h2>
-  </div>
-  <div class="page-content">
-    <button 
-      pButton 
-      type="button" 
-      label="Back to App" 
-      icon="pi pi-arrow-left" 
-      class="p-button-text"
-      (click)="router.navigate(['/dashboard'])">
-    </button>
-  </div>
-</div>
+<div class="page-container">
 
-<div class="help-container">
-  <div class="help-header">
-    <h1>Welcome to Plantour Help</h1>
-    <p class="help-subtitle">
-      Find everything you need to plan, organize, and execute your trips with confidence.
-    </p>
+  <div class="page-header">
+    <div class="page-left">
+      <i class="pi pi-question-circle"></i>
+      <h2>Help & Documentation</h2>
+    </div>
+    <div class="page-content">
+      <button
+        pButton
+        type="button"
+        label="Back to App"
+        icon="pi pi-arrow-left"
+        class="p-button-text"
+        (click)="router.navigate(['/dashboard'])"
+      >
+      </button>
+    </div>
   </div>
 
-  <div class="help-sections">
-    <p-accordion [multiple]="true" value="0">
-      @for (section of helpSections(); track section.id) {
+  <div class="help-container">
+    <div class="help-header">
+      <h1>Welcome to Plantour Help</h1>
+      <p class="help-subtitle">
+        Find everything you need to plan, organize, and execute your trips with confidence.
+      </p>
+    </div>
+
+    <div class="help-sections">
+      <p-accordion
+        [multiple]="true"
+        value="0"
+      >
+        @for (section of helpSections(); track section.id) {
         <p-accordion-panel value="0">
           <ng-template pTemplate="header">
             <div class="section-header">
-              <i [class]="section.icon" class="section-icon"></i>
+              <i
+                [class]="section.icon"
+                class="section-icon"
+              ></i>
               <div class="section-title-wrapper">
                 <h3 class="section-title">{{ section.title }}</h3>
                 <p class="section-description">{{ section.description }}</p>
@@ -39,79 +48,86 @@
 
           <div class="section-content">
             @if (section.id === 'get-started') {
-              <div class="get-started-highlight">
-                <i class="pi pi-star-fill highlight-icon"></i>
-                <div class="highlight-content">
-                  <h4>Try Plantour Now - No Account Needed!</h4>
-                  <p>
-                    Experience all features with test data. No registration, no commitment.
-                    Perfect for understanding how Plantour works before creating your account.
-                  </p>
-                  <button 
-                    pButton 
-                    label="Start Test Mode" 
-                    icon="pi pi-play"
-                    class="p-button-success"
-                    (click)="getStartedWithTest()">
-                  </button>
-                </div>
+            <div class="get-started-highlight">
+              <i class="pi pi-star-fill highlight-icon"></i>
+              <div class="highlight-content">
+                <h4>Try Plantour Now - No Account Needed!</h4>
+                <p>
+                  Experience all features with test data. No registration, no commitment.
+                  Perfect for understanding how Plantour works before creating your account.
+                </p>
+                <button
+                  pButton
+                  label="Start Test Mode"
+                  icon="pi pi-play"
+                  class="p-button-success"
+                  (click)="getStartedWithTest()"
+                >
+                </button>
               </div>
+            </div>
             }
 
             @if (section.subsections && section.subsections.length > 0) {
-              <ul class="subsection-list">
-                @for (subsection of section.subsections; track subsection.id) {
-                  <li class="subsection-item" (click)="navigateToSection(section.id, subsection.id)">
-                    <i class="pi pi-angle-right subsection-icon"></i>
-                    <span class="subsection-title">{{ subsection.title }}</span>
-                    @if (subsection.linkId) {
-                      <span class="contextual-link-badge">{{ subsection.linkId }}</span>
-                    }
-                  </li>
+            <ul class="subsection-list">
+              @for (subsection of section.subsections; track subsection.id) {
+              <li
+                class="subsection-item"
+                (click)="navigateToSection(section.id, subsection.id)"
+              >
+                <i class="pi pi-angle-right subsection-icon"></i>
+                <span class="subsection-title">{{ subsection.title }}</span>
+                @if (subsection.linkId) {
+                <span class="contextual-link-badge">{{ subsection.linkId }}</span>
                 }
-              </ul>
+              </li>
+              }
+            </ul>
             }
           </div>
         </p-accordion-panel>
-      }
-    </p-accordion>
-  </div>
+        }
+      </p-accordion>
+    </div>
 
-  <div class="help-footer">
-    <p-card>
-      <ng-template pTemplate="header">
-        <div class="footer-card-header">
-          <i class="pi pi-info-circle"></i>
-          <h3>Need More Help?</h3>
+    <div class="help-footer">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="footer-card-header">
+            <i class="pi pi-info-circle"></i>
+            <h3>Need More Help?</h3>
+          </div>
+        </ng-template>
+
+        <div class="footer-content">
+          <p>
+            Can't find what you're looking for? We're here to help!
+          </p>
+
+          <div class="footer-actions">
+            <button
+              pButton
+              label="Contact Support"
+              icon="pi pi-envelope"
+              class="p-button-outlined"
+            >
+            </button>
+
+            <button
+              pButton
+              label="Report an Issue"
+              icon="pi pi-exclamation-triangle"
+              class="p-button-outlined"
+            >
+            </button>
+          </div>
+
+          <p class="footer-note">
+            <i class="pi pi-lightbulb"></i>
+            <em>Tip: Click on any topic above to view detailed step-by-step instructions with screenshots.</em>
+          </p>
         </div>
-      </ng-template>
-
-      <div class="footer-content">
-        <p>
-          Can't find what you're looking for? We're here to help!
-        </p>
-        
-        <div class="footer-actions">
-          <button 
-            pButton 
-            label="Contact Support" 
-            icon="pi pi-envelope"
-            class="p-button-outlined">
-          </button>
-          
-          <button 
-            pButton 
-            label="Report an Issue" 
-            icon="pi pi-exclamation-triangle"
-            class="p-button-outlined">
-          </button>
-        </div>
-
-        <p class="footer-note">
-          <i class="pi pi-lightbulb"></i>
-          <em>Tip: Click on any topic above to view detailed step-by-step instructions with screenshots.</em>
-        </p>
-      </div>
-    </p-card>
+      </p-card>
+    </div>
   </div>
 </div>

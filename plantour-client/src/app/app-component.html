@@ -1,12 +1,10 @@
-<div class="app-container">
-  <app-toolbar></app-toolbar>
-  <div class="outlet-container">
-    <router-outlet
-      (activate)="onActivate($event)"
-      (deactivate)="onDeactivate($event)"
-    >
-    </router-outlet>
-  </div>
+<app-toolbar></app-toolbar>
+<div class="outlet-container">
+  <router-outlet
+    (activate)="onActivate($event)"
+    (deactivate)="onDeactivate($event)"
+  >
+  </router-outlet>
 </div>
 <app-toast-container></app-toast-container>
 <app-modal-dialog></app-modal-dialog>
