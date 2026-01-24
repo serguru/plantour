@@ -12,10 +12,12 @@ namespace plantour_server.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _authService;
+    private readonly ITemporaryUserService _temporaryUserService;
 
-    public UsersController(IUsersService authService)
+    public UsersController(IUsersService authService, ITemporaryUserService temporaryUserService)
     {
         _authService = authService;
+        _temporaryUserService = temporaryUserService;
     }
 
     #region Admin Endpoints
@@ -54,6 +56,18 @@ public class UsersController : ControllerBase
     {
             var response = await _authService.SignInParticipantAsync(request);
             return Ok(response);
+    }
+
+    #endregion
+
+    #region Temporary User Endpoints
+
+    [HttpPost("create-temporary-user")]
+    [AllowAnonymous]
+    public async Task<ActionResult<CreateTemporaryUserResponse>> CreateTemporaryUser()
+    {
+        var response = await _temporaryUserService.CreateTemporaryUserAsync();
+        return Ok(response);
     }
 
     #endregion

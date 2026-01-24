@@ -24,6 +24,11 @@ builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 
+// Configure Temporary User settings
+var tempUserSettings = builder.Configuration.GetSection("TemporaryUserSettings");
+builder.Services.Configure<TemporaryUserSettings>(tempUserSettings);
+
+builder.Services.Configure<TemporaryUserSettings>(builder.Configuration.GetSection("TemporaryUserSettings"));
 // Configure JWT settings
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.Configure<JwtSettings>(jwtSettings);
@@ -95,6 +100,8 @@ builder.Services.AddScoped<ICheckAccessService, CheckAccessService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<ITripCommentService, TripCommentService>();
 builder.Services.AddScoped<IDocumentsService, DocumentsService>();
+
+builder.Services.AddScoped<ITemporaryUserService, TemporaryUserService>();
 
 
 // Register repositories
@@ -172,3 +179,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+

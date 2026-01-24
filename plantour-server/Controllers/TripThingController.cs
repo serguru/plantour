@@ -13,7 +13,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     private readonly ITripThingService _service = service;
 
     [HttpPost("insert-from-dic")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult> AddFromDic([FromBody] MultipleIdsRequest request)
     {
         var insertedCount = await _service.InsertTripUserThingsAsync(request.CollectionId, request.Ids);
@@ -21,7 +21,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     }
 
     [HttpPost("delete-from-dic")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult> DeleteFromDic([FromBody] MultipleIdsRequest request)
     {
         var deletedCount = await _service.DeleteTripUserThingsAsync(request.CollectionId, request.Ids);
@@ -29,7 +29,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     }
 
     [HttpPost("insert-from-template")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult> AddFromTemplate([FromBody] MultipleIdsRequest request)
     {
         var insertedCount = await _service.InsertTemplateTripUserThingsAsync(request.CollectionId, request.Ids);
@@ -37,7 +37,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     }
 
     [HttpPost("delete-from-template")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult> DeleteFromTemplate([FromBody] MultipleIdsRequest request)
     {
         var deletedCount = await _service.DeleteTemplateTripUserThingsAsync(request.CollectionId, request.Ids);
@@ -46,7 +46,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
 
 
     [HttpGet("trip/{tripId}")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<TripThingDto>>> GetAll(Guid tripId)
     {
         var dtos = await _service.GetAllAsync(tripId);
@@ -54,7 +54,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     }
 
     [HttpGet("trip/{tripId}/package/{packageId}")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<TripThingDto>>> getAllForPackage(Guid tripId, Guid packageId)
     {
         var dtos = await _service.GetAllForPackageAsync(tripId, packageId);
@@ -62,7 +62,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     }
 
     [HttpGet("{tripId}/{id}")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult<TripThingDto>> GetById(Guid tripId, Guid id)
     {
         var dto = await _service.GetByIdAsync(tripId, id);
@@ -75,7 +75,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     }
 
     [HttpPost]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult<TripThingDto>> Add([FromBody] CreateTripThingRequest request)
     {
         var dto = await _service.AddAsync(request);
@@ -83,7 +83,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     }
 
     [HttpPut]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult> Update([FromBody] UpdateTripThingRequest request)
     {
         await _service.UpdateAsync(request);
@@ -91,7 +91,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     }
 
     [HttpDelete("{tripId}/{id}")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult> Delete(Guid tripId, Guid id)
     {
         await _service.DeleteAsync(tripId, id);       
@@ -99,7 +99,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     }
 
     [HttpPut("pack-trip-things")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult> PackTripThings([FromBody] MultipleIdsRequest request)
     {
         var updated = await _service.PackTripThingsAsync(request.CollectionId, request.Id!.Value, request.Ids);
@@ -107,7 +107,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     }
 
     [HttpPut("unpack-trip-things")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult> UnpackTripThings([FromBody] MultipleIdsRequest request)
     {
         var updated = await _service.UnpackTripThingsAsync(request.CollectionId, request.Ids);
@@ -115,7 +115,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
     }
 
     [HttpPut("toggle-finished-trip-things")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult> ToggleFinishedTripThings([FromBody] IdTripIdFinishedRequest request)
     {
         await _service.ToggleFinishedTripThingsAsync(request.TripId, request.Id, request.Finished);

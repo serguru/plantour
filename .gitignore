@@ -80,3 +80,6 @@ Thumbs.db
 
 # Publish folder (dotnet publish output)
 publish/
+
+tokens.txt
+AI-tasks.txt

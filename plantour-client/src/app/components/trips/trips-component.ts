@@ -18,6 +18,7 @@ import { DocumentsService } from '../../services/documents-service';
 
 // TODO: Add a method to create a new trip from the existing one 
 // TODO: Find out why it sends two request per a list trip click
+// TODO: make a trip and its data read only if completed
 @Component({
   selector: 'app-trips-component',
   imports: [
