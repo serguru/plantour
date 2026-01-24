@@ -16,15 +16,14 @@ export class DocumentsService {
     this.apiUrl = `${environment.apiUrl}/api/documents`;
   }
 
-
-  getTestPdf(): Observable<Blob> {
-    return this.http.get('http://localhost:5217/api/Documents/test-pdf', {
+  getTripReportPdf(tripId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/trip/${tripId}`, {
       responseType: 'blob'
     });
   }
 
-  getTripReportPdf(tripId: string): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/trip/${tripId}`, {
+  getPackingListPdf(tripId: string, tripPackId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/trip/${tripId}/package/${tripPackId}/packing-list`, {
       responseType: 'blob'
     });
   }

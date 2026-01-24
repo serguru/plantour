@@ -1,17 +1,11 @@
 # PDF Generation for Trip Reports
 
 ## Overview
-Реализована функциональность генерации PDF отчетов о путешествиях с использованием библиотеки QuestPDF.
+Реализована функциональность генерации PDF отчетов о путешествиях и упаковочных листов с использованием библиотеки QuestPDF.
 
 ## Endpoints
 
-### 1. Test PDF
-```
-GET /api/Documents/test-pdf
-```
-Возвращает тестовый PDF документ для проверки работоспособности.
-
-### 2. Trip Report PDF
+### 1. Trip Report PDF
 ```
 GET /api/Documents/trip/{tripId}
 ```
@@ -24,7 +18,21 @@ GET /api/Documents/trip/{tripId}
 
 **Проверка доступа:** Текущий пользователь должен иметь доступ к путешествию
 
-## Структура отчета
+### 2. Packing List PDF
+```
+GET /api/Documents/trip/{tripId}/package/{packageId}/packing-list
+```
+Генерирует упаковочный лист для конкретной упаковки.
+
+**Параметры:**
+- `tripId` (Guid) - ID путешествия
+- `packageId` (Guid) - ID упаковки
+
+**Требует авторизации:** Да (через JWT token)
+
+**Проверка доступа:** Текущий пользователь должен иметь доступ к путешествию
+
+## Структура отчета о путешествии (Trip Report)
 
 ### 1. Trip Information
 Основная информация о путешествии:
@@ -60,6 +68,27 @@ GET /api/Documents/trip/{tripId}
   - Количество и единицы измерения справа (если указаны)
 - Вещи без упаковки отображаются отдельной секцией
 
+## Структура упаковочного листа (Packing List)
+
+### Заголовок
+- Название "Packing List" (основной цвет)
+- Название упаковки с лейблом
+- **Общее количество вещей** (Total items: X)
+- Дата генерации
+
+### Дополнительная информация
+- Вес упаковки (если указан)
+- Примечания (если указаны)
+
+### Список вещей
+Иерархическая структура по категориям:
+```
+📂 Категория вещи (primaryColor)
+  └── 📋 Вещь ...................... количество единица
+```
+
+**Важно:** Используется общий метод `RenderThingsByCategory()` для единообразия стиля с Trip Report.
+
 ## Технические детали
 
 ### Используемые сервисы
@@ -76,10 +105,19 @@ GET /api/Documents/trip/{tripId}
 - Дата генерации в заголовке
 
 ### Стилизация
-- Заголовки секций: синий цвет, 16pt, полужирный
-- Категории: синий цвет, 11pt, полужирный
+- **Primary Color:** `#2F7C87` - используется для заголовков и категорий
+- Заголовки секций: primaryColor, 16pt, полужирный
+- Категории: primaryColor, 11pt, полужирный
 - Упаковки: серый фон, 13pt
 - Таблицы: разделители между строками
+- Единый стиль для обоих типов документов
+
+### Общие методы
+- `RenderThingsByCategory()` - универсальный метод для рендеринга вещей по категориям
+  - Используется в Trip Report и Packing List
+  - Обеспечивает единообразие стиля
+  - Автоматическая группировка по категориям
+  - Форматирование количества и единиц измерения
 
 ## Примеры использования
 
@@ -95,21 +133,39 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
 ```powershell
 $token = "YOUR_JWT_TOKEN"
 $tripId = "YOUR_TRIP_ID"
+$packageId = "YOUR_PACKAGE_ID"
 $headers = @{ Authorization = "Bearer $token" }
 
+# Trip Report
 Invoke-WebRequest `
     -Uri "http://localhost:5217/api/Documents/trip/$tripId" `
     -Headers $headers `
     -OutFile "trip-report.pdf"
+
+# Packing List
+Invoke-WebRequest `
+    -Uri "http://localhost:5217/api/Documents/trip/$tripId/package/$packageId/packing-list" `
+    -Headers $headers `
+    -OutFile "packing-list.pdf"
 ```
 
 ### Angular (см. ANGULAR_PDF_DOWNLOAD_GUIDE.md)
 ```typescript
+// Trip Report
 this.documentsService.getTripReportPdf(tripId).subscribe(blob => {
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
   link.download = `trip-report-${tripId}.pdf`;
+  link.click();
+});
+
+// Packing List
+this.documentsService.getPackingListPdf(tripId, packageId).subscribe(blob => {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `packing-list-${packageId}.pdf`;
   link.click();
 });
 ```

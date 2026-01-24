@@ -4,9 +4,9 @@
         title="Trip packs"
         [delete]="deleteTripPack.bind(this)"
         entityName="pack"
-        
         addUrl="add"
         editUrl="edit/:id"
+        [menuItems]="menuItems()"
     ></app-entities-header>
 
     <app-entities-actions

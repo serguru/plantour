@@ -2,16 +2,17 @@
 
 ## Доступные PDF Endpoints
 
-### 1. Тестовый PDF (демонстрация)
-```
-GET /api/Documents/test-pdf
-```
-
-### 2. Отчет о путешествии
+### 1. Отчет о путешествии
 ```
 GET /api/Documents/trip/{tripId}
 ```
 Генерирует полный отчет о путешествии с данными, участниками и упаковками вещей.
+
+### 2. Упаковочный лист
+```
+GET /api/Documents/trip/{tripId}/package/{packageId}/packing-list
+```
+Генерирует список вещей по категориям для конкретной упаковки.
 
 ---
 
@@ -20,15 +21,15 @@ GET /api/Documents/trip/{tripId}
 ```typescript
 // В вашем Angular компоненте или сервисе
 
-// Тестовый PDF
-downloadTestPdf(): void {
-  const apiUrl = 'http://localhost:5217/api/Documents/test-pdf';
-  window.open(apiUrl, '_blank');
-}
-
 // Отчет о путешествии
 downloadTripReport(tripId: string): void {
   const apiUrl = `http://localhost:5217/api/Documents/trip/${tripId}`;
+  window.open(apiUrl, '_blank');
+}
+
+// Упаковочный лист
+downloadPackingList(tripId: string, packageId: string): void {
+  const apiUrl = `http://localhost:5217/api/Documents/trip/${tripId}/package/${packageId}/packing-list`;
   window.open(apiUrl, '_blank');
 }
 ```
@@ -51,8 +52,8 @@ export class DocumentsService {
 
   constructor(private http: HttpClient) {}
 
-  getTestPdf(): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/test-pdf`, {
+  getTripReportPdf(tripId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/trip/${tripId}`, {
       responseType: 'blob',
       headers: new HttpHeaders({
         'Accept': 'application/pdf'
@@ -60,8 +61,8 @@ export class DocumentsService {
     });
   }
 
-  getTripReportPdf(tripId: string): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/trip/${tripId}`, {
+  getPackingListPdf(tripId: string, packageId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/trip/${tripId}/package/${packageId}/packing-list`, {
       responseType: 'blob',
       headers: new HttpHeaders({
         'Accept': 'application/pdf'
@@ -85,17 +86,6 @@ export class DocumentsComponent {
   
   constructor(private documentsService: DocumentsService) {}
 
-  downloadTestPdf(): void {
-    this.documentsService.getTestPdf().subscribe({
-      next: (blob: Blob) => {
-        this.downloadBlob(blob, 'plantour-test.pdf');
-      },
-      error: (error) => {
-        console.error('Error downloading PDF:', error);
-      }
-    });
-  }
-
   downloadTripReport(tripId: string): void {
     this.documentsService.getTripReportPdf(tripId).subscribe({
       next: (blob: Blob) => {
@@ -103,6 +93,17 @@ export class DocumentsComponent {
       },
       error: (error) => {
         console.error('Error downloading trip report:', error);
+      }
+    });
+  }
+
+  downloadPackingList(tripId: string, packageId: string): void {
+    this.documentsService.getPackingListPdf(tripId, packageId).subscribe({
+      next: (blob: Blob) => {
+        this.downloadBlob(blob, `packing-list-${packageId}.pdf`);
+      },
+      error: (error) => {
+        console.error('Error downloading packing list:', error);
       }
     });
   }
@@ -130,35 +131,18 @@ export class DocumentsComponent {
 ### 3. В вашем HTML шаблоне:
 
 ```html
-<button (click)="downloadTestPdf()">
-  Download Test PDF
-</button>
-
 <button (click)="downloadTripReport('your-trip-id-here')">
   Download Trip Report
+</button>
+
+<button (click)="downloadPackingList('trip-id', 'package-id')">
+  Download Packing List
 </button>
 ```
 
 ## Вариант 3: Открыть PDF в новой вкладке (предпросмотр)
 
 ```typescript
-openTestPdfInNewTab(): void {
-  this.documentsService.getTestPdf().subscribe({
-    next: (blob: Blob) => {
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-      
-      // Очистить URL после небольшой задержки
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-      }, 100);
-    },
-    error: (error) => {
-      console.error('Error opening PDF:', error);
-    }
-  });
-}
-
 openTripReportInNewTab(tripId: string): void {
   this.documentsService.getTripReportPdf(tripId).subscribe({
     next: (blob: Blob) => {
@@ -171,6 +155,22 @@ openTripReportInNewTab(tripId: string): void {
     },
     error: (error) => {
       console.error('Error opening trip report:', error);
+    }
+  });
+}
+
+openPackingListInNewTab(tripId: string, packageId: string): void {
+  this.documentsService.getPackingListPdf(tripId, packageId).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 100);
+    },
+    error: (error) => {
+      console.error('Error opening packing list:', error);
     }
   });
 }
@@ -188,17 +188,6 @@ npm install --save-dev @types/file-saver
 ```typescript
 import { saveAs } from 'file-saver';
 
-downloadTestPdf(): void {
-  this.documentsService.getTestPdf().subscribe({
-    next: (blob: Blob) => {
-      saveAs(blob, 'plantour-test.pdf');
-    },
-    error: (error) => {
-      console.error('Error downloading PDF:', error);
-    }
-  });
-}
-
 downloadTripReport(tripId: string): void {
   this.documentsService.getTripReportPdf(tripId).subscribe({
     next: (blob: Blob) => {
@@ -206,6 +195,17 @@ downloadTripReport(tripId: string): void {
     },
     error: (error) => {
       console.error('Error downloading trip report:', error);
+    }
+  });
+}
+
+downloadPackingList(tripId: string, packageId: string): void {
+  this.documentsService.getPackingListPdf(tripId, packageId).subscribe({
+    next: (blob: Blob) => {
+      saveAs(blob, `packing-list-${packageId}.pdf`);
+    },
+    error: (error) => {
+      console.error('Error downloading packing list:', error);
     }
   });
 }
@@ -218,10 +218,10 @@ downloadTripReport(tripId: string): void {
 2. **Authorization**: Если endpoint требует авторизации, добавьте JWT токен:
 
 ```typescript
-getTestPdf(): Observable<Blob> {
+getTripReportPdf(tripId: string): Observable<Blob> {
   const token = this.authService.getToken();
   
-  return this.http.get(`${this.apiUrl}/test-pdf`, {
+  return this.http.get(`${this.apiUrl}/trip/${tripId}`, {
     responseType: 'blob',
     headers: new HttpHeaders({
       'Accept': 'application/pdf',
@@ -230,10 +230,10 @@ getTestPdf(): Observable<Blob> {
   });
 }
 
-getTripReportPdf(tripId: string): Observable<Blob> {
+getPackingListPdf(tripId: string, packageId: string): Observable<Blob> {
   const token = this.authService.getToken();
   
-  return this.http.get(`${this.apiUrl}/trip/${tripId}`, {
+  return this.http.get(`${this.apiUrl}/trip/${tripId}/package/${packageId}/packing-list`, {
     responseType: 'blob',
     headers: new HttpHeaders({
       'Accept': 'application/pdf',
@@ -256,27 +256,29 @@ export const environment = {
 
 Вы можете протестировать endpoints напрямую в браузере:
 
-**Тестовый PDF:**
-```
-http://localhost:5217/api/Documents/test-pdf
-```
-
 **Отчет о путешествии:**
 ```
 http://localhost:5217/api/Documents/trip/{tripId}
 ```
-Замените `{tripId}` на реальный ID путешествия из вашей базы данных.
+
+**Упаковочный лист:**
+```
+http://localhost:5217/api/Documents/trip/{tripId}/package/{packageId}/packing-list
+```
+Замените `{tripId}` и `{packageId}` на реальные ID из вашей базы данных.
 
 Или через curl:
 ```bash
-# Тестовый PDF
-curl -o test.pdf http://localhost:5217/api/Documents/test-pdf
-
 # Отчет о путешествии
 curl -o trip-report.pdf http://localhost:5217/api/Documents/trip/your-trip-id-here
+
+# Упаковочный лист
+curl -o packing-list.pdf http://localhost:5217/api/Documents/trip/trip-id/package/package-id/packing-list
 ```
 
-## Структура PDF отчета о путешествии
+## Структура PDF документов
+
+### Trip Report (Отчет о путешествии)
 
 PDF документ содержит следующие секции:
 
@@ -300,4 +302,24 @@ PDF документ содержит следующие секции:
        - **Вещь** (имя слева, количество и единицы справа)
 
 4. **Things without Package** - вещи без упаковки, тоже сгруппированные по категориям
+
+### Packing List (Упаковочный лист)
+
+PDF документ содержит:
+
+1. **Заголовок:**
+   - Название "Packing List"
+   - Название упаковки (с лейблом)
+   - Общее количество вещей
+   - Дата генерации
+
+2. **Дополнительная информация:**
+   - Вес (если указан)
+   - Примечания (если указаны)
+
+3. **Список вещей по категориям:**
+   - **Категория**
+     - **Вещь** (имя слева, количество и единицы справа)
+
+**Примечание:** В обоих документах используется единый стиль с `primaryColor: #2F7C87` для категорий вещей.
 

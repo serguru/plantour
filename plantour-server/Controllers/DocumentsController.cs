@@ -25,5 +25,13 @@ public class DocumentsController : ControllerBase
         return File(pdfBytes, "application/pdf", $"trip-report-{tripId}.pdf");
     }
 
+    [HttpGet("trip/{tripId}/package/{packageId}/packing-list")]
+    [AdminOrParticipant]
+    public async Task<IActionResult> GetPackingListPdf(Guid tripId, Guid packageId)
+    {
+        var pdfBytes = await _service.GeneratePackingListPdfAsync(tripId, packageId);
+        return File(pdfBytes, "application/pdf", $"packing-list-{packageId}.pdf");
+    }
+
 
 }

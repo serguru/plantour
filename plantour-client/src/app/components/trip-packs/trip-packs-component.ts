@@ -1,16 +1,17 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { TripPackageService } from '../../services/trip-package-service';
 import { ActivatedRoute } from '@angular/router';
 import { TripPackItemComponent } from './trip-pack-item/trip-pack-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { ComponentService } from '../../services/component-service';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { Condition, DynamicQueryService } from '../../services/dynamic-query-service';
 import { CurrentTripService } from '../../services/current-trip-service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
+import { DocumentsService } from '../../services/documents-service';
 
 
 @Component({
@@ -32,9 +33,14 @@ export class TripPacksComponent implements OnInit {
   dynamicQueryService = inject(DynamicQueryService);
   tripPackageService = inject(TripPackageService);
   currentTripService = inject(CurrentTripService);
+  documentsService = inject(DocumentsService);
+
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
   private tripId: string | null = null;
+
+  selectedId = toSignal(this.componentService.selectedId$, { initialValue: null });
+
 
   conditions: Condition[] =
     [
@@ -55,6 +61,37 @@ export class TripPacksComponent implements OnInit {
         icon: 'filter'
       }
     ];
+
+
+  menuItems = computed<MenuConfig[]>(() => {
+    return [
+      {
+        label: 'Download Packing List PDF',
+        icon: 'document',
+        disabledIfNoSelection: true,
+        action: () => {
+
+          const tripId = this.tripId;
+          if (!tripId) {
+            throw new Error('No trip selected');
+          }
+
+          this.documentsService.getPackingListPdf(tripId, this.selectedId()!).subscribe(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `trip-packing-list-${tripId}.pdf`;
+            link.click();
+            window.URL.revokeObjectURL(url);
+          });
+        }
+      }
+    ];
+  }
+  );
+
+
+
 
   initConditions(componentId: string | null): void {
     if (!componentId) {

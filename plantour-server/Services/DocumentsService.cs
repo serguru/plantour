@@ -266,70 +266,10 @@ public class DocumentsService : IDocumentsService
                     .Where(t => t.TripUserPackageId == package.Id)
                     .ToList();
 
-                if (thingsInPackage.Any())
+                packageColumn.Item().PaddingTop(5).PaddingLeft(15).Column(thingsColumn =>
                 {
-                    var thingsByCategory = thingsInPackage
-                        .GroupBy(t => t.Category ?? "Uncategorized")
-                        .OrderBy(g => g.Key);
-
-                    packageColumn.Item().PaddingTop(5).PaddingLeft(15).Column(thingsColumn =>
-                    {
-                        foreach (var categoryGroup in thingsByCategory)
-                        {
-                            // Категория
-                            thingsColumn.Item().PaddingTop(5)
-                                .Text(categoryGroup.Key)
-                                .SemiBold()
-                                .FontSize(11)
-                                .FontColor(primaryColor);
-
-                            // Вещи в категории
-                            thingsColumn.Item().PaddingLeft(10).PaddingTop(3).Table(table =>
-                            {
-                                table.ColumnsDefinition(columns =>
-                                {
-                                    columns.RelativeColumn();
-                                    columns.ConstantColumn(100);
-                                });
-
-                                foreach (var thing in categoryGroup.OrderBy(t => t.Name))
-                                {
-                                    // Имя вещи слева
-                                    table.Cell()
-                                        .PaddingVertical(2)
-                                        .Text(thing.Name);
-
-                                    // Количество и единицы справа
-                                    table.Cell()
-                                        .PaddingVertical(2)
-                                        .AlignRight()
-                                        .Text(text =>
-                                        {
-                                            if (thing.Value.HasValue && !string.IsNullOrWhiteSpace(thing.Units))
-                                            {
-                                                text.Span($"{thing.Value.Value:0.###} {thing.Units}");
-                                            }
-                                            else if (thing.Value.HasValue)
-                                            {
-                                                text.Span($"{thing.Value.Value:0.###}");
-                                            }
-                                            else if (!string.IsNullOrWhiteSpace(thing.Units))
-                                            {
-                                                text.Span(thing.Units);
-                                            }
-                                        });
-                                }
-                            });
-                        }
-                    });
-                }
-                else
-                {
-                    packageColumn.Item().PaddingTop(5).PaddingLeft(15)
-                        .Text("No things in this package")
-                        .FontColor(Colors.Grey.Medium)
-                        .Italic();
-                }
+                    RenderThingsByCategory(thingsColumn, thingsInPackage);
+                });
             });
         }
 
@@ -348,57 +288,198 @@ public class DocumentsService : IDocumentsService
                     .SemiBold()
                     .FontSize(13);
 
-                var thingsByCategory = thingsWithoutPackage
-                    .GroupBy(t => t.Category ?? "Uncategorized")
-                    .OrderBy(g => g.Key);
-
                 unpackedColumn.Item().PaddingTop(5).PaddingLeft(15).Column(thingsColumn =>
                 {
-                    foreach (var categoryGroup in thingsByCategory)
-                    {
-                        thingsColumn.Item().PaddingTop(5)
-                            .Text(categoryGroup.Key)
-                            .SemiBold()
-                            .FontSize(11)
-                            .FontColor(primaryColor);
-
-                        thingsColumn.Item().PaddingLeft(10).PaddingTop(3).Table(table =>
-                        {
-                            table.ColumnsDefinition(columns =>
-                            {
-                                columns.RelativeColumn();
-                                columns.ConstantColumn(100);
-                            });
-
-                            foreach (var thing in categoryGroup.OrderBy(t => t.Name))
-                            {
-                                table.Cell()
-                                    .PaddingVertical(2)
-                                    .Text(thing.Name);
-
-                                table.Cell()
-                                    .PaddingVertical(2)
-                                    .AlignRight()
-                                    .Text(text =>
-                                    {
-                                        if (thing.Value.HasValue && !string.IsNullOrWhiteSpace(thing.Units))
-                                        {
-                                            text.Span($"{thing.Value.Value:0.###} {thing.Units}");
-                                        }
-                                        else if (thing.Value.HasValue)
-                                        {
-                                            text.Span($"{thing.Value.Value:0.###}");
-                                        }
-                                        else if (!string.IsNullOrWhiteSpace(thing.Units))
-                                        {
-                                            text.Span(thing.Units);
-                                        }
-                                    });
-                            }
-                        });
-                    }
+                    RenderThingsByCategory(thingsColumn, thingsWithoutPackage);
                 });
             });
         }
+    }
+
+    // Общий метод для рендеринга вещей по категориям
+    private void RenderThingsByCategory(ColumnDescriptor column, List<TripThingDto> things)
+    {
+        if (!things.Any())
+        {
+            column.Item()
+                .Text("No things in this package")
+                .FontColor(Colors.Grey.Medium)
+                .Italic();
+            return;
+        }
+
+        var thingsByCategory = things
+            .GroupBy(t => t.Category ?? "Uncategorized")
+            .OrderBy(g => g.Key);
+
+        foreach (var categoryGroup in thingsByCategory)
+        {
+            // Категория
+            column.Item().PaddingTop(5)
+                .Text(categoryGroup.Key)
+                .SemiBold()
+                .FontSize(11)
+                .FontColor(primaryColor);
+
+            // Вещи в категории
+            column.Item().PaddingLeft(10).PaddingTop(3).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn();
+                    columns.ConstantColumn(100);
+                });
+
+                foreach (var thing in categoryGroup.OrderBy(t => t.Name))
+                {
+                    // Имя вещи слева
+                    table.Cell()
+                        .PaddingVertical(2)
+                        .Text(thing.Name);
+
+                    // Количество и единицы справа
+                    table.Cell()
+                        .PaddingVertical(2)
+                        .AlignRight()
+                        .Text(text =>
+                        {
+                            if (thing.Value.HasValue && !string.IsNullOrWhiteSpace(thing.Units))
+                            {
+                                text.Span($"{thing.Value.Value:0.###} {thing.Units}");
+                            }
+                            else if (thing.Value.HasValue)
+                            {
+                                text.Span($"{thing.Value.Value:0.###}");
+                            }
+                            else if (!string.IsNullOrWhiteSpace(thing.Units))
+                            {
+                                text.Span(thing.Units);
+                            }
+                        });
+                }
+            });
+        }
+    }
+
+    public async Task<byte[]> GeneratePackingListPdfAsync(Guid tripId, Guid packageId)
+    {
+        // Проверяем доступ к путешествию
+        var trip = await _tripService.GetByIdWithStatsAsync(tripId);
+        if (trip == null)
+        {
+            throw new Exception($"Trip with ID {tripId} not found");
+        }
+
+        // Получаем упаковку
+        var package = await _tripPackageService.GetByIdAsync(tripId, packageId);
+        if (package == null)
+        {
+            throw new Exception($"Package with ID {packageId} not found");
+        }
+
+        // Получаем вещи для этой упаковки
+        var things = (await _tripThingService.GetAllForPackageAsync(tripId, packageId)).ToList();
+
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(2, Unit.Centimetre);
+                page.PageColor(Colors.White);
+                page.DefaultTextStyle(x => x.FontSize(11));
+
+                // Шапка
+                page.Header()
+                    .Column(column =>
+                    {
+                        column.Item()
+                            .Text("Packing List")
+                            .SemiBold()
+                            .FontSize(24)
+                            .FontColor(primaryColor);
+                        
+                        column.Item().PaddingTop(5)
+                            .Text(text =>
+                            {
+                                text.Span(package.Name).SemiBold().FontSize(16);
+                                if (!string.IsNullOrWhiteSpace(package.Label))
+                                {
+                                    text.Span($" ({package.Label})").FontSize(14).FontColor(Colors.Grey.Darken1);
+                                }
+                            });
+
+                        column.Item().PaddingTop(3)
+                            .Text($"Total items: {things.Count}")
+                            .FontSize(12)
+                            .FontColor(Colors.Grey.Darken2);
+
+                        column.Item().PaddingTop(2)
+                            .Text($"Generated: {DateTime.Now:dd.MM.yyyy HH:mm}")
+                            .FontSize(9)
+                            .FontColor(Colors.Grey.Darken1);
+                    });
+
+                // Содержимое
+                page.Content()
+                    .PaddingVertical(1, Unit.Centimetre)
+                    .Column(column =>
+                    {
+                        // Дополнительная информация об упаковке
+                        if (!string.IsNullOrWhiteSpace(package.Notes) || 
+                            (package.WeightValue.HasValue && !string.IsNullOrWhiteSpace(package.WeightUnit)))
+                        {
+                            column.Item().PaddingBottom(15).Table(table =>
+                            {
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.ConstantColumn(100);
+                                    columns.RelativeColumn();
+                                });
+
+                                if (package.WeightValue.HasValue && !string.IsNullOrWhiteSpace(package.WeightUnit))
+                                {
+                                    table.Cell()
+                                        .PaddingVertical(3)
+                                        .DefaultTextStyle(x => x.SemiBold())
+                                        .Text("Weight:");
+                                    
+                                    table.Cell()
+                                        .PaddingVertical(3)
+                                        .Text($"{package.WeightValue.Value:0.###} {package.WeightUnit}");
+                                }
+
+                                if (!string.IsNullOrWhiteSpace(package.Notes))
+                                {
+                                    table.Cell()
+                                        .PaddingVertical(3)
+                                        .DefaultTextStyle(x => x.SemiBold())
+                                        .Text("Notes:");
+                                    
+                                    table.Cell()
+                                        .PaddingVertical(3)
+                                        .Text(package.Notes);
+                                }
+                            });
+                        }
+
+                        // Список вещей по категориям
+                        RenderThingsByCategory(column, things);
+                    });
+
+                // Футер
+                page.Footer()
+                    .AlignCenter()
+                    .Text(x =>
+                    {
+                        x.Span("Page ");
+                        x.CurrentPageNumber();
+                        x.Span(" of ");
+                        x.TotalPages();
+                    });
+            });
+        });
+
+        return document.GeneratePdf();
     }
 }
