@@ -5,6 +5,11 @@ import { PanelModule } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
+import { TemporaryUserResponse, UsersService } from '../../services/users-service';
+import { MessagesService } from '../../services/messages-service';
+import { EMPTY } from 'rxjs';
+import { LocalStorageService } from '../../services/local-storage-service';
+import { CurrentTripService } from '../../services/current-trip-service';
 
 interface HelpSection {
   id: string;
@@ -20,6 +25,8 @@ interface HelpSubsection {
   linkId?: string;
 }
 
+
+// TODO: add a link to Guest Mode video tutorial
 @Component({
   selector: 'app-help',
   standalone: true,
@@ -34,9 +41,17 @@ interface HelpSubsection {
   styleUrl: './help-component.scss'
 })
 export class HelpComponent {
-  constructor() {}
+  constructor() { }
 
   router = inject(Router);
+
+  usersService = inject(UsersService);
+
+  messagesService = inject(MessagesService);
+
+  localStorageService = inject(LocalStorageService);
+
+  currentTripService = inject(CurrentTripService);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -276,8 +291,46 @@ export class HelpComponent {
     console.log('Navigate to:', sectionId, subsectionId);
   }
 
-  getStartedWithTest() {
-    // Future: Navigate to test mode
-    console.log('Starting test mode...');
+  getStartedWithTest = async () => {
+
+    if (this.usersService.isAuthenticatedSignal()) {
+      this.messagesService.showInfo("Please sign out first to use Guest Access Mode");
+      return;
+    }
+
+    const dialogResult = await this.messagesService.openOkCancel({
+      title: `Start Guest Access Mode`,
+      message: "You are entering Guest Mode! You can explore Plantour for 7 days without creating an account. Ready to start?",
+      okLabel: 'Yes',
+      cancelLabel: 'No'
+    });
+
+    if (dialogResult !== 'ok') {
+      return;
+    }
+
+    this.usersService.registerTemporaryAdmin().subscribe({
+      next: (response: TemporaryUserResponse) => {
+
+        localStorage.clear();
+        this.localStorageService.setComponentKey('trips', 'selectedId', response.currentTripId);
+        this.localStorageService.setItem('toolbar-showTripText', true);
+        this.currentTripService.updateCurrentTripVisible(true);
+
+        this.usersService.updateUser(response.accessToken);
+        const path = `/trips/${response.currentTripId}/trip-things`;
+        this.router.navigate([path]);
+
+        this.messagesService.openInfo({
+          title: `Welcome to Plantour!`,
+          message: `You are now in Guest Access Mode as Robin Miles for 7 days. The app works with full features, except you are limited to 5 items. To get started, add items to your current trip "Weekend in Las Vegas", pack them into bags, and download a packing list. 
+          
+          If you need help, see Guest Mode Help. Enjoy!
+          `
+        });
+      }
+    });
   }
 }
+
+

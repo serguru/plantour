@@ -75,5 +75,16 @@
         {{ state?.okLabel || 'Ok' }}
       </button>
     </ng-container>
+
+    <ng-container *ngIf="state?.type === 'info'">
+      <button
+        pButton
+        type="button"
+        class="p-button-primary"
+        (click)="onAction('ok')"
+      >
+        Close
+      </button>
+    </ng-container>
   </ng-template>
 </p-dialog>

@@ -9,6 +9,14 @@ import { LocalStorageService } from './local-storage-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 
+export interface TemporaryUserResponse {
+  accessToken: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  currentTripId: string;
+}
+
 export interface UserDto {
   id: string;
   email: string;
@@ -63,51 +71,22 @@ export class UsersService {
 
   userSignal = toSignal(this.user$, { requireSync: true });
 
-  // currentUser(): AccessToken | null {
-  //   return this.currentUserSubject.getValue();
-  // }
-
   userText$ = this.user$.pipe(
     map(user => {
       if (!user) {
         return "Profile";
-      } 
+      }
       let result = "";
       if (user.last_name && user.first_name) {
         result += `${user.first_name} ${user.last_name}`;
       } else {
         result += user.email
-      } 
-      // if (user.role === 'Participant') {
-      //   result += ", participant";
-      // } 
+      }
       return result;
     })
   );
 
   userTextSignal = toSignal(this.userText$, { requireSync: true });
-
-
-  // getCurrentUserText(): string {
-  //   const user = this.currentUser();
-  //   if (!user) {
-  //     return "Profile";
-  //   }
-
-  //   let result = "";
-  //   if (user.last_name && user.first_name) {
-  //     result += `${user.first_name} ${user.last_name}`;
-  //   } else {
-  //     result += user.email
-  //   }
-
-  //   if (user.role === 'Participant') {
-  //     result += ", participant";
-  //   }
-
-  //   return result;
-  // }
-
 
   isAuthenticatedSignal = toSignal(this.user$.pipe(
     map(user => {
@@ -119,17 +98,6 @@ export class UsersService {
     )
   ), { requireSync: true });
 
-
-  // get isAuthenticated(): boolean {
-  //   const user = this.currentUser();
-  //   if (!user || user.exp <= Math.floor(Date.now() / 1000)) {
-  //     // this.resetState();
-  //     // this.appService.resetState();
-  //     return false;
-  //   }
-  //   return true;
-  // }
-
   loginAdmin(email: string, password: string): Observable<any> {
     return this.http.post<string>(`${this.apiUrl}/api/users/admin/signin`, { email, password })
       .pipe(
@@ -138,7 +106,6 @@ export class UsersService {
         }
         ))
   }
-
 
   loginParticipant(accessCode: string): Observable<any> {
     return this.http.post<string>(`${this.apiUrl}/api/users/participant/signin`, { accessCode })
@@ -162,6 +129,10 @@ export class UsersService {
     return this.http.post<string>(`${this.apiUrl}/api/users/participant/signup`, data)
   }
 
+  registerTemporaryAdmin(): Observable<any> {
+    return this.http.post<string>(`${this.apiUrl}/api/users/create-temporary-user`, {})
+  }
+
   isAdminSignal = toSignal(this.user$.pipe(
     map(user => {
       if (user?.role === 'Admin' && this.isAuthenticatedSignal()) {
@@ -172,11 +143,6 @@ export class UsersService {
     )
   ), { requireSync: true });
 
-  // get isAdmin(): boolean {
-  //   const user = this.currentUser();
-  //   return user?.role === 'Admin' && this.isAuthenticated;
-  // }
-
   isParticipantSignal = toSignal(this.user$.pipe(
     map(user => {
       if (user?.role === 'Participant' && this.isAuthenticatedSignal()) {
@@ -186,14 +152,6 @@ export class UsersService {
     }
     )
   ), { requireSync: true });
-
-  //
-
-
-  // get isParticipant(): boolean {
-  //   const user = this.currentUser();
-  //   return user?.role === 'Participant' && this.isAuthenticated;
-  // }
 
 
   signOut(): void {

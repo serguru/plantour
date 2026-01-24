@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { BehaviorSubject } from 'rxjs';
 
-export type DialogType = 'yes-no-cancel' | 'ok-cancel';
+export type DialogType = 'yes-no-cancel' | 'ok-cancel' | 'info';
 export type DialogResult = 'yes' | 'no' | 'ok' | 'cancel';
 
 export interface DialogConfig {
@@ -74,6 +74,13 @@ export class MessagesService {
     return this.openDialog({
       ...config,
       type: 'ok-cancel'
+    });
+  }
+
+  openInfo(config: DialogConfig): Promise<DialogResult> {
+    return this.openDialog({
+      ...config,
+      type: 'info'
     });
   }
 

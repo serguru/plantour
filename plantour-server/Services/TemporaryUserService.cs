@@ -14,6 +14,7 @@ using plantour_server.DTOs;
 using plantour_server.Models;
 using plantour_server.DbModels;
 using plantour_server.Repositories;
+using PlantourApi.Middleware;
 
 namespace plantour_server.Services;
 
@@ -32,10 +33,6 @@ public class TemporaryUserService : ITemporaryUserService
     private readonly AdminsParticipantRepository _adminsParticipantRepository;
     private readonly PlantourContext _context;
     private readonly IMapper _mapper;
-
-    // Counter for email generation - starts at 1273
-    private static int _emailCounter = 1273;
-    private static readonly object _counterLock = new object();
 
     public TemporaryUserService(
         IOptions<JwtSettings> jwtSettings,
@@ -69,14 +66,34 @@ public class TemporaryUserService : ITemporaryUserService
 
     public async Task<CreateTemporaryUserResponse> CreateTemporaryUserAsync()
     {
-        // Generate unique email with counter
+        // Generate unique email with counter from database
         string email;
         int counter;
-        lock (_counterLock)
+
+        // Query all users with Robin.Miles pattern
+        var existingUsers = await _context.Users
+            .Where(u => u.Email.StartsWith("Robin.Miles") && u.Email.EndsWith("@plantour.app"))
+            .Select(u => u.Email)
+            .ToListAsync();
+
+        // Extract counters and find maximum
+        int maxCounter = 1272;
+        foreach (var userEmail in existingUsers)
         {
-            counter = _emailCounter++;
-            email = $"Robin.Miles{counter:D4}@plantour.app";
+            // Extract number from Robin.MilesXXXX@plantour.app
+            var emailPrefix = userEmail.Replace("@plantour.app", "").Replace("Robin.Miles", "");
+            if (int.TryParse(emailPrefix, out int existingCounter))
+            {
+                if (existingCounter > maxCounter)
+                {
+                    maxCounter = existingCounter;
+                }
+            }
         }
+
+        // Increment counter and generate email
+        counter = maxCounter + 1;
+        email = $"Robin.Miles{counter:D4}@plantour.app";
 
         // Create temporary user
         var user = new User
@@ -96,7 +113,7 @@ public class TemporaryUserService : ITemporaryUserService
         await _usersRepository.AddAsync(user);
 
         // Populate test data for the user
-        await PopulateSampleDataAsync(user);
+        Trip activeTrip = await PopulateSampleDataAsync(user);
 
         // Generate admin access token with extended expiration
         var accessToken = GenerateTemporaryUserAccessToken(user);
@@ -106,11 +123,12 @@ public class TemporaryUserService : ITemporaryUserService
             AccessToken = accessToken,
             Email = user.Email,
             FirstName = user.FirstName,
-            LastName = user.LastName
+            LastName = user.LastName,
+            CurrentTripId = activeTrip.Id
         };
     }
 
-    private async Task PopulateSampleDataAsync(User user)
+    private async Task<Trip> PopulateSampleDataAsync(User user)
     {
         // Create packages
         var packages = CreateSamplePackages(user);
@@ -127,8 +145,8 @@ public class TemporaryUserService : ITemporaryUserService
         }
 
         // Create two trips: one past, one active
-        var tripStatusCompleted = await GetOrCreateTripStatus("Completed");
-        var tripStatusActive = await GetOrCreateTripStatus("Active");
+        var tripStatusCompleted = await GetTripStatus("Completed");
+        var tripStatusActive = await GetTripStatus("Active");
 
         // Create past trip - "Week in Europe"
         var pastTrip = new Trip
@@ -191,6 +209,8 @@ public class TemporaryUserService : ITemporaryUserService
 
         // Populate active trip with packages and things (in progress)
         await PopulateActiveTripAsync(activeTrip, activeTripUser, packages);
+
+        return activeTrip;
     }
 
     private async Task PopulatePastTripAsync(Trip trip, TripUser tripUser, List<UserPackage> packages)
@@ -299,7 +319,7 @@ public class TemporaryUserService : ITemporaryUserService
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
                 Name = item,
-                Category = "clothing",
+                Category = "Clothing",
                 Shared = false
             });
         }
@@ -313,7 +333,7 @@ public class TemporaryUserService : ITemporaryUserService
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
                 Name = item,
-                Category = "electronics",
+                Category = "Electronics",
                 Shared = false
             });
         }
@@ -327,7 +347,7 @@ public class TemporaryUserService : ITemporaryUserService
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
                 Name = item,
-                Category = "documents",
+                Category = "Documents",
                 Shared = false
             });
         }
@@ -335,20 +355,14 @@ public class TemporaryUserService : ITemporaryUserService
         return things;
     }
 
-    private async Task<TripStatus> GetOrCreateTripStatus(string statusName)
+    private async Task<TripStatus> GetTripStatus(string statusName)
     {
         var status = await _context.TripStatuses
             .FirstOrDefaultAsync(ts => ts.Name == statusName);
 
         if (status == null)
         {
-            status = new TripStatus
-            {
-                Id = Guid.NewGuid(),
-                Name = statusName
-            };
-            await _context.AddAsync(status);
-            await _context.SaveChangesAsync();
+            throw new CustomException("Wrong trip status");
         }
 
         return status;
