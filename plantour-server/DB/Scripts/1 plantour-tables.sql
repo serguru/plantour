@@ -196,7 +196,10 @@ create table users (
     first_name varchar(100),
     last_name varchar(100),
     phone varchar(50),
-    notes text
+    notes text,
+    created_at timestamptz not null default now(),
+    active boolean not null default true,    
+    temporary boolean not null default false    
 );
 
 create table admins_participants (

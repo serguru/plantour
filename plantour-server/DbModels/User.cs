@@ -39,6 +39,15 @@ public partial class User
     [Column("notes")]
     public string? Notes { get; set; }
 
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; }
+
+    [Column("active")]
+    public bool Active { get; set; }
+
+    [Column("temporary")]
+    public bool Temporary { get; set; }
+
     [InverseProperty("Admin")]
     public virtual ICollection<AdminsParticipant> AdminsParticipantAdmins { get; set; } = new List<AdminsParticipant>();
 
