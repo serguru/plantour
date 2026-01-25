@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PlantourApi.Middleware;
 using System.Net.Mime;
@@ -20,18 +21,27 @@ public class GlobalExceptionHandler : IExceptionHandler
     {
         _logger.LogError(exception, "Unhandled exception: {Message}", exception.Message);
 
-        (int statusCode, ErrorResponse response) = exception switch
-        {
-            CustomException x => (
-                StatusCodes.Status400BadRequest,
-                new ErrorResponse("custom_exception", x.Message)
-            ),
+        int statusCode;
+        string code;
 
-            _ => (
-                StatusCodes.Status500InternalServerError,
-                new ErrorResponse("internal_error", "Unexpected server error")
-            )
+        if (exception is BaseApiException)
+        {
+            statusCode = (exception as BaseApiException)!.StatusCode;
+            code = "BASE_API_EXCEPTION";
+        } else
+        {
+            statusCode = StatusCodes.Status500InternalServerError;
+            code = "INTERNAL_SERVER_ERROR";
+        }
+
+        var response = new ApiErrorResponse
+        {
+            StatusCode = statusCode,
+            Message = exception.Message, 
+            Code = code,
+            Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}"
         };
+
 
         httpContext.Response.StatusCode = statusCode;
         httpContext.Response.ContentType = MediaTypeNames.Application.Json;
@@ -41,5 +51,3 @@ public class GlobalExceptionHandler : IExceptionHandler
         return true;
     }
 }
-
-public record ErrorResponse(string Code, string Message);

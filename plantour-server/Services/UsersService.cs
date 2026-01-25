@@ -41,7 +41,7 @@ public class UsersService(
     public async Task<AuthResponse> SignUpAsync(SignUpRequest request)
     {
         // Check if user already exists
-        if (await _usersRepository.AnyAsync(x => x.Email.ToLower() == request.Email.ToLower()))
+        if (await _usersRepository.GetByEmailAsync(request.Email) != null)
         {
             throw new CustomException("User with this email already exists");
         }
@@ -69,19 +69,17 @@ public class UsersService(
     public async Task<AuthResponse> SignInAsync(SignInRequest request)
     {
         // Find user
-        var users = await _usersRepository.FindAsync(x => x.Email.ToLower() == request.Email.ToLower());
+        var user = await _usersRepository.GetByEmailAsync(request.Email);
 
-        var user = users.FirstOrDefault();
-
-        if (user == null || user.PasswordHash == null || user.PasswordSalt == null)
+        if (user == null || user.PasswordHash == null || user.PasswordSalt == null || user.AccessType == null || user.AccessType.Name != "Active")
         {
-            throw new CustomException("Invalid email or password");
+            throw new UnauthorizedException("Invalid email or password");
         }
 
         // Verify password
         if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
         {
-            throw new CustomException("Invalid email or password");
+            throw new UnauthorizedException("Invalid email or password");
         }
 
         // Generate admin tokens
@@ -187,7 +185,7 @@ public class UsersService(
             
         if (adminParticipant == null)
         {
-            throw new CustomException("Cannot signin participant with provided access code");
+            throw new UnauthorizedException("Cannot signin participant with provided access code");
         }
 
         var participant = adminParticipant.Participant;

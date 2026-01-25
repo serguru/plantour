@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -28,7 +28,7 @@ import { AppButton } from '../button/button-component';
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.scss',
 })
-export class SignInComponent {
+export class SignInComponent implements OnInit {
   componentId = 'sign-in';
   adminForm: FormGroup;
   participantForm: FormGroup;
@@ -51,6 +51,11 @@ export class SignInComponent {
     this.participantForm = this.fb.group({
       accessCode: ['UHFALK5S', [Validators.required]],
     });
+  }
+  ngOnInit(): void {
+    const currentUrl = this.router.url; 
+    const endsWithParticipant = currentUrl.split('?')[0].endsWith('/participant');    
+    this.signInType = endsWithParticipant ? 'participant' : 'admin';
   }
 
   get isAdmin(): boolean {

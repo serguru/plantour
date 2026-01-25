@@ -9,13 +9,13 @@ import Aura from '@primeuix/themes/aura';
 import { MessageService } from 'primeng/api';
 import { ENVIRONMENT } from '../environment.token';
 import { environment } from '../environments/environment';
-import { jwtInterceptor } from './interceptors/jwt.interceptor';
+import { httpInterceptor } from './interceptors/http-interceptor';
 import { GlobalErrorHandler } from './helpers/error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     { provide: ENVIRONMENT, useValue: environment },
-    provideHttpClient(withInterceptors([jwtInterceptor])),
+    provideHttpClient(withInterceptors([httpInterceptor])),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),

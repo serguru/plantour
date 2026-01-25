@@ -20,23 +20,20 @@ export const publicGuard: CanActivateFn = (route, state) => {
   return false;
 };
 
-// TODO: investigate why after manually clearing entire local storage it does not redirect to sign in
-
 /**
  * Auth Guard - allows access only to authenticated users
  */
-export const authGuard: CanActivateFn = (route, state) => {
-  const usersService = inject(UsersService);
-  const router = inject(Router);
+// export const authGuard: CanActivateFn = (route, state) => {
+//   const usersService = inject(UsersService);
+//   const router = inject(Router);
 
-  if (usersService.isAuthenticatedSignal()) {
-    return true;
-  }
+//   if (usersService.isAuthenticatedSignal()) {
+//     return true;
+//   }
 
-  // Redirect to Sign In page if not authenticated
-  router.navigate(['/sign-in'], { queryParams: { returnUrl: state.url } });
-  return false;
-};
+//   router.navigate(['/sign-in']);
+//   return false;
+// };
 
 /**
  * Admin Guard - allows access only to authenticated admin users
@@ -70,7 +67,7 @@ export const adminOnlyGuard: CanActivateFn = (route: ActivatedRouteSnapshot, sta
       }
       break;
     default:
-      router.navigate(['/sign-in'], { queryParams: { returnUrl: state.url } });
+      router.navigate(['/sign-in']);
       break;
   }
 
@@ -85,13 +82,12 @@ export const adminOrParticipantGuard: CanActivateFn = (route, state) => {
   }
 
   const router = inject(Router);
-  router.navigate(['/sign-in'], { queryParams: { returnUrl: state.url } });
+  router.navigate(['/sign-in']);
   return false;
 };
 
 
 export const checkTripIdGuard: CanActivateFn = (route, state) => {
-
 
   const checkCurrentUserIncluded = (trip: TripDto, path: string): boolean => {
     if (["trip-things", "trip-packs"].some(x => path.includes(x)) && !trip.currentUserIncluded) {

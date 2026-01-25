@@ -11,7 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 //---------------------------------------------------------------------------------
 //
-// TODO: сделать много публияных страниц с шаблонами поездок типа "Что взять c собой на Бали"
+// TODO: сделать много публичных страниц с шаблонами поездок типа "Что взять c собой на Бали"
 // Эти страницы должны быть SEO оптимизированы и привлекать поисковый трафик
 // на сайт. Эти страницы должны быть доступны без регистрации и входа в систему.
 //
@@ -24,6 +24,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 // TODO: the Plantour webite icon must be shown on the telephone home screen when added there
 // TODO: ask AI to inspect the code for security issues
 // TODO: ask AI to inspect the code to be SEO friendly
+// TODO: retrun to the latest page 
 
 @Component({
   selector: 'app-root',

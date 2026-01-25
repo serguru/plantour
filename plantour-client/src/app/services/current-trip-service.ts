@@ -19,9 +19,21 @@ export class CurrentTripService {
     public updateCurrentTripId(tripId: string | null): void {
         this.currentTripIdSubject.next(tripId);
     }
-    currentTripDto$ = combineLatest([this.currentTripId$, this.usersService.user$]).pipe(
+    // currentTripDto$$ = combineLatest([this.currentTripId$, this.usersService.user$]).pipe(
+    //     distinctUntilChanged(),
+    //     switchMap(([tripId, user]) => {
+    //         if (!tripId || !this.usersService.isAuthenticatedSignal()) {
+    //             return of(null);
+    //         }
+    //         return this.tripService.getById(tripId).pipe(
+    //             catchError(() => of(null))
+    //         )
+    //     }),
+    //     takeUntilDestroyed()
+    // );
+    currentTripDto$ =  this.currentTripId$.pipe(
         distinctUntilChanged(),
-        switchMap(([tripId, user]) => {
+        switchMap((tripId) => {
             if (!tripId || !this.usersService.isAuthenticatedSignal()) {
                 return of(null);
             }

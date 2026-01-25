@@ -11,6 +11,8 @@ using PlantourApi.Models;
 using System.Text;
 using PlantourApi.Middleware;
 using QuestPDF.Infrastructure;
+using System.Text.Json;
+using System.IdentityModel.Tokens.Jwt;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -61,7 +63,87 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
+    options.Events = new JwtBearerEvents
+    {
+
+        // 3. Срабатывает, если валидация провалилась (истек срок, неверная подпись и т.д.)
+        OnAuthenticationFailed = context =>
+        {
+            return Task.CompletedTask;
+        },
+
+        OnForbidden = context =>
+        {
+            return Task.CompletedTask;
+        },
+
+        OnMessageReceived = context =>
+        {
+            //var accessToken = context.Request.Query["access_token"];
+            // if (!string.IsNullOrEmpty(accessToken)) context.Token = accessToken;
+            return Task.CompletedTask;
+        },
+
+        // 2. Срабатывает ПОСЛЕ успешной валидации (здесь можно добавить свои проверки)
+        OnTokenValidated = context =>
+        {
+            // Достаем email из уже расшифрованных claims
+            var emailClaim = context.Principal?.FindFirst(PlantourClaims.Email);
+
+            if (emailClaim == null || string.IsNullOrEmpty(emailClaim.Value))
+            {
+                // Сообщаем системе, что токен нам не подходит
+                context.Fail("Email claim is missing");
+            }
+
+            return Task.CompletedTask;
+        },
+
+        OnChallenge = async context =>
+        {
+            context.HandleResponse();
+
+            string errorCode = "WRONG_TOKEN";
+
+            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+            {
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+                var handler = new JwtSecurityTokenHandler();
+
+                if (handler.CanReadToken(token))
+                {
+                    try
+                    {
+                        var jwtToken = handler.ReadJwtToken(token);
+                        var role = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.Role)?.Value;
+
+                        errorCode = role switch
+                        {
+                            //                            PlantourRoles.Admin => "WRONG_ADMIN_TOKEN",
+                            PlantourRoles.Participant => "WRONG_PARTICIPANT_TOKEN",
+                            _ => "WRONG_TOKEN"
+                        };
+                    }
+                    catch
+                    {
+                        //WRONG_TOKEN
+                    }
+                }
+            }
+
+            await ErrorResponse.WriteErrorResponse(
+                context.HttpContext,
+                StatusCodes.Status401Unauthorized,
+                errorCode,
+                "Sign-in required"
+            );
+        }
+    };
 });
+
+
 
 // Configure Authorization
 builder.Services.AddAuthorization(options =>
@@ -172,8 +254,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseCors("AllowOrigins");
 
-app.UseMiddleware<CurrentUserMiddleware>();
 app.UseAuthentication();
+app.UseMiddleware<CurrentUserMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
