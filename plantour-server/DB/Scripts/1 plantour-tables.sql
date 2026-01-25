@@ -186,6 +186,51 @@ LEFT JOIN age_ranges ar ON tpl.age_ranges_id = ar.id;
 
 
 -----------------------------------------------------------------------
+-- USER ACCESS STATUS
+-----------------------------------------------------------------------
+create table access_statuses (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    notes text null
+);
+
+insert into access_statuses (name) values
+('Pending'),
+('Active'),
+('Suspended'),
+('Banned'),
+('Archived');
+
+
+-----------------------------------------------------------------------
+-- TRABSACTION TYPE
+-----------------------------------------------------------------------
+create table transaction_types (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    notes text null
+);
+insert into transaction_types (name) values
+('Payment'),
+('SubscriptionFee'),
+('Refund'),
+('Bonus');
+
+-----------------------------------------------------------------------
+-- PLAN
+-----------------------------------------------------------------------
+create table plans (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    notes text null
+);
+insert into plans (name) values
+('Guest'),
+('Trial'),
+('Company'),
+('Expedition');
+
+-----------------------------------------------------------------------
 -- USERS
 -----------------------------------------------------------------------
 create table users (
@@ -197,9 +242,45 @@ create table users (
     last_name varchar(100),
     phone varchar(50),
     notes text,
-    created_at timestamptz not null default now(),
-    active boolean not null default true,    
-    temporary boolean not null default false    
+    created_at timestamptz not null default now()
+);
+
+
+-- TODO: prevent overlapping
+create table plans_history (
+    id uuid not null primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    plan_id uuid not null references plans(id),
+    start_date timestamptz not null,
+    end_date timestamptz not null,
+
+    constraint ch_plan_history_dates check (
+        start_date is null 
+        or end_date is null 
+        or start_date < end_date)
+);
+
+-- TODO: prevent overlapping
+create table statuses_history (
+    id uuid not null primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    access_status_id uuid not null references access_statuses(id),
+    start_date timestamptz not null,
+    end_date timestamptz not null,
+
+    constraint ch_plan_history_dates check (
+        start_date is null 
+        or end_date is null 
+        or start_date < end_date)
+);
+
+create table transactions (
+    id uuid not null primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    transaction_type_id uuid not null references transaction_types(id),
+    amount bigint not null,
+    notes text,
+    created_at timestamptz not null default now()
 );
 
 create table admins_participants (

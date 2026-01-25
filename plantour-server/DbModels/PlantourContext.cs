@@ -11,6 +11,8 @@ public partial class PlantourContext : DbContext
     {
     }
 
+    public virtual DbSet<AccessStatus> AccessStatuses { get; set; }
+
     public virtual DbSet<Activity> Activities { get; set; }
 
     public virtual DbSet<AdminsParticipant> AdminsParticipants { get; set; }
@@ -23,6 +25,12 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Invitation> Invitations { get; set; }
 
+    public virtual DbSet<Plan> Plans { get; set; }
+
+    public virtual DbSet<PlansHistory> PlansHistories { get; set; }
+
+    public virtual DbSet<StatusesHistory> StatusesHistories { get; set; }
+
     public virtual DbSet<TemperatureRange> TemperatureRanges { get; set; }
 
     public virtual DbSet<TemplateThing> TemplateThings { get; set; }
@@ -30,6 +38,10 @@ public partial class PlantourContext : DbContext
     public virtual DbSet<ThingCategory> ThingCategories { get; set; }
 
     public virtual DbSet<ThingTemplate> ThingTemplates { get; set; }
+
+    public virtual DbSet<Transaction> Transactions { get; set; }
+
+    public virtual DbSet<TransactionType> TransactionTypes { get; set; }
 
     public virtual DbSet<Trip> Trips { get; set; }
 
@@ -58,6 +70,13 @@ public partial class PlantourContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("pldbgapi");
+
+        modelBuilder.Entity<AccessStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("access_statuses_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
 
         modelBuilder.Entity<Activity>(entity =>
         {
@@ -109,6 +128,39 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Trip).WithMany(p => p.Invitations).HasConstraintName("invitations_trip_id_fkey");
         });
 
+        modelBuilder.Entity<Plan>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("plans_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
+        modelBuilder.Entity<PlansHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("plans_history_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.Plan).WithMany(p => p.PlansHistories)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("plans_history_plan_id_fkey");
+
+            entity.HasOne(d => d.User).WithMany(p => p.PlansHistories).HasConstraintName("plans_history_user_id_fkey");
+        });
+
+        modelBuilder.Entity<StatusesHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("statuses_history_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.AccessStatus).WithMany(p => p.StatusesHistories)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("statuses_history_access_status_id_fkey");
+
+            entity.HasOne(d => d.User).WithMany(p => p.StatusesHistories).HasConstraintName("statuses_history_user_id_fkey");
+        });
+
         modelBuilder.Entity<TemperatureRange>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("temperature_ranges_pkey");
@@ -147,6 +199,27 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.TemperatureRanges).WithMany(p => p.ThingTemplates)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("thing_templates_temperature_ranges_id_fkey");
+        });
+
+        modelBuilder.Entity<Transaction>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("transactions_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.TransactionType).WithMany(p => p.Transactions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("transactions_transaction_type_id_fkey");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Transactions).HasConstraintName("transactions_user_id_fkey");
+        });
+
+        modelBuilder.Entity<TransactionType>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("transaction_types_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
         modelBuilder.Entity<Trip>(entity =>
@@ -244,7 +317,6 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("users_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.Active).HasDefaultValue(true);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
         });
 

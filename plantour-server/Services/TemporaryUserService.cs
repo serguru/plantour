@@ -104,8 +104,6 @@ public class TemporaryUserService : ITemporaryUserService
             LastName = "Miles",
             PasswordHash = null,
             PasswordSalt = null,
-            Temporary = true,
-            Active = true,
             CreatedAt = DateTime.UtcNow,
             Notes = "Temporary demo user"
         };

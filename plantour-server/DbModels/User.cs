@@ -42,17 +42,20 @@ public partial class User
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 
-    [Column("active")]
-    public bool Active { get; set; }
-
-    [Column("temporary")]
-    public bool Temporary { get; set; }
-
     [InverseProperty("Admin")]
     public virtual ICollection<AdminsParticipant> AdminsParticipantAdmins { get; set; } = new List<AdminsParticipant>();
 
     [InverseProperty("Participant")]
     public virtual ICollection<AdminsParticipant> AdminsParticipantParticipants { get; set; } = new List<AdminsParticipant>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<PlansHistory> PlansHistories { get; set; } = new List<PlansHistory>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<StatusesHistory> StatusesHistories { get; set; } = new List<StatusesHistory>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 
     [InverseProperty("User")]
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
