@@ -68,7 +68,7 @@ public class TripThingController(ITripThingService service) : ControllerBase
         var dto = await _service.GetByIdAsync(tripId, id);
         if (dto == null)
         {
-            throw new CustomException("Trip user thing not found");
+            throw new CustomException("Trip user item not found");
         }
 
         return Ok(dto);

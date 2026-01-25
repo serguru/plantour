@@ -50,7 +50,7 @@ public class ThingController : ControllerBase
         var dto = await _service.GetByIdAsync(id);
         if (dto == null)
         {
-            return NotFound(new { message = "User thing not found" });
+            return NotFound(new { message = "User item not found" });
         }
 
         return Ok(dto);

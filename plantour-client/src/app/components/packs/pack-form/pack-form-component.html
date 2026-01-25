@@ -1,7 +1,7 @@
 <div class="page-container">
   <app-form-header
     [title]="title"
-    icon="box"
+    icon="shopping-bag"
   ></app-form-header>
 
   <div class="controls-wrapper">
@@ -18,7 +18,7 @@
           id="name"
           type="text"
           formControlName="name"
-          placeholder="Enter package name"
+          placeholder="Enter bag name"
         />
         @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
         @if (form.get('name')?.errors?.['required']) {
@@ -36,7 +36,7 @@
           id="notes"
           formControlName="notes"
           rows="5"
-          placeholder="Enter package notes"
+          placeholder="Enter bag notes"
         ></textarea>
       </div>
 

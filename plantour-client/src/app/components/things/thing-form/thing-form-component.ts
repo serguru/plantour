@@ -25,7 +25,7 @@ import { InputNumber } from 'primeng/inputnumber';
 
 // TODO: add together validators for value and units (both or none)
 @Component({
-  selector: 'app-thing-form-component',
+  selector: 'app-item-form-component',
   imports: [
     CommonModule,
     InputTextModule,
@@ -93,7 +93,7 @@ export class ThingFormComponent implements OnInit {
   }
 
   get title(): string {
-    return `${capitalizeFirstLetter(this.mode)} Thing`;
+    return `${capitalizeFirstLetter(this.mode)} Item`;
   }
 
   ngOnInit(): void {
@@ -178,7 +178,7 @@ export class ThingFormComponent implements OnInit {
     ).subscribe({
       next: (traveler: ThingDto) => {
         this.localStorageService.setComponentKey('things', 'selectedId', traveler.id);
-        this.messagesService.showInfo('Thing added successfully');
+        this.messagesService.showInfo('Item added successfully');
         this.router.navigate(['/things']);
       }
     });
@@ -205,7 +205,7 @@ export class ThingFormComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.localStorageService.setComponentKey('things', 'selectedId', this.id!);
-        this.messagesService.showInfo('Thing updated successfully');
+        this.messagesService.showInfo('Item updated successfully');
         this.router.navigate(['/things']);
       }
     });

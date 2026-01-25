@@ -52,7 +52,7 @@ export class PackFormComponent implements OnInit {
   }
 
   get title(): string {
-    return `${capitalizeFirstLetter(this.mode)} Pack`;
+    return `${capitalizeFirstLetter(this.mode)} Bag`;
   }
 
   ngOnInit(): void {
@@ -120,7 +120,7 @@ export class PackFormComponent implements OnInit {
       .subscribe({
         next: (pack: PackageDto) => {
           this.localStorageService.setComponentKey('packs', 'selectedId', pack.id);
-          this.messagesService.showInfo('Pack added successfully');
+          this.messagesService.showInfo('Bag added successfully');
           this.router.navigate(['/packs']);
         }
       });
@@ -146,7 +146,7 @@ export class PackFormComponent implements OnInit {
       .subscribe({
         next: () => {
           this.localStorageService.setComponentKey('packs', 'selectedId', this.id!);
-          this.messagesService.showInfo('Pack updated successfully');
+          this.messagesService.showInfo('Bag updated successfully');
           this.router.navigate(['/packs']);
         }
       });

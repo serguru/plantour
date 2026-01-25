@@ -106,29 +106,29 @@ export class HelpComponent {
     },
     {
       id: 'things',
-      title: 'Things Module',
-      icon: 'pi pi-box',
+      title: 'Items Module',
+      icon: 'pi pi-shopping-bag',
       description: 'Create and manage packing items.',
       subsections: [
-        { id: 'things-intro', title: 'Understanding Things', linkId: 'link#15' },
-        { id: 'add-thing', title: 'Add a Thing', linkId: 'link#16' },
-        { id: 'edit-thing', title: 'Edit Thing Details', linkId: 'link#17' },
-        { id: 'delete-thing', title: 'Delete a Thing', linkId: 'link#18' },
-        { id: 'thing-categories', title: 'Using Categories', linkId: 'link#19' },
-        { id: 'filter-things', title: 'Filter and Sort Things', linkId: 'link#20' }
+        { id: 'things-intro', title: 'Understanding Items', linkId: 'link#15' },
+        { id: 'add-item', title: 'Add an Item', linkId: 'link#16' },
+        { id: 'edit-item', title: 'Edit Item Details', linkId: 'link#17' },
+        { id: 'delete-item', title: 'Delete an Item', linkId: 'link#18' },
+        { id: 'item-categories', title: 'Using Categories', linkId: 'link#19' },
+        { id: 'filter-things', title: 'Filter and Sort Items', linkId: 'link#20' }
       ]
     },
     {
       id: 'packs',
-      title: 'Packs Module',
+      title: 'Bags Module',
       icon: 'pi pi-briefcase',
       description: 'Organize luggage and packages.',
       subsections: [
-        { id: 'packs-intro', title: 'Understanding Packs', linkId: 'link#21' },
-        { id: 'add-pack', title: 'Add a Pack', linkId: 'link#22' },
-        { id: 'edit-pack', title: 'Edit Pack Details', linkId: 'link#23' },
-        { id: 'delete-pack', title: 'Delete a Pack', linkId: 'link#24' },
-        { id: 'filter-packs', title: 'Filter and Sort Packs', linkId: 'link#25' }
+        { id: 'packs-intro', title: 'Understanding Bags', linkId: 'link#21' },
+        { id: 'add-bag', title: 'Add a Bag', linkId: 'link#22' },
+        { id: 'edit-bag', title: 'Edit Bag Details', linkId: 'link#23' },
+        { id: 'delete-bag', title: 'Delete a Bag', linkId: 'link#24' },
+        { id: 'filter-packs', title: 'Filter and Sort Bags', linkId: 'link#25' }
       ]
     },
     {
@@ -164,35 +164,35 @@ export class HelpComponent {
       icon: 'pi pi-list',
       description: 'Manage things and packing for your trip.',
       subsections: [
-        { id: 'trip-things-intro', title: 'Understanding Trip Things', linkId: 'link#37' },
-        { id: 'add-thing-to-trip', title: 'Add Thing to Trip', linkId: 'link#38' },
-        { id: 'remove-thing-from-trip', title: 'Remove Thing from Trip', linkId: 'link#39' },
+        { id: 'trip-things-intro', title: 'Understanding Trip Items', linkId: 'link#37' },
+        { id: 'add-item-to-trip', title: 'Add Item to Trip', linkId: 'link#38' },
+        { id: 'remove-item-from-trip', title: 'Remove Item from Trip', linkId: 'link#39' },
         { id: 'packing-status', title: 'Track Packing Status', linkId: 'link#40' },
-        { id: 'assign-thing-to-traveler', title: 'Assign Thing to Traveler', linkId: 'link#41' }
+        { id: 'assign-item-to-traveler', title: 'Assign Item to Traveler', linkId: 'link#41' }
       ]
     },
     {
       id: 'trip-packs',
-      title: 'Trip Packages',
+      title: 'Trip Bags',
       icon: 'pi pi-briefcase',
       description: 'Assign luggage to trip participants.',
       subsections: [
-        { id: 'trip-packs-intro', title: 'Understanding Trip Packs', linkId: 'link#42' },
-        { id: 'add-pack-to-trip', title: 'Add Pack to Trip', linkId: 'link#43' },
-        { id: 'remove-pack-from-trip', title: 'Remove Pack from Trip', linkId: 'link#44' },
-        { id: 'assign-pack-to-traveler', title: 'Assign Pack to Traveler', linkId: 'link#45' }
+        { id: 'trip-packs-intro', title: 'Understanding Trip Bags', linkId: 'link#42' },
+        { id: 'add-bag-to-trip', title: 'Add Bag to Trip', linkId: 'link#43' },
+        { id: 'remove-bag-from-trip', title: 'Remove Bag from Trip', linkId: 'link#44' },
+        { id: 'assign-bag-to-traveler', title: 'Assign Bag to Traveler', linkId: 'link#45' }
       ]
     },
     {
       id: 'shared-things',
-      title: 'Shared Things',
+      title: 'Shared Items',
       icon: 'pi pi-share-alt',
       description: 'Share items between trip participants.',
       subsections: [
-        { id: 'shared-intro', title: 'Understanding Shared Things', linkId: 'link#46' },
-        { id: 'create-shared-thing', title: 'Create a Shared Thing', linkId: 'link#47' },
-        { id: 'edit-shared-thing', title: 'Edit Shared Thing', linkId: 'link#48' },
-        { id: 'delete-shared-thing', title: 'Delete Shared Thing', linkId: 'link#49' }
+        { id: 'shared-intro', title: 'Understanding Shared Items', linkId: 'link#46' },
+        { id: 'create-shared-item', title: 'Create a Shared Item', linkId: 'link#47' },
+        { id: 'edit-shared-item', title: 'Edit Shared Item', linkId: 'link#48' },
+        { id: 'delete-shared-item', title: 'Delete Shared Item', linkId: 'link#49' }
       ]
     },
     {
@@ -216,8 +216,8 @@ export class HelpComponent {
         { id: 'target-intro', title: 'What is Target Mode?', linkId: 'link#54' },
         { id: 'activate-target', title: 'Activate Target Mode', linkId: 'link#55' },
         { id: 'target-travelers', title: 'Target Mode for Travelers', linkId: 'link#56' },
-        { id: 'target-things', title: 'Target Mode for Things', linkId: 'link#57' },
-        { id: 'target-packs', title: 'Target Mode for Packs', linkId: 'link#58' },
+        { id: 'target-things', title: 'Target Mode for Items', linkId: 'link#57' },
+        { id: 'target-packs', title: 'Target Mode for Bags', linkId: 'link#58' },
         { id: 'deactivate-target', title: 'Exit Target Mode', linkId: 'link#59' }
       ]
     },
@@ -240,7 +240,7 @@ export class HelpComponent {
       description: 'Reuse items and trip structures.',
       subsections: [
         { id: 'templates-intro', title: 'Understanding Templates', linkId: 'link#64' },
-        { id: 'thing-templates', title: 'Thing Templates', linkId: 'link#65' },
+        { id: 'item-templates', title: 'Item Templates', linkId: 'link#65' },
         { id: 'trip-templates', title: 'Trip Templates (Future)', linkId: 'link#66' }
       ]
     },

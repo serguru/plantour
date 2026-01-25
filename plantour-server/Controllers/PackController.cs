@@ -39,7 +39,7 @@ public class PackageController : ControllerBase
         var dto = await _service.GetByIdAsync(id);
         if (dto == null)
         {
-            return NotFound(new { message = "User package not found" });
+            return NotFound(new { message = "User bag not found" });
         }
 
         return Ok(dto);

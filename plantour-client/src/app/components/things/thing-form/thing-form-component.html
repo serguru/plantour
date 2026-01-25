@@ -18,7 +18,7 @@
           id="name"
           type="text"
           formControlName="name"
-          placeholder="Enter thing name"
+          placeholder="Enter item name"
         />
         @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
         @if (form.get('name')?.errors?.['required']) {
@@ -87,7 +87,7 @@
 
       <app-form-actions
         [onCancel]="onCancel.bind(this)"
-        cancelLabel="To things"
+        cancelLabel="To items"
         cancelIcon="chevron-left"
         [cancelDisabled]="false"
         [onSubmit]="onSubmit.bind(this)"

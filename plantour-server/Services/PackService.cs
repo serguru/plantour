@@ -64,7 +64,7 @@ public class PackService(
 
         if (exists)
         {
-            throw new CustomException("Package with the same name already exists");
+            throw new CustomException("Bag with the same name already exists");
         }
 
         var entity = _mapper.Map<UserPackage>(request);
@@ -80,12 +80,12 @@ public class PackService(
         var entity = await _userPackageRepository.GetByIdAsync(_currentUser.UserId, request.Id);
         if (entity == null)
         {
-            throw new CustomException("Package not found or access denied");
+            throw new CustomException("Bag not found or access denied");
         }
 
         if (await _userPackageRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower() && x.Id != request.Id))
         {
-            throw new CustomException("Another package with the same name already exists");
+            throw new CustomException("Another bag with the same name already exists");
         }
 
         _mapper.Map(request, entity);
@@ -99,7 +99,7 @@ public class PackService(
         var exists = await _userPackageRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Id == id);
         if (!exists)
         {
-            throw new CustomException("Package not found or access denied");
+            throw new CustomException("Bag not found or access denied");
         }
         await _userPackageRepository.DeleteAsync(id);
     }

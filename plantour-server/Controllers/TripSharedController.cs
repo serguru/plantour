@@ -67,7 +67,7 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult<TripSharedDto>> GetById(Guid tripId, Guid id)
     {
-        var dto = await _service.GetByIdAsync(tripId, id) ?? throw new CustomException("Trip shared thing not found");
+        var dto = await _service.GetByIdAsync(tripId, id) ?? throw new CustomException("Trip shared item not found");
         return Ok(dto);
     }
 

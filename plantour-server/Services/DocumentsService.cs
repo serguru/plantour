@@ -144,14 +144,14 @@ public class DocumentsService : IDocumentsService
             
             AddInfoRow(table, "Total Days:", trip.TotalDays.ToString());
             AddInfoRow(table, "Participants:", trip.TotalParticipants.ToString());
-            // AddInfoRow(table, "Packages:", trip.TotalPacks.ToString());
-            // AddInfoRow(table, "Things:", trip.TotalThings.ToString());
+            // AddInfoRow(table, "Bags:", trip.TotalPacks.ToString());
+            // AddInfoRow(table, "Items:", trip.TotalThings.ToString());
             if (currentParticipant != null)
             {
-                AddInfoRow(table, "Your Packs:", currentParticipant.TotalPacks.ToString());
-                AddInfoRow(table, "Your Things:", currentParticipant.TotalThings.ToString());
+                AddInfoRow(table, "Your Bags:", currentParticipant.TotalPacks.ToString());
+                AddInfoRow(table, "Your Items:", currentParticipant.TotalThings.ToString());
             }
-            AddInfoRow(table, "Shared Things:", trip.TotalSharedThings.ToString());
+            AddInfoRow(table, "Shared Items:", trip.TotalSharedThings.ToString());
 
             if (!string.IsNullOrWhiteSpace(trip.Notes))
             {
@@ -202,8 +202,8 @@ public class DocumentsService : IDocumentsService
             {
                 header.Cell().Element(HeaderStyle).Text("Name");
                 header.Cell().Element(HeaderStyle).Text("Email");
-                // header.Cell().Element(HeaderStyle).AlignCenter().Text("Packs");
-                // header.Cell().Element(HeaderStyle).AlignCenter().Text("Things");
+                // header.Cell().Element(HeaderStyle).AlignCenter().Text("Bags");
+                // header.Cell().Element(HeaderStyle).AlignCenter().Text("Items");
 
                 static IContainer HeaderStyle(IContainer container)
                 {
@@ -240,7 +240,7 @@ public class DocumentsService : IDocumentsService
     private void RenderPackagesWithThings(ColumnDescriptor column, List<TripPackageDto> packages, List<TripThingDto> allThings)
     {
         column.Item().PaddingTop(10)
-            .Text("Packages and Things")
+            .Text("Bags and Items")
             .SemiBold()
             .FontSize(16)
             .FontColor(primaryColor);
@@ -284,7 +284,7 @@ public class DocumentsService : IDocumentsService
             {
                 unpackedColumn.Item().Background(Colors.Grey.Lighten3)
                     .Padding(8)
-                    .Text("Things without Package")
+                    .Text("Items without Bag")
                     .SemiBold()
                     .FontSize(13);
 
@@ -302,7 +302,7 @@ public class DocumentsService : IDocumentsService
         if (!things.Any())
         {
             column.Item()
-                .Text("No things in this package")
+                .Text("No items in this bag")
                 .FontColor(Colors.Grey.Medium)
                 .Italic();
             return;
@@ -374,7 +374,7 @@ public class DocumentsService : IDocumentsService
         var package = await _tripPackageService.GetByIdAsync(tripId, packageId);
         if (package == null)
         {
-            throw new Exception($"Package with ID {packageId} not found");
+            throw new Exception($"Bag with ID {packageId} not found");
         }
 
         // Получаем вещи для этой упаковки

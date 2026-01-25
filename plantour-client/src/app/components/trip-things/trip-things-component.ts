@@ -64,8 +64,8 @@ export class TripThingsComponent implements OnInit {
           }
         },
         {
-          label: (this.packsVisible() ? 'Hide' : 'Show') + ' Packs',
-          icon: 'box',
+          label: (this.packsVisible() ? 'Hide' : 'Show') + ' Bags',
+          icon: 'shopping-bag',
           action: () => {
             this.packsVisible.set(!this.packsVisible());
             this.localStorageService.setComponentKey(this.componentId, 'packsVisible', this.packsVisible());
@@ -89,8 +89,8 @@ export class TripThingsComponent implements OnInit {
       },
       {
         kind: 'target',
-        label: 'Trip pack',
-        icon: 'box',
+        label: 'Trip bag',
+        icon: 'shopping-bag',
         target: null
       },
       {
@@ -214,7 +214,7 @@ export class TripThingsComponent implements OnInit {
     const targetId = this.target()?.id;
 
     if (!targetId) {
-      throw new Error('Target Package Id is not set');
+      throw new Error('Target Bag Id is not set');
     }
     const ids = this.notTargetedIds();
     if (!ids || ids.length === 0) {

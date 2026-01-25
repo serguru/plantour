@@ -62,7 +62,7 @@ export class PacksComponent implements OnInit {
       },
       {
         kind: 'target',
-        label: 'Trip packs',
+        label: 'Trip bags',
         icon: 'compass',
         target: null
       },
@@ -144,7 +144,7 @@ export class PacksComponent implements OnInit {
         if (trip && trips?.find(t => t.id === trip.id)) {
           targetCondition.target = {
             id: trip.id, name: trip.name, selectedMode: TargetMode.TripThings, options: [{
-              label: 'Trip Things',
+              label: 'Trip Items',
               mode: TargetMode.TripThings
             }]
           };

@@ -92,7 +92,7 @@ export class TripUserFormComponent implements OnInit {
     this.tripId = this.route.snapshot.params['tripId'];
     // This should be ensured by the route guard
     if (!this.tripId) {
-      throw new Error('Trip Id is required to create or edit a trip pack');
+      throw new Error('Trip Id is required to create or edit a trip bag');
     }
 
     this.mode = this.route.snapshot.data['mode'];

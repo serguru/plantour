@@ -121,7 +121,7 @@ export class EntitiesHeader implements OnInit {
   getIconByActionType(type: string): string {
     switch (type) {
       case 'filtering': return 'pi pi-filter';
-      case 'packing': return 'pi pi-box';
+      case 'packing': return 'pi pi-shopping-bag';
       case 'assigning': return 'pi pi-user';
       default: return '';
     }

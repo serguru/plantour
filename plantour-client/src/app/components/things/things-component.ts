@@ -60,7 +60,7 @@ export class ThingsComponent {
       },
       {
         kind: 'target',
-        label: 'Trip things',
+        label: 'Trip items',
         icon: 'compass',
         target: null
       },
@@ -78,7 +78,7 @@ export class ThingsComponent {
         filterText: '',
         comparisonType: 'contains',
         isSelected: true,
-        icon: 'box'
+        icon: 'shopping-bag'
       }
     ];
 

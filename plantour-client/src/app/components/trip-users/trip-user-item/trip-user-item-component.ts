@@ -22,7 +22,7 @@ export class TripUserItemComponent {
 
     array.push(`packs: ${this.entity.totalPacks}`);
     array.push(`things: ${this.entity.totalThings}`);
-    array.push(`shared things: ${this.entity.totalSharedThings}`);
+    array.push(`shared items: ${this.entity.totalSharedThings}`);
 
     if (array.length == 0) {
       return '';

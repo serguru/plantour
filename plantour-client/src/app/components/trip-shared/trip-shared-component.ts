@@ -23,7 +23,7 @@ import { AssignmentStatus } from '../../helpers/enums';
 
 
 // TODO: fix category show/hide and location
-// TODO: add a link to shared thing from trip thing
+// TODO: add a link to shared item from trip item
 @Component({
   selector: 'app-trip-shared',
   standalone: true,
@@ -150,7 +150,7 @@ export class TripSharedComponent implements OnInit {
       {
         kind: 'target',
         label: 'Trip participant',
-        icon: 'box',
+        icon: 'shopping-bag',
         target: null
       },
       {

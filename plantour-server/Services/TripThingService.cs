@@ -98,7 +98,7 @@ public class TripThingService(
 
         if (exists)
         {
-            throw new CustomException("Thing with the same name already exists");
+            throw new CustomException("Item with the same name already exists");
         }
 
         var entity = _mapper.Map<TripUserThing>(request);
@@ -134,7 +134,7 @@ public class TripThingService(
 
         if (exists)
         {
-            throw new CustomException("Thing with the same name already exists");
+            throw new CustomException("Item with the same name already exists");
         }
 
         var entity = await _tripUserThingRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, request.TripId, request.Id);
@@ -159,7 +159,7 @@ public class TripThingService(
         var exists = await _tripUserThingRepository.AnyByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
         if (!exists)
         {
-            throw new CustomException("Trip thing not found or access denied");
+            throw new CustomException("Trip item not found or access denied");
         }
         
         await _tripUserThingRepository.DeleteAsync(id);

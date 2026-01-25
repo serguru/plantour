@@ -1,7 +1,7 @@
 <div class="page-container">
   <app-form-header
     [title]="title"
-    icon="box"
+    icon="shopping-bag"
   ></app-form-header>
 
   <div class="controls-wrapper">
@@ -17,14 +17,14 @@
           id="name"
           type="text"
           formControlName="name"
-          placeholder="Enter pack name"
+          placeholder="Enter bag name"
         /> -->
         <p-select
           appAutoFocus
           id="name"
           formControlName="name"
           [options]="lookupPackNames$ | async"
-          placeholder="Select pack name"
+          placeholder="Select bag name"
           styleClass="w-full"
           [editable]="true"
         ></p-select>

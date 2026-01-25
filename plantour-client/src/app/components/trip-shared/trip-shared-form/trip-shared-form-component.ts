@@ -87,7 +87,7 @@ export class TripSharedFormComponent implements OnInit {
 
 
   get title(): string {
-    return `${capitalizeFirstLetter(this.mode)} Trip Shared Thing`;
+    return `${capitalizeFirstLetter(this.mode)} Trip Shared Item`;
   }
 
   ngOnInit(): void {
@@ -96,7 +96,7 @@ export class TripSharedFormComponent implements OnInit {
 
     // This should be ensured by the route guard
     if (!this.tripId) {
-      throw new Error('Trip Id is required to create or edit a trip pack');
+      throw new Error('Trip Id is required to create or edit a trip bag');
     }
 
     this.lookupCategories$ = combineLatest([
@@ -148,7 +148,7 @@ export class TripSharedFormComponent implements OnInit {
     }
     this.id = this.route.snapshot.params['id'];
     if (!this.id) {
-      throw new Error('Id is required to edit a trip shared thing');
+      throw new Error('Id is required to edit a trip shared item');
     }
     this.loadThing();
   }
@@ -221,7 +221,7 @@ export class TripSharedFormComponent implements OnInit {
     ).subscribe({
       next: (thing: TripSharedDto) => {
         this.localStorageService.setComponentKey('trip-shared', 'selectedId', thing.id);
-        this.messagesService.showInfo('Shared Thing added successfully');
+        this.messagesService.showInfo('Shared Item added successfully');
         this.router.navigate([this.tripSharedUrl]);
       }
     });
@@ -249,7 +249,7 @@ export class TripSharedFormComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.localStorageService.setComponentKey('trip-shared', 'selectedId', this.id!);
-        this.messagesService.showInfo('Shared Thing updated successfully');
+        this.messagesService.showInfo('Shared Item updated successfully');
         this.router.navigate([this.tripSharedUrl]);
       }
     });

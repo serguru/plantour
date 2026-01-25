@@ -113,7 +113,7 @@ export class TemplatesComponent {
         filterText: '',
         comparisonType: 'contains',
         isSelected: true,
-        icon: 'box'
+        icon: 'shopping-bag'
       }
     ];
 
@@ -187,7 +187,7 @@ export class TemplatesComponent {
 
     const dicTarget: Target = {
       id: "00000000-0000-0000-0000-000000000000", //  this is required by the p-select component
-      name: "Things Dictionary",
+      name: "Items Dictionary",
       selectedMode: TargetMode.DicThings,
       options: null
     }
@@ -279,7 +279,7 @@ export class TemplatesComponent {
       if (targetCondition.target?.selectedMode === TargetMode.DicThings) {
         targetCondition.target = {
           id: null,
-          name: "Things Dictionary",
+          name: "Items Dictionary",
           selectedMode: TargetMode.DicThings,
           options: null
         };

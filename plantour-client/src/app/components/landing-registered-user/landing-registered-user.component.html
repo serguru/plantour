@@ -19,8 +19,8 @@
     <p-card styleClass="stat-card">
       <ng-template pTemplate="header">
         <div class="card-header">
-          <i class="pi pi-box"></i>
-          <h3>Things</h3>
+          <i class="pi pi-shopping-bag"></i>
+          <h3>Items</h3>
         </div>
       </ng-template>
       <div class="stat-value">{{ userData.thingsCount }}</div>
@@ -30,8 +30,8 @@
     <p-card styleClass="stat-card">
       <ng-template pTemplate="header">
         <div class="card-header">
-          <i class="pi pi-box"></i>
-          <h3>Packs</h3>
+          <i class="pi pi-shopping-bag"></i>
+          <h3>Bags</h3>
         </div>
       </ng-template>
       <div class="stat-value">{{ userData.packsCount }}</div>
@@ -103,8 +103,8 @@
     </p-button>
     }
     <p-button
-      label="Things"
-      icon="pi pi-box"
+      label="Items"
+      icon="pi pi-shopping-bag"
       severity="primary"
       styleClass="action-button"
       (onClick)="navigateToThings()"
@@ -112,8 +112,8 @@
     </p-button>
 
     <p-button
-      label="Packs"
-      icon="pi pi-box"
+      label="Bags"
+      icon="pi pi-shopping-bag"
       severity="primary"
       styleClass="action-button"
       (onClick)="navigateToPacks()"

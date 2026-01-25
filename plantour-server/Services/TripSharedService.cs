@@ -86,7 +86,7 @@ public class TripSharedService(
 
         if (exists)
         {
-            throw new CustomException("Shared thing with the same name already exists");
+            throw new CustomException("Shared item with the same name already exists");
         }
 
         if (request.AssignedToId != null)
@@ -127,7 +127,7 @@ public class TripSharedService(
 
         if (exists)
         {
-            throw new CustomException("Shared thing with the same name already exists");
+            throw new CustomException("Shared item with the same name already exists");
         }
 
         if (request.AssignedToId != null)
@@ -152,7 +152,7 @@ public class TripSharedService(
 
         if (entity == null)
         {
-            throw new CustomException("Trip shared thing not found");
+            throw new CustomException("Trip shared item not found");
         }
         ;
 
@@ -212,11 +212,11 @@ public class TripSharedService(
             throw new CustomException("User does not have access to this trip");
         }
 
-        var entity = await _tripSharedRepository.GetByIdFullAsync(tripId, id) ?? throw new CustomException("Trip shared thing not found");
+        var entity = await _tripSharedRepository.GetByIdFullAsync(tripId, id) ?? throw new CustomException("Trip shared item not found");
 
         if (entity == null || entity.AssignedToId == null)
         {
-            throw new CustomException("User does not have this shared thing assignee or no access");
+            throw new CustomException("User does not have this shared item assignee or no access");
         }
 
         var assignedToTripUser = await _tripUserRepository.GetByIdAsync(
@@ -276,7 +276,7 @@ public class TripSharedService(
             throw new CustomException("User does not have access to this trip");
         }
 
-        var entity = await _tripSharedRepository.GetByIdFullAsync(tripId, id) ?? throw new CustomException("Trip shared thing not found");
+        var entity = await _tripSharedRepository.GetByIdFullAsync(tripId, id) ?? throw new CustomException("Trip shared item not found");
 
         if (entity == null || entity.AssignedToId == null)
         {

@@ -345,7 +345,7 @@ begin
             select null from plantour.trip_user_packages where id = p_package_id and trip_user_id = v_trip_user_id
         ) then
             raise exception
-                'Wrong pack id';
+                'Wrong bag id';
         end if;
 
         update plantour.trip_user_things

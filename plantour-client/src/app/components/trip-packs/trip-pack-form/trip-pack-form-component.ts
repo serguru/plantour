@@ -70,7 +70,7 @@ export class TripPackFormComponent implements OnInit {
   }
 
   get title(): string {
-    return `${capitalizeFirstLetter(this.mode)} Trip Pack`;
+    return `${capitalizeFirstLetter(this.mode)} Trip Bag`;
   }
 
   ngOnInit(): void {
@@ -79,7 +79,7 @@ export class TripPackFormComponent implements OnInit {
 
     // This should be ensured by the route guard
     if (!this.tripId) {
-      throw new Error('Trip Id is required to create or edit a trip pack');
+      throw new Error('Trip Id is required to create or edit a trip bag');
     }
 
     this.lookupPackNames$ = combineLatest([this.packageService.getAll(), this.service.getAll(this.tripId!)]).pipe(
@@ -109,7 +109,7 @@ export class TripPackFormComponent implements OnInit {
     }
     this.id = this.route.snapshot.params['id'];
     if (!this.id) {
-      throw new Error('Id is required to edit a trip pack');
+      throw new Error('Id is required to edit a trip bag');
     }
     this.loadPack();
   }
@@ -186,7 +186,7 @@ export class TripPackFormComponent implements OnInit {
     ).subscribe({
       next: (pack: TripPackageDto) => {
         this.localStorageService.setComponentKey('trip-packs', 'selectedId', pack.id);
-        this.messagesService.showInfo('Package added successfully');
+        this.messagesService.showInfo('Bag added successfully');
         this.router.navigate([this.tripPacksUrl]);
       }
     });
@@ -215,7 +215,7 @@ export class TripPackFormComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.localStorageService.setComponentKey('trip-packs', 'selectedId', this.id!);
-        this.messagesService.showInfo('Package updated successfully');
+        this.messagesService.showInfo('Bag updated successfully');
         this.router.navigate([this.tripPacksUrl]);
       }
     });

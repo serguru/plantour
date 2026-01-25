@@ -100,7 +100,7 @@ public class TripPackageService(
 
         if (exists)
         {
-            throw new CustomException("Package with the same name already exists");
+            throw new CustomException("Bag with the same name already exists");
         }
 
         var entity = _mapper.Map<TripUserPackage>(request);
@@ -136,7 +136,7 @@ public class TripPackageService(
 
         if (exists)
         {
-            throw new CustomException("Package with the same name already exists");
+            throw new CustomException("Bag with the same name already exists");
         }
 
         var entity = await _tripPackageRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, request.TripId, request.Id);
@@ -161,7 +161,7 @@ public class TripPackageService(
         var exists = await _tripPackageRepository.AnyByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
         if (!exists)
         {
-            throw new CustomException("Trip package not found or access denied");
+            throw new CustomException("Trip bag not found or access denied");
         }
 
         await _tripPackageRepository.DeleteAsync(id);

@@ -68,7 +68,7 @@ export class TripsComponent implements OnInit {
         label: 'Filter by Name',
         filterText: '',
         comparisonType: 'contains',
-        icon: 'box'
+        icon: 'shopping-bag'
       },
       {
         kind: 'filter',

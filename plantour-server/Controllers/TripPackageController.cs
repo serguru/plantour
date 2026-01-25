@@ -47,7 +47,7 @@ public class TripPackageController : ControllerBase
         var dto = await _service.GetByIdAsync(tripId, id);
         if (dto == null)
         {
-            return NotFound(new { message = "Trip user package not found" });
+            return NotFound(new { message = "Trip user bag not found" });
         }
 
         return Ok(dto);

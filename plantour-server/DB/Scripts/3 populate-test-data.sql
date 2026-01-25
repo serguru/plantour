@@ -115,7 +115,7 @@ INSERT INTO user_packages (user_id, name, notes)
 VALUES
     ((SELECT id FROM users WHERE email = 'serguru@gmail.com'), 'Yellow Suitcase', 'Large hardshell Samsonite'),
     ((SELECT id FROM users WHERE email = 'serguru@gmail.com'), 'Black Backpack', 'Daily carry North Face'),
-    ((SELECT id FROM users WHERE email = 'alice.participant@plantour.test'), 'Hiking Pack', 'Osprey 65L'),
+    ((SELECT id FROM users WHERE email = 'alice.participant@plantour.test'), 'Hiking Bag', 'Osprey 65L'),
     ((SELECT id FROM users WHERE email = 'bob.participant@plantour.test'), 'Duffel Bag', 'Waterproof Patagonia');
 
 -----------------------------------------------------------------------
