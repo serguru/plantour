@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("plans", Schema = "plantour")]
-[Index("Name", Name = "plans_name_key", IsUnique = true)]
-public partial class Plan
+[Table("access_types", Schema = "plantour")]
+[Index("Name", Name = "access_types_name_key", IsUnique = true)]
+public partial class AccessType
 {
     [Key]
     [Column("id")]
@@ -20,6 +20,6 @@ public partial class Plan
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [InverseProperty("Plan")]
+    [InverseProperty("AccessType")]
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

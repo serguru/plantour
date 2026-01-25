@@ -188,13 +188,13 @@ LEFT JOIN age_ranges ar ON tpl.age_ranges_id = ar.id;
 -----------------------------------------------------------------------
 -- USER ACCESS STATUS
 -----------------------------------------------------------------------
-create table access_statuses (
+create table access_types (
     id uuid not null primary key default gen_random_uuid(),
     name text not null unique,
     notes text null
 );
 
-insert into access_statuses (name) values
+insert into access_types (name) values
 ('Pending'),
 ('Active'),
 ('Suspended'),
@@ -203,7 +203,7 @@ insert into access_statuses (name) values
 
 
 -----------------------------------------------------------------------
--- TRABSACTION TYPE
+-- TRANSACTION TYPE
 -----------------------------------------------------------------------
 create table transaction_types (
     id uuid not null primary key default gen_random_uuid(),
@@ -225,6 +225,7 @@ create table plans (
     notes text null
 );
 insert into plans (name) values
+('NoPlan'),
 ('Guest'),
 ('Trial'),
 ('Company'),
@@ -242,37 +243,12 @@ create table users (
     last_name varchar(100),
     phone varchar(50),
     notes text,
-    created_at timestamptz not null default now()
-);
-
-
--- TODO: prevent overlapping
-create table plans_history (
-    id uuid not null primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
+    created_at timestamptz not null default now(),
+    discount int not null check(discount >= 0) default 0,
     plan_id uuid not null references plans(id),
-    start_date timestamptz not null,
-    end_date timestamptz not null,
-
-    constraint ch_plan_history_dates check (
-        start_date is null 
-        or end_date is null 
-        or start_date < end_date)
+    access_type_id uuid not null references access_types(id)
 );
 
--- TODO: prevent overlapping
-create table statuses_history (
-    id uuid not null primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
-    access_status_id uuid not null references access_statuses(id),
-    start_date timestamptz not null,
-    end_date timestamptz not null,
-
-    constraint ch_plan_history_dates check (
-        start_date is null 
-        or end_date is null 
-        or start_date < end_date)
-);
 
 create table transactions (
     id uuid not null primary key default gen_random_uuid(),

@@ -42,17 +42,28 @@ public partial class User
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 
+    [Column("discount")]
+    public int Discount { get; set; }
+
+    [Column("plan_id")]
+    public Guid PlanId { get; set; }
+
+    [Column("access_type_id")]
+    public Guid AccessTypeId { get; set; }
+
+    [ForeignKey("AccessTypeId")]
+    [InverseProperty("Users")]
+    public virtual AccessType AccessType { get; set; } = null!;
+
     [InverseProperty("Admin")]
     public virtual ICollection<AdminsParticipant> AdminsParticipantAdmins { get; set; } = new List<AdminsParticipant>();
 
     [InverseProperty("Participant")]
     public virtual ICollection<AdminsParticipant> AdminsParticipantParticipants { get; set; } = new List<AdminsParticipant>();
 
-    [InverseProperty("User")]
-    public virtual ICollection<PlansHistory> PlansHistories { get; set; } = new List<PlansHistory>();
-
-    [InverseProperty("User")]
-    public virtual ICollection<StatusesHistory> StatusesHistories { get; set; } = new List<StatusesHistory>();
+    [ForeignKey("PlanId")]
+    [InverseProperty("Users")]
+    public virtual Plan Plan { get; set; } = null!;
 
     [InverseProperty("User")]
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();

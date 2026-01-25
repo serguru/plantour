@@ -11,7 +11,7 @@ public partial class PlantourContext : DbContext
     {
     }
 
-    public virtual DbSet<AccessStatus> AccessStatuses { get; set; }
+    public virtual DbSet<AccessType> AccessTypes { get; set; }
 
     public virtual DbSet<Activity> Activities { get; set; }
 
@@ -26,10 +26,6 @@ public partial class PlantourContext : DbContext
     public virtual DbSet<Invitation> Invitations { get; set; }
 
     public virtual DbSet<Plan> Plans { get; set; }
-
-    public virtual DbSet<PlansHistory> PlansHistories { get; set; }
-
-    public virtual DbSet<StatusesHistory> StatusesHistories { get; set; }
 
     public virtual DbSet<TemperatureRange> TemperatureRanges { get; set; }
 
@@ -71,9 +67,9 @@ public partial class PlantourContext : DbContext
     {
         modelBuilder.HasPostgresExtension("pldbgapi");
 
-        modelBuilder.Entity<AccessStatus>(entity =>
+        modelBuilder.Entity<AccessType>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("access_statuses_pkey");
+            entity.HasKey(e => e.Id).HasName("access_types_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
@@ -133,32 +129,6 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("plans_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-        });
-
-        modelBuilder.Entity<PlansHistory>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("plans_history_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-
-            entity.HasOne(d => d.Plan).WithMany(p => p.PlansHistories)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("plans_history_plan_id_fkey");
-
-            entity.HasOne(d => d.User).WithMany(p => p.PlansHistories).HasConstraintName("plans_history_user_id_fkey");
-        });
-
-        modelBuilder.Entity<StatusesHistory>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("statuses_history_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-
-            entity.HasOne(d => d.AccessStatus).WithMany(p => p.StatusesHistories)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("statuses_history_access_status_id_fkey");
-
-            entity.HasOne(d => d.User).WithMany(p => p.StatusesHistories).HasConstraintName("statuses_history_user_id_fkey");
         });
 
         modelBuilder.Entity<TemperatureRange>(entity =>
@@ -318,6 +288,14 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.AccessType).WithMany(p => p.Users)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("users_access_type_id_fkey");
+
+            entity.HasOne(d => d.Plan).WithMany(p => p.Users)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("users_plan_id_fkey");
         });
 
         modelBuilder.Entity<UserPackage>(entity =>

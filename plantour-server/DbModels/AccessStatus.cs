@@ -20,6 +20,4 @@ public partial class AccessStatus
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [InverseProperty("AccessStatus")]
-    public virtual ICollection<StatusesHistory> StatusesHistories { get; set; } = new List<StatusesHistory>();
 }

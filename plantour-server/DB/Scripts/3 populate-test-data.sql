@@ -6,7 +6,7 @@ begin;
 -- ====================================================================
 -- USERS (2 admins + 2 participants + 2 extra users)
 -- ====================================================================
-INSERT INTO users (email, password_hash, password_salt, first_name, last_name, phone, notes)
+INSERT INTO users (email, password_hash, password_salt, first_name, last_name, phone, notes, plan_id, access_type_id)
 VALUES
     (
         'serguru@gmail.com',
@@ -15,7 +15,9 @@ VALUES
         'Serge',
         'Cherny',
         '+1-604-000-0000',
-        'Primary admin user'
+        'Primary admin user',
+        (select id from plantour.plans where name = 'NoPlan'),
+        (select id from plantour.access_types where name = 'Active')
     ),
     (
         'sechevan@gmail.com',
@@ -24,7 +26,9 @@ VALUES
         'Bill',
         'Gates',
         '+1-604-000-0001',
-        'Secondary admin test user'
+        'Secondary admin test user',
+        (select id from plantour.plans where name = 'NoPlan'),
+        (select id from plantour.access_types where name = 'Active')
     ),
     (
         'alice.participant@plantour.test',
@@ -33,7 +37,9 @@ VALUES
         'Alice',
         'Participant',
         '+1-604-000-0001',
-        'First participant linked to admin'
+        'First participant linked to admin',
+        (select id from plantour.plans where name = 'NoPlan'),
+        (select id from plantour.access_types where name = 'Active')
     ),
     (
         'bob.participant@plantour.test',
@@ -42,7 +48,9 @@ VALUES
         'Bob',
         'Participant',
         '+1-604-000-0002',
-        'Second participant linked to admin'
+        'Second participant linked to admin',
+        (select id from plantour.plans where name = 'NoPlan'),
+        (select id from plantour.access_types where name = 'Active')
     ),
     (
         'carol.tester@plantour.test',
@@ -51,7 +59,9 @@ VALUES
         'Carol',
         'Tester',
         '+1-604-000-0003',
-        'Extra test user'
+        'Extra test user',
+        (select id from plantour.plans where name = 'NoPlan'),
+        (select id from plantour.access_types where name = 'Active')
     ),
     (
         'dave.tester@plantour.test',
@@ -60,7 +70,9 @@ VALUES
         'Dave',
         'Tester',
         '+1-604-000-0004',
-        'Extra test user'
+        'Extra test user',
+        (select id from plantour.plans where name = 'NoPlan'),
+        (select id from plantour.access_types where name = 'Active')
     );
 
 
