@@ -26,10 +26,10 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
             if (response.error?.statusCode === 401) {
                 usersService.signOut();
                 if (response.error?.code === 'WRONG_TOKEN') {
-                    messagesService.showWarning('Your session has expired. Please sign in again.');
+                    messagesService.showWarning('You have no access to Plantour. Please sign in again.');
                     router.navigate(['sign-in']);
                 } else if (response.error?.code === 'WRONG_PARTICIPANT_TOKEN') {
-                    messagesService.showWarning('You don’t have participant access to Plantour. Please sign-in as participant or ask your administrator to send you a new invitation.');
+                    messagesService.showWarning('You have no participant access to Plantour. Please sign in as participant or ask your administrator to send you a new invitation.');
                     router.navigate(['sign-in/participant']);
                 } else {
                     messagesService.showError('Wrong email or password');
