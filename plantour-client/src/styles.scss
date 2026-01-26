@@ -724,3 +724,8 @@ app-generic-list {
   flex-direction: row;
   gap: 0.5rem;
 }
+
+.p-progressbar-value {
+    margin: 0;
+    background: var(--primary-color) !important;
+}

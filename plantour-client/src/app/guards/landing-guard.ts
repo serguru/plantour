@@ -13,7 +13,7 @@ export const landingNewUserGuard: CanMatchFn = () => {
 /**
  * Landing Guard for Registered Users - allows access only to authenticated users
  */
-export const landingRegisteredUserGuard: CanMatchFn = () => {
+export const dashboardGuard: CanMatchFn = () => {
   const usersService = inject(UsersService);
   return usersService.isAuthenticatedSignal();
 };

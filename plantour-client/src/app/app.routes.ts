@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { landingNewUserGuard, landingRegisteredUserGuard } from './guards/landing-guard';
+import { dashboardGuard, landingNewUserGuard } from './guards/landing-guard';
 import { adminOnlyGuard, adminOrParticipantGuard, checkTripIdGuard, publicGuard } from './guards/auth-guard';
 import { CleanupResolver } from './helpers/resolver';
 
@@ -13,13 +13,23 @@ export const routes: Routes = [
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'landing-new' }
   },
+
   {
     path: '',
-    canMatch: [landingRegisteredUserGuard],
-    loadComponent: () => import('./components/landing-registered-user/landing-registered-user.component').then(m => m.LandingRegisteredUserComponent),
+    canMatch: [dashboardGuard],
+    loadComponent: () => import('./components/dashboard/dashboard-component').then(m => m.DashboardComponent),
     resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'landing-registered' }
+    data: { componentId: 'dashboard' }
   },
+
+
+  // {
+  //   path: '',
+  //   canMatch: [landingRegisteredUserGuard],
+  //   loadComponent: () => import('./components/landing-registered-user/landing-registered-user.component').then(m => m.LandingRegisteredUserComponent),
+  //   resolve: { cleanup: CleanupResolver },
+  //   data: { componentId: 'landing-registered' }
+  // },
   {
     path: 'sign-in',
     canActivate: [publicGuard],
@@ -47,13 +57,13 @@ export const routes: Routes = [
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'help' }
   },
-  {
-    path: 'landing-registered',
-    canActivate: [adminOrParticipantGuard],
-    loadComponent: () => import('./components/landing-registered-user/landing-registered-user.component').then(m => m.LandingRegisteredUserComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'landing-registered' }
-  },
+  // {
+  //   path: 'landing-registered',
+  //   canActivate: [adminOrParticipantGuard],
+  //   loadComponent: () => import('./components/landing-registered-user/landing-registered-user.component').then(m => m.LandingRegisteredUserComponent),
+  //   resolve: { cleanup: CleanupResolver },
+  //   data: { componentId: 'landing-registered' }
+  // },
   {
     path: 'things',
     canActivate: [adminOrParticipantGuard],
