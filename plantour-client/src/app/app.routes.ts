@@ -3,6 +3,8 @@ import { landingNewUserGuard, landingRegisteredUserGuard } from './guards/landin
 import { adminOnlyGuard, adminOrParticipantGuard, checkTripIdGuard, publicGuard } from './guards/auth-guard';
 import { CleanupResolver } from './helpers/resolver';
 
+
+// TODO: verify checkTripIdGuard use
 export const routes: Routes = [
   {
     path: '',

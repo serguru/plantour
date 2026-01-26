@@ -52,6 +52,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.RequireHttpsMetadata = false;
     options.SaveToken = true;
+    options.MapInboundClaims = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
@@ -234,6 +235,32 @@ builder.Services.AddCors(options =>
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+
+
+app.Use(async (context, next) =>
+{
+    // var authHeader = context.Request.Headers["Authorization"].ToString();
+    // if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+    // {
+    //     var token = authHeader.Substring("Bearer ".Length).Trim();
+    //     var handler = new JwtSecurityTokenHandler();
+        
+    //     if (handler.CanReadToken(token))
+    //     {
+    //         var jwtToken = handler.ReadJwtToken(token);
+    //         var emailClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+            
+    //         // Логируем "сырой" email из токена
+    //         Console.WriteLine($"[RAW TOKEN] Request: {context.TraceIdentifier} | Email: {emailClaim}");
+    //     }
+    // }
+    await next();
+});
+
+app.UseAuthentication(); // Стандартный middleware идет ПОСЛЕ вашего перехватчика
+
+
 
 //TODO: participant token expiration handling
 

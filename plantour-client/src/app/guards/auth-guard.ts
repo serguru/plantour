@@ -20,70 +20,20 @@ export const publicGuard: CanActivateFn = (route, state) => {
   return false;
 };
 
-/**
- * Auth Guard - allows access only to authenticated users
- */
-// export const authGuard: CanActivateFn = (route, state) => {
-//   const usersService = inject(UsersService);
-//   const router = inject(Router);
-
-//   if (usersService.isAuthenticatedSignal()) {
-//     return true;
-//   }
-
-//   router.navigate(['/sign-in']);
-//   return false;
-// };
 
 /**
  * Admin Guard - allows access only to authenticated admin users
  */
 export const adminOnlyGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state) => {
   const usersService = inject(UsersService);
-
-  if (usersService.isAdminSignal()) {
-    return true;
-  }
-
-  const componentId = route.data['componentId'];
-  const mode = route.data['mode'];
-
-  const router = inject(Router);
-  const messagesService = inject(MessagesService);
-
-  switch (componentId) {
-    case 'traveler-form':
-      switch (mode) {
-        case 'add':
-          messagesService.showWarning('You do not have permission to add travelers');
-          router.navigate(['travelers']);
-          break;
-        case 'edit':
-          messagesService.showWarning('You do not have permission to edit travelers');
-          router.navigate(['travelers']);
-          break;
-        default:
-          break;
-      }
-      break;
-    default:
-      router.navigate(['/sign-in']);
-      break;
-  }
-
-  return false;
+  return usersService.currentUserOk('admin');
 };
+
+
 
 export const adminOrParticipantGuard: CanActivateFn = (route, state) => {
   const usersService = inject(UsersService);
-
-  if (usersService.isAdminSignal() || usersService.isParticipantSignal()) {
-    return true;
-  }
-
-  const router = inject(Router);
-  router.navigate(['/sign-in']);
-  return false;
+  return usersService.currentUserOk();
 };
 
 
