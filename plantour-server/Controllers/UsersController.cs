@@ -28,6 +28,8 @@ public class UsersController : ControllerBase
         {
                 // TODO: take into account that only active users can sign up
                 // TODO: remove temporary accounts as necessary
+                // TODO: add email verification step
+                // TODO: add "I want to receive promotional emails" checkbox
                 var response = await _authService.SignUpAsync(request);
                 return Ok(response);
         }
