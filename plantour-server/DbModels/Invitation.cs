@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("invitations", Schema = "plantour")]
-[Index("Token", Name = "invitations_token_key", IsUnique = true)]
 public partial class Invitation
 {
     [Key]
@@ -17,8 +16,8 @@ public partial class Invitation
     [Column("trip_id")]
     public Guid TripId { get; set; }
 
-    [Column("token")]
-    public string Token { get; set; } = null!;
+    [Column("access_code")]
+    public string? AccessCode { get; set; }
 
     [Column("first_name")]
     [StringLength(100)]

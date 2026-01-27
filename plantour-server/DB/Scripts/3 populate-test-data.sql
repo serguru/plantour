@@ -153,23 +153,6 @@ VALUES
     );
 
 -----------------------------------------------------------------------
--- INVITATIONS
------------------------------------------------------------------------
-INSERT INTO invitations (trip_id, token, first_name, last_name, email, subject, message, expires_at, communication_type)
-VALUES
-    (
-        (SELECT id FROM trips WHERE name = 'Summer Alps Expedition 2026'),
-        'token_xyz_123',
-        'Alice',
-        'Participant',
-        'alice.participant@plantour.test',
-        'You are invited to the Alps!',
-        'Hey Alice, join our mountain trip this summer.',
-        NOW() + INTERVAL '7 days',
-        'email'
-    );
-
------------------------------------------------------------------------
 -- TRIP USERS
 -----------------------------------------------------------------------
 INSERT INTO trip_users (trip_id, admin_participant_id, notes)

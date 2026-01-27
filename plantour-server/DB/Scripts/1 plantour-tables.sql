@@ -320,7 +320,7 @@ create unique index idx_trips_user_id_name on trips(user_id, name);
 create table invitations (
     id uuid not null primary key default gen_random_uuid(),
     trip_id uuid not null references trips(id) on delete cascade,
-    token text not null unique,
+    access_code text,
     first_name varchar(100),
     last_name varchar(100),
     email varchar(255),
