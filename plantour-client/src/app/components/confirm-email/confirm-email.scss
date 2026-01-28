@@ -1,0 +1,32 @@
+.confirm-email {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+
+  .card {
+    max-width: 520px;
+    width: 100%;
+    padding: 24px;
+    border-radius: 12px;
+    background: var(--surface-card, #fff);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    text-align: center;
+  }
+
+  .success {
+    color: #2e7d32;
+    margin-top: 12px;
+  }
+
+  .error {
+    color: #c62828;
+    margin-top: 12px;
+  }
+
+  .actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+  }
+}

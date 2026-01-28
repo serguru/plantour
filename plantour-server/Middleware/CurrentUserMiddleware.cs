@@ -1,7 +1,9 @@
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 using plantour_server.Models;
-using plantour_server.DbModels;
 using PlantourApi.Models;
-using System.IdentityModel.Tokens.Jwt;
+using plantour_server.Repositories;
+using plantour_server.Services;
 
 namespace PlantourApi.Middleware;
 
@@ -21,33 +23,60 @@ public class CurrentUserMiddleware
         // 1. Проверяем, что пользователь успешно прошел проверку токена
         if (context.User.Identity?.IsAuthenticated == true)
         {
+            var usersRepository = context.RequestServices.GetRequiredService<UsersRepository>();
+            var emailConfirmationService = context.RequestServices.GetRequiredService<IEmailConfirmationService>();
+
             // 2. Достаем UserId
             var userIdStr = context.User.FindFirst(PlantourClaims.UserId)?.Value;
             if (Guid.TryParse(userIdStr, out var userId))
             {
-                currentUser.UserId = userId;
-
-                // 3. Достаем остальные данные
-                currentUser.Email = context.User.FindFirst(PlantourClaims.Email)!.Value;
-                currentUser.FirstName = context.User.FindFirst(PlantourClaims.FirstName)?.Value;
-                currentUser.LastName = context.User.FindFirst(PlantourClaims.LastName)?.Value;
+                var user = await usersRepository.GetByIdWithDetailsAsync(userId);
+                if (user != null)
+                {
+                    currentUser.UserId = user.Id;
+                    currentUser.Email = user.Email;
+                    currentUser.FirstName = user.FirstName;
+                    currentUser.LastName = user.LastName;
+                    currentUser.PasswordHash = user.PasswordHash;
+                    currentUser.PasswordSalt = user.PasswordSalt;
+                    currentUser.Phone = user.Phone;
+                    currentUser.Notes = user.Notes;
+                    currentUser.CreatedAt = user.CreatedAt;
+                    currentUser.Discount = user.Discount;
+                    currentUser.PlanId = user.PlanId;
+                    currentUser.AccessTypeId = user.AccessTypeId;
+                    currentUser.PlanName = user.Plan?.Name;
+                    currentUser.AccessTypeName = user.AccessType?.Name;
+                    currentUser.EmailConfirmed = await emailConfirmationService.IsEmailConfirmedAsync(user.Id);
+                }
+                else
+                {
+                    currentUser.UserId = userId;
+                    currentUser.Email = context.User.FindFirst(PlantourClaims.Email)?.Value ?? string.Empty;
+                    currentUser.FirstName = context.User.FindFirst(PlantourClaims.FirstName)?.Value;
+                    currentUser.LastName = context.User.FindFirst(PlantourClaims.LastName)?.Value;
+                }
 
                 // 4. Логика с ролями и AdminId
                 var roleClaim = context.User.FindFirst(PlantourClaims.Role)?.Value;
                 var adminIdStr = context.User.FindFirst(PlantourClaims.AdminId)?.Value;
 
-                if (roleClaim == PlantourRoles.Admin)
+                if (Enum.TryParse<UserRole>(roleClaim, true, out var parsedRole))
                 {
-                    currentUser.Role = UserRole.Admin;
-                    currentUser.AdminId = userId; // У админа AdminId совпадает с его UserId
+                    currentUser.Role = parsedRole;
                 }
-                else if (roleClaim == PlantourRoles.Participant)
+
+                currentUser.Roles = currentUser.Role == UserRole.Public
+                    ? new List<UserRole>()
+                    : new List<UserRole> { currentUser.Role };
+
+                if (currentUser.Role == UserRole.Admin)
                 {
-                    currentUser.Role = UserRole.Participant;
-                    if (Guid.TryParse(adminIdStr, out var adminId))
-                    {
-                        currentUser.AdminId = adminId;
-                    }
+                    currentUser.AdminId = userId;
+                }
+                else if (currentUser.Role == UserRole.Participant && Guid.TryParse(adminIdStr, out var adminId))
+                {
+                    currentUser.AdminId = adminId;
                 }
             }
         }

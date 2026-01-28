@@ -313,6 +313,8 @@ export class HelpComponent {
       next: (response: TemporaryUserResponse) => {
 
         localStorage.clear();
+        this.localStorageService.setItem('accessToken', response.accessToken);
+        this.localStorageService.setItem('refreshToken', response.refreshToken);
         this.localStorageService.setComponentKey('trips', 'selectedId', response.currentTripId);
         this.localStorageService.setItem('toolbar-showTripText', true);
         this.currentTripService.updateCurrentTripVisible(true);

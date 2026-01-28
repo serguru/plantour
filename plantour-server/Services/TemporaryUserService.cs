@@ -1,28 +1,24 @@
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using plantour_server.DTOs;
-using plantour_server.Models;
 using plantour_server.DbModels;
 using plantour_server.Repositories;
 using PlantourApi.Middleware;
+using PlantourApi.Models;
 
 namespace plantour_server.Services;
 
 public class TemporaryUserService : ITemporaryUserService
 {
-    private readonly IOptions<JwtSettings> _jwtSettings;
-    private readonly IOptions<TemporaryUserSettings> _tempUserSettings;
     private readonly UsersRepository _usersRepository;
+    private readonly ITokenService _tokenService;
+    private readonly IRefreshTokenService _refreshTokenService;
     private readonly TripRepository _tripRepository;
     private readonly TripUserRepository _tripUserRepository;
     private readonly PackRepository _packRepository;
@@ -35,9 +31,9 @@ public class TemporaryUserService : ITemporaryUserService
     private readonly IMapper _mapper;
 
     public TemporaryUserService(
-        IOptions<JwtSettings> jwtSettings,
-        IOptions<TemporaryUserSettings> tempUserSettings,
         UsersRepository usersRepository,
+        ITokenService tokenService,
+        IRefreshTokenService refreshTokenService,
         TripRepository tripRepository,
         TripUserRepository tripUserRepository,
         PackRepository packRepository,
@@ -49,9 +45,9 @@ public class TemporaryUserService : ITemporaryUserService
         PlantourContext context,
         IMapper mapper)
     {
-        _jwtSettings = jwtSettings;
-        _tempUserSettings = tempUserSettings;
         _usersRepository = usersRepository;
+        _tokenService = tokenService;
+        _refreshTokenService = refreshTokenService;
         _tripRepository = tripRepository;
         _tripUserRepository = tripUserRepository;
         _packRepository = packRepository;
@@ -114,11 +110,16 @@ public class TemporaryUserService : ITemporaryUserService
         Trip activeTrip = await PopulateSampleDataAsync(user);
 
         // Generate admin access token with extended expiration
-        var accessToken = GenerateTemporaryUserAccessToken(user);
+        var accessToken = _tokenService.CreateAccessToken(user, UserRole.Admin, user.Id, true);
+        var refreshToken = _tokenService.CreateRefreshToken();
+
+        await _refreshTokenService.CreateAsync(user.Id, UserRole.Admin, user.Id, refreshToken, null);
 
         return new CreateTemporaryUserResponse
         {
-            AccessToken = accessToken,
+            AccessToken = accessToken.Token,
+            RefreshToken = refreshToken.Token,
+            AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
@@ -364,41 +365,6 @@ public class TemporaryUserService : ITemporaryUserService
         }
 
         return status;
-    }
-
-    private string GenerateTemporaryUserAccessToken(User user)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_jwtSettings.Value.SecretKey);
-
-        var claims = new List<Claim>
-        {
-            new Claim(PlantourClaims.UserId, user.Id.ToString()),
-            new Claim(PlantourClaims.Email, user.Email),
-            new Claim(PlantourClaims.FirstName, user.FirstName ?? ""),
-            new Claim(PlantourClaims.LastName, user.LastName ?? ""),
-            new Claim(PlantourClaims.Role, PlantourRoles.Admin),
-            new Claim(PlantourClaims.Issuer, _jwtSettings.Value.Issuer),
-            new Claim(PlantourClaims.Audience, _jwtSettings.Value.Audience),
-            new Claim("temporary", "true")
-        };
-
-        // Use configured token expiration days for temporary users
-        var expirationTime = DateTime.UtcNow.AddDays(_tempUserSettings.Value.TokenExpirationDays);
-        var expirationClaim = new Claim(PlantourClaims.Expires, expirationTime.ToString());
-        claims.Add(expirationClaim);
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = expirationTime,
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha256Signature)
-        };
-
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
     }
 
     private string GenerateAccessCodeHash(string accessCode)

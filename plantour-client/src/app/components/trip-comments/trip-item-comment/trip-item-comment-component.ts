@@ -13,7 +13,7 @@ export class TripItemCommentComponent {
   usersService = inject(UsersService);
 
   get isMyMessage(): boolean {
-    const currentUserId = this.usersService.userSignal()?.user_id;
+    const currentUserId = this.usersService.getCurrentUserId();
     return this.entity?.userId === currentUserId;
   }
 

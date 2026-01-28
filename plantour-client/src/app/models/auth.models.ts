@@ -1,15 +1,12 @@
 export interface AccessToken {
-  user_id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  expires: string;
-  issuer: string;
-  audience: string;
-  role: string;
-  accessCode?: string;
-  adminId?: string;
   exp: number;
+  role?: string;
+  admin_id?: string;
+  adminId?: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  [key: string]: any;
 }
 
 
@@ -42,12 +39,10 @@ export interface SignInParticipantRequest {
 
 // Response models
 export interface AuthResponse {
-  userId: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
   accessToken: string;
-  expiresAt: string;
+  refreshToken: string;
+  accessTokenExpiresAtUtc: string;
+  emailConfirmationRequired: boolean;
 }
 
 export interface ParticipantAuthResponse {

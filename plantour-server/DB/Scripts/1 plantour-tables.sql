@@ -445,3 +445,35 @@ create table trip_comments (
     published_at timestamptz not null
 );
 create index idx_trip_comments_trip_id on trip_comments(trip_id);
+
+-----------------------------------------------------------------------
+-- USER EMAIL CONFIRMATIONS
+-----------------------------------------------------------------------
+create table user_email_confirmations (
+    id uuid not null primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    created_at timestamptz not null default now(),
+    confirmed_at timestamptz null,
+    last_sent_at timestamptz null
+);
+create unique index idx_user_email_confirmations_user_id on user_email_confirmations(user_id);
+
+-----------------------------------------------------------------------
+-- USER REFRESH TOKENS
+-----------------------------------------------------------------------
+create table user_refresh_tokens (
+    id uuid not null primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    role varchar(50) not null,
+    admin_id uuid not null,
+    token_hash varchar(256) not null,
+    created_at timestamptz not null default now(),
+    expires_at timestamptz not null,
+    revoked_at timestamptz null,
+    replaced_by_token_hash varchar(256) null,
+    created_by_ip varchar(100) null,
+    revoked_by_ip varchar(100) null
+);
+create unique index idx_user_refresh_tokens_user_token_hash on user_refresh_tokens(user_id, token_hash);
+create index idx_user_refresh_tokens_token_hash on user_refresh_tokens(token_hash);
+create index idx_user_refresh_tokens_user_id on user_refresh_tokens(user_id);

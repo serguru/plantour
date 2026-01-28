@@ -1,0 +1,19 @@
+<div class="confirm-email">
+  <div class="card">
+    <h2>Email confirmation</h2>
+
+    <p *ngIf="isLoading">Confirming your email...</p>
+
+    <p *ngIf="!isLoading && confirmed" class="success">
+      Your email has been confirmed.
+    </p>
+
+    <p *ngIf="!isLoading && errorMessage" class="error">
+      {{ errorMessage }}
+    </p>
+
+    <div class="actions">
+      <app-button label="Go to sign in" (onClick)="goToSignIn()"></app-button>
+    </div>
+  </div>
+</div>

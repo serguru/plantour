@@ -82,8 +82,8 @@ export class SignUpComponent {
       })
     ).subscribe({
       next: () => {
-        this.messagesService.showInfo('Sign Up Successful', 'Welcome!');
-        this.router.navigate(['']);
+        this.messagesService.showInfo('Sign Up Successful', 'Check your email to confirm your account before signing in.');
+        this.router.navigate(['/sign-in']);
       }
     });
   }

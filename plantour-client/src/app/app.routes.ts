@@ -52,6 +52,13 @@ export const routes: Routes = [
     data: { componentId: 'sign-up' }
   },
   {
+    path: 'confirm-email',
+    canActivate: [publicGuard],
+    loadComponent: () => import('./components/confirm-email/confirm-email').then(m => m.ConfirmEmailComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'confirm-email' }
+  },
+  {
     path: 'help',
     loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
     resolve: { cleanup: CleanupResolver },

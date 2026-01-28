@@ -13,4 +13,12 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
             .Include(x => x.Plan)
             .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
     }
+
+    public async Task<User?> GetByIdWithDetailsAsync(Guid userId)
+    {
+        return await _dbSet
+            .Include(x => x.AccessType)
+            .Include(x => x.Plan)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
 }

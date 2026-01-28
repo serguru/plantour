@@ -14,5 +14,11 @@ public interface IUsersService
 
     // Token management
     Task<bool> ValidateTokenAsync(string token);
+    Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request, string? ipAddress);
+    Task RevokeRefreshTokenAsync(RevokeRefreshTokenRequest request, string? ipAddress);
+
+    // Email confirmation
+    Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request, CancellationToken cancellationToken = default);
+    Task<bool> ConfirmEmailAsync(ConfirmEmailRequest request);
 
 }

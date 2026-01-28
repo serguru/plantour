@@ -83,7 +83,11 @@ export class SignInComponent implements OnInit {
         catchError((error) => {
           const errorMsg = error.error?.message || 'Sign in failed. Please check your credentials and try again.';
           this.errorMessage = errorMsg;
-          this.messagesService.showError('Sign In Failed', errorMsg);
+          if (errorMsg.toLowerCase().includes('email not confirmed')) {
+            this.messagesService.showWarning('Email confirmation required', 'Please confirm your email before signing in.');
+          } else {
+            this.messagesService.showError('Sign In Failed', errorMsg);
+          }
           return EMPTY;
         }),
         finalize(() => {

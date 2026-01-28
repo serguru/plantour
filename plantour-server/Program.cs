@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 //using plantour_server.Authorization;
 using plantour_server.Models;
+using plantour_server.Services.Interfaces;
 using plantour_server.DbModels;
 using plantour_server.Services;
 using PlantourApi.Authorization;
@@ -13,6 +14,7 @@ using PlantourApi.Middleware;
 using QuestPDF.Infrastructure;
 using System.Text.Json;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -25,15 +27,17 @@ builder.Services.AddProblemDetails();
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddDataProtection();
 
 // Configure Temporary User settings
 var tempUserSettings = builder.Configuration.GetSection("TemporaryUserSettings");
 builder.Services.Configure<TemporaryUserSettings>(tempUserSettings);
-
-builder.Services.Configure<TemporaryUserSettings>(builder.Configuration.GetSection("TemporaryUserSettings"));
 // Configure JWT settings
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.Configure<JwtSettings>(jwtSettings);
+
+// Configure Brevo settings
+builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("BrevoSettings"));
 
 var jwtConfig = jwtSettings.Get<JwtSettings>();
 var key = Encoding.UTF8.GetBytes(jwtConfig!.SecretKey);
@@ -52,17 +56,19 @@ builder.Services.AddAuthentication(options =>
 {
     options.RequireHttpsMetadata = false;
     options.SaveToken = true;
-    options.MapInboundClaims = false;
+    options.MapInboundClaims = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
+        ValidateIssuer = true,
         ValidIssuer = jwtConfig.Issuer,
-        ValidateAudience = false,
+        ValidateAudience = true,
         ValidAudience = jwtConfig.Audience,
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
+        ClockSkew = TimeSpan.Zero,
+        NameClaimType = ClaimTypes.NameIdentifier,
+        RoleClaimType = ClaimTypes.Role
     };
     options.Events = new JwtBearerEvents
     {
@@ -183,8 +189,14 @@ builder.Services.AddScoped<ICheckAccessService, CheckAccessService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<ITripCommentService, TripCommentService>();
 builder.Services.AddScoped<IDocumentsService, DocumentsService>();
+builder.Services.AddScoped<IInvitationService, InvitationService>();
 
 builder.Services.AddScoped<ITemporaryUserService, TemporaryUserService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
+
+builder.Services.AddHttpClient<IBrevoEmailClient, BrevoEmailClient>();
 
 
 // Register repositories
@@ -198,10 +210,13 @@ builder.Services.AddScoped<plantour_server.Repositories.TripPackRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.LookupsRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.UsersRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.InvitationsRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.DicTripRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripSharedRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.UserRefreshTokenRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.UserEmailConfirmationRepository>();
 
 builder.Services.AddScoped<HttpCurrentUser>();
 
@@ -257,10 +272,6 @@ app.Use(async (context, next) =>
     // }
     await next();
 });
-
-app.UseAuthentication(); // Стандартный middleware идет ПОСЛЕ вашего перехватчика
-
-
 
 //TODO: participant token expiration handling
 

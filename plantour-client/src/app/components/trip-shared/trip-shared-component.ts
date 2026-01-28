@@ -284,7 +284,8 @@ export class TripSharedComponent implements OnInit {
 
     this.tripUserService.getAll(this.tripId).pipe(
       map((tripUsers: TripUserDto[]) => {
-        this.currentTripUserId = tripUsers.find(x => x.userId === this.usersService.userSignal()!.user_id)?.id ?? null;
+        const currentUserId = this.usersService.getCurrentUserId();
+        this.currentTripUserId = tripUsers.find(x => x.userId === currentUserId)?.id ?? null;
         this.lookup = this.initTargetLookup(tripUsers);
         this.initConditions(this.componentId, tripUsers, this.lookup);
         this.initSavedFeatures();

@@ -57,6 +57,10 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<UserEmailConfirmation> UserEmailConfirmations { get; set; }
+
+    public virtual DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
+
     public virtual DbSet<UserPackage> UserPackages { get; set; }
 
     public virtual DbSet<UserThing> UserThings { get; set; }
@@ -296,6 +300,30 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Plan).WithMany(p => p.Users)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("users_plan_id_fkey");
+        });
+
+        modelBuilder.Entity<UserEmailConfirmation>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("user_email_confirmations_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAtUtc).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("user_email_confirmations_user_id_fkey");
+        });
+
+        modelBuilder.Entity<UserRefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("user_refresh_tokens_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAtUtc).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("user_refresh_tokens_user_id_fkey");
         });
 
         modelBuilder.Entity<UserPackage>(entity =>

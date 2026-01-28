@@ -42,6 +42,22 @@ public class UsersController : ControllerBase
                 return Ok(response);
         }
 
+        [HttpPost("admin/confirm-email")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request)
+        {
+                var confirmed = await _authService.ConfirmEmailAsync(request);
+                return Ok(new { confirmed });
+        }
+
+        [HttpPost("admin/resend-confirmation")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResendConfirmation([FromBody] ResendEmailConfirmationRequest request)
+        {
+                await _authService.SendEmailConfirmationAsync(request);
+                return Ok(new { sent = true });
+        }
+
         #endregion
 
         #region Participant Endpoints
@@ -77,6 +93,24 @@ public class UsersController : ControllerBase
         #endregion
 
         #region Common Endpoints
+
+        [HttpPost("refresh")]
+        [AllowAnonymous]
+        public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+                var response = await _authService.RefreshTokenAsync(request, ipAddress);
+                return Ok(response);
+        }
+
+        [HttpPost("revoke")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RevokeRefreshToken([FromBody] RevokeRefreshTokenRequest request)
+        {
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+                await _authService.RevokeRefreshTokenAsync(request, ipAddress);
+                return Ok(new { revoked = true });
+        }
 
         [Authorize]
         [HttpGet("validate")]

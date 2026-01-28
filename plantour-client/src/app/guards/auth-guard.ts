@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { Router, CanActivateFn, ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
+import { Router, CanActivateFn, ActivatedRouteSnapshot } from '@angular/router';
 import { UsersService } from '../services/users-service';
 import { MessagesService } from '../services/messages-service';
 import { isGuid } from '../helpers/utils';

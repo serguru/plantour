@@ -1,7 +1,7 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, EMPTY, throwError } from 'rxjs';
+import { catchError, EMPTY, switchMap, throwError } from 'rxjs';
 import { MessagesService } from '../services/messages-service';
 import { UsersService } from '../services/users-service';
 
@@ -21,9 +21,49 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
     const messagesService = inject(MessagesService);
     const usersService = inject(UsersService);
     // TODO: process admin and participant sign ins differently
+    const isAuthEndpoint = (url: string) =>
+        url.includes('/api/users/admin/signin') ||
+        url.includes('/api/users/participant/signin') ||
+        url.includes('/api/users/refresh') ||
+        url.includes('/api/users/revoke') ||
+        url.includes('/api/users/admin/confirm-email') ||
+        url.includes('/api/users/admin/resend-confirmation');
+
     return next(newReq).pipe(
         catchError((response: any) => {
-            if (response.error?.statusCode === 401) {
+            const statusCode = response?.status ?? response?.error?.statusCode;
+            if (statusCode === 401 && !isAuthEndpoint(req.url)) {
+                const refreshToken = usersService.getRefreshToken();
+                if (!refreshToken) {
+                    usersService.signOut();
+                    router.navigate(['sign-in']);
+                    return EMPTY;
+                }
+
+                return usersService.refreshTokens().pipe(
+                    switchMap((auth) => {
+                        const retried = req.clone({
+                            setHeaders: {
+                                Authorization: `Bearer ${auth.accessToken}`
+                            }
+                        });
+                        return next(retried);
+                    }),
+                    catchError(() => {
+                        usersService.signOut();
+                        router.navigate(['sign-in']);
+                        return EMPTY;
+                    })
+                );
+            }
+
+            if (statusCode === 401) {
+                const message = response?.error?.message || '';
+                if (message.toLowerCase().includes('email not confirmed')) {
+                    messagesService.showWarning('Please confirm your email before signing in.');
+                    return EMPTY;
+                }
+
                 usersService.signOut();
                 if (response.error?.code === 'WRONG_TOKEN') {
                     messagesService.showWarning('You have no access to Plantour. Please sign in again.');
@@ -32,10 +72,11 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
                     messagesService.showWarning('You have no participant access to Plantour. Please sign in as participant or ask your administrator to send you a new invitation.');
                     router.navigate(['sign-in/participant']);
                 } else {
-                    messagesService.showError('Wrong email or password');
+                    messagesService.showError('Sign in failed. Please check your credentials.');
                 }
                 return EMPTY;
             }
+
             return throwError(() => response);
         })
     );

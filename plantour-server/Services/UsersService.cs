@@ -1,9 +1,7 @@
 // AccessCode hash helpers (same as password)
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using plantour_server.DTOs;
@@ -22,6 +20,9 @@ public class UsersService(
     IMapper mapper, 
     UsersRepository usersRepository, 
     AdminsParticipantRepository adminsParticipantRepository, 
+    ITokenService tokenService,
+    IRefreshTokenService refreshTokenService,
+    IEmailConfirmationService emailConfirmationService,
     IConfiguration configuration, 
     IWebHostEnvironment environment, 
     HttpCurrentUser httpCurrentUser) : IUsersService
@@ -33,6 +34,9 @@ public class UsersService(
 
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+    private readonly ITokenService _tokenService = tokenService;
+    private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
+    private readonly IEmailConfirmationService _emailConfirmationService = emailConfirmationService;
     private readonly IConfiguration _configuration = configuration;
     private readonly IWebHostEnvironment _environment = environment;
 
@@ -62,8 +66,16 @@ public class UsersService(
 
         await _usersRepository.AddAsync(user);
 
-        // Generate admin tokens
-        return await GenerateAdminAuthResponse(user);
+        var emailToken = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(user);
+        await _emailConfirmationService.SendConfirmationEmailAsync(user, emailToken);
+
+        return new AuthResponse
+        {
+            AccessToken = string.Empty,
+            RefreshToken = string.Empty,
+            AccessTokenExpiresAtUtc = DateTime.MinValue,
+            EmailConfirmationRequired = true
+        };
     }
 
     public async Task<AuthResponse> SignInAsync(SignInRequest request)
@@ -82,8 +94,12 @@ public class UsersService(
             throw new UnauthorizedException("Invalid email or password");
         }
 
-        // Generate admin tokens
-        return await GenerateAdminAuthResponse(user);
+        if (!await _emailConfirmationService.IsEmailConfirmedAsync(user.Id))
+        {
+            throw new UnauthorizedException("Email not confirmed");
+        }
+
+        return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, null);
     }
 
     #endregion
@@ -190,8 +206,7 @@ public class UsersService(
 
         var participant = adminParticipant.Participant;
         var admin = adminParticipant.Admin;
-        // Generate participant tokens
-        return await GenerateParticipantAuthResponse(participant, admin);
+        return await CreateAuthResponseAsync(participant, UserRole.Participant, admin.Id, null);
     }
 
     #endregion
@@ -226,85 +241,89 @@ public class UsersService(
         }
     }
 
+    public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request, string? ipAddress)
+    {
+        var storedToken = await _refreshTokenService.GetActiveTokenAsync(request.RefreshToken);
+        if (storedToken == null)
+        {
+            throw new UnauthorizedException("Invalid refresh token");
+        }
+
+        var user = await _usersRepository.GetByIdWithDetailsAsync(storedToken.UserId);
+        if (user == null)
+        {
+            throw new UnauthorizedException("User not found");
+        }
+
+        if (user.AccessType == null || user.AccessType.Name != "Active")
+        {
+            throw new UnauthorizedException("User is not active");
+        }
+
+        if (!Enum.TryParse<UserRole>(storedToken.Role, out var role))
+        {
+            throw new UnauthorizedException("Invalid refresh token role");
+        }
+
+        var accessToken = _tokenService.CreateAccessToken(user, role, storedToken.AdminId);
+        var newRefreshToken = _tokenService.CreateRefreshToken();
+
+        await _refreshTokenService.RotateAsync(storedToken, newRefreshToken, ipAddress);
+
+        return new AuthResponse
+        {
+            AccessToken = accessToken.Token,
+            RefreshToken = newRefreshToken.Token,
+            AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
+            EmailConfirmationRequired = false
+        };
+    }
+
+    public async Task RevokeRefreshTokenAsync(RevokeRefreshTokenRequest request, string? ipAddress)
+    {
+        await _refreshTokenService.RevokeAsync(request.RefreshToken, ipAddress);
+    }
+
+    public async Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request, CancellationToken cancellationToken = default)
+    {
+        var user = await _usersRepository.GetByEmailAsync(request.Email);
+        if (user == null)
+        {
+            return;
+        }
+
+        if (await _emailConfirmationService.IsEmailConfirmedAsync(user.Id))
+        {
+            return;
+        }
+
+        var token = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(user);
+        await _emailConfirmationService.SendConfirmationEmailAsync(user, token, cancellationToken);
+    }
+
+    public async Task<bool> ConfirmEmailAsync(ConfirmEmailRequest request)
+    {
+        return await _emailConfirmationService.ConfirmEmailAsync(request.UserId, request.Token);
+    }
+
     #endregion
 
     #region Token Generation
 
-    private async Task<AuthResponse> GenerateAdminAuthResponse(User user)
+    private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? ipAddress)
     {
-        var accessToken = GenerateAdminAccessToken(user);
+        var accessToken = _tokenService.CreateAccessToken(user, role, adminId);
+        var refreshToken = _tokenService.CreateRefreshToken();
+
+        await _refreshTokenService.CreateAsync(user.Id, role, adminId, refreshToken, ipAddress);
 
         return new AuthResponse
         {
-            AccessToken = accessToken,
+            AccessToken = accessToken.Token,
+            RefreshToken = refreshToken.Token,
+            AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
+            EmailConfirmationRequired = false
         };
-    }
-
-    private async Task<AuthResponse> GenerateParticipantAuthResponse(
-        User participant, User admin)
-    {
-        var accessToken = GenerateParticipantAccessToken(participant, admin);
-
-        return new AuthResponse
-        {
-            AccessToken = accessToken,
-        };
-    }
-
-    private List<Claim> GenerateUserClaims(User user)
-    {
-        var claims = new List<Claim>
-        {
-            new Claim(PlantourClaims.UserId, user.Id.ToString()),
-            new Claim(PlantourClaims.Email, user.Email),
-            new Claim(PlantourClaims.FirstName, user.FirstName ?? ""),
-            new Claim(PlantourClaims.LastName, user.LastName ?? ""),
-            new Claim(PlantourClaims.Expires, DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes).ToString()),
-            new Claim(PlantourClaims.Issuer,  _jwtSettings.Issuer),
-            new Claim(PlantourClaims.Audience,  _jwtSettings.Audience)
-        };
-        return claims;
-    }
-
-    private string GenerateAdminAccessToken(User user)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
-
-        var claims = GenerateUserClaims(user);
-        claims.Add(new Claim(PlantourClaims.Role, PlantourRoles.Admin));
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha256Signature)
-        };
-
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
-    }
-
-    private string GenerateParticipantAccessToken(User participant, User admin)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
-
-        var claims = GenerateUserClaims(participant);
-        claims.Add(new Claim(PlantourClaims.Role, PlantourRoles.Participant));
-        claims.Add(new Claim(PlantourClaims.AdminId, admin.Id.ToString()));
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha256Signature)
-        };
-
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
     }
 
     #endregion
