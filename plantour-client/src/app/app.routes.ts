@@ -64,6 +64,23 @@ export const routes: Routes = [
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'help' }
   },
+  {
+    path: 'discover',
+    redirectTo: 'discover/packing-templates',
+    pathMatch: 'full'
+  },
+  {
+    path: 'discover/packing-templates/:templateId',
+    loadComponent: () => import('./components/features/public-templates/public-template-detail/public-template-detail-component').then(m => m.PublicTemplateDetailComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'public-template-detail' }
+  },
+  {
+    path: 'discover/packing-templates',
+    loadComponent: () => import('./components/features/public-templates/public-templates-component').then(m => m.PublicTemplatesComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'public-templates' }
+  },
   // {
   //   path: 'landing-registered',
   //   canActivate: [adminOrParticipantGuard],

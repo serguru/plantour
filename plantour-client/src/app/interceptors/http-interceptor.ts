@@ -1,14 +1,19 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { catchError, EMPTY, switchMap, throwError } from 'rxjs';
 import { MessagesService } from '../services/messages-service';
+import { LocalStorageService } from '../services/local-storage-service';
 import { UsersService } from '../services/users-service';
 
 export const httpInterceptor: HttpInterceptorFn = (req, next) => {
 
     let newReq = req;
-    const token = localStorage.getItem('accessToken');
+    const platformId = inject(PLATFORM_ID);
+    const isBrowser = isPlatformBrowser(platformId);
+    const localStorageService = inject(LocalStorageService);
+    const token = isBrowser ? localStorageService.getItem('accessToken') : null;
     if (token) {
         // Clone request and add Authorization header
         newReq = req.clone({
@@ -36,8 +41,10 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
                 const refreshToken = usersService.getRefreshToken();
                 if (!refreshToken) {
                     usersService.signOut();
-                    messagesService.showWarning('Your session has expired. Please sign in again.');
-                    router.navigate(['sign-in']);
+                    if (isBrowser) {
+                        messagesService.showWarning('Your session has expired. Please sign in again.');
+                        router.navigate(['sign-in']);
+                    }
                     return EMPTY;
                 }
 
@@ -52,13 +59,15 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
                     }),
                     catchError((refreshError) => {
                         usersService.signOut();
-                        const code = refreshError?.error?.code;
-                        if (code === 'WRONG_PARTICIPANT_TOKEN') {
-                            messagesService.showWarning('Your access has expired. Please ask your administrator to re-send the invitation email.');
-                            router.navigate(['sign-in/participant']);
-                        } else {
-                            messagesService.showWarning('Your session has expired. Please sign in again.');
-                            router.navigate(['sign-in']);
+                        if (isBrowser) {
+                            const code = refreshError?.error?.code;
+                            if (code === 'WRONG_PARTICIPANT_TOKEN') {
+                                messagesService.showWarning('Your access has expired. Please ask your administrator to re-send the invitation email.');
+                                router.navigate(['sign-in/participant']);
+                            } else {
+                                messagesService.showWarning('Your session has expired. Please sign in again.');
+                                router.navigate(['sign-in']);
+                            }
                         }
                         return EMPTY;
                     })
@@ -69,21 +78,23 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
                 if (isAuthEndpoint(req.url)) {
                     return throwError(() => response);
                 }
-                const message = response?.error?.message || '';
-                if (message.toLowerCase().includes('email not confirmed')) {
-                    messagesService.showWarning('Please confirm your email before signing in.');
-                    return EMPTY;
-                }
+                if (isBrowser) {
+                    const message = response?.error?.message || '';
+                    if (message.toLowerCase().includes('email not confirmed')) {
+                        messagesService.showWarning('Please confirm your email before signing in.');
+                        return EMPTY;
+                    }
 
-                usersService.signOut();
-                if (response.error?.code === 'WRONG_TOKEN') {
-                    messagesService.showWarning('You have no access to Plantour. Please sign in again.');
-                    router.navigate(['sign-in']);
-                } else if (response.error?.code === 'WRONG_PARTICIPANT_TOKEN') {
-                    messagesService.showWarning('You have no participant access to Plantour. Please sign in as participant or ask your administrator to send you a new invitation.');
-                    router.navigate(['sign-in/participant']);
-                } else {
-                    messagesService.showError('Sign in failed. Please check your credentials.');
+                    usersService.signOut();
+                    if (response.error?.code === 'WRONG_TOKEN') {
+                        messagesService.showWarning('You have no access to Plantour. Please sign in again.');
+                        router.navigate(['sign-in']);
+                    } else if (response.error?.code === 'WRONG_PARTICIPANT_TOKEN') {
+                        messagesService.showWarning('You have no participant access to Plantour. Please sign in as participant or ask your administrator to send you a new invitation.');
+                        router.navigate(['sign-in/participant']);
+                    } else {
+                        messagesService.showError('Sign in failed. Please check your credentials.');
+                    }
                 }
                 return EMPTY;
             }

@@ -1,0 +1,114 @@
+<div class="public-templates-page">
+  <header class="hero">
+    <div class="hero-content">
+      <p class="eyebrow">Plantour public library</p>
+      <h1>Packing templates for every trip</h1>
+      <p class="subtitle">
+        Explore curated packing templates based on activity, age range, and temperature. These pages are public and updated regularly to help travelers plan faster.
+      </p>
+      <div class="hero-actions">
+        <button class="btn primary" (click)="goToGuestAccess()">Try no account needed</button>
+        <a class="btn ghost" routerLink="/sign-up">Create an account</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <h2>Quick filters</h2>
+      <p>Find the right list in seconds.</p>
+      <div class="filters">
+        <label>
+          <span>Search</span>
+          <input type="search" placeholder="Search items or templates" [value]="searchText()" (input)="updateSearch($event)" />
+        </label>
+        <label>
+          <span>Activity</span>
+          <select (change)="updateActivity($event)">
+            <option value="">All activities</option>
+            @for (activity of activities(); track activity.id) {
+              <option [value]="activity.name">{{ activity.name }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Age range</span>
+          <select (change)="updateAgeRange($event)">
+            <option value="">All age ranges</option>
+            @for (range of ageRanges(); track range.id) {
+              <option [value]="range.name">{{ range.name }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Temperature</span>
+          <select (change)="updateTemperatureRange($event)">
+            <option value="">All temperatures</option>
+            @for (range of temperatureRanges(); track range.id) {
+              <option [value]="range.name">{{ range.name }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Category</span>
+          <select (change)="updateCategory($event)">
+            <option value="">All categories</option>
+            @for (category of categories(); track category) {
+              <option [value]="category">{{ category }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      <button class="btn subtle" (click)="clearFilters()">Clear filters</button>
+    </div>
+  </header>
+
+  <section class="templates-section">
+    <div class="section-header">
+      <h2>Available templates</h2>
+      <p>Each template includes recommended items and contextual notes.</p>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading">Loading templates...</div>
+    }
+
+    @if (!isLoading() && templateGroups().length === 0) {
+      <div class="empty">No templates match your filters yet. Try clearing filters.</div>
+    }
+
+    <div class="template-grid">
+      @for (group of templateGroups(); track group.templateId) {
+        <article class="template-card" (click)="goToTemplate(group)" tabindex="0" role="button">
+          <div class="template-card-header">
+            <h3>{{ group.templateName }}</h3>
+            <span class="activity">{{ group.activityName }}</span>
+          </div>
+          <div class="meta">
+            @if (group.ageRangeName) {
+              <span>Age: {{ group.ageRangeName }}</span>
+            }
+            @if (group.temperatureRangeName) {
+              <span>Temperature: {{ group.temperatureRangeName }}</span>
+            }
+          </div>
+          <p class="items">{{ group.items.length }} recommended items</p>
+          <div class="tags">
+            @for (tag of group.categories; track tag) {
+              <span class="tag">{{ tag }}</span>
+            }
+          </div>
+          <a class="detail-link" [routerLink]="['/discover/packing-templates', slugify(group.templateName) + '~' + group.templateId]">View full list</a>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="cta-card">
+      <h2>See Plantour in action</h2>
+      <p>Launch Guest Access Mode to experience the full packing workflow in minutes.</p>
+      <div class="cta-actions">
+        <button class="btn primary" (click)="goToGuestAccess()">Try no account needed</button>
+        <a class="btn ghost" routerLink="/sign-up">Create an account</a>
+      </div>
+    </div>
+  </section>
+</div>

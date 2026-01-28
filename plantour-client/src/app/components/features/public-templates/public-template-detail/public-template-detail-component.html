@@ -1,0 +1,74 @@
+<div class="template-detail-page">
+  <nav class="breadcrumbs">
+    <a routerLink="/discover/packing-templates">All templates</a>
+    <span>/</span>
+    <span>{{ templateName() }}</span>
+  </nav>
+
+  <header class="detail-hero">
+    <div>
+      <p class="eyebrow">Packing template</p>
+      <h1>{{ templateName() }}</h1>
+      <p class="subtitle">
+        Activity: {{ activityName() || 'General' }}
+        @if (ageRangeName()) { <span> • Age: {{ ageRangeName() }}</span> }
+        @if (temperatureRangeName()) { <span> • Temperature: {{ temperatureRangeName() }}</span> }
+      </p>
+    </div>
+    <div class="hero-actions">
+      <a class="btn primary" routerLink="/help" [queryParams]="{ start: 'guest' }">Try no account needed</a>
+      <a class="btn ghost" routerLink="/sign-up">Create an account</a>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <div class="loading">Loading template details...</div>
+  }
+
+  @if (!isLoading() && templateItems().length === 0) {
+    <div class="empty">
+      <h2>Template not found</h2>
+      <p>It may have been updated or removed. Browse the latest templates instead.</p>
+      <a class="btn ghost" routerLink="/discover/packing-templates">Back to templates</a>
+    </div>
+  }
+
+  @if (!isLoading() && templateItems().length > 0) {
+    <section class="template-overview">
+      <h2>Recommended items</h2>
+      <p class="hint">Use this list as a starting point. Adjust it for your personal needs.</p>
+
+      <div class="category-grid">
+        @for (group of groupedByCategory(); track group.category) {
+          <article class="category-card">
+            <h3>{{ group.category }}</h3>
+            <ul>
+              @for (item of group.items; track item.thingId) {
+                <li>
+                  <span>{{ item.thingName }}</span>
+                  @if (item.value) {
+                    <span class="detail">{{ item.value }} {{ item.units || '' }}</span>
+                  }
+                  @if (item.thingNotes) {
+                    <small>{{ item.thingNotes }}</small>
+                  }
+                </li>
+              }
+            </ul>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="cta-card">
+        <h2>Turn this checklist into your trip plan</h2>
+        <p>Guest Access Mode lets you build real packing lists right away.</p>
+        <div class="cta-actions">
+          <a class="btn primary" routerLink="/help" [queryParams]="{ start: 'guest' }">Try no account needed</a>
+          <a class="btn ghost" routerLink="/sign-up">Create an account</a>
+        </div>
+      </div>
+    </section>
+  }
+</div>

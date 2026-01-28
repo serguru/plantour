@@ -190,6 +190,7 @@ builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<ITripCommentService, TripCommentService>();
 builder.Services.AddScoped<IDocumentsService, DocumentsService>();
 builder.Services.AddScoped<IInvitationService, InvitationService>();
+builder.Services.AddScoped<plantour_server.Services.Interfaces.IPublicTemplatesService, PublicTemplatesService>();
 
 builder.Services.AddScoped<ITemporaryUserService, TemporaryUserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();

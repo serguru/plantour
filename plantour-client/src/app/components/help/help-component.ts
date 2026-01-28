@@ -1,13 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PanelModule } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
 import { TemporaryUserResponse, UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
-import { EMPTY } from 'rxjs';
+import { EMPTY, take } from 'rxjs';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 
@@ -44,6 +44,8 @@ export class HelpComponent {
   constructor() { }
 
   router = inject(Router);
+
+  route = inject(ActivatedRoute);
 
   usersService = inject(UsersService);
 
@@ -284,6 +286,14 @@ export class HelpComponent {
   ]);
 
   selectedSection = signal<string | null>(null);
+
+  ngOnInit(): void {
+    this.route.queryParamMap.pipe(take(1)).subscribe(params => {
+      if (params.get('start') === 'guest') {
+        this.getStartedWithTest();
+      }
+    });
+  }
 
   navigateToSection(sectionId: string, subsectionId?: string) {
     this.selectedSection.set(sectionId);

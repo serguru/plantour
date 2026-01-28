@@ -128,12 +128,12 @@ export class DashboardComponent {
     { label: 'Completed', value: 44 }
   ];
 
-  get statusSeverity(): 'success' | 'info' | 'warning' | 'danger' {
+  get statusSeverity(): 'success' | 'info' | 'warn' | 'danger' {
     switch (this.lastActiveTrip.status) {
       case 'Active':
         return 'success';
       case 'Preparation':
-        return 'warning';
+        return 'warn';
       case 'Completed':
         return 'info';
       default:

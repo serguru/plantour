@@ -1,10 +1,16 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { inject, Injectable } from '@angular/core';
 
 
 @Injectable({
   providedIn: 'root',
 })
 export class LocalStorageService {
+  private document = inject(DOCUMENT);
+
+  private get storage(): Storage | null {
+    return this.document?.defaultView?.localStorage ?? null;
+  }
 
   isOA(value: any | null): boolean {
     return Array.isArray(value) || typeof value === 'object';
@@ -14,11 +20,14 @@ export class LocalStorageService {
     if (!key || key.trim().length === 0) {
       throw new Error(`Cannot persist value: no key`);
     }
-    if (value === null || value === undefined) {
-      localStorage.removeItem(key);
+    if (!this.storage) {
       return;
     }
-    localStorage.setItem(key, value);
+    if (value === null || value === undefined) {
+      this.storage.removeItem(key);
+      return;
+    }
+    this.storage.setItem(key, value);
   }
 
   setItemObject(key: string, value: any): void {
@@ -26,12 +35,16 @@ export class LocalStorageService {
       throw new Error(`Cannot persist object value: no key`);
     }
 
+    if (!this.storage) {
+      return;
+    }
+
     if (!this.isOA(value)) {
       throw new Error(`Input value is not an object or array: ${value}`);
     }
 
     const stringValue = JSON.stringify(value);
-    localStorage.setItem(key, stringValue);
+    this.storage.setItem(key, stringValue);
 
   }
 
@@ -39,7 +52,10 @@ export class LocalStorageService {
     if (!key || key.trim().length === 0) {
       throw new Error(`Cannot remove value: no key`);
     }
-    localStorage.removeItem(key);
+    if (!this.storage) {
+      return;
+    }
+    this.storage.removeItem(key);
   }
  
 
@@ -58,7 +74,10 @@ export class LocalStorageService {
   }
 
   getItem(key: string): any | null {
-    const value = localStorage.getItem(key);
+    if (!this.storage) {
+      return null;
+    }
+    const value = this.storage.getItem(key);
     if (!value) {
       return null;
     }
