@@ -20,6 +20,8 @@ public class UsersService(
     IMapper mapper, 
     UsersRepository usersRepository, 
     AdminsParticipantRepository adminsParticipantRepository, 
+    PlanRepository planRepository,
+    AccessTypeRepository accessTypeRepository,
     ITokenService tokenService,
     IRefreshTokenService refreshTokenService,
     IEmailConfirmationService emailConfirmationService,
@@ -29,7 +31,8 @@ public class UsersService(
 {
     private readonly UsersRepository _usersRepository = usersRepository;
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
-
+    private readonly PlanRepository _planRepository = planRepository;
+    private readonly AccessTypeRepository _accessTypeRepository = accessTypeRepository;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 
     private readonly IMapper _mapper = mapper;
@@ -61,7 +64,9 @@ public class UsersService(
             PasswordSalt = passwordSalt,
             FirstName = request.FirstName,
             LastName = request.LastName,
-            Phone = request.Phone
+            Phone = request.Phone,
+            AccessTypeId = await _accessTypeRepository.GetActiveId(),
+            PlanId = await _planRepository.GetNoPlanId()
         };
 
         await _usersRepository.AddAsync(user);
@@ -346,3 +351,4 @@ public class UsersService(
 
     #endregion
 }
+
