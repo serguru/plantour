@@ -338,3 +338,36 @@ Plantour — это приложение, предназначенное для 
 
 
 
+Redesign the LandingNewUserComponent entirely. Show slogan and short system description at the top. Then three cards for plans:
+
+Trial
+$0 yearly
+10 items max
+
+Company
+$9.99 yearly
+5 travelers max
+
+Expedition
+$19.99 yearly
+No limitations
+
+Keep the same cards look and classes as now it is implemented here.
+
+ <section class="features-section" id="features">
+    <h3 class="section-title">Why Plantour?</h3>
+    
+    <div class="features-grid">
+      <div class="feature-card" *ngFor="let feature of features">
+        <div class="feature-icon">
+          <i [class]="feature.icon"></i>
+        </div>
+        <h4 class="feature-title">{{ feature.title }}</h4>
+        <p class="feature-description">{{ feature.description }}</p>
+      </div>
+    </div>
+  </section>
+
+Add Get Started with "No account required". Add any elements or text that you think will attract new customers. Remember on 100% mobile first principle. Add proper animation.
+
+

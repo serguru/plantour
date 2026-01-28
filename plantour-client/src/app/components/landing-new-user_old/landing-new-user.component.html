@@ -1,0 +1,91 @@
+<div class="landing-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="logo-container">
+        <i class="pi pi-map-marker logo-icon"></i>
+        <h1 class="app-name">Plantour</h1>
+      </div>
+      
+      <h2 class="hero-title">Pack Smart<br>Travel Better</h2>
+      
+      <p class="hero-description">
+        Never forget an item. Organize your travel packing with smart lists, 
+        nested categories, and team collaboration.
+      </p>
+
+
+      <button class="scroll-hint" (click)="scrollToFeatures()" aria-label="Scroll to features">
+        <i class="pi pi-chevron-down"></i>
+      </button>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section" id="features">
+    <h3 class="section-title">Why Plantour?</h3>
+    
+    <div class="features-grid">
+      <div class="feature-card" *ngFor="let feature of features">
+        <div class="feature-icon">
+          <i [class]="feature.icon"></i>
+        </div>
+        <h4 class="feature-title">{{ feature.title }}</h4>
+        <p class="feature-description">{{ feature.description }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works-section">
+    <h3 class="section-title">How It Works</h3>
+    
+    <div class="steps-container">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4 class="step-title">Create Your Trip</h4>
+        <p class="step-description">Set up a new trip or join an existing one</p>
+      </div>
+
+      <div class="step-connector"></div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <h4 class="step-title">Build Your List</h4>
+        <p class="step-description">Add items with nested categories and details</p>
+      </div>
+
+      <div class="step-connector"></div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <h4 class="step-title">Pack & Track</h4>
+        <p class="step-description">Check off items as you pack and stay organized</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA Section -->
+  <section class="final-cta-section">
+    <h3 class="cta-title">Ready to Get Organized?</h3>
+    <p class="cta-subtitle">Join travelers who never forget their essentials</p>
+    
+    <p-button 
+      label="Create Free Account" 
+      icon="pi pi-user-plus"
+      (onClick)="onSignUp()"
+      size="large"
+      styleClass="cta-final">
+    </p-button>
+
+    <p class="login-prompt">
+      Already have an account? 
+      <button class="link-button" (click)="onSignIn()">Sign in here</button>
+    </p>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p class="footer-text">&copy; 2025 Plantour. Your travel companion.</p>
+  </footer>
+</div>
