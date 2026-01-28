@@ -83,19 +83,16 @@ export class SignInComponent implements OnInit {
         catchError((error) => {
           const errorMsg = error.error?.message || 'Sign in failed. Please check your credentials and try again.';
           this.errorMessage = errorMsg;
-          if (errorMsg.toLowerCase().includes('email not confirmed')) {
-            this.messagesService.showWarning('Email confirmation required', 'Please confirm your email before signing in.');
-          } else {
-            this.messagesService.showError('Sign In Failed', errorMsg);
-          }
+          this.messagesService.showError('Sign In Failed', errorMsg);
           return EMPTY;
         }),
         finalize(() => {
           this.isLoading = false;
         })
       ).subscribe({
-        next: () => {
-          this.messagesService.showInfo('Sign In Successful', 'Welcome back!');
+        next: (response) => {
+          const message = response?.message || 'Welcome back to Plantour';
+          this.messagesService.showInfo('Sign In Successful', message);
           this.router.navigate(['']);
         }
       });
@@ -109,15 +106,16 @@ export class SignInComponent implements OnInit {
       catchError((error) => {
         const errorMsg = error.error?.message || 'Participant sign in failed. Please check your Access Code and try again.';
         this.errorMessage = errorMsg;
-        //this.messagesService.showError('Sign In Failed', errorMsg);
+        this.messagesService.showError('Sign In Failed', errorMsg);
         return EMPTY;
       }),
       finalize(() => {
         this.isLoading = false;
       })
     ).subscribe({
-      next: () => {
-        this.messagesService.showInfo('Sign In Successful', 'Welcome back!');
+      next: (response) => {
+        const message = response?.message || 'Welcome back to Plantour';
+        this.messagesService.showInfo('Sign In Successful', message);
         this.router.navigate(['']);
       }
     });

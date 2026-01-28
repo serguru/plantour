@@ -36,6 +36,7 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
                 const refreshToken = usersService.getRefreshToken();
                 if (!refreshToken) {
                     usersService.signOut();
+                    messagesService.showWarning('Your session has expired. Please sign in again.');
                     router.navigate(['sign-in']);
                     return EMPTY;
                 }
@@ -49,15 +50,25 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
                         });
                         return next(retried);
                     }),
-                    catchError(() => {
+                    catchError((refreshError) => {
                         usersService.signOut();
-                        router.navigate(['sign-in']);
+                        const code = refreshError?.error?.code;
+                        if (code === 'WRONG_PARTICIPANT_TOKEN') {
+                            messagesService.showWarning('Your access has expired. Please ask your administrator to re-send the invitation email.');
+                            router.navigate(['sign-in/participant']);
+                        } else {
+                            messagesService.showWarning('Your session has expired. Please sign in again.');
+                            router.navigate(['sign-in']);
+                        }
                         return EMPTY;
                     })
                 );
             }
 
             if (statusCode === 401) {
+                if (isAuthEndpoint(req.url)) {
+                    return throwError(() => response);
+                }
                 const message = response?.error?.message || '';
                 if (message.toLowerCase().includes('email not confirmed')) {
                     messagesService.showWarning('Please confirm your email before signing in.');

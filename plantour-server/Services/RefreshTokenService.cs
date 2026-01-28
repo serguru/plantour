@@ -39,6 +39,12 @@ public class RefreshTokenService : IRefreshTokenService
         return await _refreshTokenRepository.GetActiveByHashAsync(tokenHash);
     }
 
+    public async Task<UserRefreshToken?> GetTokenAsync(string refreshToken)
+    {
+        var tokenHash = _tokenService.HashToken(refreshToken);
+        return await _refreshTokenRepository.GetByHashAsync(tokenHash);
+    }
+
     public async Task RotateAsync(UserRefreshToken existingToken, RefreshTokenResult newTokenResult, string? revokedByIp)
     {
         existingToken.RevokedAtUtc = DateTime.UtcNow;

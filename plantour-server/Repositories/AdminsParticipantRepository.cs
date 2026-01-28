@@ -10,7 +10,9 @@ public class AdminsParticipantRepository(PlantourContext context) : GenericRepos
     {
         return await _dbSet
         .Include(x => x.Participant)
+            .ThenInclude(x => x.AccessType)
         .Include(x => x.Admin)
+            .ThenInclude(x => x.AccessType)
         .Where(predicate).ToListAsync();
     }
 }

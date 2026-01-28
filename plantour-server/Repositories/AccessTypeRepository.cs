@@ -21,4 +21,10 @@ public class AccessTypeRepository : GenericRepository<AccessType>
         return activity?.Id ?? throw new InvalidOperationException("Active not found");
     }
 
+    public async Task<Guid> GetPendingId()
+    {
+        var pending = await GetByName("Pending");
+        return pending?.Id ?? throw new InvalidOperationException("Pending not found");
+    }
+
 }

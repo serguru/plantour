@@ -24,11 +24,12 @@ public class GlobalExceptionHandler : IExceptionHandler
         int statusCode;
         string code;
 
-        if (exception is BaseApiException)
+        if (exception is BaseApiException baseApiException)
         {
-            statusCode = (exception as BaseApiException)!.StatusCode;
-            code = "BASE_API_EXCEPTION";
-        } else
+            statusCode = baseApiException.StatusCode;
+            code = baseApiException.Code ?? "BASE_API_EXCEPTION";
+        }
+        else
         {
             statusCode = StatusCodes.Status500InternalServerError;
             code = "INTERNAL_SERVER_ERROR";

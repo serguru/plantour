@@ -25,6 +25,7 @@ public class UsersService(
     ITokenService tokenService,
     IRefreshTokenService refreshTokenService,
     IEmailConfirmationService emailConfirmationService,
+    UserEmailConfirmationRepository userEmailConfirmationRepository,
     IConfiguration configuration, 
     IWebHostEnvironment environment, 
     HttpCurrentUser httpCurrentUser) : IUsersService
@@ -40,6 +41,7 @@ public class UsersService(
     private readonly ITokenService _tokenService = tokenService;
     private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
     private readonly IEmailConfirmationService _emailConfirmationService = emailConfirmationService;
+    private readonly UserEmailConfirmationRepository _userEmailConfirmationRepository = userEmailConfirmationRepository;
     private readonly IConfiguration _configuration = configuration;
     private readonly IWebHostEnvironment _environment = environment;
 
@@ -65,7 +67,7 @@ public class UsersService(
             FirstName = request.FirstName,
             LastName = request.LastName,
             Phone = request.Phone,
-            AccessTypeId = await _accessTypeRepository.GetActiveId(),
+            AccessTypeId = await _accessTypeRepository.GetPendingId(),
             PlanId = await _planRepository.GetNoPlanId()
         };
 
@@ -79,7 +81,10 @@ public class UsersService(
             AccessToken = string.Empty,
             RefreshToken = string.Empty,
             AccessTokenExpiresAtUtc = DateTime.MinValue,
-            EmailConfirmationRequired = true
+            EmailConfirmationRequired = true,
+            StatusCode = 200,
+            Code = "EMAIL_CONFIRMATION_REQUIRED",
+            Message = "Please confirm your email address."
         };
     }
 
@@ -88,23 +93,46 @@ public class UsersService(
         // Find user
         var user = await _usersRepository.GetByEmailAsync(request.Email);
 
-        if (user == null || user.PasswordHash == null || user.PasswordSalt == null || user.AccessType == null || user.AccessType.Name != "Active")
+        if (user == null || user.PasswordHash == null || user.PasswordSalt == null)
         {
-            throw new UnauthorizedException("Invalid email or password");
+            throw new UnauthorizedException("Wrong email or password", "NO_ACCESS");
         }
 
         // Verify password
         if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
         {
-            throw new UnauthorizedException("Invalid email or password");
+            throw new UnauthorizedException("Wrong email or password", "NO_ACCESS");
         }
 
-        if (!await _emailConfirmationService.IsEmailConfirmedAsync(user.Id))
+        var accessTypeName = user.AccessType?.Name;
+        if (string.Equals(accessTypeName, "Active", StringComparison.OrdinalIgnoreCase))
         {
-            throw new UnauthorizedException("Email not confirmed");
+            return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, null, "Welcome back to Plantour");
         }
 
-        return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, null);
+        if (string.Equals(accessTypeName, "Pending", StringComparison.OrdinalIgnoreCase))
+        {
+            var confirmation = await _userEmailConfirmationRepository.GetByUserIdAsync(user.Id);
+
+            if (confirmation == null)
+            {
+                var token = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(user);
+                await _emailConfirmationService.SendConfirmationEmailAsync(user, token);
+                throw new ForbiddenException("Please go to the email we sent to you and click on the link to confirm your email address", "NO_ACCESS");
+            }
+
+            if (confirmation.ConfirmedAtUtc == null)
+            {
+                throw new ForbiddenException("Please go to the email we sent to you and click on the link to confirm your email address", "NO_ACCESS");
+            }
+
+            user.AccessTypeId = await _accessTypeRepository.GetActiveId();
+            await _usersRepository.UpdateAsync(user);
+
+            return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, null, "Welcome to Plantour");
+        }
+
+        throw new ForbiddenException(GetAccessStatusMessage(accessTypeName), "NO_ACCESS");
     }
 
     #endregion
@@ -147,7 +175,9 @@ public class UsersService(
                 Phone = request.Phone,
                 PasswordHash = null,
                 PasswordSalt = null,
-                Notes = $"Registered by admin {_currentUser.Email} on {DateTime.UtcNow}"
+                Notes = $"Registered by admin {_currentUser.Email} on {DateTime.UtcNow}",
+                AccessTypeId = await _accessTypeRepository.GetActiveId(),
+                PlanId = await _planRepository.GetNoPlanId()
             };
             await _usersRepository.AddAsync(participant);
         }
@@ -206,12 +236,19 @@ public class UsersService(
             
         if (adminParticipant == null)
         {
-            throw new UnauthorizedException("Cannot signin participant with provided access code");
+            throw new UnauthorizedException("You have no access to Plantour. Please ask your Administartor to re-send the invitation email to you", "NO_ACCESS");
         }
 
         var participant = adminParticipant.Participant;
         var admin = adminParticipant.Admin;
-        return await CreateAuthResponseAsync(participant, UserRole.Participant, admin.Id, null);
+
+        var participantAccessType = participant.AccessType?.Name;
+        if (!string.Equals(participantAccessType, "Active", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ForbiddenException("The account suspended (or banned or archived or pending)", "NO_ACCESS");
+        }
+
+        return await CreateAuthResponseAsync(participant, UserRole.Participant, admin.Id, null, "Welcome back to Plantour");
     }
 
     #endregion
@@ -251,7 +288,13 @@ public class UsersService(
         var storedToken = await _refreshTokenService.GetActiveTokenAsync(request.RefreshToken);
         if (storedToken == null)
         {
-            throw new UnauthorizedException("Invalid refresh token");
+            var anyToken = await _refreshTokenService.GetTokenAsync(request.RefreshToken);
+            if (anyToken != null && Enum.TryParse<UserRole>(anyToken.Role, out var tokenRole) && tokenRole == UserRole.Participant)
+            {
+                throw new UnauthorizedException("Please ask your Administartor to re-send the invitation email to you", "WRONG_PARTICIPANT_TOKEN");
+            }
+
+            throw new UnauthorizedException("Please sign in again", "WRONG_TOKEN");
         }
 
         var user = await _usersRepository.GetByIdWithDetailsAsync(storedToken.UserId);
@@ -260,9 +303,9 @@ public class UsersService(
             throw new UnauthorizedException("User not found");
         }
 
-        if (user.AccessType == null || user.AccessType.Name != "Active")
+        if (user.AccessType == null || !string.Equals(user.AccessType.Name, "Active", StringComparison.OrdinalIgnoreCase))
         {
-            throw new UnauthorizedException("User is not active");
+            throw new ForbiddenException(GetAccessStatusMessage(user.AccessType?.Name), "NO_ACCESS");
         }
 
         if (!Enum.TryParse<UserRole>(storedToken.Role, out var role))
@@ -280,7 +323,10 @@ public class UsersService(
             AccessToken = accessToken.Token,
             RefreshToken = newRefreshToken.Token,
             AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
-            EmailConfirmationRequired = false
+            EmailConfirmationRequired = false,
+            StatusCode = 200,
+            Code = "ACCESS_OK",
+            Message = "Access refreshed"
         };
     }
 
@@ -315,7 +361,7 @@ public class UsersService(
 
     #region Token Generation
 
-    private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? ipAddress)
+    private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? ipAddress, string? message)
     {
         var accessToken = _tokenService.CreateAccessToken(user, role, adminId);
         var refreshToken = _tokenService.CreateRefreshToken();
@@ -327,7 +373,10 @@ public class UsersService(
             AccessToken = accessToken.Token,
             RefreshToken = refreshToken.Token,
             AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
-            EmailConfirmationRequired = false
+            EmailConfirmationRequired = false,
+            StatusCode = 200,
+            Code = "ACCESS_OK",
+            Message = message ?? "Welcome back to Plantour"
         };
     }
 
@@ -350,5 +399,21 @@ public class UsersService(
     }
 
     #endregion
+
+    private static string GetAccessStatusMessage(string? accessTypeName)
+    {
+        if (string.IsNullOrWhiteSpace(accessTypeName))
+        {
+            return "The account suspended";
+        }
+
+        return accessTypeName switch
+        {
+            "Suspended" => "The account suspended",
+            "Banned" => "The account banned",
+            "Archived" => "The account archived",
+            _ => "The account suspended"
+        };
+    }
 }
 

@@ -38,7 +38,14 @@ export interface SignInParticipantRequest {
 
 
 // Response models
-export interface AuthResponse {
+export interface ApiErrorResponse {
+  statusCode: number;
+  code?: string;
+  message: string;
+  instance?: string;
+}
+
+export interface AuthResponse extends ApiErrorResponse {
   accessToken: string;
   refreshToken: string;
   accessTokenExpiresAtUtc: string;
