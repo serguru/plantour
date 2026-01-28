@@ -1,8 +1,11 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { DomSanitizer, Meta, SafeHtml, Title } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { catchError, forkJoin, of, timeout } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { Select } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
 import {
   PublicActivityDto,
   PublicAgeRangeDto,
@@ -11,6 +14,15 @@ import {
   PublicTemplatesService
 } from '../../../services/public-templates-service';
 import { REQUEST } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+
+type FilterKey = 'search' | 'activity' | 'age' | 'temperature' | 'category';
+
+interface FilterOption {
+  key: FilterKey;
+  label: string;
+  icon: string;
+}
 
 interface TemplateGroup {
   templateId: string;
@@ -29,7 +41,7 @@ interface TemplateGroup {
 @Component({
   selector: 'app-public-templates',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule, Select, InputTextModule,ButtonModule],
   templateUrl: './public-templates-component.html',
   styleUrl: './public-templates-component.scss'
 })
@@ -39,6 +51,7 @@ export class PublicTemplatesComponent implements OnInit {
   private metaService = inject(Meta);
   private router = inject(Router);
   private document = inject(DOCUMENT);
+  private sanitizer = inject(DomSanitizer);
   private request = inject(REQUEST, { optional: true });
 
   isLoading = signal(true);
@@ -53,6 +66,16 @@ export class PublicTemplatesComponent implements OnInit {
   selectedTemperatureRange = signal<string | null>(null);
   selectedCategory = signal<string | null>(null);
 
+  filterOptions: FilterOption[] = [
+    { key: 'search', label: 'Search', icon: 'search' },
+    { key: 'activity', label: 'Activity', icon: 'map' },
+    { key: 'age', label: 'Age range', icon: 'users' },
+    { key: 'temperature', label: 'Temperature', icon: 'sun' },
+    { key: 'category', label: 'Category', icon: 'tag' }
+  ];
+
+  selectedFilterKey = signal<FilterKey>('search');
+
   categories = computed(() => {
     const set = new Set<string>();
     for (const item of this.templates()) {
@@ -62,6 +85,10 @@ export class PublicTemplatesComponent implements OnInit {
     }
     return Array.from(set.values()).sort((a, b) => a.localeCompare(b));
   });
+
+  get selectedFilterOption(): FilterOption {
+    return this.filterOptions.find(option => option.key === this.selectedFilterKey()) ?? this.filterOptions[0];
+  }
 
   templateGroups = computed<TemplateGroup[]>(() => {
     const text = this.searchText().trim().toLowerCase();
@@ -162,27 +189,30 @@ export class PublicTemplatesComponent implements OnInit {
 
   updateSearch(event: Event): void {
     const target = event.target as HTMLInputElement;
-    this.searchText.set(target.value);
+    this.searchText.set(target.value ?? '');
   }
 
-  updateActivity(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    this.selectedActivity.set(target.value || null);
+  onFilterKeyChange(key: FilterKey): void {
+    this.selectedFilterKey.set(key);
   }
 
-  updateAgeRange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    this.selectedAgeRange.set(target.value || null);
-  }
-
-  updateTemperatureRange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    this.selectedTemperatureRange.set(target.value || null);
-  }
-
-  updateCategory(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    this.selectedCategory.set(target.value || null);
+  onLookupValueChange(value: string | null): void {
+    const key = this.selectedFilterKey();
+    if (key === 'activity') {
+      this.selectedActivity.set(value || null);
+      return;
+    }
+    if (key === 'age') {
+      this.selectedAgeRange.set(value || null);
+      return;
+    }
+    if (key === 'temperature') {
+      this.selectedTemperatureRange.set(value || null);
+      return;
+    }
+    if (key === 'category') {
+      this.selectedCategory.set(value || null);
+    }
   }
 
   clearFilters(): void {
@@ -200,6 +230,59 @@ export class PublicTemplatesComponent implements OnInit {
 
   goToGuestAccess(): void {
     this.router.navigate(['/help'], { queryParams: { start: 'guest' } });
+  }
+
+  getLookupOptions() {
+    const key = this.selectedFilterKey();
+    if (key === 'activity') {
+      return this.activities().map(activity => ({ name: activity.name }));
+    }
+    if (key === 'age') {
+      return this.ageRanges().map(range => ({ name: range.name }));
+    }
+    if (key === 'temperature') {
+      return this.temperatureRanges().map(range => ({ name: range.name }));
+    }
+    if (key === 'category') {
+      return this.categories().map(category => ({ name: category }));
+    }
+    return [];
+  }
+
+  getLookupValue(): string | null {
+    const key = this.selectedFilterKey();
+    if (key === 'activity') {
+      return this.selectedActivity();
+    }
+    if (key === 'age') {
+      return this.selectedAgeRange();
+    }
+    if (key === 'temperature') {
+      return this.selectedTemperatureRange();
+    }
+    if (key === 'category') {
+      return this.selectedCategory();
+    }
+    return null;
+  }
+
+  filterHasValue(key: FilterKey): boolean {
+    if (key === 'search') {
+      return this.searchText().trim().length > 0;
+    }
+    if (key === 'activity') {
+      return !!this.selectedActivity();
+    }
+    if (key === 'age') {
+      return !!this.selectedAgeRange();
+    }
+    if (key === 'temperature') {
+      return !!this.selectedTemperatureRange();
+    }
+    if (key === 'category') {
+      return !!this.selectedCategory();
+    }
+    return false;
   }
 
   private setSeoMeta(): void {
@@ -240,6 +323,32 @@ export class PublicTemplatesComponent implements OnInit {
 
   private normalize(value?: string | null): string {
     return (value ?? '').trim().toLowerCase();
+  }
+
+  highlightText(value: string): SafeHtml {
+    const query = this.searchText().trim();
+    const escaped = this.escapeHtml(value);
+    if (!query) {
+      return this.sanitizer.bypassSecurityTrustHtml(escaped);
+    }
+
+    const safeQuery = this.escapeRegExp(query);
+    const regex = new RegExp(`(${safeQuery})`, 'ig');
+    const highlighted = escaped.replace(regex, '<mark>$1</mark>');
+    return this.sanitizer.bypassSecurityTrustHtml(highlighted);
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  private escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   slugify(value: string): string {

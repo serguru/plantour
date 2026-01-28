@@ -1,15 +1,26 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { DomSanitizer, Meta, SafeHtml, Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { REQUEST } from '@angular/core';
 import { PublicTemplateThingDto, PublicTemplatesService } from '../../../../services/public-templates-service';
 import { catchError, of, timeout } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { Select } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+
+type DetailFilterKey = 'search' | 'category';
+
+interface DetailFilterOption {
+  key: DetailFilterKey;
+  label: string;
+  icon: string;
+}
 
 @Component({
   selector: 'app-public-template-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule, Select, InputTextModule],
   templateUrl: './public-template-detail-component.html',
   styleUrl: './public-template-detail-component.scss'
 })
@@ -19,20 +30,63 @@ export class PublicTemplateDetailComponent implements OnInit {
   private titleService = inject(Title);
   private metaService = inject(Meta);
   private document = inject(DOCUMENT);
+  private sanitizer = inject(DomSanitizer);
   private request = inject(REQUEST, { optional: true });
 
   isLoading = signal(true);
   templateId = signal<string>('');
   templateItems = signal<PublicTemplateThingDto[]>([]);
 
+  searchText = signal('');
+  selectedCategory = signal<string | null>(null);
+
+  filterOptions: DetailFilterOption[] = [
+    { key: 'search', label: 'Search', icon: 'search' },
+    { key: 'category', label: 'Category', icon: 'tag' }
+  ];
+
+  selectedFilterKey = signal<DetailFilterKey>('search');
+
+  get selectedFilterOption(): DetailFilterOption {
+    return this.filterOptions.find(option => option.key === this.selectedFilterKey()) ?? this.filterOptions[0];
+  }
+
   templateName = computed(() => this.templateItems()[0]?.templateName ?? 'Template');
   activityName = computed(() => this.templateItems()[0]?.activityName ?? '');
   ageRangeName = computed(() => this.templateItems()[0]?.ageRangeName ?? '');
   temperatureRangeName = computed(() => this.templateItems()[0]?.temperatureRangeName ?? '');
 
+  categories = computed(() => {
+    const set = new Set<string>();
+    for (const item of this.templateItems()) {
+      set.add(item.category ?? 'Other');
+    }
+    return Array.from(set.values()).sort((a, b) => a.localeCompare(b));
+  });
+
+  filteredItems = computed(() => {
+    const text = this.searchText().trim().toLowerCase();
+    const category = this.normalize(this.selectedCategory());
+
+    return this.templateItems().filter(item => {
+      if (text) {
+        const haystack = `${item.thingName} ${item.thingNotes ?? ''}`.toLowerCase();
+        if (!haystack.includes(text)) {
+          return false;
+        }
+      }
+
+      if (category && this.normalize(item.category) !== category) {
+        return false;
+      }
+
+      return true;
+    });
+  });
+
   groupedByCategory = computed(() => {
     const groups = new Map<string, PublicTemplateThingDto[]>();
-    for (const item of this.templateItems()) {
+    for (const item of this.filteredItems()) {
       const key = item.category ?? 'Other';
       if (!groups.has(key)) {
         groups.set(key, []);
@@ -64,6 +118,8 @@ export class PublicTemplateDetailComponent implements OnInit {
     ).subscribe({
       next: (items) => {
         this.templateItems.set(items);
+        this.searchText.set('');
+        this.selectedCategory.set(null);
         this.isLoading.set(false);
         if (items.length > 0) {
           this.setSeoMeta();
@@ -78,6 +134,34 @@ export class PublicTemplateDetailComponent implements OnInit {
         this.setNotFoundMeta();
       }
     });
+  }
+
+  onFilterKeyChange(key: DetailFilterKey): void {
+    this.selectedFilterKey.set(key);
+  }
+
+  updateSearch(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchText.set(target.value ?? '');
+  }
+
+  onLookupValueChange(value: string | null): void {
+    this.selectedCategory.set(value || null);
+  }
+
+  getLookupOptions() {
+    return this.categories().map(category => ({ name: category }));
+  }
+
+  getLookupValue(): string | null {
+    return this.selectedCategory();
+  }
+
+  filterHasValue(key: DetailFilterKey): boolean {
+    if (key === 'search') {
+      return this.searchText().trim().length > 0;
+    }
+    return !!this.selectedCategory();
   }
 
   private setSeoMeta(): void {
@@ -118,6 +202,36 @@ export class PublicTemplateDetailComponent implements OnInit {
     };
 
     this.injectJsonLd(data, 'public-template-detail-jsonld');
+  }
+
+  private normalize(value?: string | null): string {
+    return (value ?? '').trim().toLowerCase();
+  }
+
+  highlightText(value: string): SafeHtml {
+    const query = this.searchText().trim();
+    const escaped = this.escapeHtml(value);
+    if (!query) {
+      return this.sanitizer.bypassSecurityTrustHtml(escaped);
+    }
+
+    const safeQuery = this.escapeRegExp(query);
+    const regex = new RegExp(`(${safeQuery})`, 'ig');
+    const highlighted = escaped.replace(regex, '<mark>$1</mark>');
+    return this.sanitizer.bypassSecurityTrustHtml(highlighted);
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  private escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   private extractTemplateId(raw: string): string {
