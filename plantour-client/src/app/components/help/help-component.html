@@ -116,6 +116,10 @@
             <ng-container *ngComponentOutlet="editYourProfileComponent()"></ng-container>
             }
 
+            @if (section.id === 'travelers' && selectedSection() === 'travelers-travelers-intro') {
+            <ng-container *ngComponentOutlet="understandingTravelersComponent()"></ng-container>
+            }
+
             @if (section.subsections && section.subsections.length > 0) {
             <ul class="subsection-list">
               @for (subsection of section.subsections; track subsection.id) {

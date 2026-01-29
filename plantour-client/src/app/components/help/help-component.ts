@@ -67,6 +67,7 @@ export class HelpComponent {
   adminsParticipantsComponent = signal<Type<unknown> | null>(null);
   signInToAccountComponent = signal<Type<unknown> | null>(null);
   editYourProfileComponent = signal<Type<unknown> | null>(null);
+  understandingTravelersComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -350,6 +351,9 @@ export class HelpComponent {
       if (sectionId === 'account' && subsectionId === 'profile') {
         this.loadEditYourProfileComponent();
       }
+      if (sectionId === 'travelers' && subsectionId === 'travelers-intro') {
+        this.loadUnderstandingTravelersComponent();
+      }
     } else {
       this.selectedSection.set(sectionId);
     }
@@ -435,6 +439,15 @@ export class HelpComponent {
 
     const module = await import('./edit-your-profile/edit-your-profile.component');
     this.editYourProfileComponent.set(module.EditYourProfileComponent);
+  }
+
+  private async loadUnderstandingTravelersComponent() {
+    if (this.understandingTravelersComponent()) {
+      return;
+    }
+
+    const module = await import('./understanding-travelers/understanding-travelers.component');
+    this.understandingTravelersComponent.set(module.UnderstandingTravelersComponent);
   }
 
   getStartedWithTest = async () => {
