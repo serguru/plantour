@@ -62,6 +62,7 @@ export class HelpComponent {
   testModeComponent = signal<Type<unknown> | null>(null);
   readyToRegisterComponent = signal<Type<unknown> | null>(null);
   keyFeaturesComponent = signal<Type<unknown> | null>(null);
+  whoPlantourForComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -329,6 +330,9 @@ export class HelpComponent {
       if (sectionId === 'overview' && subsectionId === 'key-features') {
         this.loadKeyFeaturesComponent();
       }
+      if (sectionId === 'overview' && subsectionId === 'who-is-it-for') {
+        this.loadWhoPlantourForComponent();
+      }
     } else {
       this.selectedSection.set(sectionId);
     }
@@ -369,6 +373,15 @@ export class HelpComponent {
 
     const module = await import('./key-features/key-features.component');
     this.keyFeaturesComponent.set(module.KeyFeaturesComponent);
+  }
+
+  private async loadWhoPlantourForComponent() {
+    if (this.whoPlantourForComponent()) {
+      return;
+    }
+
+    const module = await import('./who-plantour-for/who-plantour-for.component');
+    this.whoPlantourForComponent.set(module.WhoPlantourForComponent);
   }
 
   getStartedWithTest = async () => {

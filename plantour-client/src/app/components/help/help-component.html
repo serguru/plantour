@@ -96,6 +96,10 @@
             <ng-container *ngComponentOutlet="keyFeaturesComponent()"></ng-container>
             }
 
+            @if (section.id === 'overview' && selectedSection() === 'overview-who-is-it-for') {
+            <ng-container *ngComponentOutlet="whoPlantourForComponent()"></ng-container>
+            }
+
             @if (section.subsections && section.subsections.length > 0) {
             <ul class="subsection-list">
               @for (subsection of section.subsections; track subsection.id) {

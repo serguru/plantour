@@ -1,0 +1,122 @@
+.who-plantour-for {
+  padding: 1.5rem 0;
+}
+
+.content-header {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  .main-heading {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    color: var(--primary-text-color);
+    margin: 0 0 0.75rem 0;
+    font-weight: 600;
+  }
+
+  .intro-text {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    color: var(--pale-color);
+    margin: 0 auto;
+    max-width: 720px;
+    line-height: 1.6;
+  }
+}
+
+.audience-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.audience-card {
+  background: #fff;
+  border: 1px solid var(--secondary-border-color);
+  border-radius: 10px;
+  padding: 1.25rem;
+  text-align: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--primary-color-light);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .audience-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+  }
+
+  .audience-title {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem 0;
+    color: var(--primary-text-color);
+  }
+
+  .audience-description {
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    color: var(--pale-color);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  color: var(--primary-text-color);
+  margin: 0 0 0.75rem 0;
+}
+
+.bullet-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.bullet-item {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  color: var(--primary-text-color);
+
+  .bullet-icon {
+    color: var(--primary-color);
+  }
+}
+
+.outcome-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.outcome-item {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  color: var(--primary-text-color);
+
+  i {
+    color: var(--primary-color);
+  }
+}
+
+@media (max-width: 768px) {
+  .content-header {
+    .main-heading {
+      font-size: 1.6rem;
+    }
+  }
+}
