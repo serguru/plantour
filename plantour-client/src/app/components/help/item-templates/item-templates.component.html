@@ -1,0 +1,87 @@
+<div class="help-content">
+  <div class="intro">
+    <i class="pi pi-clone intro-icon"></i>
+    <h2>Item Templates</h2>
+    <p>Item Templates are your personal template collections that you can use to quickly populate trips or your Items Dictionary. Learn how to filter, select, and import items from templates.</p>
+  </div>
+
+  <div class="section">
+    <h3><i class="pi pi-list-check"></i> How to Use Item Templates</h3>
+    <div class="steps-container">
+      @for (step of steps; track step.number) {
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-number">{{step.number}}</div>
+            <i class="{{step.icon}} step-icon"></i>
+            <h4>{{step.title}}</h4>
+          </div>
+          <p class="step-description">{{step.description}}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h3><i class="pi pi-filter"></i> Filtering Templates</h3>
+    <p class="section-intro">Use these filters to find exactly the template items you need:</p>
+    <div class="filters-grid">
+      @for (option of filteringOptions; track option.filter) {
+        <div class="filter-card">
+          <div class="filter-header">
+            <i class="{{option.icon}} filter-icon"></i>
+            <h4>{{option.filter}}</h4>
+          </div>
+          <p class="filter-description">{{option.description}}</p>
+          <div class="examples">
+            <strong>Examples:</strong>
+            <ul>
+              @for (example of option.examples; track example) {
+                <li>{{example}}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h3><i class="pi pi-send"></i> Target Destinations</h3>
+    <p class="section-intro">Choose where to add items from templates:</p>
+    @for (destination of targetDestinations; track destination.name) {
+      <div class="destination-card">
+        <div class="destination-header">
+          <i class="{{destination.icon}} destination-icon"></i>
+          <div>
+            <h4>{{destination.name}}</h4>
+            <p class="destination-description">{{destination.description}}</p>
+          </div>
+        </div>
+        <div class="when-to-use">
+          <strong>When to use:</strong> {{destination.whenToUse}}
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="section">
+    <h3><i class="pi pi-lightbulb"></i> Tips</h3>
+    <div class="tips-grid">
+      @for (tip of tips; track tip) {
+        <div class="tip-card">
+          <i class="pi pi-angle-right"></i>
+          <span>{{tip}}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h3><i class="pi pi-star"></i> Best Practices</h3>
+    <ul class="practices-list">
+      @for (practice of bestPractices; track practice) {
+        <li><i class="pi pi-check-circle"></i> {{practice}}</li>
+      }
+    </ul>
+  </div>
+</div>

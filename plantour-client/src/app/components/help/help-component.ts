@@ -91,6 +91,9 @@ export class HelpComponent {
   finishSharedItemComponent = signal<Type<unknown> | null>(null);
   understandingCommentsComponent = signal<Type<unknown> | null>(null);
   addCommentComponent = signal<Type<unknown> | null>(null);
+  understandingTemplatesComponent = signal<Type<unknown> | null>(null);
+  itemTemplatesComponent = signal<Type<unknown> | null>(null);
+  publicTemplatesComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -252,11 +255,11 @@ export class HelpComponent {
       id: 'templates',
       title: 'Templates',
       icon: 'pi pi-clone',
-      description: 'Reuse items and trip structures.',
+      description: 'Use item templates to speed up item list creation.',
       subsections: [
         { id: 'templates-intro', title: 'Understanding Templates', linkId: 'link#64' },
         { id: 'item-templates', title: 'Item Templates', linkId: 'link#65' },
-        { id: 'trip-templates', title: 'Trip Templates (Future)', linkId: 'link#66' }
+        { id: 'public-templates', title: 'Public Templates', linkId: 'link#66' }
       ]
     },
     {
@@ -429,6 +432,12 @@ export class HelpComponent {
           'comments-intro': this.understandingCommentsComponent(),
           'add-comment': this.addCommentComponent()
         };
+      case 'templates':
+        return {
+          'templates-intro': this.understandingTemplatesComponent(),
+          'item-templates': this.itemTemplatesComponent(),
+          'public-templates': this.publicTemplatesComponent()
+        };
       default:
         return {};
     }
@@ -587,6 +596,15 @@ export class HelpComponent {
     }
     if (sectionId === 'trip-comments' && subsectionId === 'add-comment') {
       this.loadAddCommentComponent();
+    }
+    if (sectionId === 'templates' && subsectionId === 'templates-intro') {
+      this.loadUnderstandingTemplatesComponent();
+    }
+    if (sectionId === 'templates' && subsectionId === 'item-templates') {
+      this.loadItemTemplatesComponent();
+    }
+    if (sectionId === 'templates' && subsectionId === 'public-templates') {
+      this.loadPublicTemplatesComponent();
     }
   }
 
@@ -1047,6 +1065,33 @@ export class HelpComponent {
 
     const module = await import('./add-comment/add-comment.component');
     this.addCommentComponent.set(module.AddCommentComponent);
+  }
+
+  private async loadUnderstandingTemplatesComponent() {
+    if (this.understandingTemplatesComponent()) {
+      return;
+    }
+
+    const module = await import('./understanding-templates/understanding-templates.component');
+    this.understandingTemplatesComponent.set(module.UnderstandingTemplatesComponent);
+  }
+
+  private async loadItemTemplatesComponent() {
+    if (this.itemTemplatesComponent()) {
+      return;
+    }
+
+    const module = await import('./item-templates/item-templates.component');
+    this.itemTemplatesComponent.set(module.ItemTemplatesComponent);
+  }
+
+  private async loadPublicTemplatesComponent() {
+    if (this.publicTemplatesComponent()) {
+      return;
+    }
+
+    const module = await import('./public-templates/public-templates.component');
+    this.publicTemplatesComponent.set(module.PublicTemplatesComponent);
   }
 
   getStartedWithTest = async () => {

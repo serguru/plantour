@@ -1,0 +1,111 @@
+<div class="help-content">
+  <div class="intro">
+    <i class="pi pi-globe intro-icon"></i>
+    <h2>Public Templates</h2>
+    <p>Public Templates are professionally curated packing lists for common travel scenarios. Browse without an account, filter by your trip characteristics, and get inspired for your next adventure.</p>
+  </div>
+
+  <div class="section">
+    <h3><i class="pi pi-list-check"></i> How to Use Public Templates</h3>
+    <div class="steps-container">
+      @for (step of steps; track step.number) {
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-number">{{step.number}}</div>
+            <i class="{{step.icon}} step-icon"></i>
+            <h4>{{step.title}}</h4>
+          </div>
+          <p class="step-description">{{step.description}}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h3><i class="pi pi-sliders-h"></i> Filter Types</h3>
+    <p class="section-intro">Use these filters to find templates matching your trip:</p>
+    <div class="filters-container">
+      @for (filter of filterTypes; track filter.name) {
+        <div class="filter-card">
+          <div class="filter-header">
+            <i class="{{filter.icon}} filter-icon"></i>
+            <h4>{{filter.name}}</h4>
+          </div>
+          <p class="filter-description">{{filter.description}}</p>
+          <div class="filter-usage">
+            <strong>How to use:</strong> {{filter.howToUse}}
+          </div>
+          <div class="filter-examples">
+            <strong>Examples:</strong>
+            <div class="examples-tags">
+              @for (example of filter.examples; track example) {
+                <span class="example-tag">{{example}}</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h3><i class="pi pi-info-circle"></i> Template Information</h3>
+    <p class="section-intro">Each template displays the following information:</p>
+    <div class="info-grid">
+      @for (info of templateInfo; track info.title) {
+        <div class="info-card">
+          <i class="{{info.icon}} info-icon"></i>
+          <div>
+            <h4>{{info.title}}</h4>
+            <p>{{info.description}}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h3><i class="pi pi-users"></i> Guest vs. Authenticated Access</h3>
+    <div class="comparison-table">
+      @for (item of guestVsAuthenticated; track item.feature) {
+        <div class="comparison-row">
+          <div class="feature-name">
+            <i class="{{item.icon}}"></i>
+            <strong>{{item.feature}}</strong>
+          </div>
+          <div class="access-info">
+            <div class="access-column">
+              <span class="label">Guest:</span>
+              <span class="value">{{item.guest}}</span>
+            </div>
+            <div class="access-column">
+              <span class="label">Account:</span>
+              <span class="value authenticated">{{item.authenticated}}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h3><i class="pi pi-lightbulb"></i> Tips</h3>
+    <div class="tips-grid">
+      @for (tip of tips; track tip) {
+        <div class="tip-card">
+          <i class="pi pi-angle-right"></i>
+          <span>{{tip}}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h3><i class="pi pi-star"></i> Best Practices</h3>
+    <ul class="practices-list">
+      @for (practice of bestPractices; track practice) {
+        <li><i class="pi pi-check-circle"></i> {{practice}}</li>
+      }
+    </ul>
+  </div>
+</div>
