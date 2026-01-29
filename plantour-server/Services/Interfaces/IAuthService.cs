@@ -21,4 +21,9 @@ public interface IUsersService
     Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request, CancellationToken cancellationToken = default);
     Task<bool> ConfirmEmailAsync(ConfirmEmailRequest request);
 
+    // Profile management
+    Task<UserDto> GetProfileAsync();
+    Task<UserDto> UpdateProfileAsync(UpdateProfileRequest request);
+    Task UpdatePasswordAsync(UpdatePasswordRequest request);
+
 }

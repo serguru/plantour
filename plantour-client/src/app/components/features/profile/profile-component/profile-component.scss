@@ -1,0 +1,22 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+}
+
+.form-section-title {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+}
+
+.form-divider {
+    height: 1px;
+    background-color: var(--secondary-border-color);
+    margin: 2rem 0;
+}

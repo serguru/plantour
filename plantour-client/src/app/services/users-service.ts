@@ -276,5 +276,20 @@ export class UsersService {
     return this.getClaim(token, [this.claimRole, 'role']);
   }
 
+  getProfile(): Observable<UserDto> {
+    return this.http.get<UserDto>(`${this.apiUrl}/api/users/profile`);
+  }
+
+  updateProfile(request: { email?: string; firstName?: string; lastName?: string; phone?: string }): Observable<UserDto> {
+    return this.http.put<UserDto>(`${this.apiUrl}/api/users/profile`, request);
+  }
+
+  updatePassword(currentPassword: string, newPassword: string): Observable<{ updated: boolean }> {
+    return this.http.put<{ updated: boolean }>(`${this.apiUrl}/api/users/password`, {
+      currentPassword,
+      newPassword
+    });
+  }
+
 
 }

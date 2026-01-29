@@ -415,5 +415,87 @@ public class UsersService(
             _ => "The account suspended"
         };
     }
+
+    #region Profile Management
+
+    public async Task<UserDto> GetProfileAsync()
+    {
+        var user = await _usersRepository.GetByIdAsync(_currentUser.UserId);
+        if (user == null)
+        {
+            throw new CustomException("User not found");
+        }
+
+        return _mapper.Map<UserDto>(user);
+    }
+
+    public async Task<UserDto> UpdateProfileAsync(UpdateProfileRequest request)
+    {
+        var user = await _usersRepository.GetByIdAsync(_currentUser.UserId);
+        if (user == null)
+        {
+            throw new CustomException("User not found");
+        }
+
+        // Check if email is being changed and if it already exists
+        if (!string.IsNullOrWhiteSpace(request.Email) && !string.Equals(user.Email, request.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            var existingUser = await _usersRepository.GetByEmailAsync(request.Email);
+            if (existingUser != null)
+            {
+                throw new CustomException("This email is already in use by another account");
+            }
+            user.Email = request.Email;
+        }
+
+        // Update other fields if provided
+        if (request.FirstName != null)
+        {
+            user.FirstName = request.FirstName;
+        }
+
+        if (request.LastName != null)
+        {
+            user.LastName = request.LastName;
+        }
+
+        if (request.Phone != null)
+        {
+            user.Phone = request.Phone;
+        }
+
+        await _usersRepository.UpdateAsync(user);
+
+        return _mapper.Map<UserDto>(user);
+    }
+
+    public async Task UpdatePasswordAsync(UpdatePasswordRequest request)
+    {
+        var user = await _usersRepository.GetByIdAsync(_currentUser.UserId);
+        if (user == null)
+        {
+            throw new CustomException("User not found");
+        }
+
+        if (user.PasswordHash == null || user.PasswordSalt == null)
+        {
+            throw new CustomException("Cannot update password for this account type");
+        }
+
+        // Verify current password
+        if (!VerifyPasswordHash(request.CurrentPassword, user.PasswordHash, user.PasswordSalt))
+        {
+            throw new UnauthorizedException("Current password is incorrect");
+        }
+
+        // Create new password hash
+        CreatePasswordHash(request.NewPassword, out byte[] passwordHash, out byte[] passwordSalt);
+        user.PasswordHash = passwordHash;
+        user.PasswordSalt = passwordSalt;
+
+        await _usersRepository.UpdateAsync(user);
+    }
+
+    #endregion
 }
 

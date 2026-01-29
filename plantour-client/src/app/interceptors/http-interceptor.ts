@@ -34,10 +34,13 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
         url.includes('/api/users/admin/confirm-email') ||
         url.includes('/api/users/admin/resend-confirmation');
 
+    const isPasswordUpdateEndpoint = (url: string) =>
+        url.includes('/api/users/password');
+
     return next(newReq).pipe(
         catchError((response: any) => {
             const statusCode = response?.status ?? response?.error?.statusCode;
-            if (statusCode === 401 && !isAuthEndpoint(req.url)) {
+            if (statusCode === 401 && !isAuthEndpoint(req.url) && !isPasswordUpdateEndpoint(req.url)) {
                 const refreshToken = usersService.getRefreshToken();
                 if (!refreshToken) {
                     usersService.signOut();

@@ -125,6 +125,34 @@ public class UsersController : ControllerBase
 
         #endregion
 
+        #region Profile Management
+
+        [HttpGet("profile")]
+        [Authorize]
+        public async Task<ActionResult<UserDto>> GetProfile()
+        {
+                var profile = await _authService.GetProfileAsync();
+                return Ok(profile);
+        }
+
+        [HttpPut("profile")]
+        [Authorize]
+        public async Task<ActionResult<UserDto>> UpdateProfile([FromBody] UpdateProfileRequest request)
+        {
+                var updatedProfile = await _authService.UpdateProfileAsync(request);
+                return Ok(updatedProfile);
+        }
+
+        [HttpPut("password")]
+        [Authorize]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordRequest request)
+        {
+                await _authService.UpdatePasswordAsync(request);
+                return Ok(new { updated = true });
+        }
+
+        #endregion
+
         #region Contact Submission Endpoints
 
         [HttpPost("contact/submit")]

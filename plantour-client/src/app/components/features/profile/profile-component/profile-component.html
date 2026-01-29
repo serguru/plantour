@@ -1,1 +1,184 @@
-<p>profile-component works!</p>
+<div class="page-container">
+
+    <div class="page-header">
+        <div class="page-left">
+            <i class="pi pi-user"></i>
+            <h2>Profile</h2>
+        </div>
+    </div>
+
+    <div class="controls-wrapper">
+        <!-- Profile Information Form -->
+        <form
+            [formGroup]="profileForm"
+            (ngSubmit)="onUpdateProfile()"
+        >
+            <h3 class="form-section-title">Personal Information</h3>
+
+            <!-- Email Field -->
+            <div class="form-field">
+                <label for="email">Email <span class="required">*</span></label>
+                <input
+                    pInputText
+                    id="email"
+                    type="email"
+                    formControlName="email"
+                    placeholder="your.email@example.com"
+                    [class.p-invalid]="isProfileFieldInvalid('email')"
+                />
+                @if (isProfileFieldInvalid('email')) {
+                <small class="error-message">
+                    {{ getProfileFieldError('email') }}
+                </small>
+                }
+            </div>
+
+            <!-- First Name Field -->
+            <div class="form-field">
+                <label for="firstName">First Name</label>
+                <input
+                    pInputText
+                    id="firstName"
+                    type="text"
+                    formControlName="firstName"
+                    placeholder="Enter your first name"
+                    [class.p-invalid]="isProfileFieldInvalid('firstName')"
+                />
+                @if (isProfileFieldInvalid('firstName')) {
+                <small class="error-message">
+                    {{ getProfileFieldError('firstName') }}
+                </small>
+                }
+            </div>
+
+            <!-- Last Name Field -->
+            <div class="form-field">
+                <label for="lastName">Last Name</label>
+                <input
+                    pInputText
+                    id="lastName"
+                    type="text"
+                    formControlName="lastName"
+                    placeholder="Enter your last name"
+                    [class.p-invalid]="isProfileFieldInvalid('lastName')"
+                />
+                @if (isProfileFieldInvalid('lastName')) {
+                <small class="error-message">
+                    {{ getProfileFieldError('lastName') }}
+                </small>
+                }
+            </div>
+
+            <!-- Phone Field -->
+            <div class="form-field">
+                <label for="phone">Phone</label>
+                <input
+                    pInputText
+                    id="phone"
+                    type="tel"
+                    formControlName="phone"
+                    placeholder="Enter your phone number"
+                    [class.p-invalid]="isProfileFieldInvalid('phone')"
+                />
+                @if (isProfileFieldInvalid('phone')) {
+                <small class="error-message">
+                    {{ getProfileFieldError('phone') }}
+                </small>
+                }
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-actions">
+                <app-button
+                    type="submit"
+                    [label]="'Update Profile'"
+                    [icon]="'pi pi-save'"
+                    [loading]="isUpdatingProfile()"
+                    [disabled]="profileForm.invalid || isUpdatingProfile()"
+                />
+            </div>
+        </form>
+
+        <!-- Divider -->
+        <div class="form-divider"></div>
+
+        <!-- Password Update Form -->
+        <form
+            [formGroup]="passwordForm"
+            (ngSubmit)="onUpdatePassword()"
+        >
+            <h3 class="form-section-title">Change Password</h3>
+
+            <!-- Current Password Field -->
+            <div class="form-field">
+                <label for="currentPassword">Current Password <span class="required">*</span></label>
+                <p-password
+                    id="currentPassword"
+                    formControlName="currentPassword"
+                    placeholder="Enter your current password"
+                    [toggleMask]="true"
+                    [feedback]="false"
+                    [class.p-invalid]="isPasswordFieldInvalid('currentPassword')"
+                    styleClass="w-full"
+                >
+                </p-password>
+                @if (isPasswordFieldInvalid('currentPassword')) {
+                <small class="error-message">
+                    {{ getPasswordFieldError('currentPassword') }}
+                </small>
+                }
+            </div>
+
+            <!-- New Password Field -->
+            <div class="form-field">
+                <label for="newPassword">New Password <span class="required">*</span></label>
+                <p-password
+                    id="newPassword"
+                    formControlName="newPassword"
+                    placeholder="Enter your new password"
+                    [toggleMask]="true"
+                    [feedback]="false"
+                    [class.p-invalid]="isPasswordFieldInvalid('newPassword')"
+                    styleClass="w-full"
+                >
+                </p-password>
+                @if (isPasswordFieldInvalid('newPassword')) {
+                <small class="error-message">
+                    {{ getPasswordFieldError('newPassword') }}
+                </small>
+                }
+            </div>
+
+            <!-- Confirm New Password Field -->
+            <div class="form-field">
+                <label for="confirmNewPassword">Confirm New Password <span class="required">*</span></label>
+                <p-password
+                    id="confirmNewPassword"
+                    formControlName="confirmNewPassword"
+                    placeholder="Confirm your new password"
+                    [toggleMask]="true"
+                    [feedback]="false"
+                    [class.p-invalid]="isConfirmNewPasswordInvalid()"
+                    styleClass="w-full"
+                >
+                </p-password>
+                @if (isConfirmNewPasswordInvalid()) {
+                <small class="error-message">
+                    {{ getConfirmNewPasswordError() }}
+                </small>
+                }
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-actions">
+                <app-button
+                    type="submit"
+                    [label]="'Update Password'"
+                    [icon]="'pi pi-lock'"
+                    [loading]="isUpdatingPassword()"
+                    [disabled]="passwordForm.invalid || isUpdatingPassword()"
+                />
+            </div>
+        </form>
+    </div>
+</div>
