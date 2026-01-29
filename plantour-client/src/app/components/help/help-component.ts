@@ -63,6 +63,7 @@ export class HelpComponent {
   readyToRegisterComponent = signal<Type<unknown> | null>(null);
   keyFeaturesComponent = signal<Type<unknown> | null>(null);
   whoPlantourForComponent = signal<Type<unknown> | null>(null);
+  basicWorkflowComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -333,6 +334,9 @@ export class HelpComponent {
       if (sectionId === 'overview' && subsectionId === 'who-is-it-for') {
         this.loadWhoPlantourForComponent();
       }
+      if (sectionId === 'overview' && subsectionId === 'basic-workflow') {
+        this.loadBasicWorkflowComponent();
+      }
     } else {
       this.selectedSection.set(sectionId);
     }
@@ -382,6 +386,15 @@ export class HelpComponent {
 
     const module = await import('./who-plantour-for/who-plantour-for.component');
     this.whoPlantourForComponent.set(module.WhoPlantourForComponent);
+  }
+
+  private async loadBasicWorkflowComponent() {
+    if (this.basicWorkflowComponent()) {
+      return;
+    }
+
+    const module = await import('./basic-workflow/basic-workflow.component');
+    this.basicWorkflowComponent.set(module.BasicWorkflowComponent);
   }
 
   getStartedWithTest = async () => {

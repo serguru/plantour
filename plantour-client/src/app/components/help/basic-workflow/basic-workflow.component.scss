@@ -1,0 +1,104 @@
+.basic-workflow {
+  padding: 1.5rem 0;
+}
+
+.content-header {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  .main-heading {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    color: var(--primary-text-color);
+    margin: 0 0 0.75rem 0;
+    font-weight: 600;
+  }
+
+  .intro-text {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    color: var(--pale-color);
+    margin: 0 auto;
+    max-width: 720px;
+    line-height: 1.6;
+  }
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  color: var(--primary-text-color);
+  margin: 0 0 0.75rem 0;
+}
+
+.workflow-section {
+  margin-bottom: 2rem;
+}
+
+.workflow-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.workflow-step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--secondary-border-color);
+  background: var(--primary-color-very-light);
+
+  .step-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .step-title {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    color: var(--primary-text-color);
+    margin: 0 0 0.35rem 0;
+  }
+
+  .step-description {
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    color: var(--pale-color);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.participant-section,
+.packing-section {
+  margin-bottom: 1.5rem;
+}
+
+.participant-description,
+.packing-description {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  color: var(--pale-color);
+  margin: 0;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .content-header {
+    .main-heading {
+      font-size: 1.6rem;
+    }
+  }
+}

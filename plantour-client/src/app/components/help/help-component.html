@@ -100,6 +100,10 @@
             <ng-container *ngComponentOutlet="whoPlantourForComponent()"></ng-container>
             }
 
+            @if (section.id === 'overview' && selectedSection() === 'overview-basic-workflow') {
+            <ng-container *ngComponentOutlet="basicWorkflowComponent()"></ng-container>
+            }
+
             @if (section.subsections && section.subsections.length > 0) {
             <ul class="subsection-list">
               @for (subsection of section.subsections; track subsection.id) {
