@@ -1,1 +1,121 @@
-<p>contact-component works!</p>
+<div class="page-header">
+  <div class="page-left">
+    <i class="pi pi-envelope"></i>
+    <h2>Contact Us</h2>
+  </div>
+</div>
+
+<div class="controls-wrapper">
+  <form
+    [formGroup]="contactForm"
+    (ngSubmit)="onSubmit()"
+  >
+      <!-- Full Name Field -->
+      <div class="form-field">
+        <label for="fullName">Full Name <span class="required">*</span></label>
+        <input
+          pInputText
+          id="fullName"
+          type="text"
+          formControlName="fullName"
+          placeholder="Enter your full name"
+          [class.p-invalid]="isFieldInvalid('fullName')"
+        />
+        @if (isFieldInvalid('fullName')) {
+        <small class="error-message">
+          {{ getFieldError('fullName') }}
+        </small>
+        }
+      </div>
+
+      <!-- Email Field -->
+      <div class="form-field">
+        <label for="email">Email <span class="required">*</span></label>
+        <input
+          pInputText
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="your.email@example.com"
+          [class.p-invalid]="isFieldInvalid('email')"
+        />
+        @if (isFieldInvalid('email')) {
+        <small class="error-message">
+          {{ getFieldError('email') }}
+        </small>
+        }
+      </div>
+
+      <!-- Phone Number Field -->
+      <div class="form-field">
+        <label for="phoneNumber">Phone Number</label>
+        <input
+          pInputText
+          id="phoneNumber"
+          type="tel"
+          formControlName="phoneNumber"
+          placeholder="+1 (555) 000-0000"
+          [class.p-invalid]="isFieldInvalid('phoneNumber')"
+        />
+        @if (isFieldInvalid('phoneNumber')) {
+        <small class="error-message">
+          {{ getFieldError('phoneNumber') }}
+        </small>
+        }
+      </div>
+
+      <!-- Subject Category Field -->
+      <div class="form-field">
+        <label for="subjectCategory">Subject Category</label>
+        <select
+          id="subjectCategory"
+          formControlName="subjectCategory"
+          class="form-select"
+        >
+          <option value="">Select a category (optional)</option>
+          @for (category of subjectCategories; track category.value) {
+            <option [value]="category.value">{{ category.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Message Body Field -->
+      <div class="form-field">
+        <label for="messageBody">Message <span class="required">*</span></label>
+        <textarea
+          id="messageBody"
+          formControlName="messageBody"
+          placeholder="Please tell us how we can help you..."
+          rows="6"
+          [class.p-invalid]="isFieldInvalid('messageBody')"
+          class="form-textarea"
+        ></textarea>
+        @if (isFieldInvalid('messageBody')) {
+        <small class="error-message">
+          {{ getFieldError('messageBody') }}
+        </small>
+        }
+      </div>
+
+      <!-- Error Message -->
+      @if (errorMessage) {
+      <div class="error-alert">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+      }
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <app-button
+          type="submit"
+          label="Send Message"
+          icon="pi pi-send"
+          [loading]="isLoading"
+          [disabled]="isLoading || contactForm.invalid"
+        />
+      </div>
+
+    </form>
+</div>
+

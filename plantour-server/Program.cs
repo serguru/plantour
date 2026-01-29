@@ -196,6 +196,7 @@ builder.Services.AddScoped<ITemporaryUserService, TemporaryUserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
+builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
 
 builder.Services.AddHttpClient<IBrevoEmailClient, BrevoEmailClient>();
 
@@ -227,6 +228,7 @@ builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.UserRefreshTokenRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.UserEmailConfirmationRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();
 
 builder.Services.AddScoped<HttpCurrentUser>();
 

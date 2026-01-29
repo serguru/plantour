@@ -13,11 +13,13 @@ public class UsersController : ControllerBase
 {
         private readonly IUsersService _authService;
         private readonly ITemporaryUserService _temporaryUserService;
+        private readonly IContactSubmissionService _contactSubmissionService;
 
-        public UsersController(IUsersService authService, ITemporaryUserService temporaryUserService)
+        public UsersController(IUsersService authService, ITemporaryUserService temporaryUserService, IContactSubmissionService contactSubmissionService)
         {
                 _authService = authService;
                 _temporaryUserService = temporaryUserService;
+                _contactSubmissionService = contactSubmissionService;
         }
 
         #region Admin Endpoints
@@ -119,6 +121,22 @@ public class UsersController : ControllerBase
                 var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
                 var isValid = await _authService.ValidateTokenAsync(token);
                 return Ok(new { isValid });
+        }
+
+        #endregion
+
+        #region Contact Submission Endpoints
+
+        [HttpPost("contact/submit")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ContactSubmissionDto>> SubmitContact([FromBody] ContactSubmissionRequest request)
+        {
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+                var userAgent = Request.Headers["User-Agent"].ToString();
+                var referrerUrl = Request.Headers["Referer"].ToString();
+
+                var result = await _contactSubmissionService.SubmitContactAsync(request, ipAddress, userAgent, referrerUrl);
+                return Ok(result);
         }
 
         #endregion

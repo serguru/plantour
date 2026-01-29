@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, finalize, shareReplay, tap, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { AccessToken, AuthResponse, SignUpParticipantRequest, SignUpRequest } from '../models/auth.models';
+import { ContactSubmissionRequest, ContactSubmissionDto } from '../models/contact.models';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { AppService } from './app-service';
 import { LocalStorageService } from './local-storage-service';
@@ -217,6 +218,10 @@ export class UsersService {
 
   confirmEmail(userId: string, token: string): Observable<{ confirmed: boolean }> {
     return this.http.post<{ confirmed: boolean }>(`${this.apiUrl}/api/users/admin/confirm-email`, { userId, token });
+  }
+
+  submitContact(request: ContactSubmissionRequest): Observable<ContactSubmissionDto> {
+    return this.http.post<ContactSubmissionDto>(`${this.apiUrl}/api/users/contact/submit`, request);
   }
 
   currentUserOk = (type?: 'admin' | 'participant'): boolean => {
