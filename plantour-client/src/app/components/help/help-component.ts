@@ -89,6 +89,8 @@ export class HelpComponent {
   acceptSharedItemComponent = signal<Type<unknown> | null>(null);
   rejectSharedItemComponent = signal<Type<unknown> | null>(null);
   finishSharedItemComponent = signal<Type<unknown> | null>(null);
+  understandingCommentsComponent = signal<Type<unknown> | null>(null);
+  addCommentComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -231,23 +233,7 @@ export class HelpComponent {
       description: 'Collaborate with notes and comments.',
       subsections: [
         { id: 'comments-intro', title: 'Understanding Comments', linkId: 'link#50' },
-        { id: 'add-comment', title: 'Add a Comment', linkId: 'link#51' },
-        { id: 'edit-comment', title: 'Edit Your Comment', linkId: 'link#52' },
-        { id: 'delete-comment', title: 'Delete a Comment', linkId: 'link#53' }
-      ]
-    },
-    {
-      id: 'target-mode',
-      title: 'Target Mode',
-      icon: 'pi pi-crosshairs',
-      description: 'Work with items in the context of a specific trip.',
-      subsections: [
-        { id: 'target-intro', title: 'What is Target Mode?', linkId: 'link#54' },
-        { id: 'activate-target', title: 'Activate Target Mode', linkId: 'link#55' },
-        { id: 'target-travelers', title: 'Target Mode for Travelers', linkId: 'link#56' },
-        { id: 'target-things', title: 'Target Mode for Items', linkId: 'link#57' },
-        { id: 'target-packs', title: 'Target Mode for Bags', linkId: 'link#58' },
-        { id: 'deactivate-target', title: 'Exit Target Mode', linkId: 'link#59' }
+        { id: 'add-comment', title: 'Add a Comment', linkId: 'link#51' }
       ]
     },
     {
@@ -438,6 +424,11 @@ export class HelpComponent {
           'reject-shared-item': this.rejectSharedItemComponent(),
           'finish-shared-item': this.finishSharedItemComponent()
         };
+      case 'trip-comments':
+        return {
+          'comments-intro': this.understandingCommentsComponent(),
+          'add-comment': this.addCommentComponent()
+        };
       default:
         return {};
     }
@@ -590,6 +581,12 @@ export class HelpComponent {
     }
     if (sectionId === 'shared-things' && subsectionId === 'finish-shared-item') {
       this.loadFinishSharedItemComponent();
+    }
+    if (sectionId === 'trip-comments' && subsectionId === 'comments-intro') {
+      this.loadUnderstandingCommentsComponent();
+    }
+    if (sectionId === 'trip-comments' && subsectionId === 'add-comment') {
+      this.loadAddCommentComponent();
     }
   }
 
@@ -1032,6 +1029,24 @@ export class HelpComponent {
 
     const module = await import('./finish-shared-item/finish-shared-item.component');
     this.finishSharedItemComponent.set(module.FinishSharedItemComponent);
+  }
+
+  private async loadUnderstandingCommentsComponent() {
+    if (this.understandingCommentsComponent()) {
+      return;
+    }
+
+    const module = await import('./understanding-comments/understanding-comments.component');
+    this.understandingCommentsComponent.set(module.UnderstandingCommentsComponent);
+  }
+
+  private async loadAddCommentComponent() {
+    if (this.addCommentComponent()) {
+      return;
+    }
+
+    const module = await import('./add-comment/add-comment.component');
+    this.addCommentComponent.set(module.AddCommentComponent);
   }
 
   getStartedWithTest = async () => {

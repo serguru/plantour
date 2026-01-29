@@ -1,0 +1,72 @@
+<div class="help-content">
+  <h3>Add a Comment</h3>
+  
+  <p class="intro">
+    Adding comments allows you to communicate with your trip participants and keep everyone in the loop. 
+    Comments help coordinate planning, ask questions, and share important information.
+  </p>
+
+  <div class="section">
+    <h4><i class="pi pi-list-check"></i> How to Add a Comment</h4>
+    <div class="steps-container">
+      @for (step of steps; track step.number) {
+        <div class="step-card">
+          <div class="step-number">
+            <i [class]="step.icon"></i>
+            <span>{{ step.number }}</span>
+          </div>
+          <div class="step-content">
+            <h5>{{ step.title }}</h5>
+            <p>{{ step.description }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-star"></i> Tips for Good Comments</h4>
+    <div class="tips-grid">
+      @for (tip of tips; track tip.title) {
+        <div class="tip-card">
+          <h5>{{ tip.title }}</h5>
+          <p>{{ tip.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-check-circle"></i> Best Practices</h4>
+    <ul class="practices-list">
+      @for (practice of bestPractices; track $index) {
+        <li>{{ practice }}</li>
+      }
+    </ul>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-exclamation-circle"></i> Comment Guidelines</h4>
+    <ul class="guidelines-list">
+      @for (guideline of commentGuidelines; track $index) {
+        <li>{{ guideline }}</li>
+      }
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <i class="pi pi-info-circle"></i>
+    <div>
+      <strong>Remember:</strong> Your comments are visible to all trip participants. 
+      Think about how your message will be received and understood by the whole team.
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <i class="pi pi-comment"></i>
+    <div>
+      <strong>Pro Tip:</strong> Use comments to ask for help or clarification on assignments. 
+      Your teammates are there to support you and make the trip successful together.
+    </div>
+  </div>
+</div>
