@@ -67,6 +67,19 @@
             </div>
             }
 
+            @if (isSectionExpanded(section.id)) {
+            <div class="section-collapse">
+              <button
+                type="button"
+                class="collapse-icon-button"
+                (click)="collapseSection(section.id)"
+                aria-label="Collapse section"
+              >
+                <i class="pi pi-chevron-up"></i>
+              </button>
+            </div>
+            }
+
             @if (section.id === 'get-started' && selectedSection() === 'get-started-welcome') {
             <ng-container *ngComponentOutlet="welcomeComponent()"></ng-container>
             }

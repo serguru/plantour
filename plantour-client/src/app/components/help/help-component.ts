@@ -29,6 +29,7 @@ interface HelpSubsection {
 
 // TODO: add a link to Guest Mode video tutorial
 // TODO: Help documents were genertated by AI. It is necessary to read ALL the Help documents carefully and make sure the content is OK
+// TODO: put section collapsimg button in one row with section title
 @Component({
   selector: 'app-help',
   standalone: true,
@@ -299,6 +300,17 @@ export class HelpComponent {
         this.getStartedWithTest();
       }
     });
+  }
+
+  isSectionExpanded(sectionId: string) {
+    const selected = this.selectedSection();
+    return Boolean(selected && selected.startsWith(`${sectionId}-`));
+  }
+
+  collapseSection(sectionId: string) {
+    if (this.isSectionExpanded(sectionId)) {
+      this.selectedSection.set(null);
+    }
   }
 
   navigateToSection(sectionId: string, subsectionId?: string) {
