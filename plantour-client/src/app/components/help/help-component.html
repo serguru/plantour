@@ -70,6 +70,10 @@
             <ng-container *ngComponentOutlet="welcomeComponent()"></ng-container>
             }
 
+            @if (section.id === 'get-started' && selectedSection() === 'get-started-test-mode') {
+            <ng-container *ngComponentOutlet="testModeComponent()"></ng-container>
+            }
+
             @if (section.subsections && section.subsections.length > 0) {
             <ul class="subsection-list">
               @for (subsection of section.subsections; track subsection.id) {

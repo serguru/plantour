@@ -57,6 +57,7 @@ export class HelpComponent {
 
   currentTripService = inject(CurrentTripService);
   welcomeComponent = signal<Type<unknown> | null>(null);
+  testModeComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -67,7 +68,7 @@ export class HelpComponent {
       subsections: [
         { id: 'welcome', title: 'Welcome to Plantour', linkId: 'link#1' },
         { id: 'test-mode', title: 'Using Test Mode', linkId: 'link#2' },
-        { id: 'quick-tour', title: 'Quick Tour (5 Minutes)', linkId: 'link#3' },
+//        { id: 'quick-tour', title: 'Quick Tour (5 Minutes)', linkId: 'link#3' },
         { id: 'create-account', title: 'Ready to Create Your Account?', linkId: 'link#4' }
       ]
     },
@@ -304,6 +305,9 @@ export class HelpComponent {
       if (sectionId === 'get-started' && subsectionId === 'welcome') {
         this.loadWelcomeComponent();
       }
+      if (sectionId === 'get-started' && subsectionId === 'test-mode') {
+        this.loadTestModeComponent();
+      }
     } else {
       this.selectedSection.set(sectionId);
     }
@@ -317,6 +321,15 @@ export class HelpComponent {
 
     const module = await import('./welcome-to-plantour/welcome-to-plantour.component');
     this.welcomeComponent.set(module.WelcomeToPlantourComponent);
+  }
+
+  private async loadTestModeComponent() {
+    if (this.testModeComponent()) {
+      return;
+    }
+
+    const module = await import('./using-test-mode/using-test-mode.component');
+    this.testModeComponent.set(module.UsingTestModeComponent);
   }
 
   getStartedWithTest = async () => {
