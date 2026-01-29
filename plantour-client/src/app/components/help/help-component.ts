@@ -61,6 +61,7 @@ export class HelpComponent {
   welcomeComponent = signal<Type<unknown> | null>(null);
   testModeComponent = signal<Type<unknown> | null>(null);
   readyToRegisterComponent = signal<Type<unknown> | null>(null);
+  keyFeaturesComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -81,7 +82,7 @@ export class HelpComponent {
       icon: 'pi pi-info-circle',
       description: 'Understand what Plantour is and how it helps you organize trips.',
       subsections: [
-        { id: 'what-is-plantour', title: 'What is Plantour?' },
+        //{ id: 'what-is-plantour', title: 'What is Plantour?' },
         { id: 'key-features', title: 'Key Features' },
         { id: 'who-is-it-for', title: 'Who is Plantour For?' },
         { id: 'basic-workflow', title: 'Basic Workflow' }
@@ -325,6 +326,9 @@ export class HelpComponent {
       if (sectionId === 'get-started' && subsectionId === 'create-account') {
         this.loadReadyToRegisterComponent();
       }
+      if (sectionId === 'overview' && subsectionId === 'key-features') {
+        this.loadKeyFeaturesComponent();
+      }
     } else {
       this.selectedSection.set(sectionId);
     }
@@ -356,6 +360,15 @@ export class HelpComponent {
 
     const module = await import('./ready-to-register/ready-to-register.component');
     this.readyToRegisterComponent.set(module.ReadyToRegisterComponent);
+  }
+
+  private async loadKeyFeaturesComponent() {
+    if (this.keyFeaturesComponent()) {
+      return;
+    }
+
+    const module = await import('./key-features/key-features.component');
+    this.keyFeaturesComponent.set(module.KeyFeaturesComponent);
   }
 
   getStartedWithTest = async () => {

@@ -1,0 +1,44 @@
+<div class="key-features-content">
+  <div class="content-header">
+    <h2 class="main-heading">{{ keyFeaturesContent.mainHeading }}</h2>
+    <p class="intro-text">{{ keyFeaturesContent.intro }}</p>
+  </div>
+
+  <section class="features-section">
+    <div class="features-grid">
+      @for (feature of keyFeaturesContent.highlights; track feature.title) {
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i [class]="feature.icon"></i>
+        </div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-description">{{ feature.description }}</p>
+      </div>
+      }
+    </div>
+  </section>
+
+  <section class="workflow-section">
+    <h3 class="section-title">{{ keyFeaturesContent.workflow.title }}</h3>
+    <ol class="workflow-list">
+      @for (step of keyFeaturesContent.workflow.steps; track $index) {
+      <li class="workflow-step">
+        <span class="step-number">{{ $index + 1 }}</span>
+        <span class="step-text">{{ step }}</span>
+      </li>
+      }
+    </ol>
+  </section>
+
+  <section class="tips-section">
+    <h3 class="section-title">{{ keyFeaturesContent.tips.title }}</h3>
+    <ul class="tips-list">
+      @for (tip of keyFeaturesContent.tips.items; track $index) {
+      <li class="tips-item">
+        <i class="pi pi-check-circle tips-icon"></i>
+        <span>{{ tip }}</span>
+      </li>
+      }
+    </ul>
+  </section>
+</div>

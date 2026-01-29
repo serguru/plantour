@@ -92,6 +92,10 @@
             <ng-container *ngComponentOutlet="readyToRegisterComponent()"></ng-container>
             }
 
+            @if (section.id === 'overview' && selectedSection() === 'overview-key-features') {
+            <ng-container *ngComponentOutlet="keyFeaturesComponent()"></ng-container>
+            }
+
             @if (section.subsections && section.subsections.length > 0) {
             <ul class="subsection-list">
               @for (subsection of section.subsections; track subsection.id) {
