@@ -302,3 +302,9 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 }
+
+// Active subsection
+.subsection-item.active {
+  background-color: var(--primary-color-highlight);
+  border-color: var(--primary-color);
+}

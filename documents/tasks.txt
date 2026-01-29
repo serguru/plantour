@@ -185,3 +185,26 @@ ControlsWrapperComponent: например, это может быть набо�
 
 
 Создай первый Help компонент. Помести в этот компонент оглавление Help системы. В самом начале должен идти раздел Get Started No Registration required. Я предоставлю  юзерам возможность попробовать приложение на тестовых данных без регистрации.  Далее после общего описания функциональные разделы примерно по разделу на фому (типа Add Traveler). Не пиши сами документы на этом шаге. Создай только оглавление.
+
+
+Complete task: Create a complete Help system for the Plantour web application.
+First step: Create a Help system development plan.
+Next steps: Refine the task for each Help system module and write the final text.
+
+The following is a description of the complete task. At this stage, complete only the first step.
+
+
+
+Explore the Plantour project source code: .Net API and Angular Web App. Ignore the .txt, .md and other files except those that can help you understand the project. Understand the project's purpose and architecture. Ask questions if necessary. See src\app\components\help\help-component.ts component. At this step only generate and fill text for "Welcome to Plantour" section. Meet the requirements below.
+
+General requiremets to the help system
+======================================
+
+Contextual help should be implemented, i.e. The user should be able to click on an icon in a specific location in the application and immediately access the corresponding help section. Create a separate list with contextual links (link#N) (N is the unique link number) and a description of each, along with recommendations for where to place the icon in the UI.
+
+In text where images are required, insert placeholder image#N, where N is the unique image number. In a separate list, describe the image content for each image number. I'll create these images later and insert them into the text.
+
+Make maximum use of CSS styles from styles.css. Create new styles only when absolutely necessary.
+
+Use simple and understandable ENGLISH for end users. Phrases should be short and unambiguous. Use a step-by-step approach when explaining what needs to be done to achieve a specific result. Anticipate any difficulties the user might encounter and advise them on how to overcome them.
+

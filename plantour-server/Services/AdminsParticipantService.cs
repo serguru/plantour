@@ -6,6 +6,8 @@ using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
+// TODO: Add logging
+// TODO: Add saving to DB all the visits to plantour website
 
 public class AdminsParticipantService(
     AdminsParticipantRepository adminsParticipantRepository,

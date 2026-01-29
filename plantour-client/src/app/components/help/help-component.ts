@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PanelModule } from 'primeng/panel';
@@ -10,6 +10,7 @@ import { MessagesService } from '../../services/messages-service';
 import { EMPTY, take } from 'rxjs';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
+import { AppButton } from '../button/button-component';
 
 interface HelpSection {
   id: string;
@@ -35,7 +36,8 @@ interface HelpSubsection {
     PanelModule,
     CardModule,
     AccordionModule,
-    ButtonModule
+    ButtonModule,
+    AppButton
   ],
   templateUrl: './help-component.html',
   styleUrl: './help-component.scss'
@@ -54,6 +56,7 @@ export class HelpComponent {
   localStorageService = inject(LocalStorageService);
 
   currentTripService = inject(CurrentTripService);
+  welcomeComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -296,9 +299,24 @@ export class HelpComponent {
   }
 
   navigateToSection(sectionId: string, subsectionId?: string) {
-    this.selectedSection.set(sectionId);
-    // Future: Navigate to specific subsection with fragment
+    if (subsectionId) {
+      this.selectedSection.set(`${sectionId}-${subsectionId}`);
+      if (sectionId === 'get-started' && subsectionId === 'welcome') {
+        this.loadWelcomeComponent();
+      }
+    } else {
+      this.selectedSection.set(sectionId);
+    }
     console.log('Navigate to:', sectionId, subsectionId);
+  }
+
+  private async loadWelcomeComponent() {
+    if (this.welcomeComponent()) {
+      return;
+    }
+
+    const module = await import('./welcome-to-plantour/welcome-to-plantour.component');
+    this.welcomeComponent.set(module.WelcomeToPlantourComponent);
   }
 
   getStartedWithTest = async () => {

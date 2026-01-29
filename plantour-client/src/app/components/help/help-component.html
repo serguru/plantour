@@ -56,16 +56,18 @@
                   Experience all features with test data. No registration, no commitment.
                   Perfect for understanding how Plantour works before creating your account.
                 </p>
-                <button
-                  pButton
+                <app-button
                   label="Start Test Mode"
                   icon="pi pi-play"
-                  class="p-button-success"
                   (click)="getStartedWithTest()"
                 >
-                </button>
+                </app-button>
               </div>
             </div>
+            }
+
+            @if (section.id === 'get-started' && selectedSection() === 'get-started-welcome') {
+            <ng-container *ngComponentOutlet="welcomeComponent()"></ng-container>
             }
 
             @if (section.subsections && section.subsections.length > 0) {
@@ -73,6 +75,7 @@
               @for (subsection of section.subsections; track subsection.id) {
               <li
                 class="subsection-item"
+                [class.active]="selectedSection() === section.id + '-' + subsection.id"
                 (click)="navigateToSection(section.id, subsection.id)"
               >
                 <i class="pi pi-angle-right subsection-icon"></i>

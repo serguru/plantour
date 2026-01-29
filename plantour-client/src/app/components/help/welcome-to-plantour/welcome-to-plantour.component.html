@@ -1,0 +1,302 @@
+<div class="welcome-content">
+  <!-- Main Heading -->
+  <div class="welcome-header">
+    <h2>{{ welcomeContent.mainHeading }}</h2>
+    <p class="welcome-intro">{{ welcomeContent.intro }}</p>
+  </div>
+
+  <!-- What You'll Learn -->
+  <section class="welcome-section">
+    <h3>{{ welcomeContent.whatYouWillLearn.heading }}</h3>
+    <ol class="welcome-list">
+      @for (item of welcomeContent.whatYouWillLearn.items; track $index) {
+      <li>{{ item }}</li>
+      }
+    </ol>
+  </section>
+
+  <!-- Why Use Plantour -->
+  <section class="welcome-section">
+    <h3>{{ welcomeContent.whyUseplantour.heading }}</h3>
+    <h4 class="subsection-heading">{{ welcomeContent.whyUseplantour.subheading }}</h4>
+    <div class="benefits-grid">
+      @for (benefit of welcomeContent.whyUseplantour.benefits; track benefit.title) {
+      <div class="benefit-card">
+        <div class="benefit-icon">{{ benefit.icon }}</div>
+        <h5>{{ benefit.title }}</h5>
+        <p>{{ benefit.description }}</p>
+      </div>
+      }
+    </div>
+  </section>
+
+  <!-- Getting Started -->
+  <section class="welcome-section">
+    <h3>{{ welcomeContent.gettingStarted.heading }}</h3>
+
+    <div class="getting-started-option">
+      <h4>{{ welcomeContent.gettingStarted.option1.title }}</h4>
+      <p class="option-description">{{ welcomeContent.gettingStarted.option1.description }}</p>
+
+      <h5 class="steps-heading">Steps:</h5>
+      <ol class="steps-list">
+        @for (step of welcomeContent.gettingStarted.option1.steps; track $index) {
+        <li>{{ step }}</li>
+        }
+      </ol>
+
+      <h5 class="steps-heading">{{ welcomeContent.gettingStarted.option1.whatYouWillSee.title }}</h5>
+      <ul class="info-list">
+        @for (item of welcomeContent.gettingStarted.option1.whatYouWillSee.items; track $index) {
+        <li>{{ item }}</li>
+        }
+      </ul>
+
+      <div class="pro-tip-box">
+        <i class="pi pi-lightbulb"></i>
+        <span><strong>Pro Tip:</strong> {{ welcomeContent.gettingStarted.option1.proTip }}</span>
+      </div>
+    </div>
+
+    <div class="getting-started-option">
+      <h4>{{ welcomeContent.gettingStarted.option2.title }}</h4>
+      <p class="option-description">{{ welcomeContent.gettingStarted.option2.description }}</p>
+
+      <h5 class="steps-heading">Steps:</h5>
+      <ol class="steps-list">
+        @for (step of welcomeContent.gettingStarted.option2.steps; track $index) {
+        <li>{{ step }}</li>
+        }
+      </ol>
+
+      <h5 class="steps-heading">{{ welcomeContent.gettingStarted.option2.whatHappensNext.title }}</h5>
+      <ul class="info-list">
+        @for (item of welcomeContent.gettingStarted.option2.whatHappensNext.items; track $index) {
+        <li>{{ item }}</li>
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Basic Workflow -->
+  <section class="welcome-section">
+    <h3>{{ welcomeContent.basicWorkflow.heading }}</h3>
+
+    <div class="workflow-step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h4>{{ welcomeContent.basicWorkflow.step1.title }}</h4>
+        <p class="step-subtitle">{{ welcomeContent.basicWorkflow.step1.subtitle }}</p>
+
+        <h5>{{ welcomeContent.basicWorkflow.step1.whatGoesIn.title }}</h5>
+        <ul class="info-list">
+          @for (item of welcomeContent.basicWorkflow.step1.whatGoesIn.items; track $index) {
+          <li>{{ item }}</li>
+          }
+        </ul>
+
+        <h5>{{ welcomeContent.basicWorkflow.step1.howToCreate.title }}</h5>
+        <ul class="info-list">
+          @for (item of welcomeContent.basicWorkflow.step1.howToCreate.items; track $index) {
+          <li>{{ item }}</li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h4>{{ welcomeContent.basicWorkflow.step2.title }}</h4>
+        <p class="step-subtitle">{{ welcomeContent.basicWorkflow.step2.subtitle }}</p>
+
+        <h5>{{ welcomeContent.basicWorkflow.step2.whyAdd.title }}</h5>
+        <ul class="info-list">
+          @for (item of welcomeContent.basicWorkflow.step2.whyAdd.items; track $index) {
+          <li>{{ item }}</li>
+          }
+        </ul>
+
+        <h5>{{ welcomeContent.basicWorkflow.step2.howToAdd.title }}</h5>
+        <ul class="info-list">
+          @for (item of welcomeContent.basicWorkflow.step2.howToAdd.items; track $index) {
+          <li>{{ item }}</li>
+          }
+        </ul>
+
+        <h5>{{ welcomeContent.basicWorkflow.step2.roles.title }}</h5>
+        <ul class="info-list">
+          @for (item of welcomeContent.basicWorkflow.step2.roles.items; track $index) {
+          <li>{{ item }}</li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h4>{{ welcomeContent.basicWorkflow.step3.title }}</h4>
+        <p class="step-subtitle">{{ welcomeContent.basicWorkflow.step3.subtitle }}</p>
+
+        <h5>{{ welcomeContent.basicWorkflow.step3.whyOrganize.title }}</h5>
+        <ul class="info-list">
+          @for (item of welcomeContent.basicWorkflow.step3.whyOrganize.items; track $index) {
+          <li>{{ item }}</li>
+          }
+        </ul>
+
+        <h5>{{ welcomeContent.basicWorkflow.step3.howToAdd.title }}</h5>
+        <ol class="steps-list">
+          @for (step of welcomeContent.basicWorkflow.step3.howToAdd.steps; track $index) {
+          <li>{{ step }}</li>
+          }
+        </ol>
+
+        <h5>{{ welcomeContent.basicWorkflow.step3.makeReusable.title }}</h5>
+        <ul class="info-list">
+          @for (item of welcomeContent.basicWorkflow.step3.makeReusable.items; track $index) {
+          <li>{{ item }}</li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <h4>{{ welcomeContent.basicWorkflow.step4.title }}</h4>
+        <p class="step-subtitle">{{ welcomeContent.basicWorkflow.step4.subtitle }}</p>
+
+        <h5>{{ welcomeContent.basicWorkflow.step4.whyUseBags.title }}</h5>
+        <ul class="info-list">
+          @for (item of welcomeContent.basicWorkflow.step4.whyUseBags.items; track $index) {
+          <li>{{ item }}</li>
+          }
+        </ul>
+
+        <h5>{{ welcomeContent.basicWorkflow.step4.howToCreateBags.title }}</h5>
+        <ol class="steps-list">
+          @for (step of welcomeContent.basicWorkflow.step4.howToCreateBags.steps; track $index) {
+          <li>{{ step }}</li>
+          }
+        </ol>
+
+        <h5>{{ welcomeContent.basicWorkflow.step4.addItems.title }}</h5>
+        <ol class="steps-list">
+          @for (step of welcomeContent.basicWorkflow.step4.addItems.steps; track $index) {
+          <li>{{ step }}</li>
+          }
+        </ol>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-number">5</div>
+      <div class="step-content">
+        <h4>{{ welcomeContent.basicWorkflow.step5.title }}</h4>
+        <p class="step-subtitle">{{ welcomeContent.basicWorkflow.step5.subtitle }}</p>
+
+        <h5>{{ welcomeContent.basicWorkflow.step5.howItWorks.title }}</h5>
+        <ul class="info-list">
+          @for (item of welcomeContent.basicWorkflow.step5.howItWorks.items; track $index) {
+          <li>{{ item }}</li>
+          }
+        </ul>
+
+        <h5>{{ welcomeContent.basicWorkflow.step5.howToInvite.title }}</h5>
+        <ol class="steps-list">
+          @for (step of welcomeContent.basicWorkflow.step5.howToInvite.steps; track $index) {
+          <li>{{ step }}</li>
+          }
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- Common Tasks -->
+  <section class="welcome-section">
+    <h3>{{ welcomeContent.commonTasks.heading }}</h3>
+    <div class="common-tasks-grid">
+      @for (item of welcomeContent.commonTasks.tasks; track item.task) {
+      <div class="task-card">
+        <h5>{{ item.task }}</h5>
+        <p class="task-reference">→ {{ item.section }}</p>
+      </div>
+      }
+    </div>
+  </section>
+
+  <!-- Pro Tips -->
+  <section class="welcome-section">
+    <h3>{{ welcomeContent.proTips.heading }}</h3>
+    <div class="tips-container">
+      @for (tip of welcomeContent.proTips.tips; track tip.title) {
+      <div class="tip-card">
+        <h5>{{ tip.title }}</h5>
+        <p>{{ tip.content }}</p>
+      </div>
+      }
+    </div>
+  </section>
+
+  <!-- Troubleshooting -->
+  <section class="welcome-section">
+    <h3>{{ welcomeContent.troubleshooting.heading }}</h3>
+    <div class="faq-container">
+      @for (faq of welcomeContent.troubleshooting.faqs; track faq.question) {
+      <div class="faq-item">
+        <h5 class="faq-question">Q: {{ faq.question }}</h5>
+        <p class="faq-answer"><strong>A:</strong> {{ faq.answer }}</p>
+      </div>
+      }
+    </div>
+  </section>
+
+  <!-- Next Steps -->
+  <section class="welcome-section">
+    <h3>{{ welcomeContent.nextSteps.heading }}</h3>
+    <p>{{ welcomeContent.nextSteps.introText }}</p>
+
+    <div class="next-steps-group">
+      <h4>{{ welcomeContent.nextSteps.guestModeSteps.title }}</h4>
+      <ol class="steps-list">
+        @for (item of welcomeContent.nextSteps.guestModeSteps.items; track $index) {
+        <li>{{ item }}</li>
+        }
+      </ol>
+    </div>
+
+    <div class="next-steps-group">
+      <h4>{{ welcomeContent.nextSteps.accountSteps.title }}</h4>
+      <ol class="steps-list">
+        @for (item of welcomeContent.nextSteps.accountSteps.items; track $index) {
+        <li>{{ item }}</li>
+        }
+      </ol>
+    </div>
+
+    <div class="next-steps-group">
+      <h4>{{ welcomeContent.nextSteps.gettingHelp.title }}</h4>
+      <ul class="info-list">
+        @for (item of welcomeContent.nextSteps.gettingHelp.items; track $index) {
+        <li>{{ item }}</li>
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Quick Reference -->
+  <section class="welcome-section">
+    <h3>{{ welcomeContent.quickReference.heading }}</h3>
+    <div class="quick-reference-table">
+      @for (item of welcomeContent.quickReference.items; track item.need) {
+      <div class="quick-ref-row">
+        <div class="quick-ref-need">{{ item.need }}</div>
+        <div class="quick-ref-arrow">→</div>
+        <div class="quick-ref-action">{{ item.action }}</div>
+      </div>
+      }
+    </div>
+  </section>
+</div>
