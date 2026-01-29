@@ -1,0 +1,185 @@
+<div class="help-content">
+  <div class="content-header">
+    <h2 class="main-heading">{{ mainHeading }}</h2>
+    <p class="intro-text">{{ intro }}</p>
+  </div>
+
+  <section class="filters-section">
+    <h3 class="section-heading">
+      <i class="pi pi-filter"></i>
+      Available Filter Options
+    </h3>
+    @for (filter of filterOptions; track filter.name) {
+      <div class="filter-card">
+        <h4 class="filter-name">
+          <i class="pi pi-angle-right"></i>
+          {{ filter.name }}
+        </h4>
+        <p class="filter-description">{{ filter.description }}</p>
+        <div class="filter-usecase">
+          <i class="pi pi-lightbulb"></i>
+          <span><strong>Use Case:</strong> {{ filter.useCase }}</span>
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="sorts-section">
+    <h3 class="section-heading">
+      <i class="pi pi-sort-alt"></i>
+      Sort Options
+    </h3>
+    @for (sort of sortOptions; track sort.name) {
+      <div class="sort-card">
+        <h4 class="sort-name">
+          <i class="pi pi-sort"></i>
+          {{ sort.name }}
+        </h4>
+        <p class="sort-description">{{ sort.description }}</p>
+        <div class="sort-bestfor">
+          <i class="pi pi-check-circle"></i>
+          <span><strong>Best For:</strong> {{ sort.bestFor }}</span>
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="scenarios-section">
+    <h3 class="section-heading">
+      <i class="pi pi-compass"></i>
+      Common Scenarios
+    </h3>
+    <p class="section-intro">Here's how to combine filters and sorts for common tasks:</p>
+    @for (scenario of combinedFiltersScenarios; track scenario.situation) {
+      <div class="scenario-card">
+        <h4 class="scenario-title">
+          <i class="pi pi-map-marker"></i>
+          {{ scenario.situation }}
+        </h4>
+        <div class="scenario-filters">
+          <strong>Apply Filters:</strong>
+          <ul>
+            @for (filter of scenario.filters; track $index) {
+              <li>{{ filter }}</li>
+            }
+          </ul>
+        </div>
+        <div class="scenario-sorts">
+          <strong>Then Sort By:</strong>
+          <ul>
+            @for (sort of scenario.sorts; track $index) {
+              <li>{{ sort }}</li>
+            }
+          </ul>
+        </div>
+        <div class="scenario-result">
+          <i class="pi pi-check"></i>
+          <span><strong>Result:</strong> {{ scenario.result }}</span>
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="how-to-section">
+    <div class="how-to-grid">
+      <div class="how-to-card filter-how">
+        <h3 class="how-to-heading">
+          <i class="pi pi-filter"></i>
+          How to Filter
+        </h3>
+        <ul class="how-to-steps">
+          @for (step of howToFilter; track $index) {
+            <li>
+              <i class="pi pi-angle-right"></i>
+              {{ step }}
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="how-to-card sort-how">
+        <h3 class="how-to-heading">
+          <i class="pi pi-sort-alt"></i>
+          How to Sort
+        </h3>
+        <ul class="how-to-steps">
+          @for (step of howToSort; track $index) {
+            <li>
+              <i class="pi pi-angle-right"></i>
+              {{ step }}
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="quick-start-section">
+    <h3 class="section-heading">
+      <i class="pi pi-bolt"></i>
+      Quick Start Guide
+    </h3>
+    @for (guide of quickStartGuide; track guide.task) {
+      <div class="quick-start-card">
+        <h4 class="quick-start-task">
+          <i class="pi pi-play"></i>
+          {{ guide.task }}
+        </h4>
+        <ol class="quick-start-steps">
+          @for (step of guide.steps; track $index) {
+            <li>{{ step }}</li>
+          }
+        </ol>
+      </div>
+    }
+  </section>
+
+  <section class="tips-section">
+    <h3 class="section-heading">
+      <i class="pi pi-lightbulb"></i>
+      Helpful Tips
+    </h3>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>
+          <i class="pi pi-star"></i>
+          {{ tip }}
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="advanced-section">
+    <h3 class="section-heading">
+      <i class="pi pi-cog"></i>
+      Advanced Features
+    </h3>
+    @for (feature of advancedFeatures; track feature.feature) {
+      <div class="advanced-card">
+        <h4 class="advanced-feature">
+          <i class="pi pi-sparkles"></i>
+          {{ feature.feature }}
+        </h4>
+        <p class="advanced-description">{{ feature.description }}</p>
+      </div>
+    }
+  </section>
+
+  <section class="troubleshooting-section">
+    <h3 class="section-heading">
+      <i class="pi pi-wrench"></i>
+      Common Issues
+    </h3>
+    @for (issue of commonIssues; track issue.problem) {
+      <div class="issue-card">
+        <h4 class="issue-problem">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ issue.problem }}
+        </h4>
+        <p class="issue-solution">
+          <strong>Solution:</strong> {{ issue.solution }}
+        </p>
+      </div>
+    }
+  </section>
+</div>

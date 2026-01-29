@@ -1,0 +1,121 @@
+<div class="help-content">
+  <div class="content-header">
+    <h2 class="main-heading">{{ mainHeading }}</h2>
+    <p class="intro-text">{{ intro }}</p>
+  </div>
+
+  <section class="steps-section">
+    <h3 class="section-heading">Step-by-Step Instructions</h3>
+    
+    @for (step of steps; track step.stepNumber) {
+      <div class="step-card">
+        <div class="step-number">{{ step.stepNumber }}</div>
+        <div class="step-content">
+          <h4 class="step-title">{{ step.title }}</h4>
+          <p class="step-description">{{ step.description }}</p>
+          
+          @if (step.details && step.details.length > 0) {
+            <ul class="step-details">
+              @for (detail of step.details; track $index) {
+                <li>
+                  <i class="pi pi-angle-right"></i>
+                  {{ detail }}
+                </li>
+              }
+            </ul>
+          }
+          
+          @if (step.note) {
+            <div class="step-note">
+              <i class="pi pi-info-circle"></i>
+              <span>{{ step.note }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="fields-section">
+    <h3 class="section-heading">
+      <i class="pi pi-pencil"></i>
+      Editable Fields
+    </h3>
+    @for (item of editableFields; track item.field) {
+      <div class="field-card">
+        <h4 class="field-name">{{ item.field }}</h4>
+        <p class="field-description">{{ item.description }}</p>
+        <div class="field-example">
+          <i class="pi pi-lightbulb"></i>
+          <span><strong>Example:</strong> {{ item.example }}</span>
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="scenarios-section">
+    <h3 class="section-heading">
+      <i class="pi pi-list-check"></i>
+      Common Scenarios
+    </h3>
+    @for (scenario of commonScenarios; track scenario.scenario) {
+      <div class="scenario-card">
+        <h4 class="scenario-title">
+          <i class="pi pi-question-circle"></i>
+          {{ scenario.scenario }}
+        </h4>
+        <p class="scenario-solution">
+          <strong>Solution:</strong> {{ scenario.solution }}
+        </p>
+      </div>
+    }
+  </section>
+
+  <section class="tips-section">
+    <h3 class="section-heading">
+      <i class="pi pi-lightbulb"></i>
+      Helpful Tips
+    </h3>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>
+          <i class="pi pi-check-circle"></i>
+          {{ tip }}
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="notes-section">
+    <h3 class="section-heading">
+      <i class="pi pi-exclamation-circle"></i>
+      Important Notes
+    </h3>
+    <ul class="notes-list">
+      @for (note of importantNotes; track $index) {
+        <li>
+          <i class="pi pi-angle-double-right"></i>
+          {{ note }}
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="troubleshooting-section">
+    <h3 class="section-heading">
+      <i class="pi pi-wrench"></i>
+      Common Issues
+    </h3>
+    @for (issue of commonIssues; track issue.problem) {
+      <div class="issue-card">
+        <h4 class="issue-problem">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ issue.problem }}
+        </h4>
+        <p class="issue-solution">
+          <strong>Solution:</strong> {{ issue.solution }}
+        </p>
+      </div>
+    }
+  </section>
+</div>

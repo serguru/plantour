@@ -54,6 +54,12 @@ export class HelpComponent {
   editTravelerComponent = signal<Type<unknown> | null>(null);
   deleteTravelerComponent = signal<Type<unknown> | null>(null);
   filterTravelersComponent = signal<Type<unknown> | null>(null);
+  understandingItemsComponent = signal<Type<unknown> | null>(null);
+  addItemComponent = signal<Type<unknown> | null>(null);
+  editItemComponent = signal<Type<unknown> | null>(null);
+  deleteItemComponent = signal<Type<unknown> | null>(null);
+  usingCategoriesComponent = signal<Type<unknown> | null>(null);
+  filterSortItemsComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -358,6 +364,15 @@ export class HelpComponent {
           'delete-traveler': this.deleteTravelerComponent(),
           'filter-travelers': this.filterTravelersComponent()
         };
+      case 'things':
+        return {
+          'things-intro': this.understandingItemsComponent(),
+          'add-item': this.addItemComponent(),
+          'edit-item': this.editItemComponent(),
+          'delete-item': this.deleteItemComponent(),
+          'item-categories': this.usingCategoriesComponent(),
+          'filter-things': this.filterSortItemsComponent()
+        };
       default:
         return {};
     }
@@ -405,6 +420,24 @@ export class HelpComponent {
     }
     if (sectionId === 'travelers' && subsectionId === 'filter-travelers') {
       this.loadFilterTravelersComponent();
+    }
+    if (sectionId === 'things' && subsectionId === 'things-intro') {
+      this.loadUnderstandingItemsComponent();
+    }
+    if (sectionId === 'things' && subsectionId === 'add-item') {
+      this.loadAddItemComponent();
+    }
+    if (sectionId === 'things' && subsectionId === 'edit-item') {
+      this.loadEditItemComponent();
+    }
+    if (sectionId === 'things' && subsectionId === 'delete-item') {
+      this.loadDeleteItemComponent();
+    }
+    if (sectionId === 'things' && subsectionId === 'item-categories') {
+      this.loadUsingCategoriesComponent();
+    }
+    if (sectionId === 'things' && subsectionId === 'filter-things') {
+      this.loadFilterSortItemsComponent();
     }
   }
 
@@ -532,6 +565,60 @@ export class HelpComponent {
 
     const module = await import('./filter-travelers/filter-travelers.component');
     this.filterTravelersComponent.set(module.FilterTravelersComponent);
+  }
+
+  private async loadUnderstandingItemsComponent() {
+    if (this.understandingItemsComponent()) {
+      return;
+    }
+
+    const module = await import('./understanding-items/understanding-items.component');
+    this.understandingItemsComponent.set(module.UnderstandingItemsComponent);
+  }
+
+  private async loadAddItemComponent() {
+    if (this.addItemComponent()) {
+      return;
+    }
+
+    const module = await import('./add-item/add-item.component');
+    this.addItemComponent.set(module.AddItemComponent);
+  }
+
+  private async loadEditItemComponent() {
+    if (this.editItemComponent()) {
+      return;
+    }
+
+    const module = await import('./edit-item/edit-item.component');
+    this.editItemComponent.set(module.EditItemComponent);
+  }
+
+  private async loadDeleteItemComponent() {
+    if (this.deleteItemComponent()) {
+      return;
+    }
+
+    const module = await import('./delete-item/delete-item.component');
+    this.deleteItemComponent.set(module.DeleteItemComponent);
+  }
+
+  private async loadUsingCategoriesComponent() {
+    if (this.usingCategoriesComponent()) {
+      return;
+    }
+
+    const module = await import('./using-categories/using-categories.component');
+    this.usingCategoriesComponent.set(module.UsingCategoriesComponent);
+  }
+
+  private async loadFilterSortItemsComponent() {
+    if (this.filterSortItemsComponent()) {
+      return;
+    }
+
+    const module = await import('./filter-sort-items/filter-sort-items.component');
+    this.filterSortItemsComponent.set(module.FilterSortItemsComponent);
   }
 
   getStartedWithTest = async () => {
