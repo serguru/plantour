@@ -58,6 +58,7 @@ export class HelpComponent {
   currentTripService = inject(CurrentTripService);
   welcomeComponent = signal<Type<unknown> | null>(null);
   testModeComponent = signal<Type<unknown> | null>(null);
+  readyToRegisterComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -308,6 +309,9 @@ export class HelpComponent {
       if (sectionId === 'get-started' && subsectionId === 'test-mode') {
         this.loadTestModeComponent();
       }
+      if (sectionId === 'get-started' && subsectionId === 'create-account') {
+        this.loadReadyToRegisterComponent();
+      }
     } else {
       this.selectedSection.set(sectionId);
     }
@@ -330,6 +334,15 @@ export class HelpComponent {
 
     const module = await import('./using-test-mode/using-test-mode.component');
     this.testModeComponent.set(module.UsingTestModeComponent);
+  }
+
+  private async loadReadyToRegisterComponent() {
+    if (this.readyToRegisterComponent()) {
+      return;
+    }
+
+    const module = await import('./ready-to-register/ready-to-register.component');
+    this.readyToRegisterComponent.set(module.ReadyToRegisterComponent);
   }
 
   getStartedWithTest = async () => {

@@ -1,0 +1,222 @@
+<div class="registration-content">
+  <div class="welcome-header">
+    <h2 class="main-heading">{{ registrationContent.mainHeading }}</h2>
+    <p class="intro-text">{{ registrationContent.intro }}</p>
+  </div>
+
+  <!-- Registration Process Section -->
+  <section class="content-section">
+    <h3 class="section-heading">{{ registrationContent.registrationProcess.title }}</h3>
+    <p class="section-intro">{{ registrationContent.registrationProcess.description }}</p>
+    
+    <div class="steps-container">
+      @for (step of registrationContent.registrationProcess.steps; track step.number) {
+        <div class="workflow-step">
+          <div class="step-number">{{ step.number }}</div>
+          <div class="step-content">
+            <h4 class="step-title">{{ step.title }}</h4>
+            <p class="step-details">{{ step.details }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Trial Plan Section -->
+  <section class="content-section">
+    <h3 class="section-heading highlight-green">{{ registrationContent.trialPlan.title }}</h3>
+    <p class="section-intro">{{ registrationContent.trialPlan.description }}</p>
+    
+    <div class="features-grid">
+      @for (feature of registrationContent.trialPlan.features; track $index) {
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i [class]="'pi pi-' + feature.icon"></i>
+          </div>
+          <h4 class="feature-title">{{ feature.title }}</h4>
+          <p class="feature-description">{{ feature.description }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Trial Expiration Section -->
+  <section class="content-section warning-section">
+    <h3 class="section-heading warning-heading">{{ registrationContent.trialExpiration.title }}</h3>
+    <p class="section-intro">{{ registrationContent.trialExpiration.description }}</p>
+    
+    <div class="timeline-container">
+      @for (item of registrationContent.trialExpiration.timeline; track item.day) {
+        <div class="timeline-item">
+          <div class="timeline-marker">
+            <span class="day-label">{{ item.day }}</span>
+            <span class="status-badge" [class]="'status-' + item.status.toLowerCase()">{{ item.status }}</span>
+          </div>
+          <div class="timeline-content">
+            <p>{{ item.description }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Pricing Plans Section -->
+  <section class="content-section">
+    <h3 class="section-heading">{{ registrationContent.pricingPlans.title }}</h3>
+    <p class="section-intro">{{ registrationContent.pricingPlans.description }}</p>
+    
+    <div class="plans-grid">
+      @for (plan of registrationContent.pricingPlans.plans; track plan.name) {
+        <div class="plan-card" [class.highlighted]="plan.highlighted">
+          @if (plan.highlighted) {
+            <div class="popular-badge">MOST POPULAR</div>
+          }
+          
+          <div class="plan-header">
+            <div class="plan-icon">
+              <i [class]="'pi pi-' + plan.icon"></i>
+            </div>
+            <h4 class="plan-name">{{ plan.name }}</h4>
+            <p class="plan-for">{{ plan.bestFor }}</p>
+          </div>
+
+          <div class="plan-price">
+            <span class="price">{{ plan.price }}</span>
+            <span class="period">{{ plan.period }}</span>
+          </div>
+
+          <ul class="plan-features">
+            @for (feature of plan.features; track $index) {
+              <li class="feature-item">
+                <i class="pi pi-check-circle"></i>
+                <span>{{ feature }}</span>
+              </li>
+            }
+          </ul>
+
+          <button class="plan-button">Choose Plan</button>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Plan Management Section -->
+  <section class="content-section">
+    <h3 class="section-heading">{{ registrationContent.planManagement.title }}</h3>
+    <p class="section-intro">{{ registrationContent.planManagement.description }}</p>
+    
+    <div class="management-grid">
+      @for (action of registrationContent.planManagement.actions; track action.title) {
+        <div class="management-card">
+          <div class="management-icon">
+            <i class="pi pi-cog"></i>
+          </div>
+          <h4>{{ action.title }}</h4>
+          <p>{{ action.description }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Refund Policy Section -->
+  <section class="content-section policy-section">
+    <h3 class="section-heading info-heading">{{ registrationContent.refundPolicy.title }}</h3>
+    <p class="section-intro">{{ registrationContent.refundPolicy.description }}</p>
+    
+    <div class="policies-container">
+      @for (policy of registrationContent.refundPolicy.policies; track policy.title) {
+        <div class="policy-card">
+          <div class="policy-icon">
+            <i class="pi pi-info-circle"></i>
+          </div>
+          <div class="policy-content">
+            <h4>{{ policy.title }}</h4>
+            <p>{{ policy.description }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Payment Info Section -->
+  <section class="content-section">
+    <h3 class="section-heading">{{ registrationContent.paymentInfo.title }}</h3>
+    <p class="section-intro">{{ registrationContent.paymentInfo.description }}</p>
+    
+    <div class="payment-grid">
+      @for (detail of registrationContent.paymentInfo.details; track detail.title) {
+        <div class="payment-card">
+          <div class="payment-icon">
+            <i [class]="'pi pi-' + detail.icon"></i>
+          </div>
+          <h4>{{ detail.title }}</h4>
+          <p>{{ detail.description }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="content-section">
+    <h3 class="section-heading">{{ registrationContent.faq.title }}</h3>
+    
+    <div class="faq-container">
+      @for (item of registrationContent.faq.questions; track item.q) {
+        <div class="faq-item">
+          <details class="faq-details">
+            <summary class="faq-question">
+              <i class="pi pi-chevron-right faq-icon"></i>
+              <span>{{ item.q }}</span>
+            </summary>
+            <div class="faq-answer">{{ item.a }}</div>
+          </details>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Next Steps Section -->
+  <section class="content-section">
+    <h3 class="section-heading">{{ registrationContent.nextSteps.title }}</h3>
+    <p class="section-intro">{{ registrationContent.nextSteps.description }}</p>
+    
+    <div class="next-steps-container">
+      @for (step of registrationContent.nextSteps.steps; track step.title) {
+        <div class="next-step-card">
+          <div class="step-number-small">{{ $index + 1 }}</div>
+          <div class="step-info">
+            <h4>{{ step.title }}</h4>
+            <p>{{ step.text }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Support Section -->
+  <section class="content-section">
+    <h3 class="section-heading">{{ registrationContent.support.title }}</h3>
+    <p class="section-intro">{{ registrationContent.support.description }}</p>
+    
+    <div class="support-grid">
+      @for (option of registrationContent.support.options; track option.title) {
+        <div class="support-card">
+          <div class="support-icon">
+            <i [class]="'pi pi-' + option.icon"></i>
+          </div>
+          <h4>{{ option.title }}</h4>
+          <p>{{ option.description }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="content-section cta-section">
+    <div class="cta-content">
+      <h3>Don't Hesitate - Your Trial is Waiting!</h3>
+      <p>Create your Plantour account now and start planning your next adventure with zero risk. Your 30-day Trial is completely free.</p>
+      <button class="cta-button">Create My Account Now</button>
+    </div>
+  </section>
+</div>

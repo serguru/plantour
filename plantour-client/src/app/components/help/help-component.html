@@ -74,6 +74,10 @@
             <ng-container *ngComponentOutlet="testModeComponent()"></ng-container>
             }
 
+            @if (section.id === 'get-started' && selectedSection() === 'get-started-create-account') {
+            <ng-container *ngComponentOutlet="readyToRegisterComponent()"></ng-container>
+            }
+
             @if (section.subsections && section.subsections.length > 0) {
             <ul class="subsection-list">
               @for (subsection of section.subsections; track subsection.id) {
