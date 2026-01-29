@@ -28,6 +28,7 @@ interface HelpSubsection {
 
 
 // TODO: add a link to Guest Mode video tutorial
+// TODO: Help documents were genertated by AI. It is necessary to read ALL the Help documents carefully and make sure the content is OK
 @Component({
   selector: 'app-help',
   standalone: true,
