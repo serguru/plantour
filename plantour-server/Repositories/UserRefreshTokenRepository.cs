@@ -15,7 +15,7 @@ public class UserRefreshTokenRepository(PlantourContext context) : GenericReposi
         var now = DateTime.UtcNow;
         return await _dbSet.FirstOrDefaultAsync(x =>
             x.TokenHash == tokenHash &&
-            x.RevokedAtUtc == null &&
-            x.ExpiresAtUtc > now);
+            x.RevokedAt == null &&
+            x.ExpiresAt > now);
     }
 }

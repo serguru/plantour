@@ -73,16 +73,16 @@ public class EmailConfirmationService : IEmailConfirmationService
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
-                CreatedAtUtc = DateTime.UtcNow,
-                ConfirmedAtUtc = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                ConfirmedAt = DateTime.UtcNow
             };
             await _confirmationRepository.AddAsync(confirmation);
             return true;
         }
 
-        if (confirmation.ConfirmedAtUtc == null)
+        if (confirmation.ConfirmedAt == null)
         {
-            confirmation.ConfirmedAtUtc = DateTime.UtcNow;
+            confirmation.ConfirmedAt = DateTime.UtcNow;
             await _confirmationRepository.UpdateAsync(confirmation);
         }
 
@@ -92,7 +92,7 @@ public class EmailConfirmationService : IEmailConfirmationService
     public async Task<bool> IsEmailConfirmedAsync(Guid userId)
     {
         var confirmation = await _confirmationRepository.GetByUserIdAsync(userId);
-        return confirmation?.ConfirmedAtUtc != null;
+        return confirmation?.ConfirmedAt != null;
     }
 
     public async Task SendConfirmationEmailAsync(User user, string token, CancellationToken cancellationToken = default)
@@ -126,14 +126,14 @@ public class EmailConfirmationService : IEmailConfirmationService
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
-                CreatedAtUtc = DateTime.UtcNow,
-                LastSentAtUtc = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                LastSentAt = DateTime.UtcNow
             };
             await _confirmationRepository.AddAsync(confirmation);
         }
         else
         {
-            confirmation.LastSentAtUtc = DateTime.UtcNow;
+            confirmation.LastSentAt = DateTime.UtcNow;
             await _confirmationRepository.UpdateAsync(confirmation);
         }
     }

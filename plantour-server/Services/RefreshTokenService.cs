@@ -24,8 +24,8 @@ public class RefreshTokenService : IRefreshTokenService
             Role = role.ToString(),
             AdminId = adminId,
             TokenHash = tokenResult.TokenHash,
-            CreatedAtUtc = tokenResult.CreatedAtUtc,
-            ExpiresAtUtc = tokenResult.ExpiresAtUtc,
+            CreatedAt = tokenResult.CreatedAtUtc,
+            ExpiresAt = tokenResult.ExpiresAtUtc,
             CreatedByIp = createdByIp
         };
 
@@ -47,7 +47,7 @@ public class RefreshTokenService : IRefreshTokenService
 
     public async Task RotateAsync(UserRefreshToken existingToken, RefreshTokenResult newTokenResult, string? revokedByIp)
     {
-        existingToken.RevokedAtUtc = DateTime.UtcNow;
+        existingToken.RevokedAt = DateTime.UtcNow;
         existingToken.RevokedByIp = revokedByIp;
         existingToken.ReplacedByTokenHash = newTokenResult.TokenHash;
         await _refreshTokenRepository.UpdateAsync(existingToken);
@@ -67,7 +67,7 @@ public class RefreshTokenService : IRefreshTokenService
             return;
         }
 
-        token.RevokedAtUtc = DateTime.UtcNow;
+        token.RevokedAt = DateTime.UtcNow;
         token.RevokedByIp = revokedByIp;
         await _refreshTokenRepository.UpdateAsync(token);
     }

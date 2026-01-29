@@ -121,7 +121,7 @@ public class UsersService(
                 throw new ForbiddenException("Please go to the email we sent to you and click on the link to confirm your email address", "NO_ACCESS");
             }
 
-            if (confirmation.ConfirmedAtUtc == null)
+            if (confirmation.ConfirmedAt == null)
             {
                 throw new ForbiddenException("Please go to the email we sent to you and click on the link to confirm your email address", "NO_ACCESS");
             }
