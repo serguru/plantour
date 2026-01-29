@@ -1,0 +1,72 @@
+<div class="help-content">
+  <h3>Unassign Shared Item</h3>
+  
+  <p class="intro">
+    You can unassign shared items from participants when they are no longer responsible for packing them. 
+    Unassignment removes the responsibility from a participant but does not delete the shared item itself.
+  </p>
+
+  <div class="section">
+    <h4><i class="pi pi-list-check"></i> How to Unassign a Shared Item</h4>
+    <div class="steps-container">
+      @for (step of steps; track step.number) {
+        <div class="step-card">
+          <div class="step-number">
+            <i [class]="step.icon"></i>
+            <span>{{ step.number }}</span>
+          </div>
+          <div class="step-content">
+            <h5>{{ step.title }}</h5>
+            <p>{{ step.description }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-sitemap"></i> Common Unassignment Scenarios</h4>
+    <div class="scenarios-list">
+      @for (scenario of scenarios; track scenario.title) {
+        <div class="scenario-item">
+          <h5>{{ scenario.title }}</h5>
+          <p>{{ scenario.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-lightbulb"></i> Helpful Tips</h4>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>{{ tip }}</li>
+      }
+    </ul>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-link"></i> Related Actions</h4>
+    <ul class="actions-list">
+      @for (action of relatedActions; track $index) {
+        <li>{{ action }}</li>
+      }
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <i class="pi pi-info-circle"></i>
+    <div>
+      <strong>Note:</strong> Unassigning a shared item from a participant does not delete the shared item. 
+      It simply removes that person's responsibility. You can reassign it to other participants if needed.
+    </div>
+  </div>
+
+  <div class="warning-box">
+    <i class="pi pi-exclamation-triangle"></i>
+    <div>
+      <strong>Important:</strong> If a participant has already accepted the assignment and started 
+      preparing, make sure to communicate with them before unassigning the shared item.
+    </div>
+  </div>
+</div>

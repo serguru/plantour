@@ -80,6 +80,15 @@ export class HelpComponent {
   addBagToTripComponent = signal<Type<unknown> | null>(null);
   editTripBagComponent = signal<Type<unknown> | null>(null);
   removeBagFromTripComponent = signal<Type<unknown> | null>(null);
+  understandingSharedItemsComponent = signal<Type<unknown> | null>(null);
+  createSharedItemComponent = signal<Type<unknown> | null>(null);
+  editSharedItemComponent = signal<Type<unknown> | null>(null);
+  deleteSharedItemComponent = signal<Type<unknown> | null>(null);
+  assignSharedItemComponent = signal<Type<unknown> | null>(null);
+  unassignSharedItemComponent = signal<Type<unknown> | null>(null);
+  acceptSharedItemComponent = signal<Type<unknown> | null>(null);
+  rejectSharedItemComponent = signal<Type<unknown> | null>(null);
+  finishSharedItemComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -207,7 +216,12 @@ export class HelpComponent {
         { id: 'shared-intro', title: 'Understanding Shared Items', linkId: 'link#46' },
         { id: 'create-shared-item', title: 'Create a Shared Item', linkId: 'link#47' },
         { id: 'edit-shared-item', title: 'Edit Shared Item', linkId: 'link#48' },
-        { id: 'delete-shared-item', title: 'Delete Shared Item', linkId: 'link#49' }
+        { id: 'delete-shared-item', title: 'Delete Shared Item', linkId: 'link#49' },
+        { id: 'assign-shared-item', title: 'Assign Shared Item', linkId: '' },
+        { id: 'unassign-shared-item', title: 'Unassign Shared Item', linkId: '' },
+        { id: 'accept-shared-item', title: 'Accept Shared Item', linkId: '' },
+        { id: 'reject-shared-item', title: 'Reject Shared Item', linkId: '' },
+        { id: 'finish-shared-item', title: 'Finish Shared Item', linkId: '' },
       ]
     },
     {
@@ -412,6 +426,18 @@ export class HelpComponent {
           'edit-trip-bag': this.editTripBagComponent(),
           'remove-bag-from-trip': this.removeBagFromTripComponent()
         };
+      case 'shared-things':
+        return {
+          'shared-intro': this.understandingSharedItemsComponent(),
+          'create-shared-item': this.createSharedItemComponent(),
+          'edit-shared-item': this.editSharedItemComponent(),
+          'delete-shared-item': this.deleteSharedItemComponent(),
+          'assign-shared-item': this.assignSharedItemComponent(),
+          'unassign-shared-item': this.unassignSharedItemComponent(),
+          'accept-shared-item': this.acceptSharedItemComponent(),
+          'reject-shared-item': this.rejectSharedItemComponent(),
+          'finish-shared-item': this.finishSharedItemComponent()
+        };
       default:
         return {};
     }
@@ -537,6 +563,33 @@ export class HelpComponent {
     }
     if (sectionId === 'trip-packs' && subsectionId === 'remove-bag-from-trip') {
       this.loadRemoveBagFromTripComponent();
+    }
+    if (sectionId === 'shared-things' && subsectionId === 'shared-intro') {
+      this.loadUnderstandingSharedItemsComponent();
+    }
+    if (sectionId === 'shared-things' && subsectionId === 'create-shared-item') {
+      this.loadCreateSharedItemComponent();
+    }
+    if (sectionId === 'shared-things' && subsectionId === 'edit-shared-item') {
+      this.loadEditSharedItemComponent();
+    }
+    if (sectionId === 'shared-things' && subsectionId === 'delete-shared-item') {
+      this.loadDeleteSharedItemComponent();
+    }
+    if (sectionId === 'shared-things' && subsectionId === 'assign-shared-item') {
+      this.loadAssignSharedItemComponent();
+    }
+    if (sectionId === 'shared-things' && subsectionId === 'unassign-shared-item') {
+      this.loadUnassignSharedItemComponent();
+    }
+    if (sectionId === 'shared-things' && subsectionId === 'accept-shared-item') {
+      this.loadAcceptSharedItemComponent();
+    }
+    if (sectionId === 'shared-things' && subsectionId === 'reject-shared-item') {
+      this.loadRejectSharedItemComponent();
+    }
+    if (sectionId === 'shared-things' && subsectionId === 'finish-shared-item') {
+      this.loadFinishSharedItemComponent();
     }
   }
 
@@ -900,6 +953,87 @@ export class HelpComponent {
     this.removeBagFromTripComponent.set(module.RemoveBagFromTripComponent);
   }
 
+  private async loadUnderstandingSharedItemsComponent() {
+    if (this.understandingSharedItemsComponent()) {
+      return;
+    }
+
+    const module = await import('./understanding-shared-items/understanding-shared-items.component');
+    this.understandingSharedItemsComponent.set(module.UnderstandingSharedItemsComponent);
+  }
+
+  private async loadCreateSharedItemComponent() {
+    if (this.createSharedItemComponent()) {
+      return;
+    }
+
+    const module = await import('./create-shared-item/create-shared-item.component');
+    this.createSharedItemComponent.set(module.CreateSharedItemComponent);
+  }
+
+  private async loadEditSharedItemComponent() {
+    if (this.editSharedItemComponent()) {
+      return;
+    }
+
+    const module = await import('./edit-shared-item/edit-shared-item.component');
+    this.editSharedItemComponent.set(module.EditSharedItemComponent);
+  }
+
+  private async loadDeleteSharedItemComponent() {
+    if (this.deleteSharedItemComponent()) {
+      return;
+    }
+
+    const module = await import('./delete-shared-item/delete-shared-item.component');
+    this.deleteSharedItemComponent.set(module.DeleteSharedItemComponent);
+  }
+
+  private async loadAssignSharedItemComponent() {
+    if (this.assignSharedItemComponent()) {
+      return;
+    }
+
+    const module = await import('./assign-shared-item/assign-shared-item.component');
+    this.assignSharedItemComponent.set(module.AssignSharedItemComponent);
+  }
+
+  private async loadUnassignSharedItemComponent() {
+    if (this.unassignSharedItemComponent()) {
+      return;
+    }
+
+    const module = await import('./unassign-shared-item/unassign-shared-item.component');
+    this.unassignSharedItemComponent.set(module.UnassignSharedItemComponent);
+  }
+
+  private async loadAcceptSharedItemComponent() {
+    if (this.acceptSharedItemComponent()) {
+      return;
+    }
+
+    const module = await import('./accept-shared-item/accept-shared-item.component');
+    this.acceptSharedItemComponent.set(module.AcceptSharedItemComponent);
+  }
+
+  private async loadRejectSharedItemComponent() {
+    if (this.rejectSharedItemComponent()) {
+      return;
+    }
+
+    const module = await import('./reject-shared-item/reject-shared-item.component');
+    this.rejectSharedItemComponent.set(module.RejectSharedItemComponent);
+  }
+
+  private async loadFinishSharedItemComponent() {
+    if (this.finishSharedItemComponent()) {
+      return;
+    }
+
+    const module = await import('./finish-shared-item/finish-shared-item.component');
+    this.finishSharedItemComponent.set(module.FinishSharedItemComponent);
+  }
+
   getStartedWithTest = async () => {
 
     if (this.usersService.isAuthenticatedSignal()) {
@@ -943,5 +1077,9 @@ export class HelpComponent {
     });
   }
 }
+
+
+
+
 
 

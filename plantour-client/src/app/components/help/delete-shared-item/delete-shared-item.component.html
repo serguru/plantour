@@ -1,0 +1,68 @@
+<div class="help-content">
+  <h3>Delete Shared Item</h3>
+  
+  <p class="intro">
+    You can delete shared items when they are no longer needed for the trip. This is a permanent action 
+    that cannot be undone. Only trip admins can delete shared items.
+  </p>
+
+  <div class="section">
+    <h4><i class="pi pi-list-check"></i> How to Delete a Shared Item</h4>
+    <div class="steps-container">
+      @for (step of steps; track step.number) {
+        <div class="step-card">
+          <div class="step-number">
+            <i [class]="step.icon"></i>
+            <span>{{ step.number }}</span>
+          </div>
+          <div class="step-content">
+            <h5>{{ step.title }}</h5>
+            <p>{{ step.description }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-exclamation-circle"></i> Important Considerations</h4>
+    <div class="considerations-grid">
+      @for (consideration of considerations; track consideration.title) {
+        <div class="consideration-card">
+          <i [class]="consideration.icon"></i>
+          <h5>{{ consideration.title }}</h5>
+          <p>{{ consideration.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-arrows-alt"></i> {{ alternativesTitle }}</h4>
+    <div class="alternatives-box">
+      <p>Before deleting a shared item, consider these alternatives:</p>
+      <ul>
+        @for (alternative of alternatives; track $index) {
+          <li>{{ alternative }}</li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-lightbulb"></i> Helpful Tips</h4>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>{{ tip }}</li>
+      }
+    </ul>
+  </div>
+
+  <div class="warning-box">
+    <i class="pi pi-exclamation-triangle"></i>
+    <div>
+      <strong>Warning:</strong> Deleting a shared item is permanent and cannot be undone. 
+      All assignment history and status information will be lost.
+    </div>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+<div class="help-content">
+  <h3>Reject Shared Item</h3>
+  
+  <p class="intro">
+    If you cannot pack a shared item assigned to you, you can reject it so the admin can reassign it to 
+    another participant. It's better to reject early than to accept and fail to deliver.
+  </p>
+
+  <div class="section">
+    <h4><i class="pi pi-list-check"></i> How to Reject a Shared Item</h4>
+    <div class="steps-container">
+      @for (step of steps; track step.number) {
+        <div class="step-card">
+          <div class="step-number">
+            <i [class]="step.icon"></i>
+            <span>{{ step.number }}</span>
+          </div>
+          <div class="step-content">
+            <h5>{{ step.title }}</h5>
+            <p>{{ step.description }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-question-circle"></i> Common Reasons for Rejection</h4>
+    <div class="reasons-list">
+      @for (reason of reasons; track reason.title) {
+        <div class="reason-item">
+          <h5>{{ reason.title }}</h5>
+          <p>{{ reason.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-handshake"></i> Team Etiquette</h4>
+    <ul class="etiquette-list">
+      @for (etiquette of etiquette; track $index) {
+        <li>{{ etiquette }}</li>
+      }
+    </ul>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-lightbulb"></i> Helpful Tips</h4>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>{{ tip }}</li>
+      }
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <i class="pi pi-info-circle"></i>
+    <div>
+      <strong>Remember:</strong> Rejecting an assignment is perfectly acceptable. It's much better 
+      to be honest about your capacity than to overcommit and disappoint your teammates.
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <i class="pi pi-star"></i>
+    <div>
+      <strong>Pro Tip:</strong> If you provide a reason and a suggestion for who else might handle 
+      the item, it makes it much easier for the admin to reassign quickly.
+    </div>
+  </div>
+</div>

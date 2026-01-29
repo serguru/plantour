@@ -1,0 +1,77 @@
+<div class="help-content">
+  <h3>Create a Shared Item</h3>
+  
+  <p class="intro">
+    Creating shared items allows you to establish packing responsibilities and coordinate with your 
+    trip participants. Only trip admins can create shared items.
+  </p>
+
+  <div class="section">
+    <h4><i class="pi pi-list-check"></i> Step-by-Step Guide</h4>
+    <div class="steps-container">
+      @for (step of steps; track step.number) {
+        <div class="step-card">
+          <div class="step-number">
+            <i [class]="step.icon"></i>
+            <span>{{ step.number }}</span>
+          </div>
+          <div class="step-content">
+            <h5>{{ step.title }}</h5>
+            <p>{{ step.description }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-file-edit"></i> Required Information</h4>
+    <div class="fields-list">
+      @for (field of fields; track field.name) {
+        <div class="field-item">
+          <div class="field-header">
+            <strong>{{ field.name }}</strong>
+            @if (field.required) {
+              <span class="required-badge">Required</span>
+            }
+          </div>
+          <p>{{ field.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-lightbulb"></i> Examples of Shared Items</h4>
+    <ul class="examples-list">
+      @for (example of examples; track $index) {
+        <li>{{ example }}</li>
+      }
+    </ul>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-star"></i> Helpful Tips</h4>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>{{ tip }}</li>
+      }
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <i class="pi pi-info-circle"></i>
+    <div>
+      <strong>Note:</strong> When you create a shared item and assign it to participants, 
+      those participants will receive the assignment and must accept or reject it.
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <i class="pi pi-info-circle"></i>
+    <div>
+      <strong>Pro Tip:</strong> Think about the trip's needs and distribute shared items fairly 
+      among participants based on their abilities and trip responsibilities.
+    </div>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+<div class="help-content">
+  <h3>Assign Shared Item</h3>
+  
+  <p class="intro">
+    Assigning shared items to participants makes them responsible for packing that item. 
+    You can assign to one participant or distribute the responsibility among multiple people.
+  </p>
+
+  <div class="section">
+    <h4><i class="pi pi-list-check"></i> How to Assign a Shared Item</h4>
+    <div class="steps-container">
+      @for (step of steps; track step.number) {
+        <div class="step-card">
+          <div class="step-number">
+            <i [class]="step.icon"></i>
+            <span>{{ step.number }}</span>
+          </div>
+          <div class="step-content">
+            <h5>{{ step.title }}</h5>
+            <p>{{ step.description }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-user-plus"></i> Assignment Options</h4>
+    <div class="options-list">
+      @for (option of assignmentOptions; track option.title) {
+        <div class="option-item">
+          <h5>{{ option.title }}</h5>
+          <p>{{ option.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-check-circle"></i> Best Practices</h4>
+    <ul class="practices-list">
+      @for (practice of bestPractices; track $index) {
+        <li>{{ practice }}</li>
+      }
+    </ul>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-lightbulb"></i> Helpful Tips</h4>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>{{ tip }}</li>
+      }
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <i class="pi pi-info-circle"></i>
+    <div>
+      <strong>Note:</strong> When you assign a shared item to participants, they will receive a notification 
+      and will be able to accept or reject the assignment based on their availability.
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <i class="pi pi-star"></i>
+    <div>
+      <strong>Pro Tip:</strong> Discuss shared items and assignments with participants before the trip 
+      to ensure everyone understands their responsibilities and can prepare accordingly.
+    </div>
+  </div>
+</div>
