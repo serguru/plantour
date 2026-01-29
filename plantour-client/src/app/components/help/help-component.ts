@@ -64,6 +64,9 @@ export class HelpComponent {
   keyFeaturesComponent = signal<Type<unknown> | null>(null);
   whoPlantourForComponent = signal<Type<unknown> | null>(null);
   basicWorkflowComponent = signal<Type<unknown> | null>(null);
+  adminsParticipantsComponent = signal<Type<unknown> | null>(null);
+  signInToAccountComponent = signal<Type<unknown> | null>(null);
+  editYourProfileComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -87,6 +90,7 @@ export class HelpComponent {
         //{ id: 'what-is-plantour', title: 'What is Plantour?' },
         { id: 'key-features', title: 'Key Features' },
         { id: 'who-is-it-for', title: 'Who is Plantour For?' },
+        { id: 'admins-and-participants', title: 'Admins and Participants' },
         { id: 'basic-workflow', title: 'Basic Workflow' }
       ]
     },
@@ -96,10 +100,10 @@ export class HelpComponent {
       icon: 'pi pi-user',
       description: 'Create and manage your account, profile, and preferences.',
       subsections: [
-        { id: 'registration', title: 'How to Register', linkId: 'link#5' },
+        // { id: 'registration', title: 'How to Register', linkId: 'link#5' },
         { id: 'login', title: 'Sign In to Your Account', linkId: 'link#6' },
         { id: 'profile', title: 'Edit Your Profile', linkId: 'link#7' },
-        { id: 'security', title: 'Password and Security', linkId: 'link#8' }
+        //{ id: 'security', title: 'Password and Security', linkId: 'link#8' }
       ]
     },
     {
@@ -337,6 +341,15 @@ export class HelpComponent {
       if (sectionId === 'overview' && subsectionId === 'basic-workflow') {
         this.loadBasicWorkflowComponent();
       }
+      if (sectionId === 'overview' && subsectionId === 'admins-and-participants') {
+        this.loadAdminsParticipantsComponent();
+      }
+      if (sectionId === 'account' && subsectionId === 'login') {
+        this.loadSignInToAccountComponent();
+      }
+      if (sectionId === 'account' && subsectionId === 'profile') {
+        this.loadEditYourProfileComponent();
+      }
     } else {
       this.selectedSection.set(sectionId);
     }
@@ -395,6 +408,33 @@ export class HelpComponent {
 
     const module = await import('./basic-workflow/basic-workflow.component');
     this.basicWorkflowComponent.set(module.BasicWorkflowComponent);
+  }
+
+  private async loadAdminsParticipantsComponent() {
+    if (this.adminsParticipantsComponent()) {
+      return;
+    }
+
+    const module = await import('./admins-participants/admins-participants.component');
+    this.adminsParticipantsComponent.set(module.AdminsParticipantsComponent);
+  }
+
+  private async loadSignInToAccountComponent() {
+    if (this.signInToAccountComponent()) {
+      return;
+    }
+
+    const module = await import('./sign-in-to-account/sign-in-to-account.component');
+    this.signInToAccountComponent.set(module.SignInToAccountComponent);
+  }
+
+  private async loadEditYourProfileComponent() {
+    if (this.editYourProfileComponent()) {
+      return;
+    }
+
+    const module = await import('./edit-your-profile/edit-your-profile.component');
+    this.editYourProfileComponent.set(module.EditYourProfileComponent);
   }
 
   getStartedWithTest = async () => {

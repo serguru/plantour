@@ -1,0 +1,42 @@
+<div class="sign-in-content">
+  <div class="content-header">
+    <h2 class="main-heading">{{ content.mainHeading }}</h2>
+    <p class="intro-text">{{ content.intro }}</p>
+  </div>
+
+  <section class="role-section">
+    <h3 class="section-title">{{ content.admin.title }}</h3>
+    <ol class="step-list">
+      @for (step of content.admin.steps; track $index) {
+      <li class="step-item">
+        <span class="step-number">{{ $index + 1 }}</span>
+        <span class="step-text">{{ step }}</span>
+      </li>
+      }
+    </ol>
+  </section>
+
+  <section class="role-section">
+    <h3 class="section-title">{{ content.participant.title }}</h3>
+    <ol class="step-list">
+      @for (step of content.participant.steps; track $index) {
+      <li class="step-item">
+        <span class="step-number">{{ $index + 1 }}</span>
+        <span class="step-text">{{ step }}</span>
+      </li>
+      }
+    </ol>
+  </section>
+
+  <section class="tips-section">
+    <h3 class="section-title">{{ content.tips.title }}</h3>
+    <ul class="tips-list">
+      @for (tip of content.tips.items; track $index) {
+      <li class="tips-item">
+        <i class="pi pi-info-circle tips-icon"></i>
+        <span>{{ tip }}</span>
+      </li>
+      }
+    </ul>
+  </section>
+</div>

@@ -104,6 +104,18 @@
             <ng-container *ngComponentOutlet="basicWorkflowComponent()"></ng-container>
             }
 
+            @if (section.id === 'overview' && selectedSection() === 'overview-admins-and-participants') {
+            <ng-container *ngComponentOutlet="adminsParticipantsComponent()"></ng-container>
+            }
+
+            @if (section.id === 'account' && selectedSection() === 'account-login') {
+            <ng-container *ngComponentOutlet="signInToAccountComponent()"></ng-container>
+            }
+
+            @if (section.id === 'account' && selectedSection() === 'account-profile') {
+            <ng-container *ngComponentOutlet="editYourProfileComponent()"></ng-container>
+            }
+
             @if (section.subsections && section.subsections.length > 0) {
             <ul class="subsection-list">
               @for (subsection of section.subsections; track subsection.id) {
