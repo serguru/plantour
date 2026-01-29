@@ -1,31 +1,15 @@
 import { Component, inject, signal, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PanelModule } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
-import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
 import { TemporaryUserResponse, UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
-import { EMPTY, take } from 'rxjs';
+import { take } from 'rxjs';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
-import { AppButton } from '../button/button-component';
-
-interface HelpSection {
-  id: string;
-  title: string;
-  icon: string;
-  description: string;
-  subsections?: HelpSubsection[];
-}
-
-interface HelpSubsection {
-  id: string;
-  title: string;
-  linkId?: string;
-}
-
+import { HelpSectionComponent } from './help-section/help-section.component';
+import { HelpSection } from './help-types';
 
 // TODO: add a link to Guest Mode video tutorial
 // TODO: Help documents were genertated by AI. It is necessary to read ALL the Help documents carefully and make sure the content is OK
@@ -35,11 +19,9 @@ interface HelpSubsection {
   standalone: true,
   imports: [
     CommonModule,
-    PanelModule,
     CardModule,
-    AccordionModule,
     ButtonModule,
-    AppButton
+    HelpSectionComponent
   ],
   templateUrl: './help-component.html',
   styleUrl: './help-component.scss'
@@ -117,8 +99,7 @@ export class HelpComponent {
         { id: 'add-traveler', title: 'Add a Traveler', linkId: 'link#10' },
         { id: 'edit-traveler', title: 'Edit Traveler Information', linkId: 'link#11' },
         { id: 'delete-traveler', title: 'Delete a Traveler', linkId: 'link#12' },
-        { id: 'filter-travelers', title: 'Filter and Sort Travelers', linkId: 'link#13' },
-        { id: 'traveler-roles', title: 'Admin vs Participant Roles', linkId: 'link#14' }
+        { id: 'filter-travelers', title: 'Filter and Sort Travelers', linkId: 'link#13' }
       ]
     },
     {
@@ -300,7 +281,8 @@ export class HelpComponent {
     }
   ]);
 
-  selectedSection = signal<string | null>(null);
+  expandedSectionId = signal<string | null>(null);
+  selectedSubsection = signal<{ sectionId: string; subsectionId: string } | null>(null);
 
   ngOnInit(): void {
     this.route.queryParamMap.pipe(take(1)).subscribe(params => {
@@ -310,54 +292,100 @@ export class HelpComponent {
     });
   }
 
-  isSectionExpanded(sectionId: string) {
-    const selected = this.selectedSection();
-    return Boolean(selected && selected.startsWith(`${sectionId}-`));
-  }
+  toggleSection(sectionId: string) {
+    const currentExpanded = this.expandedSectionId();
+    if (currentExpanded === sectionId) {
+      this.expandedSectionId.set(null);
+      if (this.selectedSubsection()?.sectionId === sectionId) {
+        this.selectedSubsection.set(null);
+      }
+      return;
+    }
 
-  collapseSection(sectionId: string) {
-    if (this.isSectionExpanded(sectionId)) {
-      this.selectedSection.set(null);
+    this.expandedSectionId.set(sectionId);
+    if (this.selectedSubsection()?.sectionId !== sectionId) {
+      this.selectedSubsection.set(null);
     }
   }
 
-  navigateToSection(sectionId: string, subsectionId?: string) {
-    if (subsectionId) {
-      this.selectedSection.set(`${sectionId}-${subsectionId}`);
-      if (sectionId === 'get-started' && subsectionId === 'welcome') {
-        this.loadWelcomeComponent();
-      }
-      if (sectionId === 'get-started' && subsectionId === 'test-mode') {
-        this.loadTestModeComponent();
-      }
-      if (sectionId === 'get-started' && subsectionId === 'create-account') {
-        this.loadReadyToRegisterComponent();
-      }
-      if (sectionId === 'overview' && subsectionId === 'key-features') {
-        this.loadKeyFeaturesComponent();
-      }
-      if (sectionId === 'overview' && subsectionId === 'who-is-it-for') {
-        this.loadWhoPlantourForComponent();
-      }
-      if (sectionId === 'overview' && subsectionId === 'basic-workflow') {
-        this.loadBasicWorkflowComponent();
-      }
-      if (sectionId === 'overview' && subsectionId === 'admins-and-participants') {
-        this.loadAdminsParticipantsComponent();
-      }
-      if (sectionId === 'account' && subsectionId === 'login') {
-        this.loadSignInToAccountComponent();
-      }
-      if (sectionId === 'account' && subsectionId === 'profile') {
-        this.loadEditYourProfileComponent();
-      }
-      if (sectionId === 'travelers' && subsectionId === 'travelers-intro') {
-        this.loadUnderstandingTravelersComponent();
-      }
-    } else {
-      this.selectedSection.set(sectionId);
+  selectedSubsectionIdFor(sectionId: string) {
+    const selected = this.selectedSubsection();
+    return selected?.sectionId === sectionId ? selected.subsectionId : null;
+  }
+
+  handleSelectSubsection(selection: { sectionId: string; subsectionId: string }) {
+    this.expandedSectionId.set(selection.sectionId);
+    
+    // If subsectionId is empty, it means we're collapsing
+    if (!selection.subsectionId) {
+      this.selectedSubsection.set(null);
+      return;
     }
-    console.log('Navigate to:', sectionId, subsectionId);
+    
+    this.selectedSubsection.set(selection);
+    this.loadSubcomponent(selection.sectionId, selection.subsectionId);
+  }
+
+  getSectionComponents(sectionId: string): Record<string, Type<unknown> | null> {
+    switch (sectionId) {
+      case 'get-started':
+        return {
+          welcome: this.welcomeComponent(),
+          'test-mode': this.testModeComponent(),
+          'create-account': this.readyToRegisterComponent()
+        };
+      case 'overview':
+        return {
+          'key-features': this.keyFeaturesComponent(),
+          'who-is-it-for': this.whoPlantourForComponent(),
+          'basic-workflow': this.basicWorkflowComponent(),
+          'admins-and-participants': this.adminsParticipantsComponent()
+        };
+      case 'account':
+        return {
+          login: this.signInToAccountComponent(),
+          profile: this.editYourProfileComponent()
+        };
+      case 'travelers':
+        return {
+          'travelers-intro': this.understandingTravelersComponent()
+        };
+      default:
+        return {};
+    }
+  }
+
+  private loadSubcomponent(sectionId: string, subsectionId: string) {
+    if (sectionId === 'get-started' && subsectionId === 'welcome') {
+      this.loadWelcomeComponent();
+    }
+    if (sectionId === 'get-started' && subsectionId === 'test-mode') {
+      this.loadTestModeComponent();
+    }
+    if (sectionId === 'get-started' && subsectionId === 'create-account') {
+      this.loadReadyToRegisterComponent();
+    }
+    if (sectionId === 'overview' && subsectionId === 'key-features') {
+      this.loadKeyFeaturesComponent();
+    }
+    if (sectionId === 'overview' && subsectionId === 'who-is-it-for') {
+      this.loadWhoPlantourForComponent();
+    }
+    if (sectionId === 'overview' && subsectionId === 'basic-workflow') {
+      this.loadBasicWorkflowComponent();
+    }
+    if (sectionId === 'overview' && subsectionId === 'admins-and-participants') {
+      this.loadAdminsParticipantsComponent();
+    }
+    if (sectionId === 'account' && subsectionId === 'login') {
+      this.loadSignInToAccountComponent();
+    }
+    if (sectionId === 'account' && subsectionId === 'profile') {
+      this.loadEditYourProfileComponent();
+    }
+    if (sectionId === 'travelers' && subsectionId === 'travelers-intro') {
+      this.loadUnderstandingTravelersComponent();
+    }
   }
 
   private async loadWelcomeComponent() {

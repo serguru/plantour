@@ -27,121 +27,18 @@
     </div>
 
     <div class="help-sections">
-      <p-accordion
-        [multiple]="true"
-        value="0"
+    @for (section of helpSections(); track section.id) {
+      <app-help-section
+        [section]="section"
+        [expanded]="expandedSectionId() === section.id"
+        [selectedSubsectionId]="selectedSubsectionIdFor(section.id)"
+        [subsectionComponents]="getSectionComponents(section.id)"
+        (toggleExpanded)="toggleSection($event)"
+        (selectSubsection)="handleSelectSubsection($event)"
+        (startTestMode)="getStartedWithTest()"
       >
-        @for (section of helpSections(); track section.id) {
-        <p-accordion-panel value="0">
-          <ng-template pTemplate="header">
-            <div class="section-header">
-              <i
-                [class]="section.icon"
-                class="section-icon"
-              ></i>
-              <div class="section-title-wrapper">
-                <h3 class="section-title">{{ section.title }}</h3>
-                <p class="section-description">{{ section.description }}</p>
-              </div>
-            </div>
-          </ng-template>
-
-          <div class="section-content">
-            @if (section.id === 'get-started') {
-            <div class="get-started-highlight">
-              <i class="pi pi-star-fill highlight-icon"></i>
-              <div class="highlight-content">
-                <h4>Try Plantour Now - No Account Needed!</h4>
-                <p>
-                  Plantour is powerful, yet incredibly easy to use. Create your item lists, organize them into bags, and
-                  download your packing lists without registration and completely free. Try it now and see how simple
-                  trip planning can be.
-                </p>
-                <app-button
-                  label="Start Test Mode"
-                  icon="pi pi-play"
-                  (click)="getStartedWithTest()"
-                >
-                </app-button>
-              </div>
-            </div>
-            }
-
-            @if (isSectionExpanded(section.id)) {
-            <div class="section-collapse">
-              <button
-                type="button"
-                class="collapse-icon-button"
-                (click)="collapseSection(section.id)"
-                aria-label="Collapse section"
-              >
-                <i class="pi pi-chevron-up"></i>
-              </button>
-            </div>
-            }
-
-            @if (section.id === 'get-started' && selectedSection() === 'get-started-welcome') {
-            <ng-container *ngComponentOutlet="welcomeComponent()"></ng-container>
-            }
-
-            @if (section.id === 'get-started' && selectedSection() === 'get-started-test-mode') {
-            <ng-container *ngComponentOutlet="testModeComponent()"></ng-container>
-            }
-
-            @if (section.id === 'get-started' && selectedSection() === 'get-started-create-account') {
-            <ng-container *ngComponentOutlet="readyToRegisterComponent()"></ng-container>
-            }
-
-            @if (section.id === 'overview' && selectedSection() === 'overview-key-features') {
-            <ng-container *ngComponentOutlet="keyFeaturesComponent()"></ng-container>
-            }
-
-            @if (section.id === 'overview' && selectedSection() === 'overview-who-is-it-for') {
-            <ng-container *ngComponentOutlet="whoPlantourForComponent()"></ng-container>
-            }
-
-            @if (section.id === 'overview' && selectedSection() === 'overview-basic-workflow') {
-            <ng-container *ngComponentOutlet="basicWorkflowComponent()"></ng-container>
-            }
-
-            @if (section.id === 'overview' && selectedSection() === 'overview-admins-and-participants') {
-            <ng-container *ngComponentOutlet="adminsParticipantsComponent()"></ng-container>
-            }
-
-            @if (section.id === 'account' && selectedSection() === 'account-login') {
-            <ng-container *ngComponentOutlet="signInToAccountComponent()"></ng-container>
-            }
-
-            @if (section.id === 'account' && selectedSection() === 'account-profile') {
-            <ng-container *ngComponentOutlet="editYourProfileComponent()"></ng-container>
-            }
-
-            @if (section.id === 'travelers' && selectedSection() === 'travelers-travelers-intro') {
-            <ng-container *ngComponentOutlet="understandingTravelersComponent()"></ng-container>
-            }
-
-            @if (section.subsections && section.subsections.length > 0) {
-            <ul class="subsection-list">
-              @for (subsection of section.subsections; track subsection.id) {
-              <li
-                class="subsection-item"
-                [class.active]="selectedSection() === section.id + '-' + subsection.id"
-                (click)="navigateToSection(section.id, subsection.id)"
-              >
-                <i class="pi pi-angle-right subsection-icon"></i>
-                <span class="subsection-title">{{ subsection.title }}</span>
-                @if (subsection.linkId) {
-                <span class="contextual-link-badge">{{ subsection.linkId }}</span>
-                }
-              </li>
-              }
-            </ul>
-            }
-          </div>
-        </p-accordion-panel>
-        }
-      </p-accordion>
-    </div>
+      </app-help-section>
+    }
 
     <div class="help-footer">
       <p-card>
