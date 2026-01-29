@@ -65,6 +65,13 @@ export class HelpComponent {
   editBagDetailsComponent = signal<Type<unknown> | null>(null);
   deleteBagComponent = signal<Type<unknown> | null>(null);
   filterSortBagsComponent = signal<Type<unknown> | null>(null);
+  understandingTripsComponent = signal<Type<unknown> | null>(null);
+  createTripComponent = signal<Type<unknown> | null>(null);
+  editTripComponent = signal<Type<unknown> | null>(null);
+  deleteTripComponent = signal<Type<unknown> | null>(null);
+  tripStatusWorkflowComponent = signal<Type<unknown> | null>(null);
+  filterSortTripsComponent = signal<Type<unknown> | null>(null);
+  selectCurrentTripComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -386,6 +393,16 @@ export class HelpComponent {
           'delete-bag': this.deleteBagComponent(),
           'filter-packs': this.filterSortBagsComponent()
         };
+      case 'trips':
+        return {
+          'trips-intro': this.understandingTripsComponent(),
+          'create-trip': this.createTripComponent(),
+          'edit-trip': this.editTripComponent(),
+          'delete-trip': this.deleteTripComponent(),
+          'trip-status': this.tripStatusWorkflowComponent(),
+          'filter-trips': this.filterSortTripsComponent(),
+          'select-current-trip': this.selectCurrentTripComponent()
+        };
       default:
         return {};
     }
@@ -466,6 +483,27 @@ export class HelpComponent {
     }
     if (sectionId === 'packs' && subsectionId === 'filter-packs') {
       this.loadFilterSortBagsComponent();
+    }
+    if (sectionId === 'trips' && subsectionId === 'trips-intro') {
+      this.loadUnderstandingTripsComponent();
+    }
+    if (sectionId === 'trips' && subsectionId === 'create-trip') {
+      this.loadCreateTripComponent();
+    }
+    if (sectionId === 'trips' && subsectionId === 'edit-trip') {
+      this.loadEditTripComponent();
+    }
+    if (sectionId === 'trips' && subsectionId === 'delete-trip') {
+      this.loadDeleteTripComponent();
+    }
+    if (sectionId === 'trips' && subsectionId === 'trip-status') {
+      this.loadTripStatusWorkflowComponent();
+    }
+    if (sectionId === 'trips' && subsectionId === 'filter-trips') {
+      this.loadFilterSortTripsComponent();
+    }
+    if (sectionId === 'trips' && subsectionId === 'select-current-trip') {
+      this.loadSelectCurrentTripComponent();
     }
   }
 
@@ -692,6 +730,69 @@ export class HelpComponent {
 
     const module = await import('./filter-sort-bags/filter-sort-bags.component');
     this.filterSortBagsComponent.set(module.FilterSortBagsComponent);
+  }
+
+  private async loadUnderstandingTripsComponent() {
+    if (this.understandingTripsComponent()) {
+      return;
+    }
+
+    const module = await import('./understanding-trips/understanding-trips.component');
+    this.understandingTripsComponent.set(module.UnderstandingTripsComponent);
+  }
+
+  private async loadCreateTripComponent() {
+    if (this.createTripComponent()) {
+      return;
+    }
+
+    const module = await import('./create-trip/create-trip.component');
+    this.createTripComponent.set(module.CreateTripComponent);
+  }
+
+  private async loadEditTripComponent() {
+    if (this.editTripComponent()) {
+      return;
+    }
+
+    const module = await import('./edit-trip/edit-trip.component');
+    this.editTripComponent.set(module.EditTripComponent);
+  }
+
+  private async loadDeleteTripComponent() {
+    if (this.deleteTripComponent()) {
+      return;
+    }
+
+    const module = await import('./delete-trip/delete-trip.component');
+    this.deleteTripComponent.set(module.DeleteTripComponent);
+  }
+
+  private async loadTripStatusWorkflowComponent() {
+    if (this.tripStatusWorkflowComponent()) {
+      return;
+    }
+
+    const module = await import('./trip-status-workflow/trip-status-workflow.component');
+    this.tripStatusWorkflowComponent.set(module.TripStatusWorkflowComponent);
+  }
+
+  private async loadFilterSortTripsComponent() {
+    if (this.filterSortTripsComponent()) {
+      return;
+    }
+
+    const module = await import('./filter-sort-trips/filter-sort-trips.component');
+    this.filterSortTripsComponent.set(module.FilterSortTripsComponent);
+  }
+
+  private async loadSelectCurrentTripComponent() {
+    if (this.selectCurrentTripComponent()) {
+      return;
+    }
+
+    const module = await import('./select-current-trip/select-current-trip.component');
+    this.selectCurrentTripComponent.set(module.SelectCurrentTripComponent);
   }
 
   getStartedWithTest = async () => {

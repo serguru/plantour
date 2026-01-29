@@ -1,0 +1,117 @@
+<div class="help-content">
+  <div class="content-header">
+    <h2 class="main-heading">{{ mainHeading }}</h2>
+    <p class="intro-text">{{ intro }}</p>
+  </div>
+
+  <section class="what-is-section">
+    <h3 class="section-heading">
+      <i class="pi pi-question-circle"></i>
+      What is the Current Trip?
+    </h3>
+    <p class="what-is-text">{{ whatIsCurrentTrip }}</p>
+  </section>
+
+  <section class="steps-section">
+    <h3 class="section-heading">How to Set a Trip as Current</h3>
+    
+    @for (step of steps; track step.stepNumber) {
+      <div class="step-card">
+        <div class="step-number">{{ step.stepNumber }}</div>
+        <div class="step-content">
+          <h4 class="step-title">{{ step.title }}</h4>
+          <p class="step-description">{{ step.description }}</p>
+          
+          @if (step.details && step.details.length > 0) {
+            <ul class="step-details">
+              @for (detail of step.details; track $index) {
+                <li>
+                  <i class="pi pi-angle-right"></i>
+                  {{ detail }}
+                </li>
+              }
+            </ul>
+          }
+          
+          @if (step.note) {
+            <div class="step-note">
+              <i class="pi pi-info-circle"></i>
+              <span>{{ step.note }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="benefits-section">
+    <h3 class="section-heading">
+      <i class="pi pi-star"></i>
+      Benefits of Using Current Trip
+    </h3>
+    @for (benefit of benefits; track benefit.benefit) {
+      <div class="benefit-card">
+        <h4 class="benefit-title">
+          <i class="pi pi-check-circle"></i>
+          {{ benefit.benefit }}
+        </h4>
+        <p class="benefit-description">{{ benefit.description }}</p>
+      </div>
+    }
+  </section>
+
+  <section class="when-section">
+    <h3 class="section-heading">
+      <i class="pi pi-clock"></i>
+      When to Change Current Trip
+    </h3>
+    <ul class="when-list">
+      @for (when of whenToChange; track $index) {
+        <li>
+          <i class="pi pi-calendar-plus"></i>
+          {{ when }}
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="vs-status-section">
+    <h3 class="section-heading">
+      <i class="pi pi-info-circle"></i>
+      Current Trip vs. Trip Status
+    </h3>
+    <div class="vs-explanation">
+      @for (point of vsStatus; track $index) {
+        <p class="vs-point" [innerHTML]="point"></p>
+      }
+    </div>
+  </section>
+
+  <section class="scenarios-section">
+    <h3 class="section-heading">
+      <i class="pi pi-comments"></i>
+      Common Questions
+    </h3>
+    @for (scenario of scenarios; track scenario.scenario) {
+      <div class="scenario-card">
+        <h4 class="scenario-question">{{ scenario.scenario }}</h4>
+        <p class="scenario-answer"><strong>Answer:</strong> {{ scenario.solution }}</p>
+      </div>
+    }
+  </section>
+
+  <section class="tips-section">
+    <h3 class="section-heading">
+      <i class="pi pi-lightbulb"></i>
+      Tips for Using Current Trip
+    </h3>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>
+          <i class="pi pi-check"></i>
+          {{ tip }}
+        </li>
+      }
+    </ul>
+  </section>
+</div>
