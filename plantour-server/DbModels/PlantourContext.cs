@@ -21,6 +21,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<CommunicationType> CommunicationTypes { get; set; }
 
+    public virtual DbSet<ContactSubmission> ContactSubmissions { get; set; }
+
     public virtual DbSet<Gender> Genders { get; set; }
 
     public virtual DbSet<Invitation> Invitations { get; set; }
@@ -59,9 +61,9 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<UserEmailConfirmation> UserEmailConfirmations { get; set; }
 
-    public virtual DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
-
     public virtual DbSet<UserPackage> UserPackages { get; set; }
+
+    public virtual DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
 
     public virtual DbSet<UserThing> UserThings { get; set; }
 
@@ -109,6 +111,14 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("communication_types_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
+        modelBuilder.Entity<ContactSubmission>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("contact_submissions_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
 
         modelBuilder.Entity<Gender>(entity =>
@@ -307,23 +317,9 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("user_email_confirmations_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAtUtc).HasDefaultValueSql("now()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.User).WithMany()
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("user_email_confirmations_user_id_fkey");
-        });
-
-        modelBuilder.Entity<UserRefreshToken>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("user_refresh_tokens_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAtUtc).HasDefaultValueSql("now()");
-
-            entity.HasOne(d => d.User).WithMany()
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("user_refresh_tokens_user_id_fkey");
+            entity.HasOne(d => d.User).WithOne(p => p.UserEmailConfirmation).HasConstraintName("user_email_confirmations_user_id_fkey");
         });
 
         modelBuilder.Entity<UserPackage>(entity =>
@@ -333,6 +329,16 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserPackages).HasConstraintName("user_packages_user_id_fkey");
+        });
+
+        modelBuilder.Entity<UserRefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("user_refresh_tokens_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserRefreshTokens).HasConstraintName("user_refresh_tokens_user_id_fkey");
         });
 
         modelBuilder.Entity<UserThing>(entity =>

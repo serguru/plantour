@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
@@ -6,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("user_email_confirmations", Schema = "plantour")]
-[Index(nameof(UserId), Name = "user_email_confirmations_user_id_idx", IsUnique = true)]
-public class UserEmailConfirmation
+[Index("UserId", Name = "idx_user_email_confirmations_user_id", IsUnique = true)]
+public partial class UserEmailConfirmation
 {
     [Key]
     [Column("id")]
@@ -17,14 +18,15 @@ public class UserEmailConfirmation
     public Guid UserId { get; set; }
 
     [Column("created_at")]
-    public DateTime CreatedAtUtc { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     [Column("confirmed_at")]
-    public DateTime? ConfirmedAtUtc { get; set; }
+    public DateTime? ConfirmedAt { get; set; }
 
     [Column("last_sent_at")]
-    public DateTime? LastSentAtUtc { get; set; }
+    public DateTime? LastSentAt { get; set; }
 
-    [ForeignKey(nameof(UserId))]
+    [ForeignKey("UserId")]
+    [InverseProperty("UserEmailConfirmation")]
     public virtual User User { get; set; } = null!;
 }

@@ -477,3 +477,34 @@ create table user_refresh_tokens (
 create unique index idx_user_refresh_tokens_user_token_hash on user_refresh_tokens(user_id, token_hash);
 create index idx_user_refresh_tokens_token_hash on user_refresh_tokens(token_hash);
 create index idx_user_refresh_tokens_user_id on user_refresh_tokens(user_id);
+
+
+create table contact_submissions (
+    -- identification
+    id uuid primary key default gen_random_uuid(),
+    
+    -- core data
+    full_name varchar(255) not null,
+    email varchar(255) not null check (email ~* '^[a-za-z0-9._%+-]+@[a-za-z0-9.-]+\.[a-za-z]{2,}$'),
+    phone_number varchar(20),
+    subject_category varchar(100),
+    message_body text not null,
+    
+    -- workflow & state
+    contact_status text null check (contact_status in ('new', 'in_progress', 'resolved', 'spam') or contact_status is null),
+
+    assigned_agent_id uuid, 
+    internal_notes text,
+    
+    -- metadata & security
+    ip_address inet,
+    user_agent text,
+    referrer_url text,
+    
+    -- timestamps
+    created_at timestamptz default current_timestamp
+);
+
+-- indexes for performance
+create index idx_contact_email on contact_submissions(email);
+create index idx_contact_status on contact_submissions(contact_status);
