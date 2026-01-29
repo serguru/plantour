@@ -1,0 +1,21 @@
+<div class="help-content">
+  <div class="intro">
+    <i class="pi pi-shopping-bag intro-icon"></i>
+    <h2>Packing Questions</h2>
+    <p>Everything about managing items, bags, and organizing your packing process.</p>
+  </div>
+
+  <div class="faq-list">
+    @for (faq of faqs; track faq.question) {
+      <div class="faq-item">
+        <div class="question">
+          <i class="pi pi-chevron-right"></i>
+          <h3>{{faq.question}}</h3>
+        </div>
+        <div class="answer">
+          <p>{{faq.answer}}</p>
+        </div>
+      </div>
+    }
+  </div>
+</div>

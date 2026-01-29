@@ -94,6 +94,11 @@ export class HelpComponent {
   understandingTemplatesComponent = signal<Type<unknown> | null>(null);
   itemTemplatesComponent = signal<Type<unknown> | null>(null);
   publicTemplatesComponent = signal<Type<unknown> | null>(null);
+  faqGeneralComponent = signal<Type<unknown> | null>(null);
+  faqPlansComponent = signal<Type<unknown> | null>(null);
+  faqTripsComponent = signal<Type<unknown> | null>(null);
+  faqPackingComponent = signal<Type<unknown> | null>(null);
+  faqCollaborationComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -262,30 +267,30 @@ export class HelpComponent {
         { id: 'public-templates', title: 'Public Templates', linkId: 'link#66' }
       ]
     },
-    {
-      id: 'tips',
-      title: 'Tips & Best Practices',
-      icon: 'pi pi-lightbulb',
-      description: 'Get the most from Plantour.',
-      subsections: [
-        { id: 'planning-tips', title: 'Trip Planning Tips', linkId: 'link#67' },
-        { id: 'packing-strategies', title: 'Packing Strategies', linkId: 'link#68' },
-        { id: 'organization-tips', title: 'Organization Tips', linkId: 'link#69' },
-        { id: 'team-coordination', title: 'Team Coordination', linkId: 'link#70' }
-      ]
-    },
-    {
-      id: 'troubleshooting',
-      title: 'Troubleshooting',
-      icon: 'pi pi-wrench',
-      description: 'Common issues and solutions.',
-      subsections: [
-        { id: 'common-problems', title: 'Common Problems', linkId: 'link#71' },
-        { id: 'error-messages', title: 'Error Messages Explained', linkId: 'link#72' },
-        { id: 'cant-delete', title: 'Why Can\'t I Delete This?', linkId: 'link#73' },
-        { id: 'missing-items', title: 'Items Not Showing Up', linkId: 'link#74' }
-      ]
-    },
+    // {
+    //   id: 'tips',
+    //   title: 'Tips & Best Practices',
+    //   icon: 'pi pi-lightbulb',
+    //   description: 'Get the most from Plantour.',
+    //   subsections: [
+    //     { id: 'planning-tips', title: 'Trip Planning Tips', linkId: 'link#67' },
+    //     { id: 'packing-strategies', title: 'Packing Strategies', linkId: 'link#68' },
+    //     { id: 'organization-tips', title: 'Organization Tips', linkId: 'link#69' },
+    //     { id: 'team-coordination', title: 'Team Coordination', linkId: 'link#70' }
+    //   ]
+    // },
+    // {
+    //   id: 'troubleshooting',
+    //   title: 'Troubleshooting',
+    //   icon: 'pi pi-wrench',
+    //   description: 'Common issues and solutions.',
+    //   subsections: [
+    //     { id: 'common-problems', title: 'Common Problems', linkId: 'link#71' },
+    //     { id: 'error-messages', title: 'Error Messages Explained', linkId: 'link#72' },
+    //     { id: 'cant-delete', title: 'Why Can\'t I Delete This?', linkId: 'link#73' },
+    //     { id: 'missing-items', title: 'Items Not Showing Up', linkId: 'link#74' }
+    //   ]
+    // },
     {
       id: 'faq',
       title: 'FAQ',
@@ -293,7 +298,7 @@ export class HelpComponent {
       description: 'Frequently asked questions.',
       subsections: [
         { id: 'faq-general', title: 'General Questions' },
-        { id: 'faq-account', title: 'Account Questions' },
+        { id: 'faq-account', title: 'Plans Questions' },
         { id: 'faq-trips', title: 'Trip Questions' },
         { id: 'faq-packing', title: 'Packing Questions' },
         { id: 'faq-collaboration', title: 'Collaboration Questions' }
@@ -437,6 +442,14 @@ export class HelpComponent {
           'templates-intro': this.understandingTemplatesComponent(),
           'item-templates': this.itemTemplatesComponent(),
           'public-templates': this.publicTemplatesComponent()
+        };
+      case 'faq':
+        return {
+          'faq-general': this.faqGeneralComponent(),
+          'faq-account': this.faqPlansComponent(),
+          'faq-trips': this.faqTripsComponent(),
+          'faq-packing': this.faqPackingComponent(),
+          'faq-collaboration': this.faqCollaborationComponent()
         };
       default:
         return {};
@@ -605,6 +618,21 @@ export class HelpComponent {
     }
     if (sectionId === 'templates' && subsectionId === 'public-templates') {
       this.loadPublicTemplatesComponent();
+    }
+    if (sectionId === 'faq' && subsectionId === 'faq-general') {
+      this.loadFaqGeneralComponent();
+    }
+    if (sectionId === 'faq' && subsectionId === 'faq-account') {
+      this.loadFaqPlansComponent();
+    }
+    if (sectionId === 'faq' && subsectionId === 'faq-trips') {
+      this.loadFaqTripsComponent();
+    }
+    if (sectionId === 'faq' && subsectionId === 'faq-packing') {
+      this.loadFaqPackingComponent();
+    }
+    if (sectionId === 'faq' && subsectionId === 'faq-collaboration') {
+      this.loadFaqCollaborationComponent();
     }
   }
 
@@ -1092,6 +1120,51 @@ export class HelpComponent {
 
     const module = await import('./public-templates/public-templates.component');
     this.publicTemplatesComponent.set(module.PublicTemplatesComponent);
+  }
+
+  private async loadFaqGeneralComponent() {
+    if (this.faqGeneralComponent()) {
+      return;
+    }
+
+    const module = await import('./faq-general/faq-general.component');
+    this.faqGeneralComponent.set(module.FaqGeneralComponent);
+  }
+
+  private async loadFaqPlansComponent() {
+    if (this.faqPlansComponent()) {
+      return;
+    }
+
+    const module = await import('./faq-plans/faq-plans.component');
+    this.faqPlansComponent.set(module.FaqPlansComponent);
+  }
+
+  private async loadFaqTripsComponent() {
+    if (this.faqTripsComponent()) {
+      return;
+    }
+
+    const module = await import('./faq-trips/faq-trips.component');
+    this.faqTripsComponent.set(module.FaqTripsComponent);
+  }
+
+  private async loadFaqPackingComponent() {
+    if (this.faqPackingComponent()) {
+      return;
+    }
+
+    const module = await import('./faq-packing/faq-packing.component');
+    this.faqPackingComponent.set(module.FaqPackingComponent);
+  }
+
+  private async loadFaqCollaborationComponent() {
+    if (this.faqCollaborationComponent()) {
+      return;
+    }
+
+    const module = await import('./faq-collaboration/faq-collaboration.component');
+    this.faqCollaborationComponent.set(module.FaqCollaborationComponent);
   }
 
   getStartedWithTest = async () => {

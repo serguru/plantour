@@ -1,0 +1,21 @@
+<div class="help-content">
+  <div class="intro">
+    <i class="pi pi-question-circle intro-icon"></i>
+    <h2>General Questions</h2>
+    <p>Common questions about Plantour, getting started, and basic features.</p>
+  </div>
+
+  <div class="faq-list">
+    @for (faq of faqs; track faq.question) {
+      <div class="faq-item">
+        <div class="question">
+          <i class="pi pi-chevron-right"></i>
+          <h3>{{faq.question}}</h3>
+        </div>
+        <div class="answer">
+          <p>{{faq.answer}}</p>
+        </div>
+      </div>
+    }
+  </div>
+</div>
