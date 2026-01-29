@@ -76,6 +76,10 @@ export class HelpComponent {
   addParticipantToTripComponent = signal<Type<unknown> | null>(null);
   removeParticipantFromTripComponent = signal<Type<unknown> | null>(null);
   participantPermissionsComponent = signal<Type<unknown> | null>(null);
+  understandingTripBagsComponent = signal<Type<unknown> | null>(null);
+  addBagToTripComponent = signal<Type<unknown> | null>(null);
+  editTripBagComponent = signal<Type<unknown> | null>(null);
+  removeBagFromTripComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -183,19 +187,6 @@ export class HelpComponent {
       ]
     },
     {
-      id: 'trip-things',
-      title: 'Trip Packing Lists',
-      icon: 'pi pi-list',
-      description: 'Manage things and packing for your trip.',
-      subsections: [
-        { id: 'trip-things-intro', title: 'Understanding Trip Items', linkId: 'link#37' },
-        { id: 'add-item-to-trip', title: 'Add Item to Trip', linkId: 'link#38' },
-        { id: 'remove-item-from-trip', title: 'Remove Item from Trip', linkId: 'link#39' },
-        { id: 'packing-status', title: 'Track Packing Status', linkId: 'link#40' },
-        { id: 'assign-item-to-traveler', title: 'Assign Item to Traveler', linkId: 'link#41' }
-      ]
-    },
-    {
       id: 'trip-packs',
       title: 'Trip Bags',
       icon: 'pi pi-briefcase',
@@ -203,8 +194,8 @@ export class HelpComponent {
       subsections: [
         { id: 'trip-packs-intro', title: 'Understanding Trip Bags', linkId: 'link#42' },
         { id: 'add-bag-to-trip', title: 'Add Bag to Trip', linkId: 'link#43' },
-        { id: 'remove-bag-from-trip', title: 'Remove Bag from Trip', linkId: 'link#44' },
-        { id: 'assign-bag-to-traveler', title: 'Assign Bag to Traveler', linkId: 'link#45' }
+        { id: 'edit-trip-bag', title: 'Edit Trip Bag', linkId: '' },
+        { id: 'remove-bag-from-trip', title: 'Remove Bag from Trip', linkId: 'link#44' }
       ]
     },
     {
@@ -414,6 +405,13 @@ export class HelpComponent {
           'remove-participant': this.removeParticipantFromTripComponent(),
           'participant-permissions': this.participantPermissionsComponent()
         };
+      case 'trip-packs':
+        return {
+          'trip-packs-intro': this.understandingTripBagsComponent(),
+          'add-bag-to-trip': this.addBagToTripComponent(),
+          'edit-trip-bag': this.editTripBagComponent(),
+          'remove-bag-from-trip': this.removeBagFromTripComponent()
+        };
       default:
         return {};
     }
@@ -527,6 +525,18 @@ export class HelpComponent {
     }
     if (sectionId === 'trip-participants' && subsectionId === 'participant-permissions') {
       this.loadParticipantPermissionsComponent();
+    }
+    if (sectionId === 'trip-packs' && subsectionId === 'trip-packs-intro') {
+      this.loadUnderstandingTripBagsComponent();
+    }
+    if (sectionId === 'trip-packs' && subsectionId === 'add-bag-to-trip') {
+      this.loadAddBagToTripComponent();
+    }
+    if (sectionId === 'trip-packs' && subsectionId === 'edit-trip-bag') {
+      this.loadEditTripBagComponent();
+    }
+    if (sectionId === 'trip-packs' && subsectionId === 'remove-bag-from-trip') {
+      this.loadRemoveBagFromTripComponent();
     }
   }
 
@@ -852,6 +862,42 @@ export class HelpComponent {
 
     const module = await import('./participant-permissions/participant-permissions.component');
     this.participantPermissionsComponent.set(module.ParticipantPermissionsComponent);
+  }
+
+  private async loadUnderstandingTripBagsComponent() {
+    if (this.understandingTripBagsComponent()) {
+      return;
+    }
+
+    const module = await import('./understanding-trip-bags/understanding-trip-bags.component');
+    this.understandingTripBagsComponent.set(module.UnderstandingTripBagsComponent);
+  }
+
+  private async loadAddBagToTripComponent() {
+    if (this.addBagToTripComponent()) {
+      return;
+    }
+
+    const module = await import('./add-bag-to-trip/add-bag-to-trip.component');
+    this.addBagToTripComponent.set(module.AddBagToTripComponent);
+  }
+
+  private async loadEditTripBagComponent() {
+    if (this.editTripBagComponent()) {
+      return;
+    }
+
+    const module = await import('./edit-trip-bag/edit-trip-bag.component');
+    this.editTripBagComponent.set(module.EditTripBagComponent);
+  }
+
+  private async loadRemoveBagFromTripComponent() {
+    if (this.removeBagFromTripComponent()) {
+      return;
+    }
+
+    const module = await import('./remove-bag-from-trip/remove-bag-from-trip.component');
+    this.removeBagFromTripComponent.set(module.RemoveBagFromTripComponent);
   }
 
   getStartedWithTest = async () => {

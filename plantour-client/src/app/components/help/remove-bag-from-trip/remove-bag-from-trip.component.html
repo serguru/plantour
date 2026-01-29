@@ -1,0 +1,76 @@
+<div class="help-content">
+  <h3>Remove Bag from Trip</h3>
+  
+  <p class="intro">
+    You can remove bags from a trip when they are no longer needed for that journey. 
+    This does not delete the bag itself - it only removes the association with this specific trip.
+  </p>
+
+  <div class="section">
+    <h4><i class="pi pi-list-check"></i> How to Remove a Bag</h4>
+    <div class="steps-container">
+      @for (step of steps; track step.number) {
+        <div class="step-card">
+          <div class="step-number">
+            <i [class]="step.icon"></i>
+            <span>{{ step.number }}</span>
+          </div>
+          <div class="step-content">
+            <h5>{{ step.title }}</h5>
+            <p>{{ step.description }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-exclamation-circle"></i> Important Considerations</h4>
+    <div class="considerations-grid">
+      @for (consideration of considerations; track consideration.title) {
+        <div class="consideration-card">
+          <i [class]="consideration.icon"></i>
+          <h5>{{ consideration.title }}</h5>
+          <p>{{ consideration.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-arrows-alt"></i> {{ alternativesTitle }}</h4>
+    <div class="alternatives-box">
+      <p>Before removing a bag, consider these alternatives:</p>
+      <ul>
+        @for (alternative of alternatives; track $index) {
+          <li>{{ alternative }}</li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-lightbulb"></i> Helpful Tips</h4>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>{{ tip }}</li>
+      }
+    </ul>
+  </div>
+
+  <div class="warning-box">
+    <i class="pi pi-exclamation-triangle"></i>
+    <div>
+      <strong>Warning:</strong> If items are packed in this bag, they may become unassigned 
+      when you remove it from the trip. Make sure to reassign items to other bags before removal.
+    </div>
+  </div>
+
+  <div class="info-box">
+    <i class="pi pi-info-circle"></i>
+    <div>
+      <strong>Remember:</strong> Removing a bag from a trip is different from deleting a bag. 
+      The bag still exists in your Bags module and can be used in other trips or re-added later.
+    </div>
+  </div>
+</div>
