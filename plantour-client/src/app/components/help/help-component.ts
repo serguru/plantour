@@ -60,6 +60,11 @@ export class HelpComponent {
   deleteItemComponent = signal<Type<unknown> | null>(null);
   usingCategoriesComponent = signal<Type<unknown> | null>(null);
   filterSortItemsComponent = signal<Type<unknown> | null>(null);
+  understandingBagsComponent = signal<Type<unknown> | null>(null);
+  addBagComponent = signal<Type<unknown> | null>(null);
+  editBagDetailsComponent = signal<Type<unknown> | null>(null);
+  deleteBagComponent = signal<Type<unknown> | null>(null);
+  filterSortBagsComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -373,6 +378,14 @@ export class HelpComponent {
           'item-categories': this.usingCategoriesComponent(),
           'filter-things': this.filterSortItemsComponent()
         };
+      case 'packs':
+        return {
+          'packs-intro': this.understandingBagsComponent(),
+          'add-bag': this.addBagComponent(),
+          'edit-bag': this.editBagDetailsComponent(),
+          'delete-bag': this.deleteBagComponent(),
+          'filter-packs': this.filterSortBagsComponent()
+        };
       default:
         return {};
     }
@@ -438,6 +451,21 @@ export class HelpComponent {
     }
     if (sectionId === 'things' && subsectionId === 'filter-things') {
       this.loadFilterSortItemsComponent();
+    }
+    if (sectionId === 'packs' && subsectionId === 'packs-intro') {
+      this.loadUnderstandingBagsComponent();
+    }
+    if (sectionId === 'packs' && subsectionId === 'add-bag') {
+      this.loadAddBagComponent();
+    }
+    if (sectionId === 'packs' && subsectionId === 'edit-bag') {
+      this.loadEditBagDetailsComponent();
+    }
+    if (sectionId === 'packs' && subsectionId === 'delete-bag') {
+      this.loadDeleteBagComponent();
+    }
+    if (sectionId === 'packs' && subsectionId === 'filter-packs') {
+      this.loadFilterSortBagsComponent();
     }
   }
 
@@ -619,6 +647,51 @@ export class HelpComponent {
 
     const module = await import('./filter-sort-items/filter-sort-items.component');
     this.filterSortItemsComponent.set(module.FilterSortItemsComponent);
+  }
+
+  private async loadUnderstandingBagsComponent() {
+    if (this.understandingBagsComponent()) {
+      return;
+    }
+
+    const module = await import('./understanding-bags/understanding-bags.component');
+    this.understandingBagsComponent.set(module.UnderstandingBagsComponent);
+  }
+
+  private async loadAddBagComponent() {
+    if (this.addBagComponent()) {
+      return;
+    }
+
+    const module = await import('./add-bag/add-bag.component');
+    this.addBagComponent.set(module.AddBagComponent);
+  }
+
+  private async loadEditBagDetailsComponent() {
+    if (this.editBagDetailsComponent()) {
+      return;
+    }
+
+    const module = await import('./edit-bag-details/edit-bag-details.component');
+    this.editBagDetailsComponent.set(module.EditBagDetailsComponent);
+  }
+
+  private async loadDeleteBagComponent() {
+    if (this.deleteBagComponent()) {
+      return;
+    }
+
+    const module = await import('./delete-bag/delete-bag.component');
+    this.deleteBagComponent.set(module.DeleteBagComponent);
+  }
+
+  private async loadFilterSortBagsComponent() {
+    if (this.filterSortBagsComponent()) {
+      return;
+    }
+
+    const module = await import('./filter-sort-bags/filter-sort-bags.component');
+    this.filterSortBagsComponent.set(module.FilterSortBagsComponent);
   }
 
   getStartedWithTest = async () => {

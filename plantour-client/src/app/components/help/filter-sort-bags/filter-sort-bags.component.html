@@ -1,0 +1,157 @@
+<div class="help-content">
+  <div class="content-header">
+    <h2 class="main-heading">{{ mainHeading }}</h2>
+    <p class="intro-text">{{ intro }}</p>
+  </div>
+
+  <section class="filter-options-section">
+    <h3 class="section-heading">
+      <i class="pi pi-filter"></i>
+      Available Filter Options
+    </h3>
+    <p class="section-intro">Depending on your system, you may have some or all of these filtering capabilities:</p>
+    @for (filter of filterOptions; track filter.name) {
+      <div class="option-card">
+        <h4 class="option-name">{{ filter.name }}</h4>
+        <p class="option-description">{{ filter.description }}</p>
+        @if (filter.examples && filter.examples.length > 0) {
+          <ul class="option-examples">
+            @for (example of filter.examples; track $index) {
+              <li>
+                <i class="pi pi-angle-double-right"></i>
+                {{ example }}
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="sort-options-section">
+    <h3 class="section-heading">
+      <i class="pi pi-sort-alt"></i>
+      Available Sort Options
+    </h3>
+    <p class="section-intro">Organize your bags view using these sorting methods:</p>
+    @for (sort of sortOptions; track sort.name) {
+      <div class="sort-card">
+        <h4 class="sort-name">{{ sort.name }}</h4>
+        <p class="sort-description">{{ sort.description }}</p>
+        <div class="sort-best-for">
+          <i class="pi pi-star-fill"></i>
+          <span><strong>Best for:</strong> {{ sort.bestFor }}</span>
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="how-to-section">
+    <h3 class="section-heading">
+      <i class="pi pi-question-circle"></i>
+      How to Filter Bags
+    </h3>
+    <div class="steps-grid">
+      @for (step of howToFilter; track step.step) {
+        <div class="mini-step">
+          <div class="mini-step-number">{{ step.step }}</div>
+          <p class="mini-step-text">{{ step.instruction }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="how-to-section">
+    <h3 class="section-heading">
+      <i class="pi pi-question-circle"></i>
+      How to Sort Bags
+    </h3>
+    <div class="steps-grid">
+      @for (step of howToSort; track step.step) {
+        <div class="mini-step">
+          <div class="mini-step-number">{{ step.step }}</div>
+          <p class="mini-step-text">{{ step.instruction }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="use-cases-section">
+    <h3 class="section-heading">
+      <i class="pi pi-sitemap"></i>
+      Real-World Use Cases
+    </h3>
+    @for (useCase of useCaseScenarios; track useCase.scenario) {
+      <div class="use-case-card">
+        <h4 class="use-case-scenario">
+          <i class="pi pi-circle"></i>
+          {{ useCase.scenario }}
+        </h4>
+        <div class="use-case-actions">
+          <div class="use-case-action">
+            <i class="pi pi-filter"></i>
+            <span>{{ useCase.filterAction }}</span>
+          </div>
+          @if (useCase.sortAction) {
+            <div class="use-case-action">
+              <i class="pi pi-sort"></i>
+              <span>{{ useCase.sortAction }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="combination-section">
+    <h3 class="section-heading">
+      <i class="pi pi-link"></i>
+      Combining Filters and Sorting
+    </h3>
+    <ul class="combination-list">
+      @for (tip of combinationTips; track $index) {
+        <li>
+          <i class="pi pi-angle-right"></i>
+          {{ tip }}
+        </li>
+      }
+    </ul>
+    <div class="advanced-note">
+      <i class="pi pi-info-circle"></i>
+      <p>{{ advancedNote }}</p>
+    </div>
+  </section>
+
+  <section class="tips-section">
+    <h3 class="section-heading">
+      <i class="pi pi-lightbulb"></i>
+      Helpful Tips
+    </h3>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>
+          <i class="pi pi-check-circle"></i>
+          {{ tip }}
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="troubleshooting-section">
+    <h3 class="section-heading">
+      <i class="pi pi-wrench"></i>
+      Common Issues
+    </h3>
+    @for (issue of commonIssues; track issue.problem) {
+      <div class="issue-card">
+        <h4 class="issue-problem">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ issue.problem }}
+        </h4>
+        <p class="issue-solution">
+          <strong>Solution:</strong> {{ issue.solution }}
+        </p>
+      </div>
+    }
+  </section>
+</div>
