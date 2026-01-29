@@ -1,0 +1,112 @@
+<div class="help-content">
+  <div class="content-header">
+    <h2 class="main-heading">{{ mainHeading }}</h2>
+    <p class="intro-text">{{ intro }}</p>
+  </div>
+
+  <div class="warning-banner">
+    <i class="pi pi-exclamation-triangle"></i>
+    <div class="warning-content">
+      <h4>⚠️ Important Warning</h4>
+      <p>Deleting a traveler is <strong>permanent and cannot be undone</strong>. Make sure you really want to remove this person from your travelers list before proceeding.</p>
+    </div>
+  </div>
+
+  <section class="steps-section">
+    <h3 class="section-heading">Step-by-Step Instructions</h3>
+    
+    @for (step of steps; track step.stepNumber) {
+      <div class="step-card">
+        <div class="step-number">{{ step.stepNumber }}</div>
+        <div class="step-content">
+          <h4 class="step-title">{{ step.title }}</h4>
+          <p class="step-description">{{ step.description }}</p>
+          
+          @if (step.details && step.details.length > 0) {
+            <ul class="step-details">
+              @for (detail of step.details; track $index) {
+                <li>
+                  <i class="pi pi-angle-right"></i>
+                  {{ detail }}
+                </li>
+              }
+            </ul>
+          }
+          
+          @if (step.warning) {
+            <div class="step-warning">
+              <i class="pi pi-exclamation-circle"></i>
+              <span>{{ step.warning }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="what-happens-section">
+    <h3 class="section-heading">
+      <i class="pi pi-question-circle"></i>
+      What Happens When You Delete a Traveler?
+    </h3>
+    @for (item of whatHappens; track item.action) {
+      <div class="happens-card">
+        <h4 class="happens-action">
+          <i class="pi pi-arrow-circle-right"></i>
+          {{ item.action }}
+        </h4>
+        <p class="happens-description">{{ item.description }}</p>
+      </div>
+    }
+  </section>
+
+  <section class="before-section">
+    <h3 class="section-heading">
+      <i class="pi pi-check-square"></i>
+      Before You Delete - Checklist
+    </h3>
+    <ul class="before-list">
+      @for (item of beforeYouDelete; track $index) {
+        <li>
+          <i class="pi pi-square"></i>
+          {{ item }}
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="alternatives-section">
+    <h3 class="section-heading">
+      <i class="pi pi-bolt"></i>
+      Consider These Alternatives
+    </h3>
+    <p class="alternatives-intro">Before deleting, consider if one of these alternatives might be better:</p>
+    @for (alt of alternatives; track alt.title) {
+      <div class="alternative-card">
+        <h4 class="alternative-title">
+          <i class="pi pi-circle"></i>
+          {{ alt.title }}
+        </h4>
+        <p class="alternative-description">{{ alt.description }}</p>
+      </div>
+    }
+  </section>
+
+  <section class="troubleshooting-section">
+    <h3 class="section-heading">
+      <i class="pi pi-wrench"></i>
+      Common Issues
+    </h3>
+    @for (issue of commonIssues; track issue.problem) {
+      <div class="issue-card">
+        <h4 class="issue-problem">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ issue.problem }}
+        </h4>
+        <p class="issue-solution">
+          <strong>Solution:</strong> {{ issue.solution }}
+        </p>
+      </div>
+    }
+  </section>
+</div>

@@ -50,6 +50,10 @@ export class HelpComponent {
   signInToAccountComponent = signal<Type<unknown> | null>(null);
   editYourProfileComponent = signal<Type<unknown> | null>(null);
   understandingTravelersComponent = signal<Type<unknown> | null>(null);
+  addTravelerComponent = signal<Type<unknown> | null>(null);
+  editTravelerComponent = signal<Type<unknown> | null>(null);
+  deleteTravelerComponent = signal<Type<unknown> | null>(null);
+  filterTravelersComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -348,7 +352,11 @@ export class HelpComponent {
         };
       case 'travelers':
         return {
-          'travelers-intro': this.understandingTravelersComponent()
+          'travelers-intro': this.understandingTravelersComponent(),
+          'add-traveler': this.addTravelerComponent(),
+          'edit-traveler': this.editTravelerComponent(),
+          'delete-traveler': this.deleteTravelerComponent(),
+          'filter-travelers': this.filterTravelersComponent()
         };
       default:
         return {};
@@ -385,6 +393,18 @@ export class HelpComponent {
     }
     if (sectionId === 'travelers' && subsectionId === 'travelers-intro') {
       this.loadUnderstandingTravelersComponent();
+    }
+    if (sectionId === 'travelers' && subsectionId === 'add-traveler') {
+      this.loadAddTravelerComponent();
+    }
+    if (sectionId === 'travelers' && subsectionId === 'edit-traveler') {
+      this.loadEditTravelerComponent();
+    }
+    if (sectionId === 'travelers' && subsectionId === 'delete-traveler') {
+      this.loadDeleteTravelerComponent();
+    }
+    if (sectionId === 'travelers' && subsectionId === 'filter-travelers') {
+      this.loadFilterTravelersComponent();
     }
   }
 
@@ -476,6 +496,42 @@ export class HelpComponent {
 
     const module = await import('./understanding-travelers/understanding-travelers.component');
     this.understandingTravelersComponent.set(module.UnderstandingTravelersComponent);
+  }
+
+  private async loadAddTravelerComponent() {
+    if (this.addTravelerComponent()) {
+      return;
+    }
+
+    const module = await import('./add-traveler/add-traveler.component');
+    this.addTravelerComponent.set(module.AddTravelerComponent);
+  }
+
+  private async loadEditTravelerComponent() {
+    if (this.editTravelerComponent()) {
+      return;
+    }
+
+    const module = await import('./edit-traveler/edit-traveler.component');
+    this.editTravelerComponent.set(module.EditTravelerComponent);
+  }
+
+  private async loadDeleteTravelerComponent() {
+    if (this.deleteTravelerComponent()) {
+      return;
+    }
+
+    const module = await import('./delete-traveler/delete-traveler.component');
+    this.deleteTravelerComponent.set(module.DeleteTravelerComponent);
+  }
+
+  private async loadFilterTravelersComponent() {
+    if (this.filterTravelersComponent()) {
+      return;
+    }
+
+    const module = await import('./filter-travelers/filter-travelers.component');
+    this.filterTravelersComponent.set(module.FilterTravelersComponent);
   }
 
   getStartedWithTest = async () => {
