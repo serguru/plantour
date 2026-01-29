@@ -1,0 +1,91 @@
+<div class="help-content">
+  <div class="content-header">
+    <h2 class="main-heading">{{ mainHeading }}</h2>
+    <p class="intro-text">{{ intro }}</p>
+  </div>
+
+  <section class="steps-section">
+    <h3 class="section-heading">Steps to Remove a Participant</h3>
+
+    @for (step of steps; track step.stepNumber) {
+      <div class="step-card">
+        <div class="step-number">{{ step.stepNumber }}</div>
+        <div class="step-content">
+          <h4 class="step-title">{{ step.title }}</h4>
+          <p class="step-description">{{ step.description }}</p>
+
+          @if (step.details && step.details.length > 0) {
+            <ul class="step-details">
+              @for (detail of step.details; track $index) {
+                <li>
+                  <i class="pi pi-angle-right"></i>
+                  {{ detail }}
+                </li>
+              }
+            </ul>
+          }
+
+          @if (step.note) {
+            <div class="step-note">
+              <i class="pi pi-info-circle"></i>
+              <span>{{ step.note }}</span>
+            </div>
+          }
+
+          @if (step.warning) {
+            <div class="step-warning">
+              <i class="pi pi-exclamation-triangle"></i>
+              <span>{{ step.warning }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="alternatives-section">
+    <h3 class="section-heading">
+      <i class="pi pi-lightbulb"></i>
+      Consider These Alternatives
+    </h3>
+    @for (alt of alternatives; track alt.option) {
+      <div class="alternative-card">
+        <h4 class="alt-title">{{ alt.option }}</h4>
+        <p class="alt-description">{{ alt.description }}</p>
+        <div class="alt-when">
+          <strong>When to use:</strong> {{ alt.whenToUse }}
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="checklist-section">
+    <h3 class="section-heading">
+      <i class="pi pi-list-check"></i>
+      Reassignment Checklist
+    </h3>
+    <ul class="checklist">
+      @for (item of reassignmentChecklist; track $index) {
+        <li>
+          <i class="pi pi-check"></i>
+          {{ item }}
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="tips-section">
+    <h3 class="section-heading">
+      <i class="pi pi-shield"></i>
+      Tips
+    </h3>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>
+          <i class="pi pi-angle-right"></i>
+          {{ tip }}
+        </li>
+      }
+    </ul>
+  </section>
+</div>

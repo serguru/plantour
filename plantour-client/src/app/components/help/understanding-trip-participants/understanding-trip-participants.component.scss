@@ -1,0 +1,233 @@
+.help-content {
+  padding: 1.5rem;
+  max-width: 900px;
+
+  .content-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 3px solid var(--primary-color);
+
+    .main-heading {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .intro-text {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: var(--text-color-secondary);
+      margin: 0;
+    }
+  }
+
+  .section-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+      font-size: 1.4rem;
+    }
+  }
+
+  .overview-section {
+    margin-bottom: 3rem;
+
+    .info-card {
+      margin-bottom: 2rem;
+      padding: 1.75rem;
+      background: var(--surface-50);
+      border-radius: 12px;
+      border-left: 5px solid var(--primary-color);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+
+        i {
+          color: var(--primary-color);
+          font-size: 1.4rem;
+        }
+
+        h3 {
+          font-size: 1.4rem;
+          font-weight: 700;
+          margin: 0;
+          color: var(--text-color);
+        }
+      }
+
+      .card-description {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--text-color-secondary);
+        margin-bottom: 1rem;
+      }
+
+      .details-list {
+        list-style: none;
+        padding: 0;
+        margin: 1rem 0;
+
+        li {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          margin-bottom: 0.75rem;
+          font-size: 0.95rem;
+          line-height: 1.6;
+          color: var(--text-color-secondary);
+
+          i {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+            flex-shrink: 0;
+          }
+        }
+      }
+
+      .highlight {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        padding: 0.75rem 1rem;
+        background: var(--blue-50);
+        border-left: 4px solid var(--blue-500);
+        border-radius: 6px;
+
+        i {
+          color: var(--blue-500);
+          font-size: 1rem;
+          margin-top: 0.1rem;
+          flex-shrink: 0;
+        }
+
+        span {
+          font-size: 0.95rem;
+          line-height: 1.6;
+          color: var(--text-color);
+        }
+      }
+    }
+  }
+
+  .roles-section {
+    margin-bottom: 3rem;
+
+    .role-card {
+      margin-bottom: 1.5rem;
+      padding: 1.5rem;
+      background: var(--surface-50);
+      border-radius: 8px;
+      border-left: 4px solid var(--green-500);
+
+      .role-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+      }
+
+      .role-description {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--text-color-secondary);
+        margin-bottom: 1rem;
+      }
+
+      .role-responsibilities {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          margin-bottom: 0.75rem;
+          font-size: 0.95rem;
+          line-height: 1.6;
+          color: var(--text-color-secondary);
+
+          i {
+            color: var(--green-500);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+            flex-shrink: 0;
+          }
+        }
+      }
+    }
+  }
+
+  .use-cases-section {
+    margin-bottom: 3rem;
+
+    .use-cases-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: var(--surface-50);
+        border-radius: 8px;
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--text-color);
+
+        i {
+          color: var(--primary-color);
+          font-size: 1rem;
+          margin-top: 0.2rem;
+          flex-shrink: 0;
+        }
+      }
+    }
+  }
+
+  .tips-section {
+    margin-bottom: 2rem;
+
+    .tips-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: var(--surface-50);
+        border-radius: 8px;
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--text-color);
+
+        i {
+          color: var(--orange-500);
+          font-size: 1rem;
+          margin-top: 0.2rem;
+          flex-shrink: 0;
+        }
+      }
+    }
+  }
+}

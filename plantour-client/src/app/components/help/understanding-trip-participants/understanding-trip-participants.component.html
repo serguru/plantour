@@ -1,0 +1,87 @@
+<div class="help-content">
+  <div class="content-header">
+    <h2 class="main-heading">{{ mainHeading }}</h2>
+    <p class="intro-text">{{ intro }}</p>
+  </div>
+
+  <section class="overview-section">
+    @for (section of sections; track section.title) {
+      <div class="info-card">
+        <div class="card-header">
+          <i [class]="'pi ' + section.icon"></i>
+          <h3>{{ section.title }}</h3>
+        </div>
+        <p class="card-description">{{ section.description }}</p>
+
+        @if (section.details && section.details.length > 0) {
+          <ul class="details-list">
+            @for (detail of section.details; track $index) {
+              <li>
+                <i class="pi pi-angle-right"></i>
+                {{ detail }}
+              </li>
+            }
+          </ul>
+        }
+
+        @if (section.highlight) {
+          <div class="highlight">
+            <i class="pi pi-info-circle"></i>
+            <span>{{ section.highlight }}</span>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="roles-section">
+    <h3 class="section-heading">
+      <i class="pi pi-shield"></i>
+      Participant Roles
+    </h3>
+    @for (role of roles; track role.role) {
+      <div class="role-card">
+        <h4 class="role-title">{{ role.role }}</h4>
+        <p class="role-description">{{ role.description }}</p>
+        <ul class="role-responsibilities">
+          @for (item of role.responsibilities; track $index) {
+            <li>
+              <i class="pi pi-check-circle"></i>
+              {{ item }}
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </section>
+
+  <section class="use-cases-section">
+    <h3 class="section-heading">
+      <i class="pi pi-briefcase"></i>
+      Common Use Cases
+    </h3>
+    <ul class="use-cases-list">
+      @for (caseItem of commonUseCases; track $index) {
+        <li>
+          <i class="pi pi-check"></i>
+          {{ caseItem }}
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="tips-section">
+    <h3 class="section-heading">
+      <i class="pi pi-lightbulb"></i>
+      Tips
+    </h3>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>
+          <i class="pi pi-angle-right"></i>
+          {{ tip }}
+        </li>
+      }
+    </ul>
+  </section>
+</div>

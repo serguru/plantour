@@ -72,6 +72,10 @@ export class HelpComponent {
   tripStatusWorkflowComponent = signal<Type<unknown> | null>(null);
   filterSortTripsComponent = signal<Type<unknown> | null>(null);
   selectCurrentTripComponent = signal<Type<unknown> | null>(null);
+  understandingTripParticipantsComponent = signal<Type<unknown> | null>(null);
+  addParticipantToTripComponent = signal<Type<unknown> | null>(null);
+  removeParticipantFromTripComponent = signal<Type<unknown> | null>(null);
+  participantPermissionsComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -403,6 +407,13 @@ export class HelpComponent {
           'filter-trips': this.filterSortTripsComponent(),
           'select-current-trip': this.selectCurrentTripComponent()
         };
+      case 'trip-participants':
+        return {
+          'participants-intro': this.understandingTripParticipantsComponent(),
+          'add-participant': this.addParticipantToTripComponent(),
+          'remove-participant': this.removeParticipantFromTripComponent(),
+          'participant-permissions': this.participantPermissionsComponent()
+        };
       default:
         return {};
     }
@@ -504,6 +515,18 @@ export class HelpComponent {
     }
     if (sectionId === 'trips' && subsectionId === 'select-current-trip') {
       this.loadSelectCurrentTripComponent();
+    }
+    if (sectionId === 'trip-participants' && subsectionId === 'participants-intro') {
+      this.loadUnderstandingTripParticipantsComponent();
+    }
+    if (sectionId === 'trip-participants' && subsectionId === 'add-participant') {
+      this.loadAddParticipantToTripComponent();
+    }
+    if (sectionId === 'trip-participants' && subsectionId === 'remove-participant') {
+      this.loadRemoveParticipantFromTripComponent();
+    }
+    if (sectionId === 'trip-participants' && subsectionId === 'participant-permissions') {
+      this.loadParticipantPermissionsComponent();
     }
   }
 
@@ -793,6 +816,42 @@ export class HelpComponent {
 
     const module = await import('./select-current-trip/select-current-trip.component');
     this.selectCurrentTripComponent.set(module.SelectCurrentTripComponent);
+  }
+
+  private async loadUnderstandingTripParticipantsComponent() {
+    if (this.understandingTripParticipantsComponent()) {
+      return;
+    }
+
+    const module = await import('./understanding-trip-participants/understanding-trip-participants.component');
+    this.understandingTripParticipantsComponent.set(module.UnderstandingTripParticipantsComponent);
+  }
+
+  private async loadAddParticipantToTripComponent() {
+    if (this.addParticipantToTripComponent()) {
+      return;
+    }
+
+    const module = await import('./add-participant-to-trip/add-participant-to-trip.component');
+    this.addParticipantToTripComponent.set(module.AddParticipantToTripComponent);
+  }
+
+  private async loadRemoveParticipantFromTripComponent() {
+    if (this.removeParticipantFromTripComponent()) {
+      return;
+    }
+
+    const module = await import('./remove-participant-from-trip/remove-participant-from-trip.component');
+    this.removeParticipantFromTripComponent.set(module.RemoveParticipantFromTripComponent);
+  }
+
+  private async loadParticipantPermissionsComponent() {
+    if (this.participantPermissionsComponent()) {
+      return;
+    }
+
+    const module = await import('./participant-permissions/participant-permissions.component');
+    this.participantPermissionsComponent.set(module.ParticipantPermissionsComponent);
   }
 
   getStartedWithTest = async () => {

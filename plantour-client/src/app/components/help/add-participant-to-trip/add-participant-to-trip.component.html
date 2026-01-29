@@ -1,0 +1,79 @@
+<div class="help-content">
+  <div class="content-header">
+    <h2 class="main-heading">{{ mainHeading }}</h2>
+    <p class="intro-text">{{ intro }}</p>
+  </div>
+
+  <section class="steps-section">
+    <h3 class="section-heading">Step-by-Step Instructions</h3>
+
+    @for (step of steps; track step.stepNumber) {
+      <div class="step-card">
+        <div class="step-number">{{ step.stepNumber }}</div>
+        <div class="step-content">
+          <h4 class="step-title">{{ step.title }}</h4>
+          <p class="step-description">{{ step.description }}</p>
+
+          @if (step.details && step.details.length > 0) {
+            <ul class="step-details">
+              @for (detail of step.details; track $index) {
+                <li>
+                  <i class="pi pi-angle-right"></i>
+                  {{ detail }}
+                </li>
+              }
+            </ul>
+          }
+
+          @if (step.note) {
+            <div class="step-note">
+              <i class="pi pi-info-circle"></i>
+              <span>{{ step.note }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="quick-tips-section">
+    <h3 class="section-heading">
+      <i class="pi pi-bolt"></i>
+      Quick Tips
+    </h3>
+    @for (tip of quickTips; track tip.title) {
+      <div class="quick-tip-card">
+        <h4 class="tip-title">{{ tip.title }}</h4>
+        <p class="tip-description">{{ tip.description }}</p>
+      </div>
+    }
+  </section>
+
+  <section class="what-next-section">
+    <h3 class="section-heading">
+      <i class="pi pi-arrow-right"></i>
+      What to Do Next
+    </h3>
+    <ul class="what-next-list">
+      @for (item of whatNext; track $index) {
+        <li>
+          <i class="pi pi-check-circle"></i>
+          {{ item }}
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="troubleshooting-section">
+    <h3 class="section-heading">
+      <i class="pi pi-wrench"></i>
+      Common Issues
+    </h3>
+    @for (issue of commonIssues; track issue.problem) {
+      <div class="issue-card">
+        <h4 class="issue-problem">{{ issue.problem }}</h4>
+        <p class="issue-solution"><strong>Solution:</strong> {{ issue.solution }}</p>
+      </div>
+    }
+  </section>
+</div>
