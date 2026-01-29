@@ -8,5 +8,7 @@ import { Component } from '@angular/core';
 })
 export class PrivacyComponent {
   componentId = 'privacy';
-
+  appName = 'Plantour';
+  lastUpdated = 'January 28, 2026';
+  supportContact = 'the support channel available in the app';
 }

@@ -65,18 +65,18 @@ export const routes: Routes = [
     data: { componentId: 'help' }
   },
   {
-    path: 'discover',
-    redirectTo: 'discover/packing-templates',
+    path: 'packing-list-generator',
+    redirectTo: 'packing-list-generator/templates',
     pathMatch: 'full'
   },
   {
-    path: 'discover/packing-templates/:templateId',
+    path: 'packing-list-generator/templates/:templateId',
     loadComponent: () => import('./components/features/public-templates/public-template-detail/public-template-detail-component').then(m => m.PublicTemplateDetailComponent),
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'public-template-detail' }
   },
   {
-    path: 'discover/packing-templates',
+    path: 'packing-list-generator/templates',
     loadComponent: () => import('./components/features/public-templates/public-templates-component').then(m => m.PublicTemplatesComponent),
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'public-templates' }

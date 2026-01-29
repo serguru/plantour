@@ -2,7 +2,7 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
   {
-    path: 'discover/**',
+    path: 'packing-list-generator/**',
     renderMode: RenderMode.Server
   },
   {

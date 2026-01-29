@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "plantour-server"
+		},
+		{
+			"path": "plantour-client"
+		},
+		{
+			"path": "documents"
+		}
+	],
+	"settings": {}
+}

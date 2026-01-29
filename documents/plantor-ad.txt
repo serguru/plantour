@@ -9,10 +9,35 @@ Plantour это web приложение, которое помогает одн
 - админы могут все то же, что и участники плюс создавать путешествия и приглашать в них путешественников
 - поддерживаются шаблоны путешествий для быстрого создания готового списка упакованных вещей путешествия типа "Рыбалка", "Поход в горы на уикенд с палаткой" или "Морской круиз 10 дней"
 - возможность быстро ответить на вопрос: в какой упаковке находится мой синий галстук?
-- автоматическое создание и печать ярлыков для упаковок и упаковочных листов
-- возможность выгрузить данные путешествия в файл на устройство и читать и изменять это путешествие без доступа к Интренету
-- только от админов требуется регистрация в качестве юзера, приглашённые админом участники имеют доступ к приложению без регистрации
+- автоматическое создание и печать упаковочных листов
+- только от админов требуется регистрация в качестве юзера, приглашённые админом участники имеют доступ к приложению без регистрации и бесплатно
 - возможность попробовать пользоваться приложением без регистрации на заранее подготовленных тестовых данных
 - возможность создать список общих для группы путешественников упаковок с вещами и назначить ответственных за каждую упаковку или вещь
 
+- приложение хранит следующие двнные юзеров: email, имя, фамилию, телефон и никодга никому не предоставляет доступ к этим данным
+- приложение не использует cookie, на которые требуется согласие юзера
 
+- приложение предлагает услуги за плату, платные планы: $9.99 и $19.99 в год
+
+
+
+
+Plantour is a web app that helps individuals or groups pack for a trip. The following features are supported:
+- 100% mobile-optimized app
+- Packing list
+- Packing list
+- Traveler list
+- Trip list
+- Users can be admins or members
+- Members can create lists of items and packages they own and then copy them individually or in bulk to the trip's packing list
+- Admins can do everything members can do, plus create trips and invite travelers to them
+- Trip templates are supported for quickly creating a ready-made packing list for trips like "Fishing Trip," "Weekend Camping Trip," or "10-Day Sea Cruise"
+- Quick answer to the question: which package is my blue tie in? - Automatic creation and printing of packing slips
+- Only admins are required to register as users; participants invited by admins have access to the app free of charge and without registration
+- The ability to try the app without registration using pre-prepared test data
+- The ability to create a list of shared packages for a group of travelers and assign responsibility for each package or item
+
+- The app stores user data: email, first name, last name, phone number, and never grants access to this data to anyone
+- The app does not use cookies that require user consent
+
+- The app offers paid services; paid plans are $9.99 and $19.99 per year

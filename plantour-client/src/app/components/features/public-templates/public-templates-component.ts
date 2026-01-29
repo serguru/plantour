@@ -46,6 +46,7 @@ interface TemplateGroup {
   styleUrl: './public-templates-component.scss'
 })
 export class PublicTemplatesComponent implements OnInit {
+  componentId = 'public-templates';
   private publicTemplatesService = inject(PublicTemplatesService);
   private titleService = inject(Title);
   private metaService = inject(Meta);
@@ -225,7 +226,7 @@ export class PublicTemplatesComponent implements OnInit {
 
   goToTemplate(template: TemplateGroup): void {
     const slug = this.slugify(template.templateName);
-    this.router.navigate(['/discover/packing-templates', `${slug}~${template.templateId}`]);
+    this.router.navigate(['/packing-list-generator/templates', `${slug}~${template.templateId}`]);
   }
 
   goToGuestAccess(): void {
@@ -299,7 +300,7 @@ export class PublicTemplatesComponent implements OnInit {
     this.metaService.updateTag({ name: 'twitter:description', content: description });
     this.metaService.updateTag({ name: 'robots', content: 'index,follow' });
 
-    const canonicalUrl = this.buildAbsoluteUrl('/discover/packing-templates');
+    const canonicalUrl = this.buildAbsoluteUrl('/packing-list-generator/templates');
     this.setCanonicalLink(canonicalUrl);
   }
 
@@ -308,7 +309,7 @@ export class PublicTemplatesComponent implements OnInit {
       '@type': 'ListItem',
       position: index + 1,
       name: group.templateName,
-      url: this.buildAbsoluteUrl(`/discover/packing-templates/${this.slugify(group.templateName)}~${group.templateId}`)
+      url: this.buildAbsoluteUrl(`/packing-list-generator/templates/${this.slugify(group.templateName)}~${group.templateId}`)
     }));
 
     const data = {

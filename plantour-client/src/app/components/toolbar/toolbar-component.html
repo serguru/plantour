@@ -190,6 +190,14 @@
         </a>
         <a
           class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('public-templates')"
+          (click)="featureClick($event, '/packing-list-generator/templates', popoverFeatures)"
+        >
+          <span class="pi pi-objects-column"></span>
+          <span class="button-label">Public Templates</span>
+        </a>
+        <a
+          class="pl-menu-item"
           [class.selected]="isNavigatedComponent('terms')"
           (click)="featureClick($event, '/terms', popoverFeatures)"
         >

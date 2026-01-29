@@ -178,7 +178,7 @@ export class PublicTemplateDetailComponent implements OnInit {
     this.metaService.updateTag({ name: 'twitter:description', content: description });
     this.metaService.updateTag({ name: 'robots', content: 'index,follow' });
 
-    const canonicalUrl = this.buildAbsoluteUrl(`/discover/packing-templates/${this.slugify(this.templateName())}~${this.templateId()}`);
+    const canonicalUrl = this.buildAbsoluteUrl(`/packing-list-generator/templates/${this.slugify(this.templateName())}~${this.templateId()}`);
     this.setCanonicalLink(canonicalUrl);
   }
 

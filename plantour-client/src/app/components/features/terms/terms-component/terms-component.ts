@@ -8,4 +8,7 @@ import { Component } from '@angular/core';
 })
 export class TermsComponent {
   componentId = 'terms';
+  appName = 'Plantour';
+  lastUpdated = 'January 28, 2026';
+  supportContact = 'the support channel available in the app';
 }
