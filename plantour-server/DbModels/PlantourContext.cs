@@ -11,8 +11,6 @@ public partial class PlantourContext : DbContext
     {
     }
 
-    public virtual DbSet<ApiVisit> ApiVisits { get; set; }
-
     public virtual DbSet<AccessType> AccessTypes { get; set; }
 
     public virtual DbSet<Activity> Activities { get; set; }
@@ -21,15 +19,23 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<AgeRange> AgeRanges { get; set; }
 
+    public virtual DbSet<ApiVisit> ApiVisits { get; set; }
+
     public virtual DbSet<CommunicationType> CommunicationTypes { get; set; }
 
     public virtual DbSet<ContactSubmission> ContactSubmissions { get; set; }
+
+    public virtual DbSet<ErrorLog> ErrorLogs { get; set; }
 
     public virtual DbSet<Gender> Genders { get; set; }
 
     public virtual DbSet<Invitation> Invitations { get; set; }
 
+    public virtual DbSet<Log> Logs { get; set; }
+
     public virtual DbSet<Plan> Plans { get; set; }
+
+    public virtual DbSet<RecentLog> RecentLogs { get; set; }
 
     public virtual DbSet<TemperatureRange> TemperatureRanges { get; set; }
 
@@ -75,14 +81,6 @@ public partial class PlantourContext : DbContext
     {
         modelBuilder.HasPostgresExtension("pldbgapi");
 
-        modelBuilder.Entity<ApiVisit>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("api_visits_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
-        });
-
         modelBuilder.Entity<AccessType>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("access_types_pkey");
@@ -116,6 +114,14 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
+        modelBuilder.Entity<ApiVisit>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("api_visits_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+        });
+
         modelBuilder.Entity<CommunicationType>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("communication_types_pkey");
@@ -129,6 +135,11 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+        });
+
+        modelBuilder.Entity<ErrorLog>(entity =>
+        {
+            entity.ToView("error_logs", "plantour");
         });
 
         modelBuilder.Entity<Gender>(entity =>
@@ -148,11 +159,31 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Trip).WithMany(p => p.Invitations).HasConstraintName("invitations_trip_id_fkey");
         });
 
+        modelBuilder.Entity<Log>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("logs_pkey");
+
+            entity.ToTable("logs", "plantour", tb => tb.HasComment("stores application log events from serilog framework"));
+
+            entity.Property(e => e.Id).HasComment("auto-incrementing primary key");
+            entity.Property(e => e.Exception).HasComment("exception details if applicable");
+            entity.Property(e => e.Level).HasComment("log level: verbose, debug, information, warning, error, fatal");
+            entity.Property(e => e.LogEvent).HasComment("complete log event as json");
+            entity.Property(e => e.MessageTemplate).HasComment("the log message template with placeholders");
+            entity.Property(e => e.Properties).HasComment("additional structured properties as json (enrichers, context data)");
+            entity.Property(e => e.TimeStamp).HasComment("timestamp when the log event was recorded");
+        });
+
         modelBuilder.Entity<Plan>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("plans_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
+        modelBuilder.Entity<RecentLog>(entity =>
+        {
+            entity.ToView("recent_logs", "plantour");
         });
 
         modelBuilder.Entity<TemperatureRange>(entity =>

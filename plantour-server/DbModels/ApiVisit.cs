@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Net;
@@ -7,11 +8,11 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("api_visits", Schema = "plantour")]
-[Index("CreatedAt", Name = "idx_api_visits_created_at")]
-[Index("UserId", Name = "idx_api_visits_user_id")]
-[Index("StatusCode", Name = "idx_api_visits_status_code")]
-[Index("Path", Name = "idx_api_visits_path")]
+[Index("CreatedAt", Name = "idx_api_visits_created_at", AllDescending = true)]
 [Index("Endpoint", Name = "idx_api_visits_endpoint")]
+[Index("Path", Name = "idx_api_visits_path")]
+[Index("StatusCode", Name = "idx_api_visits_status_code")]
+[Index("UserId", Name = "idx_api_visits_user_id")]
 public partial class ApiVisit
 {
     [Key]
