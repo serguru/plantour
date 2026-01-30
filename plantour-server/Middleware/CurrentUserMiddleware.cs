@@ -4,16 +4,20 @@ using plantour_server.Models;
 using PlantourApi.Models;
 using plantour_server.Repositories;
 using plantour_server.Services;
+using Microsoft.Extensions.Logging;
+using Serilog.Context;
 
 namespace PlantourApi.Middleware;
 
 public class CurrentUserMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<CurrentUserMiddleware> _logger;
 
-    public CurrentUserMiddleware(RequestDelegate next)
+    public CurrentUserMiddleware(RequestDelegate next, ILogger<CurrentUserMiddleware> logger)
     {
         _next = next;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -48,6 +52,8 @@ public class CurrentUserMiddleware
                     currentUser.PlanName = user.Plan?.Name;
                     currentUser.AccessTypeName = user.AccessType?.Name;
                     currentUser.EmailConfirmed = await emailConfirmationService.IsEmailConfirmedAsync(user.Id);
+
+                    _logger.LogDebug("User authenticated successfully: {UserId} ({Email})", user.Id, user.Email);
                 }
                 else
                 {
@@ -55,6 +61,8 @@ public class CurrentUserMiddleware
                     currentUser.Email = context.User.FindFirst(PlantourClaims.Email)?.Value ?? string.Empty;
                     currentUser.FirstName = context.User.FindFirst(PlantourClaims.FirstName)?.Value;
                     currentUser.LastName = context.User.FindFirst(PlantourClaims.LastName)?.Value;
+
+                    _logger.LogWarning("User not found in database. UserId: {UserId}, Email: {Email}", userId, currentUser.Email);
                 }
 
                 // 4. Логика с ролями и AdminId
@@ -73,75 +81,30 @@ public class CurrentUserMiddleware
                 if (currentUser.Role == UserRole.Admin)
                 {
                     currentUser.AdminId = userId;
+                    _logger.LogDebug("Admin user authenticated: {AdminId}", userId);
                 }
                 else if (currentUser.Role == UserRole.Participant && Guid.TryParse(adminIdStr, out var adminId))
                 {
                     currentUser.AdminId = adminId;
+                    _logger.LogDebug("Participant user authenticated: {ParticipantId}, AdminId: {AdminId}", userId, adminId);
+                }
+
+                // Add user context to Serilog
+                using (LogContext.PushProperty("UserId", currentUser.UserId))
+                using (LogContext.PushProperty("UserEmail", currentUser.Email))
+                using (LogContext.PushProperty("UserRole", currentUser.Role))
+                {
+                    // Continue with the request
+                    context.Items["CurrentUser"] = currentUser;
+                    await _next(context);
+                    return;
                 }
             }
         }
 
+        _logger.LogDebug("Public user request");
         // Сохраняем результат для контроллеров
         context.Items["CurrentUser"] = currentUser;
         await _next(context);
     }
-
-    // public async Task InvokeAsync(HttpContext context)
-    // {
-    //     var currentUser = new CurrentUser { Role = UserRole.Public };
-
-    //     // Check for Authorization header
-    //     var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
-    //     if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
-    //     {
-    //         var token = authHeader.Substring("Bearer ".Length).Trim();
-
-    //         var handler = new JwtSecurityTokenHandler();
-    //         var jwtToken = handler.ReadJwtToken(token);
-
-    //         // Extract user information from JWT claims using PlantourClaims constants
-    //         var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.UserId)?.Value;
-
-    //         if (Guid.TryParse(userIdClaim, out var userId))
-    //         {
-    //             var email = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.Email)?.Value;
-
-    //             if (userId != Guid.Empty && !string.IsNullOrEmpty(email))
-    //             {
-    //                 currentUser.UserId = userId;
-    //                 currentUser.Email = email;
-    //                 currentUser.FirstName = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.FirstName)?.Value;
-    //                 currentUser.LastName = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.LastName)?.Value;
-
-    //                 var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.Role)?.Value;
-
-    //                 if (roleClaim == PlantourRoles.Admin || roleClaim == PlantourRoles.Participant)
-    //                 {
-    //                     // Determine role based on PlantourRoles constants
-    //                     if (roleClaim == PlantourRoles.Admin)
-    //                     {
-    //                         currentUser.Role = UserRole.Admin;
-    //                         currentUser.AdminId = userId;
-    //                     }
-    //                     else
-    //                     {
-    //                         var adminIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.AdminId)?.Value;
-
-    //                         if (Guid.TryParse(adminIdClaim, out var adminId))
-    //                         {
-    //                             if (adminId != Guid.Empty)
-    //                             {
-    //                                 currentUser.AdminId = adminId;
-    //                                 currentUser.Role = UserRole.Participant;
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     context.Items["CurrentUser"] = currentUser;
-    //     await _next(context);
-    // }
 }

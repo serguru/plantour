@@ -208,3 +208,17 @@ Make maximum use of CSS styles from styles.css. Create new styles only when abso
 
 Use simple and understandable ENGLISH for end users. Phrases should be short and unambiguous. Use a step-by-step approach when explaining what needs to be done to achieve a specific result. Anticipate any difficulties the user might encounter and advise them on how to overcome them.
 
+
+
+Add logging to the plantour_server project. Use Serilog. Packages 
+
+dotnet add package Serilog.AspNetCore
+dotnet add package Serilog.Sinks.PostgreSQL
+dotnet add package Serilog.Settings.Configuration
+dotnet add package Serilog.Enrichers.Environment
+dotnet add package Serilog.Enrichers.Process
+
+already installed, use them.
+
+The log data should be stored in PostgreSQL DB. Add a SQL script to create the necessary DB tables etc. This project is db-first, no migrations. Add logging to GlobalExceptionHandler. If you have an idea where more add logging let me know. Also add a document explaining how to use logging.
+
