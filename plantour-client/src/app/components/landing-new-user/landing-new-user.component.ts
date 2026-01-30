@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+// TODO: Redesign this page to preoperly advertise main features with different plans
 @Component({
   selector: 'app-landing-new-user',
   standalone: true,

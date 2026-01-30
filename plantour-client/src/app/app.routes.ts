@@ -5,6 +5,7 @@ import { CleanupResolver } from './helpers/resolver';
 
 
 // TODO: verify checkTripIdGuard use
+// TODO: app icon on mobile
 export const routes: Routes = [
   {
     path: '',

@@ -2,18 +2,30 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using plantour_server.Models;
+using plantour_server.Services.Interfaces;
 using PlantourApi.Middleware;
-using System.Net.Mime;
 using Serilog;
 using Serilog.Context;
+using System.Net;
+using System.Net.Mime;
+using System.Text;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<GlobalExceptionHandler> _logger;
+    private readonly IBrevoEmailClient _emailClient;
+    private readonly BrevoSettings _brevoSettings;
 
-    public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+    public GlobalExceptionHandler(
+        ILogger<GlobalExceptionHandler> logger,
+        IBrevoEmailClient emailClient,
+        IOptions<BrevoSettings> brevoSettings)
     {
         _logger = logger;
+        _emailClient = emailClient;
+        _brevoSettings = brevoSettings.Value;
     }
 
     public async ValueTask<bool> TryHandleAsync(
@@ -74,6 +86,19 @@ public class GlobalExceptionHandler : IExceptionHandler
                     exception.GetType().FullName, exception.StackTrace);
             }
 
+            var traceId = httpContext.TraceIdentifier;
+            await TrySendExceptionEmailAsync(
+                exception,
+                statusCode,
+                traceId,
+                requestMethod,
+                requestPath,
+                requestQueryString,
+                remoteIpAddress,
+                userId,
+                userRole,
+                cancellationToken);
+
             var response = new ApiErrorResponse
             {
                 StatusCode = statusCode,
@@ -88,6 +113,69 @@ public class GlobalExceptionHandler : IExceptionHandler
             await httpContext.Response.WriteAsJsonAsync(response, cancellationToken);
 
             return true;
+        }
+    }
+
+    private async Task TrySendExceptionEmailAsync(
+        Exception exception,
+        int statusCode,
+        string traceId,
+        string requestMethod,
+        string? requestPath,
+        string? requestQueryString,
+        string remoteIpAddress,
+        string userId,
+        string userRole,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(_brevoSettings.ExceptionsReceiverEmail)
+            || string.IsNullOrWhiteSpace(_brevoSettings.ExceptionsReceiverName))
+        {
+            return;
+        }
+
+        try
+        {
+            string Encode(string? value) => WebUtility.HtmlEncode(value ?? string.Empty);
+
+            var subject = $"Plantour API exception ({statusCode})";
+
+            var htmlBuilder = new StringBuilder();
+            htmlBuilder.AppendLine("<h2>Plantour API Exception</h2>");
+            htmlBuilder.AppendLine($"<p><strong>Trace ID:</strong> {Encode(traceId)}</p>");
+            htmlBuilder.AppendLine($"<p><strong>Status Code:</strong> {statusCode}</p>");
+            htmlBuilder.AppendLine($"<p><strong>Request:</strong> {Encode(requestMethod)} {Encode(requestPath)}</p>");
+            if (!string.IsNullOrWhiteSpace(requestQueryString))
+            {
+                htmlBuilder.AppendLine($"<p><strong>Query:</strong> {Encode(requestQueryString)}</p>");
+            }
+            htmlBuilder.AppendLine($"<p><strong>Remote IP:</strong> {Encode(remoteIpAddress)}</p>");
+            htmlBuilder.AppendLine($"<p><strong>User:</strong> {Encode(userId)} ({Encode(userRole)})</p>");
+            htmlBuilder.AppendLine($"<p><strong>Exception Type:</strong> {Encode(exception.GetType().FullName)}</p>");
+            htmlBuilder.AppendLine($"<p><strong>Message:</strong> {Encode(exception.Message)}</p>");
+
+            if (exception.InnerException != null)
+            {
+                htmlBuilder.AppendLine($"<p><strong>Inner Exception:</strong> {Encode(exception.InnerException.GetType().FullName)}</p>");
+                htmlBuilder.AppendLine($"<p><strong>Inner Message:</strong> {Encode(exception.InnerException.Message)}</p>");
+            }
+
+            if (!string.IsNullOrWhiteSpace(exception.StackTrace))
+            {
+                htmlBuilder.AppendLine("<p><strong>Stack Trace:</strong></p>");
+                htmlBuilder.AppendLine($"<pre>{Encode(exception.StackTrace)}</pre>");
+            }
+
+            await _emailClient.SendTransactionalEmailAsync(
+                _brevoSettings.ExceptionsReceiverEmail,
+                _brevoSettings.ExceptionsReceiverName,
+                subject,
+                htmlBuilder.ToString(),
+                cancellationToken: cancellationToken);
+        }
+        catch (Exception emailException)
+        {
+            _logger.LogError(emailException, "Failed to send exception email notification");
         }
     }
 }
