@@ -17,14 +17,40 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Serilog;
 using Serilog.Settings.Configuration;
+using Serilog.Sinks.PostgreSQL;
+using NpgsqlTypes;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Serilog
+// Configure Serilog with explicit column mappings for PostgreSQL
+var columnOptions = new Dictionary<string, ColumnWriterBase>
+{
+    { "message_template", new RenderedMessageColumnWriter(NpgsqlDbType.Text) },
+    { "level", new LevelColumnWriter(true, NpgsqlDbType.Varchar) },
+    { "time_stamp", new TimestampColumnWriter(NpgsqlDbType.Timestamp) },
+    { "exception", new ExceptionColumnWriter(NpgsqlDbType.Text) },
+    { "log_event", new LogEventSerializedColumnWriter(NpgsqlDbType.Text) },
+    { "properties", new PropertiesColumnWriter(NpgsqlDbType.Jsonb) }
+};
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 Serilog.Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
+    .MinimumLevel.Warning()
+    .Enrich.FromLogContext()
+    .Enrich.WithEnvironmentUserName()
+    .Enrich.WithMachineName()
+    .Enrich.WithProcessId()
+    .WriteTo.PostgreSQL(
+        connectionString: connectionString,
+        tableName: "logs",
+        columnOptions: columnOptions,
+        schemaName: "plantour",
+        needAutoCreateTable: false
+    )
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
 try

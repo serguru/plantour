@@ -40,6 +40,7 @@ public class UsersController : ControllerBase
         [AllowAnonymous]
         public async Task<ActionResult<AuthResponse>> SignInAdmin([FromBody] SignInRequest request)
         {
+               // throw new NotImplementedException("Not implemented yet");
                 var response = await _authService.SignInAsync(request);
                 return Ok(response);
         }
