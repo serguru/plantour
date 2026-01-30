@@ -15,6 +15,7 @@ import {
 } from '../../../services/public-templates-service';
 import { REQUEST } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
+import { EntitiesHeader, MenuConfig } from '../../entities/entities-header-component/entities-header-component';
 
 type FilterKey = 'search' | 'activity' | 'age' | 'temperature' | 'category';
 
@@ -41,7 +42,7 @@ interface TemplateGroup {
 @Component({
   selector: 'app-public-templates',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, Select, InputTextModule,ButtonModule],
+  imports: [CommonModule, RouterModule, FormsModule, Select, InputTextModule, ButtonModule, EntitiesHeader],
   templateUrl: './public-templates-component.html',
   styleUrl: './public-templates-component.scss'
 })
@@ -66,6 +67,18 @@ export class PublicTemplatesComponent implements OnInit {
   selectedAgeRange = signal<string | null>(null);
   selectedTemperatureRange = signal<string | null>(null);
   selectedCategory = signal<string | null>(null);
+
+  menuItems = computed<MenuConfig[]>(() => {
+    return [
+      {
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          this.router.navigate(['/help/packing-list-generator/public-templates-intro']);
+        }
+      }
+    ];
+  });
 
   filterOptions: FilterOption[] = [
     { key: 'search', label: 'Search', icon: 'search' },

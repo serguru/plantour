@@ -1,46 +1,46 @@
-<div class="public-templates-page">
-  <header class="page-header">
-    <div>
-      <p class="eyebrow">Plantour public library</p>
-      <h1>Packing templates for every trip</h1>
-      <p class="subtitle">
-        Find packing lists by activity, age range, temperature, or category. Built for fast mobile browsing.
-      </p>
-    </div>
-    <div class="header-actions">
-      <button class="btn primary" (click)="goToGuestAccess()">Try no account needed</button>
-      <a class="btn ghost" routerLink="/sign-up">Create an account</a>
-    </div>
-  </header>
+<!-- <div class="public-templates-page"> -->
+<div class="page-container">
 
-  <section class="filters-bar">
-    <p-select
-      class="filter-select left-filter"
-      [options]="filterOptions"
-      [ngModel]="selectedFilterOption"
-      optionLabel="label"
-      [showClear]="false"
-      (onChange)="onFilterKeyChange($event.value.key)"
-      appendTo="body"
-    >
-      <ng-template pTemplate="selectedItem">
-        <div class="filter-option">
-          <i
-            [ngClass]="['pi', 'pi-' + selectedFilterOption.icon]"
-            [class.has-dot]="filterHasValue(selectedFilterOption.key)"
-          ></i>
-        </div>
-      </ng-template>
-      <ng-template pTemplate="item" let-option>
-        <div class="filter-option">
-          <i [ngClass]="['pi', 'pi-' + option.icon]"></i>
-          <span>{{ option.label }}</span>
-        </div>
-      </ng-template>
-    </p-select>
+  <app-entities-header
+    entityIcon="pi pi-box"
+    title="Templates"
+    entityName="template"
+    [menuItems]="menuItems()"
+  ></app-entities-header>
 
-    <div class="filter-value">
-      @if (selectedFilterKey() === 'search') {
+  <div class="content">
+
+    <section class="filters-bar">
+      <p-select
+        class="filter-select left-filter"
+        [options]="filterOptions"
+        [ngModel]="selectedFilterOption"
+        optionLabel="label"
+        [showClear]="false"
+        (onChange)="onFilterKeyChange($event.value.key)"
+        appendTo="body"
+      >
+        <ng-template pTemplate="selectedItem">
+          <div class="filter-option">
+            <i
+              [ngClass]="['pi', 'pi-' + selectedFilterOption.icon]"
+              [class.has-dot]="filterHasValue(selectedFilterOption.key)"
+            ></i>
+          </div>
+        </ng-template>
+        <ng-template
+          pTemplate="item"
+          let-option
+        >
+          <div class="filter-option">
+            <i [ngClass]="['pi', 'pi-' + option.icon]"></i>
+            <span>{{ option.label }}</span>
+          </div>
+        </ng-template>
+      </p-select>
+
+      <div class="filter-value">
+        @if (selectedFilterKey() === 'search') {
         <input
           pInputText
           type="search"
@@ -48,7 +48,7 @@
           [value]="searchText()"
           (input)="updateSearch($event)"
         />
-      } @else {
+        } @else {
         <p-select
           class="filter-select right-filter"
           [options]="getLookupOptions()"
@@ -60,37 +60,48 @@
           (onChange)="onLookupValueChange($event.value ?? null)"
           appendTo="body"
         ></p-select>
-      }
-    </div>
-    <button class="btn subtle" (click)="clearFilters()">Clear</button>
-  </section>
+        }
+      </div>
+      <button
+        class="btn subtle"
+        (click)="clearFilters()"
+      >Clear</button>
+    </section>
 
-  <section class="templates-section">
-    @if (isLoading()) {
+    <section class="templates-section">
+      @if (isLoading()) {
       <div class="loading">Loading templates...</div>
-    }
+      }
 
-    @if (!isLoading() && templateGroups().length === 0) {
+      @if (!isLoading() && templateGroups().length === 0) {
       <div class="empty">No templates match your filters yet.</div>
-    }
+      }
 
-    <div class="template-list">
-      @for (group of templateGroups(); track group.templateId) {
-        <article class="template-row" (click)="goToTemplate(group)" tabindex="0" role="button">
+      <div class="template-list">
+        @for (group of templateGroups(); track group.templateId) {
+        <article
+          class="template-row"
+          (click)="goToTemplate(group)"
+          tabindex="0"
+          role="button"
+        >
           <div class="row-main">
             <h3 [innerHTML]="highlightText(group.templateName)"></h3>
             <div class="row-meta">
-              <span class="activity" [innerHTML]="highlightText(group.activityName)"></span>
+              <span
+                class="activity"
+                [innerHTML]="highlightText(group.activityName)"
+              ></span>
               @if (group.ageRangeName) {
-                <span>Age: {{ group.ageRangeName }}</span>
+              <span>Age: {{ group.ageRangeName }}</span>
               }
               @if (group.temperatureRangeName) {
-                <span>Temp: {{ group.temperatureRangeName }}</span>
+              <span>Temp: {{ group.temperatureRangeName }}</span>
               }
             </div>
             <div class="row-tags">
               @for (tag of group.categories; track tag) {
-                <span class="tag">{{ tag }}</span>
+              <span class="tag">{{ tag }}</span>
               }
             </div>
           </div>
@@ -99,20 +110,27 @@
             <span class="link">View</span>
           </div>
         </article>
-      }
-    </div>
-  </section>
+        }
+      </div>
+    </section>
 
-  <section class="cta-section">
-    <div class="cta-inline">
-      <div>
-        <h2>See Plantour in action</h2>
-        <p>Launch Guest Access Mode to experience the full packing workflow.</p>
+    <section class="cta-section">
+      <div class="cta-inline">
+        <div>
+          <h2>See Plantour in action</h2>
+          <p>Launch Guest Access Mode to experience the full packing workflow.</p>
+        </div>
+        <div class="cta-actions">
+          <button
+            class="btn primary"
+            (click)="goToGuestAccess()"
+          >Try no account needed</button>
+          <a
+            class="btn ghost"
+            routerLink="/sign-up"
+          >Create an account</a>
+        </div>
       </div>
-      <div class="cta-actions">
-        <button class="btn primary" (click)="goToGuestAccess()">Try no account needed</button>
-        <a class="btn ghost" routerLink="/sign-up">Create an account</a>
-      </div>
-    </div>
-  </section>
+    </section>
+  </div>
 </div>
