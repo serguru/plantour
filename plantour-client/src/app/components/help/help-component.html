@@ -6,15 +6,6 @@
       <h2>Help & Documentation</h2>
     </div>
     <div class="page-content">
-      <button
-        pButton
-        type="button"
-        label="Back to App"
-        icon="pi pi-arrow-left"
-        class="p-button-text"
-        (click)="router.navigate(['/dashboard'])"
-      >
-      </button>
     </div>
   </div>
 
@@ -55,7 +46,8 @@
           </p>
 
           <div class="footer-actions">
-            <button
+            <a href="/contact" class="help-link">Contact Us</a>
+            <!-- <button
               pButton
               label="Contact Support"
               icon="pi pi-envelope"
@@ -69,13 +61,13 @@
               icon="pi pi-exclamation-triangle"
               class="p-button-outlined"
             >
-            </button>
+            </button> -->
           </div>
 
-          <p class="footer-note">
+          <!-- <p class="footer-note">
             <i class="pi pi-lightbulb"></i>
             <em>Tip: Click on any topic above to view detailed step-by-step instructions.</em>
-          </p>
+          </p> -->
         </div>
       </p-card>
     </div>

@@ -1,5 +1,6 @@
 import { Component, input } from '@angular/core';
-import { Popover } from 'primeng/popover';
+import { CommonModule } from '@angular/common';
+import { PopoverModule } from 'primeng/popover';
 
 export interface MenuConfig {
   label: string;
@@ -10,7 +11,8 @@ export interface MenuConfig {
 @Component({
   selector: 'app-form-header',
   imports: [
-    Popover
+    CommonModule,
+    PopoverModule
   ],
   templateUrl: './form-header.html',
   styleUrl: './form-header.scss',

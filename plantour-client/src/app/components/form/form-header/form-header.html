@@ -9,31 +9,26 @@
     <div class="page-right">
         @if(menuItems().length) {
             <button
-                pButton
+                class="pl-button"
                 type="button"
-                class="p-button-rounded p-button-text"
-                icon="pi pi-ellipsis-v"
-                [pPopover]="menu"
-                popoverStyleClass="menu-popover"
-                popoverPosition="bottom"
-                popoverAppend="body"
-                [showTransitionOptions]="'0ms'"
-                [hideTransitionOptions]="'0ms'"
-            ></button>
-            <ng-template #menu>
-                <div class="menu-items">
-                    @for(item of menuItems(); track item.icon) {
-                        <button
-                            type="button"
-                            class="menu-item"
-                            (click)="item.action()"
-                        >
-                            <i [class]="'pi pi-' + item.icon"></i>
-                            <span>{{ item.label }}</span>
-                        </button>
-                    }
-                </div>
-            </ng-template>
+                (click)="popover.toggle($event)"
+            >
+                <span class="pi pi-ellipsis-v"></span>
+            </button>
+            <p-popover
+                #popover
+                styleClass="no-arrow"
+            >
+                @for(item of menuItems(); track item.icon) {
+                    <div
+                        class="pl-menu-item"
+                        (click)="item.action(); popover.hide()"
+                    >
+                        <span [class]="'pi pi-' + item.icon"></span>
+                        <span class="button-label">{{ item.label }}</span>
+                    </div>
+                }
+            </p-popover>
         }
     </div>
 </div>
