@@ -80,3 +80,33 @@ limit 500;
 
 comment on view plantour.error_logs 
     is 'view of the 500 most recent error/fatal logs';
+
+
+create table if not exists plantour.api_visits (
+    id uuid primary key default gen_random_uuid(),
+    created_at timestamptz not null default now(),
+    method varchar(16),
+    path varchar(1024),
+    query_string varchar(2048),
+    endpoint varchar(1024),
+    status_code int,
+    duration_ms int,
+    ip_address inet,
+    forwarded_for varchar(255),
+    user_agent varchar(1024),
+    referrer varchar(2048),
+    host varchar(255),
+    scheme varchar(16),
+    protocol varchar(32),
+    request_id varchar(128),
+    request_size_bytes bigint,
+    user_id uuid,
+    user_email varchar(320),
+    user_role varchar(64)
+);
+
+create index if not exists idx_api_visits_created_at on plantour.api_visits (created_at desc);
+create index if not exists idx_api_visits_user_id on plantour.api_visits (user_id);
+create index if not exists idx_api_visits_status_code on plantour.api_visits (status_code);
+create index if not exists idx_api_visits_path on plantour.api_visits (path);
+create index if not exists idx_api_visits_endpoint on plantour.api_visits (endpoint);

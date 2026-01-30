@@ -11,6 +11,8 @@ public partial class PlantourContext : DbContext
     {
     }
 
+    public virtual DbSet<ApiVisit> ApiVisits { get; set; }
+
     public virtual DbSet<AccessType> AccessTypes { get; set; }
 
     public virtual DbSet<Activity> Activities { get; set; }
@@ -72,6 +74,14 @@ public partial class PlantourContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("pldbgapi");
+
+        modelBuilder.Entity<ApiVisit>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("api_visits_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+        });
 
         modelBuilder.Entity<AccessType>(entity =>
         {

@@ -318,6 +318,7 @@ app.UseCors("AllowOrigins");
 
 app.UseAuthentication();
 app.UseMiddleware<CurrentUserMiddleware>();
+app.UseMiddleware<ApiVisitLoggingMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
