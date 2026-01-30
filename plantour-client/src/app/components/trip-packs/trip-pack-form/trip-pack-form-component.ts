@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
@@ -9,7 +9,7 @@ import { LookupService } from '../../../services/lookup-service';
 import { CreateTripPackageRequest, TripPackageDto, TripPackageService, UpdateTripPackageRequest } from '../../../services/trip-package-service';
 import { MessagePanel } from '../../message-panel/message-panel-component/message-panel-component';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
-import { FormHeader } from '../../form/form-header/form-header';
+import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { TripThingService } from '../../../services/trip-thing-service';
 import { UsersService } from '../../../services/users-service';
@@ -72,6 +72,19 @@ export class TripPackFormComponent implements OnInit {
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Trip Bag`;
   }
+
+  menuItems = computed<MenuConfig[]>(() => [
+    {
+      label: 'Help',
+      icon: 'question-circle',
+      action: () => {
+        const url = this.isAddMode
+          ? '/help/trip-packs/add-bag-to-trip'
+          : '/help/trip-packs/edit-trip-bag';
+        window.open(url, '_blank');
+      }
+    }
+  ]);
 
   ngOnInit(): void {
 

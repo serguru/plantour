@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { CreatePackageRequest, PackageDto, PackageService, UpdatePackageRequest } from '../../../services/package-service';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,7 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
 import { catchError, EMPTY, finalize } from 'rxjs';
 import { FormActions } from '../../form/form-actions/form-actions';
-import { FormHeader } from '../../form/form-header/form-header';
+import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { MessagePanel } from '../../message-panel/message-panel-component/message-panel-component';
 
@@ -54,6 +54,17 @@ export class PackFormComponent implements OnInit {
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Bag`;
   }
+
+  menuItems = computed<MenuConfig[]>(() => [
+    {
+      label: 'Help',
+      icon: 'question-circle',
+      action: () => {
+        const helpUrl = this.isAddMode ? '/help/packs/add-bag' : '/help/packs/edit-bag';
+        this.router.navigate([helpUrl]);
+      }
+    }
+  ]);
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];

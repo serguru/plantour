@@ -1,4 +1,5 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { CrudService } from '../../services/crud-service';
 import { TripDto, TripService } from '../../services/trip-service';
 import { TripItemComponent } from './trip-item/trip-item-component';
@@ -35,6 +36,7 @@ export class TripsComponent implements OnInit {
   componentId: string = 'trips';
 
   documentsService = inject(DocumentsService);
+  router = inject(Router);
 
   tripService = inject(TripService);
 
@@ -110,6 +112,13 @@ export class TripsComponent implements OnInit {
             link.click();
             window.URL.revokeObjectURL(url);
           });
+        }
+      },
+      {
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          this.router.navigate(['/help/trips/trips-intro']);
         }
       }
     ];

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { CreateThingRequest, ThingDto, ThingService, UpdateThingRequest } from '../../../services/thing-service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,7 +12,7 @@ import { FormActions } from '../../form/form-actions/form-actions';
 import { ButtonModule } from 'primeng/button';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { MessagePanel } from '../../message-panel/message-panel-component/message-panel-component';
-import { FormHeader } from '../../form/form-header/form-header';
+import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { MessagesService } from '../../../services/messages-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
 import { ComponentService } from '../../../services/component-service';
@@ -95,6 +95,17 @@ export class ThingFormComponent implements OnInit {
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Item`;
   }
+
+  menuItems = computed<MenuConfig[]>(() => [
+    {
+      label: 'Help',
+      icon: 'question-circle',
+      action: () => {
+        const helpUrl = this.isAddMode ? '/help/things/add-item' : '/help/things/edit-item';
+        this.router.navigate([helpUrl]);
+      }
+    }
+  ]);
 
   ngOnInit(): void {
 

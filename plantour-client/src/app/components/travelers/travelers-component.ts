@@ -1,10 +1,11 @@
 import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
 import { AdminsParticipantDto, UpdateAdminsParticipantRequest, AdminsParticipantService } from '../../services/admins-participant-service';
 import { CreateTripUserRequest, TripUserDto, TripUserService, UpdateTripUserRequest } from '../../services/trip-user-service';
 import { TravelerItemComponent } from './traveler-item/traveler-item-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { AppService } from '../../services/app-service';
 import { TripDto, TripService } from '../../services/trip-service';
@@ -35,6 +36,7 @@ export class TravelersComponent implements OnInit {
 
   appService = inject(AppService);
   tripService = inject(TripService);
+  router = inject(Router);
 
   componentService = inject(ComponentService);
   adminsParticipantService = inject(AdminsParticipantService);
@@ -76,6 +78,19 @@ export class TravelersComponent implements OnInit {
         icon: 'user'
       }
     ];
+
+  menuItems = computed<MenuConfig[]>(() => {
+    return [
+      {
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          this.router.navigate(['/help/travelers/travelers-intro']);
+        }
+      }
+    ];
+  }
+  );
 
   ngOnInit(): void {
 

@@ -8,7 +8,7 @@ import { Condition, Target, TargetCondition, TargetMode, TargetOption } from '..
 import { ComponentService } from '../../services/component-service';
 import { EMPTY, filter, map, mergeMap, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { TripDto, TripService } from '../../services/trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -32,6 +32,7 @@ export class PacksComponent implements OnInit {
   componentId = 'packs';
 
   tripService = inject(TripService);
+  router = inject(Router);
 
   componentService = inject(ComponentService);
   packageService = inject(PackageService);
@@ -75,6 +76,19 @@ export class PacksComponent implements OnInit {
         icon: 'filter'
       }
     ];
+
+  menuItems = computed<MenuConfig[]>(() => {
+    return [
+      {
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          this.router.navigate(['/help/packs/packs-intro']);
+        }
+      }
+    ];
+  }
+  );
 
   ngOnInit(): void {
 

@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { MultipleIdsRequest } from '../../services/crud-service';
 import { TripSharedDto, TripSharedService } from '../../services/trip-shared-service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TripSharedItemComponent } from './trip-shared-item/trip-shared-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
@@ -79,6 +79,7 @@ export class TripSharedComponent implements OnInit {
   tripUserService = inject(TripUserService);
 
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   private destroyRef = inject(DestroyRef);
 
@@ -113,6 +114,13 @@ export class TripSharedComponent implements OnInit {
           action: () => {
             this.assignmentsVisible.set(!this.assignmentsVisible());
             this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
+          }
+        },
+        {
+          label: 'Help',
+          icon: 'question-circle',
+          action: () => {
+            this.router.navigate(['/help/shared-things/shared-intro']);
           }
         }
       ];

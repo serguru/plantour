@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CreateTripSharedRequest, TripSharedDto, TripSharedService, UpdateTripSharedRequest } from '../../../services/trip-shared-service';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { LookupService } from '../../../services/lookup-service';
 import { combineLatest, finalize, map, Observable } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormHeader } from '../../form/form-header/form-header';
+import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { InputNumber } from 'primeng/inputnumber';
@@ -85,6 +85,18 @@ export class TripSharedFormComponent implements OnInit {
     return this.mode === 'view';
   }
 
+  menuItems = computed<MenuConfig[]>(() => [
+    {
+      label: 'Help',
+      icon: 'question-circle',
+      action: () => {
+        const url = this.isAddMode
+          ? '/help/shared-things/create-shared-item'
+          : '/help/shared-things/edit-shared-item';
+        window.open(url, '_blank');
+      }
+    }
+  ]);
 
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Trip Shared Item`;

@@ -1,10 +1,11 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { MultipleIdsRequest } from '../../services/crud-service';
 import { ThingService } from '../../services/thing-service';
 import { TripThingService } from '../../services/trip-thing-service';
 import { ThingItemComponent } from './things-item/thing-item-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { AppService } from '../../services/app-service';
 import { ComponentService } from '../../services/component-service';
@@ -32,6 +33,7 @@ export class ThingsComponent {
   componentId: string = 'things';
   appService = inject(AppService);
   tripService = inject(TripService);
+  router = inject(Router);
   componentService = inject(ComponentService);
   thingService = inject(ThingService);
   localStorageService = inject(LocalStorageService);
@@ -81,6 +83,19 @@ export class ThingsComponent {
         icon: 'shopping-bag'
       }
     ];
+
+  menuItems = computed<MenuConfig[]>(() => {
+    return [
+      {
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          this.router.navigate(['/help/things/things-intro']);
+        }
+      }
+    ];
+  }
+  );
 
   ngOnInit(): void {
 

@@ -1,6 +1,6 @@
 import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { TripPackageService } from '../../services/trip-package-service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TripPackItemComponent } from './trip-pack-item/trip-pack-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
@@ -36,6 +36,7 @@ export class TripPacksComponent implements OnInit {
   documentsService = inject(DocumentsService);
 
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private tripId: string | null = null;
 
@@ -84,6 +85,13 @@ export class TripPacksComponent implements OnInit {
             link.click();
             window.URL.revokeObjectURL(url);
           });
+        }
+      },
+      {
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          this.router.navigate(['/help/trip-packs/trip-packs-intro']);
         }
       }
     ];

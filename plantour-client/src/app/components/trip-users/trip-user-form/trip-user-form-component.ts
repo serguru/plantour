@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { CreateTripUserRequest, TripUserDto, TripUserService, UpdateTripUserRequest } from '../../../services/trip-user-service';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +8,7 @@ import { Select } from 'primeng/select';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { LookupService } from '../../../services/lookup-service';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
-import { FormHeader } from '../../form/form-header/form-header';
+import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { InputNumber } from 'primeng/inputnumber';
 import { ThingService } from '../../../services/thing-service';
@@ -75,6 +75,20 @@ export class TripUserFormComponent implements OnInit {
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Trip User`;
   }
+
+  menuItems = computed<MenuConfig[]>(() => {
+    return [
+      {
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          const helpUrl = this.isAddMode ? '/help/trip-participants/add-participant' : '/help/trip-participants/participant-permissions';
+          this.router.navigate([helpUrl]);
+        }
+      }
+    ];
+  }
+  );
 
   onTravelerChange(value: any): void {
     const selectedUser = this.lookupTravelers.find(x => x.id === value);

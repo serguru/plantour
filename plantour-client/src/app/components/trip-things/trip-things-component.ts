@@ -44,6 +44,7 @@ export class TripThingsComponent implements OnInit {
   notTargetedIds = toSignal(this.componentService.notTargetedIds$);
   currentTripService = inject(CurrentTripService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private tripId: string | null = null;
 
@@ -69,6 +70,13 @@ export class TripThingsComponent implements OnInit {
           action: () => {
             this.packsVisible.set(!this.packsVisible());
             this.localStorageService.setComponentKey(this.componentId, 'packsVisible', this.packsVisible());
+          }
+        },
+        {
+          label: 'Help',
+          icon: 'question-circle',
+          action: () => {
+            this.router.navigate(['/help/shared-things/shared-intro']);
           }
         }
       ];

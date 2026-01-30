@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { TripService, CreateTripRequest, UpdateTripRequest, TripDto } from '../../../services/trip-service';
 import { FormControl, ReactiveFormsModule, Validators, FormGroup, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,7 +10,7 @@ import { MessagesService } from '../../../services/messages-service';
 import { ButtonModule } from 'primeng/button';
 import { MessagePanel } from '../../message-panel/message-panel-component/message-panel-component';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
-import { FormHeader } from '../../form/form-header/form-header';
+import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { UsersService } from '../../../services/users-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
@@ -73,6 +73,20 @@ export class TripFormComponent implements OnInit {
   get isReadOnlyMode(): boolean {
     return this.mode === 'view';
   }
+
+  menuItems = computed<MenuConfig[]>(() => {
+    return [
+      {
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          const helpUrl = this.isAddMode ? '/help/trips/create-trip' : '/help/trips/edit-trip';
+          this.router.navigate([helpUrl]);
+        }
+      }
+    ];
+  }
+  );
 
   ngOnInit(): void {
 

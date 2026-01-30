@@ -1,8 +1,8 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { EntitiesComponent } from '../entities/entities-component';
 import { ComponentService } from '../../services/component-service';
 import { TripItemCommentComponent } from './trip-item-comment/trip-item-comment-component';
-import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { Condition, DynamicQueryService, FilterComparisonType } from '../../services/dynamic-query-service';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { TripService } from '../../services/trip-service';
@@ -11,7 +11,7 @@ import { PackageService } from '../../services/package-service';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { TripCommentService } from '../../services/trip-comment-service';
 import { CurrentTripService } from '../../services/current-trip-service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputText } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
@@ -46,6 +46,7 @@ export class TripCommentsComponent {
   currentTripService = inject(CurrentTripService);
 
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   private destroyRef = inject(DestroyRef);
 
@@ -64,6 +65,19 @@ export class TripCommentsComponent {
         icon: 'filter'
       }
     ];
+
+  menuItems = computed<MenuConfig[]>(() => {
+    return [
+      {
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          this.router.navigate(['/help/trip-comments/comments-intro']);
+        }
+      }
+    ];
+  }
+  );
 
   initConditions(componentId: string | null): void {
     if (!componentId) {

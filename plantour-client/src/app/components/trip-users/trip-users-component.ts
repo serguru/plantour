@@ -37,6 +37,7 @@ export class TripUsersComponent implements OnInit {
   dynamicQueryService = inject(DynamicQueryService);
   currentTripService = inject(CurrentTripService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private tripId: string | null = null;
 
@@ -73,6 +74,13 @@ export class TripUsersComponent implements OnInit {
         action: () => {
           this.lowerTextVisible.set(!this.lowerTextVisible());
           this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
+        }
+      },
+      {
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          this.router.navigate(['/help/trip-participants/participants-intro']);
         }
       }
     ];

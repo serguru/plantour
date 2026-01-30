@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
@@ -11,7 +11,7 @@ import { SignUpParticipantRequest } from '../../../models/auth.models';
 import { EMPTY, finalize, switchMap, mergeMap } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
-import { FormHeader } from '../../form/form-header/form-header';
+import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { ComponentService } from '../../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -61,6 +61,19 @@ export class TravelerFormComponent implements OnInit {
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Traveler`;
   }
+
+  menuItems = computed<MenuConfig[]>(() => [
+    {
+      label: 'Help',
+      icon: 'question-circle',
+      action: () => {
+        const url = this.isAddMode
+          ? '/help/travelers/add-traveler'
+          : '/help/travelers/edit-traveler';
+        window.open(url, '_blank');
+      }
+    }
+  ]);
 
   get isReadOnlyMode(): boolean {
     return this.mode === 'view';
