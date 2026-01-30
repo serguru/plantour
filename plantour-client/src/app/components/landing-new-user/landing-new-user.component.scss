@@ -1,7 +1,8 @@
+@use "sass:color";
+
 :host {
   overflow: auto;
 }
-
 
 $primary-color: #3A9AA8;
 $text-dark: #2d3436;
@@ -33,13 +34,13 @@ $bg-light: #f9fdfd;
     h1 {
       font-size: 3.5rem;
       margin-bottom: 1.5rem;
-      color: darken($primary-color, 15%);
+      color: color.adjust($primary-color, $lightness: -15%);
     }
 
     .description {
       font-size: 1.25rem;
       line-height: 1.6;
-      color: lighten($text-dark, 20%);
+      color: color.adjust($text-dark, $lightness: 20%);
       margin-bottom: 2rem;
     }
   }
@@ -110,7 +111,7 @@ $bg-light: #f9fdfd;
   font-weight: 600;
   cursor: pointer;
   width: 100%;
-  &:hover { background: darken($primary-color, 10%); }
+  &:hover { background: color.adjust($primary-color, $lightness: -10%); }
 }
 
 .btn-primary { width: auto; font-size: 1.1rem; }

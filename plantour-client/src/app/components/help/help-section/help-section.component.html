@@ -57,9 +57,6 @@
             >
               <i class="pi pi-angle-right subsection-icon"></i>
               <span class="subsection-title">{{ subsection.title }}</span>
-              @if (subsection.linkId) {
-                <span class="contextual-link-badge">{{ subsection.linkId }}</span>
-              }
             </li>
 
             @if (selectedSubsectionId === subsection.id && subsectionComponents[subsection.id]) {

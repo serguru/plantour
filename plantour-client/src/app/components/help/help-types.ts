@@ -9,5 +9,4 @@ export interface HelpSection {
 export interface HelpSubsection {
   id: string;
   title: string;
-  linkId?: string;
 }

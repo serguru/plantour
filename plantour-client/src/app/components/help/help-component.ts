@@ -107,10 +107,9 @@ export class HelpComponent {
       icon: 'pi pi-star',
       description: 'Try Plantour immediately with test data. Learn the basics without creating an account.',
       subsections: [
-        { id: 'welcome', title: 'Welcome to Plantour', linkId: 'link#1' },
-        { id: 'test-mode', title: 'Using Test Mode', linkId: 'link#2' },
-//        { id: 'quick-tour', title: 'Quick Tour (5 Minutes)', linkId: 'link#3' },
-        { id: 'create-account', title: 'Ready to Create Your Account?', linkId: 'link#4' }
+        { id: 'welcome', title: 'Welcome to Plantour' },
+        { id: 'test-mode', title: 'Using Test Mode' },
+        { id: 'create-account', title: 'Ready to Create Your Account?' }
       ]
     },
     {
@@ -132,10 +131,8 @@ export class HelpComponent {
       icon: 'pi pi-user',
       description: 'Create and manage your account, profile, and preferences.',
       subsections: [
-        // { id: 'registration', title: 'How to Register', linkId: 'link#5' },
-        { id: 'login', title: 'Sign In to Your Account', linkId: 'link#6' },
-        { id: 'profile', title: 'Edit Your Profile', linkId: 'link#7' },
-        //{ id: 'security', title: 'Password and Security', linkId: 'link#8' }
+        { id: 'login', title: 'Sign In to Your Account' },
+        { id: 'profile', title: 'Edit Your Profile' }
       ]
     },
     {
@@ -144,11 +141,11 @@ export class HelpComponent {
       icon: 'pi pi-users',
       description: 'Manage people who participate in your trips.',
       subsections: [
-        { id: 'travelers-intro', title: 'Understanding Travelers', linkId: 'link#9' },
-        { id: 'add-traveler', title: 'Add a Traveler', linkId: 'link#10' },
-        { id: 'edit-traveler', title: 'Edit Traveler Information', linkId: 'link#11' },
-        { id: 'delete-traveler', title: 'Delete a Traveler', linkId: 'link#12' },
-        { id: 'filter-travelers', title: 'Filter and Sort Travelers', linkId: 'link#13' }
+        { id: 'travelers-intro', title: 'Understanding Travelers' },
+        { id: 'add-traveler', title: 'Add a Traveler' },
+        { id: 'edit-traveler', title: 'Edit Traveler Information' },
+        { id: 'delete-traveler', title: 'Delete a Traveler' },
+        { id: 'filter-travelers', title: 'Filter and Sort Travelers' }
       ]
     },
     {
@@ -157,12 +154,12 @@ export class HelpComponent {
       icon: 'pi pi-shopping-bag',
       description: 'Create and manage packing items.',
       subsections: [
-        { id: 'things-intro', title: 'Understanding Items', linkId: 'link#15' },
-        { id: 'add-item', title: 'Add an Item', linkId: 'link#16' },
-        { id: 'edit-item', title: 'Edit Item Details', linkId: 'link#17' },
-        { id: 'delete-item', title: 'Delete an Item', linkId: 'link#18' },
-        { id: 'item-categories', title: 'Using Categories', linkId: 'link#19' },
-        { id: 'filter-things', title: 'Filter and Sort Items', linkId: 'link#20' }
+        { id: 'things-intro', title: 'Understanding Items' },
+        { id: 'add-item', title: 'Add an Item' },
+        { id: 'edit-item', title: 'Edit Item Details' },
+        { id: 'delete-item', title: 'Delete an Item' },
+        { id: 'item-categories', title: 'Using Categories' },
+        { id: 'filter-things', title: 'Filter and Sort Items' }
       ]
     },
     {
@@ -171,11 +168,11 @@ export class HelpComponent {
       icon: 'pi pi-briefcase',
       description: 'Organize luggage and packages.',
       subsections: [
-        { id: 'packs-intro', title: 'Understanding Bags', linkId: 'link#21' },
-        { id: 'add-bag', title: 'Add a Bag', linkId: 'link#22' },
-        { id: 'edit-bag', title: 'Edit Bag Details', linkId: 'link#23' },
-        { id: 'delete-bag', title: 'Delete a Bag', linkId: 'link#24' },
-        { id: 'filter-packs', title: 'Filter and Sort Bags', linkId: 'link#25' }
+        { id: 'packs-intro', title: 'Understanding Bags' },
+        { id: 'add-bag', title: 'Add a Bag' },
+        { id: 'edit-bag', title: 'Edit Bag Details' },
+        { id: 'delete-bag', title: 'Delete a Bag' },
+        { id: 'filter-packs', title: 'Filter and Sort Bags' }
       ]
     },
     {
@@ -184,13 +181,13 @@ export class HelpComponent {
       icon: 'pi pi-map',
       description: 'Create and manage your trips.',
       subsections: [
-        { id: 'trips-intro', title: 'Understanding Trips', linkId: 'link#26' },
-        { id: 'create-trip', title: 'Create a New Trip', linkId: 'link#27' },
-        { id: 'edit-trip', title: 'Edit Trip Details', linkId: 'link#28' },
-        { id: 'delete-trip', title: 'Delete a Trip', linkId: 'link#29' },
-        { id: 'trip-status', title: 'Trip Status Workflow', linkId: 'link#30' },
-        { id: 'filter-trips', title: 'Filter and Sort Trips', linkId: 'link#31' },
-        { id: 'select-current-trip', title: 'Select Current Trip', linkId: 'link#32' }
+        { id: 'trips-intro', title: 'Understanding Trips' },
+        { id: 'create-trip', title: 'Create a New Trip' },
+        { id: 'edit-trip', title: 'Edit Trip Details' },
+        { id: 'delete-trip', title: 'Delete a Trip' },
+        { id: 'trip-status', title: 'Trip Status Workflow' },
+        { id: 'filter-trips', title: 'Filter and Sort Trips' },
+        { id: 'select-current-trip', title: 'Select Current Trip' }
       ]
     },
     {
@@ -199,10 +196,10 @@ export class HelpComponent {
       icon: 'pi pi-users',
       description: 'Add and manage people in your trip.',
       subsections: [
-        { id: 'participants-intro', title: 'Understanding Trip Participants', linkId: 'link#33' },
-        { id: 'add-participant', title: 'Add Participant to Trip', linkId: 'link#34' },
-        { id: 'remove-participant', title: 'Remove Participant from Trip', linkId: 'link#35' },
-        { id: 'participant-permissions', title: 'Participant Permissions', linkId: 'link#36' }
+        { id: 'participants-intro', title: 'Understanding Trip Participants' },
+        { id: 'add-participant', title: 'Add Participant to Trip' },
+        { id: 'remove-participant', title: 'Remove Participant from Trip' },
+        { id: 'participant-permissions', title: 'Participant Permissions' }
       ]
     },
     {
@@ -211,10 +208,10 @@ export class HelpComponent {
       icon: 'pi pi-briefcase',
       description: 'Assign luggage to trip participants.',
       subsections: [
-        { id: 'trip-packs-intro', title: 'Understanding Trip Bags', linkId: 'link#42' },
-        { id: 'add-bag-to-trip', title: 'Add Bag to Trip', linkId: 'link#43' },
-        { id: 'edit-trip-bag', title: 'Edit Trip Bag', linkId: '' },
-        { id: 'remove-bag-from-trip', title: 'Remove Bag from Trip', linkId: 'link#44' }
+        { id: 'trip-packs-intro', title: 'Understanding Trip Bags' },
+        { id: 'add-bag-to-trip', title: 'Add Bag to Trip' },
+        { id: 'edit-trip-bag', title: 'Edit Trip Bag' },
+        { id: 'remove-bag-from-trip', title: 'Remove Bag from Trip' }
       ]
     },
     {
@@ -223,15 +220,15 @@ export class HelpComponent {
       icon: 'pi pi-share-alt',
       description: 'Share items between trip participants.',
       subsections: [
-        { id: 'shared-intro', title: 'Understanding Shared Items', linkId: 'link#46' },
-        { id: 'create-shared-item', title: 'Create a Shared Item', linkId: 'link#47' },
-        { id: 'edit-shared-item', title: 'Edit Shared Item', linkId: 'link#48' },
-        { id: 'delete-shared-item', title: 'Delete Shared Item', linkId: 'link#49' },
-        { id: 'assign-shared-item', title: 'Assign Shared Item', linkId: '' },
-        { id: 'unassign-shared-item', title: 'Unassign Shared Item', linkId: '' },
-        { id: 'accept-shared-item', title: 'Accept Shared Item', linkId: '' },
-        { id: 'reject-shared-item', title: 'Reject Shared Item', linkId: '' },
-        { id: 'finish-shared-item', title: 'Finish Shared Item', linkId: '' },
+        { id: 'shared-intro', title: 'Understanding Shared Items' },
+        { id: 'create-shared-item', title: 'Create a Shared Item' },
+        { id: 'edit-shared-item', title: 'Edit Shared Item' },
+        { id: 'delete-shared-item', title: 'Delete Shared Item' },
+        { id: 'assign-shared-item', title: 'Assign Shared Item' },
+        { id: 'unassign-shared-item', title: 'Unassign Shared Item' },
+        { id: 'accept-shared-item', title: 'Accept Shared Item' },
+        { id: 'reject-shared-item', title: 'Reject Shared Item' },
+        { id: 'finish-shared-item', title: 'Finish Shared Item' },
       ]
     },
     {
@@ -240,8 +237,8 @@ export class HelpComponent {
       icon: 'pi pi-comments',
       description: 'Collaborate with notes and comments.',
       subsections: [
-        { id: 'comments-intro', title: 'Understanding Comments', linkId: 'link#50' },
-        { id: 'add-comment', title: 'Add a Comment', linkId: 'link#51' }
+        { id: 'comments-intro', title: 'Understanding Comments' },
+        { id: 'add-comment', title: 'Add a Comment' }
       ]
     },
     {
@@ -250,10 +247,10 @@ export class HelpComponent {
       icon: 'pi pi-filter',
       description: 'Find items quickly with filters and sorting.',
       subsections: [
-        { id: 'filters-intro', title: 'Using Filters', linkId: 'link#60' },
-        { id: 'sort-items', title: 'Sort Items', linkId: 'link#61' },
-        { id: 'search', title: 'Search for Items', linkId: 'link#62' },
-        { id: 'clear-filters', title: 'Clear Filters', linkId: 'link#63' }
+        { id: 'filters-intro', title: 'Using Filters' },
+        { id: 'sort-items', title: 'Sort Items' },
+        { id: 'search', title: 'Search for Items' },
+        { id: 'clear-filters', title: 'Clear Filters' }
       ]
     },
     {
@@ -262,9 +259,9 @@ export class HelpComponent {
       icon: 'pi pi-clone',
       description: 'Use item templates to speed up item list creation.',
       subsections: [
-        { id: 'templates-intro', title: 'Understanding Templates', linkId: 'link#64' },
-        { id: 'item-templates', title: 'Item Templates', linkId: 'link#65' },
-        { id: 'public-templates', title: 'Public Templates', linkId: 'link#66' }
+        { id: 'templates-intro', title: 'Understanding Templates' },
+        { id: 'item-templates', title: 'Item Templates' },
+        { id: 'public-templates', title: 'Public Templates' }
       ]
     },
     // {
@@ -310,6 +307,20 @@ export class HelpComponent {
   selectedSubsection = signal<{ sectionId: string; subsectionId: string } | null>(null);
 
   ngOnInit(): void {
+    // Handle route parameters (section/subsection)
+    this.route.paramMap.pipe(take(1)).subscribe(params => {
+      const section = params.get('section');
+      const subsectionId = params.get('subsection');
+      if (section && subsectionId) {
+        this.expandedSectionId.set(section);
+        this.selectedSubsection.set({ sectionId: section, subsectionId });
+        this.loadSubcomponent(section, subsectionId);
+        // Scroll to the subsection after rendering
+        setTimeout(() => this.scrollToSubsection(), 100);
+      }
+    });
+
+    // Handle query params for guest mode
     this.route.queryParamMap.pipe(take(1)).subscribe(params => {
       if (params.get('start') === 'guest') {
         this.getStartedWithTest();
@@ -349,6 +360,15 @@ export class HelpComponent {
     
     this.selectedSubsection.set(selection);
     this.loadSubcomponent(selection.sectionId, selection.subsectionId);
+    // Scroll to the subsection after rendering
+    setTimeout(() => this.scrollToSubsection(), 100);
+  }
+
+  private scrollToSubsection() {
+    const element = document.querySelector('.subsection-content-wrapper');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   getSectionComponents(sectionId: string): Record<string, Type<unknown> | null> {

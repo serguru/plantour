@@ -729,3 +729,15 @@ app-generic-list {
     margin: 0;
     background: var(--primary-color) !important;
 }
+
+.help-link {
+  color: var(--form-header-background-color);
+  display: block;
+  padding: 0.5rem;
+}
+
+.help-link-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

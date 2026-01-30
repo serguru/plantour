@@ -17,6 +17,7 @@ import { Condition, Target, TargetCondition, TargetMode } from '../../services/d
 import { ArrayOfGuidsRequest, MultipleIdsRequest } from '../../services/crud-service';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
+import { Router } from '@angular/router';
 
 // TODO: fix UI vertical scroll issues
 @Component({
@@ -34,6 +35,7 @@ export class TemplatesComponent {
   componentId: string = 'templates';
   appService = inject(AppService);
   tripService = inject(TripService);
+  router = inject(Router);
 
   componentService = inject(ComponentService);
   templateService = inject(TemplateService);
@@ -127,6 +129,13 @@ export class TemplatesComponent {
         action: () => {
           this.lowerTextVisible.set(!this.lowerTextVisible());
           this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
+        }
+      },
+      {
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          this.router.navigate(['/help/templates/templates-intro']);
         }
       }
     ];
