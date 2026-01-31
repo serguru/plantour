@@ -1,6 +1,6 @@
 import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
+import { MultipleIdsRequest } from '../../services/crud-service';
 import { AdminsParticipantDto, UpdateAdminsParticipantRequest, AdminsParticipantService } from '../../services/admins-participant-service';
 import { CreateTripUserRequest, TripUserDto, TripUserService, UpdateTripUserRequest } from '../../services/trip-user-service';
 import { TravelerItemComponent } from './traveler-item/traveler-item-component';

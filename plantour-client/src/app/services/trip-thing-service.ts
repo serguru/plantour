@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
-import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from './crud-service';
+import { MultipleIdsRequest } from './crud-service';
 import { AssignmentStatus } from '../helpers/enums';
 import { AIItemDto } from './template-service';
 
@@ -63,7 +63,7 @@ export interface AddAiThingsRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class TripThingService implements CrudService<TripThingDto, CreateTripThingRequest, UpdateTripThingRequest>, FromDicService, PackingService {
+export class TripThingService {
   private apiUrl: string;
 
   constructor(

@@ -2,7 +2,6 @@ import { Injectable, Inject, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
-import { CrudService } from './crud-service';
 import { SignUpParticipantRequest } from '../models/auth.models';
 import { UsersService } from './users-service';
 import { PackageDto } from './package-service';

@@ -1,6 +1,6 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from '../../services/crud-service';
-import { TripThingDto, CreateTripThingRequest, UpdateTripThingRequest, TripThingService } from '../../services/trip-thing-service';
+import { MultipleIdsRequest } from '../../services/crud-service';
+import { TripThingDto, TripThingService } from '../../services/trip-thing-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
 import { TripThingItemComponent } from './trip-thing-item/trip-thing-item-component';

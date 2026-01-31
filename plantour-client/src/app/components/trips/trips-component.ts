@@ -1,6 +1,5 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { CrudService } from '../../services/crud-service';
 import { TripDto, TripService } from '../../services/trip-service';
 import { TripItemComponent } from './trip-item/trip-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';

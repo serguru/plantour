@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { MultipleIdsRequest } from './crud-service';
-import { TripThingDto } from './trip-thing-service';
+import { AddAiThingsRequest, TripThingDto } from './trip-thing-service';
 import { AssignmentStatus } from '../helpers/enums';
 
 export interface TripSharedDto {
@@ -121,6 +121,10 @@ export class TripSharedService {
 
   toggleReject(data: any): Observable<number> {
     return this.http.put<number>(`${this.apiUrl}/toggle-reject-trip-shared-things`, data);
+  }
+
+  addFromAITemplate(data: AddAiThingsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/insert-from-ai-template`, data);
   }
 
 }

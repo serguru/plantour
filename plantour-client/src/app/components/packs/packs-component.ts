@@ -1,18 +1,17 @@
 import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
-import { CrudService, FromDicService, MultipleIdsRequest } from '../../services/crud-service';
-import { CreatePackageRequest, UpdatePackageRequest, PackageDto, PackageService } from '../../services/package-service';
+import { MultipleIdsRequest } from '../../services/crud-service';
+import { PackageService } from '../../services/package-service';
 import { Router } from '@angular/router';
-import { CreateTripPackageRequest, TripPackageDto, TripPackageService, UpdateTripPackageRequest } from '../../services/trip-package-service';
+import { TripPackageService } from '../../services/trip-package-service';
 import { PackItemComponent } from './pack-item/pack-item-component';
-import { Condition, Target, TargetCondition, TargetMode, TargetOption } from '../../services/dynamic-query-service';
+import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
 import { ComponentService } from '../../services/component-service';
-import { EMPTY, filter, map, mergeMap, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
+import { switchMap, tap } from 'rxjs';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { TripDto, TripService } from '../../services/trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { AppService } from '../../services/app-service';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 

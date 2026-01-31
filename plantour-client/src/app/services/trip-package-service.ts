@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
-import { CrudService, FromDicService, MultipleIdsRequest } from './crud-service';
+import { MultipleIdsRequest } from './crud-service';
 
 export interface TripPackageDto {
   id: string;

@@ -2,7 +2,6 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
-import { CrudService } from './crud-service';
 
 export interface TripDto {
   id: string;
@@ -41,7 +40,7 @@ export interface UpdateTripRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class TripService implements CrudService<TripDto, CreateTripRequest, UpdateTripRequest> {
+export class TripService {
   private apiUrl: string;
 
   constructor(

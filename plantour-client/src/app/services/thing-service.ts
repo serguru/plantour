@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
-import { ArrayOfGuidsRequest, CrudService, MultipleIdsRequest } from './crud-service';
+import { ArrayOfGuidsRequest } from './crud-service';
 import { AIItemDto } from './template-service';
 
 export interface ThingDto {
@@ -35,7 +35,7 @@ export interface UpdateThingRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class ThingService implements CrudService<ThingDto, CreateThingRequest, UpdateThingRequest> {
+export class ThingService {
   private apiUrl: string;
 
   constructor(
