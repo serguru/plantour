@@ -83,7 +83,7 @@ export class ThingService implements CrudService<ThingDto, CreateThingRequest, U
     return this.http.post<number>(`${this.apiUrl}/delete-from-template`, data);
   }
 
-  addFromAITemplate(items: AIItemDto): Observable<number> {
+  addFromAITemplate(items: AIItemDto[]): Observable<number> {
     return this.http.post<number>(`${this.apiUrl}/insert-from-ai-template`, items);
   }
 }

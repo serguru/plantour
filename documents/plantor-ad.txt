@@ -24,21 +24,20 @@ Plantour это web приложение, которое помогает одн
 
 Plantour is a web app that helps individuals or groups pack for a trip. The following features are supported:
 - 100% mobile-optimized app
-- Packing list
-- Packing list
+- Items list
+- Filling an items list from the prefilled templates
+- ability to ask AI like "I am going for safari to Africa for a week in a month. What items should I take?" and get a list of recommenmded items
 - Traveler list
 - Trip list
 - Users can be admins or members
 - Members can create lists of items and packages they own and then copy them individually or in bulk to the trip's packing list
-- Admins can do everything members can do, plus create trips and invite travelers to them
+- Admins can do everything members can do, plus create trips and invite members to them
 - Trip templates are supported for quickly creating a ready-made packing list for trips like "Fishing Trip," "Weekend Camping Trip," or "10-Day Sea Cruise"
 - Quick answer to the question: which package is my blue tie in? - Automatic creation and printing of packing slips
 - Only admins are required to register as users; participants invited by admins have access to the app free of charge and without registration
 - The ability to try the app without registration using pre-prepared test data
 - The ability to create a list of shared packages for a group of travelers and assign responsibility for each package or item
 
-- The app stores user data: email, first name, last name, phone number, and never grants access to this data to anyone
-- The app does not use cookies that require user consent
 
 - The app offers paid services; paid plans are $9.99 and $19.99 per year
 

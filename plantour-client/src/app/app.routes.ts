@@ -332,6 +332,13 @@ export const routes: Routes = [
     data: { componentId: 'templates' }
   },
   {
+    path: 'ai-templates',
+    canActivate: [adminOrParticipantGuard],
+    loadComponent: () => import('./components/ai-templats/ai-templates-component').then(m => m.AiTemplatesComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'ai-templates' }
+  },
+  {
     path: '**',
     redirectTo: ''
   }

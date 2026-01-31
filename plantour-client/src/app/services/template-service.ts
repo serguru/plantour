@@ -3,6 +3,8 @@ import { Inject, Injectable } from '@angular/core';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { Observable } from 'rxjs';
 
+
+// TODO: implement an idea to click on an item and buy it on Amazon
 export interface VTemplateThingsFullDto {
   id: string;
   name: string;
@@ -24,10 +26,14 @@ export interface VTemplateThingsFullDto {
 
 export interface AIItemDto {
   category: string;
-  itemName: string;
+  item_name: string;
   unit: string;
   value: number;
   recommendations: string;
+}
+
+export interface AIPrompt {
+  prompt: string;
 }
 
 @Injectable({
@@ -61,7 +67,8 @@ export class TemplateService {
   }
 
   getAllFromAI(prompt: string): Observable<AIItemDto[]> {
-    return this.http.post<AIItemDto[]>(`${this.apiUrl}/ai-items`, { prompt });
+    const request = { prompt };
+    return this.http.post<AIItemDto[]>(`${this.apiUrl}/ai-items`, request);
   }
 
 }

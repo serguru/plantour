@@ -55,5 +55,4 @@ public class TemplateController(ITemplateService service, IAiPackingListService 
         var dtos = await _aiService.GeneratePackingListAsync(request.Prompt);
         return Ok(dtos);
     }
-
 }

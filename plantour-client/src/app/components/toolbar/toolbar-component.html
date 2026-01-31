@@ -71,6 +71,14 @@
             <span class="pi pi-shopping-bag"></span>
             <span class="button-label">Template items</span>
           </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('ai-templates')"
+            (click)="onAiTemplatesClick($event, popoverDic)"
+          >
+            <span class="pi pi-shopping-bag"></span>
+            <span class="button-label">AI template items</span>
+          </a>
 
 
         </nav>
