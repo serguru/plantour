@@ -8,13 +8,13 @@ using PlantourApi.Middleware;
 
 namespace plantour_server.Services;
 
-public class AiPackingListService : IAiPackingListService
+public class AiService : IAiService
 {
     private readonly HttpClient _httpClient;
     private readonly GeminiSettings _settings;
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
 
-    public AiPackingListService(HttpClient httpClient, IOptions<GeminiSettings> settings)
+    public AiService(HttpClient httpClient, IOptions<GeminiSettings> settings)
     {
         _httpClient = httpClient;
         _settings = settings.Value;
@@ -30,7 +30,7 @@ public class AiPackingListService : IAiPackingListService
         }
     }
 
-    public async Task<IReadOnlyList<AIItemDto>> GeneratePackingListAsync(string prompt)
+    public async Task<IReadOnlyList<AIItemDto>> GenerateListAsync(string prompt)
     {
         if (string.IsNullOrWhiteSpace(prompt))
         {
@@ -128,12 +128,12 @@ public class AiPackingListService : IAiPackingListService
                         type = "string",
                         description = "Category for the item, such as Clothing, Gear, Documents, Health, Electronics, or Misc."
                     },
-                    item_name = new
+                    name = new
                     {
                         type = "string",
                         description = "Name of the item to pack."
                     },
-                    unit = new
+                    units = new
                     {
                         type = "string",
                         description = "Unit for the item, such as pcs, pairs, bottles, or sets."
@@ -143,7 +143,7 @@ public class AiPackingListService : IAiPackingListService
                         type = "number",
                         description = "Recommended quantity as a number."
                     },
-                    recommendations = new
+                    notes = new
                     {
                         type = "string",
                         description = "Short notes or conditions for the item."
@@ -152,10 +152,10 @@ public class AiPackingListService : IAiPackingListService
                 required = new[]
                 {
                     "category",
-                    "item_name",
-                    "unit",
+                    "name",
+                    "units",
                     "value",
-                    "recommendations"
+                    "notes"
                 }
             }
         };

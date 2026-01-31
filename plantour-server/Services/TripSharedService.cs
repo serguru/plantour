@@ -218,20 +218,20 @@ public class TripSharedService(
             StringComparer.OrdinalIgnoreCase);
 
         var newThings = things
-            .Where(i => !string.IsNullOrWhiteSpace(i.ItemName))
-            .GroupBy(i => i.ItemName, StringComparer.OrdinalIgnoreCase)
+            .Where(i => !string.IsNullOrWhiteSpace(i.Name))
+            .GroupBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
             .Select(g => g.First())
-            .Where(i => !existingNames.Contains(i.ItemName));
+            .Where(i => !existingNames.Contains(i.Name));
 
         var entities = newThings.Select(i => new TripSharedThing
         {
             Id = Guid.NewGuid(),
             TripId = tripId,
             Category = string.IsNullOrWhiteSpace(i.Category) ? null : i.Category,
-            Name = i.ItemName,
-            Units = string.IsNullOrWhiteSpace(i.Unit) ? null : i.Unit,
+            Name = i.Name,
+            Units = string.IsNullOrWhiteSpace(i.Units) ? null : i.Units,
             Value = i.Value,
-            Notes = string.IsNullOrWhiteSpace(i.Recommendations) ? null : i.Recommendations,
+            Notes = string.IsNullOrWhiteSpace(i.Notes) ? null : i.Notes,
             AssignedToId = null,
             AssignedThingId = null,
             AssignedAt = null,

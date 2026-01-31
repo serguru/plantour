@@ -8,10 +8,10 @@ import { Observable } from 'rxjs';
 
 export interface AIItemDto {
   category: string;
-  item_name: string;
-  unit: string;
+  name: string;
+  units: string;
   value: number;
-  recommendations: string;
+  notes: string;
   isTargeted?: boolean;
 }
 

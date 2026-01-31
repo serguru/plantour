@@ -225,7 +225,7 @@ The log data should be stored in PostgreSQL DB. Add a SQL script to create the n
 An end user wants to create a list of items to take with them to the trip. Depending on trip conditions that list can vary. Implement a feature in the plantour_server allowing users to ask an AI "I am going to Alps for skiing next weekend. What items do need?" And the AI would return a response as known JSON like 
 {
     "category": "string",
-    "item_name": "string",
+    "name": "string",
     "unit": "string",
     "value": "number",
     "recommendations": "string",
@@ -252,7 +252,7 @@ To implement this feature read and article "https://ai.google.dev/gemini-api/doc
 }
 
 
-See addFromAITemplate src\app\services\thing-service.ts service. See Controllers\ThingController.cs. Add a corresponding to  addFromAITemplate endpoint. Add a method to IThingService and ThingService. Map AIItemDto to Thing. Use ThingRepository to get all the things. Filter a new collection to leave only members with new item_names. Compare with thing.name case insensitive. Range Insert the rest to things. Return a number of added rows.
+See addFromAITemplate src\app\services\thing-service.ts service. See Controllers\ThingController.cs. Add a corresponding to  addFromAITemplate endpoint. Add a method to IThingService and ThingService. Map AIItemDto to Thing. Use ThingRepository to get all the things. Filter a new collection to leave only members with new names. Compare with thing.name case insensitive. Range Insert the rest to things. Return a number of added rows.
 
 
-See addFromAITemplate src\app\services\trip-shared-service.ts service. See Controllers\TripThingController.cs. Add a corresponding to addFromAITemplate endpoint. Add a method to ITripThingService and TripThingService. Map AIItemDto to TripUserThing. Use TripThingRepository to get all the things. Filter a new collection to leave only members with new item_names. Compare with thing.name case insensitive. Range Insert the rest to things. Return a number of added rows.
+See addFromAITemplate src\app\services\trip-shared-service.ts service. See Controllers\TripThingController.cs. Add a corresponding to addFromAITemplate endpoint. Add a method to ITripThingService and TripThingService. Map AIItemDto to TripUserThing. Use TripThingRepository to get all the things. Filter a new collection to leave only members with new names. Compare with thing.name case insensitive. Range Insert the rest to things. Return a number of added rows.

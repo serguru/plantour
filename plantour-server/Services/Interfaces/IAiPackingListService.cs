@@ -2,7 +2,7 @@ using plantour_server.DTOs;
 
 namespace plantour_server.Services;
 
-public interface IAiPackingListService
+public interface IAiService
 {
-    Task<IReadOnlyList<AIItemDto>> GeneratePackingListAsync(string prompt);
+    Task<IReadOnlyList<AIItemDto>> GenerateListAsync(string prompt);
 }

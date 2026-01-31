@@ -243,7 +243,7 @@ builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>(
 builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
 
 builder.Services.AddHttpClient<IBrevoEmailClient, BrevoEmailClient>();
-builder.Services.AddHttpClient<IAiPackingListService, AiPackingListService>();
+builder.Services.AddHttpClient<IAiService, AiService>();
 
 
 // Register repositories

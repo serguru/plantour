@@ -167,20 +167,20 @@ public class ThingService(
             StringComparer.OrdinalIgnoreCase);
 
         var newItems = items
-            .Where(i => !string.IsNullOrWhiteSpace(i.ItemName))
-            .GroupBy(i => i.ItemName, StringComparer.OrdinalIgnoreCase)
+            .Where(i => !string.IsNullOrWhiteSpace(i.Name))
+            .GroupBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
             .Select(g => g.First())
-            .Where(i => !existingNames.Contains(i.ItemName));
+            .Where(i => !existingNames.Contains(i.Name));
 
         var entities = newItems.Select(i => new UserThing
         {
             Id = Guid.NewGuid(),
             UserId = _currentUser.UserId,
             Category = string.IsNullOrWhiteSpace(i.Category) ? null : i.Category,
-            Name = i.ItemName,
-            Units = string.IsNullOrWhiteSpace(i.Unit) ? null : i.Unit,
+            Name = i.Name,
+            Units = string.IsNullOrWhiteSpace(i.Units) ? null : i.Units,
             Value = i.Value,
-            Notes = string.IsNullOrWhiteSpace(i.Recommendations) ? null : i.Recommendations,
+            Notes = string.IsNullOrWhiteSpace(i.Notes) ? null : i.Notes,
             Shared = false
         }).ToList();
 

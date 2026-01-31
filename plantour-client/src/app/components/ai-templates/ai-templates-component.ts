@@ -63,7 +63,7 @@ export class AiTemplatesComponent {
         kind: 'sort',
         label: 'Sort by Name',
         icon: 'sort-alt',
-        property: 'item_name',
+        property: 'name',
         sortType: 'text',
         direction: 'none'
       },
@@ -81,7 +81,7 @@ export class AiTemplatesComponent {
         comparisonType: 'exact',
       }, {
         kind: 'filter',
-        property: 'item_name',
+        property: 'name',
         label: 'Filter by Name',
         filterText: '',
         comparisonType: 'contains',
