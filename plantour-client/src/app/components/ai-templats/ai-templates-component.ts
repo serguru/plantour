@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { finalize, tap } from 'rxjs';
+import { finalize, forkJoin, Observable, of, switchMap, tap } from 'rxjs';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesComponent } from '../entities/entities-component';
@@ -18,6 +18,7 @@ import { TemplateService, AIItemDto } from '../../services/template-service';
 import { ThingService } from '../../services/thing-service';
 import { TripDto, TripService } from '../../services/trip-service';
 import { TripThingService } from '../../services/trip-thing-service';
+import { TripSharedService } from '../../services/trip-shared-service';
 import { UsersService } from '../../services/users-service';
 import { AppButton } from '../button/button-component';
 
@@ -29,6 +30,7 @@ interface AiTemplateEntity {
   value: number;
   recommendations: string;
   isTargeted?: boolean;
+  targetId?: string | null;
 }
 
 @Component({
@@ -59,6 +61,7 @@ export class AiTemplatesComponent {
 
   thingService = inject(ThingService);
   tripThingService = inject(TripThingService);
+  tripSharedService = inject(TripSharedService);
   usersService = inject(UsersService);
   currentTripService = inject(CurrentTripService);
 
@@ -74,6 +77,8 @@ export class AiTemplatesComponent {
   loading = toSignal(this.componentService.loading$, { initialValue: false });
 
   private destroyRef = inject(DestroyRef);
+  private aiItemsBase: AiTemplateEntity[] = [];
+  private targetIndex = new Map<string, string>();
 
   conditions: Condition[] = [
     {
@@ -100,7 +105,7 @@ export class AiTemplatesComponent {
     },
     {
       kind: 'filter',
-      property: 'name',
+      property: 'item_name',
       label: 'Filter by Name',
       filterText: '',
       comparisonType: 'contains',
@@ -149,6 +154,14 @@ export class AiTemplatesComponent {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
 
+    this.componentService.target$.pipe(
+      switchMap(target => this.loadTargetItems(target)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((items) => {
+      this.targetIndex = this.buildTargetIndex(items);
+      this.applyTargetIndex();
+    });
+
     this.componentService.updateEntities([]);
   }
 
@@ -184,14 +197,32 @@ export class AiTemplatesComponent {
       const result: Target = {
         id: t.id,
         name: t.name,
-        selectedMode: TargetMode.TripThings,
-        options: [
-          {
-            label: 'Trip',
-            mode: TargetMode.TripThings
-          }
-        ]
+        selectedMode: null,
+        options: null
       };
+
+      if (this.usersService.isAdminSignal()) {
+
+        dicTarget.options = [{
+          label: 'Dictionary',
+          mode: TargetMode.DicThings
+        }];
+
+        result.selectedMode = TargetMode.TripShared;
+        result.options = [
+          {
+            label: 'Shared',
+            mode: TargetMode.TripShared
+          }
+        ];
+
+        if (t.currentUserIncluded) {
+          result.options.push({
+            label: 'Own',
+            mode: TargetMode.TripThings
+          });
+        }
+      }
 
       return result;
     });
@@ -205,14 +236,25 @@ export class AiTemplatesComponent {
     const result: Target = {
       id: trip.id,
       name: trip.name,
-      selectedMode: TargetMode.TripThings,
-      options: [
-        {
-          label: 'Trip',
-          mode: TargetMode.TripThings
-        }
-      ]
+      selectedMode: null,
+      options: null
     };
+
+    if (this.usersService.isAdminSignal()) {
+      result.selectedMode = TargetMode.TripShared;
+      result.options = [
+        {
+          label: 'Shared',
+          mode: TargetMode.TripShared
+        }
+      ];
+      if (trip.currentUserIncluded) {
+        result.options.push({
+          label: 'Own',
+          mode: TargetMode.TripThings
+        });
+      }
+    }
 
     return result;
   }
@@ -261,7 +303,6 @@ export class AiTemplatesComponent {
     this.componentService.persistValue('conditions', initialConditions);
   }
 
-//I am going for safari to Africa for a week in a month. What items should I take?
   onAskAi(): void {
     const prompt = this.promptText.trim();
     if (!prompt) {
@@ -277,7 +318,8 @@ export class AiTemplatesComponent {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (items) => {
-        this.componentService.updateEntities(items || []);
+        this.aiItemsBase = this.mapAiItems(items || []);
+        this.applyTargetIndex();
       }
     });
   }
@@ -289,7 +331,7 @@ export class AiTemplatesComponent {
     }
 
     const entities = this.processedEntities() as AiTemplateEntity[];
-    const items = this.mapEntitiesToAiItems(entities);
+    const items = this.mapEntitiesToAiItems(entities.filter(x => !x.isTargeted));
 
     if (!items.length) {
       return;
@@ -297,6 +339,7 @@ export class AiTemplatesComponent {
 
     if (target.selectedMode === TargetMode.DicThings) {
       this.thingService.addFromAITemplate(items).pipe(
+        tap(() => this.refreshTargetItems()),
         takeUntilDestroyed(this.destroyRef)
       ).subscribe();
       return;
@@ -307,31 +350,37 @@ export class AiTemplatesComponent {
       throw new Error('Target Trip Id is not set');
     }
 
-    this.tripThingService.addFromAITemplate({
+    const request = {
       tripId: targetId,
       things: items
-    }).pipe(
+    };
+
+    const o = target.selectedMode === TargetMode.TripShared
+      ? this.tripSharedService.addFromAITemplate(request)
+      : this.tripThingService.addFromAITemplate(request);
+
+    o.pipe(
+      tap(() => this.refreshTargetItems()),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 
   onDeleteTargetClick(): void {
-    return;
-  }
-
-  targetEntityClick(entity: AiTemplateEntity) {
     const target = this.target();
     if (!target) {
       throw new Error('Target is not set');
     }
 
-    const items = this.mapEntitiesToAiItems([entity]);
-    if (!items.length) {
+    const entities = this.processedEntities() as AiTemplateEntity[];
+    const deletable = entities.filter(x => x.isTargeted && x.targetId);
+
+    if (!deletable.length) {
       return;
     }
 
     if (target.selectedMode === TargetMode.DicThings) {
-      this.thingService.addFromAITemplate(items).pipe(
+      forkJoin(deletable.map(x => this.thingService.delete(x.targetId!))).pipe(
+        tap(() => this.refreshTargetItems()),
         takeUntilDestroyed(this.destroyRef)
       ).subscribe();
       return;
@@ -341,26 +390,101 @@ export class AiTemplatesComponent {
       throw new Error('Target Trip Id is not set');
     }
 
-    this.tripThingService.addFromAITemplate({
-      tripId: target.id,
-      things: items
-    }).pipe(
+    const deletes = deletable.map(x =>
+      target.selectedMode === TargetMode.TripShared
+        ? this.tripSharedService.delete(x.targetId!, target.id!)
+        : this.tripThingService.delete(x.targetId!, target.id!)
+    );
+
+    forkJoin(deletes).pipe(
+      tap(() => this.refreshTargetItems()),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 
-//   private mapAiItems(items: AIItemDto[]): AiTemplateEntity[] {
-//     return items.map((item, index) => ({
-//       id: (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${index}`),
-//       name: item.itemName,
-//       itemName: item.itemName,
-//       category: item.category,
-//       unit: item.unit,
-//       value: item.value,
-//       recommendations: item.recommendations,
-//       isTargeted: false
-//     }));
-//   }
+  targetEntityClick(entity: AiTemplateEntity) {
+    const target = this.target();
+    if (!target) {
+      throw new Error('Target is not set');
+    }
+
+    if (entity.isTargeted) {
+      this.deleteFromTarget(entity);
+      return;
+    }
+
+    const items = this.mapEntitiesToAiItems([entity]);
+    if (!items.length) {
+      return;
+    }
+
+    if (target.selectedMode === TargetMode.DicThings) {
+      this.thingService.addFromAITemplate(items).pipe(
+        tap(() => this.refreshTargetItems()),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe();
+      return;
+    }
+
+    if (!target.id) {
+      throw new Error('Target Trip Id is not set');
+    }
+
+    const request = {
+      tripId: target.id,
+      things: items
+    };
+
+    const o = target.selectedMode === TargetMode.TripShared
+      ? this.tripSharedService.addFromAITemplate(request)
+      : this.tripThingService.addFromAITemplate(request);
+
+    o.pipe(
+      tap(() => this.refreshTargetItems()),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
+  }
+
+  private deleteFromTarget(entity: AiTemplateEntity): void {
+    const target = this.target();
+    if (!target || !entity.targetId) {
+      return;
+    }
+
+    if (target.selectedMode === TargetMode.DicThings) {
+      this.thingService.delete(entity.targetId).pipe(
+        tap(() => this.refreshTargetItems()),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe();
+      return;
+    }
+
+    if (!target.id) {
+      return;
+    }
+
+    const o = target.selectedMode === TargetMode.TripShared
+      ? this.tripSharedService.delete(entity.targetId, target.id)
+      : this.tripThingService.delete(entity.targetId, target.id);
+
+    o.pipe(
+      tap(() => this.refreshTargetItems()),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
+  }
+
+  private mapAiItems(items: AIItemDto[]): AiTemplateEntity[] {
+    return items.map((item, index) => ({
+      id: (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${index}`),
+      item_name: item.item_name,
+      category: item.category,
+      unit: item.unit,
+      value: item.value,
+      recommendations: item.recommendations,
+      isTargeted: false,
+      targetId: null
+    }));
+  }
 
   private mapEntitiesToAiItems(entities: AiTemplateEntity[]): AIItemDto[] {
     return entities.map(entity => ({
@@ -370,5 +494,78 @@ export class AiTemplatesComponent {
       value: entity.value,
       recommendations: entity.recommendations
     }));
+  }
+
+  private loadTargetItems(target: Target | null): Observable<any[]> {
+    if (!target) {
+      return of([]);
+    }
+
+    if (target.selectedMode === TargetMode.DicThings) {
+      return this.thingService.getAll() as Observable<any[]>;
+    }
+
+    if (!target.id) {
+      return of([]);
+    }
+
+    if (target.selectedMode === TargetMode.TripShared) {
+      return this.tripSharedService.getAll(target.id) as Observable<any[]>;
+    }
+
+    return this.tripThingService.getAll(target.id) as Observable<any[]>;
+  }
+
+  private buildTargetIndex(items: any[]): Map<string, string> {
+    const index = new Map<string, string>();
+
+    items.forEach(item => {
+      const key = this.buildKey(
+        item?.category,
+        item?.name,
+        item?.units,
+        item?.value
+      );
+      if (!index.has(key) && item?.id) {
+        index.set(key, item.id);
+      }
+    });
+
+    return index;
+  }
+
+  private applyTargetIndex(): void {
+    if (!this.aiItemsBase.length) {
+      this.componentService.updateEntities([]);
+      return;
+    }
+
+    const updated = this.aiItemsBase.map(item => {
+      const key = this.buildKey(item.category, item.item_name, item.unit, item.value);
+      const targetId = this.targetIndex.get(key) || null;
+      return {
+        ...item,
+        isTargeted: !!targetId,
+        targetId
+      } as AiTemplateEntity;
+    });
+
+    this.componentService.updateEntities(updated);
+  }
+
+  private refreshTargetItems(): void {
+    const target = this.target() ?? null;
+    this.loadTargetItems(target).pipe(
+      takeUntilDestroyed()
+    ).subscribe((items) => {
+      this.targetIndex = this.buildTargetIndex(items);
+      this.applyTargetIndex();
+    });
+  }
+
+  private buildKey(category?: string | null, name?: string | null, unit?: string | null, value?: number | null): string {
+    const norm = (v: string | null | undefined) => (v ?? '').trim().toLowerCase();
+    const val = value == null ? '' : Number(value).toString();
+    return [norm(category), norm(name), norm(unit), val].join('|');
   }
 }
