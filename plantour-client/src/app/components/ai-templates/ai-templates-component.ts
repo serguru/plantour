@@ -2,7 +2,7 @@ import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesComponent } from '../entities/entities-component';
-import { AiTemplateItemComponent } from './template-item/template-item-component';
+import { AiTemplateItemComponent } from './ai-template-item/ai-template-item-component';
 import { TripDto, TripService } from '../../services/trip-service';
 import { AppService } from '../../services/app-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -18,8 +18,8 @@ import { ArrayOfGuidsRequest, MultipleIdsRequest } from '../../services/crud-ser
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { Router } from '@angular/router';
+import { AiTemplateService } from '../../services/ai-template-service';
 
-// TODO: fix UI vertical scroll issues
 @Component({
   selector: 'app-ai-template-things',
   imports: [
@@ -27,18 +27,18 @@ import { Router } from '@angular/router';
     EntitiesHeader,
     EntitiesActionsComponent
   ],
-  templateUrl: './templates-component.html',
-  styleUrl: './templates-component.scss',
+  templateUrl: './ai-templates-component.html',
+  styleUrl: './ai-templates-component.scss',
 })
 export class AiTemplatesComponent {
   templateItemComponent = AiTemplateItemComponent;
-  componentId: string = 'templates';
+  componentId: string = 'ai-templates';
   appService = inject(AppService);
   tripService = inject(TripService);
   router = inject(Router);
 
   componentService = inject(ComponentService);
-  templateService = inject(TemplateService);
+  aiTemplateService = inject(AiTemplateService);
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(ComponentService).dynamicQueryService;
 
@@ -63,7 +63,7 @@ export class AiTemplatesComponent {
         kind: 'sort',
         label: 'Sort by Name',
         icon: 'sort-alt',
-        property: 'name',
+        property: 'item_name',
         sortType: 'text',
         direction: 'none'
       },
@@ -79,38 +79,9 @@ export class AiTemplatesComponent {
         icon: 'folder-open',
         filterText: '',
         comparisonType: 'exact',
-
       }, {
         kind: 'filter',
-        property: 'activityName',
-        label: 'Activity',
-        icon: 'folder-open',
-        filterText: '',
-        comparisonType: 'exact',
-      }, {
-        kind: 'filter',
-        property: 'templateName',
-        label: 'Template',
-        icon: 'folder-open',
-        filterText: '',
-        comparisonType: 'exact',
-      }, {
-        kind: 'filter',
-        property: 'temperatureRangeName',
-        label: 'Temperature Range',
-        icon: 'folder-open',
-        filterText: '',
-        comparisonType: 'exact',
-      }, {
-        kind: 'filter',
-        property: 'ageRangeName',
-        label: 'Age',
-        icon: 'folder-open',
-        filterText: '',
-        comparisonType: 'exact',
-      }, {
-        kind: 'filter',
-        property: 'name',
+        property: 'item_name',
         label: 'Filter by Name',
         filterText: '',
         comparisonType: 'contains',
@@ -119,34 +90,20 @@ export class AiTemplatesComponent {
       }
     ];
 
-  lowerTextVisible = signal<boolean>(true);
-
+  // TODO: add ai templates to Help
   menuItems = computed<MenuConfig[]>(() => {
     return [
-      {
-        label: (this.lowerTextVisible() ? 'Hide' : 'Show') + ' Lower Text',
-        icon: 'check',
-        action: () => {
-          this.lowerTextVisible.set(!this.lowerTextVisible());
-          this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
-        }
-      },
       {
         label: 'Help',
         icon: 'question-circle',
         action: () => {
-          this.router.navigate(['/help/templates/templates-intro']);
+          this.router.navigate(['/help/ai-templates/ai-templates-intro']);
         }
       }
     ];
   }
   );
 
-  itemMetaData: any = {
-    lowerTextVisible: this.lowerTextVisible,
-  }
-
-  // TODO: fix "user is not admin" for Avokado from Template things to Summer Alps...
   ngOnInit(): void {
 
     this.componentService.updateComponentId(this.componentId);
@@ -162,15 +119,15 @@ export class AiTemplatesComponent {
         this.componentService.target$.pipe(
           switchMap((target: Target | null) => {
             if (target && target.selectedMode === TargetMode.DicThings) {
-              return this.templateService.getAllForDic();
+              return this.aiTemplateService.getAllForDic();
             }
             if (target && target.selectedMode === TargetMode.TripShared) {
-              return this.templateService.getAllForSharedTrip(target.id!);
+              return this.aiTemplateService.getAllForSharedTrip(target.id!);
             }
             if (target && target?.id) {
-              return this.templateService.getAllForTrip(target.id);
+              return this.aiTemplateService.getAllForTrip(target.id);
             }
-            return this.templateService.getAll();
+            return this.aiTemplateService.getAll();
           }),
         )
       ),

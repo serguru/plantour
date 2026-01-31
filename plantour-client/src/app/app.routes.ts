@@ -334,7 +334,7 @@ export const routes: Routes = [
   {
     path: 'ai-templates',
     canActivate: [adminOrParticipantGuard],
-    loadComponent: () => import('./components/ai-templates/templates-component').then(m => m.AiTemplatesComponent),
+    loadComponent: () => import('./components/ai-templates/ai-templates-component').then(m => m.AiTemplatesComponent),
     resolve: {cleanup: CleanupResolver},
     data: { componentId: 'ai-templates' }
   },

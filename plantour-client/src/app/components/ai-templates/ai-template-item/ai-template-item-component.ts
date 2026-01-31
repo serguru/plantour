@@ -7,8 +7,8 @@ import { capitalizeFirstLetter } from '../../../helpers/utils';
   selector: 'app-ai-template-item',
   imports: [
   ],
-  templateUrl: './template-item-component.html',
-  styleUrl: './template-item-component.scss',
+  templateUrl: './ai-template-item-component.html',
+  styleUrl: './ai-template-item-component.scss',
 })
 export class AiTemplateItemComponent {
   @Input() entity: VTemplateThingsFullDto = {} as VTemplateThingsFullDto;

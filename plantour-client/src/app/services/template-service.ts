@@ -24,17 +24,6 @@ export interface VTemplateThingsFullDto {
   isTargeted?: boolean;
 }
 
-export interface AIItemDto {
-  category: string;
-  item_name: string;
-  unit: string;
-  value: number;
-  recommendations: string;
-}
-
-export interface AIPrompt {
-  prompt: string;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -64,11 +53,6 @@ export class TemplateService {
 
   getAllForDic(): Observable<VTemplateThingsFullDto[]> {
     return this.http.get<VTemplateThingsFullDto[]>(`${this.apiUrl}/dic`);
-  }
-
-  getAllFromAI(prompt: string): Observable<AIItemDto[]> {
-    const request = { prompt };
-    return this.http.post<AIItemDto[]>(`${this.apiUrl}/ai-items`, request);
   }
 
 }
