@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 // TODO: implement an idea to click on an item and buy it on Amazon
 
-export interface AIItemDto {
+export interface AiItemDto {
   category: string;
   name: string;
   units: string;
@@ -34,9 +34,9 @@ export class AiTemplateService {
   }
   
   // Returns AI generated items based on the provided prompt
-  getAll(prompt: string): Observable<AIItemDto[]> {
+  getAll(prompt: string): Observable<AiItemDto[]> {
     const request = { prompt };
-    return this.http.post<AIItemDto[]>(`${this.apiUrl}/ai-items`, request);
+    return this.http.post<AiItemDto[]>(`${this.apiUrl}/ai-items`, request);
   }
 
 }

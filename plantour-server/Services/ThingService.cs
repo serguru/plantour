@@ -157,7 +157,7 @@ public class ThingService(
         return await _dicTripRepository.DeleteTemplateUserThingsAsync(_currentUser.UserId, ids);
     }
 
-    public async Task<int> InsertFromAiTemplateAsync(IEnumerable<AIItemDto> items)
+    public async Task<int> InsertFromAiTemplateAsync(IEnumerable<AiItemDto> items)
     {
         _currentUser.RaiseIfNotAuthenticated();
 

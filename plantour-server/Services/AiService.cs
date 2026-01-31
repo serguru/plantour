@@ -1,10 +1,14 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using AutoMapper;
 using Microsoft.Extensions.Options;
+using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Models;
+using plantour_server.Repositories;
 using PlantourApi.Middleware;
+using PlantourApi.Models;
 
 namespace plantour_server.Services;
 
@@ -13,11 +17,26 @@ public class AiService : IAiService
     private readonly HttpClient _httpClient;
     private readonly GeminiSettings _settings;
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
+    private readonly AiPromptRepository _aiPromptRepository;
+    private readonly AiThingRepository _aiThingRepository;
 
-    public AiService(HttpClient httpClient, IOptions<GeminiSettings> settings)
+    private readonly IMapper _mapper;
+    private readonly CurrentUser _currentUser;
+
+    public AiService(
+        HttpClient httpClient,
+        IOptions<GeminiSettings> settings,
+        AiPromptRepository aiPromptRepository,
+        AiThingRepository aiThingRepository,
+        IMapper mapper,
+        HttpCurrentUser httpCurrentUser)
     {
         _httpClient = httpClient;
         _settings = settings.Value;
+        _aiPromptRepository = aiPromptRepository;
+        _aiThingRepository = aiThingRepository;
+        _mapper = mapper;
+        _currentUser = httpCurrentUser.CurrentUser;
 
         if (!string.IsNullOrWhiteSpace(_settings.ApiBaseUrl))
         {
@@ -30,12 +49,30 @@ public class AiService : IAiService
         }
     }
 
-    public async Task<IReadOnlyList<AIItemDto>> GenerateListAsync(string prompt)
+
+    // TODO: Prompts older than 1 month should be cleaned up from the database periodically
+    public async Task<IEnumerable<AiItemDto>> GenerateListAsync(string prompt)
     {
+        if (!_currentUser.IsAuthenticated)
+        {
+            throw new CustomException("User must be authenticated to generate AI packing list");
+        }
+
         if (string.IsNullOrWhiteSpace(prompt))
         {
             throw new CustomException("Prompt cannot be empty");
         }
+
+        prompt = prompt.Trim();
+
+        var promptEntity = await _aiPromptRepository.GetByPromptyMonthAsync(_currentUser.UserId, prompt);
+
+        if (promptEntity != null)
+        {
+            var existingThings = await _aiThingRepository.FindAsync(x => x.PromptId == promptEntity.Id);
+            return _mapper.Map<IEnumerable<AiItemDto>>(existingThings);
+        }
+
 
         if (string.IsNullOrWhiteSpace(_settings.ApiKey))
         {
@@ -90,20 +127,50 @@ public class AiService : IAiService
             throw new CustomException("Gemini response did not contain a usable payload");
         }
 
+        List<AiItemRaw> raw_items;
         try
         {
-            var items = JsonSerializer.Deserialize<List<AIItemDto>>(textPayload, _jsonOptions);
-            if (items == null || items.Count == 0)
+            raw_items = JsonSerializer.Deserialize<List<AiItemRaw>>(textPayload, _jsonOptions)
+                ?? throw new CustomException("Gemini response did not include any packing list items");
+            if (raw_items.Count == 0)
             {
                 throw new CustomException("Gemini response did not include any packing list items");
             }
-
-            return items;
         }
         catch (JsonException ex)
         {
             throw new CustomException($"Failed to parse Gemini response: {ex.Message}");
         }
+
+
+        AiPrompt aiPrompt = new AiPrompt
+        {
+            Prompt = prompt,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await _aiPromptRepository.AddAsync(aiPrompt);
+
+        List<AiThing> items = new List<AiThing>();
+
+        foreach (var item in raw_items)
+        {
+            AiThing aiThing = new AiThing
+            {
+                PromptId = aiPrompt.Id,
+                Category = item.Category,
+                Name = item.Name,
+                Units = item.Units,
+                Value = item.Value,
+                Notes = item.Notes
+            };
+
+            items.Add(aiThing);
+        }
+
+        await _aiThingRepository.AddRangeAsync(items);
+        var result = _mapper.Map<IEnumerable<AiItemDto>>(items);
+        return result;
     }
 
     private static string BuildPrompt(string userPrompt)

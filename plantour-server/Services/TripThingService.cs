@@ -195,7 +195,7 @@ public class TripThingService(
         await  _tripUserThingRepository.UpdateAsync(entity);
     }
 
-    public async Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AIItemDto> things)
+    public async Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AiItemDto> things)
     {
         _currentUser.RaiseIfNotAuthenticated();
 

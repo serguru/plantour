@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { ArrayOfGuidsRequest } from './crud-service';
-import { AIItemDto } from './template-service';
 
 export interface ThingDto {
   id: string;
@@ -83,7 +82,7 @@ export class ThingService {
     return this.http.post<number>(`${this.apiUrl}/delete-from-template`, data);
   }
 
-  addFromAITemplate(items: AIItemDto[]): Observable<number> {
-    return this.http.post<number>(`${this.apiUrl}/insert-from-ai-template`, items);
-  }
+  // addFromAITemplate(items: AIItemDto[]): Observable<number> {
+  //   return this.http.post<number>(`${this.apiUrl}/insert-from-ai-template`, items);
+  // }
 }

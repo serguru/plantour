@@ -14,7 +14,7 @@ public class AiTemplateController(IAiService aiService) : ControllerBase
     private readonly IAiService _aiService = aiService;
 
     [HttpPost("ai-items")]
-    public async Task<ActionResult<IEnumerable<AIItemDto>>> GeneratePackingList(
+    public async Task<ActionResult<IEnumerable<AiItemDto>>> GeneratePackingList(
         [FromBody] PackingListRequest request)
     {
         var dtos = await _aiService.GenerateListAsync(request.Prompt);

@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace plantour_server.DTOs;
 
-public class AIItemDto
+public class AiItemRaw
 {
     [JsonPropertyName("category")]
     public string Category { get; set; } = string.Empty;
@@ -17,4 +17,20 @@ public class AIItemDto
 
     [JsonPropertyName("notes")]
     public string Notes { get; set; } = string.Empty;
+}
+
+public class AiItemDto
+{
+    public Guid Id { get; set; }
+
+    public string Category { get; set; } = string.Empty;
+
+    public string Name { get; set; } = string.Empty;
+
+    public string Units { get; set; } = string.Empty;
+    public decimal Value { get; set; }
+
+    public string Notes { get; set; } = string.Empty;
+
+    public bool IsTargeted { get; set; } = false;
 }

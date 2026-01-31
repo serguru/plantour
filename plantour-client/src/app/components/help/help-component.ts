@@ -14,6 +14,8 @@ import { HelpSection } from './help-types';
 // TODO: add a link to Guest Mode video tutorial
 // TODO: Help documents were genertated by AI. It is necessary to read ALL the Help documents carefully and make sure the content is OK
 // TODO: put section collapsimg button in one row with section title
+  // TODO: add ai templates to Help
+
 @Component({
   selector: 'app-help',
   standalone: true,

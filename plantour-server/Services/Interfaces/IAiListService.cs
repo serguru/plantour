@@ -4,5 +4,5 @@ namespace plantour_server.Services;
 
 public interface IAiService
 {
-    Task<IReadOnlyList<AIItemDto>> GenerateListAsync(string prompt);
+    Task<IEnumerable<AiItemDto>> GenerateListAsync(string prompt);
 }

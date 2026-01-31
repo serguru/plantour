@@ -203,7 +203,7 @@ public class TripSharedService(
         return await _dicTripRepository.DeleteTripSharedThingsAsync(_currentUser.AdminId, tripId, thingIds);
     }
 
-    public async Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AIItemDto> things)
+    public async Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AiItemDto> things)
     {
         _currentUser.RaiseIfNotAdmin();
 

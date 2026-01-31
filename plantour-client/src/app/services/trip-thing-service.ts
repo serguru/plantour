@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { MultipleIdsRequest } from './crud-service';
 import { AssignmentStatus } from '../helpers/enums';
-import { AIItemDto } from './template-service';
+import { AiItemDto } from './ai-template-service';
 
 export interface TripThingDto {
   id: string;
@@ -57,7 +57,7 @@ export interface UpdateTripThingRequest {
 
 export interface AddAiThingsRequest {
   tripId: string;
-  things: AIItemDto[];
+  things: AiItemDto[];
 }
 
 @Injectable({
