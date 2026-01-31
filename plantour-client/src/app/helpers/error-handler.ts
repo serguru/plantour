@@ -8,7 +8,7 @@ export class GlobalErrorHandler implements ErrorHandler {
   handleError(error: any): void {
     let message = '';
 
-    if (error?.error?.code === 'custom_exception') {
+    if (error?.error?.code === 'BASE_API_EXCEPTION' && error?.error?.message) {
       message = error.error.message;
     } else if (error?.message) {
       message = error.message;

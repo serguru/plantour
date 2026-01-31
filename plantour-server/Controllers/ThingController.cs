@@ -105,5 +105,12 @@ public class ThingController : ControllerBase
         return Ok(new { deletedCount });
     }
 
-
+    // TODO: Admin cannot add items to a trip he is not participant of, including from AI template
+    [HttpPost("insert-from-ai-template")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<int>> AddFromAiTemplate([FromBody] IEnumerable<AIItemDto> items)
+    {
+        var insertedCount = await _service.InsertFromAiTemplateAsync(items);
+        return Ok(insertedCount);
+    }
 }

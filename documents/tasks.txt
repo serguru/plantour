@@ -252,4 +252,4 @@ To implement this feature read and article "https://ai.google.dev/gemini-api/doc
 }
 
 
-See 
+See addFromAITemplate src\app\services\thing-service.ts service. See Controllers\ThingController.cs. Add a corresponding to  addFromAITemplate endpoint. Add a method to IThingService and ThingService. Map AIItemDto to Thing. Use ThingRepository to get all the things. Filter a new collection to leave only members with new item_names. Compare with thing.name case insensitive. Range Insert the rest to things. Return a number of added rows.

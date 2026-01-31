@@ -80,7 +80,7 @@ export class AiTemplatesComponent {
       kind: 'sort',
       label: 'Sort by Name',
       icon: 'sort-alt',
-      property: 'name',
+      property: 'item_name',
       sortType: 'text',
       direction: 'none'
     },

@@ -157,5 +157,41 @@ public class ThingService(
         return await _dicTripRepository.DeleteTemplateUserThingsAsync(_currentUser.UserId, ids);
     }
 
+    public async Task<int> InsertFromAiTemplateAsync(IEnumerable<AIItemDto> items)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        var existingThings = await _userThingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
+        var existingNames = new HashSet<string>(
+            existingThings.Select(t => t.Name),
+            StringComparer.OrdinalIgnoreCase);
+
+        var newItems = items
+            .Where(i => !string.IsNullOrWhiteSpace(i.ItemName))
+            .GroupBy(i => i.ItemName, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .Where(i => !existingNames.Contains(i.ItemName));
+
+        var entities = newItems.Select(i => new UserThing
+        {
+            Id = Guid.NewGuid(),
+            UserId = _currentUser.UserId,
+            Category = string.IsNullOrWhiteSpace(i.Category) ? null : i.Category,
+            Name = i.ItemName,
+            Units = string.IsNullOrWhiteSpace(i.Unit) ? null : i.Unit,
+            Value = i.Value,
+            Notes = string.IsNullOrWhiteSpace(i.Recommendations) ? null : i.Recommendations,
+            Shared = false
+        }).ToList();
+
+        if (entities.Count == 0)
+        {
+            return 0;
+        }
+
+        await _userThingRepository.AddRangeAsync(entities);
+        return entities.Count;
+    }
+
 
 }
