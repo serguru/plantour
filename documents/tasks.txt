@@ -222,3 +222,31 @@ already installed, use them.
 
 The log data should be stored in PostgreSQL DB. Add a SQL script to create the necessary DB tables etc. This project is db-first, no migrations. Add logging to GlobalExceptionHandler. If you have an idea where more add logging let me know. Also add a document explaining how to use logging.
 
+An end user wants to create a list of items to take with them to the trip. Depending on trip conditions that list can vary. Implement a feature in the plantour_server allowing users to ask an AI "I am going to Alps for skiing next weekend. What items do need?" And the AI would return a response as known JSON like 
+{
+    "category": "string",
+    "item_name": "string",
+    "unit": "string",
+    "value": "number",
+    "recommendations": "string",
+}
+To implement this feature read and article "https://ai.google.dev/gemini-api/docs/structured-output?example=recipe" first and implement it based on REST API calls.  Give me an instruction where to put the API key.
+
+{
+  "error": {
+    "code": 400,
+    "message": "Invalid JSON payload received. Unknown name \"additionalProperties\" at 'generation_config.response_schema.items': Cannot find field.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.BadRequest",
+        "fieldViolations": [
+          {
+            "field": "generation_config.response_schema.items",
+            "description": "Invalid JSON payload received. Unknown name \"additionalProperties\" at 'generation_config.response_schema.items': Cannot find field."
+          }
+        ]
+      }
+    ]
+  }
+}

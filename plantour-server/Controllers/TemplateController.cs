@@ -9,9 +9,10 @@ namespace plantour_server.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class TemplateController(ITemplateService service) : ControllerBase
+public class TemplateController(ITemplateService service, IAiPackingListService aiService) : ControllerBase
 {
     private readonly ITemplateService _service = service;
+    private readonly IAiPackingListService _aiService = aiService;
 
     [HttpGet]
     [AdminOrParticipant]
@@ -44,4 +45,15 @@ public class TemplateController(ITemplateService service) : ControllerBase
         var dtos = await _service.GetAllForDicAsync();
         return Ok(dtos);
     }
+
+
+
+    [HttpPost("ai-items")]
+    public async Task<ActionResult<IEnumerable<AIItemDto>>> GeneratePackingList(
+        [FromBody] PackingListRequest request)
+    {
+        var dtos = await _aiService.GeneratePackingListAsync(request.Prompt);
+        return Ok(dtos);
+    }
+
 }

@@ -8,7 +8,7 @@ import { Toolbar } from './components/toolbar/toolbar-component';
 import { ComponentService } from './services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-
+// TODO: обдумать идею задать начальные условия и получить от AI рекомендованный список путешествий
 //---------------------------------------------------------------------------------
 //
 // TODO: сделать много публичных страниц с шаблонами поездок типа "Что взять c собой на Бали"

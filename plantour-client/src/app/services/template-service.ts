@@ -22,6 +22,14 @@ export interface VTemplateThingsFullDto {
   isTargeted?: boolean;
 }
 
+export interface AIItemDto {
+  category: string;
+  itemName: string;
+  unit: string;
+  value: number;
+  recommendations: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -32,10 +40,10 @@ export class TemplateService {
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-   
+
     this.apiUrl = `${environment.apiUrl}/api/template`;
   }
-  
+
   getAll(): Observable<VTemplateThingsFullDto[]> {
     return this.http.get<VTemplateThingsFullDto[]>(this.apiUrl);
   }
@@ -43,7 +51,7 @@ export class TemplateService {
   getAllForTrip(tripId: string): Observable<VTemplateThingsFullDto[]> {
     return this.http.get<VTemplateThingsFullDto[]>(`${this.apiUrl}/trip/${tripId}`);
   }
-  
+
   getAllForSharedTrip(tripId: string): Observable<VTemplateThingsFullDto[]> {
     return this.http.get<VTemplateThingsFullDto[]>(`${this.apiUrl}/trip-shared/${tripId}`);
   }
@@ -51,4 +59,9 @@ export class TemplateService {
   getAllForDic(): Observable<VTemplateThingsFullDto[]> {
     return this.http.get<VTemplateThingsFullDto[]>(`${this.apiUrl}/dic`);
   }
+
+  getAllFromAI(prompt: string): Observable<AIItemDto[]> {
+    return this.http.post<AIItemDto[]>(`${this.apiUrl}/ai-items`, { prompt });
+  }
+
 }

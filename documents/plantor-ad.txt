@@ -41,3 +41,5 @@ Plantour is a web app that helps individuals or groups pack for a trip. The foll
 - The app does not use cookies that require user consent
 
 - The app offers paid services; paid plans are $9.99 and $19.99 per year
+
+

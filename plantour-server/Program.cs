@@ -77,6 +77,9 @@ builder.Services.Configure<JwtSettings>(jwtSettings);
 // Configure Brevo settings
 builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("BrevoSettings"));
 
+// Configure Gemini settings
+builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
+
 var jwtConfig = jwtSettings.Get<JwtSettings>();
 var key = Encoding.UTF8.GetBytes(jwtConfig!.SecretKey);
 
@@ -237,6 +240,7 @@ builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>(
 builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
 
 builder.Services.AddHttpClient<IBrevoEmailClient, BrevoEmailClient>();
+builder.Services.AddHttpClient<IAiPackingListService, AiPackingListService>();
 
 
 // Register repositories
