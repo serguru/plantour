@@ -5,6 +5,11 @@ namespace plantour_server.Repositories;
 
 public class TripThingRepository(PlantourContext context) : GenericRepository<TripUserThing>(context)
 {
+    public async Task AddRangeAsync(IEnumerable<TripUserThing> entities)
+    {
+        await _dbSet.AddRangeAsync(entities);
+        await _context.SaveChangesAsync();
+    }
 
     public async Task<TripUserThing?> GetByIdAsync(Guid adminId, Guid userId, Guid tripId, Guid id)
     {

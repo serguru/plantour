@@ -195,6 +195,63 @@ public class TripThingService(
         await  _tripUserThingRepository.UpdateAsync(entity);
     }
 
+    public async Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AIItemDto> things)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var tripUser = await _tripUserRepository.GetByTripIdAsync(
+            _currentUser.AdminId,
+            _currentUser.UserId,
+            tripId);
+
+        if (tripUser == null)
+        {
+            throw new CustomException("Trip user not found");
+        }
+
+        var existingThings = await _tripUserThingRepository.GetAllAsync(
+            _currentUser.AdminId,
+            _currentUser.UserId,
+            tripId);
+
+        var existingNames = new HashSet<string>(
+            existingThings.Select(t => t.Name),
+            StringComparer.OrdinalIgnoreCase);
+
+        var newThings = things
+            .Where(i => !string.IsNullOrWhiteSpace(i.ItemName))
+            .GroupBy(i => i.ItemName, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .Where(i => !existingNames.Contains(i.ItemName));
+
+        var entities = newThings.Select(i => new TripUserThing
+        {
+            Id = Guid.NewGuid(),
+            TripUserId = tripUser.Id,
+            Category = string.IsNullOrWhiteSpace(i.Category) ? null : i.Category,
+            Name = i.ItemName,
+            Units = string.IsNullOrWhiteSpace(i.Unit) ? null : i.Unit,
+            Value = i.Value,
+            Notes = string.IsNullOrWhiteSpace(i.Recommendations) ? null : i.Recommendations,
+            TripUserPackageId = null,
+            Finished = null,
+            FinishedAt = null
+        }).ToList();
+
+        if (entities.Count == 0)
+        {
+            return 0;
+        }
+
+        await _tripUserThingRepository.AddRangeAsync(entities);
+        return entities.Count;
+    }
+
 
 
 

@@ -44,6 +44,14 @@ public class TripThingController(ITripThingService service) : ControllerBase
         return Ok(new { deletedCount });
     }
 
+    [HttpPost("insert-from-ai-template")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<int>> AddFromAiTemplate([FromBody] AddAiThingsRequest request)
+    {
+        var insertedCount = await _service.InsertFromAiTemplateAsync(request.TripId, request.Things);
+        return Ok(insertedCount);
+    }
+
 
     [HttpGet("trip/{tripId}")]
     [AdminOrParticipant]
