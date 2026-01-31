@@ -327,14 +327,14 @@ export const routes: Routes = [
   {
     path: 'templates',
     canActivate: [adminOrParticipantGuard],
-    loadComponent: () => import('./components/templats/templates-component').then(m => m.TemplatesComponent),
+    loadComponent: () => import('./components/templates/templates-component').then(m => m.TemplatesComponent),
     resolve: {cleanup: CleanupResolver},
     data: { componentId: 'templates' }
   },
   {
     path: 'ai-templates',
     canActivate: [adminOrParticipantGuard],
-    loadComponent: () => import('./components/ai-templats/ai-templates-component').then(m => m.AiTemplatesComponent),
+    loadComponent: () => import('./components/ai-templates/templates-component').then(m => m.AiTemplatesComponent),
     resolve: {cleanup: CleanupResolver},
     data: { componentId: 'ai-templates' }
   },

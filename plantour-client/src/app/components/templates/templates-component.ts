@@ -146,7 +146,6 @@ export class TemplatesComponent {
     lowerTextVisible: this.lowerTextVisible,
   }
 
-
   // TODO: fix "user is not admin" for Avokado from Template things to Summer Alps...
   ngOnInit(): void {
 

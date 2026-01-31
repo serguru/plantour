@@ -48,7 +48,7 @@ interface AiTemplateEntity {
   templateUrl: './ai-templates-component.html',
   styleUrl: './ai-templates-component.scss',
 })
-export class AiTemplatesComponent {
+export class AiTemplatesComponentWrong {
   aiTemplateItemComponent = AiTemplateItemComponent;
   componentId: string = 'ai-templates';
   tripService = inject(TripService);
