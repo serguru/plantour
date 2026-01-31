@@ -15,6 +15,5 @@ public partial class Unit
     public Guid Id { get; set; }
 
     [Column("name")]
-    [StringLength(50)]
     public string Name { get; set; } = null!;
 }

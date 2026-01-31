@@ -16,7 +16,6 @@ public partial class RecentLog
     public DateTime? TimeStamp { get; set; }
 
     [Column("level")]
-    [StringLength(128)]
     public string? Level { get; set; }
 
     [Column("message_template")]

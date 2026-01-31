@@ -18,11 +18,9 @@ public partial class TripUserPackage
     public Guid TripUserId { get; set; }
 
     [Column("name")]
-    [StringLength(200)]
     public string Name { get; set; } = null!;
 
     [Column("label")]
-    [StringLength(100)]
     public string? Label { get; set; }
 
     [Column("notes")]
@@ -36,7 +34,6 @@ public partial class TripUserPackage
     public decimal? WeightValue { get; set; }
 
     [Column("weight_unit")]
-    [StringLength(50)]
     public string? WeightUnit { get; set; }
 
     [ForeignKey("TripUserId")]

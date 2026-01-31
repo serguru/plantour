@@ -18,15 +18,12 @@ public partial class TemplateThing
     public Guid TemplateId { get; set; }
 
     [Column("category")]
-    [StringLength(50)]
     public string? Category { get; set; }
 
     [Column("name")]
-    [StringLength(200)]
     public string Name { get; set; } = null!;
 
     [Column("units")]
-    [StringLength(50)]
     public string? Units { get; set; }
 
     [Column("value")]

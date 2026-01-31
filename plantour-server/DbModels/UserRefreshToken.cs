@@ -20,14 +20,12 @@ public partial class UserRefreshToken
     public Guid UserId { get; set; }
 
     [Column("role")]
-    [StringLength(50)]
     public string Role { get; set; } = null!;
 
     [Column("admin_id")]
     public Guid AdminId { get; set; }
 
     [Column("token_hash")]
-    [StringLength(256)]
     public string TokenHash { get; set; } = null!;
 
     [Column("created_at")]
@@ -40,15 +38,12 @@ public partial class UserRefreshToken
     public DateTime? RevokedAt { get; set; }
 
     [Column("replaced_by_token_hash")]
-    [StringLength(256)]
     public string? ReplacedByTokenHash { get; set; }
 
     [Column("created_by_ip")]
-    [StringLength(100)]
     public string? CreatedByIp { get; set; }
 
     [Column("revoked_by_ip")]
-    [StringLength(100)]
     public string? RevokedByIp { get; set; }
 
     [ForeignKey("UserId")]

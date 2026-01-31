@@ -25,15 +25,12 @@ public partial class User
     public byte[]? PasswordSalt { get; set; }
 
     [Column("first_name")]
-    [StringLength(100)]
     public string? FirstName { get; set; }
 
     [Column("last_name")]
-    [StringLength(100)]
     public string? LastName { get; set; }
 
     [Column("phone")]
-    [StringLength(50)]
     public string? Phone { get; set; }
 
     [Column("notes")]
@@ -60,6 +57,9 @@ public partial class User
 
     [InverseProperty("Participant")]
     public virtual ICollection<AdminsParticipant> AdminsParticipantParticipants { get; set; } = new List<AdminsParticipant>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<AiPrompt> AiPrompts { get; set; } = new List<AiPrompt>();
 
     [ForeignKey("PlanId")]
     [InverseProperty("Users")]

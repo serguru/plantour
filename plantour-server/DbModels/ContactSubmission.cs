@@ -17,7 +17,6 @@ public partial class ContactSubmission
     public Guid Id { get; set; }
 
     [Column("full_name")]
-    [StringLength(255)]
     public string FullName { get; set; } = null!;
 
     [Column("email")]
@@ -25,11 +24,9 @@ public partial class ContactSubmission
     public string Email { get; set; } = null!;
 
     [Column("phone_number")]
-    [StringLength(20)]
     public string? PhoneNumber { get; set; }
 
     [Column("subject_category")]
-    [StringLength(100)]
     public string? SubjectCategory { get; set; }
 
     [Column("message_body")]

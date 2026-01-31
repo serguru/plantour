@@ -23,19 +23,15 @@ public partial class ApiVisit
     public DateTime CreatedAt { get; set; }
 
     [Column("method")]
-    [StringLength(16)]
     public string? Method { get; set; }
 
     [Column("path")]
-    [StringLength(1024)]
     public string? Path { get; set; }
 
     [Column("query_string")]
-    [StringLength(2048)]
     public string? QueryString { get; set; }
 
     [Column("endpoint")]
-    [StringLength(1024)]
     public string? Endpoint { get; set; }
 
     [Column("status_code")]
@@ -48,31 +44,24 @@ public partial class ApiVisit
     public IPAddress? IpAddress { get; set; }
 
     [Column("forwarded_for")]
-    [StringLength(255)]
     public string? ForwardedFor { get; set; }
 
     [Column("user_agent")]
-    [StringLength(1024)]
     public string? UserAgent { get; set; }
 
     [Column("referrer")]
-    [StringLength(2048)]
     public string? Referrer { get; set; }
 
     [Column("host")]
-    [StringLength(255)]
     public string? Host { get; set; }
 
     [Column("scheme")]
-    [StringLength(16)]
     public string? Scheme { get; set; }
 
     [Column("protocol")]
-    [StringLength(32)]
     public string? Protocol { get; set; }
 
     [Column("request_id")]
-    [StringLength(128)]
     public string? RequestId { get; set; }
 
     [Column("request_size_bytes")]
@@ -82,10 +71,8 @@ public partial class ApiVisit
     public Guid? UserId { get; set; }
 
     [Column("user_email")]
-    [StringLength(320)]
     public string? UserEmail { get; set; }
 
     [Column("user_role")]
-    [StringLength(64)]
     public string? UserRole { get; set; }
 }

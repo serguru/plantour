@@ -21,7 +21,6 @@ public partial class Trip
     public Guid TripStatusId { get; set; }
 
     [Column("name")]
-    [StringLength(200)]
     public string Name { get; set; } = null!;
 
     [Column("notes")]

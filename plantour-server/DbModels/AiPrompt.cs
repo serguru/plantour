@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("user_packages", Schema = "plantour")]
-[Index("UserId", "Name", Name = "idx_user_packages_user_id_name", IsUnique = true)]
-public partial class UserPackage
+[Table("ai_prompts", Schema = "plantour")]
+[Index("Prompt", Name = "idx_ai_prompts_prompt")]
+public partial class AiPrompt
 {
     [Key]
     [Column("id")]
@@ -17,13 +17,16 @@ public partial class UserPackage
     [Column("user_id")]
     public Guid UserId { get; set; }
 
-    [Column("name")]
-    public string Name { get; set; } = null!;
+    [Column("prompt")]
+    public string Prompt { get; set; } = null!;
 
-    [Column("notes")]
-    public string? Notes { get; set; }
+    [Column("created_at")]
+    public DateTime? CreatedAt { get; set; }
+
+    [InverseProperty("Prompt")]
+    public virtual ICollection<AiThing> AiThings { get; set; } = new List<AiThing>();
 
     [ForeignKey("UserId")]
-    [InverseProperty("UserPackages")]
+    [InverseProperty("AiPrompts")]
     public virtual User User { get; set; } = null!;
 }

@@ -19,6 +19,10 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<AgeRange> AgeRanges { get; set; }
 
+    public virtual DbSet<AiPrompt> AiPrompts { get; set; }
+
+    public virtual DbSet<AiThing> AiThings { get; set; }
+
     public virtual DbSet<ApiVisit> ApiVisits { get; set; }
 
     public virtual DbSet<CommunicationType> CommunicationTypes { get; set; }
@@ -112,6 +116,25 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("age_ranges_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
+        modelBuilder.Entity<AiPrompt>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("ai_prompts_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.User).WithMany(p => p.AiPrompts).HasConstraintName("ai_prompts_user_id_fkey");
+        });
+
+        modelBuilder.Entity<AiThing>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("ai_things_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.Prompt).WithMany(p => p.AiThings).HasConstraintName("ai_things_prompt_id_fkey");
         });
 
         modelBuilder.Entity<ApiVisit>(entity =>

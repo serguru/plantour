@@ -20,23 +20,18 @@ public partial class Invitation
     public string? AccessCode { get; set; }
 
     [Column("first_name")]
-    [StringLength(100)]
     public string? FirstName { get; set; }
 
     [Column("last_name")]
-    [StringLength(100)]
     public string? LastName { get; set; }
 
     [Column("email")]
-    [StringLength(255)]
     public string? Email { get; set; }
 
     [Column("phone")]
-    [StringLength(50)]
     public string? Phone { get; set; }
 
     [Column("subject")]
-    [StringLength(200)]
     public string Subject { get; set; } = null!;
 
     [Column("message")]
@@ -58,7 +53,6 @@ public partial class Invitation
     public DateTime? SentAt { get; set; }
 
     [Column("communication_type")]
-    [StringLength(50)]
     public string? CommunicationType { get; set; }
 
     [Column("notes")]

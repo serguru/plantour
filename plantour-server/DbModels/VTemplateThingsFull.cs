@@ -13,15 +13,12 @@ public partial class VTemplateThingsFull
     public Guid? ThingId { get; set; }
 
     [Column("thing_name")]
-    [StringLength(200)]
     public string? ThingName { get; set; }
 
     [Column("category")]
-    [StringLength(50)]
     public string? Category { get; set; }
 
     [Column("units")]
-    [StringLength(50)]
     public string? Units { get; set; }
 
     [Column("value")]

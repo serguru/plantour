@@ -16,7 +16,6 @@ public partial class ErrorLog
     public DateTime? TimeStamp { get; set; }
 
     [Column("level")]
-    [StringLength(128)]
     public string? Level { get; set; }
 
     [Column("message_template")]

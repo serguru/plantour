@@ -6,7 +6,7 @@ set search_path to plantour, public;
 create table if not exists plantour.logs (
     id serial primary key,
     message_template text,
-    level varchar(128),
+    level text,
     time_stamp timestamp not null,
     exception text,
     log_event text,
@@ -85,24 +85,24 @@ comment on view plantour.error_logs
 create table if not exists plantour.api_visits (
     id uuid primary key default gen_random_uuid(),
     created_at timestamptz not null default now(),
-    method varchar(16),
-    path varchar(1024),
-    query_string varchar(2048),
-    endpoint varchar(1024),
+    method text,
+    path text,
+    query_string text,
+    endpoint text,
     status_code int,
     duration_ms int,
     ip_address inet,
-    forwarded_for varchar(255),
-    user_agent varchar(1024),
-    referrer varchar(2048),
-    host varchar(255),
-    scheme varchar(16),
-    protocol varchar(32),
-    request_id varchar(128),
+    forwarded_for text,
+    user_agent text,
+    referrer text,
+    host text,
+    scheme text,
+    protocol text,
+    request_id text,
     request_size_bytes bigint,
     user_id uuid,
-    user_email varchar(320),
-    user_role varchar(64)
+    user_email text,
+    user_role text
 );
 
 create index if not exists idx_api_visits_created_at on plantour.api_visits (created_at desc);

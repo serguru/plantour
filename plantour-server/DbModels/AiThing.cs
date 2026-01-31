@@ -6,16 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("user_things", Schema = "plantour")]
-[Index("UserId", "Name", Name = "idx_user_things_user_id_name", IsUnique = true)]
-public partial class UserThing
+[Table("ai_things", Schema = "plantour")]
+[Index("Name", Name = "ai_things_name_key", IsUnique = true)]
+[Index("PromptId", Name = "idx_ai_prompts_prompt_id")]
+public partial class AiThing
 {
     [Key]
     [Column("id")]
     public Guid Id { get; set; }
 
-    [Column("user_id")]
-    public Guid UserId { get; set; }
+    [Column("prompt_id")]
+    public Guid PromptId { get; set; }
 
     [Column("category")]
     public string? Category { get; set; }
@@ -30,13 +31,10 @@ public partial class UserThing
     [Precision(10, 3)]
     public decimal? Value { get; set; }
 
-    [Column("shared")]
-    public bool Shared { get; set; }
-
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [ForeignKey("UserId")]
-    [InverseProperty("UserThings")]
-    public virtual User User { get; set; } = null!;
+    [ForeignKey("PromptId")]
+    [InverseProperty("AiThings")]
+    public virtual AiPrompt Prompt { get; set; } = null!;
 }

@@ -32,7 +32,6 @@ public partial class Log
     /// log level: verbose, debug, information, warning, error, fatal
     /// </summary>
     [Column("level")]
-    [StringLength(128)]
     public string? Level { get; set; }
 
     /// <summary>

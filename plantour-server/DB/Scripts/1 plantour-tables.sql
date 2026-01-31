@@ -9,7 +9,7 @@ set search_path to plantour, public;
 -----------------------------------------------------------------------
 create table communication_types (
     id uuid not null primary key default gen_random_uuid(),
-    name varchar(50) not null unique,
+    name text not null unique,
     notes text
 );
 insert into communication_types (name) values
@@ -25,7 +25,7 @@ insert into communication_types (name) values
 -----------------------------------------------------------------------
 create table units (
     id uuid not null primary key default gen_random_uuid(),
-    name varchar(50) not null unique
+    name text not null unique
 );
 insert into units (name) values
 ('pcs'),
@@ -44,7 +44,7 @@ insert into units (name) values
 -----------------------------------------------------------------------
 create table trip_status (
     id uuid not null primary key default gen_random_uuid(),
-    name varchar(50) not null unique,
+    name text not null unique,
     notes text
 );
 insert into trip_status (name) values
@@ -56,7 +56,7 @@ insert into trip_status (name) values
 
 create table thing_categories (
     id uuid not null primary key default gen_random_uuid(),
-    name varchar(50) not null unique,
+    name text not null unique,
     notes text
 );
 insert into thing_categories (name) values
@@ -149,9 +149,9 @@ create table thing_templates (
 create table template_things (
     id uuid not null primary key default gen_random_uuid(),
     template_id uuid not null references thing_templates(id) on delete cascade,
-    category varchar(50),
-    name varchar(200) not null unique,
-    units varchar(50),
+    category text,
+    name text not null unique,
+    units text,
     value decimal(10,3) check(value > 0),
     notes text
 );
@@ -239,9 +239,9 @@ create table users (
     email varchar(255) not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     password_hash bytea null,
     password_salt bytea null,
-    first_name varchar(100),
-    last_name varchar(100),
-    phone varchar(50),
+    first_name text,
+    last_name text,
+    phone text,
     notes text,
     created_at timestamptz not null default now(),
     discount int not null check(discount >= 0) default 0,
@@ -274,9 +274,9 @@ create unique index idx_admins_participants_admin_id_participant_id on admins_pa
 create table user_things (
     id uuid not null primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
-    category varchar(50),
-    name varchar(200) not null,
-    units varchar(50),
+    category text,
+    name text not null,
+    units text,
     value decimal(10,3) check(value > 0),
     shared boolean not null default false,
     notes text
@@ -289,7 +289,7 @@ create unique index idx_user_things_user_id_name on user_things(user_id, name);
 create table user_packages (
     id uuid not null primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
-    name varchar(200) not null,
+    name text not null,
     notes text
 );
 create unique index idx_user_packages_user_id_name on user_packages(user_id, name);
@@ -302,7 +302,7 @@ create table trips (
     id uuid not null primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
     trip_status_id uuid not null references trip_status(id),
-    name varchar(200) not null,
+    name text not null,
     notes text,
     start_date date,
     end_date date,
@@ -321,12 +321,12 @@ create table invitations (
     id uuid not null primary key default gen_random_uuid(),
     trip_id uuid not null references trips(id) on delete cascade,
     access_code text,
-    first_name varchar(100),
-    last_name varchar(100),
-    email varchar(255),
-    phone varchar(50),
+    first_name text,
+    last_name text,
+    email text,
+    phone text,
 
-    subject varchar(200) not null,
+    subject text not null,
     message text not null,
 
     created_at timestamptz not null default now(),
@@ -335,7 +335,7 @@ create table invitations (
     refused_at timestamptz,
     sent_at timestamptz,
 
-    communication_type varchar(50),
+    communication_type text,
 
     notes text,
 
@@ -387,12 +387,12 @@ create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, admin_
 create table trip_user_packages (
     id uuid not null primary key default gen_random_uuid(),
     trip_user_id uuid not null references trip_users(id) on delete cascade,
-    name varchar(200) not null,
-    label varchar(100),
+    name text not null,
+    label text,
     notes text,
     packing_list_included boolean not null default(false),
     weight_value decimal(10,3) check(weight_value > 0),
-    weight_unit varchar(50)
+    weight_unit text
 );
 create unique index idx_trip_user_packages_trip_user_id_name on trip_user_packages(trip_user_id, name);
 
@@ -402,9 +402,9 @@ create unique index idx_trip_user_packages_trip_user_id_name on trip_user_packag
 create table trip_user_things (
     id uuid not null primary key default gen_random_uuid(),
     trip_user_id uuid not null references trip_users(id) on delete cascade,
-    category varchar(50),      
-    name varchar(200) not null,
-    units varchar(50),
+    category text,      
+    name text not null,
+    units text,
     value decimal(10,3) check(value > 0),
     notes text,
     trip_user_package_id uuid references trip_user_packages(id) on delete set null,
@@ -419,9 +419,9 @@ create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(t
 create table trip_shared_things (
     id uuid not null primary key default gen_random_uuid(),
     trip_id uuid not null references trips(id) on delete cascade,
-    category varchar(50),      
-    name varchar(200) not null,
-    units varchar(50),
+    category text,      
+    name text not null,
+    units text,
     value decimal(10,3) check(value > 0),
     notes text,
 
@@ -464,15 +464,15 @@ create unique index idx_user_email_confirmations_user_id on user_email_confirmat
 create table user_refresh_tokens (
     id uuid not null primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
-    role varchar(50) not null,
+    role text not null,
     admin_id uuid not null,
-    token_hash varchar(256) not null,
+    token_hash text not null,
     created_at timestamptz not null default now(),
     expires_at timestamptz not null,
     revoked_at timestamptz null,
-    replaced_by_token_hash varchar(256) null,
-    created_by_ip varchar(100) null,
-    revoked_by_ip varchar(100) null
+    replaced_by_token_hash text null,
+    created_by_ip text null,
+    revoked_by_ip text null
 );
 create unique index idx_user_refresh_tokens_user_token_hash on user_refresh_tokens(user_id, token_hash);
 create index idx_user_refresh_tokens_token_hash on user_refresh_tokens(token_hash);
@@ -484,10 +484,10 @@ create table contact_submissions (
     id uuid primary key default gen_random_uuid(),
     
     -- core data
-    full_name varchar(255) not null,
+    full_name text not null,
     email varchar(255) not null check (email ~* '^[a-za-z0-9._%+-]+@[a-za-z0-9.-]+\.[a-za-z]{2,}$'),
-    phone_number varchar(20),
-    subject_category varchar(100),
+    phone_number text,
+    subject_category text,
     message_body text not null,
     
     -- workflow & state
@@ -508,3 +508,28 @@ create table contact_submissions (
 -- indexes for performance
 create index idx_contact_email on contact_submissions(email);
 create index idx_contact_status on contact_submissions(contact_status);
+
+
+create table ai_prompts (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    prompt text not null,
+    created_at timestamptz default current_timestamp
+);
+
+create index idx_ai_prompts_prompt on ai_prompts(prompt);
+
+create table ai_things (
+    id uuid primary key default gen_random_uuid(),
+    prompt_id uuid not null references ai_prompts(id) on delete cascade,
+    category text,
+    name text not null unique,
+    units text,
+    value decimal(10,3) check(value > 0),
+    notes text
+
+);
+
+create index idx_ai_prompts_prompt_id on ai_things(prompt_id);
+
+
