@@ -371,3 +371,8 @@ Keep the same cards look and classes as now it is implemented here.
 Add Get Started with "No account required". Add any elements or text that you think will attract new customers. Remember on 100% mobile first principle. Add proper animation.
 
 
+See src\app\components\templats\templates-component.ts. It allows users to search for pre-filled items templates and add them to a trip or to the things dictionary. Create a new similar src\app\components\ai-templats\ai-templates-component.ts. It will allow user to send a question like "I am going for skiing to Alps next weekend" and get back from the AI a list of suggested items. Use TemplateService -> getAllFromAI to send a question ang get a list back. Use same approach with filtering and sorting as templates-component uses, except exclude from conditions unused activityName, templateName, temperatureRangeName, ageRangeName. To add filtered (or all) AI items to a dic use ThingService -> addFromAITemplate and to add them to a trip use TripThingService -> addFromAITemplate.
+
+
+
+  

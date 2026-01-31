@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { CrudService, FromDicService, MultipleIdsRequest, PackingService } from './crud-service';
 import { AssignmentStatus } from '../helpers/enums';
+import { AIItemDto } from './template-service';
 
 export interface TripThingDto {
   id: string;
@@ -52,6 +53,11 @@ export interface UpdateTripThingRequest {
   units?: string | null;
   value?: number | null;
   tripUserPackageId?: string | null;
+}
+
+export interface AddAiThingsRequest {
+  tripId: string;
+  things: AIItemDto[];
 }
 
 @Injectable({
@@ -120,4 +126,9 @@ export class TripThingService implements CrudService<TripThingDto, CreateTripThi
   toggleFinished(data: any): Observable<number> {
     return this.http.put<number>(`${this.apiUrl}/toggle-finished-trip-things`, data);
   }
+
+  addFromAITemplate(data: AddAiThingsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/insert-from-ai-template`, data);
+  }
+
 }

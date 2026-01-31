@@ -16,6 +16,7 @@ using System.Text.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Serilog;
+using Serilog.Events;
 using Serilog.Settings.Configuration;
 using Serilog.Sinks.PostgreSQL;
 using NpgsqlTypes;
@@ -38,7 +39,9 @@ var columnOptions = new Dictionary<string, ColumnWriterBase>
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 Serilog.Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Warning()
+    .MinimumLevel.Is(builder.Environment.IsDevelopment()
+        ? LogEventLevel.Information
+        : LogEventLevel.Warning)
     .Enrich.FromLogContext()
     .Enrich.WithEnvironmentUserName()
     .Enrich.WithMachineName()
