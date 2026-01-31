@@ -6,6 +6,12 @@ namespace plantour_server.Repositories;
 
 public class TripSharedRepository(PlantourContext context) : GenericRepository<TripSharedThing>(context)
 {
+    public async Task AddRangeAsync(IEnumerable<TripSharedThing> entities)
+    {
+        await _dbSet.AddRangeAsync(entities);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<IEnumerable<TripSharedThing>> GetAllFullAsync(Guid tripId)
     {
         return await _dbSet

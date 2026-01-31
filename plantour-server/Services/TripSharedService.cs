@@ -203,6 +203,51 @@ public class TripSharedService(
         return await _dicTripRepository.DeleteTripSharedThingsAsync(_currentUser.AdminId, tripId, thingIds);
     }
 
+    public async Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AIItemDto> things)
+    {
+        _currentUser.RaiseIfNotAdmin();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var existingThings = await _tripSharedRepository.GetAllFullAsync(tripId);
+        var existingNames = new HashSet<string>(
+            existingThings.Select(t => t.Name),
+            StringComparer.OrdinalIgnoreCase);
+
+        var newThings = things
+            .Where(i => !string.IsNullOrWhiteSpace(i.ItemName))
+            .GroupBy(i => i.ItemName, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .Where(i => !existingNames.Contains(i.ItemName));
+
+        var entities = newThings.Select(i => new TripSharedThing
+        {
+            Id = Guid.NewGuid(),
+            TripId = tripId,
+            Category = string.IsNullOrWhiteSpace(i.Category) ? null : i.Category,
+            Name = i.ItemName,
+            Units = string.IsNullOrWhiteSpace(i.Unit) ? null : i.Unit,
+            Value = i.Value,
+            Notes = string.IsNullOrWhiteSpace(i.Recommendations) ? null : i.Recommendations,
+            AssignedToId = null,
+            AssignedThingId = null,
+            AssignedAt = null,
+            AssignedDeadline = null,
+            Rejected = false
+        }).ToList();
+
+        if (entities.Count == 0)
+        {
+            return 0;
+        }
+
+        await _tripSharedRepository.AddRangeAsync(entities);
+        return entities.Count;
+    }
+
     public async Task ToggleAcceptAssignmentAsync(Guid tripId, Guid id)
     {
         _currentUser.RaiseIfNotParticipant();
