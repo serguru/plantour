@@ -275,7 +275,7 @@ builder.Services.AddScoped<plantour_server.Repositories.UserRefreshTokenReposito
 builder.Services.AddScoped<plantour_server.Repositories.UserEmailConfirmationRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.AiThingRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
 
 builder.Services.AddScoped<HttpCurrentUser>();
 

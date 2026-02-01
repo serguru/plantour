@@ -18,25 +18,37 @@ public class AiService : IAiService
     private readonly GeminiSettings _settings;
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
     private readonly AiPromptRepository _aiPromptRepository;
-    private readonly AiThingRepository _aiThingRepository;
-
+    private readonly ICheckAccessService _checkAccessService;
+    private readonly AiRepository _aiRepository;
+    private readonly ThingRepository _thingsRepository;
     private readonly IMapper _mapper;
     private readonly CurrentUser _currentUser;
+    private readonly TripThingRepository _tripThingRepository;
+    private readonly TripSharedRepository _tripSharedRepository;
 
     public AiService(
         HttpClient httpClient,
         IOptions<GeminiSettings> settings,
         AiPromptRepository aiPromptRepository,
-        AiThingRepository aiThingRepository,
+        AiRepository aiRepository,
+        ICheckAccessService checkAccessService,
+        TripSharedRepository tripSharedRepository,
+        ThingRepository thingsRepository,
+        TripThingRepository tripThingRepository,
+
         IMapper mapper,
         HttpCurrentUser httpCurrentUser)
     {
         _httpClient = httpClient;
         _settings = settings.Value;
         _aiPromptRepository = aiPromptRepository;
-        _aiThingRepository = aiThingRepository;
+        _aiRepository = aiRepository;
         _mapper = mapper;
         _currentUser = httpCurrentUser.CurrentUser;
+        _checkAccessService = checkAccessService;
+        _tripSharedRepository = tripSharedRepository;
+        _thingsRepository = thingsRepository;
+        _tripThingRepository = tripThingRepository;
 
         if (!string.IsNullOrWhiteSpace(_settings.ApiBaseUrl))
         {
@@ -49,14 +61,19 @@ public class AiService : IAiService
         }
     }
 
+    public async Task<IEnumerable<AiPromptDto>> GetLatestPrompts()
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        var prompts = await _aiPromptRepository.GetAllMonthAsync(_currentUser.UserId);
+        var dtos = _mapper.Map<IEnumerable<AiPromptDto>>(prompts);
+        return dtos;
+    }
 
     // TODO: Prompts older than 1 month should be cleaned up from the database periodically
-    public async Task<IEnumerable<AiItemDto>> GenerateListAsync(string prompt)
+    public async Task<IEnumerable<AiItemDto>> GetAllByPromptAsync(string prompt)
     {
-        if (!_currentUser.IsAuthenticated)
-        {
-            throw new CustomException("User must be authenticated to generate AI packing list");
-        }
+        _currentUser.RaiseIfNotAuthenticated();
 
         if (string.IsNullOrWhiteSpace(prompt))
         {
@@ -65,14 +82,13 @@ public class AiService : IAiService
 
         prompt = prompt.Trim();
 
-        var promptEntity = await _aiPromptRepository.GetByPromptyMonthAsync(_currentUser.UserId, prompt);
+        var promptEntity = await _aiPromptRepository.GetByPromptMonthAsync(_currentUser.UserId, prompt);
 
         if (promptEntity != null)
         {
-            var existingThings = await _aiThingRepository.FindAsync(x => x.PromptId == promptEntity.Id);
+            var existingThings = await _aiRepository.FindAsync(x => x.PromptId == promptEntity.Id);
             return _mapper.Map<IEnumerable<AiItemDto>>(existingThings);
         }
-
 
         if (string.IsNullOrWhiteSpace(_settings.ApiKey))
         {
@@ -168,10 +184,22 @@ public class AiService : IAiService
             items.Add(aiThing);
         }
 
-        await _aiThingRepository.AddRangeAsync(items);
+        await _aiRepository.AddRangeAsync(items);
         var result = _mapper.Map<IEnumerable<AiItemDto>>(items);
         return result;
     }
+
+
+
+    public async Task<IEnumerable<AiItemDto>> GetAllByPromptIdAsync(Guid promptId)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        var items = await _aiRepository.FindAsync(x => x.PromptId == promptId && x.Prompt.UserId == _currentUser.UserId);
+        var result = _mapper.Map<IEnumerable<AiItemDto>>(items);
+        return result;
+    }
+
+
 
     private static string BuildPrompt(string userPrompt)
     {
@@ -264,4 +292,65 @@ public class AiService : IAiService
 
         return null;
     }
+
+    public async Task<IEnumerable<AiItemDto>> GetAllForTripAsync(Guid tripId, Guid promptId)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var tripThings = await _tripThingRepository.GetAllAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
+        var tripThingNames = new HashSet<string>(tripThings.Select(tp => tp.Name), StringComparer.OrdinalIgnoreCase);
+        var aiTemplateThings = await GetAllByPromptIdAsync(promptId);
+
+        var result = aiTemplateThings.Select(p =>
+        {
+            p.IsTargeted = tripThingNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
+            return p;
+        }).ToList();
+
+        return result;
+    }
+
+    public async Task<IEnumerable<AiItemDto>> GetAllForTripSharedAsync(Guid tripId, Guid promptId)
+    {
+        _currentUser.RaiseIfNotAdmin();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var tripSharedThings = await _tripSharedRepository.GetAllFullAsync(tripId);
+        var tripThingNames = new HashSet<string>(tripSharedThings.Select(tp => tp.Name), StringComparer.OrdinalIgnoreCase);
+        var aiTemplateThings = await GetAllByPromptIdAsync(promptId);
+
+        var result = aiTemplateThings.Select(p =>
+        {
+            p.IsTargeted = tripThingNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
+            return p;
+        }).ToList();
+
+        return result;
+    }   
+
+    public async Task<IEnumerable<AiItemDto>> GetAllForDicAsync(Guid promptId)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        var targetThings = await _thingsRepository.FindAsync(x => x.UserId == _currentUser.UserId);
+        var targetThingNames = new HashSet<string>(targetThings.Select(tp => tp.Name), StringComparer.OrdinalIgnoreCase);
+        var aiTemplateThings = await GetAllByPromptIdAsync(promptId);
+
+        var result = aiTemplateThings.Select(p =>
+        {
+            p.IsTargeted = targetThingNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
+            return p;
+        }).ToList();
+
+        return result;
+    }   
 }

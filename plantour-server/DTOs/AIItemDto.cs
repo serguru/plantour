@@ -34,3 +34,12 @@ public class AiItemDto
 
     public bool IsTargeted { get; set; } = false;
 }
+
+public class AiPromptDto
+{
+    public Guid Id { get; set; }
+
+    public string Prompt { get; set; } = string.Empty;
+
+    public DateTime CreatedAt { get; set; }
+}

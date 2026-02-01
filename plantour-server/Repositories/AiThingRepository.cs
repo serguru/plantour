@@ -3,7 +3,7 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
-public class AiThingRepository(PlantourContext context) : GenericRepository<AiThing>(context)
+public class AiRepository(PlantourContext context) : GenericRepository<AiThing>(context)
 {
     public async Task AddRangeAsync(IEnumerable<AiThing> things)
     {

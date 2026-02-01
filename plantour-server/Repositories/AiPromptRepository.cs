@@ -10,7 +10,7 @@ public class AiPromptRepository(PlantourContext context) : GenericRepository<AiP
         return await _dbSet
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
     }
-    public async Task<AiPrompt?> GetByPromptyMonthAsync(Guid userId, string prompt)
+    public async Task<AiPrompt?> GetByPromptMonthAsync(Guid userId, string prompt)
     {
         return await _dbSet
             .FirstOrDefaultAsync(x => 
@@ -18,6 +18,17 @@ public class AiPromptRepository(PlantourContext context) : GenericRepository<AiP
             x.UserId == userId &&
             x.CreatedAt >= DateTime.UtcNow.AddMonths(-1)
             );
+    }
+
+    public async Task<IEnumerable<AiPrompt>> GetAllMonthAsync(Guid userId)
+    {
+        return await _dbSet
+            .Where(x => 
+            x.UserId == userId &&
+            x.CreatedAt >= DateTime.UtcNow.AddMonths(-1)
+            )
+            .OrderByDescending(x => x.CreatedAt)
+            .ToListAsync();
     }
 
 }

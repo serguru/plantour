@@ -9,15 +9,54 @@ namespace plantour_server.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class AiTemplateController(IAiService aiService) : ControllerBase
+public class AiTemplateController(IAiService service) : ControllerBase
 {
-    private readonly IAiService _aiService = aiService;
+    private readonly IAiService _service = service;
 
-    [HttpPost("ai-items")]
-    public async Task<ActionResult<IEnumerable<AiItemDto>>> GeneratePackingList(
+    [HttpPost("items-by-prompt")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<IEnumerable<AiItemDto>>> GetAllByPrompt(
         [FromBody] PackingListRequest request)
     {
-        var dtos = await _aiService.GenerateListAsync(request.Prompt);
+        var dtos = await _service.GetAllByPromptAsync(request.Prompt);
         return Ok(dtos);
     }
+
+    [HttpGet("latest-prompts")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<IEnumerable<AiPromptDto>>> GetLatestPrompts()
+    {
+        var dtos = await _service.GetLatestPrompts();
+        return Ok(dtos);
+    }
+
+
+    [HttpGet("trip/{tripId}")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<IEnumerable<AiItemDto>>> GetAllForTrip(Guid tripId, Guid promptId)
+    {
+        var dtos = await _service.GetAllForTripAsync(tripId, promptId);
+        return Ok(dtos);
+    }
+
+    [HttpGet("trip-shared/{tripId}")]
+    [AdminOnly]
+    public async Task<ActionResult<IEnumerable<AiItemDto>>> GetAllForTripShared(Guid tripId, Guid promptId)
+    {
+        var dtos = await _service.GetAllForTripSharedAsync(tripId, promptId);
+        return Ok(dtos);
+    }
+
+    [HttpGet("dic")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<IEnumerable<AiItemDto>>> GetAllForDic(Guid promptId)
+    {
+        var dtos = await _service.GetAllForDicAsync(promptId);
+        return Ok(dtos);
+    }
+
+
+
+
+
 }
