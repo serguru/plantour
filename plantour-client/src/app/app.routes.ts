@@ -331,13 +331,13 @@ export const routes: Routes = [
     resolve: {cleanup: CleanupResolver},
     data: { componentId: 'templates' }
   },
-  // {
-  //   path: 'ai-templates',
-  //   canActivate: [adminOrParticipantGuard],
-  //   loadComponent: () => import('./components/ai-templates/ai-templates-component').then(m => m.AiTemplatesComponent),
-  //   resolve: {cleanup: CleanupResolver},
-  //   data: { componentId: 'ai-templates' }
-  // },
+  {
+    path: 'templates-ai',
+    canActivate: [adminOrParticipantGuard],
+    loadComponent: () => import('./components/templates-ai/templates-ai-component').then(m => m.TemplatesAiComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'templates-ai' }
+  },
   {
     path: '**',
     redirectTo: ''

@@ -1,0 +1,18 @@
+<div class="page-container">
+    <app-entities-header
+        entityIcon="pi pi-objects-column"
+        title="Template AI items"
+        entityName="template AI item"
+        [menuItems]="menuItems()"
+    ></app-entities-header>
+
+    <app-entities-actions
+        [onAddTargetClick]="onAddTargetClick.bind(this)"
+        [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"
+    ></app-entities-actions>
+    <app-entities
+        [itemComponent]="templatesAiItemComponent"
+        [targetEntityClick]="targetEntityClick.bind(this)"
+        [itemMetaData]="itemMetaData"
+    ></app-entities>
+</div>
