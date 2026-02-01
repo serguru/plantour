@@ -7,8 +7,8 @@ public interface IAiService
     Task<IEnumerable<AiPromptDto>> GetLatestPrompts();
     Task<IEnumerable<AiItemDto>> GetAllByPromptAsync(string prompt);
     Task<IEnumerable<AiItemDto>> GetAllByPromptIdAsync(Guid promptId);
-    Task<IEnumerable<AiItemDto>> GetAllForTripAsync(Guid tripId, Guid promptId);
-    Task<IEnumerable<AiItemDto>> GetAllForTripSharedAsync(Guid tripId, Guid promptId);
-    Task<IEnumerable<AiItemDto>> GetAllForDicAsync(Guid promptId);
+    Task<IEnumerable<AiItemDto>> GetAllForTripAsync(Guid tripId, string prompt);
+    Task<IEnumerable<AiItemDto>> GetAllForTripSharedAsync(Guid tripId, string prompt);
+    Task<IEnumerable<AiItemDto>> GetAllForDicAsync(string prompt);
     
 }

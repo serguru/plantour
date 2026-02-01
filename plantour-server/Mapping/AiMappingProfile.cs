@@ -9,6 +9,7 @@ public class AiMappingProfile : Profile
     public AiMappingProfile()
     {
         CreateMap<AiThing, AiItemDto>();
+        CreateMap<AiPrompt, AiPromptDto>();
         
     }
 }

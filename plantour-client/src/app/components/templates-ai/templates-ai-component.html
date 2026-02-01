@@ -6,6 +6,24 @@
         [menuItems]="menuItems()"
     ></app-entities-header>
 
+    <div class="prompt-container">
+        <p-select
+            style="width: 100%;"
+            [options]="prompts"
+            placeholder="Select or enter prompt"
+            [(ngModel)]="selectedPrompt"
+            editable="true"
+            showClear="true"
+        ></p-select>
+        <app-button
+            class="prompt-button"
+            label="Ask AI"
+            icon="pi pi-plus"
+            (click)="clickSubject.next(selectedPrompt)"
+            [disabled]="!selectedPrompt || isLoading()"
+            [loading]="isLoading()"
+        ></app-button>
+    </div>
     <app-entities-actions
         [onAddTargetClick]="onAddTargetClick.bind(this)"
         [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"
@@ -13,6 +31,5 @@
     <app-entities
         [itemComponent]="templatesAiItemComponent"
         [targetEntityClick]="targetEntityClick.bind(this)"
-        [itemMetaData]="itemMetaData"
     ></app-entities>
 </div>

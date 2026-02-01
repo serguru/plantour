@@ -8,8 +8,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ComponentService } from '../../services/component-service';
 import { TripSharedService } from '../../services/trip-shared-service';
 import { TripThingService } from '../../services/trip-thing-service';
-import { combineLatest, of, switchMap, tap } from 'rxjs';
-import { TemplateService } from '../../services/template-service';
+import { BehaviorSubject, catchError, combineLatest, concatMap, debounceTime, finalize, forkJoin, of, Subject, switchMap, tap } from 'rxjs';
 import { ThingService } from '../../services/thing-service';
 import { UsersService } from '../../services/users-service';
 import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
@@ -18,13 +17,22 @@ import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { Router } from '@angular/router';
 import { TemplatesAiItemComponent } from './templates-ai-item/templates-ai-item-component';
+import { AiPromptDto, TemplatesAiService } from '../../services/template-ai-service';
+import { Select } from 'primeng/select';
+import { AsyncPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AppButton } from '../button/button-component';
+import { MessagesService } from '../../services/messages-service';
 
 @Component({
   selector: 'app-templates-ai',
   imports: [
     EntitiesComponent,
     EntitiesHeader,
-    EntitiesActionsComponent
+    EntitiesActionsComponent,
+    Select,
+    FormsModule,
+    AppButton
   ],
   templateUrl: './templates-ai-component.html',
   styleUrl: './templates-ai-component.scss',
@@ -37,9 +45,10 @@ export class TemplatesAiComponent {
   router = inject(Router);
 
   componentService = inject(ComponentService);
-  templateService = inject(TemplateService);
+  templateAiService = inject(TemplatesAiService);
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(ComponentService).dynamicQueryService;
+  messagesService = inject(MessagesService);
 
   thingService = inject(ThingService);
   tripThingService = inject(TripThingService);
@@ -65,8 +74,7 @@ export class TemplatesAiComponent {
         property: 'name',
         sortType: 'text',
         direction: 'none'
-      },
-      {
+      }, {
         kind: 'target',
         label: 'Trip or dic things',
         icon: 'compass',
@@ -75,35 +83,6 @@ export class TemplatesAiComponent {
         kind: 'filter',
         property: 'category',
         label: 'Category',
-        icon: 'folder-open',
-        filterText: '',
-        comparisonType: 'exact',
-
-      }, {
-        kind: 'filter',
-        property: 'activityName',
-        label: 'Activity',
-        icon: 'folder-open',
-        filterText: '',
-        comparisonType: 'exact',
-      }, {
-        kind: 'filter',
-        property: 'templateName',
-        label: 'Template',
-        icon: 'folder-open',
-        filterText: '',
-        comparisonType: 'exact',
-      }, {
-        kind: 'filter',
-        property: 'temperatureRangeName',
-        label: 'Temperature Range',
-        icon: 'folder-open',
-        filterText: '',
-        comparisonType: 'exact',
-      }, {
-        kind: 'filter',
-        property: 'ageRangeName',
-        label: 'Age',
         icon: 'folder-open',
         filterText: '',
         comparisonType: 'exact',
@@ -118,65 +97,172 @@ export class TemplatesAiComponent {
       }
     ];
 
-  lowerTextVisible = signal<boolean>(true);
 
   menuItems = computed<MenuConfig[]>(() => {
     return [
       {
-        label: (this.lowerTextVisible() ? 'Hide' : 'Show') + ' Lower Text',
-        icon: 'check',
-        action: () => {
-          this.lowerTextVisible.set(!this.lowerTextVisible());
-          this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
-        }
-      },
-      {
         label: 'Help',
         icon: 'question-circle',
         action: () => {
-          this.router.navigate(['/help/templates/templates-intro']);
+          this.router.navigate(['/help/templates-si/templates-ai-intro']);
         }
       }
     ];
   }
   );
 
-  itemMetaData: any = {
-    lowerTextVisible: this.lowerTextVisible,
+  selectedPrompt: string | null = null;
+  prompts: string[] | null = null;
+
+  clickSubject = new BehaviorSubject<string | null>(null);
+
+  isLoading = toSignal(this.componentService.loading$, { initialValue: false });
+
+  // 1. Helper method to keep the pipe clean
+  private getTemplateApiCall(target: any, prompt: string | null) {
+    const p = prompt || '';
+    if (target?.selectedMode === TargetMode.DicThings) {
+      return this.templateAiService.getAllForDic(p);
+    }
+    if (target?.selectedMode === TargetMode.TripShared) {
+      return this.templateAiService.getAllForTripShared(target.id!, p);
+    }
+    if (target?.id) {
+      return this.templateAiService.getAllForTrip(target.id, p);
+    }
+    return this.templateAiService.getAllByPrompt(p);
   }
 
-  // TODO: fix "user is not admin" for Avokado from Template things to Summer Alps...
+
   ngOnInit(): void {
+    debugger;
 
     this.componentService.updateComponentId(this.componentId);
     var o = this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
+    var p = this.templateAiService.getLatestPrompts();
 
-    o.pipe(
-      tap((trips: TripDto[]) => {
+    this.componentService.updateLoading(true);
+
+
+    // 1. Set loading ON before starting
+    this.componentService.updateLoading(true);
+
+
+
+
+    // 2. The Main Stream
+    this.componentService.updateLoading(true); // Initial load start
+
+
+    // TODO: it is necessary to check all similar calls for catchError
+    forkJoin([o, p]).pipe(
+      tap(([trips, prompts]) => {
+        this.prompts = prompts.map(x => x.prompt);
+        if (prompts && prompts.length > 0) {
+          this.selectedPrompt = prompts[0].prompt;
+          this.clickSubject.next(this.selectedPrompt);
+        }
         this.initConditions(this.componentId, trips);
         this.initTargetLookup(trips);
         this.initSavedFeatures();
       }),
-      switchMap(_ =>
-        this.componentService.target$.pipe(
-          switchMap((target: Target | null) => {
-            if (target && target.selectedMode === TargetMode.DicThings) {
-              return this.templateService.getAllForDic();
-            }
-            if (target && target.selectedMode === TargetMode.TripShared) {
-              return this.templateService.getAllForSharedTrip(target.id!);
-            }
-            if (target && target?.id) {
-              return this.templateService.getAllForTrip(target.id);
-            }
-            return this.templateService.getAll();
+      // switchMap to the long-lived interaction stream
+      switchMap(() => combineLatest([this.componentService.target$, this.clickSubject])),
+
+      // switchMap to the actual API calls
+      switchMap(([target, prompt]) => {
+        this.componentService.updateLoading(true); // Turn on loader for every new click/change
+
+        return this.getTemplateApiCall(target, prompt).pipe(
+          // CRITICAL: Catch error here so the outer stream (clicks) doesn't die
+          catchError(err => {
+            this.messagesService.showError('Error loading AI generated items. Please try again later.', 'API Error');
+            this.componentService.updateLoading(false);
+            return of([]); // Return empty array so updateEntities still has something
           }),
-        )
-      ),
+          // Local finalize: Turns off loader when this specific request finishes or is cancelled
+          finalize(() => this.componentService.updateLoading(false))
+        );
+      }),
+
+      // Outer finalize: Safety net for component destruction or total stream completion
+      finalize(() => this.componentService.updateLoading(false)),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(things =>
-      this.componentService.updateEntities(things || [])
-    );
+    ).subscribe({
+      next: (things) => {
+        this.componentService.updateEntities(things || []);
+        this.componentService.updateLoading(false); // Double-check loader is off on success
+      },
+      error: (err) => {
+        this.messagesService.showError('Fatal Stream Error occurred. Please try again later.', 'Stream Error');
+        this.componentService.updateLoading(false);
+      }
+    });
+
+
+
+
+
+    // forkJoin([o, p]).pipe(
+    //   tap(([trips, prompts]) => {
+
+    //     this.prompts = prompts.map(x => x.prompt);
+    //     if (prompts && prompts.length > 0) {
+    //       this.selectedPrompt = prompts[0].prompt;
+    //     }
+
+    //     this.initConditions(this.componentId, trips);
+    //     this.initTargetLookup(trips);
+    //     this.initSavedFeatures();
+    //   }),
+    //   switchMap(_ => {
+    //     return combineLatest([this.componentService.target$, this.clickSubject])
+    //       .pipe(
+    //         switchMap(([target, prompt]) => {
+    //           if (target && target.selectedMode === TargetMode.DicThings) {
+    //             return this.templateAiService.getAllForDic(prompt || '').pipe(
+    //               finalize(() => {
+    //                 this.componentService.updateLoading(false);
+    //               })
+    //             )
+    //           }
+    //           if (target && target.selectedMode === TargetMode.TripShared) {
+    //             return this.templateAiService.getAllForTripShared(target.id!, prompt || '').pipe(
+    //               finalize(() => {
+    //                 this.componentService.updateLoading(false);
+    //               })
+    //             )
+    //           }
+    //           if (target && target?.id) {
+    //             return this.templateAiService.getAllForTrip(target.id, prompt || '').pipe(
+    //               finalize(() => {
+    //                 this.componentService.updateLoading(false);
+    //               })
+    //             )
+    //           }
+    //           return this.templateAiService.getAllByPrompt(prompt || '').pipe(
+    //               finalize(() => {
+    //                 this.componentService.updateLoading(false);
+    //               })
+    //             )
+    //         }),
+    //         finalize(() => {
+    //           this.componentService.updateLoading(false);
+    //         })
+    //       )
+    //   }),
+    //   takeUntilDestroyed(this.destroyRef),
+    //   finalize(() => {
+    //     this.componentService.updateLoading(false);
+    //   })
+    // ).subscribe(things =>
+    //   this.componentService.updateEntities(things || [])
+    // );
+
+
+
+
+
   }
 
   initSavedFeatures() {
@@ -185,9 +271,6 @@ export class TemplatesAiComponent {
 
     const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
     this.componentService.updateSelectedId(id);
-
-    const lowerTextVisible: boolean = this.localStorageService.getComponentKey(this.componentId, 'lowerTextVisible');
-    this.lowerTextVisible.set(lowerTextVisible);
   }
 
   initTargetLookup(trips: TripDto[] | null) {
@@ -336,7 +419,7 @@ export class TemplatesAiComponent {
       };
 
       this.thingService.addFromTemplate(request).pipe(
-        switchMap(() => this.templateService.getAllForDic()),
+        switchMap(() => this.templateAiService.getAllForDic(this.selectedPrompt || '')),
         takeUntilDestroyed(this.destroyRef)
       ).subscribe((things) => {
         this.componentService.updateEntities(things);
@@ -360,10 +443,10 @@ export class TemplatesAiComponent {
 
     if (target?.selectedMode === TargetMode.TripShared) {
       o = this.tripSharedService.addFromTemplate(request);
-      m = this.templateService.getAllForSharedTrip(targetId);
+      m = this.templateAiService.getAllForTripShared(targetId, this.selectedPrompt || '');
     } else {
       o = this.tripThingService.addFromTemplate(request);
-      m = this.templateService.getAllForTrip(targetId);
+      m = this.templateAiService.getAllForTrip(targetId, this.selectedPrompt || '');
     }
     o.pipe(
       switchMap(() => m),
@@ -392,7 +475,7 @@ export class TemplatesAiComponent {
       };
 
       this.thingService.deleteFromTemplate(request).pipe(
-        switchMap(() => this.templateService.getAllForDic()),
+        switchMap(() => this.templateAiService.getAllForDic(this.selectedPrompt || '')),
         takeUntilDestroyed(this.destroyRef)
       ).subscribe((things) => {
         this.componentService.updateEntities(things);
@@ -415,10 +498,10 @@ export class TemplatesAiComponent {
 
     if (target?.selectedMode === TargetMode.TripShared) {
       o = this.tripSharedService.deleteFromTemplate(request);
-      m = this.templateService.getAllForSharedTrip(targetId);
+      m = this.templateAiService.getAllForTripShared(targetId, this.selectedPrompt || '');
     } else {
       o = this.tripThingService.deleteFromTemplate(request);
-      m = this.templateService.getAllForTrip(targetId);
+      m = this.templateAiService.getAllForTrip(targetId, this.selectedPrompt || '');
     }
     o.pipe(
       switchMap(() => m),
@@ -440,7 +523,7 @@ export class TemplatesAiComponent {
         ids: [entity.id]
       };
       const o = entity.isTargeted ? this.thingService.deleteFromTemplate(request) : this.thingService.addFromTemplate(request);
-      const m = this.templateService.getAllForDic();
+      const m = this.templateAiService.getAllForDic(this.selectedPrompt || '');
 
       o.pipe(
         switchMap(() => m),
@@ -464,11 +547,11 @@ export class TemplatesAiComponent {
 
     if (target?.selectedMode === TargetMode.TripShared) {
       o = entity.isTargeted ? this.tripSharedService.deleteFromTemplate(request) : this.tripSharedService.addFromTemplate(request);
-      m = this.templateService.getAllForSharedTrip(target!.id!);
+      m = this.templateAiService.getAllForTripShared(target!.id!, this.selectedPrompt || '');
 
     } else {
       o = entity.isTargeted ? this.tripThingService.deleteFromTemplate(request) : this.tripThingService.addFromTemplate(request);
-      m = this.templateService.getAllForTrip(target!.id!);
+      m = this.templateAiService.getAllForTrip(target!.id!, this.selectedPrompt || '');
     }
 
     o.pipe(

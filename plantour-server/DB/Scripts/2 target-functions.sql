@@ -720,3 +720,242 @@ begin
 end;
 $$;
 --#endregion
+
+
+
+--#region insert_template_ai_trip_shared_things
+-- insert from ai_things to trip_shared_things
+create or replace function plantour.insert_template_ai_trip_shared_things(
+    p_admin_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_trip_user_id uuid;
+    v_inserted_count integer;
+begin
+    insert into plantour.trip_shared_things (trip_id, category, name, units, value)
+    select
+        p_trip_id,
+        b.category,
+        b.name,
+        b.units,
+        b.value
+    from plantour.ai_things b
+    join plantour.ai_prompt d on b.prompt_id = d.id
+    left join 
+        (
+            select b.name as name
+            from plantour.trips a
+            join plantour.trip_shared_things b on a.id = b.trip_id
+            where 
+                b.trip_id = p_trip_id and
+                a.user_id = p_admin_id
+        ) c on lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        d.user_id = p_admin_id and
+        b.id = any (p_ids) and 
+        c.name is null;
+
+    get diagnostics v_inserted_count = row_count;
+
+    return v_inserted_count;
+end;
+$$;
+--#endregion
+
+--#region delete_template_ai_trip_shared_things
+-- delete from ai_things to trip_shared_things
+create or replace function plantour.delete_template_ai_trip_shared_things(
+    p_admin_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_deleted_count integer;
+begin
+    delete from plantour.trip_shared_things a
+    using 
+        plantour.ai_things b,
+        plantour.ai_prompts c,
+        plantour.trips d
+    where
+        b.prompt_id = c.id 
+        and c.user_id = p_admin_id
+        -- Link target 'a' to 'b' and 'd' via name and trip_id
+        and lower(a.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+        and a.trip_id = d.id
+        -- Apply filters
+        and b.id = any (p_ids)
+        and d.user_id = p_admin_id
+        and d.id = p_trip_id;
+
+    get diagnostics v_deleted_count = row_count;
+
+    return v_deleted_count;
+end;
+$$;
+--#endregion
+
+
+--#region insert_template_ai_trip_user_things
+-- insert from ai_things to trip_user_things
+create or replace function plantour.insert_template_ai_trip_user_things(
+    p_admin_id uuid,
+    p_participant_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_trip_user_id uuid;
+    v_inserted_count integer;
+begin
+
+    select plantour.get_trip_user_id(
+        p_admin_id,
+        p_participant_id,
+        p_trip_id
+    )
+    into v_trip_user_id;
+
+    insert into plantour.trip_user_things (trip_user_id, category, name, units, value)
+    select
+        v_trip_user_id,
+        b.category,
+        b.name,
+        b.units,
+        b.value
+    from plantour.ai_things b
+    join plantour.ai_prompts d on b.prompt_id = d.id
+    left join plantour.trip_user_things c on 
+        c.trip_user_id = v_trip_user_id and 
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        d.user_id = p_admin_id
+        and b.id = any (p_ids)
+        and c.id is null;
+
+    get diagnostics v_inserted_count = row_count;
+
+    return v_inserted_count;
+end;
+$$;
+--#endregion
+
+--#region delete_template_ai_trip_user_things
+-- delete from ai_things to trip_user_things
+create or replace function plantour.delete_template_ai_trip_user_things(
+    p_admin_id uuid,
+    p_participant_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_trip_user_id uuid;
+    v_deleted_count integer;
+begin
+
+    select plantour.get_trip_user_id(
+        p_admin_id,
+        p_participant_id,
+        p_trip_id
+    )
+    into v_trip_user_id;
+
+    delete from plantour.trip_user_things a
+    using plantour.ai_things b
+    join plantour.ai_prompts d on b.prompt_id = d.id
+    join plantour.trip_user_things c on 
+        c.trip_user_id = v_trip_user_id and 
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        d.user_id = p_admin_id and
+        a.id = c.id and
+        b.id = any (p_ids);
+
+    get diagnostics v_deleted_count = row_count;
+
+    return v_deleted_count;
+end;
+$$;
+--#endregion
+
+
+--#region insert_template_ai_user_things
+-- insert from ai_things to user_things
+create or replace function plantour.insert_template_ai_user_things(
+    p_user_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_inserted_count integer;
+begin
+    insert into plantour.user_things (user_id, category, name, units, value)
+    select
+        p_user_id,
+        b.category,
+        b.name,
+        b.units,
+        b.value
+    from plantour.ai_things b
+    join plantour.ai_prompts d on b.prompt_id = d.id
+    left join plantour.user_things c on 
+        c.user_id = p_user_id and
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        d.user_id = p_user_id
+        and b.id = any (p_ids)
+        and c.id is null;
+
+    get diagnostics v_inserted_count = row_count;
+
+    return v_inserted_count;
+end;
+$$;
+--#endregion
+
+--#region delete_template_ai_user_things
+-- delete from ai_things to user_things
+create or replace function plantour.delete_template_ai_user_things(
+    p_user_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_deleted_count integer;
+begin
+    delete from plantour.user_things a
+    using plantour.ai_things b
+    join plantour.ai_prompts d on b.prompt_id = d.id
+    join plantour.user_things c on 
+        c.user_id = p_user_id and
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        d.user_id = p_user_id
+        and a.id = c.id 
+        and b.id = any (p_ids);
+
+    get diagnostics v_deleted_count = row_count;
+
+    return v_deleted_count;
+end;
+$$;
+--#endregion
+

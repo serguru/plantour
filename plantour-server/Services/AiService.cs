@@ -77,7 +77,7 @@ public class AiService : IAiService
 
         if (string.IsNullOrWhiteSpace(prompt))
         {
-            throw new CustomException("Prompt cannot be empty");
+            return Array.Empty<AiItemDto>();
         }
 
         prompt = prompt.Trim();
@@ -140,17 +140,17 @@ public class AiService : IAiService
         var textPayload = ExtractTextPayload(responseContent);
         if (string.IsNullOrWhiteSpace(textPayload))
         {
-            throw new CustomException("Gemini response did not contain a usable payload");
+            return Array.Empty<AiItemDto>();
         }
 
-        List<AiItemRaw> raw_items;
+        List<AiItemRaw>? raw_items;
         try
         {
-            raw_items = JsonSerializer.Deserialize<List<AiItemRaw>>(textPayload, _jsonOptions)
-                ?? throw new CustomException("Gemini response did not include any packing list items");
-            if (raw_items.Count == 0)
+            raw_items = JsonSerializer.Deserialize<List<AiItemRaw>>(textPayload, _jsonOptions);
+            
+            if (raw_items == null || raw_items.Count == 0)
             {
-                throw new CustomException("Gemini response did not include any packing list items");
+                return Array.Empty<AiItemDto>();
             }
         }
         catch (JsonException ex)
@@ -294,7 +294,7 @@ public class AiService : IAiService
         return null;
     }
 
-    public async Task<IEnumerable<AiItemDto>> GetAllForTripAsync(Guid tripId, Guid promptId)
+    public async Task<IEnumerable<AiItemDto>> GetAllForTripAsync(Guid tripId, string prompt)
     {
         _currentUser.RaiseIfNotAuthenticated();
 
@@ -303,9 +303,15 @@ public class AiService : IAiService
             throw new CustomException("User does not have access to this trip");
         }
 
+        if (string.IsNullOrWhiteSpace(prompt))
+        {
+            return Array.Empty<AiItemDto>();
+        }
+
+
         var tripThings = await _tripThingRepository.GetAllAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
         var tripThingNames = new HashSet<string>(tripThings.Select(tp => tp.Name), StringComparer.OrdinalIgnoreCase);
-        var aiTemplateThings = await GetAllByPromptIdAsync(promptId);
+        var aiTemplateThings = await GetAllByPromptAsync(prompt);
 
         var result = aiTemplateThings.Select(p =>
         {
@@ -316,7 +322,7 @@ public class AiService : IAiService
         return result;
     }
 
-    public async Task<IEnumerable<AiItemDto>> GetAllForTripSharedAsync(Guid tripId, Guid promptId)
+    public async Task<IEnumerable<AiItemDto>> GetAllForTripSharedAsync(Guid tripId, string prompt)
     {
         _currentUser.RaiseIfNotAdmin();
 
@@ -324,10 +330,15 @@ public class AiService : IAiService
         {
             throw new CustomException("User does not have access to this trip");
         }
+        if (string.IsNullOrWhiteSpace(prompt))
+        {
+            return Array.Empty<AiItemDto>();
+        }
+
 
         var tripSharedThings = await _tripSharedRepository.GetAllFullAsync(tripId);
         var tripThingNames = new HashSet<string>(tripSharedThings.Select(tp => tp.Name), StringComparer.OrdinalIgnoreCase);
-        var aiTemplateThings = await GetAllByPromptIdAsync(promptId);
+        var aiTemplateThings = await GetAllByPromptAsync(prompt);
 
         var result = aiTemplateThings.Select(p =>
         {
@@ -336,15 +347,21 @@ public class AiService : IAiService
         }).ToList();
 
         return result;
-    }   
+    }
 
-    public async Task<IEnumerable<AiItemDto>> GetAllForDicAsync(Guid promptId)
+    public async Task<IEnumerable<AiItemDto>> GetAllForDicAsync(string prompt)
     {
         _currentUser.RaiseIfNotAuthenticated();
 
+        if (string.IsNullOrWhiteSpace(prompt))
+        {
+            return Array.Empty<AiItemDto>();
+        }
+
+
         var targetThings = await _thingsRepository.FindAsync(x => x.UserId == _currentUser.UserId);
         var targetThingNames = new HashSet<string>(targetThings.Select(tp => tp.Name), StringComparer.OrdinalIgnoreCase);
-        var aiTemplateThings = await GetAllByPromptIdAsync(promptId);
+        var aiTemplateThings = await GetAllByPromptAsync(prompt);
 
         var result = aiTemplateThings.Select(p =>
         {
@@ -353,5 +370,5 @@ public class AiService : IAiService
         }).ToList();
 
         return result;
-    }   
+    }
 }

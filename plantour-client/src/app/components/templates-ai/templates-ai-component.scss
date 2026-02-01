@@ -4,3 +4,20 @@
     height: 100%;
     width: 100%;
 }
+
+.prompt-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    flex-shrink: 0;
+    gap: 0.5rem;
+}
+
+.prompt-select {
+    width: 100%;
+}
+
+.prompt-button {
+    margin-left: auto;
+}

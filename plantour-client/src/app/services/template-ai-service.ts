@@ -21,14 +21,16 @@ export interface AiPromptDto {
   prompt: string;
 }
 
-export interface AIPrompt {
+export interface AiItemsRequest {
+  tripId?: string;
   prompt: string;
+
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class AiTemplateService {
+export class TemplatesAiService {
   private apiUrl: string;
 
   constructor(
@@ -36,10 +38,9 @@ export class AiTemplateService {
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
 
-    this.apiUrl = `${environment.apiUrl}/api/aitemplate`;
+    this.apiUrl = `${environment.apiUrl}/api/templateai`;
   }
-
-
+  // Returns the latest AI prompts used
   getLatestPrompts(): Observable<AiPromptDto[]> {
     return this.http.get<AiPromptDto[]>(`${this.apiUrl}/latest-prompts`);
   }
@@ -50,23 +51,19 @@ export class AiTemplateService {
     return this.http.post<AiItemDto[]>(`${this.apiUrl}/items-by-prompt`, request);
   }
 
-  getAllByPromptId(promptId: string): Observable<AiItemDto[]> {
-    return this.http.get<AiItemDto[]>(`${this.apiUrl}/items-by-prompt-id/${promptId}`);
+  getAllForTrip(tripId: string, prompt: string): Observable<AiItemDto[]> {
+    const request = { tripId, prompt };
+    return this.http.post<AiItemDto[]>(`${this.apiUrl}/trip/prompt`, request);
   }
 
-  getAllForTrip(tripId: string, promptId: string): Observable<AiItemDto[]> {
-    return this.http.get<AiItemDto[]>(`${this.apiUrl}/trip/${tripId}/prompt/${promptId}`);
+  getAllForTripShared(tripId: string, prompt: string): Observable<AiItemDto[]> {
+    const request = { tripId, prompt };
+    return this.http.post<AiItemDto[]>(`${this.apiUrl}/trip-shared/prompt`, request);
   }
 
-  getAllForSharedTrip(tripId: string, promptId: string): Observable<AiItemDto[]> {
-    return this.http.get<AiItemDto[]>(`${this.apiUrl}/trip-shared/${tripId}/prompt/${promptId}`);
+  getAllForDic(prompt: string): Observable<AiItemDto[]> {
+    const request = { prompt };
+    return this.http.post<AiItemDto[]>(`${this.apiUrl}/dic/prompt`, request);
   }
-
-  getAllForDic(promptId: string): Observable<AiItemDto[]> {
-    return this.http.get<AiItemDto[]>(`${this.apiUrl}/dic/prompt/${promptId}`);
-  }
-
-
-
 
 }
