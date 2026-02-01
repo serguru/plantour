@@ -523,13 +523,13 @@ create table ai_things (
     id uuid primary key default gen_random_uuid(),
     prompt_id uuid not null references ai_prompts(id) on delete cascade,
     category text,
-    name text not null unique,
+    name text not null,
     units text,
     value decimal(10,3) check(value > 0),
     notes text
 
 );
 
-create index idx_ai_prompts_prompt_id on ai_things(prompt_id);
+create unique index idx_ai_prompts_prompt_id_name on ai_things(prompt_id, name);
 
 

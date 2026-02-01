@@ -30,8 +30,15 @@ public class AiTemplateController(IAiService service) : ControllerBase
         return Ok(dtos);
     }
 
+    [HttpGet("items-by-prompt-id/{promptId}")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<IEnumerable<AiPromptDto>>> GetAllByPromptId(Guid promptId)
+    {
+        var dtos = await _service.GetAllByPromptIdAsync(promptId);
+        return Ok(dtos);
+    }
 
-    [HttpGet("trip/{tripId}")]
+    [HttpGet("trip/{tripId}/prompt/{promptId}")]
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<AiItemDto>>> GetAllForTrip(Guid tripId, Guid promptId)
     {
@@ -39,7 +46,7 @@ public class AiTemplateController(IAiService service) : ControllerBase
         return Ok(dtos);
     }
 
-    [HttpGet("trip-shared/{tripId}")]
+    [HttpGet("trip-shared/{tripId}/prompt/{promptId}")]
     [AdminOnly]
     public async Task<ActionResult<IEnumerable<AiItemDto>>> GetAllForTripShared(Guid tripId, Guid promptId)
     {
@@ -47,7 +54,7 @@ public class AiTemplateController(IAiService service) : ControllerBase
         return Ok(dtos);
     }
 
-    [HttpGet("dic")]
+    [HttpGet("dic/prompt/{promptId}")]
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<AiItemDto>>> GetAllForDic(Guid promptId)
     {

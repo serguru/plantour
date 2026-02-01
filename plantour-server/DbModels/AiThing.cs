@@ -7,8 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("ai_things", Schema = "plantour")]
-[Index("Name", Name = "ai_things_name_key", IsUnique = true)]
-[Index("PromptId", Name = "idx_ai_prompts_prompt_id")]
+[Index("PromptId", "Name", Name = "idx_ai_prompts_prompt_id_name", IsUnique = true)]
 public partial class AiThing
 {
     [Key]

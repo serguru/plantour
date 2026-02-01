@@ -161,6 +161,7 @@ public class AiService : IAiService
 
         AiPrompt aiPrompt = new AiPrompt
         {
+            UserId = _currentUser.UserId,
             Prompt = prompt,
             CreatedAt = DateTime.UtcNow
         };
@@ -204,7 +205,7 @@ public class AiService : IAiService
     private static string BuildPrompt(string userPrompt)
     {
         return "You are a travel assistant. Generate a concise packing list based on the user's trip description. " +
-               "Return only JSON that matches the provided schema. Do not add extra keys or commentary. " +
+               "Return only JSON that matches the provided schema. Do not add extra keys or commentary. Item names must be unique" +
                $"User request: {userPrompt}";
     }
 

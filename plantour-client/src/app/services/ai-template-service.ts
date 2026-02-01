@@ -41,29 +41,29 @@ export class AiTemplateService {
 
 
   getLatestPrompts(): Observable<AiPromptDto[]> {
-    return this.http.get<AiPromptDto[]>(`${this.apiUrl}/ai-items`, request);
+    return this.http.get<AiPromptDto[]>(`${this.apiUrl}/latest-prompts`);
   }
   
   // Returns AI generated items based on the provided prompt
-  getAll(prompt: string): Observable<AiItemDto[]> {
+  getAllByPrompt(prompt: string): Observable<AiItemDto[]> {
     const request = { prompt };
-    return this.http.post<AiItemDto[]>(`${this.apiUrl}/ai-items`, request);
+    return this.http.post<AiItemDto[]>(`${this.apiUrl}/items-by-prompt`, request);
   }
 
-  getAll(): Observable<VTemplateThingsFullDto[]> {
-    return this.http.get<VTemplateThingsFullDto[]>(this.apiUrl);
+  getAllByPromptId(promptId: string): Observable<AiItemDto[]> {
+    return this.http.get<AiItemDto[]>(`${this.apiUrl}/items-by-prompt-id/${promptId}`);
   }
 
-  getAllForTrip(tripId: string): Observable<VTemplateThingsFullDto[]> {
-    return this.http.get<VTemplateThingsFullDto[]>(`${this.apiUrl}/trip/${tripId}`);
+  getAllForTrip(tripId: string, promptId: string): Observable<AiItemDto[]> {
+    return this.http.get<AiItemDto[]>(`${this.apiUrl}/trip/${tripId}/prompt/${promptId}`);
   }
 
-  getAllForSharedTrip(tripId: string): Observable<VTemplateThingsFullDto[]> {
-    return this.http.get<VTemplateThingsFullDto[]>(`${this.apiUrl}/trip-shared/${tripId}`);
+  getAllForSharedTrip(tripId: string, promptId: string): Observable<AiItemDto[]> {
+    return this.http.get<AiItemDto[]>(`${this.apiUrl}/trip-shared/${tripId}/prompt/${promptId}`);
   }
 
-  getAllForDic(): Observable<VTemplateThingsFullDto[]> {
-    return this.http.get<VTemplateThingsFullDto[]>(`${this.apiUrl}/dic`);
+  getAllForDic(promptId: string): Observable<AiItemDto[]> {
+    return this.http.get<AiItemDto[]>(`${this.apiUrl}/dic/prompt/${promptId}`);
   }
 
 
