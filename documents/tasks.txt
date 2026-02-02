@@ -275,3 +275,4 @@ Look at how the other subcomponents are implemented, for example src\app\compone
 
 
 
+Explore plantour-client Angular web app and specifically the public subfolder. Make sure the project has all the proper things to show icons in any possible OS, including Android. When I add a Plantour website to the Android home screen it must show the Plantour icon.
