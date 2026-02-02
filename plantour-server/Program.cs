@@ -38,10 +38,12 @@ var columnOptions = new Dictionary<string, ColumnWriterBase>
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+// Read MinimumLevel from appsettings
+var minimumLevelString = builder.Configuration["Serilog:MinimumLevel"] ?? "Information";
+var minimumLevel = Enum.Parse<LogEventLevel>(minimumLevelString);
+
 Serilog.Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Is(builder.Environment.IsDevelopment()
-        ? LogEventLevel.Information
-        : LogEventLevel.Warning)
+    .MinimumLevel.Is(minimumLevel)
     .Enrich.FromLogContext()
     .Enrich.WithEnvironmentUserName()
     .Enrich.WithMachineName()
