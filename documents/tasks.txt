@@ -256,3 +256,22 @@ See addFromAITemplate src\app\services\thing-service.ts service. See Controllers
 
 
 See addFromAITemplate src\app\services\trip-shared-service.ts service. See Controllers\TripThingController.cs. Add a corresponding to addFromAITemplate endpoint. Add a method to ITripThingService and TripThingService. Map AIItemDto to TripUserThing. Use TripThingRepository to get all the things. Filter a new collection to leave only members with new names. Compare with thing.name case insensitive. Range Insert the rest to things. Return a number of added rows.
+
+
+
+See src\app\components\templates-ai\templates-ai-component.ts component. This component allows users send a prompt to AI describing their trip and get a list of recommended items back. Then recommended items can be filtered/sorted/searched and added one a time or as a group to the user's thing dictionary or trip own or shared items (see how the componet's target feature works).
+
+Add AI items recommendations as key feature to src\app\components\help\key-features\key-features.component.ts.
+
+Add a high level Help section between Items Module and Bags Module.
+
+Include 4 subcomponents there:
+- how to ask ai and get a list of recommended items back
+- how to add them to the user's items dictionary;
+- how to add them to the trip own items list;
+- how to add them to the trip shared items list;
+
+Look at how the other subcomponents are implemented, for example src\app\components\help\add-bag\add-bag.component.ts. Each subcomponent should explain step-by-step how to achieve the desired result.
+
+
+

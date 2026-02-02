@@ -1,0 +1,88 @@
+<div class="help-content">
+  <div class="content-header">
+    <h2 class="main-heading">{{ mainHeading }}</h2>
+    <p class="intro-text">{{ intro }}</p>
+  </div>
+
+  <section class="steps-section">
+    <h3 class="section-heading">Step-by-Step Instructions</h3>
+    
+    @for (step of steps; track step.stepNumber) {
+      <div class="step-card">
+        <div class="step-number">{{ step.stepNumber }}</div>
+        <div class="step-content">
+          <h4 class="step-title">{{ step.title }}</h4>
+          <p class="step-description">{{ step.description }}</p>
+          
+          @if (step.details && step.details.length > 0) {
+            <ul class="step-details">
+              @for (detail of step.details; track $index) {
+                <li>
+                  <i class="pi pi-angle-right"></i>
+                  {{ detail }}
+                </li>
+              }
+            </ul>
+          }
+          
+          @if (step.note) {
+            <div class="step-note">
+              <i class="pi pi-info-circle"></i>
+              <span>{{ step.note }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="prompts-section">
+    <h3 class="section-heading">
+      <i class="pi pi-lightbulb"></i>
+      Example Prompts for Different Trip Types
+    </h3>
+    <p class="prompts-intro">Use these as inspiration for how to describe your trip:</p>
+    @for (prompt of prompts; track prompt.scenario) {
+      <div class="prompt-card">
+        <h4 class="prompt-scenario">
+          <i class="pi pi-arrow-right"></i>
+          {{ prompt.scenario }}
+        </h4>
+        <p class="prompt-text">{{ prompt.example }}</p>
+      </div>
+    }
+  </section>
+
+  <section class="tips-section">
+    <h3 class="section-heading">
+      <i class="pi pi-bolt"></i>
+      Tips for Better Recommendations
+    </h3>
+    <ul class="tips-list">
+      @for (tip of tips; track $index) {
+        <li>
+          <i class="pi pi-star"></i>
+          {{ tip }}
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="troubleshooting-section">
+    <h3 class="section-heading">
+      <i class="pi pi-wrench"></i>
+      Common Issues
+    </h3>
+    @for (issue of commonIssues; track issue.problem) {
+      <div class="issue-card">
+        <h4 class="issue-problem">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ issue.problem }}
+        </h4>
+        <p class="issue-solution">
+          <strong>Solution:</strong> {{ issue.solution }}
+        </p>
+      </div>
+    }
+  </section>
+</div>

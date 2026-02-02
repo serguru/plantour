@@ -39,6 +39,11 @@ export class KeyFeaturesComponent {
         description: 'Invite family or teammates to contribute to trip planning and packing.'
       },
       {
+        icon: 'pi pi-sparkles',
+        title: 'AI Item Recommendations',
+        description: 'Describe your trip to AI and get personalized packing suggestions instantly.'
+      },
+      {
         icon: 'pi pi-file-pdf',
         title: 'PDF Exports',
         description: 'Download packing lists and trip summaries for offline use.'

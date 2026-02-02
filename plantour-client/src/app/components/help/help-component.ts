@@ -101,6 +101,10 @@ export class HelpComponent {
   faqTripsComponent = signal<Type<unknown> | null>(null);
   faqPackingComponent = signal<Type<unknown> | null>(null);
   faqCollaborationComponent = signal<Type<unknown> | null>(null);
+  askAiForItemsComponent = signal<Type<unknown> | null>(null);
+  addAiItemsToDictionaryComponent = signal<Type<unknown> | null>(null);
+  addAiItemsToTripOwnComponent = signal<Type<unknown> | null>(null);
+  addAiItemsToTripSharedComponent = signal<Type<unknown> | null>(null);
 
   helpSections = signal<HelpSection[]>([
     {
@@ -162,6 +166,18 @@ export class HelpComponent {
         { id: 'delete-item', title: 'Delete an Item' },
         { id: 'item-categories', title: 'Using Categories' },
         { id: 'filter-things', title: 'Filter and Sort Items' }
+      ]
+    },
+    {
+      id: 'ai-recommendations',
+      title: 'AI Item Recommendations',
+      icon: 'pi pi-sparkles',
+      description: 'Use AI to get personalized packing suggestions for your trip.',
+      subsections: [
+        { id: 'ask-ai', title: 'Ask AI for Item Recommendations' },
+        { id: 'add-to-dictionary', title: 'Add AI Items to Your Dictionary' },
+        { id: 'add-to-trip-own', title: 'Add AI Items to Trip Own Items' },
+        { id: 'add-to-trip-shared', title: 'Add AI Items to Trip Shared Items' }
       ]
     },
     {
@@ -410,6 +426,13 @@ export class HelpComponent {
           'item-categories': this.usingCategoriesComponent(),
           'filter-things': this.filterSortItemsComponent()
         };
+      case 'ai-recommendations':
+        return {
+          'ask-ai': this.askAiForItemsComponent(),
+          'add-to-dictionary': this.addAiItemsToDictionaryComponent(),
+          'add-to-trip-own': this.addAiItemsToTripOwnComponent(),
+          'add-to-trip-shared': this.addAiItemsToTripSharedComponent()
+        };
       case 'packs':
         return {
           'packs-intro': this.understandingBagsComponent(),
@@ -538,6 +561,18 @@ export class HelpComponent {
     }
     if (sectionId === 'things' && subsectionId === 'filter-things') {
       this.loadFilterSortItemsComponent();
+    }
+    if (sectionId === 'ai-recommendations' && subsectionId === 'ask-ai') {
+      this.loadAskAiForItemsComponent();
+    }
+    if (sectionId === 'ai-recommendations' && subsectionId === 'add-to-dictionary') {
+      this.loadAddAiItemsToDictionaryComponent();
+    }
+    if (sectionId === 'ai-recommendations' && subsectionId === 'add-to-trip-own') {
+      this.loadAddAiItemsToTripOwnComponent();
+    }
+    if (sectionId === 'ai-recommendations' && subsectionId === 'add-to-trip-shared') {
+      this.loadAddAiItemsToTripSharedComponent();
     }
     if (sectionId === 'packs' && subsectionId === 'packs-intro') {
       this.loadUnderstandingBagsComponent();
@@ -1187,6 +1222,42 @@ export class HelpComponent {
 
     const module = await import('./faq-collaboration/faq-collaboration.component');
     this.faqCollaborationComponent.set(module.FaqCollaborationComponent);
+  }
+
+  private async loadAskAiForItemsComponent() {
+    if (this.askAiForItemsComponent()) {
+      return;
+    }
+
+    const module = await import('./ai-recommendations/ask-ai-for-items/ask-ai-for-items.component');
+    this.askAiForItemsComponent.set(module.AskAiForItemsComponent);
+  }
+
+  private async loadAddAiItemsToDictionaryComponent() {
+    if (this.addAiItemsToDictionaryComponent()) {
+      return;
+    }
+
+    const module = await import('./ai-recommendations/add-ai-items-to-dictionary/add-ai-items-to-dictionary.component');
+    this.addAiItemsToDictionaryComponent.set(module.AddAiItemsToDictionaryComponent);
+  }
+
+  private async loadAddAiItemsToTripOwnComponent() {
+    if (this.addAiItemsToTripOwnComponent()) {
+      return;
+    }
+
+    const module = await import('./ai-recommendations/add-ai-items-to-trip-own/add-ai-items-to-trip-own.component');
+    this.addAiItemsToTripOwnComponent.set(module.AddAiItemsToTripOwnComponent);
+  }
+
+  private async loadAddAiItemsToTripSharedComponent() {
+    if (this.addAiItemsToTripSharedComponent()) {
+      return;
+    }
+
+    const module = await import('./ai-recommendations/add-ai-items-to-trip-shared/add-ai-items-to-trip-shared.component');
+    this.addAiItemsToTripSharedComponent.set(module.AddAiItemsToTripSharedComponent);
   }
 
   getStartedWithTest = async () => {
