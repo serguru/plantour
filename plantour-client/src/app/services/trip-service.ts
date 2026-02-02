@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
+import { get } from 'https';
 
 export interface TripDto {
   id: string;
@@ -12,13 +13,25 @@ export interface TripDto {
   notes?: string | null;
   startDate?: string | null;
   endDate?: string | null;
+
+
   totalDays: number;
-  
   totalParticipants: number;
   totalPacks: number;
-  totalThings: number;
-  totalSharedThings: number;
+ // totalThings: number;
   currentUserIncluded: boolean;
+
+  totalSharedThings: number;
+  daysLeft: number;
+  daysLeftText: string | null;
+  totalSharedThingsDone: number;
+  totalSharedThingsOverdue: number;
+  totalPackWeightsStr: string | null;
+  userTotalPacks: number;
+  userTotalSharedThings: number;
+  userTotalSharedThingsDone: number;
+  userTotalSharedThingsOverdue: number;
+  userTotalPackWeightsStr: string | null;
 }
 export interface CreateTripRequest {
   tripStatusId: string | null;
