@@ -1,6 +1,6 @@
 import { ApplicationConfig, ErrorHandler, inject, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideClientHydration } from '@angular/platform-browser';
 
 import { routes } from './app.routes';
@@ -16,7 +16,7 @@ import { GlobalErrorHandler } from './helpers/error-handler';
 export const appConfig: ApplicationConfig = {
   providers: [
     { provide: ENVIRONMENT, useValue: environment },
-    provideHttpClient(withInterceptors([httpInterceptor])),
+    provideHttpClient(withInterceptors([httpInterceptor]),withFetch()),
     provideBrowserGlobalErrorListeners(),
     provideClientHydration(),
     provideZoneChangeDetection({ eventCoalescing: true }),

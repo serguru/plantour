@@ -6,6 +6,7 @@ import { CleanupResolver } from './helpers/resolver';
 
 // TODO: verify checkTripIdGuard use
 // TODO: app icon on mobile
+// TODO: ensure the app properly limits access to features based on user status and plan including payments, items and participants limits
 export const routes: Routes = [
   {
     path: '',
@@ -14,7 +15,6 @@ export const routes: Routes = [
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'landing-new' }
   },
-
   {
     path: '',
     canMatch: [dashboardGuard],
@@ -22,8 +22,6 @@ export const routes: Routes = [
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'dashboard' }
   },
-
-
   // {
   //   path: '',
   //   canMatch: [landingRegisteredUserGuard],

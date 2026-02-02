@@ -249,7 +249,6 @@ create table users (
     access_type_id uuid not null references access_types(id)
 );
 
-
 create table transactions (
     id uuid not null primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,

@@ -20,6 +20,9 @@ public partial class TripUser
     [Column("admin_participant_id")]
     public Guid AdminParticipantId { get; set; }
 
+    [Column("packaging_complete")]
+    public bool PackagingComplete { get; set; }
+
     [Column("notes")]
     public string? Notes { get; set; }
 
