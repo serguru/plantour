@@ -36,12 +36,27 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
         var insertedCount = await _service.InsertTemplateTripSharedThingsAsync(request.CollectionId, request.Ids);
         return Ok(new { insertedCount });
     }
+    [HttpPost("insert-from-template-ai")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> AddFromTemplateAi([FromBody] MultipleIdsRequest request)
+    {
+        var insertedCount = await _service.InsertTemplateAiTripSharedThingsAsync(request.CollectionId, request.Ids);
+        return Ok(new { insertedCount });
+    }
 
     [HttpPost("delete-from-template")]
     [AdminOrParticipant]
     public async Task<ActionResult> DeleteFromTemplate([FromBody] MultipleIdsRequest request)
     {
         var deletedCount = await _service.DeleteTemplateTripSharedThingsAsync(request.CollectionId, request.Ids);
+        return Ok(new { deletedCount });
+    }
+
+    [HttpPost("delete-from-template-ai")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> DeleteFromTemplateAi([FromBody] MultipleIdsRequest request)
+    {
+        var deletedCount = await _service.DeleteTemplateAiTripSharedThingsAsync(request.CollectionId, request.Ids);
         return Ok(new { deletedCount });
     }
 

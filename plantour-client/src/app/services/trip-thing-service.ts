@@ -90,6 +90,14 @@ export class TripThingService {
     return this.http.post<number>(`${this.apiUrl}/delete-from-template`, data);
   }
 
+  addFromTemplateAi(data: MultipleIdsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/insert-from-template-ai`, data);
+  }
+
+  deleteFromTemplateAi(data: MultipleIdsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/delete-from-template-ai`, data);
+  }
+
 
   getAll(tripId: string): Observable<TripThingDto[]> {
     return this.http.get<TripThingDto[]>(`${this.apiUrl}/trip/${tripId}`);
@@ -127,8 +135,5 @@ export class TripThingService {
     return this.http.put<number>(`${this.apiUrl}/toggle-finished-trip-things`, data);
   }
 
-  addFromAITemplate(data: AddAiThingsRequest): Observable<number> {
-    return this.http.post<number>(`${this.apiUrl}/insert-from-ai-template`, data);
-  }
 
 }

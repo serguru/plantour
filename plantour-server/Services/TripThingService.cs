@@ -45,11 +45,22 @@ public class TripThingService(
         return await _dicTripRepository.InsertTemplateTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
+    public async Task<int> InsertTemplateAiTripUserThingsAsync(Guid tripId, Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.InsertTemplateAiTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
+    }
+
 
     public async Task<int> DeleteTemplateTripUserThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
         return await _dicTripRepository.DeleteTemplateTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
+    }
+    public async Task<int> DeleteTemplateAiTripUserThingsAsync(Guid tripId, Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.DeleteTemplateAiTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
     public async Task<IEnumerable<TripThingDto>> GetAllAsync(Guid tripId)

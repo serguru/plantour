@@ -150,11 +150,22 @@ public class ThingService(
         _currentUser.RaiseIfNotAuthenticated();
         return await _dicTripRepository.InsertTemplateUserThingsAsync(_currentUser.UserId, ids);
     }
+    public async Task<int> InsertTemplateAiUserThingsAsync(Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.InsertTemplateAiUserThingsAsync(_currentUser.UserId, ids);
+    }
 
     public async Task<int> DeleteTemplateUserThingsAsync(Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
         return await _dicTripRepository.DeleteTemplateUserThingsAsync(_currentUser.UserId, ids);
+    }
+
+    public async Task<int> DeleteTemplateAiUserThingsAsync(Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.DeleteTemplateAiUserThingsAsync(_currentUser.UserId, ids);
     }
 
     public async Task<int> InsertFromAiTemplateAsync(IEnumerable<AiItemDto> items)

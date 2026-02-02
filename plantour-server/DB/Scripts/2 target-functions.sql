@@ -745,7 +745,7 @@ begin
         b.units,
         b.value
     from plantour.ai_things b
-    join plantour.ai_prompt d on b.prompt_id = d.id
+    join plantour.ai_prompts d on b.prompt_id = d.id
     left join 
         (
             select b.name as name

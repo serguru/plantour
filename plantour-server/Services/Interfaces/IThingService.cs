@@ -13,7 +13,9 @@ public interface IThingService
     Task<IEnumerable<ThingDto>> GetAllForTripAsync(Guid tripId);
     Task<IEnumerable<ThingDto>> GetAllForTripSharedAsync(Guid tripId);
     Task<int> InsertTemplateUserThingsAsync(Guid[] ids);
+    Task<int> InsertTemplateAiUserThingsAsync(Guid[] ids);
     Task<int> DeleteTemplateUserThingsAsync(Guid[] ids);
+    Task<int> DeleteTemplateAiUserThingsAsync(Guid[] ids);
     Task<int> InsertFromAiTemplateAsync(IEnumerable<AiItemDto> items);
 
 

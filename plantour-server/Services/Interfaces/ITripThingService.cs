@@ -15,7 +15,9 @@ public interface ITripThingService
     Task<int> PackTripThingsAsync(Guid tripId, Guid packageId, Guid[] tripThingIds);
     Task<int> UnpackTripThingsAsync(Guid tripId, Guid[] tripThingIds);
     Task<int> InsertTemplateTripUserThingsAsync(Guid tripId, Guid[] ids);
+    Task<int> InsertTemplateAiTripUserThingsAsync(Guid tripId, Guid[] ids);
     Task<int> DeleteTemplateTripUserThingsAsync(Guid tripId, Guid[] ids);
+    Task<int> DeleteTemplateAiTripUserThingsAsync(Guid tripId, Guid[] ids);
     Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AiItemDto> things);
     Task ToggleFinishedTripThingsAsync(Guid tripId, Guid id, string? finished);
 }

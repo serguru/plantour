@@ -190,8 +190,6 @@ public class AiService : IAiService
         return result;
     }
 
-
-
     public async Task<IEnumerable<AiItemDto>> GetAllByPromptIdAsync(Guid promptId)
     {
         _currentUser.RaiseIfNotAuthenticated();
@@ -199,8 +197,6 @@ public class AiService : IAiService
         var result = _mapper.Map<IEnumerable<AiItemDto>>(items);
         return result;
     }
-
-
 
     private static string BuildPrompt(string userPrompt)
     {

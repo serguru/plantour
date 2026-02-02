@@ -85,7 +85,13 @@ export class ThingService {
     return this.http.post<number>(`${this.apiUrl}/delete-from-template`, data);
   }
 
-  addFromAITemplate(items: AiItemDto[]): Observable<number> {
-    return this.http.post<number>(`${this.apiUrl}/insert-from-ai-template`, items);
+  addFromTemplateAi(data: ArrayOfGuidsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/insert-from-template-ai`, data);
   }
+
+  deleteFromTemplateAi(data: ArrayOfGuidsRequest): Observable<number> {
+    return this.http.post<number>(`${this.apiUrl}/delete-from-template-ai`, data);
+  }
+
+
 }

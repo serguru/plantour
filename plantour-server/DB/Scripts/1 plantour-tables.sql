@@ -383,6 +383,7 @@ create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, admin_
 
 -----------------------------------------------------------------------
 -- TRIP USER PACKAGES
+-- TODO: Add UI for weight
 -----------------------------------------------------------------------
 create table trip_user_packages (
     id uuid not null primary key default gen_random_uuid(),

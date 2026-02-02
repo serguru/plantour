@@ -133,6 +133,26 @@ export class TemplatesAiComponent {
     return this.templateAiService.getAllByPrompt(p);
   }
 
+  addPromptToLookup = (prompt: string) => {
+    if (!this.prompts) {
+      this.prompts = [];
+    }
+    prompt = prompt.trim();
+    if (!prompt) {
+      return;
+    }
+
+    const index = this.prompts.findIndex(p => p.toLowerCase() === prompt.toLowerCase());
+    if (index === 0) {
+      return;
+    }
+    if (index > 0) {
+      this.prompts.splice(index, 1);
+    }
+    this.prompts.unshift(prompt);
+  }
+
+
 
   ngOnInit(): void {
     debugger;
@@ -146,8 +166,6 @@ export class TemplatesAiComponent {
 
     // 1. Set loading ON before starting
     this.componentService.updateLoading(true);
-
-
 
 
     // 2. The Main Stream
@@ -174,6 +192,13 @@ export class TemplatesAiComponent {
         this.componentService.updateLoading(true); // Turn on loader for every new click/change
 
         return this.getTemplateApiCall(target, prompt).pipe(
+
+          tap(things => {
+            if (things?.length > 0 && prompt) {
+              this.addPromptToLookup(prompt)
+            }
+          }),
+
           // CRITICAL: Catch error here so the outer stream (clicks) doesn't die
           catchError(err => {
             this.messagesService.showError('Error loading AI generated items. Please try again later.', 'API Error');
@@ -184,7 +209,6 @@ export class TemplatesAiComponent {
           finalize(() => this.componentService.updateLoading(false))
         );
       }),
-
       // Outer finalize: Safety net for component destruction or total stream completion
       finalize(() => this.componentService.updateLoading(false)),
       takeUntilDestroyed(this.destroyRef)
@@ -418,7 +442,7 @@ export class TemplatesAiComponent {
         ids: ids
       };
 
-      this.thingService.addFromTemplate(request).pipe(
+      this.thingService.addFromTemplateAi(request).pipe(
         switchMap(() => this.templateAiService.getAllForDic(this.selectedPrompt || '')),
         takeUntilDestroyed(this.destroyRef)
       ).subscribe((things) => {
@@ -442,10 +466,10 @@ export class TemplatesAiComponent {
     let o, m;
 
     if (target?.selectedMode === TargetMode.TripShared) {
-      o = this.tripSharedService.addFromTemplate(request);
+      o = this.tripSharedService.addFromTemplateAi(request);
       m = this.templateAiService.getAllForTripShared(targetId, this.selectedPrompt || '');
     } else {
-      o = this.tripThingService.addFromTemplate(request);
+      o = this.tripThingService.addFromTemplateAi(request);
       m = this.templateAiService.getAllForTrip(targetId, this.selectedPrompt || '');
     }
     o.pipe(
@@ -474,7 +498,7 @@ export class TemplatesAiComponent {
         ids: ids
       };
 
-      this.thingService.deleteFromTemplate(request).pipe(
+      this.thingService.deleteFromTemplateAi(request).pipe(
         switchMap(() => this.templateAiService.getAllForDic(this.selectedPrompt || '')),
         takeUntilDestroyed(this.destroyRef)
       ).subscribe((things) => {
@@ -497,10 +521,10 @@ export class TemplatesAiComponent {
     let o, m;
 
     if (target?.selectedMode === TargetMode.TripShared) {
-      o = this.tripSharedService.deleteFromTemplate(request);
+      o = this.tripSharedService.deleteFromTemplateAi(request);
       m = this.templateAiService.getAllForTripShared(targetId, this.selectedPrompt || '');
     } else {
-      o = this.tripThingService.deleteFromTemplate(request);
+      o = this.tripThingService.deleteFromTemplateAi(request);
       m = this.templateAiService.getAllForTrip(targetId, this.selectedPrompt || '');
     }
     o.pipe(
@@ -522,7 +546,7 @@ export class TemplatesAiComponent {
       const request: ArrayOfGuidsRequest = {
         ids: [entity.id]
       };
-      const o = entity.isTargeted ? this.thingService.deleteFromTemplate(request) : this.thingService.addFromTemplate(request);
+      const o = entity.isTargeted ? this.thingService.deleteFromTemplateAi(request) : this.thingService.addFromTemplateAi(request);
       const m = this.templateAiService.getAllForDic(this.selectedPrompt || '');
 
       o.pipe(
@@ -546,11 +570,11 @@ export class TemplatesAiComponent {
     let o, m;
 
     if (target?.selectedMode === TargetMode.TripShared) {
-      o = entity.isTargeted ? this.tripSharedService.deleteFromTemplate(request) : this.tripSharedService.addFromTemplate(request);
+      o = entity.isTargeted ? this.tripSharedService.deleteFromTemplateAi(request) : this.tripSharedService.addFromTemplateAi(request);
       m = this.templateAiService.getAllForTripShared(target!.id!, this.selectedPrompt || '');
 
     } else {
-      o = entity.isTargeted ? this.tripThingService.deleteFromTemplate(request) : this.tripThingService.addFromTemplate(request);
+      o = entity.isTargeted ? this.tripThingService.deleteFromTemplateAi(request) : this.tripThingService.addFromTemplateAi(request);
       m = this.templateAiService.getAllForTrip(target!.id!, this.selectedPrompt || '');
     }
 

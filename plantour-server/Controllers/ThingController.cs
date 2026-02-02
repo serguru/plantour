@@ -96,12 +96,26 @@ public class ThingController : ControllerBase
         var insertedCount = await _service.InsertTemplateUserThingsAsync(request.Ids);
         return Ok(new { insertedCount });
     }
+    [HttpPost("insert-from-template-ai")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> AddFromTemplateAi([FromBody] ArrayOfGuidsRequest request)
+    {
+        var insertedCount = await _service.InsertTemplateAiUserThingsAsync(request.Ids);
+        return Ok(new { insertedCount });
+    }
 
     [HttpPost("delete-from-template")]
     [AdminOrParticipant]
     public async Task<ActionResult> DeleteFromTemplate([FromBody] ArrayOfGuidsRequest request)
     {
         var deletedCount = await _service.DeleteTemplateUserThingsAsync(request.Ids);
+        return Ok(new { deletedCount });
+    }
+    [HttpPost("delete-from-template-ai")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> DeleteFromTemplateAi([FromBody] ArrayOfGuidsRequest request)
+    {
+        var deletedCount = await _service.DeleteTemplateAiUserThingsAsync(request.Ids);
         return Ok(new { deletedCount });
     }
 
