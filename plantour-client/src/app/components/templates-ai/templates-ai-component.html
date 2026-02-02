@@ -7,14 +7,25 @@
     ></app-entities-header>
 
     <div class="prompt-container">
-        <p-select
+
+        <!-- <p-select
             style="width: 100%;"
             [options]="prompts"
             placeholder="Select or enter prompt"
             [(ngModel)]="selectedPrompt"
             editable="true"
             showClear="true"
-        ></p-select>
+        >
+        </p-select> -->
+
+<app-dropdown
+class="prompt-select"
+            [options]="prompts || []"
+            [(ngModel)]="selectedPrompt"
+>
+    
+</app-dropdown>
+
         <app-button
             class="prompt-button"
             label="Ask AI"

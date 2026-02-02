@@ -23,6 +23,7 @@ import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppButton } from '../button/button-component';
 import { MessagesService } from '../../services/messages-service';
+import { Dropdown } from '../dropdown/dropdown-component';
 
 @Component({
   selector: 'app-templates-ai',
@@ -30,9 +31,9 @@ import { MessagesService } from '../../services/messages-service';
     EntitiesComponent,
     EntitiesHeader,
     EntitiesActionsComponent,
-    Select,
     FormsModule,
-    AppButton
+    AppButton,
+    Dropdown
   ],
   templateUrl: './templates-ai-component.html',
   styleUrl: './templates-ai-component.scss',
@@ -155,7 +156,6 @@ export class TemplatesAiComponent {
 
 
   ngOnInit(): void {
-    debugger;
 
     this.componentService.updateComponentId(this.componentId);
     var o = this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();

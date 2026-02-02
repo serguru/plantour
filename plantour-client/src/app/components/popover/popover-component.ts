@@ -1,17 +1,23 @@
 
 import { Component, Input, ViewChild, TemplateRef, ViewContainerRef, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 
 @Component({
   selector: 'app-popover',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './popover-component.html',
   styleUrl: './popover-component.scss',
 })
 export class PopoverComponent {
   @ViewChild('contentTemplate') templateRef!: TemplateRef<any>;
   private overlayRef: OverlayRef | null = null;
+
+  @Input() panelClass = '';
+  @Input() matchWidth = false;
+  panelMinWidth: number | null = null;
 
   @Output() onShow = new EventEmitter<void>();
   @Output() onHide = new EventEmitter<void>();
@@ -24,6 +30,7 @@ export class PopoverComponent {
   }
 
   show(origin: HTMLElement) {
+    this.panelMinWidth = this.matchWidth ? origin.getBoundingClientRect().width : null;
     const positionStrategy = this.overlay.position()
       .flexibleConnectedTo(origin)
       .withPositions([
@@ -47,7 +54,12 @@ export class PopoverComponent {
     if (this.overlayRef) {
       this.overlayRef.detach();
       this.overlayRef = null;
+      this.panelMinWidth = null;
       this.onHide.emit();
     }
+  }
+
+  isOpen() {
+    return !!this.overlayRef;
   }
 }

@@ -1,8 +1,12 @@
 .popover-panel {
-    background: var(--primary-color);
+    background: var(--surface-color, #ffffff);
     border-radius: 6px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     padding: 1rem;
+    font-family: var(--font-ui, inherit);
+    font-size: var(--font-size-ui, 1rem);
+    line-height: var(--line-height-ui, normal);
+    letter-spacing: var(--letter-spacing-ui, normal);
     white-space: nowrap;      
     width: max-content;       
     display: inline-block;    

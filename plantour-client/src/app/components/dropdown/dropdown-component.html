@@ -1,0 +1,60 @@
+<div class="dropdown">
+  @if (label) {
+    <label class="dropdown-label">{{ label }}</label>
+  }
+
+  <div class="dropdown-control" #origin>
+    <textarea
+      name="textarea"  
+      #displayArea
+      class="dropdown-display"
+      [attr.placeholder]="placeholder"
+      [value]="displayText"
+      [disabled]="disabled"
+      rows="1"
+      (input)="onInput($event)"
+      (blur)="onBlur()"
+      (keydown)="onKeydown($event)"
+    ></textarea>
+
+    @if (displayText && !disabled) {
+      <button
+        type="button"
+        class="dropdown-clear"
+        (click)="clearValue($event)"
+        aria-label="Clear"
+      >
+        <span class="dropdown-clear-icon">×</span>
+      </button>
+    }
+
+    <button
+      type="button"
+      class="dropdown-caret"
+      [disabled]="disabled"
+      (click)="togglePopover($event)"
+      aria-label="Toggle dropdown"
+    >
+      <span class="dropdown-caret-icon">▾</span>
+    </button>
+
+    <app-popover #popover [panelClass]="'dropdown-popover'" [matchWidth]="true">
+      <div class="dropdown-options">
+        @if (options.length) {
+          @for (option of options; track trackByOption($index, option)) {
+            <button
+              type="button"
+              class="dropdown-option"
+              [class.is-selected]="compareWith(option, value)"
+              (click)="selectOption(option)"
+            >
+              <span class="dropdown-option-label">{{ option }}</span>
+            </button>
+          }
+        } @else {
+          <div class="dropdown-empty">{{ emptyText }}</div>
+        }
+      </div>
+    </app-popover>
+  </div>
+</div>

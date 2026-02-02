@@ -1,6 +1,7 @@
 <ng-template #contentTemplate>
     <div
-        class="popover-panel"
+        [class]="'popover-panel ' + panelClass"
+        [style.minWidth.px]="panelMinWidth"
         (click)="$event.stopPropagation()"
     >
         <ng-content></ng-content>
