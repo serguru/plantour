@@ -105,7 +105,7 @@ export class TemplatesAiComponent {
         label: 'Help',
         icon: 'question-circle',
         action: () => {
-          this.router.navigate(['/help/templates-si/templates-ai-intro']);
+          this.router.navigate(['/help/ai-recommendations/ask-ai']);
         }
       }
     ];
