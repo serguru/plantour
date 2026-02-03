@@ -1,5 +1,5 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TripDto, TripService } from '../../services/trip-service';
 import { TripItemComponent } from './trip-item/trip-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
@@ -33,6 +33,7 @@ import { DocumentsService } from '../../services/documents-service';
 export class TripsComponent implements OnInit {
   tripItemComponent = TripItemComponent;
   componentId: string = 'trips';
+  route = inject(ActivatedRoute)
 
   documentsService = inject(DocumentsService);
   router = inject(Router);
@@ -131,6 +132,12 @@ export class TripsComponent implements OnInit {
 
 
   ngOnInit(): void {
+
+    const tripId = this.route.snapshot.paramMap.get('tripId'); 
+
+    if (tripId) {
+      this.localStorageService.setComponentKey(this.componentId, 'selectedId', tripId);
+    }
 
     this.componentService.updateComponentId(this.componentId);
 

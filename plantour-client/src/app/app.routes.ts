@@ -172,6 +172,13 @@ export const routes: Routes = [
     data: { componentId: 'trips' }
   },
   {
+    path: 'trips/:tripId',
+    canActivate: [adminOrParticipantGuard],
+    loadComponent: () => import('./components/trips/trips-component').then(m => m.TripsComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'trips' }
+  },
+  {
     path: 'trips/add',
     canActivate: [adminOnlyGuard],
     loadComponent: () => import('./components/trips/trip-form/trip-form-component').then(m => m.TripFormComponent),

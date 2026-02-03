@@ -6,7 +6,7 @@
                 <div class="hero-top">
                     <div class="hero-title">
                         <div class="hero-label">{{`${tripIsCurrent ? "Current" : "Last "} trip`}} </div>
-                        <h1>{{ tripData.name }}</h1>
+                        <h1><a [href]="`trips/${tripData.id}`">{{ tripData.name }}</a></h1>
                         <div class="hero-meta">
                             <i class="pi pi-map-marker"></i>
                             <span>{{ tripData.notes }}</span>
@@ -18,10 +18,9 @@
                         </div>
                     </div>
                     <div class="hero-days">
+                        <div class="hero-days-label">{{tripData.fromTo}}</div>
                         <div class="hero-days-number">{{ tripData.daysLeft }}</div>
                         <div class="hero-days-label">{{tripData.daysLeftText}}</div>
-                        <!-- <div class="hero-days-label">{{'Joppa'}}</div> -->
-                        <div class="hero-days-label">{{tripData.fromTo}}</div>
                     </div>
                 </div>
 
