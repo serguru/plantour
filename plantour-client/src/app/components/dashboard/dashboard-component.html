@@ -3,25 +3,29 @@
         @for (item of items; track item.id) {
             <li
                 class="item"
-                [class.expanded]="expandedItemId === item.id"
-                (click)="toggleItem(item.id)"
+                [class.expanded]="item.expanded"
+                (click)="toggleItem(item)"
                 role="button"
                 tabindex="0"
-                (keydown.enter)="toggleItem(item.id)"
-                (keydown.space)="toggleItem(item.id)"
-                [attr.aria-expanded]="expandedItemId === item.id"
+                (keydown.enter)="toggleItem(item)"
+                (keydown.space)="toggleItem(item)"
+                [attr.aria-expanded]="item.expanded"
             >
                 <div class="item-header">
                     <div class="item-title-group">
                         <i [class]="item.icon" class="item-icon"></i>
                         <span class="item-title">{{ item.title }}</span>
                     </div>
-                    <i [class]="expandedItemId === item.id ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+                    <i [class]="item.expanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
                 </div>
 
-                @if (expandedItemId === item.id) {
+                @if (item.expanded) {
                     <div class="item-content">
-                        {{ item.description }}
+                        @if (item.component) {
+                            <ng-container *ngComponentOutlet="item.component"></ng-container>
+                        } @else {
+                            <p>{{ item.description }}</p>
+                        }
                     </div>
                 }
             </li>

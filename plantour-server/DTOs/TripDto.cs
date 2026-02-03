@@ -7,7 +7,7 @@ public class TripDto
 {
     public Guid Id { get; set; }
 
-    public Guid UserId { get; set; }
+    //public Guid UserId { get; set; }
 
     public Guid TripStatusId { get; set; }
     public string TripStatus { get; set; } = null!;

@@ -102,7 +102,7 @@ public class TripService(
         TripDto tripDto = new TripDto
         {
             Id = entity.Id,
-            UserId = entity.UserId,
+            //UserId = entity.UserId,
             TripStatusId = entity.TripStatusId,
             TripStatus = entity.TripStatus.Name,
             Name = entity.Name,

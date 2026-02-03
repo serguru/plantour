@@ -47,7 +47,7 @@ interface PhaseStat {
     ButtonModule,
     AvatarModule,
     DividerModule,
-    AppButton,
+   // AppButton,
     TripSummaryComponent
   ],
   templateUrl: './dashboard-component.html',
