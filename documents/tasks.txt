@@ -279,3 +279,5 @@ Explore plantour-client Angular web app and specifically the public subfolder. M
 
 Explore src\app\components\help\help-component.ts. It has sections and subsections. For expanded sections it shows chevron-up icon, for  collapsed ones - chevron-down icon. And subsections only show pi-angle-down icon. Make subsections showing chevron-up and chevron-down like sections do.
 
+
+See src\app\components\dashboard\dashboard-component.ts. See html. Make li elements collapsible / expandable. Click on expanded li must collapse it. Only one expanded li is possible. Use chevron up and down icons for expanded and collapsed states. If you need an example see Help component for sections and subsections implementation.

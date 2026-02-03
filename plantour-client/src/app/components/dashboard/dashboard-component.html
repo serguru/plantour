@@ -1,21 +1,30 @@
 <div class="page-container">
     <ul class="section">
-        <li class="item">
-            Trip info            
-        </li>
-        <li class="item">
-            User Trip info            
-        </li>
-        <li class="item">
-            All Users Trip info            
-        </li>
+        @for (item of items; track item.id) {
+            <li
+                class="item"
+                [class.expanded]="expandedItemId === item.id"
+                (click)="toggleItem(item.id)"
+                role="button"
+                tabindex="0"
+                (keydown.enter)="toggleItem(item.id)"
+                (keydown.space)="toggleItem(item.id)"
+                [attr.aria-expanded]="expandedItemId === item.id"
+            >
+                <div class="item-header">
+                    <div class="item-title-group">
+                        <i [class]="item.icon" class="item-icon"></i>
+                        <span class="item-title">{{ item.title }}</span>
+                    </div>
+                    <i [class]="expandedItemId === item.id ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+                </div>
+
+                @if (expandedItemId === item.id) {
+                    <div class="item-content">
+                        {{ item.description }}
+                    </div>
+                }
+            </li>
+        }
     </ul>
-    <section class="section">
-        <li class="item">
-            User All Trips info            
-        </li>
-        <li class="item">
-            All Users All Trips info            
-        </li>
-    </section>
 </div>
