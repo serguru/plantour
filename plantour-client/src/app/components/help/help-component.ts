@@ -324,6 +324,8 @@ export class HelpComponent {
   expandedSectionId = signal<string | null>(null);
   selectedSubsection = signal<{ sectionId: string; subsectionId: string } | null>(null);
 
+  expandedSubSectionId = signal<string | null>(null);
+
   ngOnInit(): void {
     // Handle route parameters (section/subsection)
     this.route.paramMap.pipe(take(1)).subscribe(params => {

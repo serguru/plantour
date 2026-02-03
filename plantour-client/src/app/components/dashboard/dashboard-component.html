@@ -1,130 +1,21 @@
 <div class="page-container">
-  <div class="dashboard">
-
-    <app-trip-summary></app-trip-summary>
-
+    <ul class="section">
+        <li class="item">
+            Trip info            
+        </li>
+        <li class="item">
+            User Trip info            
+        </li>
+        <li class="item">
+            All Users Trip info            
+        </li>
+    </ul>
     <section class="section">
-      <div class="section-header">
-        <div>
-          <h2>Your impact</h2>
-          <p>Statistics for trips you participated in</p>
-        </div>
-        <div class="section-chip">
-          <p-avatar
-            label="ME"
-            shape="circle"
-            styleClass="avatar"
-          ></p-avatar>
-        </div>
-      </div>
-
-      <div class="stats-grid">
-        <p-card
-          *ngFor="let stat of participantStats"
-          styleClass="stat-card"
-        >
-          <ng-template pTemplate="header">
-            <div class="stat-card-header">
-              <div
-                class="stat-icon"
-                [class.critical]="stat.emphasis === 'critical'"
-              >
-                <i class="{{ stat.icon }}"></i>
-              </div>
-              <div class="stat-title">{{ stat.label }}</div>
-            </div>
-          </ng-template>
-          <div class="stat-card-body">
-            <div
-              class="stat-main"
-              [class.strong]="stat.emphasis === 'strong'"
-            >
-              {{ stat.value }}
-            </div>
-            <div class="stat-helper">{{ stat.helper }}</div>
-          </div>
-        </p-card>
-      </div>
+        <li class="item">
+            User All Trips info            
+        </li>
+        <li class="item">
+            All Users All Trips info            
+        </li>
     </section>
-
-    <section
-      class="section"
-      *ngIf="isAdmin"
-    >
-      <div class="section-header">
-        <div>
-          <h2>Admin overview</h2>
-          <p>All trips and participants across Plantour</p>
-        </div>
-        <div class="section-chip">
-          <i class="pi pi-shield"></i>
-          <span>Admin</span>
-        </div>
-      </div>
-
-      <div class="stats-grid">
-        <p-card
-          *ngFor="let stat of adminStats"
-          styleClass="stat-card"
-        >
-          <ng-template pTemplate="header">
-            <div class="stat-card-header">
-              <div class="stat-icon">
-                <i class="{{ stat.icon }}"></i>
-              </div>
-              <div class="stat-title">{{ stat.label }}</div>
-            </div>
-          </ng-template>
-          <div class="stat-card-body">
-            <div class="stat-main">{{ stat.value }}</div>
-            <div class="stat-helper">{{ stat.helper }}</div>
-          </div>
-        </p-card>
-      </div>
-    </section>
-
-    <section class="section">
-      <p-card styleClass="phase-card">
-        <ng-template pTemplate="header">
-          <div class="phase-header">
-            <div>
-              <h2>Trips by phase</h2>
-              <p>Live view of the portfolio</p>
-            </div>
-            <div class="phase-total">
-              <span>Total</span>
-              <strong>62</strong>
-            </div>
-          </div>
-        </ng-template>
-        <div class="phase-grid">
-          <div
-            class="phase-item"
-            *ngFor="let phase of tripPhaseStats"
-          >
-            <div class="phase-dot"></div>
-            <div>
-              <div class="phase-value">{{ phase.value }}</div>
-              <div class="phase-label">{{ phase.label }}</div>
-            </div>
-          </div>
-        </div>
-        <p-divider></p-divider>
-        <div class="phase-footer">
-          <div>
-            <span class="foot-label">Items without bag</span>
-            <strong class="foot-value">96</strong>
-          </div>
-          <div>
-            <span class="foot-label">Shared items pending</span>
-            <strong class="foot-value critical">19</strong>
-          </div>
-          <div>
-            <span class="foot-label">Templates used</span>
-            <strong class="foot-value">12</strong>
-          </div>
-        </div>
-      </p-card>
-    </section>
-  </div>
 </div>

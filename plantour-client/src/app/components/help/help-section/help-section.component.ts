@@ -27,6 +27,10 @@ export class HelpSectionComponent {
     this.toggleExpanded.emit(this.section.id);
   }
 
+  isSelectedSubsection(subsectionId: string): boolean {
+    return this.selectedSubsectionId === subsectionId;
+  }
+
   onSelectSubsection(subsectionId: string) {
     // If clicking on the already selected subsection, collapse it
     if (this.selectedSubsectionId === subsectionId) {

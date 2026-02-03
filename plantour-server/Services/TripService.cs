@@ -146,6 +146,14 @@ public class TripService(
 
     private void AddStats(PlantourStatsDto stats, Trip entity, bool currentUserOnly)
     {
+        if (stats.PackWeights == null)
+        {
+            stats.PackWeights = new List<Weight>();
+        }
+        if (stats.TripStatuses == null)
+        {
+            stats.TripStatuses = new List<Status>();
+        }
         stats.Days += (entity.EndDate.HasValue && entity.StartDate.HasValue) ? (entity.EndDate.Value.DayNumber - entity.StartDate.Value.DayNumber + 1) : 0;
 
         stats.Participants += entity.TripUsers.Count;
