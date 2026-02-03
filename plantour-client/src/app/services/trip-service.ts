@@ -86,4 +86,9 @@ export class TripService {
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  getDashboardTrip(): Observable<TripDto> {
+    return this.http.get<TripDto>(`${this.apiUrl}/dashboard-trip`);
+  }
+  
 }

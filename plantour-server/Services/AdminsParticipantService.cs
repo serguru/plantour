@@ -51,7 +51,7 @@ public class AdminsParticipantService(
             {
                 return new CheckParticipantDto
                 {
-                    FoundUserId = adminsParticipant.Admin.Id,
+                    FoundUserId = adminsParticipant.AdminId,
                     Status = CheckParticipantStatus.AlreadyParticipant
                 };
             }
@@ -59,7 +59,7 @@ public class AdminsParticipantService(
             {
                 return new CheckParticipantDto
                 {
-                    FoundUserId = adminsParticipant.Participant.Id,
+                    FoundUserId = adminsParticipant.ParticipantId,
                     Status = CheckParticipantStatus.AlreadyParticipant
                 };
             }

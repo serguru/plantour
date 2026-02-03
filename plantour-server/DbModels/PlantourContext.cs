@@ -275,6 +275,7 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("trips_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.TripStatus).WithMany(p => p.Trips)
                 .OnDelete(DeleteBehavior.ClientSetNull)

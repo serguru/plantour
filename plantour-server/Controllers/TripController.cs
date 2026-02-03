@@ -69,4 +69,21 @@ public class TripController : ControllerBase
         await _service.DeleteAsync(id);
         return NoContent();
     }
+
+    [HttpGet("dashboard-trip")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<TripDto?>> GetDashboardTrip()
+    {
+        var dto = await _service.GetDashboardTripWithStatsAsync();
+        return Ok(dto);
+    }
+
+    // [HttpGet("dashboard-trips-all")]
+    // [AdminOrParticipant]
+    // public async Task<ActionResult<Object>> GetDashboardTripsAll()
+    // {
+    //     var dto = await _service.GetDashboardTripsAllWithStatsAsync();
+    //     return Ok(dto);
+    // }
+
 }

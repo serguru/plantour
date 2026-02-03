@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
 import { DividerModule } from 'primeng/divider';
 import { AppButton } from '../button/button-component';
+import { TripSummaryComponent } from './trip-summary/trip-summary-component';
 
 interface TripSnapshot {
   name: string;
@@ -46,7 +47,8 @@ interface PhaseStat {
     ButtonModule,
     AvatarModule,
     DividerModule,
-    AppButton
+    AppButton,
+    TripSummaryComponent
   ],
   templateUrl: './dashboard-component.html',
   styleUrls: ['./dashboard-component.scss']

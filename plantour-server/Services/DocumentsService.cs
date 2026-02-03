@@ -142,16 +142,16 @@ public class DocumentsService : IDocumentsService
             if (trip.EndDate.HasValue)
                 AddInfoRow(table, "End Date:", trip.EndDate.Value.ToString("dd.MM.yyyy"));
             
-            AddInfoRow(table, "Total Days:", trip.TotalDays.ToString());
-            AddInfoRow(table, "Participants:", trip.TotalParticipants.ToString());
-            // AddInfoRow(table, "Bags:", trip.TotalPacks.ToString());
-            // AddInfoRow(table, "Items:", trip.TotalThings.ToString());
+            AddInfoRow(table, "Total Days:", trip.UserStats.Days.ToString());
+            AddInfoRow(table, "Participants:", trip.UserStats.Participants.ToString());
+            // AddInfoRow(table, "Bags:", trip.UserStats.TotalPacks.ToString());
+            // AddInfoRow(table, "Items:", trip.UserStats.TotalThings.ToString());
             if (currentParticipant != null)
             {
                 AddInfoRow(table, "Your Bags:", currentParticipant.TotalPacks.ToString());
                 AddInfoRow(table, "Your Items:", currentParticipant.TotalThings.ToString());
             }
-            AddInfoRow(table, "Shared Items:", trip.TotalSharedThings.ToString());
+            AddInfoRow(table, "Shared Items:", trip.UserStats.SharedThings.ToString());
 
             if (!string.IsNullOrWhiteSpace(trip.Notes))
             {

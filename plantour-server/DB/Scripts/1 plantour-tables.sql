@@ -305,6 +305,7 @@ create table trips (
     notes text,
     start_date date,
     end_date date,
+    created_at timestamptz not null default now(),
     constraint ch_trips_start_before_end check (
         start_date is null 
         or end_date is null 
