@@ -377,7 +377,9 @@ create table trip_users (
     trip_id uuid not null references trips(id) on delete cascade,
     admin_participant_id uuid not null references admins_participants(id) on delete cascade,
     packaging_complete boolean not null default(false),  
-    notes text
+    notes text,
+    nopack_weight_value decimal(10,3) check(nopack_weight_value > 0),
+    nopack_weight_unit text
 );
 create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, admin_participant_id);
 

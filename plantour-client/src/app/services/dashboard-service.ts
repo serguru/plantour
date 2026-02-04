@@ -18,6 +18,19 @@ export interface DashboardTripDto {
     daysLeftText?: string
 }
 
+export interface DashboardUserTripDto {
+    id: string;
+    packs: number;
+    items: number;
+    sharedAssigned: number;
+    sharedPending: number;
+    sharedOverdue: number;
+    sharedSuccess: number;
+    sharedFailure: number;
+    weightStr: string;
+}
+
+
 @Injectable({
     providedIn: 'root',
 })
@@ -32,8 +45,12 @@ export class DashboardService {
         this.apiUrl = `${environment.apiUrl}/api/dashboard`;
     }
 
-    getDashboardTripDto(tripId?: string): Observable<DashboardTripDto> {
-        return this.http.get<DashboardTripDto>(`${this.apiUrl}/trip${tripId ? "/" + tripId : ""}`);
+    getDashboardTripDto(tripId: string): Observable<DashboardTripDto> {
+        return this.http.get<DashboardTripDto>(`${this.apiUrl}/trip/${tripId}`);
+    }
+
+    getDashboardUserTripDto(tripId: string): Observable<DashboardUserTripDto> {
+        return this.http.get<DashboardUserTripDto>(`${this.apiUrl}/user-trip/${tripId}`);
     }
 
 }

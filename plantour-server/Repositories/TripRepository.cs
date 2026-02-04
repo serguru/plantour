@@ -38,33 +38,6 @@ public class TripRepository(PlantourContext context) : GenericRepository<Trip>(c
             .ToListAsync();
     }
 
-    public async Task<Trip?> GetByIdOrLatestFullAsync(CurrentUser currentUser, Guid? id)
-    {
-        Guid tripId = Guid.Empty;
-        if (id == null)
-        {
-            var trip = await _dbSet
-                .Include(x => x.TripStatus)
-                .Where(x => x.TripStatus.Name != "Archived" && (x.UserId == currentUser.AdminId ||
-                    x.TripUsers.Any(tu => tu.AdminParticipant.AdminId == currentUser.AdminId &&
-                        tu.AdminParticipant.ParticipantId == currentUser.UserId)))
-                .OrderByDescending(t => t.CreatedAt)
-                .FirstOrDefaultAsync();
-
-            if (trip == null)
-            {
-                return null;
-            }           
-
-            tripId = trip.Id;
-        } else
-        {
-            tripId = id.Value;
-        }
-
-        return await GetByIdFullAsync(currentUser, tripId);
-        
-    }
 
     public async Task<Trip?> GetByIdFullAsync(CurrentUser currentUser, Guid id)
     {

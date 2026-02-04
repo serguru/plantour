@@ -13,7 +13,7 @@ import { TripDto, TripService } from '../../../services/trip-service';
 import { CurrentTripService } from '../../../services/current-trip-service';
 import { map, Observable, of, startWith, switchMap, withLatestFrom } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { DashboardService, DashboardTripDto } from '../../../services/dashboard-service';
+import { DashboardService, DashboardTripDto, DashboardUserTripDto } from '../../../services/dashboard-service';
 
 
 // TODO: consider replacing OnInit with signal-based approach in other components as well
@@ -28,12 +28,12 @@ import { DashboardService, DashboardTripDto } from '../../../services/dashboard-
     ButtonModule,
     AvatarModule,
     DividerModule,
-    AppButton
+    
   ],
-  templateUrl: './trip-summary-component.html',
-  styleUrl: './trip-summary-component.scss',
+  templateUrl: './user-trip-summary-component.html',
+  styleUrl: './user-trip-summary-component.scss',
 })
-export class TripSummaryComponent implements OnInit {
+export class UserTripSummaryComponent implements OnInit {
 
   @Input() 
   selectedTripId$!: Observable<string>;
@@ -43,7 +43,7 @@ export class TripSummaryComponent implements OnInit {
   
   destroyRef = inject(DestroyRef);
 
-  tripData: DashboardTripDto | null = null;
+  tripData: DashboardUserTripDto | null = null;
 
   tripIsCurrent: boolean = false;
 
@@ -54,7 +54,7 @@ export class TripSummaryComponent implements OnInit {
         if (!tripId) {
           return of(null);
         }
-        return this.dashboardService.getDashboardTripDto(tripId);
+        return this.dashboardService.getDashboardUserTripDto(tripId);
       }),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe(trip => {

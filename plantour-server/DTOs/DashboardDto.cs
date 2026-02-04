@@ -11,3 +11,16 @@ public class DashboardTripDto
     public int DaysLeft { get; set; }
     public string DaysLeftText { get; set; } = null!;
 }
+public class DashboardUserTripDto
+{
+    public Guid Id { get; set; }
+    public int Packs { get; set; }
+    public int Items { get; set; }
+    public int SharedAssigned { get; set; }
+    public int SharedPending { get; set; }
+    public int SharedOverdue { get; set; }
+    public int SharedSuccess { get; set; }
+    public int SharedFailure { get; set; }
+    public string WeightStr { get; set; } = null!;
+    
+}

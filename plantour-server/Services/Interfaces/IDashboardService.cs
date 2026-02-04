@@ -4,5 +4,6 @@ namespace plantour_server.Services;
 
 public interface IDashboardService
 {
-    Task<DashboardTripDto?> GetDashboardTripDtoAsync(Guid? tripId);
+    Task<DashboardTripDto?> GetDashboardTripDtoAsync(Guid tripId);
+    Task<DashboardUserTripDto?> GetDashboardUserTripDtoAsync(Guid tripId);
 }

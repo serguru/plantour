@@ -14,6 +14,7 @@ export interface TripDto {
   startDate?: string | null;
   endDate?: string | null;
 
+  createdAt: string;
 
   totalDays: number;
   totalParticipants: number;

@@ -16,11 +16,19 @@ public class DashboardController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("trip/{tripId?}")]
+    [HttpGet("trip/{tripId}")]
     [AdminOrParticipant]
-    public async Task<ActionResult<DashboardTripDto>> GetDashboardTripDto(Guid? tripId)
+    public async Task<ActionResult<DashboardTripDto>> GetDashboardTripDto(Guid tripId)
     {
         var dto = await _service.GetDashboardTripDtoAsync(tripId);
+        return Ok(dto);
+    }
+
+    [HttpGet("user-trip/{tripId}")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<DashboardUserTripDto>> GetDashboardUserTripDto(Guid tripId)
+    {
+        var dto = await _service.GetDashboardUserTripDtoAsync(tripId);
         return Ok(dto);
     }
 }

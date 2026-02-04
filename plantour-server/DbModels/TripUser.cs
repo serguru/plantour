@@ -26,6 +26,13 @@ public partial class TripUser
     [Column("notes")]
     public string? Notes { get; set; }
 
+    [Column("nopack_weight_value")]
+    [Precision(10, 3)]
+    public decimal? NopackWeightValue { get; set; }
+
+    [Column("nopack_weight_unit")]
+    public string? NopackWeightUnit { get; set; }
+
     [ForeignKey("AdminParticipantId")]
     [InverseProperty("TripUsers")]
     public virtual AdminsParticipant AdminParticipant { get; set; } = null!;

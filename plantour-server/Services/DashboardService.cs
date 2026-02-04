@@ -17,16 +17,16 @@ public class DashboardService(
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
 
-    public async Task<DashboardTripDto?> GetDashboardTripDtoAsync(Guid? tripId)
+    public async Task<DashboardTripDto?> GetDashboardTripDtoAsync(Guid tripId)
     {
         _currentUser.RaiseIfNotAuthenticated();
 
-        if (tripId != null && !await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId.Value))
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
             throw new UnauthorizedAccessException("User does not have access to this trip");
         }
 
-        var trip = await _tripRepository.GetByIdOrLatestFullAsync(_currentUser, tripId);
+        var trip = await _tripRepository.GetByIdFullAsync(_currentUser, tripId);
 
         if (trip == null)
         {
@@ -71,6 +71,77 @@ public class DashboardService(
             DaysLeft = daysLeft,
             DaysLeftText = daysLeftText
         };
+
+        return dto;
+    }
+    
+    public async Task<DashboardUserTripDto?> GetDashboardUserTripDtoAsync(Guid tripId)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new UnauthorizedAccessException("User does not have access to this trip");
+        }
+
+        var trip = await _tripRepository.GetByIdFullAsync(_currentUser, tripId);
+
+        if (trip == null)
+        {
+            return null;
+        }
+
+        var userId = _currentUser.UserId;
+
+
+        var dto = new DashboardUserTripDto
+        {
+            Id = trip.Id,
+        };
+
+        var tripUser = trip.TripUsers.FirstOrDefault(x => x.AdminParticipant.ParticipantId == userId);
+        if (tripUser != null)
+        {
+            dto.Packs = tripUser.TripUserPackages.Count;
+            dto.Items = tripUser.TripUserThings.Count;
+            dto.SharedAssigned = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id);
+            dto.SharedPending = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedThing?.Finished == null);
+            dto.SharedOverdue = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedThing?.Finished != "success" && x.AssignedDeadline != null && x.AssignedDeadline < DateTime.UtcNow);
+            dto.SharedSuccess = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedThing?.Finished == "success");
+            dto.SharedFailure = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedThing?.Finished == "failure");
+
+            List<Weight> packWeights = new List<Weight>();
+
+
+            foreach (var tripUserPackage in tripUser.TripUserPackages)
+            {
+                if (!String.IsNullOrWhiteSpace(tripUserPackage.WeightUnit) && tripUserPackage.WeightValue.HasValue && tripUserPackage.WeightValue.Value > 0)
+                {
+                    Weight? existingWeight = packWeights!.FirstOrDefault(w => w.Unit.Equals(tripUserPackage.
+                    WeightUnit, StringComparison.OrdinalIgnoreCase));
+
+                    if (existingWeight == null)
+                    {
+                        var newExistingWeight = new Weight { Unit = tripUserPackage.WeightUnit, Value = tripUserPackage.WeightValue.Value };
+                        packWeights.Add(newExistingWeight);
+                    } else
+                    {
+                        existingWeight.Value += tripUserPackage.WeightValue.Value;
+                    }
+                }
+            }
+
+            if (packWeights.Count > 0)
+            {
+                dto.WeightStr = string.Join(", ", packWeights.Select(w => $"{w.Value} {w.Unit}"));
+            }
+        }
+
+
+
+
+
+
 
         return dto;
     }
