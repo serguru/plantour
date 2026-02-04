@@ -10,8 +10,6 @@ import { DividerModule } from 'primeng/divider';
 import { AppButton } from '../button/button-component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ComponentService } from '../../services/component-service';
-import { CurrentTripService } from '../../services/current-trip-service';
 import { DashboardService, DashboardTripDto } from '../../services/dashboard-service';
 import { TripSummaryComponent } from './trip-summary/trip-summary-component';
 import { Select } from "primeng/select";

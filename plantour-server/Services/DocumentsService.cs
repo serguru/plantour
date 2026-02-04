@@ -3,6 +3,7 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using plantour_server.DTOs;
 using PlantourApi.Models;
+using plantour_server.Utils;
 
 namespace plantour_server.Services;
 
@@ -142,8 +143,10 @@ public class DocumentsService : IDocumentsService
             if (trip.EndDate.HasValue)
                 AddInfoRow(table, "End Date:", trip.EndDate.Value.ToString("dd.MM.yyyy"));
             
-            AddInfoRow(table, "Total Days:", trip.UserStats.Days.ToString());
-            AddInfoRow(table, "Participants:", trip.UserStats.Participants.ToString());
+            var d = DateUtils.DurationStr(trip.StartDate, trip.EndDate);
+
+            AddInfoRow(table, "Total Days:", d);
+            AddInfoRow(table, "Participants:", trip.TotalParticipants.ToString());
             // AddInfoRow(table, "Bags:", trip.UserStats.TotalPacks.ToString());
             // AddInfoRow(table, "Items:", trip.UserStats.TotalThings.ToString());
             if (currentParticipant != null)
@@ -151,7 +154,7 @@ public class DocumentsService : IDocumentsService
                 AddInfoRow(table, "Your Bags:", currentParticipant.TotalPacks.ToString());
                 AddInfoRow(table, "Your Items:", currentParticipant.TotalThings.ToString());
             }
-            AddInfoRow(table, "Shared Items:", trip.UserStats.SharedThings.ToString());
+            AddInfoRow(table, "Shared Items:", trip.TotalSharedThings.ToString());
 
             if (!string.IsNullOrWhiteSpace(trip.Notes))
             {

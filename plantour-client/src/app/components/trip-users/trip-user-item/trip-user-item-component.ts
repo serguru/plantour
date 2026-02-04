@@ -20,8 +20,8 @@ export class TripUserItemComponent {
       array.push(`phone: ${this.entity.phone}`);
     }
 
-    array.push(`packs: ${this.entity.totalPacks}`);
-    array.push(`things: ${this.entity.totalThings}`);
+    array.push(`bags: ${this.entity.totalPacks}`);
+    array.push(`items: ${this.entity.totalThings}`);
     array.push(`shared items: ${this.entity.totalSharedThings}`);
 
     if (array.length == 0) {

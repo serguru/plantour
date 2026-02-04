@@ -70,13 +70,13 @@ public class TripController : ControllerBase
         return NoContent();
     }
 
-    [HttpGet("dashboard-trip")]
-    [AdminOrParticipant]
-    public async Task<ActionResult<TripDto?>> GetDashboardTrip()
-    {
-        var dto = await _service.GetDashboardTripWithStatsAsync();
-        return Ok(dto);
-    }
+    // [HttpGet("dashboard-trip")]
+    // [AdminOrParticipant]
+    // public async Task<ActionResult<TripDto?>> GetDashboardTrip()
+    // {
+    //     var dto = await _service.GetDashboardTripWithStatsAsync();
+    //     return Ok(dto);
+    // }
 
     // [HttpGet("dashboard-trips-all")]
     // [AdminOrParticipant]

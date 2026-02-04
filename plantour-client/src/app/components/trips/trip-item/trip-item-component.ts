@@ -41,7 +41,7 @@ export class TripItemComponent {
     }
 
     array.push('participants: ' + this.entity.totalParticipants);
-    array.push('packs ' + this.entity.totalPacks);
+    array.push('bags ' + this.entity.totalPacks);
     //array.push('personal items ' + this.entity.totalThings);
     array.push('shared items ' + this.entity.totalSharedThings);
 

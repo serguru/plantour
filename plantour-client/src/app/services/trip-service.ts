@@ -16,23 +16,23 @@ export interface TripDto {
 
   createdAt: string;
 
-  totalDays: number;
-  totalParticipants: number;
-  totalPacks: number;
- // totalThings: number;
-  currentUserIncluded: boolean;
+//   totalDays: number;
+   totalParticipants: number;
+   totalPacks: number;
+//  // totalThings: number;
+   currentUserIncluded: boolean;
 
-  totalSharedThings: number;
-  daysLeft: number;
-  daysLeftText: string | null;
-  totalSharedThingsDone: number;
-  totalSharedThingsOverdue: number;
-  totalPackWeightsStr: string | null;
-  userTotalPacks: number;
-  userTotalSharedThings: number;
-  userTotalSharedThingsDone: number;
-  userTotalSharedThingsOverdue: number;
-  userTotalPackWeightsStr: string | null;
+   totalSharedThings: number;
+//   daysLeft: number;
+//   daysLeftText: string | null;
+//   totalSharedThingsDone: number;
+//   totalSharedThingsOverdue: number;
+//   totalPackWeightsStr: string | null;
+//   userTotalPacks: number;
+//   userTotalSharedThings: number;
+//   userTotalSharedThingsDone: number;
+//   userTotalSharedThingsOverdue: number;
+//   userTotalPackWeightsStr: string | null;
 }
 export interface CreateTripRequest {
   tripStatusId: string | null;

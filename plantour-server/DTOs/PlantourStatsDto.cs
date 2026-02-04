@@ -17,22 +17,4 @@ public class Status
 }
 
 
-public class PlantourStatsDto 
-{
-    public int Days { get; set; }
-    public int Participants { get; set; }
-    public int Packs { get; set; }
-    public int Things { get; set; }
-    public int SharedThings { get; set; }
-    public int SharedThingsDone { get; set; }
-    public int SharedThingsOverdue { get; set; }
-    public List<Weight> PackWeights { get; set; } = null!;
-    public List<Status> TripStatuses { get; set; } = null!;
-}
-
-public class TripUserStatsDto 
-{
-    public PlantourStatsDto Trip { get; set; } = null!;
-    public PlantourStatsDto User { get; set; } = null!;
-}
 

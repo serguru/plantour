@@ -8,8 +8,6 @@ import { TagModule } from 'primeng/tag';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { CardModule } from 'primeng/card';
 import { CommonModule } from '@angular/common';
-import { ComponentService } from '../../../services/component-service';
-import { TripDto, TripService } from '../../../services/trip-service';
 import { CurrentTripService } from '../../../services/current-trip-service';
 import { map, Observable, of, startWith, switchMap, withLatestFrom } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';

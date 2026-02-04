@@ -1,8 +1,6 @@
 ﻿
 namespace plantour_server.DTOs;
 
-// TODO: Explain in Help "No package" idea
-
 public class TripDto
 {
     public Guid Id { get; set; }
@@ -22,10 +20,8 @@ public class TripDto
 
     public bool CurrentUserIncluded { get; set; }
 
-    public int DaysLeft { get; set; }
-    public string DaysLeftText { get; set; } = null!;
-
-    public PlantourStatsDto TripStats  { get; set; } = null!;
-    public PlantourStatsDto UserStats  { get; set; } = null!;
-
+    public int TotalParticipants { get; set; }
+    public int TotalPacks { get; set; }
+    public int TotalSharedThings { get; set; }
+    
 }

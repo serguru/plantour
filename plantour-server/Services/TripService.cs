@@ -67,60 +67,12 @@ public class TripService(
         await _tripRepository.DeleteAsync(id);
     }
 
-
-    private TripDto StatsByTripDto(Trip entity)
+    private void AddStatsToTripDto(TripDto tripDto, Trip trip)
     {
-        var userId = _currentUser.UserId;
-        var currentUserIncluded = entity.TripUsers.Any(x => x.AdminParticipant.ParticipantId == userId);
-
-        int daysLeft = 0;
-        string daysLeftText = "";
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        if (entity.StartDate.HasValue && entity.StartDate.Value >= today)
-        {
-            daysLeft = entity.StartDate.Value.DayNumber - today.DayNumber;
-            daysLeftText = daysLeft switch
-            {
-                > 1 => $"{daysLeft} days left to start",
-                1 => "1 day left to start",
-                0 => "Start today!",
-                _ => ""
-            };
-        }
-        else if (entity.EndDate.HasValue && entity.EndDate.Value >= today)
-        {
-            daysLeft = entity.EndDate.Value.DayNumber - today.DayNumber;
-            daysLeftText = daysLeft switch
-            {
-                > 1 => $"{daysLeft} days left to end",
-                1 => "1 day left to end",
-                0 => "End today!",
-                _ => ""
-            };
-        }
-
-        TripDto tripDto = new TripDto
-        {
-            Id = entity.Id,
-            //UserId = entity.UserId,
-            TripStatusId = entity.TripStatusId,
-            TripStatus = entity.TripStatus.Name,
-            Name = entity.Name,
-            Notes = entity.Notes,
-            StartDate = entity.StartDate,
-            EndDate = entity.EndDate,
-            CurrentUserIncluded = currentUserIncluded,
-            DaysLeft = daysLeft,
-            DaysLeftText = daysLeftText,
-            TripStats = new PlantourStatsDto(),
-            UserStats = new PlantourStatsDto()
-        };
-
-        AddStats(tripDto.TripStats, entity, false);
-        AddStats(tripDto.UserStats, entity, true);
-
-        return tripDto;
-
+        tripDto.CurrentUserIncluded = trip.TripUsers.Any(tu => tu.AdminParticipant.AdminId == _currentUser.AdminId && tu.AdminParticipant.ParticipantId == _currentUser.UserId);
+        tripDto.TotalPacks = trip.TripUsers.SelectMany(tu => tu.TripUserPackages).Count();
+        tripDto.TotalParticipants = trip.TripUsers.Count;
+        tripDto.TotalSharedThings = trip.TripUsers.SelectMany(tu => tu.TripSharedThings).Count();
     }
 
     public async Task<TripDto?> GetByIdWithStatsAsync(Guid id)
@@ -139,137 +91,11 @@ public class TripService(
             return null;
         }
 
-        TripDto? result = StatsByTripDto(entity);
+        TripDto? result = _mapper.Map<TripDto>(entity);
+        AddStatsToTripDto(result, entity);
         return result;
     }
 
-
-    private void AddStats(PlantourStatsDto stats, Trip entity, bool currentUserOnly)
-    {
-        if (stats.PackWeights == null)
-        {
-            stats.PackWeights = new List<Weight>();
-        }
-        if (stats.TripStatuses == null)
-        {
-            stats.TripStatuses = new List<Status>();
-        }
-        stats.Days += (entity.EndDate.HasValue && entity.StartDate.HasValue) ? (entity.EndDate.Value.DayNumber - entity.StartDate.Value.DayNumber + 1) : 0;
-
-        stats.Participants += entity.TripUsers.Count;
-
-        var userId = _currentUser.UserId;
-
-        entity.TripUsers.Where(x => !currentUserOnly || x.AdminParticipant.ParticipantId == userId).ToList().ForEach(x =>
-        {
-            stats.Packs += x.TripUserPackages.Count;
-            stats.Things += x.TripUserThings.Count;
-
-            foreach (var tripUserPackage in x.TripUserPackages)
-            {
-                if (!String.IsNullOrWhiteSpace(tripUserPackage.WeightUnit) && tripUserPackage.WeightValue.HasValue && tripUserPackage.WeightValue.Value > 0)
-                {
-                    Weight? existingWeight = stats.PackWeights!.FirstOrDefault(w => w.Unit.Equals(tripUserPackage.WeightUnit, StringComparison.OrdinalIgnoreCase));
-
-                    if (existingWeight == null)
-                    {
-                        var newExistingWeight = new Weight { Unit = tripUserPackage.WeightUnit, Value = tripUserPackage.WeightValue.Value };
-                        stats.PackWeights.Add(newExistingWeight);
-                    } else
-                    {
-                        existingWeight.Value += tripUserPackage.WeightValue.Value;
-                    }
-                }
-            }
-        });
-
-        if (currentUserOnly)
-        {
-            stats.SharedThings = entity.TripSharedThings.Count(x => x.AssignedTo?.AdminParticipant?.ParticipantId == userId);
-            stats.SharedThingsDone = entity.TripSharedThings.Count(x => x.AssignedTo?.AdminParticipant?.ParticipantId == userId && x.AssignedThing?.Finished == "success");
-            stats.SharedThingsOverdue = entity.TripSharedThings.Count(x => x.AssignedDeadline.HasValue &&
-                x.AssignedDeadline.Value < DateTime.UtcNow && x.AssignedTo?.AdminParticipant?.ParticipantId == userId && x.AssignedThing?.Finished != "success"
-                );
-        }
-        else
-        {
-            stats.SharedThings = entity.TripSharedThings.Count(x => x.AssignedToId != null);
-            stats.SharedThingsDone = entity.TripSharedThings.Count(x => x.AssignedThing?.Finished == "success");
-            stats.SharedThingsOverdue = entity.TripSharedThings.Count(x => x.AssignedDeadline.HasValue &&
-                x.AssignedDeadline.Value < DateTime.UtcNow &&
-                (
-                    !x.AssignedToId.HasValue || x.AssignedThing?.Finished != "success"
-                ));
-        }
-
-        var existingStatus = stats.TripStatuses.FirstOrDefault(x => x.Name.Equals(entity.TripStatus.Name, StringComparison.OrdinalIgnoreCase));
-
-        if (existingStatus == null)
-        {
-            var newStatus = new Status { Name = entity.TripStatus.Name, Value = 1 };
-            stats.TripStatuses.Add(newStatus);
-        }
-        else
-        {
-            existingStatus.Value += 1;
-        }
-    }
-
-    public async Task<TripUserStatsDto> GetStats(Guid? tripId = null)
-    {
-        TripUserStatsDto result = new TripUserStatsDto();
-        result.Trip = new PlantourStatsDto();
-        result.Trip.PackWeights = new List<Weight>();
-        result.Trip.TripStatuses = new List<Status>();
-
-        result.User = new PlantourStatsDto();
-        result.User.PackWeights = new List<Weight>();
-        result.User.TripStatuses = new List<Status>();
-
-        List<Trip> trips;
-
-        if (tripId is Guid id && id != Guid.Empty)
-        {
-            var singleTrip = await _tripRepository.GetByIdFullAsync(_currentUser, id);
-            trips = (singleTrip != null ? new[] { singleTrip } : Enumerable.Empty<Trip>()).ToList();
-        }
-        else
-        {
-            trips = (await _tripRepository.GetAllFullAsync(_currentUser)).ToList();
-        }
-
-        var userId = _currentUser.UserId;
-
-        trips.ForEach(x =>
-        {
-            AddStats(result.User, x, true);
-            AddStats(result.Trip, x, false);
-        });
-
-        return result;
-    }
-
-    public async Task<TripDto?> GetDashboardTripWithStatsAsync()
-    {
-        _currentUser.RaiseIfNotAuthenticated();
-        var trips = await _tripRepository.GetAllAsync();
-
-        var tripEntity = trips.MaxBy(t => t.CreatedAt);
-
-        if (tripEntity == null)
-        {
-            return null;
-        }
-
-        var entity = await _tripRepository.GetByIdFullAsync(_currentUser, tripEntity.Id);
-        if (entity == null)
-        {
-            return null;
-        }
-
-        TripDto tripDto = StatsByTripDto(entity);
-        return tripDto;
-    }
 
     public async Task<IEnumerable<TripDto>> GetAllWithStatsAsync()
     {
@@ -277,8 +103,12 @@ public class TripService(
 
         var entities = await _tripRepository.GetAllFullAsync(_currentUser);
 
-        var result = entities
-            .Select(x => StatsByTripDto(x));
+        var result = entities.Select(x =>
+        {
+            var dto = _mapper.Map<TripDto>(x);
+            AddStatsToTripDto(dto, x);
+            return dto;
+        });
 
         return result;
     }
@@ -290,7 +120,12 @@ public class TripService(
         var entities = await _tripRepository.GetAllFullAsync(_currentUser);
 
         var result = entities
-            .Select(x => StatsByTripDto(x))
+            .Select(x =>
+            {
+                var dto = _mapper.Map<TripDto>(x);
+                AddStatsToTripDto(dto, x);
+                return dto;
+            })
             .Where(x => x.CurrentUserIncluded);
 
         return result;

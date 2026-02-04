@@ -17,6 +17,6 @@ public interface ITripService
 
     Task<IEnumerable<TripDto>> GetAllWithStatsWhereParticipantAsync();
 
-    Task<TripDto?> GetDashboardTripWithStatsAsync();
+    //Task<TripDto?> GetDashboardTripWithStatsAsync();
     
 }
