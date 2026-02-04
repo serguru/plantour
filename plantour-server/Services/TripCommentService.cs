@@ -28,10 +28,13 @@ public class TripCommentService(
 
         if (tripComment.TripUserId != null)
         {
-            dto.UserId = _currentUser!.UserId;
-            dto.FirstName = _currentUser!.FirstName;
-            dto.LastName = _currentUser!.LastName;
-            dto.Email = _currentUser!.Email;
+
+            var user = tripComment.TripUser!.AdminParticipant!.Participant;
+
+            dto.UserId = user!.Id;
+            dto.FirstName = user!.FirstName;
+            dto.LastName = user!.LastName;
+            dto.Email = user!.Email;
         }
         else
         {

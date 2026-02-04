@@ -9,6 +9,8 @@ public class TripCommentRepository(PlantourContext context) : GenericRepository<
     {
         return await _dbSet
             .Include(x => x.TripUser)
+                .ThenInclude(tu => tu.AdminParticipant) 
+                    .ThenInclude(ap => ap.Participant)
             .FirstOrDefaultAsync(x =>
                 x.Id == id &&
                 x.Trip.Id == tripId &&
@@ -37,6 +39,11 @@ public class TripCommentRepository(PlantourContext context) : GenericRepository<
     {
         return await _dbSet
             .Include(x => x.TripUser)
+                .ThenInclude(tu => tu.AdminParticipant) 
+                    .ThenInclude(ap => ap.Participant)
+            .Include(x => x.TripUser)
+                .ThenInclude(tu => tu.AdminParticipant) 
+                    .ThenInclude(ap => ap.Admin)
             .Where(x =>
                 x.Trip.Id == tripId &&
                 x.Trip.UserId == adminId &&
@@ -48,3 +55,4 @@ public class TripCommentRepository(PlantourContext context) : GenericRepository<
     }
 
 }
+

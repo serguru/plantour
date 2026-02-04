@@ -1,15 +1,18 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable, Inject, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { formatToEnglishLocale, getFullName } from '../helpers/utils';
+import { UsersService } from './users-service';
 
 export interface TripCommentDto {
   id: string;
+  userId: string;
   tripId: string;
   comment: string;
   publishedAt?: string | null;
   fullUserName: string;
+  isOwnComment: boolean;
 }
 
 export interface CreateTripCommentRequest {
@@ -28,6 +31,8 @@ export interface UpdateTripCommentRequest {
 export class TripCommentService {
   private apiUrl: string;
 
+  usersService = inject(UsersService);
+
   constructor(
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
@@ -36,12 +41,16 @@ export class TripCommentService {
   }
 
   getAll(tripId: string): Observable<TripCommentDto[]> {
+
+    const currentUserId = this.usersService.getCurrentUserId();
+
     return this.http.get<TripCommentDto[]>(`${this.apiUrl}/trip/${tripId}`)
     .pipe(
       map(comments => {
         comments?.forEach ((x: any) => {
           x.fullUserName = getFullName(x.firstName, x.lastName, x.email, false); 
           x.publishedAt = x.publishedAt ? formatToEnglishLocale(x.publishedAt) : null;
+          x.isOwnComment = x.userId === currentUserId;
         });
         return comments;
       })

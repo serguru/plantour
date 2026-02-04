@@ -1,4 +1,4 @@
-<div class="container" [class]="!isMyMessage ? 'sent' : 'received'">
+<div class="container" [class]="entity.isOwnComment ? 'sent' : 'received'">
     <div class="content">
         <div class="header">
             <div class="author">
@@ -9,7 +9,7 @@
             </div>
         </div>
         <span
-            [innerHTML]="entity?.comment"
+            [innerHTML]="entity.comment"
         ></span>
     </div>
 </div>

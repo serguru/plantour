@@ -254,7 +254,10 @@ export class UsersService {
   }
 
   getCurrentUserId(): string | null {
-    return this.getClaim(this._userSignal(), [this.claimNameIdentifier, 'user_id']) ?? null;
+
+    const us = this._userSignal();
+
+    return this.getClaim(us, [this.claimNameIdentifier, 'nameid']) ?? null;
   }
 
   private getClaim(token: AccessToken | null, keys: string[]): string | undefined {
