@@ -1,15 +1,15 @@
 @if(tripData) {
   <div class="trip-summary-container">
     
-    <!-- Header Section: Packs, Items, Weight -->
+    <!-- Header Section: Packs, Weight -->
     <div class="summary-header">
+      <div class="stat-card">
+        <div class="stat-value">{{ tripData.participants }}</div>
+        <div class="stat-label">Participants</div>
+      </div>
       <div class="stat-card">
         <div class="stat-value">{{ tripData.packs }}</div>
         <div class="stat-label">Packs</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">{{ tripData.items }}</div>
-        <div class="stat-label">Items</div>
       </div>
       @if(tripData.weightStr) {
         <div class="stat-card weight">
@@ -17,6 +17,19 @@
           <div class="stat-label">Weight</div>
         </div>
       }
+    </div>
+
+    <!-- Packing Progress Section -->
+    <div class="progress-section">
+      <div class="progress-header">
+        <h3 class="section-title">Packing Progress</h3>
+        <span class="progress-percent">{{ tripData.packingProgress }}%</span>
+      </div>
+      <p-progressBar 
+        [value]="tripData.packingProgress" 
+        [showValue]="false"
+        class="progress-bar">
+      </p-progressBar>
     </div>
 
     <!-- Shared Items Status Section -->

@@ -27,8 +27,7 @@ import { DashboardService, DashboardTripDto } from '../../../services/dashboard-
     BadgeModule,
     ButtonModule,
     AvatarModule,
-    DividerModule,
-    AppButton
+    DividerModule
   ],
   templateUrl: './trip-summary-component.html',
   styleUrl: './trip-summary-component.scss',

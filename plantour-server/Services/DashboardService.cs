@@ -104,6 +104,7 @@ public class DashboardService(
         {
             dto.Packs = tripUser.TripUserPackages.Count;
             dto.Items = tripUser.TripUserThings.Count;
+            dto.SharedTotal = trip.TripSharedThings.Count();
             dto.SharedAssigned = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id);
             dto.SharedPending = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedThing?.Finished == null);
             dto.SharedOverdue = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedThing?.Finished != "success" && x.AssignedDeadline != null && x.AssignedDeadline < DateTime.UtcNow);
@@ -180,8 +181,11 @@ public class DashboardService(
             Id = trip.Id,
         };
 
+        dto.Participants = trip.TripUsers.Count;
+
         dto.Packs = trip.TripUsers.SelectMany(tu => tu.TripUserPackages).Count();
 
+        dto.SharedTotal = trip.TripSharedThings.Count();
         dto.SharedAssigned = trip.TripSharedThings.Count(x => x.AssignedToId != null);
 
         dto.SharedPending = trip.TripSharedThings.Count(x => x.AssignedToId != null && x.AssignedThing?.Finished == null);

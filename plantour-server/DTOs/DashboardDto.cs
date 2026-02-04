@@ -16,6 +16,7 @@ public class DashboardUserTripDto
     public Guid Id { get; set; }
     public int Packs { get; set; }
     public int Items { get; set; }
+    public int SharedTotal { get; set; }
     public int SharedAssigned { get; set; }
     public int SharedPending { get; set; }
     public int SharedOverdue { get; set; }
@@ -28,7 +29,9 @@ public class DashboardUserTripDto
 public class DashboardAllUsersTripDto
 {
     public Guid Id { get; set; }
+    public int Participants { get; set; }
     public int Packs { get; set; }
+    public int SharedTotal { get; set; }
     public int SharedAssigned { get; set; }
     public int SharedPending { get; set; }
     public int SharedOverdue { get; set; }

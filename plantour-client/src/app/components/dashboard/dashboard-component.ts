@@ -18,6 +18,7 @@ import { Select } from "primeng/select";
 import { TripDto, TripService } from '../../services/trip-service';
 import { FormsModule } from '@angular/forms';
 import { UserTripSummaryComponent } from './user-trip-summary/user-trip-summary-component';
+import { AllUsersTripSummaryComponent } from './all-users-trip-summary/all-users-trip-summary-component';
 
 
 @Component({
@@ -35,7 +36,8 @@ import { UserTripSummaryComponent } from './user-trip-summary/user-trip-summary-
     TripSummaryComponent,
     Select,
     FormsModule,
-    UserTripSummaryComponent
+    UserTripSummaryComponent,
+    AllUsersTripSummaryComponent
 ],
   templateUrl: './dashboard-component.html',
   styleUrls: ['./dashboard-component.scss']
@@ -45,7 +47,7 @@ export class DashboardComponent implements OnInit {
   dashboardService = inject(DashboardService);
   tripSummaryComponent = TripSummaryComponent;
   userTripSummaryComponent = UserTripSummaryComponent;
-
+  allUsersTripSummaryComponent = AllUsersTripSummaryComponent;
 
   
   tripService = inject(TripService);
@@ -83,20 +85,7 @@ export class DashboardComponent implements OnInit {
       title: 'All Users Trip info',
       description: 'Team-wide progress view with shared items and responsibilities.',
       icon: 'pi pi-users',
-      expanded: false
-    },
-    {
-      id: 'user-all-trips-info',
-      title: 'User All Trips info',
-      description: 'Overview of all your trips and their current statuses.',
-      icon: 'pi pi-briefcase',
-      expanded: false
-    },
-    {
-      id: 'all-users-all-trips-info',
-      title: 'All Users All Trips info',
-      description: 'Organization-wide snapshot of trips and participation.',
-      icon: 'pi pi-chart-bar',
+      component: this.allUsersTripSummaryComponent,
       expanded: false
     }
   ];

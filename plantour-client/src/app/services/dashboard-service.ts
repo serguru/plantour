@@ -22,6 +22,7 @@ export interface DashboardUserTripDto {
     id: string;
     packs: number;
     items: number;
+    sharedTotal: number;
     sharedAssigned: number;
     sharedPending: number;
     sharedOverdue: number;
@@ -34,8 +35,10 @@ export interface DashboardUserTripDto {
 export interface DashboardAllUsersTripDto
 {
     id: string;
+    participants: number;
     packs: number;
     sharedAssigned: number;
+    sharedTotal: number;
     sharedPending: number;
     sharedOverdue: number;
     sharedSuccess: number;
