@@ -97,6 +97,46 @@
       </div>
 
       <div class="form-field">
+        <div class="container">
+          <p-checkbox
+            formControlName="packagingComplete"
+            [binary]="true"
+            inputId="packagingComplete"
+            [disabled]="isViewMode"
+          />
+          <label for="packagingComplete"> Packaging Complete </label>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="nopackWeightValue">No-pack Weight</label>
+        <p-inputnumber
+          inputId="nopackWeightValue"
+          formControlName="nopackWeightValue"
+          [placeholder]="isViewMode ? '' : 'Enter weight (optional)'"
+          mode="decimal"
+          locale="en-US"
+          [min]="0"
+          [maxFractionDigits]="3"
+          [readonly]="isViewMode"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="nopackWeightUnit">No-pack Unit</label>
+        <p-select
+          id="nopackWeightUnit"
+          formControlName="nopackWeightUnit"
+          [options]="lookupUnits$ | async"
+          [placeholder]="isViewMode ? '' : 'Select unit (optional)'"
+          [showClear]="true"
+          styleClass="w-full"
+          [editable]="true"
+          [readonly]="isViewMode"
+        ></p-select>
+      </div>
+
+      <div class="form-field">
         <label for="notes">Notes</label>
         <textarea
           pTextarea

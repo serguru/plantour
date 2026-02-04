@@ -20,6 +20,7 @@ import { ComponentService } from '../../../services/component-service';
 import { capitalizeFirstLetter, findDuplicates, getFullName } from '../../../helpers/utils';
 import { AdminsParticipantDto, AdminsParticipantService } from '../../../services/admins-participant-service';
 import { combineLatest, finalize, map, Observable, of } from 'rxjs';
+import { Checkbox } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-trip-participants-form-component',
@@ -32,7 +33,9 @@ import { combineLatest, finalize, map, Observable, of } from 'rxjs';
     AutoFocusDirective,
     FormHeader,
     FormActions,
-    Select
+    Select,
+    InputNumber,
+    Checkbox
   ],
   templateUrl: './trip-user-form-component.html',
   styleUrl: './trip-user-form-component.scss',
@@ -55,6 +58,7 @@ export class TripUserFormComponent implements OnInit {
   isLoading = toSignal(this.componentService.loading$);
 
   lookupTravelers: AdminsParticipantDto[] = [];
+  lookupUnits$;
 
 
   mode: 'add' | 'edit' | 'view' = 'view';
@@ -109,6 +113,18 @@ export class TripUserFormComponent implements OnInit {
       throw new Error('Trip Id is required to create or edit a trip bag');
     }
 
+    this.lookupUnits$ = combineLatest([
+      this.lookupService.units$,
+      this.service.getAll(this.tripId)
+    ]).pipe(
+      map(([lookupUnits, tripUsers]) => {
+        const lookupUnitNames = new Set(lookupUnits.map(x => x.name));
+        const tripUnits = new Set(tripUsers.map(x => x.nopackWeightUnit).filter(x => !!x));
+        const combined = new Set<string>([...lookupUnitNames, ...tripUnits].filter((x): x is string => x !== null && x !== undefined));
+        return Array.from(combined).sort((a, b) => a.localeCompare(b));
+      })
+    );
+
     this.mode = this.route.snapshot.data['mode'];
 
     if (this.isAddMode) {
@@ -156,7 +172,10 @@ export class TripUserFormComponent implements OnInit {
       email: [''],
       firstName: [''],
       lastName: [''],
-      phone: ['']
+      phone: [''],
+      packagingComplete: [false],
+      nopackWeightValue: [null],
+      nopackWeightUnit: ['']
     },);
   }
 
@@ -177,6 +196,9 @@ export class TripUserFormComponent implements OnInit {
           firstName: user.firstName,
           lastName: user.lastName,
           phone: user.phone,
+          packagingComplete: user.packagingComplete,
+          nopackWeightValue: user.nopackWeightValue,
+          nopackWeightUnit: user.nopackWeightUnit,
         });
       }
     });
@@ -204,7 +226,10 @@ export class TripUserFormComponent implements OnInit {
     const request: CreateTripUserRequest = {
       tripId: this.tripId!,
       adminParticipantId: formValue.adminParticipantId,
-      notes: formValue.notes?.trim() || undefined
+      notes: formValue.notes?.trim() || undefined,
+      packagingComplete: formValue.packagingComplete,
+      nopackWeightValue: formValue.nopackWeightValue || undefined,
+      nopackWeightUnit: formValue.nopackWeightUnit?.trim() || undefined
     };
 
     this.componentService.updateLoading(true);
@@ -229,7 +254,10 @@ export class TripUserFormComponent implements OnInit {
       id: this.id,
       tripId: this.tripId!,
       adminParticipantId: formValue.adminParticipantId,
-      notes: formValue.notes?.trim() || undefined
+      notes: formValue.notes?.trim() || undefined,
+      packagingComplete: formValue.packagingComplete,
+      nopackWeightValue: formValue.nopackWeightValue || undefined,
+      nopackWeightUnit: formValue.nopackWeightUnit?.trim() || undefined
     };
 
     this.componentService.updateLoading(true);

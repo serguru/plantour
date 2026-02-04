@@ -91,6 +91,7 @@ export class TripUsersComponent implements OnInit {
   }
 
 
+  // TODO: the participant must have an ability to edit their thingsweight and packagingComplete
   ngOnInit(): void {
 
     this.componentService.updateComponentId(this.componentId);
