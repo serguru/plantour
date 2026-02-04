@@ -6,4 +6,5 @@ public interface IDashboardService
 {
     Task<DashboardTripDto?> GetDashboardTripDtoAsync(Guid tripId);
     Task<DashboardUserTripDto?> GetDashboardUserTripDtoAsync(Guid tripId);
+    Task<DashboardAllUsersTripDto?> GetDashboardAllUsersTripDtoAsync(Guid tripId);
 }

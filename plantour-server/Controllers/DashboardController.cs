@@ -31,4 +31,12 @@ public class DashboardController : ControllerBase
         var dto = await _service.GetDashboardUserTripDtoAsync(tripId);
         return Ok(dto);
     }
+
+    [HttpGet("all-users-trip/{tripId}")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<DashboardAllUsersTripDto>> GetDashboardAllUsersTripDto(Guid tripId)
+    {
+        var dto = await _service.GetDashboardAllUsersTripDtoAsync(tripId);
+        return Ok(dto);
+    }
 }

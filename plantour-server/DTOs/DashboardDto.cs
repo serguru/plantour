@@ -24,3 +24,18 @@ public class DashboardUserTripDto
     public string WeightStr { get; set; } = null!;
     
 }
+
+public class DashboardAllUsersTripDto
+{
+    public Guid Id { get; set; }
+    public int Packs { get; set; }
+    public int SharedAssigned { get; set; }
+    public int SharedPending { get; set; }
+    public int SharedOverdue { get; set; }
+    public int SharedSuccess { get; set; }
+    public int SharedFailure { get; set; }
+    public string WeightStr { get; set; } = null!;
+    public int PackingProgress { get; set; }
+    
+    
+}

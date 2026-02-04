@@ -31,6 +31,20 @@ export interface DashboardUserTripDto {
 }
 
 
+export interface DashboardAllUsersTripDto
+{
+    id: string;
+    packs: number;
+    sharedAssigned: number;
+    sharedPending: number;
+    sharedOverdue: number;
+    sharedSuccess: number;
+    sharedFailure: number;
+    weightStr: string;
+    packingProgress: number;
+}
+
+
 @Injectable({
     providedIn: 'root',
 })
@@ -51,6 +65,10 @@ export class DashboardService {
 
     getDashboardUserTripDto(tripId: string): Observable<DashboardUserTripDto> {
         return this.http.get<DashboardUserTripDto>(`${this.apiUrl}/user-trip/${tripId}`);
+    }
+
+    getDashboardAllUsersTripDto(tripId: string): Observable<DashboardAllUsersTripDto> {
+        return this.http.get<DashboardAllUsersTripDto>(`${this.apiUrl}/all-users-trip/${tripId}`);
     }
 
 }
