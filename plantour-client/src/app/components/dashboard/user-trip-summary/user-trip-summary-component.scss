@@ -1,8 +1,271 @@
-:host {
+.trip-summary-container {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
+  padding: 0.75rem;
   height: 100%;
+  overflow-y: auto;
+}
+
+/* MOBILE FIRST - Header Section */
+.summary-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
   width: 100%;
 }
 
+.stat-card {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 10px;
+  padding: 0.75rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-width: 4.25rem;
+  flex: 1 1 4.25rem;
 
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1;
+}
+
+.stat-card.weight .stat-value {
+  white-space: nowrap;
+}
+
+.summary-header .stat-card:not(.weight) {
+  flex: 1 1 3.75rem;
+  min-width: 3.75rem;
+}
+
+.summary-header .stat-card.weight {
+  flex: 2 1 7.5rem;
+  min-width: 6.5rem;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Shared Items Section */
+.shared-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 0.875rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.section-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.shared-stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.shared-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.4rem;
+  border-radius: 8px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-width: 5.25rem;
+  flex: 1 1 5.25rem;
+
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.shared-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.shared-label {
+  font-size: 0.55rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Status-specific colors */
+.assigned {
+  background: rgba(100, 180, 246, 0.15);
+  border: 1px solid rgba(100, 180, 246, 0.3);
+  color: #2563eb;
+
+  .shared-label {
+    color: #1e40af;
+  }
+}
+
+.pending {
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: #d97706;
+
+  .shared-label {
+    color: #b45309;
+  }
+}
+
+.overdue {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px dashed rgba(244, 63, 94, 0.35);
+  color: #be123c;
+
+  .shared-label {
+    color: #9f1239;
+  }
+}
+
+.overdue-active {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #b91c1c;
+}
+
+.success {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #16a34a;
+
+  .shared-label {
+    color: #15803d;
+  }
+}
+
+.failure {
+  background: rgba(107, 114, 128, 0.15);
+  border: 1px solid rgba(107, 114, 128, 0.3);
+  color: #4b5563;
+
+  .shared-label {
+    color: #374151;
+  }
+}
+
+/* TABLET & UP - Responsive adjustments */
+@media (min-width: 640px) {
+  .trip-summary-container {
+    padding: 1rem;
+    gap: 1.25rem;
+  }
+
+  .summary-header {
+    gap: 0.6rem;
+  }
+
+  .stat-card {
+    padding: 0.875rem 0.75rem;
+
+    .stat-value {
+      font-size: 1.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+    }
+
+  }
+
+  .shared-section {
+    padding: 1rem;
+    gap: 0.875rem;
+  }
+
+  .shared-stat {
+    padding: 0.875rem 0.75rem;
+
+    .shared-value {
+      font-size: 1.35rem;
+    }
+
+    .shared-label {
+      font-size: 0.65rem;
+    }
+
+  }
+}
+
+@media (min-width: 768px) {
+  .summary-header {
+    gap: 0.75rem;
+  }
+
+  .shared-stats-row {
+    gap: 0.6rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+
+    .stat-value {
+      font-size: 1.65rem;
+    }
+  }
+
+  .shared-stat {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .trip-summary-container {
+    padding: 1.5rem;
+  }
+
+  .summary-header {
+    gap: 0.75rem;
+  }
+
+  .shared-section {
+    padding: 1.5rem;
+  }
+
+  .shared-stats-row {
+    gap: 0.75rem;
+  }
+
+  .stat-card,
+  .shared-stat {
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+}

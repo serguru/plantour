@@ -28,7 +28,6 @@ import { DashboardService, DashboardTripDto, DashboardUserTripDto } from '../../
     ButtonModule,
     AvatarModule,
     DividerModule,
-    
   ],
   templateUrl: './user-trip-summary-component.html',
   styleUrl: './user-trip-summary-component.scss',

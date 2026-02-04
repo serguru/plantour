@@ -1,3 +1,50 @@
 @if(tripData) {
+  <div class="trip-summary-container">
     
+    <!-- Header Section: Packs, Items, Weight -->
+    <div class="summary-header">
+      <div class="stat-card">
+        <div class="stat-value">{{ tripData.packs }}</div>
+        <div class="stat-label">Packs</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ tripData.items }}</div>
+        <div class="stat-label">Items</div>
+      </div>
+      @if(tripData.weightStr) {
+        <div class="stat-card weight">
+          <div class="stat-value">{{ tripData.weightStr }}</div>
+          <div class="stat-label">Weight</div>
+        </div>
+      }
+    </div>
+
+    <!-- Shared Items Status Section -->
+    <div class="shared-section">
+      <h3 class="section-title">Shared Items</h3>
+      
+      <div class="shared-stats-row">
+        <div class="shared-stat assigned">
+          <div class="shared-value">{{ tripData.sharedAssigned }}</div>
+          <div class="shared-label">Assigned</div>
+        </div>
+        <div class="shared-stat pending">
+          <div class="shared-value">{{ tripData.sharedPending }}</div>
+          <div class="shared-label">Pending</div>
+        </div>
+        <div class="shared-stat overdue" [class.overdue-active]="tripData.sharedOverdue > 0">
+          <div class="shared-value">{{ tripData.sharedOverdue }}</div>
+          <div class="shared-label">Overdue</div>
+        </div>
+        <div class="shared-stat success">
+          <div class="shared-value">{{ tripData.sharedSuccess }}</div>
+          <div class="shared-label">Success</div>
+        </div>
+        <div class="shared-stat failure">
+          <div class="shared-value">{{ tripData.sharedFailure }}</div>
+          <div class="shared-label">Failure</div>
+        </div>
+      </div>
+    </div>
+  </div>
 }
