@@ -33,11 +33,8 @@ import { AllUsersTripSummaryComponent } from './all-users-trip-summary/all-users
     ButtonModule,
     AvatarModule,
     DividerModule,
-    TripSummaryComponent,
     Select,
-    FormsModule,
-    UserTripSummaryComponent,
-    AllUsersTripSummaryComponent
+    FormsModule
 ],
   templateUrl: './dashboard-component.html',
   styleUrls: ['./dashboard-component.scss']
