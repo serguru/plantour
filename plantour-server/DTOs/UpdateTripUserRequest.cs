@@ -13,5 +13,9 @@ public class UpdateTripUserRequest
     [Required]
     public Guid AdminParticipantId { get; set; }
 
+    public bool PackagingComplete { get; set; }
+    public decimal? NopackWeightValue { get; set; }
+    public string? NopackWeightUnit { get; set; }
+
     public string? Notes { get; set; }
 }

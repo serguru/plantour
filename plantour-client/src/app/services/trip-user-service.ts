@@ -10,6 +10,11 @@ export interface TripUserDto {
   tripId: string;
   userId: string; // upper one
   adminParticipantId: string;
+
+  packagingComplete: boolean;
+  nopackWeightValue?: number | null;
+  nopackWeightUnit?: string | null;
+
   email: string;
   firstName?: string | null;
   lastName?: string | null;
@@ -25,6 +30,9 @@ export interface CreateTripUserRequest {
   tripId: string;
   adminParticipantId: string;
   notes?: string | null;
+  packagingComplete: boolean;
+  nopackWeightValue?: number | null;
+  nopackWeightUnit?: string | null;
 }
 
 export interface UpdateTripUserRequest {
@@ -32,6 +40,9 @@ export interface UpdateTripUserRequest {
   tripId: string;
   adminParticipantId: string;
   notes?: string | null;
+  packagingComplete: boolean;
+  nopackWeightValue?: number | null;
+  nopackWeightUnit?: string | null;
 }
 
 @Injectable({
