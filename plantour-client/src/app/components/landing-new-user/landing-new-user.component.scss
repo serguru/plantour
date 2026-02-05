@@ -1,127 +1,220 @@
-@use "sass:color";
+$primary: #3A9AA8;
+$dark-text: #111111;
+$body-text: #333333; // Darker and more readable
+$light-bg: #fdfdfd;
+$white: #ffffff;
 
 :host {
+  display: block;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f5f7f8;
+  color: $dark-text;
+  line-height: 1.6;
   overflow: auto;
 }
 
-$primary-color: #3A9AA8;
-$text-dark: #2d3436;
-$white: #ffffff;
-$bg-light: #f9fdfd;
-
 .landing-container {
-  font-family: 'Inter', sans-serif;
-  color: $text-dark;
-  background-color: $bg-light;
-  min-height: 100vh;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
 
-  .header {
-    padding: 2rem;
-    .logo {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: $primary-color;
-      letter-spacing: -1px;
-    }
+/* --- Hero --- */
+.hero {
+  text-align: center;
+  margin-bottom: 60px;
+
+  .slogan {
+    font-size: 2.8rem;
+    color: $primary;
+    margin-bottom: 20px;
+    font-weight: 800;
   }
 
-  .hero {
-    text-align: center;
-    padding: 4rem 1rem;
-    max-width: 800px;
+  .sub-slogan {
+    font-size: 1.2rem; // Increased
+    color: $body-text;
+    max-width: 700px;
     margin: 0 auto;
+    font-weight: 500;
+  }
+}
 
-    h1 {
-      font-size: 3.5rem;
-      margin-bottom: 1.5rem;
-      color: color.adjust($primary-color, $lightness: -15%);
-    }
+/* --- Features Section --- */
+.features-section {
+  margin-bottom: 70px;
+  text-align: center;
 
-    .description {
-      font-size: 1.25rem;
-      line-height: 1.6;
-      color: color.adjust($text-dark, $lightness: 20%);
-      margin-bottom: 2rem;
-    }
+  h2 { font-size: 1.8rem; margin-bottom: 30px; }
+
+  .features-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
   }
 
-  .pricing-section {
-    padding: 4rem 2rem;
+  .feature-item {
+    background: $white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+    display: flex;
+    align-items: center;
+    gap: 10px;
     
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      max-width: 1100px;
-      margin: 0 auto;
+    .feature-text {
+      font-size: 1.1rem; // Increased
+      color: $body-text;
+      font-weight: 500;
     }
 
-    .card {
-      background: $white;
-      padding: 3rem 2rem;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-      text-align: center;
-      position: relative;
-      transition: transform 0.3s ease;
-      border: 1px solid #eee;
-
-      &:hover { transform: translateY(-5px); }
-
-      &.featured {
-        border: 2px solid $primary-color;
-        .badge {
-          position: absolute;
-          top: -12px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: $primary-color;
-          color: white;
-          padding: 4px 12px;
-          border-radius: 20px;
-          font-size: 0.8rem;
-          font-weight: bold;
-        }
-      }
-
-      .price {
-        margin: 1.5rem 0;
-        .amount { font-size: 2.5rem; font-weight: bold; }
-        .period { color: #666; }
-      }
-
-      .features {
-        list-style: none;
-        padding: 0;
-        margin: 2rem 0;
-        text-align: left;
-        li { margin-bottom: 0.75rem; color: #555; }
-        .check { color: $primary-color; margin-right: 8px; font-weight: bold; }
-      }
+    .check-icon {
+      color: $primary;
+      font-weight: 900;
     }
   }
 }
 
-.btn-primary, .cta-button {
-  background: $primary-color;
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-  &:hover { background: color.adjust($primary-color, $lightness: -10%); }
+/* --- Pricing Cards --- */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+
+  @media (min-width: 768px) { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 1100px) { grid-template-columns: repeat(4, 1fr); }
 }
 
-.btn-primary { width: auto; font-size: 1.1rem; }
+.plan-card {
+  background: $white;
+  border-radius: 20px;
+  padding: 40px 25px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 
+  &.popular {
+    border: 3px solid $primary;
+    box-shadow: 0 15px 35px rgba(58, 154, 168, 0.15);
+  }
 
+  .popular-badge {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: $primary;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
 
+  .plan-name {
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
 
+  /* --- Price Display --- */
+  .price-container {
+    margin-bottom: 25px;
+    
+    .price-row.main {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      color: $dark-text;
+      
+      .currency { font-size: 1.4rem; font-weight: 700; align-self: flex-start; margin-top: 10px;}
+      .amount { font-size: 3.2rem; font-weight: 800; }
+      .period { font-size: 1.1rem; color: #555; margin-left: 5px; }
+    }
 
+    .price-row.secondary {
+      margin-top: 5px;
+      font-size: 1.05rem;
+      color: $body-text;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
 
+      .savings-tag {
+        background: #DFF1F2;
+        color: $primary;
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+    }
+  }
 
+  .description {
+    font-size: 1.1rem; // Increased
+    color: $body-text;
+    margin-bottom: 30px;
+    min-height: 50px;
+  }
 
+  .cta-button {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    background: $primary;
+    color: white;
+    transition: transform 0.2s ease;
 
+    &:active { transform: scale(0.98); }
 
+    &.outline {
+      background: transparent;
+      border: 2px solid $primary;
+      color: $primary;
+    }
+  }
+
+  .divider {
+    height: 1px;
+    background: #edf2f7;
+    margin: 30px 0;
+  }
+
+  /* --- Features List --- */
+  .plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-size: 1.05rem; // Increased
+      color: $body-text;
+
+      &.disabled {
+        opacity: 0.35;
+        text-decoration: line-through;
+      }
+
+      .feat-label { font-weight: 400; }
+      .feat-value { 
+        font-weight: 700; 
+        &.highlight { color: $primary; }
+      }
+    }
+  }
+}

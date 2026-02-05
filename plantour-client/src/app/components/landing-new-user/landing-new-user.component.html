@@ -1,42 +1,74 @@
 <div class="landing-container">
-  <header class="header">
-    <nav class="nav">
-      <span class="logo">Plantour</span>
-    </nav>
-  </header>
   
+  <header class="hero">
+    <h1 class="slogan">{{ slogan }}</h1>
+    <p class="sub-slogan">{{ subSlogan }}</p>
+  </header>
 
-  <main>
-    <section class="hero">
-      <h1>Pack Smart. Travel Better.</h1>
-      <p class="description">
-        Never forget an item again. Organize your travel packing with smart lists, 
-        item categories, and seamless team collaboration.
-      </p>
-      <button class="btn-primary">Get Started, No Account Needed</button>
-      <a class="help-link" href="/help/get-started/test-mode" alt="How to Use Test Mode">How to Use Test Mode</a>
-    </section>
-
-    <section class="pricing-section">
-      <div class="pricing-grid">
-        <div *ngFor="let plan of plans" class="card" [class.featured]="plan.highlight">
-          <div *ngIf="plan.highlight" class="badge">Most Popular</div>
-          <h3>{{ plan.name }}</h3>
-          <div class="price">
-            <span class="amount">{{ plan.price }}</span>
-            <span class="period">/{{ plan.period }}</span>
-          </div>
-          <ul class="features">
-            <li *ngFor="let feature of plan.features">
-              <span class="check">✓</span> {{ feature }}
-            </li>
-          </ul>
-          <button class="cta-button">{{ plan.cta }}</button>
+  <section class="features-section">
+    <h2>Why Plantour?</h2>
+    <div class="features-grid">
+      @for (feature of featureList; track feature) {
+        <div class="feature-item">
+          <span class="check-icon">✓</span>
+          <span class="feature-text">{{ feature }}</span>
         </div>
-      </div>
-    </section>
-  </main>
+      }
+    </div>
+  </section>
 
-  <footer class="footer">
-  </footer>
+  <section class="pricing-grid">
+    @for (plan of plans; track plan.name) {
+      <div class="plan-card" [class.popular]="plan.isPopular">
+        
+        @if (plan.isPopular) {
+          <div class="popular-badge">Most Popular</div>
+        }
+
+        <h3 class="plan-name">{{ plan.name }}</h3>
+        
+        <div class="price-container">
+          <div class="price-row main">
+            <span class="currency">$</span>
+            <span class="amount">{{ plan.monthlyPrice }}</span>
+            <span class="period">/ month</span>
+          </div>
+          
+          <div class="price-row secondary">
+            @if (plan.annualPrice > 0) {
+              <span class="annual-label">or <strong>${{ plan.annualPrice }}</strong> / year</span>
+              <span class="savings-tag">Save Big</span>
+            } @else {
+              <span class="annual-label">Free forever</span>
+            }
+          </div>
+        </div>
+
+        <p class="description">{{ plan.description }}</p>
+
+        <button class="cta-button" [class.outline]="!plan.isPopular">
+          {{ plan.buttonText }}
+        </button>
+
+        <div class="divider"></div>
+
+        <ul class="plan-features">
+          @for (feat of plan.features; track feat.label) {
+            <li [class.disabled]="feat.value === false">
+              <span class="feat-label">{{ feat.label }}</span>
+              <span class="feat-value" [class.highlight]="feat.highlight">
+                @if (feat.value === true) {
+                  Included
+                } @else if (feat.value === false) {
+                  —
+                } @else {
+                  {{ feat.value }}
+                }
+              </span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </section>
 </div>

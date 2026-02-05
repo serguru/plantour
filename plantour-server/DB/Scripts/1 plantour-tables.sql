@@ -201,6 +201,8 @@ insert into access_types (name) values
 ('Banned'),
 ('Archived');
 
+-- TODO: Send a list of items to the AI for the expertise
+
 
 -----------------------------------------------------------------------
 -- TRANSACTION TYPE
