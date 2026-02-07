@@ -8,7 +8,9 @@ public class TripMappingProfile : Profile
 {
     public TripMappingProfile()
     {
-        CreateMap<Trip, TripDto>();
+        CreateMap<Trip, TripDto>()
+            .ForMember(dest => dest.TripStatus, opt => opt.MapFrom(src => src.TripStatus != null ? src.TripStatus.Name : null));
+
         CreateMap<TripStatus, TripStatusDto>();
         
         CreateMap<CreateTripRequest, Trip>()

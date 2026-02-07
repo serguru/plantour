@@ -44,7 +44,7 @@ export class LandingNewUserComponent {
       name: 'Guest',
       monthlyPrice: 0,
       annualPrice: 0,
-      description: 'No registration required',
+      description: 'No registration required. Prefilled test data.',
       buttonText: 'Get Started',
       features: [
         { label: 'Duration', value: '2 Weeks', highlight: true },
@@ -71,12 +71,12 @@ export class LandingNewUserComponent {
       ]
     },
     {
-      name: 'Light',
+      name: 'Base',
       monthlyPrice: 4.99,
       annualPrice: 29.99,
       description: 'Perfect for families & small groups.',
       isPopular: true,
-      buttonText: 'Choose Light',
+      buttonText: 'Choose Base',
       features: [
         { label: 'Duration', value: 'Unlimited' },
         { label: 'Max Items', value: 'Unlimited', highlight: true },

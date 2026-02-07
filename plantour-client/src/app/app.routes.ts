@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { dashboardGuard, landingNewUserGuard } from './guards/landing-guard';
 import { adminOnlyGuard, adminOrParticipantGuard, checkTripIdGuard, publicGuard } from './guards/auth-guard';
 import { CleanupResolver } from './helpers/resolver';
+import { TripFormComponent } from './components/trips/trip-form/trip-form-component';
+import { resolve } from 'path/win32';
 
 
 // TODO: verify checkTripIdGuard use
@@ -163,7 +165,6 @@ export const routes: Routes = [
     resolve: { cleanup: CleanupResolver },
     data: { mode: 'edit', componentId: 'pack-form' }
   },
-
   {
     path: 'trips',
     canActivate: [adminOrParticipantGuard],
@@ -171,13 +172,13 @@ export const routes: Routes = [
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'trips' }
   },
-  {
-    path: 'trips/:tripId',
-    canActivate: [adminOrParticipantGuard],
-    loadComponent: () => import('./components/trips/trips-component').then(m => m.TripsComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'trips' }
-  },
+  // {
+  //   path: 'trips/trip/:tripId',
+  //   canActivate: [adminOrParticipantGuard],
+  //   loadComponent: () => import('./components/trips/trips-component').then(m => m.TripsComponent),
+  //   resolve: { cleanup: CleanupResolver },
+  //   data: { componentId: 'trips' }
+  // },
   {
     path: 'trips/add',
     canActivate: [adminOnlyGuard],
