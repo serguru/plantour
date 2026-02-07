@@ -26,4 +26,5 @@ public interface IUsersService
     Task<UserDto> UpdateProfileAsync(UpdateProfileRequest request);
     Task UpdatePasswordAsync(UpdatePasswordRequest request);
 
+    Task<LandingDto> GetLandingAsync();
 }

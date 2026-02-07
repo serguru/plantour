@@ -17,13 +17,13 @@ public partial class UserEmailConfirmation
     [Column("user_id")]
     public Guid UserId { get; set; }
 
-    [Column("created_at")]
+    [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
 
-    [Column("confirmed_at")]
+    [Column("confirmed_at", TypeName = "timestamp without time zone")]
     public DateTime? ConfirmedAt { get; set; }
 
-    [Column("last_sent_at")]
+    [Column("last_sent_at", TypeName = "timestamp without time zone")]
     public DateTime? LastSentAt { get; set; }
 
     [ForeignKey("UserId")]

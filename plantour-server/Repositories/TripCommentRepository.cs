@@ -8,14 +8,16 @@ public class TripCommentRepository(PlantourContext context) : GenericRepository<
     public async Task<TripComment?> GetByIdAsync(Guid adminId, Guid userId, Guid tripId, Guid id)
     {
         return await _dbSet
-            .Include(x => x.TripUser)
-                .ThenInclude(tu => tu.AdminParticipant) 
+            .Include(x => x.TripUser!)
+                .ThenInclude(tu => tu.AdminParticipant!) 
                     .ThenInclude(ap => ap.Participant)
             .FirstOrDefaultAsync(x =>
                 x.Id == id &&
+                x.Trip != null &&
                 x.Trip.Id == tripId &&
                 x.Trip.UserId == adminId &&
                 x.Trip.TripUsers.Any(tu =>
+                    tu.AdminParticipant != null &&
                     tu.AdminParticipant.AdminId == adminId &&
                     tu.AdminParticipant.ParticipantId == userId)
                 );
@@ -27,9 +29,11 @@ public class TripCommentRepository(PlantourContext context) : GenericRepository<
         return await _dbSet
             .AnyAsync(x =>
                 x.Id == id &&
+                x.Trip != null &&
                 x.Trip.Id == tripId &&
                 x.Trip.UserId == adminId &&
                 x.Trip.TripUsers.Any(tu =>
+                    tu.AdminParticipant != null &&
                     tu.AdminParticipant.AdminId == adminId &&
                     tu.AdminParticipant.ParticipantId == userId)
                 );
@@ -38,16 +42,18 @@ public class TripCommentRepository(PlantourContext context) : GenericRepository<
     public async Task<IEnumerable<TripComment>> GetAllAsync(Guid adminId, Guid userId, Guid tripId)
     {
         return await _dbSet
-            .Include(x => x.TripUser)
-                .ThenInclude(tu => tu.AdminParticipant) 
+            .Include(x => x.TripUser!)
+                .ThenInclude(tu => tu.AdminParticipant!) 
                     .ThenInclude(ap => ap.Participant)
-            .Include(x => x.TripUser)
-                .ThenInclude(tu => tu.AdminParticipant) 
+            .Include(x => x.TripUser!)
+                .ThenInclude(tu => tu.AdminParticipant!) 
                     .ThenInclude(ap => ap.Admin)
             .Where(x =>
+                x.Trip != null &&
                 x.Trip.Id == tripId &&
                 x.Trip.UserId == adminId &&
                 x.Trip.TripUsers.Any(tu =>
+                    tu.AdminParticipant != null &&
                     tu.AdminParticipant.AdminId == adminId &&
                     tu.AdminParticipant.ParticipantId == userId
                 ))

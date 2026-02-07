@@ -280,6 +280,7 @@ builder.Services.AddScoped<plantour_server.Repositories.UserEmailConfirmationRep
 builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
 
 builder.Services.AddScoped<HttpCurrentUser>();
 

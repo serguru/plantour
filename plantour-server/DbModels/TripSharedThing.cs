@@ -39,10 +39,10 @@ public partial class TripSharedThing
     [Column("assigned_thing_id")]
     public Guid? AssignedThingId { get; set; }
 
-    [Column("assigned_at")]
+    [Column("assigned_at", TypeName = "timestamp without time zone")]
     public DateTime? AssignedAt { get; set; }
 
-    [Column("assigned_deadline")]
+    [Column("assigned_deadline", TypeName = "timestamp without time zone")]
     public DateTime? AssignedDeadline { get; set; }
 
     [Column("rejected")]

@@ -50,6 +50,6 @@ public partial class ContactSubmission
     [Column("referrer_url")]
     public string? ReferrerUrl { get; set; }
 
-    [Column("created_at")]
-    public DateTime? CreatedAt { get; set; }
+    [Column("created_at", TypeName = "timestamp without time zone")]
+    public DateTime CreatedAt { get; set; }
 }

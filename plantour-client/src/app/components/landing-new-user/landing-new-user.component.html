@@ -35,9 +35,16 @@
           </div>
           
           <div class="price-row secondary">
-            @if (plan.annualPrice > 0) {
-              <span class="annual-label">or <strong>${{ plan.annualPrice }}</strong> / year</span>
-              <span class="savings-tag">Save Big</span>
+            @if (plan.annualPrice) {
+              <span class="savings-tag">or save big </span>
+
+          <div class="price-row main">
+            <span class="currency">$</span>
+            <span class="amount">{{ plan.annualPrice }}</span>
+            <span class="period">/ year</span>
+          </div>
+
+
             } @else {
               <span class="annual-label">Free forever</span>
             }

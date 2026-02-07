@@ -36,7 +36,7 @@ public partial class TripUserThing
     [Column("trip_user_package_id")]
     public Guid? TripUserPackageId { get; set; }
 
-    [Column("finished_at")]
+    [Column("finished_at", TypeName = "timestamp without time zone")]
     public DateTime? FinishedAt { get; set; }
 
     [Column("finished")]

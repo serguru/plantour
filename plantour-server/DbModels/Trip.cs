@@ -32,7 +32,7 @@ public partial class Trip
     [Column("end_date")]
     public DateOnly? EndDate { get; set; }
 
-    [Column("created_at")]
+    [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
 
     [InverseProperty("Trip")]

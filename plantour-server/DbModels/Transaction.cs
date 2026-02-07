@@ -25,7 +25,7 @@ public partial class Transaction
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [Column("created_at")]
+    [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
 
     [ForeignKey("TransactionTypeId")]

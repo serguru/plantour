@@ -21,6 +21,7 @@ public class UsersService(
     UsersRepository usersRepository, 
     AdminsParticipantRepository adminsParticipantRepository, 
     PlanRepository planRepository,
+    SettingsRepository settingsRepository,
     AccessTypeRepository accessTypeRepository,
     ITokenService tokenService,
     IRefreshTokenService refreshTokenService,
@@ -33,6 +34,7 @@ public class UsersService(
     private readonly UsersRepository _usersRepository = usersRepository;
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
     private readonly PlanRepository _planRepository = planRepository;
+    private readonly SettingsRepository _settingsRepository = settingsRepository;
     private readonly AccessTypeRepository _accessTypeRepository = accessTypeRepository;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 
@@ -497,5 +499,36 @@ public class UsersService(
     }
 
     #endregion
+
+    public async Task<LandingDto> GetLandingAsync()
+    {
+        int basePlanMonthly = (int)await _settingsRepository.GetSettingByKey("base_plan_monthly_cents");
+        string basePlanMonthlyStr = (basePlanMonthly / 100.0).ToString("0.00");
+
+        int proPlanMonthly = (int)await _settingsRepository.GetSettingByKey("pro_plan_monthly_cents");
+        string proPlanMonthlyStr = (proPlanMonthly / 100.0).ToString("0.00");
+
+        int basePlanYearly = (int)await _settingsRepository.GetSettingByKey("base_plan_yearly_cents");
+        string basePlanYearlyStr = (basePlanYearly / 100.0).ToString("0.00");
+
+        int proPlanYearly = (int)await _settingsRepository.GetSettingByKey("pro_plan_yearly_cents");
+        string proPlanYearlyStr = (proPlanYearly / 100.0).ToString("0.00");
+
+        int guestPlanDurationDays = (int)await _settingsRepository.GetSettingByKey("guest_plan_duration_days");
+        string guestPlanDurationDaysStr = guestPlanDurationDays.ToString() + " days";
+
+        return new LandingDto
+        {
+            GuestPlanName = (await this._settingsRepository.GetSettingByKey("guest_plan_name") as string)!,
+            TrialPlanName = (await this._settingsRepository.GetSettingByKey("trial_plan_name") as string)!,
+            BasePlanName = (await this._settingsRepository.GetSettingByKey("base_plan_name") as string)!,
+            ProPlanName = (await this._settingsRepository.GetSettingByKey("pro_plan_name") as string)!,
+            BasePlanMonthly = basePlanMonthlyStr,
+            BasePlanYearly = basePlanYearlyStr,
+            ProPlanMonthly = proPlanMonthlyStr,
+            ProPlanYearly = proPlanYearlyStr,
+            GuestPlanDurationDays = guestPlanDurationDaysStr
+        };
+    }
 }
 

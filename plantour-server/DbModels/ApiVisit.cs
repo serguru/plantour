@@ -19,7 +19,7 @@ public partial class ApiVisit
     [Column("id")]
     public Guid Id { get; set; }
 
-    [Column("created_at")]
+    [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
 
     [Column("method")]

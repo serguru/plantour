@@ -28,13 +28,13 @@ public partial class UserRefreshToken
     [Column("token_hash")]
     public string TokenHash { get; set; } = null!;
 
-    [Column("created_at")]
+    [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
 
-    [Column("expires_at")]
+    [Column("expires_at", TypeName = "timestamp without time zone")]
     public DateTime ExpiresAt { get; set; }
 
-    [Column("revoked_at")]
+    [Column("revoked_at", TypeName = "timestamp without time zone")]
     public DateTime? RevokedAt { get; set; }
 
     [Column("replaced_by_token_hash")]

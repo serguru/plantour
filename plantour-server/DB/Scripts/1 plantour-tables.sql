@@ -245,7 +245,7 @@ create table users (
     last_name text,
     phone text,
     notes text,
-    created_at timestamptz not null default now(),
+    created_at timestamp not null default (now() at time zone 'utc'),
     discount int not null check(discount >= 0) default 0,
     plan_id uuid not null references plans(id),
     access_type_id uuid not null references access_types(id)
@@ -257,7 +257,7 @@ create table transactions (
     transaction_type_id uuid not null references transaction_types(id),
     amount bigint not null,
     notes text,
-    created_at timestamptz not null default now()
+    created_at timestamp not null default (now() at time zone 'utc')
 );
 
 create table admins_participants (
@@ -307,7 +307,7 @@ create table trips (
     notes text,
     start_date date,
     end_date date,
-    created_at timestamptz not null default now(),
+    created_at timestamp not null default (now() at time zone 'utc'),
     constraint ch_trips_start_before_end check (
         start_date is null 
         or end_date is null 
@@ -331,11 +331,11 @@ create table invitations (
     subject text not null,
     message text not null,
 
-    created_at timestamptz not null default now(),
-    expires_at timestamptz not null,
-    accepted_at timestamptz,
-    refused_at timestamptz,
-    sent_at timestamptz,
+    created_at timestamp not null default (now() at time zone 'utc'),
+    expires_at timestamp not null,
+    accepted_at timestamp,
+    refused_at timestamp,
+    sent_at timestamp,
 
     communication_type text,
 
@@ -413,7 +413,7 @@ create table trip_user_things (
     value decimal(10,3) check(value > 0),
     notes text,
     trip_user_package_id uuid references trip_user_packages(id) on delete set null,
-    finished_at timestamptz,
+    finished_at timestamp,
     finished text null check (finished in ('success', 'failure') or finished is null)
 );
 create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
@@ -432,8 +432,8 @@ create table trip_shared_things (
 
     assigned_to_id uuid null references trip_users(id) on delete set null,
     assigned_thing_id uuid null references trip_user_things(id) on delete set null,
-    assigned_at timestamptz null,
-    assigned_deadline timestamptz null,
+    assigned_at timestamp null,
+    assigned_deadline timestamp null,
     rejected boolean not null default false
 );
 create unique index idx_trip_shared_things_trip_id_name on trip_shared_things(trip_id, name);
@@ -447,7 +447,7 @@ create table trip_comments (
     -- admin if null
     trip_user_id uuid null references trip_users(id) on delete cascade,
     comment text not null,
-    published_at timestamptz not null
+    published_at timestamp not null
 );
 create index idx_trip_comments_trip_id on trip_comments(trip_id);
 
@@ -457,9 +457,9 @@ create index idx_trip_comments_trip_id on trip_comments(trip_id);
 create table user_email_confirmations (
     id uuid not null primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
-    created_at timestamptz not null default now(),
-    confirmed_at timestamptz null,
-    last_sent_at timestamptz null
+    created_at timestamp not null default (now() at time zone 'utc'),
+    confirmed_at timestamp null,
+    last_sent_at timestamp null
 );
 create unique index idx_user_email_confirmations_user_id on user_email_confirmations(user_id);
 
@@ -472,9 +472,9 @@ create table user_refresh_tokens (
     role text not null,
     admin_id uuid not null,
     token_hash text not null,
-    created_at timestamptz not null default now(),
-    expires_at timestamptz not null,
-    revoked_at timestamptz null,
+    created_at timestamp not null default (now() at time zone 'utc'),
+    expires_at timestamp not null,
+    revoked_at timestamp null,
     replaced_by_token_hash text null,
     created_by_ip text null,
     revoked_by_ip text null
@@ -507,7 +507,7 @@ create table contact_submissions (
     referrer_url text,
     
     -- timestamps
-    created_at timestamptz default current_timestamp
+    created_at timestamp not null default (now() at time zone 'utc')
 );
 
 -- indexes for performance
@@ -519,7 +519,7 @@ create table ai_prompts (
     id uuid primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
     prompt text not null,
-    created_at timestamptz default current_timestamp
+    created_at timestamp not null default (now() at time zone 'utc')
 );
 create index idx_ai_prompts_prompt on ai_prompts(prompt);
 
@@ -544,7 +544,7 @@ create table if not exists plantour.logs (
     id serial primary key,
     message_template text,
     level text,
-    time_stamp timestamp not null,
+    time_stamp timestamp not null default (now() at time zone 'utc'),
     exception text,
     log_event text,
     properties jsonb
@@ -618,10 +618,9 @@ limit 500;
 comment on view plantour.error_logs 
     is 'view of the 500 most recent error/fatal logs';
 
-
 create table if not exists plantour.api_visits (
     id uuid primary key default gen_random_uuid(),
-    created_at timestamptz not null default now(),
+    created_at timestamp not null default (now() at time zone 'utc'),
     method text,
     path text,
     query_string text,
@@ -648,3 +647,29 @@ create index if not exists idx_api_visits_status_code on plantour.api_visits (st
 create index if not exists idx_api_visits_path on plantour.api_visits (path);
 create index if not exists idx_api_visits_endpoint on plantour.api_visits (endpoint);
 
+
+create table plantour.settings (
+    key text not null primary key,
+    value text not null,
+    value_type text not null check (value_type in ('string', 'integer', 'boolean')) default 'string',
+    description text,
+    updated_at timestamp not null default (now() at time zone 'utc')
+);
+
+insert into plantour.settings (key, value, value_type)
+values 
+    ('guest_plan_name', 'Guest', 'string'),
+    ('trial_plan_name', 'Trial', 'string'),
+    ('base_plan_name', 'Base', 'string'),
+    ('pro_plan_name', 'Pro', 'string'),
+    ('base_plan_monthly_cents', '499', 'integer'),
+    ('base_plan_yearly_cents', '1999', 'integer'),
+    ('pro_plan_monthly_cents', '1999', 'integer'),
+    ('pro_plan_yearly_cents', '8999', 'integer'),
+    ('user_email_confirmation_url', 'http://localhost:4203/confirm-email', 'string'),
+    ('guest_plan_duration_days', '14', 'integer'),
+    ('email_confirmation_token_minutes', '60',  'integer'),
+    ('user_token_expiration_minutes', '1440',  'integer'),
+    ('user_refresh_token_expiration_days', '30',  'integer');
+    
+    

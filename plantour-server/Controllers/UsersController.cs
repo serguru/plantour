@@ -169,4 +169,13 @@ public class UsersController : ControllerBase
         }
 
         #endregion
+
+        [HttpGet("landing")]
+        public async Task<ActionResult<LandingDto>> GetLanding()
+        {
+                var profile = await _authService.GetLandingAsync();
+                return Ok(profile);
+        }
+
+
 }

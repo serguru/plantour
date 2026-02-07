@@ -134,7 +134,7 @@ $white: #ffffff;
       
       .currency { font-size: 1.4rem; font-weight: 700; align-self: flex-start; margin-top: 10px;}
       .amount { font-size: 3.2rem; font-weight: 800; }
-      .period { font-size: 1.1rem; color: #555; margin-left: 5px; }
+      .period { font-size: 1.1rem; color: #555;  }
     }
 
     .price-row.secondary {
@@ -142,6 +142,7 @@ $white: #ffffff;
       font-size: 1.05rem;
       color: $body-text;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 8px;
@@ -149,7 +150,7 @@ $white: #ffffff;
       .savings-tag {
         background: #DFF1F2;
         color: $primary;
-        font-size: 0.75rem;
+        font-size: 1rem;
         padding: 2px 8px;
         border-radius: 4px;
         font-weight: bold;

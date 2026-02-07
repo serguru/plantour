@@ -36,7 +36,7 @@ public partial class User
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [Column("created_at")]
+    [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
 
     [Column("discount")]

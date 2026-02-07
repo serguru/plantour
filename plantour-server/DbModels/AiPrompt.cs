@@ -20,8 +20,8 @@ public partial class AiPrompt
     [Column("prompt")]
     public string Prompt { get; set; } = null!;
 
-    [Column("created_at")]
-    public DateTime? CreatedAt { get; set; }
+    [Column("created_at", TypeName = "timestamp without time zone")]
+    public DateTime CreatedAt { get; set; }
 
     [InverseProperty("Prompt")]
     public virtual ICollection<AiThing> AiThings { get; set; } = new List<AiThing>();

@@ -41,6 +41,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<RecentLog> RecentLogs { get; set; }
 
+    public virtual DbSet<Setting> Settings { get; set; }
+
     public virtual DbSet<TemperatureRange> TemperatureRanges { get; set; }
 
     public virtual DbSet<TemplateThing> TemplateThings { get; set; }
@@ -123,7 +125,7 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("ai_prompts_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.User).WithMany(p => p.AiPrompts).HasConstraintName("ai_prompts_user_id_fkey");
         });
@@ -142,7 +144,7 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("api_visits_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
         });
 
         modelBuilder.Entity<CommunicationType>(entity =>
@@ -157,7 +159,7 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("contact_submissions_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
         });
 
         modelBuilder.Entity<ErrorLog>(entity =>
@@ -177,7 +179,7 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("invitations_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.Trip).WithMany(p => p.Invitations).HasConstraintName("invitations_trip_id_fkey");
         });
@@ -194,7 +196,9 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.LogEvent).HasComment("complete log event as json");
             entity.Property(e => e.MessageTemplate).HasComment("the log message template with placeholders");
             entity.Property(e => e.Properties).HasComment("additional structured properties as json (enrichers, context data)");
-            entity.Property(e => e.TimeStamp).HasComment("timestamp when the log event was recorded");
+            entity.Property(e => e.TimeStamp)
+                .HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)")
+                .HasComment("timestamp when the log event was recorded");
         });
 
         modelBuilder.Entity<Plan>(entity =>
@@ -207,6 +211,14 @@ public partial class PlantourContext : DbContext
         modelBuilder.Entity<RecentLog>(entity =>
         {
             entity.ToView("recent_logs", "plantour");
+        });
+
+        modelBuilder.Entity<Setting>(entity =>
+        {
+            entity.HasKey(e => e.Key).HasName("settings_pkey");
+
+            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.ValueType).HasDefaultValueSql("'string'::text");
         });
 
         modelBuilder.Entity<TemperatureRange>(entity =>
@@ -254,7 +266,7 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("transactions_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.TransactionType).WithMany(p => p.Transactions)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -275,7 +287,7 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("trips_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.TripStatus).WithMany(p => p.Trips)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -366,7 +378,7 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("users_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.AccessType).WithMany(p => p.Users)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -382,7 +394,7 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("user_email_confirmations_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.User).WithOne(p => p.UserEmailConfirmation).HasConstraintName("user_email_confirmations_user_id_fkey");
         });
@@ -401,7 +413,7 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("user_refresh_tokens_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserRefreshTokens).HasConstraintName("user_refresh_tokens_user_id_fkey");
         });

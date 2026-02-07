@@ -37,19 +37,19 @@ public partial class Invitation
     [Column("message")]
     public string Message { get; set; } = null!;
 
-    [Column("created_at")]
+    [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
 
-    [Column("expires_at")]
+    [Column("expires_at", TypeName = "timestamp without time zone")]
     public DateTime ExpiresAt { get; set; }
 
-    [Column("accepted_at")]
+    [Column("accepted_at", TypeName = "timestamp without time zone")]
     public DateTime? AcceptedAt { get; set; }
 
-    [Column("refused_at")]
+    [Column("refused_at", TypeName = "timestamp without time zone")]
     public DateTime? RefusedAt { get; set; }
 
-    [Column("sent_at")]
+    [Column("sent_at", TypeName = "timestamp without time zone")]
     public DateTime? SentAt { get; set; }
 
     [Column("communication_type")]
