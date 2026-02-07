@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LandingDto, UsersService } from '../../services/users-service';
 
@@ -18,6 +18,12 @@ interface Plan {
   features: PlanFeature[];
 }
 
+interface LandingFeature {
+  icon: string;
+  title: string;
+  description: string;
+}
+
 @Component({
   selector: 'app-landing-new-user',
   standalone: true,
@@ -26,7 +32,6 @@ interface Plan {
   styleUrl: './landing-new-user.component.scss'
 })
 export class LandingNewUserComponent implements OnInit {
-  primaryColor = '#3A9AA8';
   slogan = 'Pack smart. Travel better.';
   subSlogan = 'Never forget an item again. Organize your packing with smart lists, categories, and seamless group coordination. Get AI-powered packing recommendations tailored to your destination.';
 
@@ -39,38 +44,46 @@ export class LandingNewUserComponent implements OnInit {
     });
   }
 
-  featureList = [
-    'Trip participants join for free',
-    'Manage travelers, gear, and packing lists',
-    'AI suggestions based on weather & trip type',
-    'Assign shared items to specific travelers',
-    'Smart item templates for quick setup',
-    'Export packing lists to PDF',
-    'In-app trip comments'
+  featureList: LandingFeature[] = [
+    {
+      icon: 'LIST',
+      title: 'Trips that stay organized',
+      description: 'Keep travelers, gear, and lists in one place.'
+    },
+    {
+      icon: 'TEAM',
+      title: 'Share items with clarity',
+      description: 'Assign shared items to specific people.'
+    },
+    {
+      icon: 'AI',
+      title: 'Weather-smart packing',
+      description: 'AI suggestions tuned to destination and season.'
+    },
+    {
+      icon: 'FAST',
+      title: 'Templates that start fast',
+      description: 'Reusable lists for quick setup.'
+    },
+    {
+      icon: 'PDF',
+      title: 'Exportable lists',
+      description: 'Print or share PDF packing lists.'
+    },
+    {
+      icon: 'CHAT',
+      title: 'Trip comments',
+      description: 'Keep notes and updates with the group.'
+    }
   ];
 
   setPlans(data: LandingDto): void {
-
     this.plans = [
-      {
-        name: data.guestPlanName,
-        monthlyPrice: "0",
-        description: 'No registration required. Prefilled test data.',
-        buttonText: 'Get Started',
-        features: [
-          { label: 'Duration', value: '2 Weeks', highlight: true },
-          { label: 'Max Items', value: '10 per trip' },
-          { label: 'Participants', value: 'Max 2' },
-          { label: 'PDF Export', value: false },
-          { label: 'AI Suggestions', value: '5 (Total)' },
-          { label: 'Shared Items', value: false },
-        ]
-      },
       {
         name: data.trialPlanName || "",
         monthlyPrice: "0",
         description: 'Test the full app experience',
-        buttonText: 'Start Free',
+        buttonText: 'Start free',
         features: [
           { label: 'Duration', value: 'Unlimited', highlight: true },
           { label: 'Max Items', value: '10 per trip' },

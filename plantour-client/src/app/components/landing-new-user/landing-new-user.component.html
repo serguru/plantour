@@ -8,12 +8,21 @@
   <section class="features-section">
     <h2>Why Plantour?</h2>
     <div class="features-grid">
-      @for (feature of featureList; track feature) {
-        <div class="feature-item">
-          <span class="check-icon">✓</span>
-          <span class="feature-text">{{ feature }}</span>
-        </div>
+      @for (feature of featureList; track feature.title) {
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">{{ feature.icon }}</div>
+          <h3 class="feature-title">{{ feature.title }}</h3>
+          <p class="feature-desc">{{ feature.description }}</p>
+        </article>
       }
+    </div>
+  </section>
+
+  <section class="try-section">
+    <div class="try-card">
+      <h2>Try it in minutes</h2>
+      <button class="try-button">Try to pack your things</button>
+      <p class="try-note">Prefilled test data. No registration required.</p>
     </div>
   </section>
 
@@ -21,11 +30,12 @@
     @for (plan of plans; track plan.name) {
       <div class="plan-card" [class.popular]="plan.isPopular">
         
-        @if (plan.isPopular) {
-          <div class="popular-badge">Most Popular</div>
-        }
-
-        <h3 class="plan-name">{{ plan.name }}</h3>
+        <div class="plan-header">
+          <h3 class="plan-name">{{ plan.name }}</h3>
+          @if (plan.isPopular) {
+            <span class="popular-chip">Most popular</span>
+          }
+        </div>
         
         <div class="price-container">
           <div class="price-row main">
@@ -36,15 +46,11 @@
           
           <div class="price-row secondary">
             @if (plan.annualPrice) {
-              <span class="savings-tag">or save big </span>
-
-          <div class="price-row main">
-            <span class="currency">$</span>
-            <span class="amount">{{ plan.annualPrice }}</span>
-            <span class="period">/ year</span>
-          </div>
-
-
+              <div class="annual-price">
+                <span class="annual-label">Billed yearly</span>
+                <span class="annual-amount">$ {{ plan.annualPrice }}</span>
+                <span class="annual-period">/ year</span>
+              </div>
             } @else {
               <span class="annual-label">Free forever</span>
             }
@@ -53,9 +59,11 @@
 
         <p class="description">{{ plan.description }}</p>
 
-        <button class="cta-button" [class.outline]="!plan.isPopular">
-          {{ plan.buttonText }}
-        </button>
+        <div class="cta-row">
+          <button class="cta-button" [class.outline]="!plan.isPopular">
+            {{ plan.buttonText }}
+          </button>
+        </div>
 
         <div class="divider"></div>
 
