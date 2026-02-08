@@ -1,7 +1,9 @@
 <div class="landing-container">
-  
   <header class="hero">
-    <h1 class="slogan">{{ slogan }}</h1>
+    <div class="header-container">
+      <h1 class="slogan">Pack smart.</h1>
+      <h1 class="slogan">Travel better.</h1>
+    </div>
     <p class="sub-slogan">{{ subSlogan }}</p>
   </header>
 
@@ -9,81 +11,112 @@
     <h2>Why Plantour?</h2>
     <div class="features-grid">
       @for (feature of featureList; track feature.title) {
-        <article class="feature-card">
-          <div class="feature-icon" aria-hidden="true">{{ feature.icon }}</div>
+      <article class="feature-card">
+        <div class="icon-container">
+          <span [class]="'pi pi-' + feature.icon"></span>
           <h3 class="feature-title">{{ feature.title }}</h3>
-          <p class="feature-desc">{{ feature.description }}</p>
-        </article>
+        </div>
+        <p class="feature-desc">{{ feature.description }}</p>
+      </article>
       }
     </div>
   </section>
 
-  <section class="try-section">
-    <div class="try-card">
-      <h2>Try it in minutes</h2>
-      <button class="try-button">Try to pack your things</button>
-      <p class="try-note">Prefilled test data. No registration required.</p>
-    </div>
-  </section>
+        <section class="try">
+        <div class="try-section">
+          <div class="try-card">
+            <button class="try-button">Try packing your items for the trip</button>
+            <h3>No registration required</h3>
+            <h3>Prefilled test data is ready</h3>
+          </div>
+        </div>
+      </section>
 
+
+
+  <!-- [class.popular]="plan.isPopular" -->
   <section class="pricing-grid">
     @for (plan of plans; track plan.name) {
-      <div class="plan-card" [class.popular]="plan.isPopular">
-        
-        <div class="plan-header">
-          <h3 class="plan-name">{{ plan.name }}</h3>
-          @if (plan.isPopular) {
-            <span class="popular-chip">Most popular</span>
-          }
-        </div>
-        
-        <div class="price-container">
-          <div class="price-row main">
-            <span class="currency">$</span>
-            <span class="amount">{{ plan.monthlyPrice }}</span>
-            <span class="period">/ month</span>
-          </div>
-          
-          <div class="price-row secondary">
-            @if (plan.annualPrice) {
-              <div class="annual-price">
-                <span class="annual-label">Billed yearly</span>
-                <span class="annual-amount">$ {{ plan.annualPrice }}</span>
-                <span class="annual-period">/ year</span>
-              </div>
-            } @else {
-              <span class="annual-label">Free forever</span>
-            }
-          </div>
-        </div>
+    <div class="plan-card">
 
-        <p class="description">{{ plan.description }}</p>
-
-        <div class="cta-row">
-          <button class="cta-button" [class.outline]="!plan.isPopular">
-            {{ plan.buttonText }}
-          </button>
-        </div>
-
-        <div class="divider"></div>
-
-        <ul class="plan-features">
-          @for (feat of plan.features; track feat.label) {
-            <li [class.disabled]="feat.value === false">
-              <span class="feat-label">{{ feat.label }}</span>
-              <span class="feat-value" [class.highlight]="feat.highlight">
-                @if (feat.value === true) {
-                  Included
-                } @else if (feat.value === false) {
-                  —
-                } @else {
-                  {{ feat.value }}
-                }
-              </span>
-            </li>
-          }
-        </ul>
+      <div class="plan-header">
+        <h3 class="plan-name">{{ plan.name }}</h3>
+        <!-- @if (plan.isPopular) {
+        <div class="popular-chip" [style.display]="plan.isPopular ? 'inline' : 'none'">Most popular</div>
+        } -->
       </div>
+
+      <!-- <div class="price-container">
+        <div class="price-row main">
+          <span class="currency">$</span>
+          <span class="amount">{{ plan.monthlyPrice }}</span>
+          <span class="period">/ month</span>
+        </div>
+
+        <div class="price-row secondary">
+          @if (plan.annualPrice) {
+          <span class="period">or</span>
+          <span class="currency">$</span>
+          <span class="amount">{{ plan.annualPrice }}</span>
+          <span class="period">/ year</span>
+          } @else {
+          <span class="period">Forever free</span>
+          }
+        </div>
+      </div> -->
+
+      <div class="plan-top">
+        <div class="price-row main">
+          <span class="currency">$</span>
+          <span class="amount">{{ plan.monthlyPrice }}</span>
+          <span class="period">/ month</span>
+        </div>
+
+        <div class="price-row secondary">
+          @if (plan.annualPrice) {
+          <span class="period">or</span>
+          <span class="currency">$</span>
+          <span class="amount">{{ plan.annualPrice }}</span>
+          <span class="period">/ year</span>
+          } @else {
+          <span class="period">Forever free</span>
+          }
+        </div>
+      </div>
+
+      <p class="description">{{ plan.description }}</p>
+
+      <div class="cta-row">
+        <button
+          class="cta-button"
+          [class.outline]="!plan.isPopular"
+        >
+          {{ plan.buttonText }}
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <ul class="plan-features">
+        @for (feat of plan.features; track feat.label) {
+        <li [class.disabled]="feat.value === false">
+          <span class="feat-label">{{ feat.label }}</span>
+          <span
+            class="feat-value"
+            [class.highlight]="feat.highlight"
+          >
+            @if (feat.value === true) {
+            Included
+            } @else if (feat.value === false) {
+            —
+            } @else {
+            {{ feat.value }}
+            }
+          </span>
+        </li>
+        }
+      </ul>
+    </div>
     }
   </section>
 </div>

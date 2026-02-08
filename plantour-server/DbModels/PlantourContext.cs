@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace plantour_server.DbModels;
 
@@ -431,6 +432,50 @@ public partial class PlantourContext : DbContext
         {
             entity.ToView("v_template_things_full", "plantour");
         });
+
+        // PostgreSQL `timestamp without time zone` cannot be written with DateTimeKind.Utc.
+        // Many app timestamps are produced as UTC (DateTime.UtcNow), so we normalize:
+        // - On write: convert Local -> UTC, then strip Kind to Unspecified.
+        // - On read: treat stored value as UTC (Kind=Utc).
+        var utcTimestampConverter = new ValueConverter<DateTime, DateTime>(
+            v => DateTime.SpecifyKind(v.Kind == DateTimeKind.Local ? v.ToUniversalTime() : v, DateTimeKind.Unspecified),
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+        var nullableUtcTimestampConverter = new ValueConverter<DateTime?, DateTime?>(
+            v => v.HasValue
+                ? DateTime.SpecifyKind(v.Value.Kind == DateTimeKind.Local ? v.Value.ToUniversalTime() : v.Value, DateTimeKind.Unspecified)
+                : null,
+            v => v.HasValue
+                ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc)
+                : null);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType != typeof(DateTime) && property.ClrType != typeof(DateTime?))
+                {
+                    continue;
+                }
+
+                var columnType = property.GetColumnType();
+                if (columnType is null)
+                {
+                    continue;
+                }
+
+                // Apply only to `timestamp without time zone` columns.
+                if (!columnType.Contains("timestamp", StringComparison.OrdinalIgnoreCase)
+                    || !columnType.Contains("without time zone", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                property.SetValueConverter(property.ClrType == typeof(DateTime)
+                    ? utcTimestampConverter
+                    : nullableUtcTimestampConverter);
+            }
+        }
 
         OnModelCreatingPartial(modelBuilder);
     }

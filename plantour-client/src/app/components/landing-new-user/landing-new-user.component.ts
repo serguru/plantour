@@ -46,34 +46,34 @@ export class LandingNewUserComponent implements OnInit {
 
   featureList: LandingFeature[] = [
     {
-      icon: 'LIST',
-      title: 'Trips that stay organized',
-      description: 'Keep travelers, gear, and lists in one place.'
+      icon: 'list',
+      title: 'Planning',
+      description: 'Create trips with clear structure, item lists, and participants, all in one place. Nothing important is missed before you go.'
     },
     {
-      icon: 'TEAM',
-      title: 'Share items with clarity',
-      description: 'Assign shared items to specific people.'
+      icon: 'building-columns',
+      title: 'Organization',
+      description: 'Keep travelers, items, and bags neatly structured and easy to manage. Everything has its place and is always up to date.'
     },
     {
-      icon: 'AI',
-      title: 'Weather-smart packing',
-      description: 'AI suggestions tuned to destination and season.'
+      icon: 'share-alt',
+      title: 'Sharing',
+      description: 'Create shared packing lists for groups and families. Coordinate who brings what and avoid duplicates or missing items.'
     },
     {
-      icon: 'FAST',
-      title: 'Templates that start fast',
-      description: 'Reusable lists for quick setup.'
+      icon: 'shopping-bag',
+      title: 'Packing',
+      description: 'Build smart packing lists and track what is packed and what is missing. Use the unique Plantour "do many by one click" feature to pack faster.'
     },
     {
-      icon: 'PDF',
-      title: 'Exportable lists',
-      description: 'Print or share PDF packing lists.'
+      icon: 'sun',
+      title: 'AI',
+      description: 'Get intelligent AI suggestions based on your trip, destination, and past experience. Pack faster and avoid forgetting essentials.'
     },
     {
-      icon: 'CHAT',
-      title: 'Trip comments',
-      description: 'Keep notes and updates with the group.'
+      icon: 'clone',
+      title: 'Templates',
+      description: 'Reuse proven packing setups for future journeys. Start in seconds instead of planning from scratch.'
     }
   ];
 
@@ -83,7 +83,7 @@ export class LandingNewUserComponent implements OnInit {
         name: data.trialPlanName || "",
         monthlyPrice: "0",
         description: 'Test the full app experience',
-        buttonText: 'Start free',
+        buttonText: 'Start Free',
         features: [
           { label: 'Duration', value: 'Unlimited', highlight: true },
           { label: 'Max Items', value: '10 per trip' },
@@ -97,7 +97,7 @@ export class LandingNewUserComponent implements OnInit {
         name: data.basePlanName || "",
         monthlyPrice: data.basePlanMonthly || "",
         annualPrice: data.basePlanYearly || "",
-        description: 'Perfect for families & small groups.',
+        description: 'Perfect for individuals and families',
         isPopular: true,
         buttonText: 'Choose Base',
         features: [
@@ -113,7 +113,7 @@ export class LandingNewUserComponent implements OnInit {
         name: data.proPlanName || "",
         monthlyPrice: data.proPlanMonthly || "",
         annualPrice: data.proPlanYearly || "",
-        description: 'For guides and power travelers.',
+        description: 'Built for large groups and expeditions',
         buttonText: 'Go Unlimited',
         features: [
           { label: 'Duration', value: 'Unlimited' },
