@@ -7,3 +7,14 @@
 app-toolbar {
     flex: 0 0 auto;
 }
+
+.non-production {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.1rem;
+  text-transform: uppercase;
+  font-size: small;
+  background-color: white;
+  color: grey;
+}
