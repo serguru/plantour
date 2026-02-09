@@ -32,6 +32,7 @@ public class UsersController : ControllerBase
                 // TODO: remove temporary accounts as necessary
                 // TODO: add email verification step
                 // TODO: add "I want to receive promotional emails" checkbox
+                // TODO: find out how do I legally not return money for subscription
                 var response = await _authService.SignUpAsync(request);
                 return Ok(response);
         }

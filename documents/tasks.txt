@@ -284,3 +284,24 @@ See src\app\components\dashboard\dashboard-component.ts. See html. Make li eleme
 
 
 Failed to fetch dynamically imported module: http://localhost:4202/chunk-O5CZNGPW.js
+
+
+I have a .Net based API. I charge customers for thar API use. Customers access the API under subscriptions. I need Stripe to monitor my customers' subscriptions, send bills and receive payments from them. Where can I find step-by-step instructions how to integrate my API with Stripe's API?
+
+So the entire logic is like the following, correct?
+
+1. User decided to join to a paid plan and clicked on it.
+2. The app shows a registration form with a message "Plase register to join to our Base plan"
+3. User enters email and password and hit Submit
+4. The app adds a new user to the DB setting plan to Base and state to Pending
+5. The app redirects the user to a Stripe payment page with a message "Please select a payment option and pay to activate your account".
+6. The User pays 
+7. Stripe's API sends to my API a "payment successful" confirmation.
+8. My API changes the user's status from "Pending" to "Active"
+9. Stripe redirects the usar back to my web app  
+10. My app shows the user a message "Welcome to Plantour" and redirects them to the Dashboard page to start.
+
+If no confirmation "payment successful" received the user will see "Waiting for payment" message on my web app and have no access to anything except payment page
+
+
+

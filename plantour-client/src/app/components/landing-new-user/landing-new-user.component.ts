@@ -68,7 +68,7 @@ export class LandingNewUserComponent implements OnInit {
     {
       icon: 'sun',
       title: 'AI',
-      description: 'Get intelligent AI suggestions based on your trip, destination, and past experience. Pack faster and avoid forgetting essentials.'
+      description: 'Get intelligent AI suggestions based on your trip destination and weather. Pack faster and avoid forgetting essentials.'
     },
     {
       icon: 'clone',
@@ -82,7 +82,7 @@ export class LandingNewUserComponent implements OnInit {
       {
         name: data.trialPlanName || "",
         monthlyPrice: "0",
-        description: 'Test the full app experience',
+        description: 'For small trips and light packers',
         buttonText: 'Start Free',
         features: [
           { label: 'Duration', value: 'Unlimited', highlight: true },
@@ -97,7 +97,7 @@ export class LandingNewUserComponent implements OnInit {
         name: data.basePlanName || "",
         monthlyPrice: data.basePlanMonthly || "",
         annualPrice: data.basePlanYearly || "",
-        description: 'Perfect for individuals and families',
+        description: 'Perfect for families and small groups',
         isPopular: true,
         buttonText: 'Choose Base',
         features: [
@@ -113,7 +113,7 @@ export class LandingNewUserComponent implements OnInit {
         name: data.proPlanName || "",
         monthlyPrice: data.proPlanMonthly || "",
         annualPrice: data.proPlanYearly || "",
-        description: 'Built for large groups and expeditions',
+        description: 'Ideal for large groups and expeditions',
         buttonText: 'Go Unlimited',
         features: [
           { label: 'Duration', value: 'Unlimited' },

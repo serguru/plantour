@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ProgressBarModule } from 'primeng/progressbar';
@@ -17,7 +17,10 @@ import { TripDto, TripService } from '../../services/trip-service';
 import { FormsModule } from '@angular/forms';
 import { UserTripSummaryComponent } from './user-trip-summary/user-trip-summary-component';
 import { AllUsersTripSummaryComponent } from './all-users-trip-summary/all-users-trip-summary-component';
-
+import { EntitiesComponent } from '../entities/entities-component';
+import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
+import { Router } from '@angular/router';
+import { FormHeader } from '../form/form-header/form-header';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,7 +35,8 @@ import { AllUsersTripSummaryComponent } from './all-users-trip-summary/all-users
     AvatarModule,
     DividerModule,
     Select,
-    FormsModule
+    FormsModule,
+    FormHeader
 ],
   templateUrl: './dashboard-component.html',
   styleUrls: ['./dashboard-component.scss']
@@ -43,6 +47,22 @@ export class DashboardComponent implements OnInit {
   tripSummaryComponent = TripSummaryComponent;
   userTripSummaryComponent = UserTripSummaryComponent;
   allUsersTripSummaryComponent = AllUsersTripSummaryComponent;
+  router = inject(Router);
+
+
+  menuItems = computed<MenuConfig[]>(() => {
+    return [
+      {
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          this.router.navigate(['/help/dashboard/dashboard-intro']);
+        }
+      }
+    ];
+  }
+  );
+
 
   
   tripService = inject(TripService);

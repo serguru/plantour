@@ -42,7 +42,7 @@ export class ConfirmEmailComponent implements OnInit {
       next: (result) => {
         this.confirmed = result.confirmed === true;
         if (this.confirmed) {
-          this.messagesService.showInfo('Email подтвержден', 'Теперь вы можете войти в систему.');
+          this.messagesService.showInfo('Email confirmed', 'You can now sign in.');
         } else {
           this.errorMessage = 'Confirmation failed. The link may be expired.';
         }

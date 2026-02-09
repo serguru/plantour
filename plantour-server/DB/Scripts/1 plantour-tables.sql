@@ -659,12 +659,12 @@ create table plantour.settings (
 insert into plantour.settings (key, value, value_type)
 values 
     ('guest_plan_name', 'Guest', 'string'),
-    ('trial_plan_name', 'Trial', 'string'),
-    ('base_plan_name', 'Base', 'string'),
-    ('pro_plan_name', 'Pro', 'string'),
+    ('trial_plan_name', 'Starter', 'string'),
+    ('base_plan_name', 'Family', 'string'),
+    ('pro_plan_name', 'Expedition', 'string'),
     ('base_plan_monthly_cents', '499', 'integer'),
-    ('base_plan_yearly_cents', '1999', 'integer'),
-    ('pro_plan_monthly_cents', '1999', 'integer'),
+    ('base_plan_yearly_cents', '2999', 'integer'),
+    ('pro_plan_monthly_cents', '1499', 'integer'),
     ('pro_plan_yearly_cents', '8999', 'integer'),
     ('user_email_confirmation_url', 'http://localhost:4203/confirm-email', 'string'),
     ('guest_plan_duration_days', '14', 'integer'),
