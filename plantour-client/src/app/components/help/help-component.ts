@@ -49,6 +49,10 @@ export class HelpComponent {
   whoPlantourForComponent = signal<Type<unknown> | null>(null);
   basicWorkflowComponent = signal<Type<unknown> | null>(null);
   adminsParticipantsComponent = signal<Type<unknown> | null>(null);
+  landingExplainedComponent = signal<Type<unknown> | null>(null);
+  dashboardOverviewComponent = signal<Type<unknown> | null>(null);
+  tripUserInfoComponent = signal<Type<unknown> | null>(null);
+  tripAllUsersInfoComponent = signal<Type<unknown> | null>(null);
   signInToAccountComponent = signal<Type<unknown> | null>(null);
   editYourProfileComponent = signal<Type<unknown> | null>(null);
   understandingTravelersComponent = signal<Type<unknown> | null>(null);
@@ -139,6 +143,18 @@ export class HelpComponent {
       subsections: [
         { id: 'login', title: 'Sign In to Your Account' },
         { id: 'profile', title: 'Edit Your Profile' }
+      ]
+    },
+    {
+      id: 'landing-dashboard',
+      title: 'Landing & Dashboard',
+      icon: 'pi pi-home',
+      description: 'Understand the first screens: Landing page and Dashboard trip summaries.',
+      subsections: [
+        { id: 'landing-explained', title: 'Landing explained' },
+        { id: 'dashboard-overview', title: 'Dashboard overview' },
+        { id: 'trip-user-info', title: 'Trip user info' },
+        { id: 'trip-all-users-info', title: 'Trip all users info' }
       ]
     },
     {
@@ -411,6 +427,13 @@ export class HelpComponent {
           login: this.signInToAccountComponent(),
           profile: this.editYourProfileComponent()
         };
+      case 'landing-dashboard':
+        return {
+          'landing-explained': this.landingExplainedComponent(),
+          'dashboard-overview': this.dashboardOverviewComponent(),
+          'trip-user-info': this.tripUserInfoComponent(),
+          'trip-all-users-info': this.tripAllUsersInfoComponent()
+        };
       case 'travelers':
         return {
           'travelers-intro': this.understandingTravelersComponent(),
@@ -530,6 +553,18 @@ export class HelpComponent {
     }
     if (sectionId === 'account' && subsectionId === 'profile') {
       this.loadEditYourProfileComponent();
+    }
+    if (sectionId === 'landing-dashboard' && subsectionId === 'landing-explained') {
+      this.loadLandingExplainedComponent();
+    }
+    if (sectionId === 'landing-dashboard' && subsectionId === 'dashboard-overview') {
+      this.loadDashboardOverviewComponent();
+    }
+    if (sectionId === 'landing-dashboard' && subsectionId === 'trip-user-info') {
+      this.loadTripUserInfoComponent();
+    }
+    if (sectionId === 'landing-dashboard' && subsectionId === 'trip-all-users-info') {
+      this.loadTripAllUsersInfoComponent();
     }
     if (sectionId === 'travelers' && subsectionId === 'travelers-intro') {
       this.loadUnderstandingTravelersComponent();
@@ -774,6 +809,42 @@ export class HelpComponent {
 
     const module = await import('./edit-your-profile/edit-your-profile.component');
     this.editYourProfileComponent.set(module.EditYourProfileComponent);
+  }
+
+  private async loadLandingExplainedComponent() {
+    if (this.landingExplainedComponent()) {
+      return;
+    }
+
+    const module = await import('./landing-explained/landing-explained.component');
+    this.landingExplainedComponent.set(module.LandingExplainedComponent);
+  }
+
+  private async loadDashboardOverviewComponent() {
+    if (this.dashboardOverviewComponent()) {
+      return;
+    }
+
+    const module = await import('./dashboard-overview/dashboard-overview.component');
+    this.dashboardOverviewComponent.set(module.DashboardOverviewComponent);
+  }
+
+  private async loadTripUserInfoComponent() {
+    if (this.tripUserInfoComponent()) {
+      return;
+    }
+
+    const module = await import('./trip-user-info/trip-user-info.component');
+    this.tripUserInfoComponent.set(module.TripUserInfoComponent);
+  }
+
+  private async loadTripAllUsersInfoComponent() {
+    if (this.tripAllUsersInfoComponent()) {
+      return;
+    }
+
+    const module = await import('./trip-all-users-info/trip-all-users-info.component');
+    this.tripAllUsersInfoComponent.set(module.TripAllUsersInfoComponent);
   }
 
   private async loadUnderstandingTravelersComponent() {

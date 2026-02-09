@@ -49,22 +49,19 @@ export class DashboardComponent implements OnInit {
   allUsersTripSummaryComponent = AllUsersTripSummaryComponent;
   router = inject(Router);
 
-
   menuItems = computed<MenuConfig[]>(() => {
     return [
       {
         label: 'Help',
         icon: 'question-circle',
         action: () => {
-          this.router.navigate(['/help/dashboard/dashboard-intro']);
+          this.router.navigate(['/help/landing-dashboard/dashboard-overview']);
         }
       }
     ];
   }
   );
 
-
-  
   tripService = inject(TripService);
 
   trips: TripDto[] = [];
