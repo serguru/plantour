@@ -309,3 +309,7 @@ Explore src\app\components\dashboard\dashboard-component.ts and src\app\componen
 
 See sitemap_urls db table. It is populated with data on pages to be indexed by SEO. Add the necessary code to 
 plantour_server to read that data from the DB and generate sitemap.xml dynamically and return to the corresponding request
+
+
+Explore src\app\components\features\public-templates\public-templates-component.ts, src\app\components\features\terms\terms-component\terms-component.ts, src\app\components\features\privacy\privacy-component\privacy-component.ts,
+src\app\components\features\contact\contact-component.ts components. Make them maximum SEO friendly similar you did fro Help pages
