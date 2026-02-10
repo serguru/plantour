@@ -45,11 +45,19 @@ var rawEnvironmentName =
     Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
     ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
 
+var aspNetUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+var renderPort = Environment.GetEnvironmentVariable("PORT");
+
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args,
     EnvironmentName = NormalizeAspNetEnvironmentName(rawEnvironmentName)
 });
+
+if (string.IsNullOrWhiteSpace(aspNetUrls) && !string.IsNullOrWhiteSpace(renderPort))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{renderPort}");
+}
 
 // Configure Serilog with explicit column mappings for PostgreSQL
 var columnOptions = new Dictionary<string, ColumnWriterBase>
