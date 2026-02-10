@@ -53,10 +53,15 @@
             <li
               class="subsection-item"
               [class.active]="selectedSubsectionId === subsection.id"
-              (click)="onSelectSubsection(subsection.id)"
             >
-              <i [class]="selectedSubsectionId === subsection.id ? 'pi pi-chevron-up subsection-icon' : 'pi pi-chevron-down subsection-icon'"></i>
-              <span class="subsection-title">{{ subsection.title }}</span>
+              <a
+                class="subsection-link"
+                [attr.href]="subsectionHref(subsection.id)"
+                (click)="$event.preventDefault(); onSelectSubsection(subsection.id)"
+              >
+                <i [class]="selectedSubsectionId === subsection.id ? 'pi pi-chevron-up subsection-icon' : 'pi pi-chevron-down subsection-icon'"></i>
+                <span class="subsection-title">{{ subsection.title }}</span>
+              </a>
             </li>
 
             @if (selectedSubsectionId === subsection.id && subsectionComponents[subsection.id]) {

@@ -39,4 +39,11 @@ export class HelpSectionComponent {
       this.selectSubsection.emit({ sectionId: this.section.id, subsectionId });
     }
   }
+
+  subsectionHref(subsectionId: string): string {
+    if (this.selectedSubsectionId === subsectionId) {
+      return '/help';
+    }
+    return `/help/${this.section.id}/${subsectionId}`;
+  }
 }
