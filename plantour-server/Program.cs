@@ -319,7 +319,7 @@ try
     {
         app.Use(async (context, next) =>
         {
-            context.Response.Headers.Append("X-Robots-Tag", "noindex, nofollow");
+            context.Response.Headers.Append("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
             await next();
         });
     }

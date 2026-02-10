@@ -1,9 +1,9 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { ToastContainerComponent } from './components/toast-container/toast-container-component';
 import { ModalDialogComponent } from './components/modal-dialog/modal-dialog-component';
 import { AppService } from './services/app-service';
-import { debounceTime, fromEvent, Subject, takeUntil } from 'rxjs';
+import { debounceTime, filter, fromEvent, Subject, takeUntil } from 'rxjs';
 import { Toolbar } from './components/toolbar/toolbar-component';
 import { ComponentService } from './services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -33,6 +33,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   styleUrl: './app-component.scss'
 })
 export class AppComponent implements OnInit {
+  router = inject(Router);
 
   ngOnInit(): void {
   }
@@ -49,6 +50,6 @@ export class AppComponent implements OnInit {
     this.appService.routeDeActivated.next($componentRef);
   }
 
-  
+
 
 }
