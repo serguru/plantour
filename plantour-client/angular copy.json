@@ -90,7 +90,7 @@
               ]
             },
             "qa": {
-              "index": "src/index.html",
+              "index": "src/index.qa.html",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -110,7 +110,7 @@
               ]
             },
             "development": {
-              "index": "src/index.html",
+              "index": "src/index.qa.html",
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
