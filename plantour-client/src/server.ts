@@ -79,15 +79,14 @@ import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
-// 1. Initialize Express and the Angular Engine immediately
 const app = express();
-const angularApp = new AngularNodeAppEngine();
 
 async function startServer(): Promise<void> {
+  // 1. Resolve paths
   const serverDistFolder = dirname(fileURLToPath(import.meta.url));
   const browserDistFolder = resolve(serverDistFolder, '../browser');
 
-  // 2. Load Manifests
+  // 2. Load Manifests FIRST
   const appEngineManifestUrl = new URL('./angular-app-engine-manifest.mjs', import.meta.url);
   const appManifestUrl = new URL('./angular-app-manifest.mjs', import.meta.url);
 
@@ -96,15 +95,18 @@ async function startServer(): Promise<void> {
     import(appManifestUrl.toString())
   ]);
 
+  // 3. Set Manifests BEFORE initializing the Engine
   ɵsetAngularAppEngineManifest(appEngineManifest.default);
   ɵsetAngularAppManifest(appManifest.default);
 
-  // 3. Health Check (Crucial for Render to detect a 'Live' status quickly)
+  // 4. Now initialize the engine
+  const angularApp = new AngularNodeAppEngine();
+
+  // 5. Health Check for Render
   app.get('/healthz', (_req, res) => {
-    res.status(200).send('OK');
+    res.status(200).send('ok');
   });
 
-  // 4. Static Assets
   app.use(
     express.static(browserDistFolder, {
       maxAge: '1y',
@@ -112,7 +114,6 @@ async function startServer(): Promise<void> {
     })
   );
 
-  // 5. Angular SSR Handling
   app.use('*', (req, res, next) => {
     angularApp
       .handle(req)
@@ -126,22 +127,19 @@ async function startServer(): Promise<void> {
       .catch(next);
   });
 
-  // 6. Port and Host binding
-  // Render automatically assigns a PORT env var; we must use it.
+  // 6. Bind to Port
   const port = process.env['PORT'] || 4000;
-  const host = '0.0.0.0'; 
-
+  // Note: Render requires binding to 0.0.0.0
   app.listen(port, () => {
-    console.log(`Node Express server listening on http://${host}:${port}`);
+    console.log(`Node Express server listening on http://0.0.0.0:${port}`);
   });
 }
 
-// 7. Fire it up
+// Start sequence
 startServer().catch((error) => {
   console.error('Failed to start server:', error);
   process.exit(1);
 });
 
-// 8. Export the handler for the Angular CLI/Node environment
+// Export the handler
 export const reqHandler = createNodeRequestHandler(app);
-
