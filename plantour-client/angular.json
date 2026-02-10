@@ -46,11 +46,7 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              "src/assets",
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
+              "src/assets"
             ],
             "styles": [
               "src/styles.scss"
@@ -61,6 +57,7 @@
           },
           "configurations": {
             "production": {
+              "index": "src/index.html",
               "budgets": [
                 {
                   "type": "initial",
@@ -73,12 +70,49 @@
                   "maximumError": "80kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "assets": [
+                "src/assets",
+                {
+                  "glob": "**/*",
+                  "input": "public/common"
+                },
+                {
+                  "glob": "robots.txt",
+                  "input": "public/production"
+                }
+              ]
+            },
+            "qa": {
+              "index": "src/index.qa.html",
+              "assets": [
+                "src/assets",
+                {
+                  "glob": "**/*",
+                  "input": "public/common"
+                },
+                {
+                  "glob": "robots.txt",
+                  "input": "public/qa"
+                }
+              ]
             },
             "development": {
+              "index": "src/index.qa.html",
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "assets": [
+                "src/assets",
+                {
+                  "glob": "**/*",
+                  "input": "public/common"
+                },
+                {
+                  "glob": "robots.txt",
+                  "input": "public/qa"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
