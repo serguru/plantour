@@ -74,6 +74,7 @@ For detailed guidelines on contributing and integrating third-party applications
 
 - [Technical Specifications](documents/plantour-spec.txt) - Detailed project specifications
 - [Contributing Guidelines](CONTRIBUTING.md) - How to contribute and integrate third-party apps
+- [Third-Party Integration Guide](docs/THIRD_PARTY_INTEGRATION_GUIDE.md) - Step-by-step guide for integrating third-party services
 - [FAQ](docs/FAQ.md) - Frequently asked questions about contributing and integrations
 - [Client Documentation](plantour-client/README.md) - Angular client specific information
 

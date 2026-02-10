@@ -21,7 +21,9 @@ Plantour is a travel planning Progressive Web Application (PWA) built with:
 
 ### Adding Third-Party Applications
 
-If you want to integrate a third-party application or service with Plantour:
+If you want to integrate a third-party application or service with Plantour, please see our comprehensive [Third-Party Integration Guide](docs/THIRD_PARTY_INTEGRATION_GUIDE.md).
+
+Quick overview:
 
 1. **Review the Integration**
    - Ensure the third-party app aligns with Plantour's purpose
@@ -45,6 +47,8 @@ If you want to integrate a third-party application or service with Plantour:
      ```
    - Create services in `plantour-server/api/Services/`
    - Add controllers if needed in `plantour-server/api/Controllers/`
+
+For detailed instructions with examples, see the [Third-Party Integration Guide](docs/THIRD_PARTY_INTEGRATION_GUIDE.md).
 
 ### Returning/Contributing Third-Party App Code
 
