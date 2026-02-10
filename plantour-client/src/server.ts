@@ -153,7 +153,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const app = express();
-const port = process.env['PORT'] || 4000;
+const port = parseInt(process.env['PORT'] || '4000', 10);
 
 let angularApp: AngularNodeAppEngine | undefined;
 let isBootstrapped = false;
@@ -197,7 +197,7 @@ app.use('*', (req, res, next) => {
     return res.status(503).send('Service starting up, please wait...');
   }
   
-  angularApp.handle(req)
+  return angularApp.handle(req)
     .then((response) => response ? writeResponseToNodeResponse(response, res) : next())
     .catch(next);
 });
