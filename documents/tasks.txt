@@ -307,3 +307,5 @@ If no confirmation "payment successful" received the user will see "Waiting for 
 
 Explore src\app\components\dashboard\dashboard-component.ts and src\app\components\landing-new-user\landing-new-user.component.ts. Also explore how the Help component src\app\components\help\help-component.ts and its subcomponents work. Create a new Help subcomponent -> Add new "Landing & Dashboard" section to Help before "TRavelers Module" with subsections "Landing explained", "Dashboard overview", "Trip user info", "Trip all users info". 
 
+See sitemap_urls db table. It is populated with data on pages to be indexed by SEO. Add the necessary code to 
+plantour_server to read that data from the DB and generate sitemap.xml dynamically and return to the corresponding request
