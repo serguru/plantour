@@ -11,7 +11,8 @@
     "build:qa": "ng build --configuration qa",
     "build:production": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "start:ssr": "node dist/plantour-app/server/server.mjs"
   },
   "prettier": {
     "printWidth": 100,
