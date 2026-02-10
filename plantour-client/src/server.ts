@@ -44,10 +44,12 @@ async function startServer(): Promise<void> {
       .catch(next);
   });
 
-  const port = process.env['PORT'] || 4000;
+  const portFromEnv = process.env['PORT'];
+  const port = portFromEnv ? Number.parseInt(portFromEnv, 10) : 4000;
+  const listenPort = Number.isFinite(port) ? port : 4000;
 
-  app.listen(port, () => {
-    console.log(`Node Express server listening on http://localhost:${port}`);
+  app.listen(listenPort, '0.0.0.0', () => {
+    console.log(`Node Express server listening on http://0.0.0.0:${listenPort}`);
   });
 
   reqHandler = createNodeRequestHandler(app);
