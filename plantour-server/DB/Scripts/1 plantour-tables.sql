@@ -673,3 +673,12 @@ values
     ('user_refresh_token_expiration_days', '30',  'integer');
     
     
+create table plantour.sitemap_urls (
+    id uuid primary key default gen_random_uuid(),
+    url text not null unique,
+    last_modified timestamp not null default (now() at time zone 'utc'),
+    priority int default 50, -- in xml must be from 0 to 1
+    is_active boolean default true,
+    created_at timestamp not null default (now() at time zone 'utc')
+);
+

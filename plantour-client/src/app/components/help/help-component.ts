@@ -16,6 +16,8 @@ import { HelpSection } from './help-types';
 // TODO: put section collapsimg button in one row with section title
   // TODO: add ai templates to Help
 
+  // TODO: make sure all the section/subsection pages are properly SSR and indexed by SEO crawlers. This is important for users to find help content through search engines.
+
 @Component({
   selector: 'app-help',
   standalone: true,
