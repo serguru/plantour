@@ -73,6 +73,80 @@
 
 
 
+// import { AngularNodeAppEngine, createNodeRequestHandler, writeResponseToNodeResponse } from '@angular/ssr/node';
+// import { ɵsetAngularAppEngineManifest, ɵsetAngularAppManifest } from '@angular/ssr';
+// import express from 'express';
+// import { fileURLToPath } from 'node:url';
+// import { dirname, resolve } from 'node:path';
+
+// const app = express();
+
+// async function startServer(): Promise<void> {
+//   // 1. Resolve paths
+//   const serverDistFolder = dirname(fileURLToPath(import.meta.url));
+//   const browserDistFolder = resolve(serverDistFolder, '../browser');
+
+//   // 2. Load Manifests FIRST
+//   const appEngineManifestUrl = new URL('./angular-app-engine-manifest.mjs', import.meta.url);
+//   const appManifestUrl = new URL('./angular-app-manifest.mjs', import.meta.url);
+
+//   const [appEngineManifest, appManifest] = await Promise.all([
+//     import(appEngineManifestUrl.toString()),
+//     import(appManifestUrl.toString())
+//   ]);
+
+//   // 3. Set Manifests BEFORE initializing the Engine
+//   ɵsetAngularAppEngineManifest(appEngineManifest.default);
+//   ɵsetAngularAppManifest(appManifest.default);
+
+//   // 4. Now initialize the engine
+//   const angularApp = new AngularNodeAppEngine();
+
+//   // 5. Health Check for Render
+//   app.get('/healthz', (_req, res) => {
+//     res.status(200).send('ok');
+//   });
+
+//   app.use(
+//     express.static(browserDistFolder, {
+//       maxAge: '1y',
+//       index: false,
+//     })
+//   );
+
+//   app.use('*', (req, res, next) => {
+//     angularApp
+//       .handle(req)
+//       .then((response) => {
+//         if (response) {
+//           writeResponseToNodeResponse(response, res);
+//         } else {
+//           next();
+//         }
+//       })
+//       .catch(next);
+//   });
+
+//   // 6. Bind to Port
+//   const port = process.env['PORT'] || 4000;
+//   // Note: Render requires binding to 0.0.0.0
+//   app.listen(port, () => {
+//     console.log(`Node Express server listening on http://0.0.0.0:${port}`);
+//   });
+// }
+
+// // Start sequence
+// startServer().catch((error) => {
+//   console.error('Failed to start server:', error);
+//   process.exit(1);
+// });
+
+// // Export the handler
+// export const reqHandler = createNodeRequestHandler(app);
+
+
+
+
 import { AngularNodeAppEngine, createNodeRequestHandler, writeResponseToNodeResponse } from '@angular/ssr/node';
 import { ɵsetAngularAppEngineManifest, ɵsetAngularAppManifest } from '@angular/ssr';
 import express from 'express';
@@ -80,13 +154,16 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const app = express();
+const port = process.env['PORT'] || 4000;
 
-async function startServer(): Promise<void> {
-  // 1. Resolve paths
+// Declare the engine variable, but DON'T initialize it yet
+let angularApp: AngularNodeAppEngine | undefined;
+
+async function bootstrap() {
   const serverDistFolder = dirname(fileURLToPath(import.meta.url));
   const browserDistFolder = resolve(serverDistFolder, '../browser');
 
-  // 2. Load Manifests FIRST
+  // 1. Load manifests using dynamic imports
   const appEngineManifestUrl = new URL('./angular-app-engine-manifest.mjs', import.meta.url);
   const appManifestUrl = new URL('./angular-app-manifest.mjs', import.meta.url);
 
@@ -95,51 +172,40 @@ async function startServer(): Promise<void> {
     import(appManifestUrl.toString())
   ]);
 
-  // 3. Set Manifests BEFORE initializing the Engine
+  // 2. Set manifests BEFORE instantiating the engine
   ɵsetAngularAppEngineManifest(appEngineManifest.default);
   ɵsetAngularAppManifest(appManifest.default);
 
-  // 4. Now initialize the engine
-  const angularApp = new AngularNodeAppEngine();
+  // 3. NOW instantiate the engine
+  angularApp = new AngularNodeAppEngine();
 
-  // 5. Health Check for Render
-  app.get('/healthz', (_req, res) => {
-    res.status(200).send('ok');
-  });
-
-  app.use(
-    express.static(browserDistFolder, {
-      maxAge: '1y',
-      index: false,
-    })
-  );
+  // 4. Register static files and SSR handler
+  app.use(express.static(browserDistFolder, { maxAge: '1y', index: false }));
 
   app.use('*', (req, res, next) => {
-    angularApp
-      .handle(req)
-      .then((response) => {
-        if (response) {
-          writeResponseToNodeResponse(response, res);
-        } else {
-          next();
-        }
-      })
+    if (!angularApp) {
+      return next(); 
+    }
+    angularApp.handle(req)
+      .then((response) => response ? writeResponseToNodeResponse(response, res) : next())
       .catch(next);
   });
 
-  // 6. Bind to Port
-  const port = process.env['PORT'] || 4000;
-  // Note: Render requires binding to 0.0.0.0
-  app.listen(port, () => {
-    console.log(`Node Express server listening on http://0.0.0.0:${port}`);
-  });
+  console.log('Angular SSR engine initialized successfully.');
 }
 
-// Start sequence
-startServer().catch((error) => {
-  console.error('Failed to start server:', error);
-  process.exit(1);
+// 5. Health check for Render (defined outside the async flow)
+app.get('/healthz', (_req, res) => res.status(200).send('ok'));
+
+// 6. OPEN THE PORT IMMEDIATELY (This stops Render from hanging)
+app.listen(port, () => {
+  console.log(`Node Express server listening on http://0.0.0.0:${port}`);
+  
+  // Start the background manifest loading AFTER the port is open
+  bootstrap().catch(err => {
+    console.error('Bootstrap failed:', err);
+    process.exit(1);
+  });
 });
 
-// Export the handler
 export const reqHandler = createNodeRequestHandler(app);
