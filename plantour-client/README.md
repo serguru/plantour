@@ -4,13 +4,21 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Development server
 
-To start a local development server, run:
+This repo supports 3 environments: **dev** (local), **qa**, and **production**.
+
+To start a local dev server (uses the **dev** environment), run:
 
 ```bash
-ng serve
+npm run serve:dev
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+By default this runs on `http://localhost:4203/` (see `package.json`).
+
+To run the client using the **qa** environment locally:
+
+```bash
+npm run serve:qa
+```
 
 ## Code scaffolding
 
@@ -28,13 +36,23 @@ ng generate --help
 
 ## Building
 
-To build the project run:
+Builds are environment-specific:
 
 ```bash
-ng build
+npm run build:dev
+npm run build:qa
+npm run build:production
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Output is written to `dist/`.
+
+### Environment files
+
+- `src/environments/environment.ts` = **dev** (local)
+- `src/environments/environment.qa.ts` = **qa**
+- `src/environments/environment.prod.ts` = **production**
+
+Angular configuration wiring (file replacements) is in `angular.json` under `projects.plantour-app.architect.build.configurations`.
 
 ## Running unit tests
 

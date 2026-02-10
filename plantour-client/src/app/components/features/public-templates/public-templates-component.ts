@@ -1,6 +1,6 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { DomSanitizer, Meta, SafeHtml, Title } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { catchError, forkJoin, of, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +16,7 @@ import {
 import { REQUEST } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { EntitiesHeader, MenuConfig } from '../../entities/entities-header-component/entities-header-component';
+import { SeoService } from '../../../services/seo-service';
 
 type FilterKey = 'search' | 'activity' | 'age' | 'temperature' | 'category';
 
@@ -49,8 +50,7 @@ interface TemplateGroup {
 export class PublicTemplatesComponent implements OnInit {
   componentId = 'public-templates';
   private publicTemplatesService = inject(PublicTemplatesService);
-  private titleService = inject(Title);
-  private metaService = inject(Meta);
+  private seoService = inject(SeoService);
   private router = inject(Router);
   private document = inject(DOCUMENT);
   private sanitizer = inject(DomSanitizer);
@@ -168,6 +168,9 @@ export class PublicTemplatesComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // Ensure crawlers get stable metadata even if API calls fail.
+    this.applySeo(false);
+
     forkJoin({
       templates: this.publicTemplatesService.getTemplateThings().pipe(
         timeout({ first: 4000 }),
@@ -191,11 +194,11 @@ export class PublicTemplatesComponent implements OnInit {
         this.ageRanges.set(ageRanges);
         this.temperatureRanges.set(temperatureRanges);
         this.activities.set(activities);
-        this.setSeoMeta();
-        this.setStructuredData();
+        this.applySeo(true);
         this.isLoading.set(false);
       },
       error: () => {
+        this.applySeo(false);
         this.isLoading.set(false);
       }
     });
@@ -299,40 +302,23 @@ export class PublicTemplatesComponent implements OnInit {
     return false;
   }
 
-  private setSeoMeta(): void {
-    const title = 'Plantour Packing Templates by Activity, Age & Temperature';
-    const description = 'Explore public packing templates curated by activity, age range, and temperature. Use Plantour templates to plan your trip faster.';
-
-    this.titleService.setTitle(title);
-    this.metaService.updateTag({ name: 'description', content: description });
-    this.metaService.updateTag({ property: 'og:title', content: title });
-    this.metaService.updateTag({ property: 'og:description', content: description });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
-    this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
-    this.metaService.updateTag({ name: 'twitter:title', content: title });
-    this.metaService.updateTag({ name: 'twitter:description', content: description });
-    this.metaService.updateTag({ name: 'robots', content: 'index,follow' });
-
+  private applySeo(includeStructuredData: boolean): void {
     const canonicalUrl = this.buildAbsoluteUrl('/packing-list-generator/templates');
-    this.setCanonicalLink(canonicalUrl);
-  }
+    const title = 'Plantour Packing Templates by Activity, Age & Temperature';
+    const description =
+      'Explore public packing templates curated by activity, age range, and temperature. Use Plantour templates to plan your trip faster.';
 
-  private setStructuredData(): void {
-    const listItems = this.templateGroups().map((group, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: group.templateName,
-      url: this.buildAbsoluteUrl(`/packing-list-generator/templates/${this.slugify(group.templateName)}~${group.templateId}`)
-    }));
+    const jsonLd = includeStructuredData
+      ? this.publicTemplatesJsonLd({ canonicalUrl, title, description })
+      : null;
 
-    const data = {
-      '@context': 'https://schema.org',
-      '@type': 'ItemList',
-      name: 'Plantour Packing Templates',
-      itemListElement: listItems
-    };
-
-    this.injectJsonLd(data, 'public-templates-jsonld');
+    this.seoService.setSeo({
+      title,
+      description,
+      canonicalUrl,
+      ogType: 'website',
+      jsonLd,
+    });
   }
 
   private normalize(value?: string | null): string {
@@ -373,39 +359,63 @@ export class PublicTemplatesComponent implements OnInit {
       .slice(0, 60);
   }
 
-  private setCanonicalLink(url: string): void {
-    if (!this.document?.head) {
-      return;
-    }
+  private publicTemplatesJsonLd(input: {
+    canonicalUrl: string;
+    title: string;
+    description: string;
+  }): Record<string, unknown> {
+    const homeUrl = this.buildAbsoluteUrl('/');
+    const templatesUrl = input.canonicalUrl;
 
-    const existing = this.document.head.querySelector('link[rel="canonical"]');
-    if (existing) {
-      existing.setAttribute('href', url);
-      return;
-    }
+    const listItems = this.templateGroups().map((group, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: group.templateName,
+      url: this.buildAbsoluteUrl(
+        `/packing-list-generator/templates/${this.slugify(group.templateName)}~${group.templateId}`,
+      ),
+    }));
 
-    const link = this.document.createElement('link');
-    link.setAttribute('rel', 'canonical');
-    link.setAttribute('href', url);
-    this.document.head.appendChild(link);
-  }
-
-  private injectJsonLd(payload: unknown, id: string): void {
-    if (!this.document?.head) {
-      return;
-    }
-
-    const existing = this.document.getElementById(id);
-    if (existing) {
-      existing.textContent = JSON.stringify(payload);
-      return;
-    }
-
-    const script = this.document.createElement('script');
-    script.type = 'application/ld+json';
-    script.id = id;
-    script.text = JSON.stringify(payload);
-    this.document.head.appendChild(script);
+    return {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: homeUrl,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Packing Templates',
+              item: templatesUrl,
+            },
+          ],
+        },
+        {
+          '@type': 'WebPage',
+          '@id': templatesUrl,
+          url: templatesUrl,
+          name: input.title,
+          description: input.description,
+          isPartOf: {
+            '@type': 'WebSite',
+            '@id': homeUrl,
+            url: homeUrl,
+            name: 'Plantour',
+          },
+        },
+        {
+          '@type': 'ItemList',
+          name: 'Plantour Packing Templates',
+          itemListElement: listItems,
+        },
+      ],
+    };
   }
 
   private buildAbsoluteUrl(path: string): string {

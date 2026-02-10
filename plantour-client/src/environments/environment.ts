@@ -1,5 +1,3 @@
-import { LocalStorageService } from "../app/services/local-storage-service";
-
 export const environment = {
   production: false,
   apiUrl: 'http://192.168.4.32:5217'

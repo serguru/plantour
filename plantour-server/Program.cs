@@ -23,7 +23,33 @@ using NpgsqlTypes;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
-var builder = WebApplication.CreateBuilder(args);
+static string NormalizeAspNetEnvironmentName(string? raw)
+{
+    if (string.IsNullOrWhiteSpace(raw))
+    {
+        return Environments.Production;
+    }
+
+    return raw.Trim().ToLowerInvariant() switch
+    {
+        "dev" => Environments.Development,
+        "development" => Environments.Development,
+        "qa" => "QA",
+        "production" => Environments.Production,
+        "prod" => Environments.Production,
+        _ => raw.Trim()
+    };
+}
+
+var rawEnvironmentName =
+    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+    ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
+
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    EnvironmentName = NormalizeAspNetEnvironmentName(rawEnvironmentName)
+});
 
 // Configure Serilog with explicit column mappings for PostgreSQL
 var columnOptions = new Dictionary<string, ColumnWriterBase>

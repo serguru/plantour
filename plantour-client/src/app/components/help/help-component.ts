@@ -1,20 +1,23 @@
-import { Component, inject, signal, Type } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, PLATFORM_ID, signal, Type } from '@angular/core';
+import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TemporaryUserResponse, UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
-import { take } from 'rxjs';
+import { skip, take } from 'rxjs';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { HelpSectionComponent } from './help-section/help-section.component';
 import { HelpSection } from './help-types';
+import { SeoService } from '../../services/seo-service';
 
 // TODO: add a link to Guest Mode video tutorial
 // TODO: Help documents were genertated by AI. It is necessary to read ALL the Help documents carefully and make sure the content is OK
 // TODO: put section collapsimg button in one row with section title
   // TODO: add ai templates to Help
+
+  // TODO: make sure all the section/subsection pages are properly SSR and indexed by SEO crawlers. This is important for users to find help content through search engines.
 
 @Component({
   selector: 'app-help',
@@ -34,6 +37,12 @@ export class HelpComponent {
   router = inject(Router);
 
   route = inject(ActivatedRoute);
+
+  document = inject(DOCUMENT);
+
+  platformId = inject(PLATFORM_ID);
+
+  seoService = inject(SeoService);
 
   usersService = inject(UsersService);
 
@@ -342,18 +351,16 @@ export class HelpComponent {
 
   expandedSubSectionId = signal<string | null>(null);
 
-  ngOnInit(): void {
-    // Handle route parameters (section/subsection)
-    this.route.paramMap.pipe(take(1)).subscribe(params => {
-      const section = params.get('section');
-      const subsectionId = params.get('subsection');
-      if (section && subsectionId) {
-        this.expandedSectionId.set(section);
-        this.selectedSubsection.set({ sectionId: section, subsectionId });
-        this.loadSubcomponent(section, subsectionId);
-        // Scroll to the subsection after rendering
-        setTimeout(() => this.scrollToSubsection(), 100);
-      }
+  async ngOnInit(): Promise<void> {
+    // Apply initial route selection early (important for SSR).
+    await this.applyRouteSelection(
+      this.route.snapshot.paramMap.get('section'),
+      this.route.snapshot.paramMap.get('subsection'),
+    );
+
+    // React to in-app navigation between help pages.
+    this.route.paramMap.pipe(skip(1)).subscribe(params => {
+      void this.applyRouteSelection(params.get('section'), params.get('subsection'));
     });
 
     // Handle query params for guest mode
@@ -391,20 +398,159 @@ export class HelpComponent {
     // If subsectionId is empty, it means we're collapsing
     if (!selection.subsectionId) {
       this.selectedSubsection.set(null);
+      void this.router.navigate(['/help']);
       return;
     }
     
     this.selectedSubsection.set(selection);
-    this.loadSubcomponent(selection.sectionId, selection.subsectionId);
-    // Scroll to the subsection after rendering
-    setTimeout(() => this.scrollToSubsection(), 100);
+
+    // Update URL for shareability/crawlability; actual loading + SEO happens via route handler.
+    void this.router.navigate(['/help', selection.sectionId, selection.subsectionId]);
   }
 
   private scrollToSubsection() {
-    const element = document.querySelector('.subsection-content-wrapper');
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const element = this.document.querySelector('.subsection-content-wrapper');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  }
+
+  private async applyRouteSelection(sectionId: string | null, subsectionId: string | null): Promise<void> {
+    if (!sectionId || !subsectionId) {
+      this.selectedSubsection.set(null);
+      this.setHelpIndexSeo();
+      return;
+    }
+
+    this.expandedSectionId.set(sectionId);
+    this.selectedSubsection.set({ sectionId, subsectionId });
+    await this.loadSubcomponent(sectionId, subsectionId);
+    this.setHelpArticleSeo(sectionId, subsectionId);
+
+    // Scroll after rendering (browser-only)
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => this.scrollToSubsection(), 100);
+    }
+  }
+
+  private setHelpIndexSeo(): void {
+    const canonicalUrl = this.toAbsoluteUrl('/help');
+    const title = 'Help & Documentation | Plantour';
+    const description =
+      'Plantour Help Center: step-by-step guides for trips, packing lists, travelers, bags, shared items, templates, and collaboration.';
+
+    this.seoService.setSeo({
+      title,
+      description,
+      canonicalUrl,
+      ogType: 'website',
+      jsonLd: this.helpJsonLd({
+        canonicalUrl,
+        title,
+        description,
+      }),
+    });
+  }
+
+  private setHelpArticleSeo(sectionId: string, subsectionId: string): void {
+    const { title, description } = this.getHelpArticleMeta(sectionId, subsectionId);
+    const canonicalUrl = this.toAbsoluteUrl(`/help/${sectionId}/${subsectionId}`);
+
+    this.seoService.setSeo({
+      title,
+      description,
+      canonicalUrl,
+      ogType: 'article',
+      jsonLd: this.helpJsonLd({
+        canonicalUrl,
+        title,
+        description,
+      }),
+    });
+  }
+
+  private getHelpArticleMeta(sectionId: string, subsectionId: string): { title: string; description: string } {
+    const section = this.helpSections().find(s => s.id === sectionId);
+    const subsection = section?.subsections?.find(ss => ss.id === subsectionId);
+
+    const sectionTitle = section?.title ?? 'Help';
+    const subsectionTitle = subsection?.title ?? 'Guide';
+    const title = `${subsectionTitle} | ${sectionTitle} | Plantour Help`;
+
+    const base = section?.description ?? 'Plantour Help Center documentation.';
+    const description = this.trimDescription(
+      `${base} Learn about “${subsectionTitle}” with clear steps and practical tips.`,
+    );
+
+    return { title, description };
+  }
+
+  private trimDescription(value: string, maxLen = 160): string {
+    const normalized = value.replace(/\s+/g, ' ').trim();
+    if (normalized.length <= maxLen) {
+      return normalized;
+    }
+    return `${normalized.slice(0, maxLen - 1).trimEnd()}…`;
+  }
+
+  private toAbsoluteUrl(path: string): string {
+    try {
+      return new URL(path, this.document.baseURI).toString();
+    } catch {
+      return path;
+    }
+  }
+
+  private helpJsonLd(input: { canonicalUrl: string; title: string; description: string }): Record<string, unknown> {
+    const homeUrl = this.toAbsoluteUrl('/');
+    const helpUrl = this.toAbsoluteUrl('/help');
+
+    return {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: homeUrl,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Help',
+              item: helpUrl,
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: input.title.replace(/ \| Plantour Help$/, ''),
+              item: input.canonicalUrl,
+            },
+          ],
+        },
+        {
+          '@type': 'Article',
+          headline: input.title,
+          description: input.description,
+          mainEntityOfPage: input.canonicalUrl,
+          author: {
+            '@type': 'Organization',
+            name: 'Plantour',
+          },
+          publisher: {
+            '@type': 'Organization',
+            name: 'Plantour',
+          },
+        },
+      ],
+    };
   }
 
   getSectionComponents(sectionId: string): Record<string, Type<unknown> | null> {
@@ -526,208 +672,210 @@ export class HelpComponent {
     }
   }
 
-  private loadSubcomponent(sectionId: string, subsectionId: string) {
+  private loadSubcomponent(sectionId: string, subsectionId: string): Promise<void> {
     if (sectionId === 'get-started' && subsectionId === 'welcome') {
-      this.loadWelcomeComponent();
+      return this.loadWelcomeComponent();
     }
     if (sectionId === 'get-started' && subsectionId === 'test-mode') {
-      this.loadTestModeComponent();
+      return this.loadTestModeComponent();
     }
     if (sectionId === 'get-started' && subsectionId === 'create-account') {
-      this.loadReadyToRegisterComponent();
+      return this.loadReadyToRegisterComponent();
     }
     if (sectionId === 'overview' && subsectionId === 'key-features') {
-      this.loadKeyFeaturesComponent();
+      return this.loadKeyFeaturesComponent();
     }
     if (sectionId === 'overview' && subsectionId === 'who-is-it-for') {
-      this.loadWhoPlantourForComponent();
+      return this.loadWhoPlantourForComponent();
     }
     if (sectionId === 'overview' && subsectionId === 'basic-workflow') {
-      this.loadBasicWorkflowComponent();
+      return this.loadBasicWorkflowComponent();
     }
     if (sectionId === 'overview' && subsectionId === 'admins-and-participants') {
-      this.loadAdminsParticipantsComponent();
+      return this.loadAdminsParticipantsComponent();
     }
     if (sectionId === 'account' && subsectionId === 'login') {
-      this.loadSignInToAccountComponent();
+      return this.loadSignInToAccountComponent();
     }
     if (sectionId === 'account' && subsectionId === 'profile') {
-      this.loadEditYourProfileComponent();
+      return this.loadEditYourProfileComponent();
     }
     if (sectionId === 'landing-dashboard' && subsectionId === 'landing-explained') {
-      this.loadLandingExplainedComponent();
+      return this.loadLandingExplainedComponent();
     }
     if (sectionId === 'landing-dashboard' && subsectionId === 'dashboard-overview') {
-      this.loadDashboardOverviewComponent();
+      return this.loadDashboardOverviewComponent();
     }
     if (sectionId === 'landing-dashboard' && subsectionId === 'trip-user-info') {
-      this.loadTripUserInfoComponent();
+      return this.loadTripUserInfoComponent();
     }
     if (sectionId === 'landing-dashboard' && subsectionId === 'trip-all-users-info') {
-      this.loadTripAllUsersInfoComponent();
+      return this.loadTripAllUsersInfoComponent();
     }
     if (sectionId === 'travelers' && subsectionId === 'travelers-intro') {
-      this.loadUnderstandingTravelersComponent();
+      return this.loadUnderstandingTravelersComponent();
     }
     if (sectionId === 'travelers' && subsectionId === 'add-traveler') {
-      this.loadAddTravelerComponent();
+      return this.loadAddTravelerComponent();
     }
     if (sectionId === 'travelers' && subsectionId === 'edit-traveler') {
-      this.loadEditTravelerComponent();
+      return this.loadEditTravelerComponent();
     }
     if (sectionId === 'travelers' && subsectionId === 'delete-traveler') {
-      this.loadDeleteTravelerComponent();
+      return this.loadDeleteTravelerComponent();
     }
     if (sectionId === 'travelers' && subsectionId === 'filter-travelers') {
-      this.loadFilterTravelersComponent();
+      return this.loadFilterTravelersComponent();
     }
     if (sectionId === 'things' && subsectionId === 'things-intro') {
-      this.loadUnderstandingItemsComponent();
+      return this.loadUnderstandingItemsComponent();
     }
     if (sectionId === 'things' && subsectionId === 'add-item') {
-      this.loadAddItemComponent();
+      return this.loadAddItemComponent();
     }
     if (sectionId === 'things' && subsectionId === 'edit-item') {
-      this.loadEditItemComponent();
+      return this.loadEditItemComponent();
     }
     if (sectionId === 'things' && subsectionId === 'delete-item') {
-      this.loadDeleteItemComponent();
+      return this.loadDeleteItemComponent();
     }
     if (sectionId === 'things' && subsectionId === 'item-categories') {
-      this.loadUsingCategoriesComponent();
+      return this.loadUsingCategoriesComponent();
     }
     if (sectionId === 'things' && subsectionId === 'filter-things') {
-      this.loadFilterSortItemsComponent();
+      return this.loadFilterSortItemsComponent();
     }
     if (sectionId === 'ai-recommendations' && subsectionId === 'ask-ai') {
-      this.loadAskAiForItemsComponent();
+      return this.loadAskAiForItemsComponent();
     }
     if (sectionId === 'ai-recommendations' && subsectionId === 'add-to-dictionary') {
-      this.loadAddAiItemsToDictionaryComponent();
+      return this.loadAddAiItemsToDictionaryComponent();
     }
     if (sectionId === 'ai-recommendations' && subsectionId === 'add-to-trip-own') {
-      this.loadAddAiItemsToTripOwnComponent();
+      return this.loadAddAiItemsToTripOwnComponent();
     }
     if (sectionId === 'ai-recommendations' && subsectionId === 'add-to-trip-shared') {
-      this.loadAddAiItemsToTripSharedComponent();
+      return this.loadAddAiItemsToTripSharedComponent();
     }
     if (sectionId === 'packs' && subsectionId === 'packs-intro') {
-      this.loadUnderstandingBagsComponent();
+      return this.loadUnderstandingBagsComponent();
     }
     if (sectionId === 'packs' && subsectionId === 'add-bag') {
-      this.loadAddBagComponent();
+      return this.loadAddBagComponent();
     }
     if (sectionId === 'packs' && subsectionId === 'edit-bag') {
-      this.loadEditBagDetailsComponent();
+      return this.loadEditBagDetailsComponent();
     }
     if (sectionId === 'packs' && subsectionId === 'delete-bag') {
-      this.loadDeleteBagComponent();
+      return this.loadDeleteBagComponent();
     }
     if (sectionId === 'packs' && subsectionId === 'filter-packs') {
-      this.loadFilterSortBagsComponent();
+      return this.loadFilterSortBagsComponent();
     }
     if (sectionId === 'trips' && subsectionId === 'trips-intro') {
-      this.loadUnderstandingTripsComponent();
+      return this.loadUnderstandingTripsComponent();
     }
     if (sectionId === 'trips' && subsectionId === 'create-trip') {
-      this.loadCreateTripComponent();
+      return this.loadCreateTripComponent();
     }
     if (sectionId === 'trips' && subsectionId === 'edit-trip') {
-      this.loadEditTripComponent();
+      return this.loadEditTripComponent();
     }
     if (sectionId === 'trips' && subsectionId === 'delete-trip') {
-      this.loadDeleteTripComponent();
+      return this.loadDeleteTripComponent();
     }
     if (sectionId === 'trips' && subsectionId === 'trip-status') {
-      this.loadTripStatusWorkflowComponent();
+      return this.loadTripStatusWorkflowComponent();
     }
     if (sectionId === 'trips' && subsectionId === 'filter-trips') {
-      this.loadFilterSortTripsComponent();
+      return this.loadFilterSortTripsComponent();
     }
     if (sectionId === 'trips' && subsectionId === 'select-current-trip') {
-      this.loadSelectCurrentTripComponent();
+      return this.loadSelectCurrentTripComponent();
     }
     if (sectionId === 'trip-participants' && subsectionId === 'participants-intro') {
-      this.loadUnderstandingTripParticipantsComponent();
+      return this.loadUnderstandingTripParticipantsComponent();
     }
     if (sectionId === 'trip-participants' && subsectionId === 'add-participant') {
-      this.loadAddParticipantToTripComponent();
+      return this.loadAddParticipantToTripComponent();
     }
     if (sectionId === 'trip-participants' && subsectionId === 'remove-participant') {
-      this.loadRemoveParticipantFromTripComponent();
+      return this.loadRemoveParticipantFromTripComponent();
     }
     if (sectionId === 'trip-participants' && subsectionId === 'participant-permissions') {
-      this.loadParticipantPermissionsComponent();
+      return this.loadParticipantPermissionsComponent();
     }
     if (sectionId === 'trip-packs' && subsectionId === 'trip-packs-intro') {
-      this.loadUnderstandingTripBagsComponent();
+      return this.loadUnderstandingTripBagsComponent();
     }
     if (sectionId === 'trip-packs' && subsectionId === 'add-bag-to-trip') {
-      this.loadAddBagToTripComponent();
+      return this.loadAddBagToTripComponent();
     }
     if (sectionId === 'trip-packs' && subsectionId === 'edit-trip-bag') {
-      this.loadEditTripBagComponent();
+      return this.loadEditTripBagComponent();
     }
     if (sectionId === 'trip-packs' && subsectionId === 'remove-bag-from-trip') {
-      this.loadRemoveBagFromTripComponent();
+      return this.loadRemoveBagFromTripComponent();
     }
     if (sectionId === 'shared-things' && subsectionId === 'shared-intro') {
-      this.loadUnderstandingSharedItemsComponent();
+      return this.loadUnderstandingSharedItemsComponent();
     }
     if (sectionId === 'shared-things' && subsectionId === 'create-shared-item') {
-      this.loadCreateSharedItemComponent();
+      return this.loadCreateSharedItemComponent();
     }
     if (sectionId === 'shared-things' && subsectionId === 'edit-shared-item') {
-      this.loadEditSharedItemComponent();
+      return this.loadEditSharedItemComponent();
     }
     if (sectionId === 'shared-things' && subsectionId === 'delete-shared-item') {
-      this.loadDeleteSharedItemComponent();
+      return this.loadDeleteSharedItemComponent();
     }
     if (sectionId === 'shared-things' && subsectionId === 'assign-shared-item') {
-      this.loadAssignSharedItemComponent();
+      return this.loadAssignSharedItemComponent();
     }
     if (sectionId === 'shared-things' && subsectionId === 'unassign-shared-item') {
-      this.loadUnassignSharedItemComponent();
+      return this.loadUnassignSharedItemComponent();
     }
     if (sectionId === 'shared-things' && subsectionId === 'accept-shared-item') {
-      this.loadAcceptSharedItemComponent();
+      return this.loadAcceptSharedItemComponent();
     }
     if (sectionId === 'shared-things' && subsectionId === 'reject-shared-item') {
-      this.loadRejectSharedItemComponent();
+      return this.loadRejectSharedItemComponent();
     }
     if (sectionId === 'shared-things' && subsectionId === 'finish-shared-item') {
-      this.loadFinishSharedItemComponent();
+      return this.loadFinishSharedItemComponent();
     }
     if (sectionId === 'trip-comments' && subsectionId === 'comments-intro') {
-      this.loadUnderstandingCommentsComponent();
+      return this.loadUnderstandingCommentsComponent();
     }
     if (sectionId === 'trip-comments' && subsectionId === 'add-comment') {
-      this.loadAddCommentComponent();
+      return this.loadAddCommentComponent();
     }
     if (sectionId === 'templates' && subsectionId === 'templates-intro') {
-      this.loadUnderstandingTemplatesComponent();
+      return this.loadUnderstandingTemplatesComponent();
     }
     if (sectionId === 'templates' && subsectionId === 'item-templates') {
-      this.loadItemTemplatesComponent();
+      return this.loadItemTemplatesComponent();
     }
     if (sectionId === 'templates' && subsectionId === 'public-templates') {
-      this.loadPublicTemplatesComponent();
+      return this.loadPublicTemplatesComponent();
     }
     if (sectionId === 'faq' && subsectionId === 'faq-general') {
-      this.loadFaqGeneralComponent();
+      return this.loadFaqGeneralComponent();
     }
     if (sectionId === 'faq' && subsectionId === 'faq-account') {
-      this.loadFaqPlansComponent();
+      return this.loadFaqPlansComponent();
     }
     if (sectionId === 'faq' && subsectionId === 'faq-trips') {
-      this.loadFaqTripsComponent();
+      return this.loadFaqTripsComponent();
     }
     if (sectionId === 'faq' && subsectionId === 'faq-packing') {
-      this.loadFaqPackingComponent();
+      return this.loadFaqPackingComponent();
     }
     if (sectionId === 'faq' && subsectionId === 'faq-collaboration') {
-      this.loadFaqCollaborationComponent();
+      return this.loadFaqCollaborationComponent();
     }
+
+    return Promise.resolve();
   }
 
   private async loadWelcomeComponent() {
