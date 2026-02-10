@@ -48,8 +48,8 @@ async function startServer(): Promise<void> {
   const port = portFromEnv ? Number.parseInt(portFromEnv, 10) : 4000;
   const listenPort = Number.isFinite(port) ? port : 4000;
 
-  app.listen(listenPort, '0.0.0.0', () => {
-    console.log(`Node Express server listening on http://0.0.0.0:${listenPort}`);
+  app.listen(listenPort, () => {
+    console.log(`Node Express server listening on port ${listenPort}`);
   });
 
   reqHandler = createNodeRequestHandler(app);
