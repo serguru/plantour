@@ -1,7 +1,17 @@
 import { AngularNodeAppEngine, createNodeRequestHandler, writeResponseToNodeResponse } from '@angular/ssr/node';
+import { ɵsetAngularAppEngineManifest, ɵsetAngularAppManifest } from '@angular/ssr';
 import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+
+const appEngineManifestUrl = new URL('./angular-app-engine-manifest.mjs', import.meta.url);
+const appManifestUrl = new URL('./angular-app-manifest.mjs', import.meta.url);
+
+const appEngineManifest = await import(appEngineManifestUrl.toString());
+const appManifest = await import(appManifestUrl.toString());
+
+ɵsetAngularAppEngineManifest(appEngineManifest.default);
+ɵsetAngularAppManifest(appManifest.default);
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
