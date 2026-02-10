@@ -146,7 +146,6 @@
 
 
 
-
 import { AngularNodeAppEngine, createNodeRequestHandler, writeResponseToNodeResponse } from '@angular/ssr/node';
 import { ɵsetAngularAppEngineManifest, ɵsetAngularAppManifest } from '@angular/ssr';
 import express from 'express';
@@ -156,14 +155,14 @@ import { dirname, resolve } from 'node:path';
 const app = express();
 const port = process.env['PORT'] || 4000;
 
-// Declare the engine variable, but DON'T initialize it yet
 let angularApp: AngularNodeAppEngine | undefined;
+let isBootstrapped = false;
 
 async function bootstrap() {
   const serverDistFolder = dirname(fileURLToPath(import.meta.url));
   const browserDistFolder = resolve(serverDistFolder, '../browser');
 
-  // 1. Load manifests using dynamic imports
+  // Load manifests using dynamic imports
   const appEngineManifestUrl = new URL('./angular-app-engine-manifest.mjs', import.meta.url);
   const appManifestUrl = new URL('./angular-app-manifest.mjs', import.meta.url);
 
@@ -172,40 +171,47 @@ async function bootstrap() {
     import(appManifestUrl.toString())
   ]);
 
-  // 2. Set manifests BEFORE instantiating the engine
+  // Set manifests BEFORE instantiating the engine
   ɵsetAngularAppEngineManifest(appEngineManifest.default);
   ɵsetAngularAppManifest(appManifest.default);
 
-  // 3. NOW instantiate the engine
+  // NOW instantiate the engine
   angularApp = new AngularNodeAppEngine();
 
-  // 4. Register static files and SSR handler
+  // Register static files
   app.use(express.static(browserDistFolder, { maxAge: '1y', index: false }));
 
-  app.use('*', (req, res, next) => {
-    if (!angularApp) {
-      return next(); 
-    }
-    angularApp.handle(req)
-      .then((response) => response ? writeResponseToNodeResponse(response, res) : next())
-      .catch(next);
-  });
-
+  isBootstrapped = true;
   console.log('Angular SSR engine initialized successfully.');
 }
 
-// 5. Health check for Render (defined outside the async flow)
-app.get('/healthz', (_req, res) => res.status(200).send('ok'));
+// Health check - responds immediately even during bootstrap
+app.get('/healthz', (_req, res) => {
+  res.status(200).send('ok');
+});
 
-// 6. OPEN THE PORT IMMEDIATELY (This stops Render from hanging)
-app.listen(port, () => {
-  console.log(`Node Express server listening on http://0.0.0.0:${port}`);
+// SSR handler - returns 503 if not ready yet
+app.use('*', (req, res, next) => {
+  if (!isBootstrapped || !angularApp) {
+    // Return 503 Service Unavailable during bootstrap
+    return res.status(503).send('Service starting up, please wait...');
+  }
   
-  // Start the background manifest loading AFTER the port is open
-  bootstrap().catch(err => {
+  angularApp.handle(req)
+    .then((response) => response ? writeResponseToNodeResponse(response, res) : next())
+    .catch(next);
+});
+
+// Start bootstrap BEFORE opening the port
+bootstrap()
+  .then(() => {
+    app.listen(port, '0.0.0.0', () => {
+      console.log(`Node Express server listening on http://0.0.0.0:${port}`);
+    });
+  })
+  .catch(err => {
     console.error('Bootstrap failed:', err);
     process.exit(1);
   });
-});
 
 export const reqHandler = createNodeRequestHandler(app);
