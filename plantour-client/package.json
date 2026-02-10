@@ -4,7 +4,12 @@
   "scripts": {
     "ng": "ng",
     "m": "ng serve --host 0.0.0.0 --port 4203 --open",
+    "serve:dev": "ng serve --configuration dev --host 0.0.0.0 --port 4203 --open",
+    "serve:qa": "ng serve --configuration qa --host 0.0.0.0 --port 4203 --open",
     "build": "ng build",
+    "build:dev": "ng build --configuration dev",
+    "build:qa": "ng build --configuration qa",
+    "build:production": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
