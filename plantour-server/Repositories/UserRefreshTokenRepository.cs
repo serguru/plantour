@@ -12,7 +12,7 @@ public class UserRefreshTokenRepository(PlantourContext context) : GenericReposi
 
     public async Task<UserRefreshToken?> GetActiveByHashAsync(string tokenHash)
     {
-        var now = DateTime.UtcNow;
+        var now = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
         return await _dbSet.FirstOrDefaultAsync(x =>
             x.TokenHash == tokenHash &&
             x.RevokedAt == null &&

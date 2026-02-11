@@ -23,7 +23,7 @@ public class ContactSubmissionRepository(PlantourContext context) : GenericRepos
 
     public async Task<IEnumerable<ContactSubmission>> GetAllRecentAsync(int days = 30)
     {
-        var cutoffDate = DateTime.UtcNow.AddDays(-days);
+        var cutoffDate = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(-days), DateTimeKind.Unspecified);
         return await _dbSet
             .Where(x => x.CreatedAt >= cutoffDate)
             .OrderByDescending(x => x.CreatedAt)
