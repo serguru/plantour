@@ -95,7 +95,10 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "index": "src/index.qa.html",
+              "index": {
+                "input": "src/index.qa.html",
+                "output": "index.html"
+              },
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -115,7 +118,10 @@
               ]
             },
             "development": {
-              "index": "src/index.qa.html",
+              "index": {
+                "input": "src/index.qa.html",
+                "output": "index.html"
+              },
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
