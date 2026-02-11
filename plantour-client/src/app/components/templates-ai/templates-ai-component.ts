@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, ErrorHandler, inject, signal } from '@angular/core';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { EntitiesComponent } from '../entities/entities-component';
@@ -8,7 +8,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ComponentService } from '../../services/component-service';
 import { TripSharedService } from '../../services/trip-shared-service';
 import { TripThingService } from '../../services/trip-thing-service';
-import { BehaviorSubject, catchError, combineLatest, concatMap, debounceTime, finalize, forkJoin, of, Subject, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, concatMap, debounceTime, finalize, forkJoin, of, Subject, switchMap, tap, throwError } from 'rxjs';
 import { ThingService } from '../../services/thing-service';
 import { UsersService } from '../../services/users-service';
 import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
@@ -44,6 +44,7 @@ export class TemplatesAiComponent {
   appService = inject(AppService);
   tripService = inject(TripService);
   router = inject(Router);
+  errorHandler = inject(ErrorHandler);
 
   componentService = inject(ComponentService);
   templateAiService = inject(TemplatesAiService);
@@ -163,16 +164,6 @@ export class TemplatesAiComponent {
 
     this.componentService.updateLoading(true);
 
-
-    // 1. Set loading ON before starting
-    this.componentService.updateLoading(true);
-
-
-    // 2. The Main Stream
-    this.componentService.updateLoading(true); // Initial load start
-
-
-    // TODO: it is necessary to check all similar calls for catchError
     forkJoin([o, p]).pipe(
       tap(([trips, prompts]) => {
         this.prompts = prompts.map(x => x.prompt);
@@ -189,25 +180,23 @@ export class TemplatesAiComponent {
 
       // switchMap to the actual API calls
       switchMap(([target, prompt]) => {
-        this.componentService.updateLoading(true); // Turn on loader for every new click/change
+        this.componentService.updateLoading(true);
 
         return this.getTemplateApiCall(target, prompt).pipe(
-
           tap(things => {
             if (things?.length > 0 && prompt) {
               this.addPromptToLookup(prompt)
             }
           }),
-
-          // CRITICAL: Catch error here so the outer stream (clicks) doesn't die
+    // TODO: check all similar calls for catchError
           catchError(err => {
-            this.messagesService.showError('Error loading AI generated items. Please try again later.', 'API Error');
-            this.componentService.updateLoading(false);
-            return of([]); // Return empty array so updateEntities still has something
+            this.errorHandler.handleError(err);
+            return of([]);
           }),
-          // Local finalize: Turns off loader when this specific request finishes or is cancelled
-          finalize(() => this.componentService.updateLoading(false))
-        );
+          finalize(() =>
+            this.componentService.updateLoading(false)
+          )
+        )
       }),
       // Outer finalize: Safety net for component destruction or total stream completion
       finalize(() => this.componentService.updateLoading(false)),
@@ -216,77 +205,8 @@ export class TemplatesAiComponent {
       next: (things) => {
         this.componentService.updateEntities(things || []);
         this.componentService.updateLoading(false); // Double-check loader is off on success
-      },
-      error: (err) => {
-        this.messagesService.showError('Fatal Stream Error occurred. Please try again later.', 'Stream Error');
-        this.componentService.updateLoading(false);
       }
     });
-
-
-
-
-
-    // forkJoin([o, p]).pipe(
-    //   tap(([trips, prompts]) => {
-
-    //     this.prompts = prompts.map(x => x.prompt);
-    //     if (prompts && prompts.length > 0) {
-    //       this.selectedPrompt = prompts[0].prompt;
-    //     }
-
-    //     this.initConditions(this.componentId, trips);
-    //     this.initTargetLookup(trips);
-    //     this.initSavedFeatures();
-    //   }),
-    //   switchMap(_ => {
-    //     return combineLatest([this.componentService.target$, this.clickSubject])
-    //       .pipe(
-    //         switchMap(([target, prompt]) => {
-    //           if (target && target.selectedMode === TargetMode.DicThings) {
-    //             return this.templateAiService.getAllForDic(prompt || '').pipe(
-    //               finalize(() => {
-    //                 this.componentService.updateLoading(false);
-    //               })
-    //             )
-    //           }
-    //           if (target && target.selectedMode === TargetMode.TripShared) {
-    //             return this.templateAiService.getAllForTripShared(target.id!, prompt || '').pipe(
-    //               finalize(() => {
-    //                 this.componentService.updateLoading(false);
-    //               })
-    //             )
-    //           }
-    //           if (target && target?.id) {
-    //             return this.templateAiService.getAllForTrip(target.id, prompt || '').pipe(
-    //               finalize(() => {
-    //                 this.componentService.updateLoading(false);
-    //               })
-    //             )
-    //           }
-    //           return this.templateAiService.getAllByPrompt(prompt || '').pipe(
-    //               finalize(() => {
-    //                 this.componentService.updateLoading(false);
-    //               })
-    //             )
-    //         }),
-    //         finalize(() => {
-    //           this.componentService.updateLoading(false);
-    //         })
-    //       )
-    //   }),
-    //   takeUntilDestroyed(this.destroyRef),
-    //   finalize(() => {
-    //     this.componentService.updateLoading(false);
-    //   })
-    // ).subscribe(things =>
-    //   this.componentService.updateEntities(things || [])
-    // );
-
-
-
-
-
   }
 
   initSavedFeatures() {
@@ -392,7 +312,7 @@ export class TemplatesAiComponent {
     if (targetCondition) {
       if (targetCondition.target?.selectedMode === TargetMode.DicThings) {
         targetCondition.target = {
-          id: null,
+          id: targetCondition.target.id,
           name: "Items Dictionary",
           selectedMode: TargetMode.DicThings,
           options: null

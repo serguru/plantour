@@ -1,35 +1,22 @@
 <div class="page-container">
     <app-entities-header
-        entityIcon="pi pi-objects-column"
-        title="Template AI items"
-        entityName="template AI item"
+        entityIcon="pi pi-star"
+        title="AI prompts"
+        entityName="AI item"
         [menuItems]="menuItems()"
     ></app-entities-header>
 
     <div class="prompt-container">
-
-        <!-- <p-select
-            style="width: 100%;"
-            [options]="prompts"
-            placeholder="Select or enter prompt"
-            [(ngModel)]="selectedPrompt"
-            editable="true"
-            showClear="true"
-        >
-        </p-select> -->
-
-<app-dropdown
-class="prompt-select"
+        <app-dropdown
+            class="prompt-select"
             [options]="prompts || []"
             [(ngModel)]="selectedPrompt"
->
-    
-</app-dropdown>
-
+        >
+        </app-dropdown>
         <app-button
             class="prompt-button"
             label="Ask AI"
-            icon="pi pi-plus"
+            icon="pi pi-send"
             (click)="clickSubject.next(selectedPrompt)"
             [disabled]="!selectedPrompt || isLoading()"
             [loading]="isLoading()"

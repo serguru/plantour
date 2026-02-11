@@ -12,20 +12,22 @@ public class AiPromptRepository(PlantourContext context) : GenericRepository<AiP
     }
     public async Task<AiPrompt?> GetByPromptMonthAsync(Guid userId, string prompt)
     {
+        var monthAgo = DateTime.SpecifyKind(DateTime.UtcNow.AddMonths(-1), DateTimeKind.Unspecified);
         return await _dbSet
             .FirstOrDefaultAsync(x => 
             x.Prompt.ToLower() == prompt.ToLower() && 
             x.UserId == userId &&
-            x.CreatedAt >= DateTime.UtcNow.AddMonths(-1)
+            x.CreatedAt >= monthAgo
             );
     }
 
     public async Task<IEnumerable<AiPrompt>> GetAllMonthAsync(Guid userId)
     {
+        var monthAgo = DateTime.SpecifyKind(DateTime.UtcNow.AddMonths(-1), DateTimeKind.Unspecified);
         return await _dbSet
             .Where(x => 
             x.UserId == userId &&
-            x.CreatedAt >= DateTime.UtcNow.AddMonths(-1)
+            x.CreatedAt >= monthAgo
             )
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
