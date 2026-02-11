@@ -86,9 +86,7 @@ const browserDistFolder = resolve(serverDistFolder, '../browser');
 const app = express();
 const angularAppEngine = new AngularNodeAppEngine();
 
-/**
- * Serve static files from /browser
- */
+// 1. Serve static files
 app.use(
   express.static(browserDistFolder, {
     maxAge: '1y',
@@ -97,9 +95,14 @@ app.use(
   }),
 );
 
-/**
- * Handle all other requests by rendering the Angular application.
- */
+// 2. Health Check (Crucial for Render)
+// This gives Render a "dumb" endpoint to hit that doesn't trigger the Angular Engine.
+// If this works, Render will pass the port scan instantly.
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// 3. Handle Angular Rendering
 app.get('**', (req, res, next) => {
   angularAppEngine
     .handle(req)
@@ -110,16 +113,22 @@ app.get('**', (req, res, next) => {
 });
 
 /**
- * Start the server if this module is the main entry point.
- * Explicitly patched for Render.com / Docker / Cloud environments.
+ * Start the server
  */
 if (isMainModule(import.meta.url)) {
-  const port = process.env['PORT'] || 4000;
+  // RENDER FIX: Force port 10000 if PORT is missing
+  const port = process.env['PORT'] || 10000;
   
-  // BIND TO 0.0.0.0 to fix Render.com "no port open" issues
-  app.listen(Number(port), '0.0.0.0', () => {
-    console.log(`Node Express server listening on http://0.0.0.0:${port}`);
+  // RENDER FIX: Use a variable for host
+  const host = '0.0.0.0';
+
+  const server = app.listen(Number(port), host, () => {
+    console.log(`Node Express server listening on http://${host}:${port}`);
   });
+  
+  // RENDER FIX: Increase timeouts for heavy Angular loads
+  server.keepAliveTimeout = 120000;
+  server.headersTimeout = 125000;
 }
 
 export default app;
