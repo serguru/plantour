@@ -103,7 +103,7 @@ Configure your development environment to use Copilot locally without repository
 
 **For GitHub CLI:**
 1. Don't use `gh copilot` commands that create PRs
-2. Use copilot for suggestions: `gh copilot suggest "your command"`
+2. Use `gh copilot suggest` for command suggestions: `gh copilot suggest "your command"`
 3. Review and execute commands manually
 
 **Result:** Copilot assists you locally but doesn't create PRs automatically.
