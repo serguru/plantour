@@ -43,13 +43,12 @@ export class SignInComponent implements OnInit {
   private location = inject(Location);
 
   constructor() {
-    // TODO: remove hardcoded credentials
     this.adminForm = this.fb.group({
-      email: ['serguru@gmail.com', [Validators.required, Validators.email]],
-      password: ['Binary_09', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
     });
     this.participantForm = this.fb.group({
-      accessCode: ['UHFALK5S', [Validators.required]],
+      accessCode: ['', [Validators.required]],
     });
   }
   ngOnInit(): void {
