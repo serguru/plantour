@@ -1,5 +1,18 @@
 # Quick Reference: Preventing Copilot PRs
 
+## 🔗 Direct Links to Prohibit Copilot
+
+### Primary Link (Recommended):
+👉 **https://github.com/serguru/plantour/settings/actions**
+
+### Alternative Links:
+- **All Repositories:** https://github.com/settings/installations
+- **Copilot Settings:** https://github.com/settings/copilot
+
+See [COPILOT_LINKS.md](./COPILOT_LINKS.md) for which link to use when.
+
+---
+
 ## 🚀 Fastest Solution (5 minutes)
 
 1. Go to: https://github.com/serguru/plantour/settings/actions
@@ -20,6 +33,7 @@
 
 - ✅ `.github/CODEOWNERS` - Requires @serguru review on all PRs
 - ✅ `.github/README.md` - Configuration directory documentation
+- ✅ `documents/COPILOT_LINKS.md` - Direct links to prohibit Copilot
 - ✅ `documents/PREVENT_COPILOT_PRS.md` - Complete prevention guide
 - ✅ `documents/COPILOT_PRS_EXPLANATION.md` - Understanding existing PRs
 

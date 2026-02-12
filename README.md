@@ -3,6 +3,7 @@ A portal that helps you plan, prepare, and execute your trip. This service facil
 
 ## Documentation
 
+- [🔗 Direct Links to Prohibit Copilot](./documents/COPILOT_LINKS.md) - Quick access to settings pages
 - [Prevent Copilot from Creating PRs](./documents/PREVENT_COPILOT_PRS.md) - Complete guide to preventing automated PR creation
 - [Understanding Copilot PRs](./documents/COPILOT_PRS_EXPLANATION.md) - Information about existing Copilot-generated PRs
 - [Project Specification](./documents/plantour-spec.txt) - Project requirements and specifications
