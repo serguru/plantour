@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using plantour_server.Attributes;
 using plantour_server.DTOs;
 using plantour_server.Services.Interfaces;
+using plantour_server.Models;
 
 namespace plantour_server.Controllers;
 
@@ -18,9 +19,9 @@ public class InvitationsController : ControllerBase
 
     [HttpPost("send")]
     [AdminOnly]
-    public async Task<ActionResult<SendInvitationResponse>> Send([FromBody] SendInvitationRequest request)
+    public async Task<ActionResult<SendInvitationEmailResponse>> Send([FromBody] SendInvitationEmailRequest request)
     {
-        var result = await _service.SendInvitationAsync(request);
+        var result = await _service.SendInvitationEmailAsync(request);
         return Ok(result);
     }
 }

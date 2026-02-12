@@ -18,7 +18,7 @@ public class InvitationService(
     private readonly IBrevoEmailClient _brevoEmailClient = brevoEmailClient;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 
-    public async Task<SendInvitationResponse> SendInvitationAsync(SendInvitationRequest request)
+    public async Task<SendInvitationEmailResponse> SendInvitationEmailAsync(SendInvitationEmailRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
 
@@ -61,7 +61,7 @@ public class InvitationService(
 
         await _invitationsRepository.AddAsync(invitation);
 
-        return new SendInvitationResponse
+        return new SendInvitationEmailResponse
         {
             InvitationId = invitation.Id,
             SentAt = invitation.SentAt ?? now,

@@ -12,6 +12,7 @@ using AutoMapper;
 using PlantourApi.Models;
 using plantour_server.Repositories;
 using PlantourApi.Middleware;
+using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Services;
 
@@ -29,6 +30,7 @@ public class UsersService(
     UserEmailConfirmationRepository userEmailConfirmationRepository,
     IConfiguration configuration, 
     IWebHostEnvironment environment, 
+    IInvitationService invitationService,
     HttpCurrentUser httpCurrentUser) : IUsersService
 {
     private readonly UsersRepository _usersRepository = usersRepository;
@@ -37,6 +39,7 @@ public class UsersService(
     private readonly SettingsRepository _settingsRepository = settingsRepository;
     private readonly AccessTypeRepository _accessTypeRepository = accessTypeRepository;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
+    private readonly IInvitationService _invitationService = invitationService;
 
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
@@ -160,10 +163,7 @@ public class UsersService(
     public async Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
-
-
         var users = await _usersRepository.FindAsync(x => x.Email.ToLower() == request.Email.ToLower());
-
         var participant = users.FirstOrDefault();
 
         // Ensure participant user exists or create new

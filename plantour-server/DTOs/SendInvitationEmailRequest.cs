@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace plantour_server.DTOs;
 
-public class SendInvitationRequest
+public class SendInvitationEmailRequest
 {
     [Required]
     public Guid TripId { get; set; }
