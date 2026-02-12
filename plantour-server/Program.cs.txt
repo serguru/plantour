@@ -20,7 +20,6 @@ using Serilog.Events;
 using Serilog.Settings.Configuration;
 using Serilog.Sinks.PostgreSQL;
 using NpgsqlTypes;
-using Microsoft.AspNetCore.HttpOverrides;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -53,16 +52,6 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args,
     EnvironmentName = NormalizeAspNetEnvironmentName(rawEnvironmentName)
-});
-
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders =
-        ForwardedHeaders.XForwardedFor |
-        ForwardedHeaders.XForwardedProto;
-
-    // Trust all proxies (required in container/cloud environments)
-    options.RequireHeaderSymmetry = false;
 });
 
 if (string.IsNullOrWhiteSpace(aspNetUrls) && !string.IsNullOrWhiteSpace(renderPort))
@@ -359,8 +348,6 @@ try
     builder.Services.AddOpenApi();
 
     var app = builder.Build();
-
-    app.UseForwardedHeaders();
 
     if (!app.Environment.IsProduction())
     {
