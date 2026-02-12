@@ -17,10 +17,11 @@ using plantour_server.Services.Interfaces;
 namespace plantour_server.Services;
 
 public class UsersService(
-    IOptions<JwtSettings> jwtSettings, 
-    IMapper mapper, 
-    UsersRepository usersRepository, 
-    AdminsParticipantRepository adminsParticipantRepository, 
+    IOptions<JwtSettings> jwtSettings,
+    IMapper mapper,
+    UsersRepository usersRepository,
+    AdminsParticipantRepository adminsParticipantRepository,
+    IAdminsParticipantService adminsParticipantService,
     PlanRepository planRepository,
     SettingsRepository settingsRepository,
     AccessTypeRepository accessTypeRepository,
@@ -28,8 +29,8 @@ public class UsersService(
     IRefreshTokenService refreshTokenService,
     IEmailConfirmationService emailConfirmationService,
     UserEmailConfirmationRepository userEmailConfirmationRepository,
-    IConfiguration configuration, 
-    IWebHostEnvironment environment, 
+    IConfiguration configuration,
+    IWebHostEnvironment environment,
     IInvitationService invitationService,
     HttpCurrentUser httpCurrentUser) : IUsersService
 {
@@ -40,6 +41,7 @@ public class UsersService(
     private readonly AccessTypeRepository _accessTypeRepository = accessTypeRepository;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly IInvitationService _invitationService = invitationService;
+    private readonly IAdminsParticipantService _adminsParticipantService = adminsParticipantService;
 
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
@@ -189,21 +191,10 @@ public class UsersService(
             throw new CustomException("Participant with this email is already registered under your admin account");
         }
 
-        string accessCode = "";
-        string accessCodeHash = "";
-        for (int i = 0; i < 100; i++)
-        {
-            accessCode = AccessCodeGenerator.GenerateAccessCode();
-            accessCodeHash = AccessCode2Hash(accessCode);
-            if (!await _adminsParticipantRepository.AnyAsync(x => x.AccessCodeHash == accessCodeHash))
-            {
-                break;
-            }
-            if (i == 99)
-            {
-                throw new CustomException("Failed to generate unique access code after multiple attempts");
-            }
-        }
+        Tuple<string, string> accessCodeResult = await _adminsParticipantService.GenerateAccessCodeAsync();
+
+        string accessCode = accessCodeResult.Item1;
+        string accessCodeHash = accessCodeResult.Item2;
 
         // In development, we store the access code in the notes for easy retrieval
         string? notes = _environment.IsDevelopment()
@@ -222,6 +213,12 @@ public class UsersService(
 
         await _adminsParticipantRepository.AddAsync(adminParticipant);
 
+        var r = await CreateAuthResponseAsync(participant, UserRole.Participant, _currentUser.AdminId, null, "Welcome to Plantour");
+
+        await _invitationService.SendInvitationEmailByIdAsync(adminParticipant.Id, accessCode, r.AccessToken, r.RefreshToken);
+
+         var baseUrl = _configuration["InvitationAccess:BaseUrl"];
+
         AdminsParticipantDto result = _mapper.Map<AdminsParticipantDto>(adminParticipant);
 
         return result;
@@ -235,7 +232,7 @@ public class UsersService(
             .FindFullAsync(x => x.AccessCodeHash == hash);
 
         var adminParticipant = adminParticipants.FirstOrDefault();
-            
+
         if (adminParticipant == null)
         {
             throw new UnauthorizedException("You have no access to Plantour. Please ask your Administartor to re-send the invitation email to you", "NO_ACCESS");

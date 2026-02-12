@@ -2,6 +2,7 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using plantour_server.Utils;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 
@@ -149,5 +150,28 @@ public class AdminsParticipantService(
 
         await _adminsParticipantRepository.DeleteAsync(id);
     }
+    public async Task<Tuple<string, string>> GenerateAccessCodeAsync()
+    {
+        string accessCode = "";
+        string accessCodeHash = "";
+        for (int i = 0; i < 100; i++)
+        {
+            accessCode = AccessCodeGenerator.GenerateAccessCode();
+            accessCodeHash = AccessCode2Hash(accessCode);
+            if (!await _adminsParticipantRepository.AnyAsync(x => x.AccessCodeHash == accessCodeHash))
+            {
+                break;
+            }
+            if (i == 99)
+            {
+                throw new CustomException("Failed to generate unique access code after multiple attempts");
+            }
+        }
+        return Tuple.Create(accessCode, accessCodeHash);
+    }
 
+    private string AccessCode2Hash(string accessCode)
+    {
+        throw new NotImplementedException();
+    }
 }

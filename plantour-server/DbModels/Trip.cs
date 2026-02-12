@@ -36,9 +36,6 @@ public partial class Trip
     public DateTime CreatedAt { get; set; }
 
     [InverseProperty("Trip")]
-    public virtual ICollection<Invitation> Invitations { get; set; } = new List<Invitation>();
-
-    [InverseProperty("Trip")]
     public virtual ICollection<TripComment> TripComments { get; set; } = new List<TripComment>();
 
     [InverseProperty("Trip")]

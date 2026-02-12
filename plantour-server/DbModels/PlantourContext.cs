@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace plantour_server.DbModels;
 
@@ -89,16 +88,6 @@ public partial class PlantourContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("pldbgapi");
-
-        var utcTimestampWithoutTimeZoneConverter = new ValueConverter<DateTime, DateTime>(
-            v => DateTime.SpecifyKind(v.Kind == DateTimeKind.Local ? v.ToUniversalTime() : v, DateTimeKind.Unspecified),
-            v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
-
-        var nullableUtcTimestampWithoutTimeZoneConverter = new ValueConverter<DateTime?, DateTime?>(
-            v => v == null
-                ? null
-                : DateTime.SpecifyKind(v.Value.Kind == DateTimeKind.Local ? v.Value.ToUniversalTime() : v.Value, DateTimeKind.Unspecified),
-            v => v == null ? null : DateTime.SpecifyKind(v.Value, DateTimeKind.Utc));
 
         modelBuilder.Entity<AccessType>(entity =>
         {
@@ -194,7 +183,7 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
-            entity.HasOne(d => d.Trip).WithMany(p => p.Invitations).HasConstraintName("invitations_trip_id_fkey");
+            entity.HasOne(d => d.AdminParticipant).WithMany(p => p.Invitations).HasConstraintName("invitations_admin_participant_id_fkey");
         });
 
         modelBuilder.Entity<Log>(entity =>
@@ -455,23 +444,6 @@ public partial class PlantourContext : DbContext
         {
             entity.ToView("v_template_things_full", "plantour");
         });
-
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        {
-            foreach (var property in entityType.GetProperties())
-            {
-                if (property.ClrType == typeof(DateTime))
-                {
-                    property.SetValueConverter(utcTimestampWithoutTimeZoneConverter);
-                    property.SetColumnType("timestamp without time zone");
-                }
-                else if (property.ClrType == typeof(DateTime?))
-                {
-                    property.SetValueConverter(nullableUtcTimestampWithoutTimeZoneConverter);
-                    property.SetColumnType("timestamp without time zone");
-                }
-            }
-        }
 
         OnModelCreatingPartial(modelBuilder);
     }

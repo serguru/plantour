@@ -321,7 +321,7 @@ create unique index idx_trips_user_id_name on trips(user_id, name);
 -----------------------------------------------------------------------
 create table invitations (
     id uuid not null primary key default gen_random_uuid(),
-    trip_id uuid not null references trips(id) on delete cascade,
+    admin_participant_id uuid not null references admins_participants(id) on delete cascade,
     access_code text,
     first_name text,
     last_name text,
@@ -332,13 +332,10 @@ create table invitations (
     message text not null,
 
     created_at timestamp not null default (now() at time zone 'utc'),
-    expires_at timestamp not null,
+    expires_at timestamp,
     accepted_at timestamp,
     refused_at timestamp,
     sent_at timestamp,
-
-    communication_type text,
-
     notes text,
 
     constraint ch_invitations_dates check (

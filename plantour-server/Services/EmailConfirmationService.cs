@@ -113,7 +113,7 @@ public class EmailConfirmationService : IEmailConfirmationService
     <p>If you did not create this account, ignore this email.</p>";
 
         await _emailClient.SendTransactionalEmailAsync(
-            user.Email,
+        user.Email,
             $"{user.FirstName} {user.LastName}".Trim(),
             subject,
             html,

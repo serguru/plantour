@@ -152,7 +152,7 @@ export class UsersService {
     this._userSignal.set(user);
   }
 
-  private applyAuthResponse(response: AuthResponse): void {
+  public applyAuthResponse(response: any): void {
     this.writeAccessToken(response.accessToken || null);
     this.writeRefreshToken(response.refreshToken || null);
     this.updateUser(response.accessToken || null);
