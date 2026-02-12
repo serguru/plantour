@@ -152,11 +152,14 @@ Try commands that would normally create PRs (these should now fail):
 - Try: "Create a PR to fix X"
 - Expected: Permission denied or no PR created
 
-**In GitHub CLI:**
+**Alternative Test - Try to create PR via GitHub Actions:**
 ```bash
-# This should fail with permissions error
-gh copilot-workspace create-pr --title "Test PR"
+# If you have a workflow that creates PRs, it should fail
+# Check workflow runs to see if they fail with permission errors
+gh run list --limit 5
 ```
+
+**Note:** Without write permissions, any automation attempting to create PRs will fail with a permissions error.
 
 ### Test 3: Verify Local Copilot Still Works
 **In VS Code or your IDE:**
