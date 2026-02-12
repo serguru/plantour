@@ -1,0 +1,20 @@
+# CODEOWNERS file for plantour repository
+# This ensures @serguru is automatically assigned as a reviewer for all PRs
+# including those created by automated tools like GitHub Copilot
+
+# All files require review from @serguru
+* @serguru
+
+# Server code
+/plantour-server/** @serguru
+
+# Client code
+/plantour-client/** @serguru
+
+# Documentation
+/documents/** @serguru
+
+# Configuration files
+*.json @serguru
+*.yml @serguru
+*.yaml @serguru

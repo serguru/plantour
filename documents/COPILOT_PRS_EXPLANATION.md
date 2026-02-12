@@ -70,12 +70,99 @@ curl -X PATCH \
 - You can merge it to keep the documentation
 - Or close it if you don't want the documentation
 
-## Preventing Future Copilot PRs
+## How to Prevent Copilot from Creating Pull Requests
 
-If you don't want Copilot to create PRs automatically:
-1. Review your Copilot settings in GitHub
-2. Use Copilot suggestions locally without committing
-3. Disable automated PR creation in repository settings
+There are several methods to prevent GitHub Copilot from automatically creating pull requests:
+
+### Method 1: Configure Repository Settings (Recommended)
+
+GitHub Copilot respects repository permissions. To prevent Copilot from creating PRs:
+
+1. **Go to Repository Settings**:
+   - Navigate to https://github.com/serguru/plantour/settings
+   - Click on "Actions" → "General" in the left sidebar
+
+2. **Restrict Workflow Permissions**:
+   - Under "Workflow permissions", select "Read repository contents and packages permissions"
+   - Uncheck "Allow GitHub Actions to create and approve pull requests"
+   - Click "Save"
+
+### Method 2: Use GitHub Copilot in Read-Only Mode
+
+Configure your GitHub Copilot workspace settings:
+
+1. **In GitHub Settings**:
+   - Go to https://github.com/settings/copilot
+   - Look for repository access settings
+   - Review which repositories Copilot can write to
+
+2. **For VS Code/IDE**:
+   - Use Copilot for code suggestions only
+   - Don't grant Copilot permission to commit or create PRs
+   - Review extension permissions in your IDE
+
+### Method 3: Create a .github/copilot-settings.yml Configuration
+
+Create a repository-level configuration file to control Copilot behavior:
+
+```yaml
+# .github/copilot-settings.yml
+# Disable automatic PR creation
+auto_pr: false
+auto_commit: false
+```
+
+**Note**: This configuration file format may vary based on GitHub's current Copilot implementation.
+
+### Method 4: Branch Protection Rules
+
+Prevent direct PR creation by configuring branch protection:
+
+1. Go to: https://github.com/serguru/plantour/settings/branches
+2. Add a branch protection rule for your default branch
+3. Enable "Require pull request reviews before merging"
+4. This won't prevent PR creation but adds oversight
+
+### Method 5: Revoke Copilot Access
+
+If you want to completely disable Copilot's repository access:
+
+1. Go to: https://github.com/settings/installations
+2. Find "GitHub Copilot"
+3. Click "Configure"
+4. Under "Repository access", select specific repositories
+5. Remove "plantour" from the list or select "Only select repositories" and exclude it
+
+### Method 6: Use CODEOWNERS File
+
+Create a `.github/CODEOWNERS` file to require approval:
+
+```
+# Require your approval for all changes
+* @serguru
+```
+
+This ensures you're notified and can review any PR, including those from Copilot.
+
+### Best Practices
+
+1. **Review Copilot PRs Before Merging**: Always review automated PRs carefully
+2. **Close Unwanted PRs Immediately**: Don't let them accumulate
+3. **Use Branch Naming Conventions**: Set up rules to auto-label Copilot branches
+4. **Monitor Repository Activity**: Enable notifications for new PRs
+5. **Educate Team Members**: Ensure everyone knows how Copilot works
+
+### Understanding Copilot's PR Creation
+
+Copilot creates PRs when:
+- You explicitly ask it to perform tasks via GitHub Copilot Chat or Workspace
+- You grant it permissions to modify your repository
+- You invoke Copilot commands that result in code changes
+
+To use Copilot safely:
+- Use it for **suggestions only** in your local development environment
+- Manually review and commit changes yourself
+- Only grant write access when you specifically want automation
 
 ## Related Branches
 
