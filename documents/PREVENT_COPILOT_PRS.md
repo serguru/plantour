@@ -138,9 +138,48 @@ git push
 
 After implementing these changes, test that Copilot cannot create PRs:
 
-1. Try to invoke a Copilot command that would normally create a PR
-2. Verify that you receive a permissions error
-3. Check that Copilot can still provide code suggestions locally
+### Test 1: Verify Actions Permissions
+```bash
+# Check current Actions permissions via GitHub CLI
+gh api repos/serguru/plantour/actions/permissions
+```
+Expected result: Should show `"default_workflow_permissions": "read"` and `"can_approve_pull_request_reviews": false`
+
+### Test 2: Attempt to Use Copilot Commands
+Try commands that would normally create PRs (these should now fail):
+
+**In GitHub Copilot Workspace:**
+- Try: "Create a PR to fix X"
+- Expected: Permission denied or no PR created
+
+**In GitHub CLI:**
+```bash
+# This should fail with permissions error
+gh copilot-workspace create-pr --title "Test PR"
+```
+
+### Test 3: Verify Local Copilot Still Works
+**In VS Code or your IDE:**
+1. Open a code file
+2. Start typing code
+3. Verify Copilot suggestions appear
+4. Accept a suggestion
+
+Expected result: ✅ Code suggestions work normally
+
+### Test 4: Check Branch Protection
+```bash
+# View branch protection rules
+gh api repos/serguru/plantour/branches/main/protection
+```
+
+### Test 5: Verify CODEOWNERS
+1. Create a test branch: `git checkout -b test-codeowners`
+2. Make a small change: `echo "test" >> README.md`
+3. Push and create a PR: `gh pr create --title "Test CODEOWNERS"`
+4. Check that @serguru is automatically assigned as reviewer
+
+Expected result: You should see yourself as required reviewer
 
 ## What Still Works
 
