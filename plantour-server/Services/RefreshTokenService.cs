@@ -61,10 +61,20 @@ public class RefreshTokenService : IRefreshTokenService
         existingToken.ReplacedByTokenHash = newTokenResult.TokenHash;
         await _refreshTokenRepository.UpdateAsync(existingToken);
 
+        var existingTokenExpiresAtUtc = DateTime.SpecifyKind(existingToken.ExpiresAt, DateTimeKind.Utc);
+        var cappedExpiresAtUtc = newTokenResult.ExpiresAtUtc <= existingTokenExpiresAtUtc
+            ? newTokenResult.ExpiresAtUtc
+            : existingTokenExpiresAtUtc;
+
+        var cappedTokenResult = cappedExpiresAtUtc == newTokenResult.ExpiresAtUtc
+            ? newTokenResult
+            : new RefreshTokenResult(newTokenResult.Token, newTokenResult.TokenHash, cappedExpiresAtUtc, newTokenResult.CreatedAtUtc);
+
         var role = Enum.TryParse<UserRole>(existingToken.Role, out var parsedRole)
             ? parsedRole
             : UserRole.Public;
-        await CreateAsync(existingToken.UserId, role, existingToken.AdminId, newTokenResult, revokedByIp);
+            
+        await CreateAsync(existingToken.UserId, role, existingToken.AdminId, cappedTokenResult, revokedByIp);
     }
 
     public async Task RevokeAsync(string refreshToken, string? revokedByIp)

@@ -86,18 +86,21 @@ public class GlobalExceptionHandler : IExceptionHandler
                     exception.GetType().FullName, exception.StackTrace);
             }
 
-            var traceId = httpContext.TraceIdentifier;
-            await TrySendExceptionEmailAsync(
-                exception,
-                statusCode,
-                traceId,
-                requestMethod,
-                requestPath,
-                requestQueryString,
-                remoteIpAddress,
-                userId,
-                userRole,
-                cancellationToken);
+            if (statusCode != StatusCodes.Status401Unauthorized)
+            {
+                var traceId = httpContext.TraceIdentifier;
+                await TrySendExceptionEmailAsync(
+                    exception,
+                    statusCode,
+                    traceId,
+                    requestMethod,
+                    requestPath,
+                    requestQueryString,
+                    remoteIpAddress,
+                    userId,
+                    userRole,
+                    cancellationToken);
+            }
 
             var response = new ApiErrorResponse
             {
