@@ -323,3 +323,21 @@ Expected: Update and Delete buttons are enabled only if a traveler selected
 
 NB: it works properly for /trips
 
+
+
+I need to integrate Plantour with Stripe. 
+
+What I want from Stripe:
+
+- know my users and their subscriptions and track subscription changes
+- know and support my subscription system (2 paid plans, monthly or yearly each)
+- track customer subscription dates and notify them if a payment is overdue
+- send invoices to the customer determining their country and adding sales taxes if necessary
+- accept customer payments 
+- send refunds to customer
+- notify my API when a certain event happened, for example, the customer paid 
+- once a year calculating sales taxes and send the info to me
+
+What did I forget?
+
+Find and explore the official Stripe documentation. Explain in a separate stripe-integration.md file what is required by Stripe and what should be actally done in the Plantour project and what I should do on the Stripe website (say, getting their API key). Esimate if you capable to implement the required code for DB, API and Client app. Do not write any actual code for now.
