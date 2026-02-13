@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
-import { ActivatedRoute, CanMatchFn, Router } from '@angular/router';
+import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
 import { UsersService } from '../services/users-service';
-import { toSignal } from '@angular/core/rxjs-interop';
+
 
 /**
  * Landing Guard for New Users - allows access only to non-authenticated users
@@ -14,20 +14,34 @@ export const landingNewUserGuard: CanMatchFn = () => {
 /**
  * Landing Guard for Registered Users - allows access only to authenticated users
  */
-export const dashboardGuard: CanMatchFn = () => {
-  const route = inject(ActivatedRoute);
-  const params = toSignal(route.paramMap);
+export const landingExistingUserGuard: CanMatchFn = (route, segments) => {
+  const usersService = inject(UsersService);
+  return usersService.isAuthenticatedSignal();
+};
 
-  const accessToken = params()?.get('accessToken');
-  const refreshToken = params()?.get('refreshToken');
+export const dashboardGuard: CanActivateFn = (route, segments) => {
+  
+  const router = inject(Router);
+
+  const navigation = router.getCurrentNavigation();
+  const urlTree = navigation?.extractedUrl;
+
+  const accessToken = urlTree?.queryParams['accessToken'];
+  const refreshToken = urlTree?.queryParams['refreshToken'];
   const usersService = inject(UsersService);
 
   if (accessToken && refreshToken) {
+    usersService.signOut();
     const r = {
       accessToken: accessToken,
       refreshToken: refreshToken,
     }
     usersService.applyAuthResponse(r);
+    return true;;
   }
   return usersService.isAuthenticatedSignal();
+
 };
+
+
+

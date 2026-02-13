@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { dashboardGuard, landingNewUserGuard } from './guards/landing-guard';
+import { dashboardGuard, landingExistingUserGuard, landingNewUserGuard } from './guards/landing-guard';
 import { adminOnlyGuard, adminOrParticipantGuard, checkTripIdGuard, publicGuard } from './guards/auth-guard';
 import { CleanupResolver } from './helpers/resolver';
 import { TripFormComponent } from './components/trips/trip-form/trip-form-component';
@@ -19,7 +19,14 @@ export const routes: Routes = [
   },
   {
     path: '',
-    canMatch: [dashboardGuard],
+    canMatch: [landingExistingUserGuard],
+    loadComponent: () => import('./components/dashboard/dashboard-component').then(m => m.DashboardComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'dashboard' }
+  },
+  {
+    path: 'dashboard',
+    canActivate: [dashboardGuard],
     loadComponent: () => import('./components/dashboard/dashboard-component').then(m => m.DashboardComponent),
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'dashboard' }

@@ -32,8 +32,10 @@ public class UsersService(
     IConfiguration configuration,
     IWebHostEnvironment environment,
     IInvitationService invitationService,
-    HttpCurrentUser httpCurrentUser) : IUsersService
+    HttpCurrentUser httpCurrentUser,
+    AccessCodeGenerator accessCodeGenerator) : IUsersService
 {
+    private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
     private readonly UsersRepository _usersRepository = usersRepository;
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
     private readonly PlanRepository _planRepository = planRepository;
@@ -146,22 +148,6 @@ public class UsersService(
 
     #region Participant Authentication
 
-    private string AccessCode2Hash(string accessCode)
-    {
-        string? pepper = _configuration["AccessCodePepper"];
-
-        if (string.IsNullOrWhiteSpace(accessCode))
-            throw new ArgumentException("AccessCode must not be empty", nameof(accessCode));
-
-        if (string.IsNullOrWhiteSpace(pepper))
-            throw new ArgumentException("Pepper must not be empty", nameof(pepper));
-
-        string input = accessCode + pepper;
-        byte[] bytes = Encoding.UTF8.GetBytes(input);
-        byte[] hashBytes = SHA256.HashData(bytes);
-        return Convert.ToHexString(hashBytes).ToLowerInvariant();
-    }
-
     public async Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
@@ -226,7 +212,7 @@ public class UsersService(
 
     public async Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request)
     {
-        var hash = AccessCode2Hash(request.AccessCode);
+        var hash = _accessCodeGenerator.AccessCode2Hash(request.AccessCode);
 
         var adminParticipants = await _adminsParticipantRepository
             .FindFullAsync(x => x.AccessCodeHash == hash);

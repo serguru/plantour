@@ -16,11 +16,13 @@ public class AdminsParticipantService(
     UsersRepository usersRepository,
     IMapper mapper,
     ICheckAccessService checkAccessService,
+    AccessCodeGenerator accessCodeGenerator,
     HttpCurrentUser httpCurrentUser) : IAdminsParticipantService
 {
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
     private readonly UsersRepository _userRepository = usersRepository;
+    private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
 
 
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
@@ -156,8 +158,8 @@ public class AdminsParticipantService(
         string accessCodeHash = "";
         for (int i = 0; i < 100; i++)
         {
-            accessCode = AccessCodeGenerator.GenerateAccessCode();
-            accessCodeHash = AccessCode2Hash(accessCode);
+            accessCode = _accessCodeGenerator.GenerateAccessCode();
+            accessCodeHash = _accessCodeGenerator.AccessCode2Hash(accessCode);
             if (!await _adminsParticipantRepository.AnyAsync(x => x.AccessCodeHash == accessCodeHash))
             {
                 break;
@@ -170,8 +172,4 @@ public class AdminsParticipantService(
         return Tuple.Create(accessCode, accessCodeHash);
     }
 
-    private string AccessCode2Hash(string accessCode)
-    {
-        throw new NotImplementedException();
-    }
 }

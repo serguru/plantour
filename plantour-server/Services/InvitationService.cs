@@ -45,8 +45,7 @@ public class InvitationService(
             throw new CustomException("Cannot send invitation to a participant with non-active access type");
         }
 
-        var accessUrl = $"{baseUrl}?accessToken={Uri.EscapeDataString(accessToken)}&refreshToken={Uri.EscapeDataString(refreshToken)}";
-
+        var accessUrl = $"{baseUrl}/dashboard?accessToken={Uri.EscapeDataString(accessToken)}&refreshToken={Uri.EscapeDataString(refreshToken)}";
 
         var participantFullName = string.Join(' ', new[] { adminParticipant.Participant.FirstName, adminParticipant.Participant.LastName }.Where(x => !string.IsNullOrWhiteSpace(x)));
 
@@ -99,19 +98,8 @@ public class InvitationService(
         };
     }
 
-
-
-
     public async Task<SendInvitationEmailResponse> SendInvitationEmailAsync(SendInvitationEmailRequest request)
     {
-
-
-        // Subject = "You're invited to join Plantour!",
-        // Message = $"Hello {request.FirstName},\n\nYou've been invited to join Plantour by {_currentUser.FirstName} {_currentUser.LastName}. Please use the following access code to sign in:\n\n{accessCode}\n\nBest regards,\nThe Plantour Team",
-        // ExpiresAt = DateTime.UtcNow.AddDays(7),
-        // CommunicationType = "email",
-        // Notes = $"Invitation sent by admin {_currentUser.Email} on {DateTime.UtcNow}"
-
 
         _currentUser.RaiseIfNotAdmin();
 
@@ -139,8 +127,6 @@ public class InvitationService(
             var accessCodeResult = await _adminsParticipantService.GenerateAccessCodeAsync();
             request.AccessCode = accessCodeResult.Item1;
         }
-
-
 
         var sendResult = await _brevoEmailClient.SendTransactionalEmailAsync(
             request.Email,
