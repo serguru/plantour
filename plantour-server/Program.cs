@@ -21,8 +21,14 @@ using Serilog.Settings.Configuration;
 using Serilog.Sinks.PostgreSQL;
 using NpgsqlTypes;
 using Microsoft.AspNetCore.HttpOverrides;
+using plantour_server.Utils.Logging;
+using plantour_server.Utils;
 
 QuestPDF.Settings.License = LicenseType.Community;
+
+// PostgreSQL timestamps: app stores UTC but DB columns are 'timestamp without time zone'.
+// This switch prevents Npgsql from throwing when a DateTime with Kind=Utc is written to such columns.
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 static string NormalizeAspNetEnvironmentName(string? raw)
 {
@@ -75,7 +81,7 @@ var columnOptions = new Dictionary<string, ColumnWriterBase>
 {
     { "message_template", new RenderedMessageColumnWriter(NpgsqlDbType.Text) },
     { "level", new LevelColumnWriter(true, NpgsqlDbType.Varchar) },
-    { "time_stamp", new TimestampColumnWriter(NpgsqlDbType.Timestamp) },
+    { "time_stamp", new UnspecifiedUtcTimestampColumnWriter() },
     { "exception", new ExceptionColumnWriter(NpgsqlDbType.Text) },
     { "log_event", new LogEventSerializedColumnWriter(NpgsqlDbType.Text) },
     { "properties", new PropertiesColumnWriter(NpgsqlDbType.Jsonb) }
@@ -288,6 +294,7 @@ try
     builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
+    builder.Services.AddScoped<AccessCodeGenerator>();
 
     // TODO: what is AddHttpClient?
     builder.Services.AddHttpClient<IBrevoEmailClient, BrevoEmailClient>();

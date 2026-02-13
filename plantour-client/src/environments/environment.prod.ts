@@ -1,5 +1,5 @@
 export const environment = {
-  production: true,
+  environment: "production",
   // Put production API endpoints and feature flags here
   apiUrl: '',
 };

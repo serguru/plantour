@@ -32,6 +32,9 @@ public partial class AdminsParticipant
     [InverseProperty("AdminsParticipantAdmins")]
     public virtual User Admin { get; set; } = null!;
 
+    [InverseProperty("AdminParticipant")]
+    public virtual ICollection<Invitation> Invitations { get; set; } = new List<Invitation>();
+
     [ForeignKey("ParticipantId")]
     [InverseProperty("AdminsParticipantParticipants")]
     public virtual User Participant { get; set; } = null!;

@@ -13,8 +13,8 @@ public partial class Invitation
     [Column("id")]
     public Guid Id { get; set; }
 
-    [Column("trip_id")]
-    public Guid TripId { get; set; }
+    [Column("admin_participant_id")]
+    public Guid AdminParticipantId { get; set; }
 
     [Column("access_code")]
     public string? AccessCode { get; set; }
@@ -41,7 +41,7 @@ public partial class Invitation
     public DateTime CreatedAt { get; set; }
 
     [Column("expires_at", TypeName = "timestamp without time zone")]
-    public DateTime ExpiresAt { get; set; }
+    public DateTime? ExpiresAt { get; set; }
 
     [Column("accepted_at", TypeName = "timestamp without time zone")]
     public DateTime? AcceptedAt { get; set; }
@@ -52,13 +52,10 @@ public partial class Invitation
     [Column("sent_at", TypeName = "timestamp without time zone")]
     public DateTime? SentAt { get; set; }
 
-    [Column("communication_type")]
-    public string? CommunicationType { get; set; }
-
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [ForeignKey("TripId")]
+    [ForeignKey("AdminParticipantId")]
     [InverseProperty("Invitations")]
-    public virtual Trip Trip { get; set; } = null!;
+    public virtual AdminsParticipant AdminParticipant { get; set; } = null!;
 }

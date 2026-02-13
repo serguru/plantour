@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, Inject, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,6 +11,7 @@ import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
 import { RadioButton } from 'primeng/radiobutton';
 import { AppButton } from '../button/button-component';
+import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 
 @Component({
   selector: 'app-sign-in',
@@ -42,10 +43,21 @@ export class SignInComponent implements OnInit {
   private router = inject(Router);
   private location = inject(Location);
 
-  constructor() {
+  constructor(
+    @Inject(ENVIRONMENT) private environment: EnvironmentConfig
+  ) {
+
+    let e = "";
+    let p = "";
+
+    if (this.environment.environment === 'development') {
+      e = 'serguru@gmail.com';
+      p = "Binary_09"
+    }
+
     this.adminForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]],
+      email: [e, [Validators.required, Validators.email]],
+      password: [p, [Validators.required]],
     });
     this.participantForm = this.fb.group({
       accessCode: ['', [Validators.required]],

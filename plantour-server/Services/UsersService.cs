@@ -12,14 +12,16 @@ using AutoMapper;
 using PlantourApi.Models;
 using plantour_server.Repositories;
 using PlantourApi.Middleware;
+using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Services;
 
 public class UsersService(
-    IOptions<JwtSettings> jwtSettings, 
-    IMapper mapper, 
-    UsersRepository usersRepository, 
-    AdminsParticipantRepository adminsParticipantRepository, 
+    IOptions<JwtSettings> jwtSettings,
+    IMapper mapper,
+    UsersRepository usersRepository,
+    AdminsParticipantRepository adminsParticipantRepository,
+    IAdminsParticipantService adminsParticipantService,
     PlanRepository planRepository,
     SettingsRepository settingsRepository,
     AccessTypeRepository accessTypeRepository,
@@ -27,16 +29,21 @@ public class UsersService(
     IRefreshTokenService refreshTokenService,
     IEmailConfirmationService emailConfirmationService,
     UserEmailConfirmationRepository userEmailConfirmationRepository,
-    IConfiguration configuration, 
-    IWebHostEnvironment environment, 
-    HttpCurrentUser httpCurrentUser) : IUsersService
+    IConfiguration configuration,
+    IWebHostEnvironment environment,
+    IInvitationService invitationService,
+    HttpCurrentUser httpCurrentUser,
+    AccessCodeGenerator accessCodeGenerator) : IUsersService
 {
+    private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
     private readonly UsersRepository _usersRepository = usersRepository;
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
     private readonly PlanRepository _planRepository = planRepository;
     private readonly SettingsRepository _settingsRepository = settingsRepository;
     private readonly AccessTypeRepository _accessTypeRepository = accessTypeRepository;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
+    private readonly IInvitationService _invitationService = invitationService;
+    private readonly IAdminsParticipantService _adminsParticipantService = adminsParticipantService;
 
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
@@ -141,29 +148,10 @@ public class UsersService(
 
     #region Participant Authentication
 
-    private string AccessCode2Hash(string accessCode)
-    {
-        string? pepper = _configuration["AccessCodePepper"];
-
-        if (string.IsNullOrWhiteSpace(accessCode))
-            throw new ArgumentException("AccessCode must not be empty", nameof(accessCode));
-
-        if (string.IsNullOrWhiteSpace(pepper))
-            throw new ArgumentException("Pepper must not be empty", nameof(pepper));
-
-        string input = accessCode + pepper;
-        byte[] bytes = Encoding.UTF8.GetBytes(input);
-        byte[] hashBytes = SHA256.HashData(bytes);
-        return Convert.ToHexString(hashBytes).ToLowerInvariant();
-    }
-
     public async Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
-
-
         var users = await _usersRepository.FindAsync(x => x.Email.ToLower() == request.Email.ToLower());
-
         var participant = users.FirstOrDefault();
 
         // Ensure participant user exists or create new
@@ -189,21 +177,10 @@ public class UsersService(
             throw new CustomException("Participant with this email is already registered under your admin account");
         }
 
-        string accessCode = "";
-        string accessCodeHash = "";
-        for (int i = 0; i < 100; i++)
-        {
-            accessCode = AccessCodeGenerator.GenerateAccessCode();
-            accessCodeHash = AccessCode2Hash(accessCode);
-            if (!await _adminsParticipantRepository.AnyAsync(x => x.AccessCodeHash == accessCodeHash))
-            {
-                break;
-            }
-            if (i == 99)
-            {
-                throw new CustomException("Failed to generate unique access code after multiple attempts");
-            }
-        }
+        Tuple<string, string> accessCodeResult = await _adminsParticipantService.GenerateAccessCodeAsync();
+
+        string accessCode = accessCodeResult.Item1;
+        string accessCodeHash = accessCodeResult.Item2;
 
         // In development, we store the access code in the notes for easy retrieval
         string? notes = _environment.IsDevelopment()
@@ -222,6 +199,12 @@ public class UsersService(
 
         await _adminsParticipantRepository.AddAsync(adminParticipant);
 
+        var r = await CreateAuthResponseAsync(participant, UserRole.Participant, _currentUser.AdminId, null, "Welcome to Plantour");
+
+        await _invitationService.SendInvitationEmailByIdAsync(adminParticipant.Id, accessCode, r.AccessToken, r.RefreshToken);
+
+         var baseUrl = _configuration["InvitationAccess:BaseUrl"];
+
         AdminsParticipantDto result = _mapper.Map<AdminsParticipantDto>(adminParticipant);
 
         return result;
@@ -229,13 +212,13 @@ public class UsersService(
 
     public async Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request)
     {
-        var hash = AccessCode2Hash(request.AccessCode);
+        var hash = _accessCodeGenerator.AccessCode2Hash(request.AccessCode);
 
         var adminParticipants = await _adminsParticipantRepository
             .FindFullAsync(x => x.AccessCodeHash == hash);
 
         var adminParticipant = adminParticipants.FirstOrDefault();
-            
+
         if (adminParticipant == null)
         {
             throw new UnauthorizedException("You have no access to Plantour. Please ask your Administartor to re-send the invitation email to you", "NO_ACCESS");
