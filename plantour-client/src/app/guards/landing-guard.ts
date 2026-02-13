@@ -30,8 +30,13 @@ export const dashboardGuard: CanActivateFn = (route, segments) => {
   const refreshToken = urlTree?.queryParams['refreshToken'];
   const usersService = inject(UsersService);
 
+  const storedRefreshToken = usersService.getRefreshToken();
+
   if (accessToken && refreshToken) {
-    usersService.signOut();
+
+    const revoke = !!storedRefreshToken && storedRefreshToken !== refreshToken;
+
+    usersService.signOut(revoke);
     const r = {
       accessToken: accessToken,
       refreshToken: refreshToken,

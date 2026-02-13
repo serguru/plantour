@@ -26,14 +26,14 @@ export const publicGuard: CanActivateFn = (route, state) => {
  */
 export const adminOnlyGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state) => {
   const usersService = inject(UsersService);
-  return usersService.currentUserOk('admin');
+  return usersService.currentUserOk$('admin');
 };
 
 
 
 export const adminOrParticipantGuard: CanActivateFn = (route, state) => {
   const usersService = inject(UsersService);
-  return usersService.currentUserOk();
+  return usersService.currentUserOk$();
 };
 
 

@@ -1,6 +1,6 @@
 import { Injectable, Inject, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, finalize, shareReplay, tap, throwError } from 'rxjs';
+import { Observable, catchError, finalize, map, of, shareReplay, tap, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { AccessToken, AuthResponse, SignUpParticipantRequest, SignUpRequest } from '../models/auth.models';
 import { ContactSubmissionRequest, ContactSubmissionDto } from '../models/contact.models';
@@ -195,11 +195,11 @@ export class UsersService {
       );
   }
 
-  signOut(): void {
+  signOut(revoke: boolean = true): void {
     const refreshToken = this.getRefreshToken();
     this.updateUser(null);
     this.writeRefreshToken(null);
-    if (refreshToken) {
+    if (refreshToken && revoke) {
       this.http.post(`${this.apiUrl}/api/users/revoke`, { refreshToken }).subscribe({ error: () => null });
     }
   }
@@ -238,33 +238,42 @@ export class UsersService {
     return this.http.post<ContactSubmissionDto>(`${this.apiUrl}/api/users/contact/submit`, request);
   }
 
-  currentUserOk = (type?: 'admin' | 'participant'): boolean => {
-    const user = this._userSignal();
-    if (!user) {
-      this.messagesService.showWarning('Please sign in to continue or ask your administrator for a new invite.');
-      this.router.navigate(['/sign-in']);
-      return false;
+  currentUserOk$ = (type?: 'admin' | 'participant'): Observable<boolean> => {
+    if (this.isAuthenticatedSignal()) {
+      return of(true);
     }
 
-    if (!this.isAuthenticatedSignal()) {
-
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
       this.signOut();
- 
-      if (type === 'admin' && this.isAdminSignal()) {
+      this.messagesService.showWarning('Your session has expired. Please sign in again.');
+      this.router.navigate(['/sign-in']);
+      return of(false);
+    }
+
+    return this.refreshTokens().pipe(
+      map(() => true),
+      catchError((refreshError) => {
+        this.signOut();
+
+        const code = refreshError?.error?.code;
+        if (code === 'WRONG_PARTICIPANT_TOKEN') {
+          this.messagesService.showWarning('Your access has expired. Please ask your administrator to re-send the invitation email.');
+          this.router.navigate(['/sign-in/participant']);
+          return of(false);
+        }
+
+        if (type === 'participant') {
+          this.messagesService.showWarning('Your session has expired. Please sign in again.');
+          this.router.navigate(['/sign-in/participant']);
+          return of(false);
+        }
+
         this.messagesService.showWarning('Your session has expired. Please sign in again.');
         this.router.navigate(['/sign-in']);
-        return false;
-      }
-
-      if (type === 'participant' && this.isParticipantSignal()) {
-        this.messagesService.showWarning('Your access has expired. Please contact your administrator for a new invite');
-        this.router.navigate(['/']);
-        return false;
-      }
-    }
-
-    return true;
-
+        return of(false);
+      })
+    );
   }
 
   getCurrentUserId(): string | null {

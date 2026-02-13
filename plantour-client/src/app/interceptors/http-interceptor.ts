@@ -3,25 +3,30 @@ import { inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { catchError, EMPTY, switchMap, throwError } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
 import { MessagesService } from '../services/messages-service';
 import { LocalStorageService } from '../services/local-storage-service';
 import { UsersService } from '../services/users-service';
 
 export const httpInterceptor: HttpInterceptorFn = (req, next) => {
 
+    const isJwtExpired = (jwt: string): boolean => {
+        try {
+            const decoded: any = jwtDecode(jwt);
+            const exp: number | undefined = decoded?.exp;
+            if (!exp) {
+                return true;
+            }
+            const now = Math.floor(Date.now() / 1000);
+            return exp <= now;
+        } catch {
+            return true;
+        }
+    };
+
     let newReq = req;
     const platformId = inject(PLATFORM_ID);
     const isBrowser = isPlatformBrowser(platformId);
-    const localStorageService = inject(LocalStorageService);
-    const token = isBrowser ? localStorageService.getItem('accessToken') : null;
-    if (token) {
-        // Clone request and add Authorization header
-        newReq = req.clone({
-            setHeaders: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-    }
     const router = inject(Router);
     const messagesService = inject(MessagesService);
     const usersService = inject(UsersService);
@@ -36,6 +41,53 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
 
     const isPasswordUpdateEndpoint = (url: string) =>
         url.includes('/api/users/password');
+
+    const localStorageService = inject(LocalStorageService);
+    const token = isBrowser ? localStorageService.getItem('accessToken') : null;
+
+    // Proactive refresh: if access token is already expired, refresh before making the API call.
+    // This does NOT rely on the server returning 401, which may not happen on non-protected endpoints.
+    if (isBrowser && token && !isAuthEndpoint(req.url) && !isPasswordUpdateEndpoint(req.url) && isJwtExpired(token)) {
+        const refreshToken = usersService.getRefreshToken();
+        if (!refreshToken) {
+            usersService.signOut();
+            messagesService.showWarning('Your session has expired. Please sign in again.');
+            router.navigate(['sign-in']);
+            return EMPTY;
+        }
+
+        return usersService.refreshTokens().pipe(
+            switchMap((auth) => {
+                const retried = req.clone({
+                    setHeaders: {
+                        Authorization: `Bearer ${auth.accessToken}`
+                    }
+                });
+                return next(retried);
+            }),
+            catchError((refreshError) => {
+                usersService.signOut();
+                const code = refreshError?.error?.code;
+                if (code === 'WRONG_PARTICIPANT_TOKEN') {
+                    messagesService.showWarning('Your access has expired. Please ask your administrator to re-send the invitation email.');
+                    router.navigate(['sign-in/participant']);
+                } else {
+                    messagesService.showWarning('Your session has expired. Please sign in again.');
+                    router.navigate(['sign-in']);
+                }
+                return EMPTY;
+            })
+        );
+    }
+
+    // Attach Authorization header for non-auth endpoints only.
+    if (token && !isAuthEndpoint(req.url)) {
+        newReq = req.clone({
+            setHeaders: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+    }
 
     return next(newReq).pipe(
         catchError((response: any) => {
