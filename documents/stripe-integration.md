@@ -18,6 +18,20 @@ This document maps Plantour’s subscription requirements to Stripe features, ex
 - Testing: https://docs.stripe.com/testing
 - Stripe CLI (local webhook testing): https://docs.stripe.com/stripe-cli
 
+## Stripe Sandboxes vs Live mode (current Stripe terminology)
+
+Stripe’s docs now describe testing as happening in a **sandbox**:
+- A **sandbox** is an isolated testing environment where payments don’t move real money and where you can create test data safely.
+- Sandboxes can be accessed from the Stripe Dashboard account picker and can be managed per team/use-case.
+
+Your integration still uses the Stripe API with test keys (for sandbox) and live keys (for production). In other words:
+- **Sandbox**: where you run simulated transactions, create test Customers/Subscriptions/Invoices, and test webhooks.
+- **Live mode**: where real charges happen and payouts occur.
+
+Docs:
+- Sandboxes: https://docs.stripe.com/sandboxes
+- Testing (mentions sandboxes): https://docs.stripe.com/testing
+
 ## What you want (and which Stripe products cover it)
 
 ### Subscriptions (2 paid plans × monthly/yearly)

@@ -136,6 +136,9 @@ try
     // Configure Gemini settings
     builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
 
+    // Configure Stripe settings
+    builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("StripeSettings"));
+
     var jwtConfig = jwtSettings.Get<JwtSettings>();
     var key = Encoding.UTF8.GetBytes(jwtConfig!.SecretKey);
 
@@ -294,6 +297,10 @@ try
     builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
+    builder.Services.AddScoped<IStripeService, StripeService>();
+
+
+
     builder.Services.AddScoped<AccessCodeGenerator>();
 
     // TODO: what is AddHttpClient?

@@ -33,8 +33,6 @@ Implemented:
   - cancellation: end-of-period
   - overdue grace period: 7 days before access is revoked
 
-
-
 **Step 0.3: Decide who sends overdue emails**
 - Action: choose Stripe Billing emails vs Plantour emails (or both).
 - Result: clear ownership for customer notifications.
@@ -51,9 +49,60 @@ When payment succeeds after delinquency: “Access restored”
 
 ## Phase 1 — Stripe Dashboard setup
 
+**Step 1.0: Start with a Stripe sandbox (do this before Products/Prices)**
+
+**Step 1.0.1: Open the Sandboxes picker**
+
+- Action: sign in to Stripe Dashboard → open the account picker (top-left) → choose **Sandboxes**.
+- Result: you’re looking at sandbox management, not Live mode.
+
+**Step 1.0.2: Create a dedicated sandbox for Plantour development**
+
+- Action: create a sandbox named `plantour-dev` (optionally also `plantour-qa`).
+- Result: you have an isolated Stripe environment for Plantour where test data won’t mix with other work.
+
+**Step 1.0.3: Enter the sandbox**
+
+- Action: open/select the `plantour-dev` sandbox from the sandboxes list.
+- Result: the Dashboard context is now the sandbox; everything you create next is inside it.
+
+**Step 1.0.4: Confirm you’re NOT configuring Live mode**
+
+- Action: verify the sandbox name is visible in the Dashboard header/account picker and you’re not in the Live account context.
+- Result: reduced risk of accidentally creating Products/Prices/webhooks in Live mode.
+
+**Step 1.0.5: Get the sandbox API keys**
+
+- Action: inside the sandbox, go to Developers/API keys and copy the sandbox secret key and publishable key.
+- Result: you have sandbox keys ready to be placed into Plantour dev configuration (Step 2.x).
+
+**Step 1.0.6: Decide currency + billing intervals**
+
+- Action: confirm the subscription currency (e.g., `USD`) and the only supported intervals (`month` and `year`).
+- Result: you won’t have to recreate Prices later due to a currency/interval change.
+
+**Step 1.0.7: Decide whether prices are tax-exclusive or tax-inclusive**
+
+- Action: decide if Stripe Tax should add tax on top of your displayed prices (tax-exclusive) or if your displayed prices include tax where required (tax-inclusive).
+- Result: one consistent pricing/tax display policy for Checkout + invoices.
+
+**Step 1.0.8: Decide how Plantour will identify Prices**
+
+- Action: choose either:
+  - store sandbox `price_...` IDs in Plantour config per environment, or
+  - also set a Stripe `lookup_key` convention (example: `family_monthly_usd`, `expedition_yearly_usd`).
+- Result: clear, repeatable mapping from Plantour plan+interval → Stripe Price.
+
+**Step 1.0.9: Choose Product tax code (Stripe Tax)**
+
+- Action: pick the correct Stripe Tax product tax code category for your subscription (typically a SaaS/digital service category depending on your business).
+- Result: Stripe Tax uses the right category when calculating taxes.
+
 **Step 1.1: Activate Stripe account**
+
 - Action: complete Stripe activation (business details, bank account, address).
-- Result: Stripe account can process live payments.
+- Result: Stripe account can process **live** payments and payouts.
+
 
 **Step 1.2: Create Products and Prices**
 - Action: in Stripe Dashboard create:
@@ -267,11 +316,21 @@ create table if not exists plantour.stripe_webhook_events (
 ## Phase 6 — Local testing, QA, and rollout
 
 **Step 6.1: Install and use Stripe CLI for local webhooks**
-- Action: install Stripe CLI and run `stripe listen --forward-to http://localhost:<port>/api/stripe/webhook`.
+- Action:
+  - Install Stripe CLI (Windows):
+    - winget: `winget install --id Stripe.Stripe`
+    - or Chocolatey: `choco install stripe`
+    - or Scoop: `scoop install stripe`
+  - Authenticate: `stripe login` (uses your Dashboard account; safe for sandbox use)
+  - Forward webhook events to local API: `stripe listen --forward-to http://localhost:<port>/api/stripe/webhook`
+    - Resulting output includes a local webhook signing secret (`whsec_...`) used by the server for signature verification.
+    - Use `-j` / `--print-json` to see the full raw event payloads in the terminal.
+    - Use `--events <comma-separated-list>` to limit which snapshot event types you receive.
+  - Optionally trigger test events: `stripe trigger checkout.session.completed` (or other subscribed events)
 - Result: webhooks are testable locally without deploying.
 
-**Step 6.2: Test happy-path subscription purchase (test mode)**
-- Action: buy each of the 4 price combinations in test mode.
+**Step 6.2: Test happy-path subscription purchase (sandbox)**
+- Action: buy each of the 4 price combinations in a sandbox.
 - Result: Plantour user becomes `Active` and correct plan is assigned.
 
 **Step 6.3: Test failure scenarios**
