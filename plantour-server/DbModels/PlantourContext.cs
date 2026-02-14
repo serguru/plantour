@@ -45,6 +45,12 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<SitemapUrl> SitemapUrls { get; set; }
 
+    public virtual DbSet<StripeCustomer> StripeCustomers { get; set; }
+
+    public virtual DbSet<StripeSubscription> StripeSubscriptions { get; set; }
+
+    public virtual DbSet<StripeWebhookEvent> StripeWebhookEvents { get; set; }
+
     public virtual DbSet<TemperatureRange> TemperatureRanges { get; set; }
 
     public virtual DbSet<TemplateThing> TemplateThings { get; set; }
@@ -232,6 +238,39 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LastModified).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.Priority).HasDefaultValue(50);
+        });
+
+        modelBuilder.Entity<StripeCustomer>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("stripe_customers_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasOne(d => d.User).WithOne(p => p.StripeCustomer)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("stripe_customers_user_id_fkey");
+        });
+
+        modelBuilder.Entity<StripeSubscription>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("stripe_subscriptions_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasOne(d => d.User).WithMany(p => p.StripeSubscriptions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("stripe_subscriptions_user_id_fkey");
+        });
+
+        modelBuilder.Entity<StripeWebhookEvent>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("stripe_webhook_events_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.ReceivedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
         });
 
         modelBuilder.Entity<TemperatureRange>(entity =>

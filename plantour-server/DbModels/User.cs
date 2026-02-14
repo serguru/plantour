@@ -66,6 +66,12 @@ public partial class User
     public virtual Plan Plan { get; set; } = null!;
 
     [InverseProperty("User")]
+    public virtual StripeCustomer? StripeCustomer { get; set; }
+
+    [InverseProperty("User")]
+    public virtual ICollection<StripeSubscription> StripeSubscriptions { get; set; } = new List<StripeSubscription>();
+
+    [InverseProperty("User")]
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 
     [InverseProperty("User")]
