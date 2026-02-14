@@ -679,3 +679,40 @@ create table plantour.sitemap_urls (
     created_at timestamp not null default (now() at time zone 'utc')
 );
 
+-------------------------------------------------------
+-- STRIPE
+-------------------------------------------------------
+
+create table plantour.stripe_customers (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references plantour.users(id),
+  stripe_customer_id text not null,
+  created_at timestamp without time zone not null default (now() at time zone 'utc'),
+  unique(user_id),
+  unique(stripe_customer_id)
+);
+
+create table plantour.stripe_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references plantour.users(id),
+  stripe_subscription_id text not null,
+  stripe_price_id text not null,
+  status text not null,
+  current_period_start timestamp without time zone null,
+  current_period_end timestamp without time zone null,
+  cancel_at_period_end boolean not null default false,
+  canceled_at timestamp without time zone null,
+  created_at timestamp without time zone not null default (now() at time zone 'utc'),
+  updated_at timestamp without time zone not null default (now() at time zone 'utc'),
+  unique(stripe_subscription_id)
+);
+
+create table plantour.stripe_webhook_events (
+  id uuid primary key default gen_random_uuid(),
+  stripe_event_id text not null,
+  type text not null,
+  received_at timestamp without time zone not null default (now() at time zone 'utc'),
+  processed_at timestamp without time zone null,
+  processing_error text null,
+  unique(stripe_event_id)
+);
