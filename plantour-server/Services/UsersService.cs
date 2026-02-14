@@ -500,6 +500,9 @@ public class UsersService(
         int guestPlanDurationDays = (int)await _settingsRepository.GetSettingByKey("guest_plan_duration_days");
         string guestPlanDurationDaysStr = guestPlanDurationDays.ToString() + " days";
 
+
+
+
         return new LandingDto
         {
             GuestPlanName = (await this._settingsRepository.GetSettingByKey("guest_plan_name") as string)!,
@@ -510,7 +513,11 @@ public class UsersService(
             BasePlanYearly = basePlanYearlyStr,
             ProPlanMonthly = proPlanMonthlyStr,
             ProPlanYearly = proPlanYearlyStr,
-            GuestPlanDurationDays = guestPlanDurationDaysStr
+            GuestPlanDurationDays = guestPlanDurationDaysStr,
+            BaseMonthlyPriceUrl = (await this._settingsRepository.GetSettingByKey("base_monthly_price_url") as string)!,
+            BaseYearlyPriceUrl = (await this._settingsRepository.GetSettingByKey("base_yearly_price_url") as string)!,
+            ProMonthlyPriceUrl = (await this._settingsRepository.GetSettingByKey("pro_monthly_price_url") as string)!,
+            ProYearlyPriceUrl = (await this._settingsRepository.GetSettingByKey("pro_yearly_price_url") as string)!,
         };
     }
 }

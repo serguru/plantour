@@ -41,6 +41,10 @@ export interface LandingDto
     proPlanMonthly: string;
     proPlanYearly: string;
     guestPlanDurationDays: string;
+    baseMonthlyPriceUrl: string;
+    baseYearlyPriceUrl: string;
+    proMonthlyPriceUrl: string;
+    proYearlyPriceUrl: string;
 }
 
 

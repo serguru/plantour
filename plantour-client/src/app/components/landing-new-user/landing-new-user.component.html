@@ -22,15 +22,15 @@
     </div>
   </section>
 
-        <section class="try">
-        <div class="try-section">
-          <div class="try-card">
-            <button class="try-button">Try packing your items for the trip</button>
-            <h3>No registration required</h3>
-            <h3>Prefilled test data is ready</h3>
-          </div>
-        </div>
-      </section>
+  <section class="try">
+    <div class="try-section">
+      <div class="try-card">
+        <button class="try-button">Try packing your items for the trip</button>
+        <h3>No registration required</h3>
+        <h3>Prefilled test data is ready</h3>
+      </div>
+    </div>
+  </section>
 
 
 
@@ -46,6 +46,7 @@
         } -->
       </div>
 
+      <p class="description">{{ plan.description }}</p>
       <!-- <div class="price-container">
         <div class="price-row main">
           <span class="currency">$</span>
@@ -72,6 +73,19 @@
           <span class="period">/ month</span>
         </div>
 
+        <div class="cta-row">
+          <a
+            class="cta-button"
+            [class.outline]="!plan.isPopular"
+            [href]="plan.monthlyPriceLink"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ plan.monthlyButtonText }}
+          </a>
+        </div>
+
+
         <div class="price-row secondary">
           @if (plan.annualPrice) {
           <span class="period">or</span>
@@ -82,18 +96,24 @@
           <span class="period">Forever free</span>
           }
         </div>
+
+        @if(plan.annualPrice) {
+        <div class="cta-row">
+          <a
+            class="cta-button"
+            [class.outline]="!plan.isPopular"
+            [href]="plan.annualPriceLink"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ plan.annualButtonText }}
+          </a>
+        </div>
+        }
+
+
       </div>
 
-      <p class="description">{{ plan.description }}</p>
-
-      <div class="cta-row">
-        <button
-          class="cta-button"
-          [class.outline]="!plan.isPopular"
-        >
-          {{ plan.buttonText }}
-        </button>
-      </div>
 
       <div class="divider"></div>
 

@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LandingDto, UsersService } from '../../services/users-service';
+import { RouterLink } from "@angular/router";
 
 interface PlanFeature {
   label: string;
@@ -14,7 +15,10 @@ interface Plan {
   annualPrice?: string;
   description: string;
   isPopular?: boolean;
-  buttonText: string;
+  monthlyButtonText: string;
+  annualButtonText?: string;
+  monthlyPriceLink?: string;
+  annualPriceLink?: string;
   features: PlanFeature[];
 }
 
@@ -27,7 +31,7 @@ interface LandingFeature {
 @Component({
   selector: 'app-landing-new-user',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './landing-new-user.component.html',
   styleUrl: './landing-new-user.component.scss'
 })
@@ -83,7 +87,7 @@ export class LandingNewUserComponent implements OnInit {
         name: data.trialPlanName || "",
         monthlyPrice: "0",
         description: 'For small trips and light packers',
-        buttonText: 'Start Free',
+        monthlyButtonText: 'Join Free',
         features: [
           { label: 'Duration', value: 'Unlimited', highlight: true },
           { label: 'Max Items', value: '10 per trip' },
@@ -99,7 +103,10 @@ export class LandingNewUserComponent implements OnInit {
         annualPrice: data.basePlanYearly || "",
         description: 'Perfect for families and small groups',
         isPopular: true,
-        buttonText: 'Choose Base',
+        monthlyButtonText: 'Start monthly',
+        annualButtonText: 'Start yearly',
+        monthlyPriceLink: data.baseMonthlyPriceUrl || "",
+        annualPriceLink: data.baseYearlyPriceUrl || "",  
         features: [
           { label: 'Duration', value: 'Unlimited' },
           { label: 'Max Items', value: 'Unlimited', highlight: true },
@@ -114,7 +121,10 @@ export class LandingNewUserComponent implements OnInit {
         monthlyPrice: data.proPlanMonthly || "",
         annualPrice: data.proPlanYearly || "",
         description: 'Ideal for large groups and expeditions',
-        buttonText: 'Go Unlimited',
+        monthlyButtonText: 'Go monthly',
+        annualButtonText: 'Go yearly',
+        monthlyPriceLink: data.proMonthlyPriceUrl || "",
+        annualPriceLink: data.proYearlyPriceUrl || "",  
         features: [
           { label: 'Duration', value: 'Unlimited' },
           { label: 'Max Items', value: 'Unlimited' },

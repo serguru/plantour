@@ -282,7 +282,10 @@ $line: #e1eaec;
   }
 
   .cta-button {
-    width: 100%;
+    width: 200px;
+    display:inline-block;
+    text-decoration: none;
+
     padding: 14px;
     border-radius: 12px;
     font-size: 1rem;
@@ -292,6 +295,7 @@ $line: #e1eaec;
     background: $primary;
     color: $paper;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: 2px solid rgba(47, 139, 154, 0.6);
 
     &:active {
       transform: scale(0.98);
@@ -299,8 +303,7 @@ $line: #e1eaec;
 
     &.outline {
       background: transparent;
-      border: 2px solid rgba(47, 139, 154, 0.6);
-      color: $primary-deep;
+      color: $primary;
     }
   }
 
@@ -387,9 +390,9 @@ $line: #e1eaec;
 .plan-top {
   display: grid;
   grid-template-columns: 1fr;         
-  grid-template-rows: repeat(2, 1fr); 
+  grid-template-rows: repeat(4, 1fr); 
   align-items: end;
-  //gap: 0.5rem;
+  gap: 0.5rem;
   padding: 0.5rem 0rem;
 
 }
