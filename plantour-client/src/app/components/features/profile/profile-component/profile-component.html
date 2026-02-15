@@ -8,6 +8,13 @@
     </div>
 
     <div class="controls-wrapper">
+
+        @if(customerPortalUrl()) {
+        <a [href]="customerPortalUrl()" target="_blank" rel="noopener noreferrer">
+            Manage Billing
+        </a>
+        }
+
         <!-- Profile Information Form -->
         <form
             [formGroup]="profileForm"

@@ -22,4 +22,15 @@ public class StripeController : ControllerBase
         _stripeSettings = stripeSettings.Value;
     }
 
+    [HttpGet]
+    [AdminOnly]
+    [Route("create-portal-session")]
+    public async Task<ActionResult<PortalSessionResponse>> CreatePortalSession()
+    {
+        var result = await _service.CreatePortalSession();
+
+        return Ok(result);
+    }
+
+
 }

@@ -1,0 +1,37 @@
+I am the only person in sole proprietary business in BC Canada. Can I pay business related taxes together with my personal taxes?
+
+Yes, for income tax, you and your business are treated as the same person. However, for sales taxes (GST/PST), you must treat them as separate tasks with their own deadlines.
+
+Here is how you handle each:
+
+1. Income Tax (Personal & Business Together)
+Since you are a sole proprietor, your business doesn't file its own income tax return. You report your web app's income directly on your personal T1 tax return.
+
+The Form: You will use Form T2125 (Statement of Business or Professional Activities). This is where you list your gross revenue and subtract your expenses (hosting, laptop, home office, etc.) to find your net profit.
+
+The Deadline: You have until June 15 to file your return (because you're self-employed), but any money you owe must be paid by April 30.
+
+The Calculation: Your business profit is added to any other income you have (like a part-time job or investment income) and taxed at your personal marginal rate.
+
+2. GST and PST (Separate Filings)
+This is the part you cannot do with your personal income tax. Sales taxes are "trust" taxes—money you collected for the government—so they have their own systems.
+
+GST (Federal): Even if you file your personal taxes once a year, the CRA usually expects a separate GST return.
+
+Where: You file this through the CRA My Business Account portal, not your personal CRA account.
+
+When: Most small businesses file GST annually (due March 31 or June 15 depending on your setup), but it is a distinct form from your T1.
+
+PST (BC Provincial): This is completely separate from the federal government.
+
+Where: You file this via eTaxBC.
+
+When: Depending on how much you sell, you might have to file monthly, quarterly, or annually.
+
+Summary Checklist
+Tax Type	Combined with Personal Return?	Reporting Portal
+Income Tax	Yes (Form T2125)	CRA My Account (Personal)
+GST	No (Separate return)	CRA My Business Account
+BC PST	No (Separate return)	
+
+I live in BC Canada and I am going to start a sole proprietary business charging customers for my web app use. Can you sell services from my behalf and take care on accounting, billing, charging, taxes, subscriptions tracking etc. ?

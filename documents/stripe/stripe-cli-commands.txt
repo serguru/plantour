@@ -1,0 +1,23 @@
+
+
+Set up a local listener
+
+stripe login
+stripe listen --forward-to localhost:4242/webhook
+stripe trigger payment_intent.succeeded
+
+
+
+acumen-best-witty-nice // while logging in Stripe Cli
+
+stripe listen --forward-to localhost:5217/api/stripe/webhook
+
+whsec_c3d9f169312aa8cd6a4bbe9a849fabb1cb6b7cb06db55f942cfeda74706f506d
+
+dotnet user-secrets set "StripeSettings:WebhookSigningSecret" "whsec_c3d9f169312aa8cd6a4bbe9a849fabb1cb6b7cb06db55f942cfeda74706f506d"
+
+
+Customer portal link:
+billing.stripe.com/p/login/test_5kQ4gAcPychtguc4uldMI00
+
+

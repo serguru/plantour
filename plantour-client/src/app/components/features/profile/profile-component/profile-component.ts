@@ -8,7 +8,10 @@ import { catchError, finalize, EMPTY } from 'rxjs';
 import { UsersService, UserDto } from '../../../../services/users-service';
 import { MessagesService } from '../../../../services/messages-service';
 import { AppButton } from '../../../button/button-component';
+import { PortalSessionResponseDto, StripeService } from '../../../../services/stripe-service';
 
+// TODO: move c hange password form to a separate component and use it in both profile and auth pages
+// TODO: add styles to custom portal link
 @Component({
   selector: 'app-profile-component',
   standalone: true,
@@ -25,7 +28,8 @@ import { AppButton } from '../../../button/button-component';
 })
 export class ProfileComponent implements OnInit {
   componentId = 'profile';
-  
+  customerPortalUrl = signal<string | null>(null);
+
   profileForm: FormGroup;
   passwordForm: FormGroup;
   isLoadingProfile = signal(false);
@@ -34,6 +38,7 @@ export class ProfileComponent implements OnInit {
 
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
+  private stripeService = inject(StripeService);
   private fb = inject(FormBuilder);
 
   constructor() {
@@ -53,6 +58,12 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProfile();
+    this.stripeService.getCustomerPortalUrl().subscribe({
+      next: (response: PortalSessionResponseDto) => {
+        this.customerPortalUrl.set(response.url); 
+      }
+    }); 
+
   }
 
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
@@ -138,10 +149,10 @@ export class ProfileComponent implements OnInit {
       catchError((error) => {
         // Check if the error is due to incorrect current password
         const errorMessage = error.error?.message || '';
-        const isIncorrectPassword = errorMessage.toLowerCase().includes('current password is incorrect') 
+        const isIncorrectPassword = errorMessage.toLowerCase().includes('current password is incorrect')
           || errorMessage.toLowerCase().includes('wrong password')
           || error.status === 401;
-        
+
         if (isIncorrectPassword) {
           this.messagesService.showWarning('Invalid Password', 'Please enter a valid current password');
         } else {
@@ -215,5 +226,7 @@ export class ProfileComponent implements OnInit {
     const field = this.passwordForm.get('confirmNewPassword');
     return !!(field && field.touched && (field.invalid || this.passwordForm.hasError('passwordMismatch')));
   }
+
 }
+
 

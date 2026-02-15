@@ -1,7 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LandingDto, UsersService } from '../../services/users-service';
-import { RouterLink } from "@angular/router";
 
 interface PlanFeature {
   label: string;
@@ -31,7 +30,7 @@ interface LandingFeature {
 @Component({
   selector: 'app-landing-new-user',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './landing-new-user.component.html',
   styleUrl: './landing-new-user.component.scss'
 })
