@@ -6,9 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("stripe_subscriptions", Schema = "plantour")]
-[Index("StripeSubscriptionId", Name = "stripe_subscriptions_stripe_subscription_id_key", IsUnique = true)]
-public partial class StripeSubscription
+[Table("customer_subscriptions", Schema = "plantour")]
+public partial class CustomerSubscription
 {
     [Key]
     [Column("id")]
@@ -20,23 +19,20 @@ public partial class StripeSubscription
     [Column("stripe_subscription_id")]
     public string StripeSubscriptionId { get; set; } = null!;
 
-    [Column("stripe_price_id")]
-    public string StripePriceId { get; set; } = null!;
+    [Column("subscription_status")]
+    public string SubscriptionStatus { get; set; } = null!;
 
-    [Column("status")]
-    public string Status { get; set; } = null!;
+    [Column("plan_id")]
+    public Guid PlanId { get; set; }
 
     [Column("current_period_start", TypeName = "timestamp without time zone")]
-    public DateTime? CurrentPeriodStart { get; set; }
+    public DateTime CurrentPeriodStart { get; set; }
 
     [Column("current_period_end", TypeName = "timestamp without time zone")]
-    public DateTime? CurrentPeriodEnd { get; set; }
+    public DateTime CurrentPeriodEnd { get; set; }
 
     [Column("cancel_at_period_end")]
-    public bool CancelAtPeriodEnd { get; set; }
-
-    [Column("canceled_at", TypeName = "timestamp without time zone")]
-    public DateTime? CanceledAt { get; set; }
+    public bool? CancelAtPeriodEnd { get; set; }
 
     [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
@@ -44,7 +40,11 @@ public partial class StripeSubscription
     [Column("updated_at", TypeName = "timestamp without time zone")]
     public DateTime UpdatedAt { get; set; }
 
+    [ForeignKey("PlanId")]
+    [InverseProperty("CustomerSubscriptions")]
+    public virtual Plan Plan { get; set; } = null!;
+
     [ForeignKey("UserId")]
-    [InverseProperty("StripeSubscriptions")]
+    [InverseProperty("CustomerSubscriptions")]
     public virtual User User { get; set; } = null!;
 }

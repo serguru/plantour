@@ -7,6 +7,14 @@ using PlantourApi.Middleware;
 using PlantourApi.Models;
 namespace plantour_server.Services;
 
-public class StripeService() : IStripeService
+public class StripeService : IStripeService
 {
+    private readonly string _secretKey;
+    private readonly string _publishableKey;
+    
+    public StripeService(IConfiguration configuration)
+    {
+    }
+    
+
 }

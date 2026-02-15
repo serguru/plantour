@@ -17,15 +17,23 @@ public partial class StripeWebhookEvent
     [Column("stripe_event_id")]
     public string StripeEventId { get; set; } = null!;
 
-    [Column("type")]
-    public string Type { get; set; } = null!;
+    [Column("stripe_event_type_id")]
+    public Guid StripeEventTypeId { get; set; }
 
-    [Column("received_at", TypeName = "timestamp without time zone")]
-    public DateTime ReceivedAt { get; set; }
+    [Column("object_id")]
+    [StringLength(255)]
+    public string? ObjectId { get; set; }
 
-    [Column("processed_at", TypeName = "timestamp without time zone")]
-    public DateTime? ProcessedAt { get; set; }
+    [Column("data", TypeName = "jsonb")]
+    public string Data { get; set; } = null!;
 
-    [Column("processing_error")]
-    public string? ProcessingError { get; set; }
+    [Column("processed")]
+    public bool? Processed { get; set; }
+
+    [Column("created_at", TypeName = "timestamp without time zone")]
+    public DateTime? CreatedAt { get; set; }
+
+    [ForeignKey("StripeEventTypeId")]
+    [InverseProperty("StripeWebhookEvents")]
+    public virtual StripeEventType StripeEventType { get; set; } = null!;
 }

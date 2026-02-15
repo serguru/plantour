@@ -4,6 +4,48 @@ create schema plantour;
 
 set search_path to plantour, public;
 
+create table plantour.currencies (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique
+);
+insert into plantour.currencies (name) values
+('USD'),
+('CAD'),
+('EUR'),
+('JPY'),
+('GBP'),
+('CHF');
+
+create table plantour.payment_statuses (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    notes text
+);
+-- insert into plantour.payment_statuses (name) values
+-- (''),
+-- ('');
+
+create table plantour.billing_reasons (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    notes text
+);
+-- insert into plantour.billing_reasons (name) values
+-- (''),
+-- ('');
+
+
+create table plantour.stripe_event_types (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    notes text
+);
+-- insert into plantour.stripe_event_types (name) values
+-- (''),
+-- ('');
+
+
+
 -----------------------------------------------------------------------
 -- COMMUNICATION TYPES
 -----------------------------------------------------------------------
@@ -221,10 +263,17 @@ insert into transaction_types (name) values
 -----------------------------------------------------------------------
 -- PLAN
 -----------------------------------------------------------------------
-create table plans (
-    id uuid not null primary key default gen_random_uuid(),
+create table plantour.plans (
+    id uuid primary key default gen_random_uuid(),
     name text not null unique,
-    notes text null
+    description text,
+    stripe_product_id text,
+    stripe_price_id_monthly text,
+    stripe_price_id_yearly text,
+    features jsonb,
+    active boolean default true,
+    created_at timestamp not null default (now() at time zone 'utc'),
+    updated_at timestamp default (now() at time zone 'utc')
 );
 insert into plans (name) values
 ('NoPlan'),
@@ -232,6 +281,8 @@ insert into plans (name) values
 ('Trial'),
 ('Company'),
 ('Expedition');
+
+
 
 -----------------------------------------------------------------------
 -- USERS
@@ -248,7 +299,8 @@ create table users (
     created_at timestamp not null default (now() at time zone 'utc'),
     discount int not null check(discount >= 0) default 0,
     plan_id uuid not null references plans(id),
-    access_type_id uuid not null references access_types(id)
+    access_type_id uuid not null references access_types(id),
+    stripe_customer_id text null
 );
 
 create table transactions (
@@ -687,36 +739,39 @@ create table plantour.sitemap_urls (
 -- STRIPE
 -------------------------------------------------------
 
-create table plantour.stripe_customers (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references plantour.users(id),
-  stripe_customer_id text not null,
-  created_at timestamp without time zone not null default (now() at time zone 'utc'),
-  unique(user_id),
-  unique(stripe_customer_id)
+create table plantour.customer_subscriptions (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    stripe_subscription_id text not null,
+    subscription_status text not null,
+    plan_id uuid not null references plans(id),
+    current_period_start timestamp not null,
+    current_period_end timestamp not null,
+    cancel_at_period_end boolean default false,
+    created_at timestamp  not null default (now() at time zone 'utc'),
+    updated_at timestamp  not null default (now() at time zone 'utc')
 );
 
-create table plantour.stripe_subscriptions (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references plantour.users(id),
-  stripe_subscription_id text not null,
-  stripe_price_id text not null,
-  status text not null,
-  current_period_start timestamp without time zone null,
-  current_period_end timestamp without time zone null,
-  cancel_at_period_end boolean not null default false,
-  canceled_at timestamp without time zone null,
-  created_at timestamp without time zone not null default (now() at time zone 'utc'),
-  updated_at timestamp without time zone not null default (now() at time zone 'utc'),
-  unique(stripe_subscription_id)
+-- store payment history
+create table plantour.payment_history (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    stripe_invoice_id text not null,
+    amount_paid int not null, -- in cents
+    currency_id uuid not null references currencies(id),
+    payment_status_id uuid not null references payment_statuses(id),
+    payment_date timestamp not null,
+    billing_reason_id uuid not null references billing_reasons(id),
+    created_at timestamp default (now() at time zone 'utc')
 );
 
+-- to support webhooks
 create table plantour.stripe_webhook_events (
-  id uuid primary key default gen_random_uuid(),
-  stripe_event_id text not null,
-  type text not null,
-  received_at timestamp without time zone not null default (now() at time zone 'utc'),
-  processed_at timestamp without time zone null,
-  processing_error text null,
-  unique(stripe_event_id)
+    id uuid primary key default gen_random_uuid(),
+    stripe_event_id text not null unique,
+    stripe_event_type_id uuid not null references stripe_event_types(id),
+    object_id varchar(255),
+    data jsonb not null,
+    processed boolean default false,
+    created_at timestamp default (now() at time zone 'utc')
 );
