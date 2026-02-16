@@ -298,6 +298,7 @@ try
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
     builder.Services.AddScoped<IStripeService, StripeService>();
+    builder.Services.AddScoped<ICustomerSubscriptionService, CustomerSubscriptionService>();
 
 
 
@@ -340,6 +341,7 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.CustomerSubscriptionRepository>();
 
     builder.Services.AddScoped<HttpCurrentUser>();
 

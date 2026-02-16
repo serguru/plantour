@@ -21,4 +21,19 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
             .Include(x => x.Plan)
             .FirstOrDefaultAsync(u => u.Id == userId);
     }
+
+    public async Task<User?> GetByStripeCustomerIdAsync(string stripeCustomerId)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.StripeCustomerId == stripeCustomerId);
+    }
+
+    public async Task<User?> GetByStripeCustomerIdWithSubscriptionsAsync(string stripeCustomerId)
+    {
+        return await _context.Users
+            .Include(u => u.CustomerSubscriptions)
+            .FirstOrDefaultAsync(u => u.StripeCustomerId == stripeCustomerId);
+    }
+
+
 }
