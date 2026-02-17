@@ -19,7 +19,4 @@ public partial class TransactionType
 
     [Column("notes")]
     public string? Notes { get; set; }
-
-    [InverseProperty("TransactionType")]
-    public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 }

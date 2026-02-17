@@ -298,9 +298,7 @@ try
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
     builder.Services.AddScoped<IStripeService, StripeService>();
-    builder.Services.AddScoped<ICustomerSubscriptionService, CustomerSubscriptionService>();
-
-
+    builder.Services.AddScoped<IStripeWebhookService, StripeWebhookService>();
 
     builder.Services.AddScoped<AccessCodeGenerator>();
 
@@ -342,7 +340,6 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.CustomerSubscriptionRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.PendingUsersRepository>();
    
 
     builder.Services.AddScoped<HttpCurrentUser>();

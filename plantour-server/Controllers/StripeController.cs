@@ -52,24 +52,15 @@ public class StripeController : ControllerBase
     {
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
 
-        try
-        {
-            var stripeEvent = EventUtility.ConstructEvent(
-                json,
-                Request.Headers["Stripe-Signature"],
-                _webhookSecret
-            );
+        var stripeEvent = EventUtility.ConstructEvent(
+            json,
+            Request.Headers["Stripe-Signature"],
+            _webhookSecret
+        );
 
-            _logger.LogInformation($"Received Stripe webhook: {stripeEvent.Type}");
-            await _webhookService.ProcessStripeEventAsync(stripeEvent);
+        await _webhookService.ProcessStripeEventAsync(stripeEvent);
 
-            return Ok();
-        }
-        catch (StripeException e)
-        {
-            _logger.LogError(e, "Error processing Stripe webhook");
-            return BadRequest();
-        }
+        return Ok();
     }
 
 

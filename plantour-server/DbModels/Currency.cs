@@ -16,7 +16,4 @@ public partial class Currency
 
     [Column("name")]
     public string Name { get; set; } = null!;
-
-    [InverseProperty("Currency")]
-    public virtual ICollection<PaymentHistory> PaymentHistories { get; set; } = new List<PaymentHistory>();
 }

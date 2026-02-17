@@ -287,6 +287,9 @@ insert into plans (name) values
 -----------------------------------------------------------------------
 -- USERS
 -----------------------------------------------------------------------
+-- TODO: if stripe_price_id has a value - plan_id must be ignored
+-- and a user access must be determined depending on stripe_price_id
+-- and mapping from stripe_price_id to the plan is done using price_id values in settings
 create table users (
     id uuid not null primary key default gen_random_uuid(),
     email text not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
@@ -300,17 +303,12 @@ create table users (
     discount int not null check(discount >= 0) default 0,
     plan_id uuid not null references plans(id),
     access_type_id uuid not null references access_types(id),
-    stripe_customer_id text null
+    stripe_customer_id text,
+    stripe_price_id text, 
+    stripe_price_ends_at timestamp
 );
 
-create table transactions (
-    id uuid not null primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
-    transaction_type_id uuid not null references transaction_types(id),
-    amount bigint not null,
-    notes text,
-    created_at timestamp not null default (now() at time zone 'utc')
-);
+--create table transactions (
 
 create table admins_participants (
     id uuid not null primary key default gen_random_uuid(),
@@ -728,7 +726,7 @@ values
     ('pro_month_price_id', 'price_1T0cQSIGohUudrjhZGYzUs3A',  'string'),
     ('pro_year_price_id', 'price_1T0cQuIGohUudrjhNWhqNMDT',  'string'),
     ('checkout_session_success_url', 'profile',  'string'),
-    ('checkout_cancel_success_url', 'profile',  'string'),
+    ('checkout_session_cancel_url', 'profile',  'string'),
 
     ('plantour_app_origin', 'http://localhost:4203',  'string'),
 
@@ -744,70 +742,7 @@ create table plantour.sitemap_urls (
     created_at timestamp not null default (now() at time zone 'utc')
 );
 
--------------------------------------------------------
--- STRIPE
--------------------------------------------------------
-
-create table plantour.customer_subscriptions (
-    id uuid primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
-    stripe_subscription_id text not null,
-    subscription_status text not null,
-    plan_id uuid not null references plans(id),
-    current_period_start timestamp not null,
-    current_period_end timestamp not null,
-    cancel_at_period_end boolean default false,
-    created_at timestamp  not null default (now() at time zone 'utc'),
-    updated_at timestamp  not null default (now() at time zone 'utc')
-);
-
--- store payment history
-create table plantour.payment_history (
-    id uuid primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
-    stripe_invoice_id text not null,
-    amount_paid int not null, -- in cents
-    currency_id uuid not null references currencies(id),
-    payment_status_id uuid not null references payment_statuses(id),
-    payment_date timestamp not null,
-    billing_reason_id uuid not null references billing_reasons(id),
-    created_at timestamp default (now() at time zone 'utc')
-);
-
--- to support webhooks
-create table plantour.stripe_webhook_events (
-    id uuid primary key default gen_random_uuid(),
-    stripe_event_id text not null unique,
-    stripe_event_type_id uuid not null references stripe_event_types(id),
-    object_id text,
-    data jsonb not null,
-    processed boolean default false,
-    created_at timestamp default (now() at time zone 'utc')
-);
-
--- pending users
--- stores data on not yet added to the users table users
--- used when a new user triggers a Checkout Session webhook but with no "paid" status
-create table plantour.pending_users (
-    id uuid primary key default gen_random_uuid(),
-    email text not null,
-    first_name text,
-    last_name text,
-    checkout_session_id text not null unique,
-    payment_intent_id text not null,
-    subscription_id text,
-    plan_id text,
-    customer_id text,
-    metadata jsonb,
-    created_at timestamp default (now() at time zone 'utc'),
-    expires_at timestamp,
-    status text default 'awaiting_payment'
-);
-
--- indexes for faster lookups
-create index idx_pending_users_checkout_session_id on plantour.pending_users(checkout_session_id);
-create index idx_pending_users_payment_intent_id on plantour.pending_users(payment_intent_id);
-create index idx_pending_users_status on plantour.pending_users(status);
-create index idx_pending_users_expires_at on plantour.pending_users(expires_at);
-
-
+-- create table plantour.customer_subscriptions (
+-- create table plantour.payment_history (
+-- create table plantour.stripe_webhook_events (
+-- create table plantour.pending_users (

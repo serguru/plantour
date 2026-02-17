@@ -19,7 +19,4 @@ public partial class BillingReason
 
     [Column("notes")]
     public string? Notes { get; set; }
-
-    [InverseProperty("BillingReason")]
-    public virtual ICollection<PaymentHistory> PaymentHistories { get; set; } = new List<PaymentHistory>();
 }

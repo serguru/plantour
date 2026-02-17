@@ -33,8 +33,6 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Currency> Currencies { get; set; }
 
-    public virtual DbSet<CustomerSubscription> CustomerSubscriptions { get; set; }
-
     public virtual DbSet<ErrorLog> ErrorLogs { get; set; }
 
     public virtual DbSet<Gender> Genders { get; set; }
@@ -43,11 +41,7 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Log> Logs { get; set; }
 
-    public virtual DbSet<PaymentHistory> PaymentHistories { get; set; }
-
     public virtual DbSet<PaymentStatus> PaymentStatuses { get; set; }
-
-    public virtual DbSet<PendingUser> PendingUsers { get; set; }
 
     public virtual DbSet<Plan> Plans { get; set; }
 
@@ -59,8 +53,6 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<StripeEventType> StripeEventTypes { get; set; }
 
-    public virtual DbSet<StripeWebhookEvent> StripeWebhookEvents { get; set; }
-
     public virtual DbSet<TemperatureRange> TemperatureRanges { get; set; }
 
     public virtual DbSet<TemplateThing> TemplateThings { get; set; }
@@ -68,8 +60,6 @@ public partial class PlantourContext : DbContext
     public virtual DbSet<ThingCategory> ThingCategories { get; set; }
 
     public virtual DbSet<ThingTemplate> ThingTemplates { get; set; }
-
-    public virtual DbSet<Transaction> Transactions { get; set; }
 
     public virtual DbSet<TransactionType> TransactionTypes { get; set; }
 
@@ -194,22 +184,6 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
-        modelBuilder.Entity<CustomerSubscription>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("customer_subscriptions_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CancelAtPeriodEnd).HasDefaultValue(false);
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-
-            entity.HasOne(d => d.Plan).WithMany(p => p.CustomerSubscriptions)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("customer_subscriptions_plan_id_fkey");
-
-            entity.HasOne(d => d.User).WithMany(p => p.CustomerSubscriptions).HasConstraintName("customer_subscriptions_user_id_fkey");
-        });
-
         modelBuilder.Entity<ErrorLog>(entity =>
         {
             entity.ToView("error_logs", "plantour");
@@ -249,42 +223,11 @@ public partial class PlantourContext : DbContext
                 .HasComment("timestamp when the log event was recorded");
         });
 
-        modelBuilder.Entity<PaymentHistory>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("payment_history_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-
-            entity.HasOne(d => d.BillingReason).WithMany(p => p.PaymentHistories)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("payment_history_billing_reason_id_fkey");
-
-            entity.HasOne(d => d.Currency).WithMany(p => p.PaymentHistories)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("payment_history_currency_id_fkey");
-
-            entity.HasOne(d => d.PaymentStatus).WithMany(p => p.PaymentHistories)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("payment_history_payment_status_id_fkey");
-
-            entity.HasOne(d => d.User).WithMany(p => p.PaymentHistories).HasConstraintName("payment_history_user_id_fkey");
-        });
-
         modelBuilder.Entity<PaymentStatus>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("payment_statuses_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-        });
-
-        modelBuilder.Entity<PendingUser>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("pending_users_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.Status).HasDefaultValueSql("'awaiting_payment'::text");
         });
 
         modelBuilder.Entity<Plan>(entity =>
@@ -328,19 +271,6 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
-        modelBuilder.Entity<StripeWebhookEvent>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("stripe_webhook_events_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.Processed).HasDefaultValue(false);
-
-            entity.HasOne(d => d.StripeEventType).WithMany(p => p.StripeWebhookEvents)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("stripe_webhook_events_stripe_event_type_id_fkey");
-        });
-
         modelBuilder.Entity<TemperatureRange>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("temperature_ranges_pkey");
@@ -379,20 +309,6 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.TemperatureRanges).WithMany(p => p.ThingTemplates)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("thing_templates_temperature_ranges_id_fkey");
-        });
-
-        modelBuilder.Entity<Transaction>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("transactions_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-
-            entity.HasOne(d => d.TransactionType).WithMany(p => p.Transactions)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("transactions_transaction_type_id_fkey");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Transactions).HasConstraintName("transactions_user_id_fkey");
         });
 
         modelBuilder.Entity<TransactionType>(entity =>

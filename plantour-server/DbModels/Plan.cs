@@ -42,8 +42,5 @@ public partial class Plan
     public DateTime? UpdatedAt { get; set; }
 
     [InverseProperty("Plan")]
-    public virtual ICollection<CustomerSubscription> CustomerSubscriptions { get; set; } = new List<CustomerSubscription>();
-
-    [InverseProperty("Plan")]
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

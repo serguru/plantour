@@ -15,7 +15,7 @@ public class SettingsRepository(PlantourContext context) : GenericRepository<Set
         {
             throw new CustomException("Wrong integer value in settings DB table");
         }
-        
+
         return result;
     }
 
@@ -25,7 +25,7 @@ public class SettingsRepository(PlantourContext context) : GenericRepository<Set
         {
             throw new CustomException("Wrong boolean value in settings DB table");
         }
-        
+
         return result;
     }
 
@@ -45,4 +45,21 @@ public class SettingsRepository(PlantourContext context) : GenericRepository<Set
             _ => throw new CustomException($"Unsupported setting type '{setting.ValueType}' for key '{key}'")
         };
     }
+
+    public async Task<List<string>> GetStripePriceIds()
+    {
+        var requiredKeys = new List<string>
+        {
+            "base_month_price_id",
+            "base_year_price_id",
+            "pro_month_price_id",
+            "pro_year_price_id"
+        };
+        var priceIds = _dbSet.Where(s => requiredKeys.Contains(s.Key))
+            .Select(s => s.Value)
+            .ToList();
+        return priceIds;    
+    }
+
+
 }

@@ -20,7 +20,6 @@ public partial class ContactSubmission
     public string FullName { get; set; } = null!;
 
     [Column("email")]
-    [StringLength(255)]
     public string Email { get; set; } = null!;
 
     [Column("phone_number")]

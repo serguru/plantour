@@ -47,6 +47,8 @@ public class StripeService(
 
     public async Task<Session> CreateCheckoutSession()
     {
+        StripeConfiguration.ApiKey = _configuration["StripeSettings:SecretKey"] ?? throw new CustomException("Stripe secret key is not configured");
+
         string base_month_price_id = _settingsRepository.GetSettingByKey("base_month_price_id").Result.ToString() ?? throw new CustomException("Base month price ID is not configured");
         string base_year_price_id = _settingsRepository.GetSettingByKey("base_year_price_id").Result.ToString() ?? throw new CustomException("Base year price ID is not configured");
         string pro_month_price_id = _settingsRepository.GetSettingByKey("pro_month_price_id").Result.ToString() ?? throw new CustomException("Pro month price ID is not configured");

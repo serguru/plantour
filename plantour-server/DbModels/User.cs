@@ -15,7 +15,6 @@ public partial class User
     public Guid Id { get; set; }
 
     [Column("email")]
-    [StringLength(255)]
     public string Email { get; set; } = null!;
 
     [Column("password_hash")]
@@ -51,6 +50,12 @@ public partial class User
     [Column("stripe_customer_id")]
     public string? StripeCustomerId { get; set; }
 
+    [Column("stripe_price_id")]
+    public string? StripePriceId { get; set; }
+
+    [Column("stripe_price_ends_at", TypeName = "timestamp without time zone")]
+    public DateTime? StripePriceEndsAt { get; set; }
+
     [ForeignKey("AccessTypeId")]
     [InverseProperty("Users")]
     public virtual AccessType AccessType { get; set; } = null!;
@@ -64,18 +69,9 @@ public partial class User
     [InverseProperty("User")]
     public virtual ICollection<AiPrompt> AiPrompts { get; set; } = new List<AiPrompt>();
 
-    [InverseProperty("User")]
-    public virtual ICollection<CustomerSubscription> CustomerSubscriptions { get; set; } = new List<CustomerSubscription>();
-
-    [InverseProperty("User")]
-    public virtual ICollection<PaymentHistory> PaymentHistories { get; set; } = new List<PaymentHistory>();
-
     [ForeignKey("PlanId")]
     [InverseProperty("Users")]
     public virtual Plan Plan { get; set; } = null!;
-
-    [InverseProperty("User")]
-    public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 
     [InverseProperty("User")]
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();

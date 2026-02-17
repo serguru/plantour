@@ -19,7 +19,4 @@ public partial class StripeEventType
 
     [Column("notes")]
     public string? Notes { get; set; }
-
-    [InverseProperty("StripeEventType")]
-    public virtual ICollection<StripeWebhookEvent> StripeWebhookEvents { get; set; } = new List<StripeWebhookEvent>();
 }
