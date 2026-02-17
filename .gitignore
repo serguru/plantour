@@ -20,7 +20,7 @@ obj/
 _ReSharper*/
 
 # VS Code
-.vscode/
+#.vscode/
 
 # NuGet
 packages/

@@ -207,3 +207,8 @@ I have a web app Plantour, .Net API + PostgreSQL + Angular, which charges custom
 - listen to webhooks carefully;
 - depending on a webhook received do immediate changes in my db if necessary. For exampe, if I received "User payment is overdue" webhook I will go and gather all the necessary info from the Stripe andprobably make that user inactive or send them a message
 
+
+
+I have a web app with my own users management system. I have a users table and all the customers must have a record in that table. In regular case a user enters their login and password to have access to the app and the system verifies those login and password against a users record. And to facilitate users registration and login I want to provide them with an ability to do that through Google, Microsoft, Facebook etc. Explain in details what should be added to my app for this and how this will work. First of all I need to know how do I map their public network (i.e. Google) account to my internal users record.
+
+

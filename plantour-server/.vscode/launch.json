@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "plantour-server (F5)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/bin/Debug/net10.0/plantour-server.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "dev"
+            },
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": ".*",
+                "uriFormat": "http://localhost:5217/weatherforecast"
+            },
+            "logging": {
+                "moduleLoad": false
+            }
+        }
+    ]
+}

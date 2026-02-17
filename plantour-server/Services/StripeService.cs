@@ -71,21 +71,21 @@ public class StripeService(
                     Price = base_month_price_id,
                     Quantity = 1,
                 },
-                new SessionLineItemOptions
-                {
-                    Price = base_year_price_id,
-                    Quantity = 1,
-                },
+                // new SessionLineItemOptions
+                // {
+                //     Price = base_year_price_id,
+                //     Quantity = 1,
+                // },
                 new SessionLineItemOptions
                 {
                     Price = pro_month_price_id,
                     Quantity = 1,
                 },
-                new SessionLineItemOptions
-                {
-                    Price = pro_year_price_id,
-                    Quantity = 1,
-                }
+                // new SessionLineItemOptions
+                // {
+                //     Price = pro_year_price_id,
+                //     Quantity = 1,
+                // }
             },
             SuccessUrl = $"{plantour_app_origin}/{checkout_session_success_url}?session_id={{CHECKOUT_SESSION_ID}}",
             CancelUrl = $"{plantour_app_origin}/{checkout_session_cancel_url}",
@@ -96,6 +96,80 @@ public class StripeService(
         var session = await service.CreateAsync(options);
         return session;
     }
+
+
+    // public async Task<Session> CreateCheckoutSession()
+    // {
+    //     StripeConfiguration.ApiKey = _configuration["StripeSettings:SecretKey"] ?? throw new CustomException("Stripe secret key is not configured");
+
+    //     // Get the app origin and redirect URLs
+    //     string plantour_app_origin = _settingsRepository.GetSettingByKey("plantour_app_origin").Result.ToString()
+    //         ?? throw new CustomException("Plantour app origin is not configured");
+    //     string checkout_session_success_url = _settingsRepository.GetSettingByKey("checkout_session_success_url").Result.ToString()
+    //         ?? throw new CustomException("Checkout session success URL is not configured");
+    //     string checkout_session_cancel_url = _settingsRepository.GetSettingByKey("checkout_session_cancel_url").Result.ToString()
+    //         ?? throw new CustomException("Checkout session cancel URL is not configured");
+
+    //     // Create a session with price selection enabled
+    //     var options = new SessionCreateOptions
+    //     {
+    //         Mode = "subscription",
+    //         AutomaticPaymentMethods = new SessionAutomaticPaymentMethodsOptions
+    //         {
+    //             Enabled = true,
+    //         },
+    //         AllowPromotionCodes = true,
+    //         SuccessUrl = $"{plantour_app_origin}/{checkout_session_success_url}?session_id={{CHECKOUT_SESSION_ID}}",
+    //         CancelUrl = $"{plantour_app_origin}/{checkout_session_cancel_url}",
+
+    //         // Enable price selection to allow users to choose from multiple prices
+    //         ConsentCollection = new SessionConsentCollectionOptions
+    //         {
+    //             Terms = "none",
+    //         },
+    //         Consent = new SessionConsentOptions
+    //         {
+    //             Promotions = "auto",
+    //         },
+
+    //         // Configure price selection
+    //         PaymentMethodCollection = "always",
+
+    //         // Add your product IDs that you want to offer
+    //         // Each product should have multiple prices attached in your Stripe dashboard
+    //         LineItems = new List<SessionLineItemOptions>
+    //     {
+    //         new SessionLineItemOptions
+    //         {
+    //             // Specify just the product ID for the "Base" plan
+    //             // Stripe will show all available prices for this product
+    //             Price = null,
+    //             Product = "prod_base_plan_id", // Replace with your actual Base plan product ID
+    //             Adjustable = true,
+    //             Quantity = 1,
+    //         },
+    //         new SessionLineItemOptions
+    //         {
+    //             // Specify just the product ID for the "Pro" plan
+    //             // Stripe will show all available prices for this product
+    //             Price = null,
+    //             Product = "prod_pro_plan_id", // Replace with your actual Pro plan product ID
+    //             Adjustable = true,
+    //             Quantity = 1,
+    //         }
+    //     },
+
+    //         // Show only one quantity selector
+    //         PhoneNumberCollection = new SessionPhoneNumberCollectionOptions
+    //         {
+    //             Enabled = false,
+    //         },
+    //     };
+
+    //     var service = new SessionService();
+    //     var session = await service.CreateAsync(options);
+    //     return session;
+    // }
 
 
 

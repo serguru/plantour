@@ -19,6 +19,8 @@ public class StripeWebhookService(
     public async Task ProcessStripeEventAsync(Event stripeEvent)
     {
 
+        // TODO: put event id to cache and make sure we don't process the same event twice, since Stripe may retry sending the same event multiple times if it doesn't receive a successful response
+
         switch (stripeEvent.Type)
         {
             case Stripe.EventTypes.CustomerDeleted:
