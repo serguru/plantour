@@ -47,6 +47,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<PaymentStatus> PaymentStatuses { get; set; }
 
+    public virtual DbSet<PendingUser> PendingUsers { get; set; }
+
     public virtual DbSet<Plan> Plans { get; set; }
 
     public virtual DbSet<RecentLog> RecentLogs { get; set; }
@@ -274,6 +276,15 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("payment_statuses_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
+        modelBuilder.Entity<PendingUser>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pending_users_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Status).HasDefaultValueSql("'awaiting_payment'::text");
         });
 
         modelBuilder.Entity<Plan>(entity =>

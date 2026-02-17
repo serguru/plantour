@@ -289,7 +289,7 @@ insert into plans (name) values
 -----------------------------------------------------------------------
 create table users (
     id uuid not null primary key default gen_random_uuid(),
-    email varchar(255) not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    email text not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     password_hash bytea null,
     password_salt bytea null,
     first_name text,
@@ -539,7 +539,7 @@ create table contact_submissions (
     
     -- core data
     full_name text not null,
-    email varchar(255) not null check (email ~* '^[a-za-z0-9._%+-]+@[a-za-z0-9.-]+\.[a-za-z]{2,}$'),
+    email text not null check (email ~* '^[a-za-z0-9._%+-]+@[a-za-z0-9.-]+\.[a-za-z]{2,}$'),
     phone_number text,
     subject_category text,
     message_body text not null,
@@ -723,6 +723,15 @@ values
     ('guest_plan_duration_days', '14', 'integer'),
     ('email_confirmation_token_minutes', '60',  'integer'),
     ('user_token_expiration_minutes', '1440',  'integer'),
+    ('base_month_price_id', 'price_1T0cOKIGohUudrjhpqEx8orN',  'string'),
+    ('base_year_price_id', 'price_1T0pwbIGohUudrjhr6f3wB0e',  'string'),
+    ('pro_month_price_id', 'price_1T0cQSIGohUudrjhZGYzUs3A',  'string'),
+    ('pro_year_price_id', 'price_1T0cQuIGohUudrjhNWhqNMDT',  'string'),
+    ('checkout_session_success_url', 'profile',  'string'),
+    ('checkout_cancel_success_url', 'profile',  'string'),
+
+    ('plantour_app_origin', 'http://localhost:4203',  'string'),
+
     ('user_refresh_token_expiration_days', '30',  'integer');
     
     
@@ -770,8 +779,35 @@ create table plantour.stripe_webhook_events (
     id uuid primary key default gen_random_uuid(),
     stripe_event_id text not null unique,
     stripe_event_type_id uuid not null references stripe_event_types(id),
-    object_id varchar(255),
+    object_id text,
     data jsonb not null,
     processed boolean default false,
     created_at timestamp default (now() at time zone 'utc')
 );
+
+-- pending users
+-- stores data on not yet added to the users table users
+-- used when a new user triggers a Checkout Session webhook but with no "paid" status
+create table plantour.pending_users (
+    id uuid primary key default gen_random_uuid(),
+    email text not null,
+    first_name text,
+    last_name text,
+    checkout_session_id text not null unique,
+    payment_intent_id text not null,
+    subscription_id text,
+    plan_id text,
+    customer_id text,
+    metadata jsonb,
+    created_at timestamp default (now() at time zone 'utc'),
+    expires_at timestamp,
+    status text default 'awaiting_payment'
+);
+
+-- indexes for faster lookups
+create index idx_pending_users_checkout_session_id on plantour.pending_users(checkout_session_id);
+create index idx_pending_users_payment_intent_id on plantour.pending_users(payment_intent_id);
+create index idx_pending_users_status on plantour.pending_users(status);
+create index idx_pending_users_expires_at on plantour.pending_users(expires_at);
+
+

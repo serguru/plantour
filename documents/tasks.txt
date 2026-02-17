@@ -198,3 +198,12 @@ I have a web app Plantour, .Net API + PostgreSQL + Angular, which charges custom
    at PlantourApi.Middleware.CurrentUserMiddleware.InvokeAsync(HttpContext context) in C:\Projects\plantour\plantour-server\Middleware\CurrentUserMiddleware.cs:line 100
    at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
    at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)}
+
+
+
+
+   You said "Manually checking Stripe for each new user is error-prone and not scalable". Ok. And what about this: "I can miss any webhook any time". It means I NEVER can rely on my db records. I ALWAYS must check Stripe's records before getting any decision. So I am going to use this approach: 
+- never save any Stripe related data in my DB except Stripe CustomerId;
+- listen to webhooks carefully;
+- depending on a webhook received do immediate changes in my db if necessary. For exampe, if I received "User payment is overdue" webhook I will go and gather all the necessary info from the Stripe andprobably make that user inactive or send them a message
+

@@ -11,6 +11,7 @@ import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
 import { AppButton } from '../button/button-component';
 
+// TODO: while signing up check for a Stripe pending user and their payments and subscriptions
 @Component({
   selector: 'app-sign-up',
   standalone: true,

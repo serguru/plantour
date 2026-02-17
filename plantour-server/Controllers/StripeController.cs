@@ -13,13 +13,27 @@ namespace plantour_server.Controllers;
 [Route("api/[controller]")]
 public class StripeController : ControllerBase
 {
-    private readonly IStripeService _service;
+    private readonly IStripeService _stripeService;
     private readonly StripeSettings _stripeSettings;
+    private readonly ILogger<StripeController> _logger;
+    private readonly IStripeWebhookService _webhookService;
+    private readonly string _webhookSecret;
+    private readonly IConfiguration _configuration;
 
-    public StripeController(IStripeService service, IOptions<StripeSettings> stripeSettings)
+    public StripeController(
+        IStripeService stripeService,
+        IOptions<StripeSettings> stripeSettings,
+        ILogger<StripeController> logger,
+        IStripeWebhookService webhookService,
+        IConfiguration configuration
+        )
     {
-        _service = service;
+        _logger = logger;
+        _stripeService = stripeService;
         _stripeSettings = stripeSettings.Value;
+        _webhookService = webhookService;
+        _webhookSecret = configuration["StripeSettings:WebhookSigningSecret"]!;
+        _configuration = configuration;
     }
 
     [HttpGet]
@@ -27,10 +41,44 @@ public class StripeController : ControllerBase
     [Route("create-portal-session")]
     public async Task<ActionResult<PortalSessionResponse>> CreatePortalSession()
     {
-        var result = await _service.CreatePortalSession();
+        var result = await _stripeService.CreatePortalSession();
 
         return Ok(result);
     }
 
+    [HttpPost]
+    [Route("webhook")]
+    public async Task<IActionResult> HandleWebhook()
+    {
+        var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+
+        try
+        {
+            var stripeEvent = EventUtility.ConstructEvent(
+                json,
+                Request.Headers["Stripe-Signature"],
+                _webhookSecret
+            );
+
+            _logger.LogInformation($"Received Stripe webhook: {stripeEvent.Type}");
+            await _webhookService.ProcessStripeEventAsync(stripeEvent);
+
+            return Ok();
+        }
+        catch (StripeException e)
+        {
+            _logger.LogError(e, "Error processing Stripe webhook");
+            return BadRequest();
+        }
+    }
+
+
+    // Create checkout session for subscription
+    [HttpPost("create-checkout-session")]
+    public async Task<IActionResult> CreateCheckoutSession()
+    {
+        var session = await _stripeService.CreateCheckoutSession();
+        return Ok(new { sessionId = session.Id, url = session.Url });
+    }
 
 }

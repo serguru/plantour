@@ -342,6 +342,8 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.CustomerSubscriptionRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.PendingUsersRepository>();
+   
 
     builder.Services.AddScoped<HttpCurrentUser>();
 
