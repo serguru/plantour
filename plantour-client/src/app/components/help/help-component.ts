@@ -19,6 +19,8 @@ import { SeoService } from '../../services/seo-service';
 
   // TODO: make sure all the section/subsection pages are properly SSR and indexed by SEO crawlers. This is important for users to find help content through search engines.
 
+  // TODO: add info on social login (Google + Facebook)
+
 @Component({
   selector: 'app-help',
   standalone: true,

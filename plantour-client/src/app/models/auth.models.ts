@@ -23,6 +23,12 @@ export interface SignInRequest {
   password: string;
 }
 
+export interface SocialSignInRequest {
+  provider: 'google' | 'facebook';
+  googleIdToken?: string;
+  facebookAccessToken?: string;
+}
+
 export interface SignUpParticipantRequest {
   email: string;
   firstName?: string;

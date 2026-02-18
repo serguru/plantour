@@ -5,8 +5,7 @@ namespace plantour_server.DTOs;
 // TODO: fix issues with password update process
 public class UpdatePasswordRequest
 {
-    [Required]
-    public string CurrentPassword { get; set; } = null!;
+    public string? CurrentPassword { get; set; }
 
     [Required]
     [MinLength(6)]

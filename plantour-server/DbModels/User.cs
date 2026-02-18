@@ -8,6 +8,8 @@ namespace plantour_server.DbModels;
 
 [Table("users", Schema = "plantour")]
 [Index("Email", Name = "users_email_key", IsUnique = true)]
+[Index("FacebookUserId", Name = "users_facebook_user_id_key", IsUnique = true)]
+[Index("GoogleSub", Name = "users_google_sub_key", IsUnique = true)]
 public partial class User
 {
     [Key]
@@ -31,6 +33,12 @@ public partial class User
 
     [Column("phone")]
     public string? Phone { get; set; }
+
+    [Column("google_sub")]
+    public string? GoogleSub { get; set; }
+
+    [Column("facebook_user_id")]
+    public string? FacebookUserId { get; set; }
 
     [Column("notes")]
     public string? Notes { get; set; }

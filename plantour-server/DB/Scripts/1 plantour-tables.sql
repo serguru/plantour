@@ -298,6 +298,8 @@ create table users (
     first_name text,
     last_name text,
     phone text,
+    google_sub text unique,
+    facebook_user_id text unique,
     notes text,
     created_at timestamp not null default (now() at time zone 'utc'),
     discount int not null check(discount >= 0) default 0,

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, Inject, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -9,6 +9,8 @@ import { UsersService, UserDto } from '../../../../services/users-service';
 import { MessagesService } from '../../../../services/messages-service';
 import { AppButton } from '../../../button/button-component';
 import { PortalSessionResponseDto, StripeService } from '../../../../services/stripe-service';
+import { SocialAuthService } from '../../../../services/social-auth-service';
+import { ENVIRONMENT, EnvironmentConfig } from '../../../../../environment.token';
 
 // TODO: move c hange password form to a separate component and use it in both profile and auth pages
 // TODO: add styles to custom portal link
@@ -29,6 +31,11 @@ import { PortalSessionResponseDto, StripeService } from '../../../../services/st
 export class ProfileComponent implements OnInit {
   componentId = 'profile';
   customerPortalUrl = signal<string | null>(null);
+  hasPassword = signal(true);
+  hasGoogleLinked = signal(false);
+  hasFacebookLinked = signal(false);
+  isGoogleBusy = signal(false);
+  isFacebookBusy = signal(false);
 
   profileForm: FormGroup;
   passwordForm: FormGroup;
@@ -39,9 +46,12 @@ export class ProfileComponent implements OnInit {
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
   private stripeService = inject(StripeService);
+  private socialAuthService = inject(SocialAuthService);
   private fb = inject(FormBuilder);
 
-  constructor() {
+  constructor(
+    @Inject(ENVIRONMENT) private environment: EnvironmentConfig
+  ) {
     this.profileForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       firstName: [''],
@@ -91,12 +101,140 @@ export class ProfileComponent implements OnInit {
       })
     ).subscribe({
       next: (profile: UserDto) => {
+        this.hasPassword.set(profile.hasPassword);
+        this.hasGoogleLinked.set(profile.hasGoogleLinked);
+        this.hasFacebookLinked.set(profile.hasFacebookLinked);
+
+        const currentPasswordControl = this.passwordForm.get('currentPassword');
+        if (this.hasPassword()) {
+          currentPasswordControl?.setValidators([Validators.required]);
+        } else {
+          currentPasswordControl?.clearValidators();
+          currentPasswordControl?.setValue('');
+        }
+        currentPasswordControl?.updateValueAndValidity();
+
         this.profileForm.patchValue({
           email: profile.email,
           firstName: profile.firstName || '',
           lastName: profile.lastName || '',
           phone: profile.phone || ''
         });
+      }
+    });
+  }
+
+  onConnectGoogle(): void {
+    if (!this.environment.googleClientId) {
+      this.messagesService.showWarning('Google Login', 'Google Client ID is not configured.');
+      return;
+    }
+
+    this.isGoogleBusy.set(true);
+
+    this.socialAuthService.loadGoogleSdk()
+      .then(() => {
+        const googleSdk = (window as any).google;
+
+        googleSdk.accounts.id.initialize({
+          client_id: this.environment.googleClientId!,
+          use_fedcm_for_button: true,
+          callback: (response: { credential?: string }) => {
+            const idToken = response?.credential;
+            if (!idToken) {
+              this.isGoogleBusy.set(false);
+              this.messagesService.showWarning('Google Login', 'Google authentication was cancelled.');
+              return;
+            }
+
+            this.usersService.linkSocialProvider('google', idToken).pipe(
+              catchError((error) => {
+                const errorMsg = error.error?.message || 'Failed to link Google account.';
+                this.messagesService.showError('Google Link Failed', errorMsg);
+                return EMPTY;
+              }),
+              finalize(() => this.isGoogleBusy.set(false))
+            ).subscribe({
+              next: (profile: UserDto) => {
+                this.hasGoogleLinked.set(profile.hasGoogleLinked);
+                this.messagesService.showInfo('Google Linked', 'Google login has been connected to your account.');
+              }
+            });
+          }
+        });
+
+        googleSdk.accounts.id.prompt();
+      })
+      .catch(() => {
+        this.isGoogleBusy.set(false);
+        this.messagesService.showWarning('Google Login', 'Google SDK failed to load.');
+      });
+  }
+
+  onResetGoogle(): void {
+    this.isGoogleBusy.set(true);
+
+    this.usersService.unlinkSocialProvider('google').pipe(
+      catchError((error) => {
+        const errorMsg = error.error?.message || 'Failed to disconnect Google login.';
+        this.messagesService.showError('Google Reset Failed', errorMsg);
+        return EMPTY;
+      }),
+      finalize(() => this.isGoogleBusy.set(false))
+    ).subscribe({
+      next: (profile: UserDto) => {
+        this.hasGoogleLinked.set(profile.hasGoogleLinked);
+        this.messagesService.showInfo('Google Disconnected', 'Google login has been disconnected.');
+      }
+    });
+  }
+
+  async onConnectFacebook(): Promise<void> {
+    if (!this.environment.facebookAppId) {
+      this.messagesService.showWarning('Facebook Login', 'Facebook App ID is not configured.');
+      return;
+    }
+
+    this.isFacebookBusy.set(true);
+
+    try {
+      await this.socialAuthService.loadFacebookSdk(this.environment.facebookAppId);
+      const accessToken = await this.socialAuthService.loginWithFacebook();
+
+      this.usersService.linkSocialProvider('facebook', accessToken).pipe(
+        catchError((error) => {
+          const errorMsg = error.error?.message || 'Failed to link Facebook account.';
+          this.messagesService.showError('Facebook Link Failed', errorMsg);
+          return EMPTY;
+        }),
+        finalize(() => this.isFacebookBusy.set(false))
+      ).subscribe({
+        next: (profile: UserDto) => {
+          this.hasFacebookLinked.set(profile.hasFacebookLinked);
+          this.messagesService.showInfo('Facebook Linked', 'Facebook login has been connected to your account.');
+        }
+      });
+    } catch (error: any) {
+      this.isFacebookBusy.set(false);
+      const errorMsg = error?.message || 'Facebook authentication failed. Please try again.';
+      this.messagesService.showError('Facebook Login Failed', errorMsg);
+    }
+  }
+
+  onResetFacebook(): void {
+    this.isFacebookBusy.set(true);
+
+    this.usersService.unlinkSocialProvider('facebook').pipe(
+      catchError((error) => {
+        const errorMsg = error.error?.message || 'Failed to disconnect Facebook login.';
+        this.messagesService.showError('Facebook Reset Failed', errorMsg);
+        return EMPTY;
+      }),
+      finalize(() => this.isFacebookBusy.set(false))
+    ).subscribe({
+      next: (profile: UserDto) => {
+        this.hasFacebookLinked.set(profile.hasFacebookLinked);
+        this.messagesService.showInfo('Facebook Disconnected', 'Facebook login has been disconnected.');
       }
     });
   }
@@ -145,7 +283,9 @@ export class ProfileComponent implements OnInit {
 
     const { currentPassword, newPassword } = this.passwordForm.value;
 
-    this.usersService.updatePassword(currentPassword, newPassword).pipe(
+    const effectiveCurrentPassword = this.hasPassword() ? currentPassword : '';
+
+    this.usersService.updatePassword(effectiveCurrentPassword, newPassword).pipe(
       catchError((error) => {
         // Check if the error is due to incorrect current password
         const errorMessage = error.error?.message || '';

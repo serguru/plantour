@@ -130,6 +130,9 @@ try
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
     builder.Services.Configure<JwtSettings>(jwtSettings);
 
+    // Configure Social auth settings
+    builder.Services.Configure<SocialAuthSettings>(builder.Configuration.GetSection("SocialAuthSettings"));
+
     // Configure Brevo settings
     builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("BrevoSettings"));
 

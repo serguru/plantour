@@ -106,6 +106,54 @@
             </div>
         </form>
 
+        <div class="form-divider"></div>
+
+        <div>
+            <h3 class="form-section-title">Social Login</h3>
+
+            <div class="pale-prompt">Google login: {{ hasGoogleLinked() ? 'Connected' : 'Not connected' }}</div>
+            <div class="form-actions">
+                @if (hasGoogleLinked()) {
+                <app-button
+                    type="button"
+                    [label]="'Reset Google'"
+                    [icon]="'pi pi-refresh'"
+                    [disabled]="isGoogleBusy()"
+                    (click)="onResetGoogle()"
+                />
+                } @else {
+                <app-button
+                    type="button"
+                    [label]="'Connect Google'"
+                    [icon]="'pi pi-google'"
+                    [disabled]="isGoogleBusy()"
+                    (click)="onConnectGoogle()"
+                />
+                }
+            </div>
+
+            <div class="pale-prompt">Facebook login: {{ hasFacebookLinked() ? 'Connected' : 'Not connected' }}</div>
+            <div class="form-actions">
+                @if (hasFacebookLinked()) {
+                <app-button
+                    type="button"
+                    [label]="'Reset Facebook'"
+                    [icon]="'pi pi-refresh'"
+                    [disabled]="isFacebookBusy()"
+                    (click)="onResetFacebook()"
+                />
+                } @else {
+                <app-button
+                    type="button"
+                    [label]="'Connect Facebook'"
+                    [icon]="'pi pi-facebook'"
+                    [disabled]="isFacebookBusy()"
+                    (click)="onConnectFacebook()"
+                />
+                }
+            </div>
+        </div>
+
         <!-- Divider -->
         <div class="form-divider"></div>
 
@@ -114,9 +162,10 @@
             [formGroup]="passwordForm"
             (ngSubmit)="onUpdatePassword()"
         >
-            <h3 class="form-section-title">Change Password</h3>
+            <h3 class="form-section-title">{{ hasPassword() ? 'Change Password' : 'Set Password' }}</h3>
 
             <!-- Current Password Field -->
+            @if (hasPassword()) {
             <div class="form-field">
                 <label for="currentPassword">Current Password <span class="required">*</span></label>
                 <p-password
@@ -135,6 +184,7 @@
                 </small>
                 }
             </div>
+            }
 
             <!-- New Password Field -->
             <div class="form-field">

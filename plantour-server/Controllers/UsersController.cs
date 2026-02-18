@@ -28,7 +28,7 @@ public class UsersController : ControllerBase
         [AllowAnonymous]
         public async Task<ActionResult<AuthResponse>> SignUpAdmin([FromBody] SignUpRequest request)
         {
-                // TODO: take into account that only active users can sign up
+                // TODO: take into account that only active users can sign in
                 // TODO: remove temporary accounts as necessary
                 // TODO: add email verification step
                 // TODO: add "I want to receive promotional emails" checkbox
@@ -41,8 +41,17 @@ public class UsersController : ControllerBase
         [AllowAnonymous]
         public async Task<ActionResult<AuthResponse>> SignInAdmin([FromBody] SignInRequest request)
         {
-               // throw new NotImplementedException("Not implemented yet");
+                // throw new NotImplementedException("Not implemented yet");
                 var response = await _authService.SignInAsync(request);
+                return Ok(response);
+        }
+
+        // TODO: investigate and fix possible issues with Facebook login
+        [HttpPost("admin/social/signin")]
+        [AllowAnonymous]
+        public async Task<ActionResult<AuthResponse>> SignInAdminSocial([FromBody] SocialSignInRequest request)
+        {
+                var response = await _authService.SignInAdminSocialAsync(request);
                 return Ok(response);
         }
 
@@ -151,6 +160,22 @@ public class UsersController : ControllerBase
         {
                 await _authService.UpdatePasswordAsync(request);
                 return Ok(new { updated = true });
+        }
+
+        [HttpPost("profile/social/link")]
+        [Authorize]
+        public async Task<ActionResult<UserDto>> LinkSocialProvider([FromBody] SocialSignInRequest request)
+        {
+                var profile = await _authService.LinkSocialProviderAsync(request);
+                return Ok(profile);
+        }
+
+        [HttpDelete("profile/social/{provider}")]
+        [Authorize]
+        public async Task<ActionResult<UserDto>> UnlinkSocialProvider([FromRoute] string provider)
+        {
+                var profile = await _authService.UnlinkSocialProviderAsync(provider);
+                return Ok(profile);
         }
 
         #endregion

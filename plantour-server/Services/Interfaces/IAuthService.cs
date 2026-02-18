@@ -7,6 +7,7 @@ public interface IUsersService
     // Admin authentication
     Task<AuthResponse> SignUpAsync(SignUpRequest request);
     Task<AuthResponse> SignInAsync(SignInRequest request);
+    Task<AuthResponse> SignInAdminSocialAsync(SocialSignInRequest request);
 
     // Participant authentication
     Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request);
@@ -25,6 +26,8 @@ public interface IUsersService
     Task<UserDto> GetProfileAsync();
     Task<UserDto> UpdateProfileAsync(UpdateProfileRequest request);
     Task UpdatePasswordAsync(UpdatePasswordRequest request);
+    Task<UserDto> LinkSocialProviderAsync(SocialSignInRequest request);
+    Task<UserDto> UnlinkSocialProviderAsync(string provider);
 
     Task<LandingDto> GetLandingAsync();
 }

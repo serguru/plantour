@@ -22,6 +22,22 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
             .FirstOrDefaultAsync(u => u.Id == userId);
     }
 
+    public async Task<User?> GetByGoogleSubAsync(string googleSub)
+    {
+        return await _dbSet
+            .Include(x => x.AccessType)
+            .Include(x => x.Plan)
+            .FirstOrDefaultAsync(u => u.GoogleSub != null && u.GoogleSub == googleSub);
+    }
+
+    public async Task<User?> GetByFacebookUserIdAsync(string facebookUserId)
+    {
+        return await _dbSet
+            .Include(x => x.AccessType)
+            .Include(x => x.Plan)
+            .FirstOrDefaultAsync(u => u.FacebookUserId != null && u.FacebookUserId == facebookUserId);
+    }
+
     public async Task<User?> GetByStripeCustomerIdAsync(string stripeCustomerId)
     {
         return await _context.Users
