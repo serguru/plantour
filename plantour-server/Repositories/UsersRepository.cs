@@ -38,17 +38,4 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
             .FirstOrDefaultAsync(u => u.FacebookUserId != null && u.FacebookUserId == facebookUserId);
     }
 
-    public async Task<User?> GetByStripeCustomerIdAsync(string stripeCustomerId)
-    {
-        return await _context.Users
-            .FirstOrDefaultAsync(u => u.StripeCustomerId == stripeCustomerId);
-    }
-
-    public async Task<User?> GetByStripeCustomerIdWithSubscriptionsAsync(string stripeCustomerId)
-    {
-        return await _context.Users
-            .FirstOrDefaultAsync(u => u.StripeCustomerId == stripeCustomerId);
-    }
-
-
 }

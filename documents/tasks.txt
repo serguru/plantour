@@ -213,3 +213,109 @@ I have a web app with my own users management system. I have a users table and a
 
 
 Currently the Plantour app uses an email/password approach for registering and loggin in users, see DB\Scripts\1 plantour-tables.sql "users" table and the corresponding API .Net code. Add all the necessary backend and frontend code for providing users with an ability to register and loggin in via Google and Facebook. Find and explore the offical Google and Facebook documentation, guides and requirements how to do that first. Take into account that a user can switch to email/pasword after registering with, say, Google. Generate a social-login.md file and put there detailed information on 1) how the added code works 2) what and where should I do to make it working, for example, to take access API keys from Google. When working on the frontend follow the already used approaches for existing pages. Use classes from styles.scss instead of creating new ones.
+
+
+I need this logic from Stripe:
+
+- A user selects "PriceA/monthly" on my website. I DO NOT KNOW THEIR EMAIL AT THIS MOMENT!!!
+- They redirected to Stripe checkout and enter xxx@yyyy.com email and 111 creadit card
+- Stripe did not find a customer with xxx@yyyy.com email and created a new one WITHOUT ANY SUBSCRIPTION CREATION!!!. The customer balance after this will be "PriceA/monthly".
+- Anotger user selects "PriceA/monthly" on my website
+- They redirected to Stripe checkout and enter THE SAME xxx@yyyy.com email and 111 OR DIFFERENT creadit card
+- Stripe found a customer with xxx@yyyy.com and DID NOT CREATE a new one
+- Stripe added a new money to the user balance. Now the user balance is 2 x "PriceA/monthly".
+
+Give me .Net code implementing this logic. DO NOT SUGGEST INCLUDING EMAIL INTO CheckoutSession BECAUSE I DO NOT KNOW IT!!!
+
+
+Can Stripe support this logic:
+
+- A Stripe customer pays money without connection to anything like a subscription, the amount just added to the customer balance. Same for any other payments including recurring ones - they just added to the balance.
+
+- When a subscription created or the next subscription period started the corresponding amount is subtracted from the customer balance 
+
+- Stripe automatically tracks payments and subscriptions and notifies a customer asking to pay if necessary
+
+
+
+
+
+
+- If the customer has a subscription with recurring payments Stripe adds those money to the customer's balance
+- The customer can have only one subscription or no subscriptions at a time
+- The customer cannot cancel or downgrade a subscription before the paid subscription period end date
+- The customer can upgrade the subscription before the paid subscription period end date
+- Stripe will track start date and end date when the subscription was active and the customer must pay for that periods
+
+
+
+
+Failed to create Checkout Session: {
+  "error": {
+    "code": "platform_account_required",
+    "doc_url": "https://stripe.com/docs/error-codes/platform-account-required",
+    "message": "Only Stripe Connect platforms can work with other accounts. If you specified a client_id parameter, make sure it's correct. If you need to setup a Stripe Connect platform, you can do so at https://dashboard.stripe.com/account/applications/settings.",
+    "type": "invalid_request_error"
+  }
+}
+
+Failed to create Checkout Session: {
+  "error": {
+    "code": "parameter_missing",
+    "doc_url": "https://stripe.com/docs/error-codes/parameter-missing",
+    "message": "Can only apply an application_fee_amount when the PaymentIntent is attempting a direct payment (using an OAuth key or Stripe-Account header) or destination payment (using `transfer_data[destination]`).",
+    "param": "application_fee_amount",
+    "request_log_url": "https://dashboard.stripe.com/acct_1T0cMGIGohUudrjh/test/workbench/logs?object=req_OkvpVUbNoG6Ma8",
+    "type": "invalid_request_error"
+  }
+}
+
+Failed to create Checkout Session: {
+  "error": {
+    "code": "parameter_missing",
+    "doc_url": "https://stripe.com/docs/error-codes/parameter-missing",
+    "message": "Can only apply an application_fee_amount when the PaymentIntent is attempting a direct payment (using an OAuth key or Stripe-Account header) or destination payment (using `transfer_data[destination]`).",
+    "param": "application_fee_amount",
+    "request_log_url": "https://dashboard.stripe.com/acct_1T0cMGIGohUudrjh/test/workbench/logs?object=req_mLYtdXAuz87dQY",
+    "type": "invalid_request_error"
+  }
+}
+
+
+Failed to create Checkout Session: {
+  "error": {
+    "code": "parameter_unknown",
+    "doc_url": "https://stripe.com/docs/error-codes/parameter-unknown",
+    "message": "Received unknown parameter: custom_fields[0][numeric][minimum]",
+    "param": "custom_fields[0][numeric][minimum]",
+    "request_log_url": "https://dashboard.stripe.com/acct_1T0cMGIGohUudrjh/test/workbench/logs?object=req_6VnvO2Zmd9mk12",
+    "type": "invalid_request_error"
+  }
+}
+
+Failed to create Checkout Session: {
+  "error": {
+    "code": "parameter_unknown",
+    "doc_url": "https://stripe.com/docs/error-codes/parameter-unknown",
+    "message": "Received unknown parameter: line_items[0][price_data][custom_unit_amount]",
+    "param": "line_items[0][price_data][custom_unit_amount]",
+    "request_log_url": "https://dashboard.stripe.com/acct_1T0cMGIGohUudrjh/test/workbench/logs?object=req_oOI4gydnHZGUNU",
+    "type": "invalid_request_error"
+  }
+}
+
+
+Failed to create Checkout Session: {
+  "error": {
+    "message": "Invalid string: {:custom_unit_amount=\u003E{:minimum=\u003E\"200\", :maximum=\u003E\"20000\", :enabled=\u003E\"true\", :preset=\u003E\"400\"}, :unit_amount=\u003E\"499\", :currency=\u003E\"usd\", :product_data=\u003E{:name=\u003E\"Plantour Subscription\"}}",
+    "param": "line_items[0][price]",
+    "request_log_url": "https://dashboard.stripe.com/acct_1T0cMGIGohUudrjh/test/workbench/logs?object=req_Y0FBpbAqziOQy7",
+    "type": "invalid_request_error"
+  }
+}
+
+
+Explore src\app\components\features\terms\terms-component\terms-component.ts component. Add Refund policy section after Paid plans... . Describe the Plantour policy with regard refunds:
+
+1) The active subscription cannot be canceled or downgraded. The money paid for the active subscription period is not refunded.
+2) The money paid for the period after the current sobscription can be refunded. 

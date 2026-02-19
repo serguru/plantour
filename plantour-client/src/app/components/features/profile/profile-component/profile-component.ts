@@ -8,7 +8,6 @@ import { catchError, finalize, EMPTY } from 'rxjs';
 import { UsersService, UserDto } from '../../../../services/users-service';
 import { MessagesService } from '../../../../services/messages-service';
 import { AppButton } from '../../../button/button-component';
-import { PortalSessionResponseDto, StripeService } from '../../../../services/stripe-service';
 import { SocialAuthService } from '../../../../services/social-auth-service';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../../../environment.token';
 
@@ -45,7 +44,6 @@ export class ProfileComponent implements OnInit {
 
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
-  private stripeService = inject(StripeService);
   private socialAuthService = inject(SocialAuthService);
   private fb = inject(FormBuilder);
 
@@ -68,11 +66,6 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProfile();
-    this.stripeService.getCustomerPortalUrl().subscribe({
-      next: (response: PortalSessionResponseDto) => {
-        this.customerPortalUrl.set(response.url); 
-      }
-    }); 
 
   }
 

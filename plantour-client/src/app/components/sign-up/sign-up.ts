@@ -13,7 +13,7 @@ import { AppButton } from '../button/button-component';
 import { SocialAuthService } from '../../services/social-auth-service';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 
-// TODO: while signing up check for a Stripe pending user and their payments and subscriptions
+// TODO: while signing up check for a PaymentProcessor pending user and their payments and subscriptions
 @Component({
   selector: 'app-sign-up',
   standalone: true,

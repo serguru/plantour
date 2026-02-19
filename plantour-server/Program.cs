@@ -139,8 +139,8 @@ try
     // Configure Gemini settings
     builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
 
-    // Configure Stripe settings
-    builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("StripeSettings"));
+    // Configure PaymentProcessor settings
+    builder.Services.Configure<PaymentProcessorSettings>(builder.Configuration.GetSection("PaymentProcessorSettings"));
 
     var jwtConfig = jwtSettings.Get<JwtSettings>();
     var key = Encoding.UTF8.GetBytes(jwtConfig!.SecretKey);
@@ -300,8 +300,6 @@ try
     builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
-    builder.Services.AddScoped<IStripeService, StripeService>();
-    builder.Services.AddScoped<IStripeWebhookService, StripeWebhookService>();
 
     builder.Services.AddScoped<AccessCodeGenerator>();
 
@@ -342,7 +340,6 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.CustomerSubscriptionRepository>();
    
 
     builder.Services.AddScoped<HttpCurrentUser>();

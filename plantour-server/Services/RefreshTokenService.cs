@@ -2,7 +2,11 @@ using plantour_server.DbModels;
 using plantour_server.Repositories;
 using PlantourApi.Models;
 
+// TODO: an access token must contain info on user's plan and price
+
 namespace plantour_server.Services;
+
+// TODO: before refreshing the token it is necessary to check with PaymentProcessor if the user's subscription is still active, since the user may have canceled the subscription or the payment may have failed, and we don't want to keep refreshing the token for users who are no longer active
 
 public class RefreshTokenService : IRefreshTokenService
 {

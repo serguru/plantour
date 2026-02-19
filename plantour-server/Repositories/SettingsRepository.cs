@@ -6,6 +6,12 @@ using PlantourApi.Models;
 
 namespace plantour_server.Repositories;
 
+// string base_month_price_id = _settingsRepository.GetSettingByKey("base_month_price_id").Result.ToString() ?? throw new CustomException("Base month price ID is not configured");
+// string base_year_price_id = _settingsRepository.GetSettingByKey("base_year_price_id").Result.ToString() ?? throw new CustomException("Base year price ID is not configured");
+// string pro_month_price_id = _settingsRepository.GetSettingByKey("pro_month_price_id").Result.ToString() ?? throw new CustomException("Pro month price ID is not configured");
+// string pro_year_price_id = _settingsRepository.GetSettingByKey("pro_year_price_id").Result.ToString() ?? throw new CustomException("Pro year price ID is not configured");
+
+
 public class SettingsRepository(PlantourContext context) : GenericRepository<Setting>(context)
 {
 
@@ -58,7 +64,7 @@ public class SettingsRepository(PlantourContext context) : GenericRepository<Set
         var priceIds = _dbSet.Where(s => requiredKeys.Contains(s.Key))
             .Select(s => s.Value)
             .ToList();
-        return priceIds;    
+        return priceIds;
     }
 
 

@@ -16,36 +16,6 @@ insert into plantour.currencies (name) values
 ('GBP'),
 ('CHF');
 
-create table plantour.payment_statuses (
-    id uuid not null primary key default gen_random_uuid(),
-    name text not null unique,
-    notes text
-);
--- insert into plantour.payment_statuses (name) values
--- (''),
--- ('');
-
-create table plantour.billing_reasons (
-    id uuid not null primary key default gen_random_uuid(),
-    name text not null unique,
-    notes text
-);
--- insert into plantour.billing_reasons (name) values
--- (''),
--- ('');
-
-
-create table plantour.stripe_event_types (
-    id uuid not null primary key default gen_random_uuid(),
-    name text not null unique,
-    notes text
-);
--- insert into plantour.stripe_event_types (name) values
--- (''),
--- ('');
-
-
-
 -----------------------------------------------------------------------
 -- COMMUNICATION TYPES
 -----------------------------------------------------------------------
@@ -267,10 +237,6 @@ create table plantour.plans (
     id uuid primary key default gen_random_uuid(),
     name text not null unique,
     description text,
-    stripe_product_id text,
-    stripe_price_id_monthly text,
-    stripe_price_id_yearly text,
-    features jsonb,
     active boolean default true,
     created_at timestamp not null default (now() at time zone 'utc'),
     updated_at timestamp default (now() at time zone 'utc')
@@ -287,9 +253,6 @@ insert into plans (name) values
 -----------------------------------------------------------------------
 -- USERS
 -----------------------------------------------------------------------
--- TODO: if stripe_price_id has a value - plan_id must be ignored
--- and a user access must be determined depending on stripe_price_id
--- and mapping from stripe_price_id to the plan is done using price_id values in settings
 create table users (
     id uuid not null primary key default gen_random_uuid(),
     email text not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
@@ -304,10 +267,7 @@ create table users (
     created_at timestamp not null default (now() at time zone 'utc'),
     discount int not null check(discount >= 0) default 0,
     plan_id uuid not null references plans(id),
-    access_type_id uuid not null references access_types(id),
-    stripe_customer_id text,
-    stripe_price_id text, 
-    stripe_price_ends_at timestamp
+    access_type_id uuid not null references access_types(id)
 );
 
 --create table transactions (
@@ -711,10 +671,10 @@ values
     ('trial_plan_name', 'Starter', 'string'),
     ('base_plan_name', 'Family', 'string'),
     ('pro_plan_name', 'Expedition', 'string'),
-    ('base_monthly_price_url', 'https://buy.stripe.com/test_9B65kEg1K1CP2Dm2mddMI02', 'string'),
-    ('base_yearly_price_url', 'https://buy.stripe.com/test_6oUfZi7veepBfq88KBdMI03', 'string'),
-    ('pro_monthly_price_url', 'https://buy.stripe.com/test_5kQ4gAcPychtguc4uldMI00', 'string'),
-    ('pro_yearly_price_url', 'https://buy.stripe.com/test_5kQ28s3eYa9l7XG1i9dMI01', 'string'),
+    ('base_monthly_price_url', 'add one', 'string'),
+    ('base_yearly_price_url', 'add one', 'string'),
+    ('pro_monthly_price_url', 'add one', 'string'),
+    ('pro_yearly_price_url', 'add one', 'string'),
     ('base_plan_monthly_cents', '499', 'integer'),
     ('base_plan_yearly_cents', '2999', 'integer'),
     ('pro_plan_monthly_cents', '1499', 'integer'),
@@ -744,7 +704,3 @@ create table plantour.sitemap_urls (
     created_at timestamp not null default (now() at time zone 'utc')
 );
 
--- create table plantour.customer_subscriptions (
--- create table plantour.payment_history (
--- create table plantour.stripe_webhook_events (
--- create table plantour.pending_users (
