@@ -1,0 +1,35 @@
+Plantour is a SaaS web app for travelers. It allows you to plan, organize, prepare, and manage trips. Users can use pre-populated packing list templates or ask the AI ​​to recommend packing lists based on travel conditions and weather forecasts. Groups can create shared packing lists and assign a person responsible for each item. PDF packing lists and trip reports are supported.
+
+I plan to make money with this app and your company by selling subscriptions for the right to use the app.
+
+
+
+
+
+
+My paid web service has different customer subscriptions: USD5 per month, USD30 per year Light, USD30 per month, USD90 per year Expedition. Customers can pause their subscriptions any time. I have DB stored data on any customer's residency (actual and billing addresses they entered, IP addresses etc.). I live in Vancouver BC Canada. 
+
+Question 1. How do I bill customers with right taxes, including before and after my annual revenue exceeded CAD30000
+
+
+
+Question 2. 
+
+What will I have to do to file taxes to Canada and to BC? Give me detailed step by step instructions how to prepare, calculate and send taxes to the Governments.
+
+
+
+Question 3. Is there any type of software which can help me with both questions?
+
+
+
+There are two kind of taxes: Sales Tax and Income Tax. I pay my personal Income Tax yearly. If I have any revenue from my business I will add that revenue to my Income Tax as well as my expenses for that business to lower the amount I owe. And Is it correct that: until CAD 30000 a year reached I do not need pay taxes to Canada and until CAD 10000 a year reached I do not need pay taxes to BC?
+
+Let's assume I received the very first payment from my customer on July 1, 2026. The business works and customers pay from time to time. 
+
+Sales Tax Quarters (GST & PST)QuarterPeriod CoveredPayment & Filing Due Date
+Q1January 1 – March 31 April 30
+Q2April 1 – June 30 July 31
+Q3July 1 – September 30 October 31
+Q4October 1 – December 31 January 31
+

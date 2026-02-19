@@ -14,7 +14,10 @@ interface Plan {
   annualPrice?: string;
   description: string;
   isPopular?: boolean;
-  buttonText: string;
+  monthlyButtonText: string;
+  annualButtonText?: string;
+  monthlyPriceLink?: string;
+  annualPriceLink?: string;
   features: PlanFeature[];
 }
 
@@ -83,7 +86,7 @@ export class LandingNewUserComponent implements OnInit {
         name: data.trialPlanName || "",
         monthlyPrice: "0",
         description: 'For small trips and light packers',
-        buttonText: 'Start Free',
+        monthlyButtonText: 'Join Free',
         features: [
           { label: 'Duration', value: 'Unlimited', highlight: true },
           { label: 'Max Items', value: '10 per trip' },
@@ -99,7 +102,10 @@ export class LandingNewUserComponent implements OnInit {
         annualPrice: data.basePlanYearly || "",
         description: 'Perfect for families and small groups',
         isPopular: true,
-        buttonText: 'Choose Base',
+        monthlyButtonText: 'Start monthly',
+        annualButtonText: 'Start yearly',
+        monthlyPriceLink: data.baseMonthlyPriceUrl || "",
+        annualPriceLink: data.baseYearlyPriceUrl || "",  
         features: [
           { label: 'Duration', value: 'Unlimited' },
           { label: 'Max Items', value: 'Unlimited', highlight: true },
@@ -114,7 +120,10 @@ export class LandingNewUserComponent implements OnInit {
         monthlyPrice: data.proPlanMonthly || "",
         annualPrice: data.proPlanYearly || "",
         description: 'Ideal for large groups and expeditions',
-        buttonText: 'Go Unlimited',
+        monthlyButtonText: 'Go monthly',
+        annualButtonText: 'Go yearly',
+        monthlyPriceLink: data.proMonthlyPriceUrl || "",
+        annualPriceLink: data.proYearlyPriceUrl || "",  
         features: [
           { label: 'Duration', value: 'Unlimited' },
           { label: 'Max Items', value: 'Unlimited' },

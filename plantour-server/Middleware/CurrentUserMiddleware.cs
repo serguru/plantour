@@ -51,6 +51,7 @@ public class CurrentUserMiddleware
                     currentUser.AccessTypeId = user.AccessTypeId;
                     currentUser.PlanName = user.Plan?.Name;
                     currentUser.AccessTypeName = user.AccessType?.Name;
+                    currentUser.StripeCustomerId = user.StripeCustomerId;
                     currentUser.EmailConfirmed = await emailConfirmationService.IsEmailConfirmedAsync(user.Id);
 
                     _logger.LogDebug("User authenticated successfully: {UserId} ({Email})", user.Id, user.Email);

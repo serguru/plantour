@@ -28,6 +28,9 @@ export interface UserDto {
   lastName?: string | null;
   phone?: number | null;
   notes?: string | null;
+  hasPassword: boolean;
+  hasGoogleLinked: boolean;
+  hasFacebookLinked: boolean;
 }
 
 export interface LandingDto
@@ -41,6 +44,10 @@ export interface LandingDto
     proPlanMonthly: string;
     proPlanYearly: string;
     guestPlanDurationDays: string;
+    baseMonthlyPriceUrl: string;
+    baseYearlyPriceUrl: string;
+    proMonthlyPriceUrl: string;
+    proYearlyPriceUrl: string;
 }
 
 
@@ -174,6 +181,31 @@ export class UsersService {
           this.applyAuthResponse(r);
         })
       );
+  }
+
+  socialSignIn(provider: 'google' | 'facebook', token: string): Observable<AuthResponse> {
+    const payload = provider === 'google'
+      ? { provider, googleIdToken: token }
+      : { provider, facebookAccessToken: token };
+
+    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/social/signin`, payload)
+      .pipe(
+        tap((r: AuthResponse) => {
+          this.applyAuthResponse(r);
+        })
+      );
+  }
+
+  linkSocialProvider(provider: 'google' | 'facebook', token: string): Observable<UserDto> {
+    const payload = provider === 'google'
+      ? { provider, googleIdToken: token }
+      : { provider, facebookAccessToken: token };
+
+    return this.http.post<UserDto>(`${this.apiUrl}/api/users/profile/social/link`, payload);
+  }
+
+  unlinkSocialProvider(provider: 'google' | 'facebook'): Observable<UserDto> {
+    return this.http.delete<UserDto>(`${this.apiUrl}/api/users/profile/social/${provider}`);
   }
 
   registerAdmin(data: SignUpRequest): Observable<AuthResponse> {

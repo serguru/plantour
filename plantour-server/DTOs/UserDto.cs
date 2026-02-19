@@ -8,5 +8,8 @@ public class UserDto
     public string? LastName { get; set; }
     public string? Phone { get; set; }
     public string? Notes { get; set; }
+    public bool HasPassword { get; set; }
+    public bool HasGoogleLinked { get; set; }
+    public bool HasFacebookLinked { get; set; }
 
 }

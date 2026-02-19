@@ -14,7 +14,9 @@ public class InvitationService(
     IBrevoEmailClient brevoEmailClient,
     IAdminsParticipantService adminsParticipantService,
     IConfiguration configuration,
-    HttpCurrentUser httpCurrentUser) : IInvitationService
+    HttpCurrentUser httpCurrentUser,
+    SettingsRepository settingsRepository
+    ) : IInvitationService
 {
     private readonly InvitationsRepository _invitationsRepository = invitationsRepository;
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
@@ -23,15 +25,13 @@ public class InvitationService(
     private readonly IBrevoEmailClient _brevoEmailClient = brevoEmailClient;
     private readonly IAdminsParticipantService _adminsParticipantService = adminsParticipantService;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
+    private readonly SettingsRepository _settingsRepository = settingsRepository;
 
 
     public async Task<SendInvitationEmailResponse> SendInvitationEmailByIdAsync(Guid adminParticipantId, string accessCode, string accessToken, string refreshToken)
     {
-        var baseUrl = _configuration["PlantourAppOrigin"];
-        if (string.IsNullOrWhiteSpace(baseUrl))
-        {
-            throw new CustomException("PlantourAppOrigin is not configured");
-        }
+        var baseUrl = _settingsRepository.GetSettingByKey("plantour_app_origin").Result.ToString() ?? throw new CustomException("Plantour app origin is not configured");
+        
 
         var adminParticipant = await _adminsParticipantRepository.GetByIdAsync(adminParticipantId);
 

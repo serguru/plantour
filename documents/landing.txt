@@ -1,0 +1,38 @@
+Explore the existing LandingNewUserComponent. It requires enhancements.
+
+USE 100% MOBILE FIRST APPROACH
+
+1. The features list under Why Plantour must not be so boring
+2. The very first plan Guest must be removed. Instead create a section right after features list with "Try to pack your things" button and explanation under it "Prefilled test data. No registration required."
+3.Three plan cards. Base should be marked Most popular but not in the current ugly way.
+4. Plan Buttons "Start free", "Choose Base" and "Go Unlimited" must be in the same horizontal row (except if mobile cards are ond under another)
+5. Price values must not be so aggressive as they are now. Make them looking softer.
+
+
+
+Most attarctive Plantour features
+
+Planning
+Organization
+Packing 
+AI
+Templates
+Sharing
+
+* **Planning**
+  Create trips with clear structure, timelines, and participants, all in one place. Nothing important is missed before you go.
+
+* **Organization**
+  Keep travelers, items, and bags neatly structured and easy to manage. Everything has its place and is always up to date.
+
+* **Packing**
+  Build smart packing lists and track what’s packed and what’s missing. Know exactly who packs what and where it goes.
+
+* **AI**
+  Get intelligent suggestions based on your trip, destination, and past experience. Pack faster and avoid forgetting essentials.
+
+* **Templates**
+  Reuse proven trip and packing setups for future journeys. Start in seconds instead of planning from scratch.
+
+* **Sharing**
+  Collaborate with others in real time on the same trip. Everyone sees the latest changes instantly.

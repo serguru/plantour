@@ -2,7 +2,11 @@ using plantour_server.DbModels;
 using plantour_server.Repositories;
 using PlantourApi.Models;
 
+// TODO: an access token must contain info on user's plan and price
+
 namespace plantour_server.Services;
+
+// TODO: before refreshing the token it is necessary to check with PaymentProcessor if the user's subscription is still active, since the user may have canceled the subscription or the payment may have failed, and we don't want to keep refreshing the token for users who are no longer active
 
 public class RefreshTokenService : IRefreshTokenService
 {
@@ -61,10 +65,20 @@ public class RefreshTokenService : IRefreshTokenService
         existingToken.ReplacedByTokenHash = newTokenResult.TokenHash;
         await _refreshTokenRepository.UpdateAsync(existingToken);
 
+        var existingTokenExpiresAtUtc = DateTime.SpecifyKind(existingToken.ExpiresAt, DateTimeKind.Utc);
+        var cappedExpiresAtUtc = newTokenResult.ExpiresAtUtc <= existingTokenExpiresAtUtc
+            ? newTokenResult.ExpiresAtUtc
+            : existingTokenExpiresAtUtc;
+
+        var cappedTokenResult = cappedExpiresAtUtc == newTokenResult.ExpiresAtUtc
+            ? newTokenResult
+            : new RefreshTokenResult(newTokenResult.Token, newTokenResult.TokenHash, cappedExpiresAtUtc, newTokenResult.CreatedAtUtc);
+
         var role = Enum.TryParse<UserRole>(existingToken.Role, out var parsedRole)
             ? parsedRole
             : UserRole.Public;
-        await CreateAsync(existingToken.UserId, role, existingToken.AdminId, newTokenResult, revokedByIp);
+            
+        await CreateAsync(existingToken.UserId, role, existingToken.AdminId, cappedTokenResult, revokedByIp);
     }
 
     public async Task RevokeAsync(string refreshToken, string? revokedByIp)

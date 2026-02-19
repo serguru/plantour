@@ -4,6 +4,18 @@ create schema plantour;
 
 set search_path to plantour, public;
 
+create table plantour.currencies (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique
+);
+insert into plantour.currencies (name) values
+('USD'),
+('CAD'),
+('EUR'),
+('JPY'),
+('GBP'),
+('CHF');
+
 -----------------------------------------------------------------------
 -- COMMUNICATION TYPES
 -----------------------------------------------------------------------
@@ -221,10 +233,13 @@ insert into transaction_types (name) values
 -----------------------------------------------------------------------
 -- PLAN
 -----------------------------------------------------------------------
-create table plans (
-    id uuid not null primary key default gen_random_uuid(),
+create table plantour.plans (
+    id uuid primary key default gen_random_uuid(),
     name text not null unique,
-    notes text null
+    description text,
+    active boolean default true,
+    created_at timestamp not null default (now() at time zone 'utc'),
+    updated_at timestamp default (now() at time zone 'utc')
 );
 insert into plans (name) values
 ('NoPlan'),
@@ -233,17 +248,21 @@ insert into plans (name) values
 ('Company'),
 ('Expedition');
 
+
+
 -----------------------------------------------------------------------
 -- USERS
 -----------------------------------------------------------------------
 create table users (
     id uuid not null primary key default gen_random_uuid(),
-    email varchar(255) not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    email text not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     password_hash bytea null,
     password_salt bytea null,
     first_name text,
     last_name text,
     phone text,
+    google_sub text unique,
+    facebook_user_id text unique,
     notes text,
     created_at timestamp not null default (now() at time zone 'utc'),
     discount int not null check(discount >= 0) default 0,
@@ -251,14 +270,7 @@ create table users (
     access_type_id uuid not null references access_types(id)
 );
 
-create table transactions (
-    id uuid not null primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
-    transaction_type_id uuid not null references transaction_types(id),
-    amount bigint not null,
-    notes text,
-    created_at timestamp not null default (now() at time zone 'utc')
-);
+--create table transactions (
 
 create table admins_participants (
     id uuid not null primary key default gen_random_uuid(),
@@ -487,7 +499,7 @@ create table contact_submissions (
     
     -- core data
     full_name text not null,
-    email varchar(255) not null check (email ~* '^[a-za-z0-9._%+-]+@[a-za-z0-9.-]+\.[a-za-z]{2,}$'),
+    email text not null check (email ~* '^[a-za-z0-9._%+-]+@[a-za-z0-9.-]+\.[a-za-z]{2,}$'),
     phone_number text,
     subject_category text,
     message_body text not null,
@@ -659,6 +671,10 @@ values
     ('trial_plan_name', 'Starter', 'string'),
     ('base_plan_name', 'Family', 'string'),
     ('pro_plan_name', 'Expedition', 'string'),
+    ('base_monthly_price_url', 'add one', 'string'),
+    ('base_yearly_price_url', 'add one', 'string'),
+    ('pro_monthly_price_url', 'add one', 'string'),
+    ('pro_yearly_price_url', 'add one', 'string'),
     ('base_plan_monthly_cents', '499', 'integer'),
     ('base_plan_yearly_cents', '2999', 'integer'),
     ('pro_plan_monthly_cents', '1499', 'integer'),
@@ -667,6 +683,15 @@ values
     ('guest_plan_duration_days', '14', 'integer'),
     ('email_confirmation_token_minutes', '60',  'integer'),
     ('user_token_expiration_minutes', '1440',  'integer'),
+    ('base_month_price_id', 'price_1T0cOKIGohUudrjhpqEx8orN',  'string'),
+    ('base_year_price_id', 'price_1T0pwbIGohUudrjhr6f3wB0e',  'string'),
+    ('pro_month_price_id', 'price_1T0cQSIGohUudrjhZGYzUs3A',  'string'),
+    ('pro_year_price_id', 'price_1T0cQuIGohUudrjhNWhqNMDT',  'string'),
+    ('checkout_session_success_url', 'profile',  'string'),
+    ('checkout_session_cancel_url', 'profile',  'string'),
+
+    ('plantour_app_origin', 'http://localhost:4203',  'string'),
+
     ('user_refresh_token_expiration_days', '30',  'integer');
     
     

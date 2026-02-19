@@ -1,0 +1,30 @@
+Plantour is a web app to provide travelers with an ability to plan, organize, prepare, conduct, store and reuse tours. It allows to create travellers, items and bags lists, pack items, download as pdf Pack LIsts and Trip Reports, ask AI to recommend items depending on the trip condidtions, create a list of shared items and assign a responsible traveler, exchange with trip related comments.
+
+
+Estimate the idea with Plantour monetization. 
+One trip payment idea is not considered
+Do not ofer any other ways to earn money, just estimate the idea
+
+Plans:
+
+To simplify the assessment:
+- Guest - $0/year, prefilled with test data db, no registration needed, limit 10 items and 2 participants per trip, 5 questions to AI for 2 weeks, no PDF download, automatically expires in two weeks if user did not convert to a Trial plan
+
+
+Plans requiring admin registartion
+(invited by admin participants do not need to register and free)
+
+To keep users which do not want to pay:
+- Trial - $0/year, limit 10 items and 2 participants per trip, PDF download, 30 AI items suggestions per month
+
+For singles, families or small groups
+- Light - $9.99/month or $49.99/year, limit 5 participants per trip, PDF download, 10 AI items suggestions per day
+
+
+For large groups
+- Expedition - $29.99/month or $149.99/year, PDF download, 100 AI items suggestions per day, more for additional pay
+
+
+
+Give me the detailed analysis and suggest enchancements.
+

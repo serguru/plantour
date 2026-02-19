@@ -25,9 +25,13 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<ApiVisit> ApiVisits { get; set; }
 
+    public virtual DbSet<BillingReason> BillingReasons { get; set; }
+
     public virtual DbSet<CommunicationType> CommunicationTypes { get; set; }
 
     public virtual DbSet<ContactSubmission> ContactSubmissions { get; set; }
+
+    public virtual DbSet<Currency> Currencies { get; set; }
 
     public virtual DbSet<ErrorLog> ErrorLogs { get; set; }
 
@@ -37,6 +41,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Log> Logs { get; set; }
 
+    public virtual DbSet<PaymentStatus> PaymentStatuses { get; set; }
+
     public virtual DbSet<Plan> Plans { get; set; }
 
     public virtual DbSet<RecentLog> RecentLogs { get; set; }
@@ -45,6 +51,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<SitemapUrl> SitemapUrls { get; set; }
 
+    public virtual DbSet<StripeEventType> StripeEventTypes { get; set; }
+
     public virtual DbSet<TemperatureRange> TemperatureRanges { get; set; }
 
     public virtual DbSet<TemplateThing> TemplateThings { get; set; }
@@ -52,8 +60,6 @@ public partial class PlantourContext : DbContext
     public virtual DbSet<ThingCategory> ThingCategories { get; set; }
 
     public virtual DbSet<ThingTemplate> ThingTemplates { get; set; }
-
-    public virtual DbSet<Transaction> Transactions { get; set; }
 
     public virtual DbSet<TransactionType> TransactionTypes { get; set; }
 
@@ -149,6 +155,13 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
         });
 
+        modelBuilder.Entity<BillingReason>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("billing_reasons_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
         modelBuilder.Entity<CommunicationType>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("communication_types_pkey");
@@ -162,6 +175,13 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+        });
+
+        modelBuilder.Entity<Currency>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("currencies_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
         modelBuilder.Entity<ErrorLog>(entity =>
@@ -203,11 +223,21 @@ public partial class PlantourContext : DbContext
                 .HasComment("timestamp when the log event was recorded");
         });
 
+        modelBuilder.Entity<PaymentStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("payment_statuses_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
         modelBuilder.Entity<Plan>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("plans_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
         });
 
         modelBuilder.Entity<RecentLog>(entity =>
@@ -232,6 +262,13 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LastModified).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.Priority).HasDefaultValue(50);
+        });
+
+        modelBuilder.Entity<StripeEventType>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("stripe_event_types_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
         modelBuilder.Entity<TemperatureRange>(entity =>
@@ -272,20 +309,6 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.TemperatureRanges).WithMany(p => p.ThingTemplates)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("thing_templates_temperature_ranges_id_fkey");
-        });
-
-        modelBuilder.Entity<Transaction>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("transactions_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-
-            entity.HasOne(d => d.TransactionType).WithMany(p => p.Transactions)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("transactions_transaction_type_id_fkey");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Transactions).HasConstraintName("transactions_user_id_fkey");
         });
 
         modelBuilder.Entity<TransactionType>(entity =>

@@ -8,6 +8,8 @@ namespace plantour_server.DbModels;
 
 [Table("users", Schema = "plantour")]
 [Index("Email", Name = "users_email_key", IsUnique = true)]
+[Index("FacebookUserId", Name = "users_facebook_user_id_key", IsUnique = true)]
+[Index("GoogleSub", Name = "users_google_sub_key", IsUnique = true)]
 public partial class User
 {
     [Key]
@@ -15,7 +17,6 @@ public partial class User
     public Guid Id { get; set; }
 
     [Column("email")]
-    [StringLength(255)]
     public string Email { get; set; } = null!;
 
     [Column("password_hash")]
@@ -33,6 +34,12 @@ public partial class User
     [Column("phone")]
     public string? Phone { get; set; }
 
+    [Column("google_sub")]
+    public string? GoogleSub { get; set; }
+
+    [Column("facebook_user_id")]
+    public string? FacebookUserId { get; set; }
+
     [Column("notes")]
     public string? Notes { get; set; }
 
@@ -47,6 +54,15 @@ public partial class User
 
     [Column("access_type_id")]
     public Guid AccessTypeId { get; set; }
+
+    [Column("stripe_customer_id")]
+    public string? StripeCustomerId { get; set; }
+
+    [Column("stripe_price_id")]
+    public string? StripePriceId { get; set; }
+
+    [Column("stripe_price_ends_at", TypeName = "timestamp without time zone")]
+    public DateTime? StripePriceEndsAt { get; set; }
 
     [ForeignKey("AccessTypeId")]
     [InverseProperty("Users")]
@@ -64,9 +80,6 @@ public partial class User
     [ForeignKey("PlanId")]
     [InverseProperty("Users")]
     public virtual Plan Plan { get; set; } = null!;
-
-    [InverseProperty("User")]
-    public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 
     [InverseProperty("User")]
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();

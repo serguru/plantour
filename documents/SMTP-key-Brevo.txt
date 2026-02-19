@@ -1,0 +1,13 @@
+xsmtpsib-26e58b5b6841ce047d0d1f387f5e739e9e950a49c9b3b95167a54306f5f298b0-gmWrzQwZt6fiqj5M
+
+
+Your SMTP Settings
+
+SMTP Server
+smtp-relay.brevo.com
+
+Port
+587
+
+Login
+a0e0a4001@smtp-brevo.com

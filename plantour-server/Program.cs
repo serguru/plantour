@@ -130,11 +130,17 @@ try
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
     builder.Services.Configure<JwtSettings>(jwtSettings);
 
+    // Configure Social auth settings
+    builder.Services.Configure<SocialAuthSettings>(builder.Configuration.GetSection("SocialAuthSettings"));
+
     // Configure Brevo settings
     builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("BrevoSettings"));
 
     // Configure Gemini settings
     builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
+
+    // Configure PaymentProcessor settings
+    builder.Services.Configure<PaymentProcessorSettings>(builder.Configuration.GetSection("PaymentProcessorSettings"));
 
     var jwtConfig = jwtSettings.Get<JwtSettings>();
     var key = Encoding.UTF8.GetBytes(jwtConfig!.SecretKey);
@@ -294,6 +300,7 @@ try
     builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
+
     builder.Services.AddScoped<AccessCodeGenerator>();
 
     // TODO: what is AddHttpClient?
@@ -333,6 +340,7 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
+   
 
     builder.Services.AddScoped<HttpCurrentUser>();
 

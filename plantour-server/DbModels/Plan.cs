@@ -17,8 +17,29 @@ public partial class Plan
     [Column("name")]
     public string Name { get; set; } = null!;
 
-    [Column("notes")]
-    public string? Notes { get; set; }
+    [Column("description")]
+    public string? Description { get; set; }
+
+    [Column("stripe_product_id")]
+    public string? StripeProductId { get; set; }
+
+    [Column("stripe_price_id_monthly")]
+    public string? StripePriceIdMonthly { get; set; }
+
+    [Column("stripe_price_id_yearly")]
+    public string? StripePriceIdYearly { get; set; }
+
+    [Column("features", TypeName = "jsonb")]
+    public string? Features { get; set; }
+
+    [Column("active")]
+    public bool? Active { get; set; }
+
+    [Column("created_at", TypeName = "timestamp without time zone")]
+    public DateTime CreatedAt { get; set; }
+
+    [Column("updated_at", TypeName = "timestamp without time zone")]
+    public DateTime? UpdatedAt { get; set; }
 
     [InverseProperty("Plan")]
     public virtual ICollection<User> Users { get; set; } = new List<User>();

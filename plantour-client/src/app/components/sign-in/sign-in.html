@@ -128,5 +128,27 @@
       >Sign Up here</button>
     </div>
 
+    @if (isAdmin) {
+    <div class="pale-prompt">or continue with</div>
+    <div class="form-actions">
+      <app-button
+        type="button"
+        [label]="'Continue with Google'"
+        [icon]="'pi pi-google'"
+        [disabled]="isLoading"
+        (click)="onSignInWithGoogle()"
+      />
+    </div>
+    <div class="form-actions">
+      <app-button
+        type="button"
+        [label]="'Continue with Facebook'"
+        [icon]="'pi pi-facebook'"
+        [disabled]="isLoading"
+        (click)="onSignInWithFacebook()"
+      />
+    </div>
+    }
+
   </form>
 </div>
