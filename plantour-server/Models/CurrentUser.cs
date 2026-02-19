@@ -26,7 +26,6 @@ public class CurrentUser
     public bool IsAuthenticated => Role != UserRole.Public;
     public bool IsAdmin => Role == UserRole.Admin;
     public bool IsParticipant => Role == UserRole.Participant;
-    public string? StripeCustomerId { get; set; }
 
     public void RaiseIfNotAuthenticated()
     {

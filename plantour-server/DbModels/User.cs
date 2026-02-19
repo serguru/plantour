@@ -55,15 +55,6 @@ public partial class User
     [Column("access_type_id")]
     public Guid AccessTypeId { get; set; }
 
-    [Column("stripe_customer_id")]
-    public string? StripeCustomerId { get; set; }
-
-    [Column("stripe_price_id")]
-    public string? StripePriceId { get; set; }
-
-    [Column("stripe_price_ends_at", TypeName = "timestamp without time zone")]
-    public DateTime? StripePriceEndsAt { get; set; }
-
     [ForeignKey("AccessTypeId")]
     [InverseProperty("Users")]
     public virtual AccessType AccessType { get; set; } = null!;

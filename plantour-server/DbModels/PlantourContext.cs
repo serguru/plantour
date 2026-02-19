@@ -25,8 +25,6 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<ApiVisit> ApiVisits { get; set; }
 
-    public virtual DbSet<BillingReason> BillingReasons { get; set; }
-
     public virtual DbSet<CommunicationType> CommunicationTypes { get; set; }
 
     public virtual DbSet<ContactSubmission> ContactSubmissions { get; set; }
@@ -41,8 +39,6 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Log> Logs { get; set; }
 
-    public virtual DbSet<PaymentStatus> PaymentStatuses { get; set; }
-
     public virtual DbSet<Plan> Plans { get; set; }
 
     public virtual DbSet<RecentLog> RecentLogs { get; set; }
@@ -50,8 +46,6 @@ public partial class PlantourContext : DbContext
     public virtual DbSet<Setting> Settings { get; set; }
 
     public virtual DbSet<SitemapUrl> SitemapUrls { get; set; }
-
-    public virtual DbSet<StripeEventType> StripeEventTypes { get; set; }
 
     public virtual DbSet<TemperatureRange> TemperatureRanges { get; set; }
 
@@ -155,13 +149,6 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
         });
 
-        modelBuilder.Entity<BillingReason>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("billing_reasons_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-        });
-
         modelBuilder.Entity<CommunicationType>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("communication_types_pkey");
@@ -223,13 +210,6 @@ public partial class PlantourContext : DbContext
                 .HasComment("timestamp when the log event was recorded");
         });
 
-        modelBuilder.Entity<PaymentStatus>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("payment_statuses_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-        });
-
         modelBuilder.Entity<Plan>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("plans_pkey");
@@ -262,13 +242,6 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LastModified).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.Priority).HasDefaultValue(50);
-        });
-
-        modelBuilder.Entity<StripeEventType>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("stripe_event_types_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
         modelBuilder.Entity<TemperatureRange>(entity =>
