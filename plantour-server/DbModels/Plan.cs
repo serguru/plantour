@@ -20,18 +20,6 @@ public partial class Plan
     [Column("description")]
     public string? Description { get; set; }
 
-    [Column("stripe_product_id")]
-    public string? StripeProductId { get; set; }
-
-    [Column("stripe_price_id_monthly")]
-    public string? StripePriceIdMonthly { get; set; }
-
-    [Column("stripe_price_id_yearly")]
-    public string? StripePriceIdYearly { get; set; }
-
-    [Column("features", TypeName = "jsonb")]
-    public string? Features { get; set; }
-
     [Column("active")]
     public bool? Active { get; set; }
 

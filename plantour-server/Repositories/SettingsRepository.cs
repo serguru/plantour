@@ -52,7 +52,7 @@ public class SettingsRepository(PlantourContext context) : GenericRepository<Set
         };
     }
 
-    public async Task<List<string>> GetStripePriceIds()
+    public async Task<List<string>> GetPriceIds()
     {
         var requiredKeys = new List<string>
         {
