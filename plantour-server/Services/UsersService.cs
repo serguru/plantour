@@ -163,6 +163,7 @@ public class UsersService(
         };
     }
 
+    // TODO: ensure social login works from a phone
     public async Task<UserDto> LinkSocialProviderAsync(SocialSignInRequest request)
     {
         var provider = request.Provider.Trim().ToLowerInvariant();

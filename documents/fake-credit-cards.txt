@@ -1,0 +1,16 @@
+Valid Visa debit card (recommended)	
+4000 0566 5566 5556
+
+Valid card without 3DS	
+4242 4242 4242 4242
+
+Valid card with 3DS	
+4000 0038 0000 0446
+
+Declined card	
+4000 0000 0000 0002
+
+Successful initially, declined on renewal	
+4000 0027 6000 3184
+
+checkout.payment.initiated

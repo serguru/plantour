@@ -73,7 +73,17 @@
           <span class="period">/ month</span>
         </div>
 
-        <div class="cta-row">
+        <!-- <div class="cta-row">
+          <app-button
+            class="join-button"
+            [class.outline]="!plan.isPopular"
+            (click)="paddleService.joinPrice(plan.monthlyPriceLink!)"
+            [label]="plan.monthlyButtonText"
+          >
+          </app-button>
+        </div> -->
+
+        <!-- <div class="cta-row">
           <a
             class="cta-button"
             [class.outline]="!plan.isPopular"
@@ -83,7 +93,22 @@
           >
             {{ plan.monthlyButtonText }}
           </a>
+        </div> -->
+
+        <div class="cta-row">
+          <a
+            role="button"
+            tabindex="0"
+            class="cta-button"
+            [class.outline]="!plan.isPopular"
+            (click)="paddleService.joinPrice(plan.monthlyPriceLink!)"
+            (keydown.enter)="paddleService.joinPrice(plan.monthlyPriceLink!)"
+            (keydown.space)="$event.preventDefault(); paddleService.joinPrice(plan.monthlyPriceLink!)"
+          >
+            {{ plan.monthlyButtonText }}
+          </a>
         </div>
+
 
 
         <div class="price-row secondary">
@@ -100,15 +125,28 @@
         @if(plan.annualPrice) {
         <div class="cta-row">
           <a
+            role="button"
+            tabindex="0"
             class="cta-button"
             [class.outline]="!plan.isPopular"
-            [href]="plan.annualPriceLink"
-            target="_blank"
-            rel="noopener noreferrer"
+            (click)="paddleService.joinPrice(plan.annualPriceLink!)"
+            (keydown.enter)="paddleService.joinPrice(plan.annualPriceLink!)"
+            (keydown.space)="$event.preventDefault(); paddleService.joinPrice(plan.annualPriceLink!)"
           >
             {{ plan.annualButtonText }}
           </a>
         </div>
+
+        <!-- <div class="cta-row">
+          <app-button
+            class="join-button"
+            [class.outline]="!plan.isPopular"
+            (click)="paddleService.joinPrice(plan.annualPriceLink!)"
+            [label]="plan.annualButtonText!"
+          >
+          </app-button>
+        </div> -->
+
         }
 
 

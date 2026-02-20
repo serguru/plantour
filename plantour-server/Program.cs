@@ -139,9 +139,6 @@ try
     // Configure Gemini settings
     builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
 
-    // Configure PaymentProcessor settings
-    builder.Services.Configure<PaymentProcessorSettings>(builder.Configuration.GetSection("PaymentProcessorSettings"));
-
     var jwtConfig = jwtSettings.Get<JwtSettings>();
     var key = Encoding.UTF8.GetBytes(jwtConfig!.SecretKey);
 

@@ -1,6 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LandingDto, UsersService } from '../../services/users-service';
+import { PaddleService } from '../../services/paddle-service';
+import { AppButton } from '../button/button-component';
 
 interface PlanFeature {
   label: string;
@@ -35,6 +37,9 @@ interface LandingFeature {
   styleUrl: './landing-new-user.component.scss'
 })
 export class LandingNewUserComponent implements OnInit {
+
+  paddleService = inject(PaddleService);
+
   slogan = 'Pack smart. Travel better.';
   subSlogan = 'Never forget an item again. Organize your packing with smart lists, categories, and seamless group coordination. Get AI-powered packing recommendations tailored to your destination.';
 
@@ -46,6 +51,7 @@ export class LandingNewUserComponent implements OnInit {
       this.setPlans(data);
     });
   }
+
 
   featureList: LandingFeature[] = [
     {
@@ -105,7 +111,7 @@ export class LandingNewUserComponent implements OnInit {
         monthlyButtonText: 'Start monthly',
         annualButtonText: 'Start yearly',
         monthlyPriceLink: data.baseMonthlyPriceUrl || "",
-        annualPriceLink: data.baseYearlyPriceUrl || "",  
+        annualPriceLink: data.baseYearlyPriceUrl || "",
         features: [
           { label: 'Duration', value: 'Unlimited' },
           { label: 'Max Items', value: 'Unlimited', highlight: true },
@@ -123,7 +129,7 @@ export class LandingNewUserComponent implements OnInit {
         monthlyButtonText: 'Go monthly',
         annualButtonText: 'Go yearly',
         monthlyPriceLink: data.proMonthlyPriceUrl || "",
-        annualPriceLink: data.proYearlyPriceUrl || "",  
+        annualPriceLink: data.proYearlyPriceUrl || "",
         features: [
           { label: 'Duration', value: 'Unlimited' },
           { label: 'Max Items', value: 'Unlimited' },

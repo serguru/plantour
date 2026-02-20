@@ -319,3 +319,9 @@ Explore src\app\components\features\terms\terms-component\terms-component.ts com
 
 1) The active subscription cannot be canceled or downgraded. The money paid for the active subscription period is not refunded.
 2) The money paid for the period after the current sobscription can be refunded. 
+
+
+
+See an empty ProcessSuccessfulPaymentAsync method. Write REST API code for getting customer data from Paddle. See PaddleSettings for the base url and api key. Include Authorization Bearer + ApiKey header. Use Base Url + "/customers/{customer_id}" for GET request. See the expected response JSON commented inside the ProcessSuccessfulPaymentAsync. Get and return customer's email.
+
+
