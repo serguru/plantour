@@ -11,6 +11,7 @@ export class PaddleService {
   paddle = signal<Paddle | undefined>(undefined);
   private readonly paddleInitPromise: Promise<void>;
   private readonly defaultFrameStyle = 'width: 100%; min-width: 312px; background-color: transparent; border: none;';
+  private checkoutEventHandler?: (eventName: string) => void;
 
   constructor(
     private http: HttpClient,
@@ -26,7 +27,16 @@ export class PaddleService {
   private async init() {
     const instance = await initializePaddle({
       environment: this.environment.environment === "production" ? 'production' : 'sandbox',
-      token: 'test_c4c0e48b001d35f302e3ef618a6'
+      token: 'test_c4c0e48b001d35f302e3ef618a6',
+      eventCallback: (event) => {
+        const eventName = event?.name;
+
+        if (!eventName) {
+          return;
+        }
+
+        this.checkoutEventHandler?.(eventName);
+      }
     });
 
     if (!instance) {
@@ -40,6 +50,10 @@ export class PaddleService {
     void this.openOverlayCheckout(priceId, email);
   }
 
+  setCheckoutEventHandler(handler: ((eventName: string) => void) | undefined): void {
+    this.checkoutEventHandler = handler;
+  }
+
   activeSubscriptionExists(email: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.environment.apiUrl}/api/paddle/active-subscription-exists`, {
       params: { email }
@@ -50,7 +64,6 @@ export class PaddleService {
     priceId: string;
     frameTarget: string;
     email?: string;
-    successUrl?: string;
   }): Promise<void> {
 
     const paddle = await this.getPaddleOrThrow();
@@ -72,7 +85,6 @@ export class PaddleService {
         frameTarget: options.frameTarget,
         frameInitialHeight: 450,
         frameStyle: this.defaultFrameStyle,
-        successUrl: options.successUrl ?? `${this.environment.clientUrl}/sign-in`,
         allowLogout: false
       }
     });
@@ -98,7 +110,6 @@ export class PaddleService {
         : undefined,
       settings: {
         displayMode: 'overlay',
-        successUrl: this.environment.clientUrl + '/sign-in',
       },
     },
     );

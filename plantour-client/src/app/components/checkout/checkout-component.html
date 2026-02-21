@@ -1,49 +1,51 @@
 <section class="checkout-page">
-	<h1>Secure checkout</h1>
+	<div class="page-header">
+		<div class="page-left">
+			<i class="pi pi-credit-card"></i>
+			<h2>Secure checkout</h2>
+		</div>
+	</div>
 
-	@if (!showCheckout && !errorMessage) {
-		<form
-			[formGroup]="emailForm"
-			(ngSubmit)="onProceed()"
-			class="controls-wrapper"
-		>
-			<div class="form-field">
-				<label for="checkout-email">Please enter your email</label>
-				<input
-					pInputText
-					id="checkout-email"
-					type="email"
-					formControlName="email"
-					placeholder="your.email@example.com"
-					[class.p-invalid]="emailInvalid"
-				/>
-				@if (emailInvalid) {
-					<small class="error-message">Please enter a valid email address</small>
-				}
-			</div>
-
-			<div class="form-actions">
-				<button
-					type="submit"
-					class="proceed-button"
-					[disabled]="isLoading || emailForm.invalid"
+	@if (!showCheckout) {
+		<div class="first-view">
+			<div class="controls-wrapper">
+				<form
+					[formGroup]="emailForm"
+					(ngSubmit)="onProceed()"
 				>
-					@if (isLoading) {
-						Checking...
-					} @else {
-						Proceed
+					<div class="form-field">
+						<label for="checkout-email">Please enter your email</label>
+						<input
+							pInputText
+							id="checkout-email"
+							type="email"
+							formControlName="email"
+							placeholder="your.email@example.com"
+							[class.p-invalid]="emailInvalid"
+						/>
+						@if (emailInvalid) {
+							<small class="error-message">Please enter a valid email address</small>
+						}
+					</div>
+
+					@if (errorMessage) {
+						<div class="error-alert">
+							<i class="pi pi-exclamation-triangle"></i>
+							<span>{{ errorMessage }}</span>
+						</div>
 					}
-				</button>
+
+					<div class="form-actions">
+						<app-button
+							[type]="'submit'"
+							[label]="'Proceed'"
+							[loading]="isLoading"
+							[disabled]="isLoading || emailForm.invalid"
+						></app-button>
+					</div>
+				</form>
 			</div>
-		</form>
-	}
-
-	@if (errorMessage) {
-		<p class="status error">{{ errorMessage }}</p>
-	}
-
-	@if (statusMessage) {
-		<p class="status">{{ statusMessage }}</p>
+		</div>
 	}
 
 	@if (showCheckout && isLoading) {
