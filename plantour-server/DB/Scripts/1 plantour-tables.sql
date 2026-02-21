@@ -267,7 +267,9 @@ create table users (
     created_at timestamp not null default (now() at time zone 'utc'),
     discount int not null check(discount >= 0) default 0,
     plan_id uuid not null references plans(id),
-    access_type_id uuid not null references access_types(id)
+    access_type_id uuid not null references access_types(id),
+    paddle_customer_id uuid unique,
+    paddle_subscription_id uuid unique
 );
 
 --create table transactions (
@@ -671,10 +673,12 @@ values
     ('trial_plan_name', 'Starter', 'string'),
     ('base_plan_name', 'Family', 'string'),
     ('pro_plan_name', 'Expedition', 'string'),
+
     ('base_monthly_price_url', 'pri_01khvsx5szpnfqd97c6sdv3e2w', 'string'),
     ('base_yearly_price_url', 'pri_01khvsyg17b43cm5kf0t63zfnr', 'string'),
     ('pro_monthly_price_url', 'pri_01khvsg62zpjhh6qbmc5sfmkm3', 'string'),
     ('pro_yearly_price_url', 'pri_01khvspsgmrkcggdxxtksbzy88', 'string'),
+
     ('base_plan_monthly_cents', '499', 'integer'),
     ('base_plan_yearly_cents', '2999', 'integer'),
     ('pro_plan_monthly_cents', '1499', 'integer'),
@@ -683,10 +687,8 @@ values
     ('guest_plan_duration_days', '14', 'integer'),
     ('email_confirmation_token_minutes', '60',  'integer'),
     ('user_token_expiration_minutes', '1440',  'integer'),
-    ('base_month_price_id', 'price_1T0cOKIGohUudrjhpqEx8orN',  'string'),
-    ('base_year_price_id', 'price_1T0pwbIGohUudrjhr6f3wB0e',  'string'),
-    ('pro_month_price_id', 'price_1T0cQSIGohUudrjhZGYzUs3A',  'string'),
-    ('pro_year_price_id', 'price_1T0cQuIGohUudrjhNWhqNMDT',  'string'),
+
+    
     ('checkout_session_success_url', 'profile',  'string'),
     ('checkout_session_cancel_url', 'profile',  'string'),
 

@@ -5,5 +5,5 @@ namespace plantour_server.Services;
 
 public interface IPaddleService
 {
-    Task<string> ProcessSuccessfulPaymentAsync(PaddlePaymentRequest request);
+    Task<string?> GetSubscriptionIdAsync(PaddleSubscriptionIdRequest request);
 }

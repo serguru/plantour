@@ -297,6 +297,7 @@ try
     builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
+    builder.Services.AddScoped<IPaddleService, PaddleService>();
 
     builder.Services.AddScoped<AccessCodeGenerator>();
 

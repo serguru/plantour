@@ -324,4 +324,39 @@ Explore src\app\components\features\terms\terms-component\terms-component.ts com
 
 See an empty ProcessSuccessfulPaymentAsync method. Write REST API code for getting customer data from Paddle. See PaddleSettings for the base url and api key. Include Authorization Bearer + ApiKey header. Use Base Url + "/customers/{customer_id}" for GET request. See the expected response JSON commented inside the ProcessSuccessfulPaymentAsync. Get and return customer's email.
 
+What shouold I do in Paddle to make it support this scenario:
+
+Is the following scenario possible with Paddle?
+
+No temporary or permanent atomatic  payments cancellation! No manual bills! No anything else except what is described below!
+
+- a new customer pays $5 for Family plan monthly,  Paddle creates a new customer and a corresponding subscription with automatic money withdrawals
+- at this moment the balance is $5
+- one month has passed, the balance is $0
+- Paddle withdraws $5, the balance is $5 
+- a half of a month passed, the balance is $2.50
+- the customer pays $7.50 by their initiative, the balance is $10
+- another half of a month passed, the balance is $5
+- since the balance is positive and enough to cover the next month Paddle does not withdraw money automatically
+- one month has passed, the balance is $0
+- since the balance is $0 Paddlewithdraws $5 automatically for the next month
+
+
+Is the following correct if I want Paddle to collect payments automatically:
+
+User starts a checkout session. Once they entered a email on the checkout form I send a request to my API to determine if this user exists and if they have an active subscription. If not - do nothing, Paddle will create a new user and create a new recurrent payments subscription. If yes - I show a message to the user like "You already have a subscription" and close that checkout to prevent Paddle from creating a new duplicating subscription. 
+
+
+Is this correct with regard my web app integration with Paddle?
+
+I need to provide my customers, new or existing, with a link to the Paddle checkout page. That link is used ONLY for the new subscription creation. If a customer already has a subscription I do not allow them using the Paddle checkout page to prevent from creating a duplicated subscription.
+
+Paddle will automatically manage subscriptions, send messages to customers and deactivate subscriptions if necessary. And if a user pays later a new subscription will be created.
+
+If a customer wants to cancel or downgrade or upgrade a subscription they can do that from the Customer Portal.
+
+If I need to know a current customer status and plan I send a REST request to the Paddle API.
+
+What important thing am I missing?
+
 

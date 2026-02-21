@@ -1,35 +1,34 @@
-import { Inject, Injectable, signal } from '@angular/core';
+import { inject, Inject, Injectable, signal } from '@angular/core';
 import { initializePaddle, Paddle } from '@paddle/paddle-js';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PaddleService {
-  // We use a Signal to track the paddle instance reactively
   paddle = signal<Paddle | undefined>(undefined);
 
   constructor(
+    private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
 
   ) {
     this.init();
   }
 
+  lastCheckedEmail = null;
+  isChecking = false;
+
   private async init() {
     const instance = await initializePaddle({
       environment: this.environment.environment === "production" ? 'production' : 'sandbox',
-      token: 'test_c4c0e48b001d35f302e3ef618a6', // Found in Paddle Dashboard
-      eventCallback: (event: any) => {
-        if (event.name === 'checkout.completed') {
-          console.log('Customer Email:', event.data.customer?.email);
-        }
-      }
+      token: 'test_c4c0e48b001d35f302e3ef618a6'
     });
     this.paddle.set(instance);
   }
 
-  joinPrice(priceId: string) {
+  joinPrice(priceId: string, email: string) {
 
     const paddle = this.paddle();
 
@@ -38,28 +37,22 @@ export class PaddleService {
     }
 
     paddle.Checkout.open({
+      
       items: [
         {
           priceId: priceId,
           quantity: 1
         }
       ],
-
+      // customer: {
+      //     email: email
+      // },
       settings: {
         displayMode: 'overlay',
-        successUrl: this.environment.clientUrl + '/sign-in?email={customer_email}&checkout_id={checkout_id}',
-
+        successUrl: this.environment.clientUrl + '/sign-in',
       },
-
-
-
     },
-
-
-
-
     );
   }
-
-
 }
+

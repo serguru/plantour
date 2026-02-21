@@ -18,9 +18,9 @@ public class PaddleController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<PackDto>> ProcessSuccessfulPayment([FromBody] PaddlePaymentRequest request)
+    public async Task<ActionResult> GetSubscriptionId([FromBody] PaddleSubscriptionIdRequest request)
     {
-        await _service.ProcessSuccessfulPaymentAsync(request);
-        return Ok();
+        var subscriptionId = await _service.GetSubscriptionIdAsync(request);
+        return Ok(subscriptionId);
     }
 }
