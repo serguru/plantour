@@ -40,8 +40,7 @@ export class CheckoutComponent implements OnInit {
       void this.onPaddleEvent(eventName);
     });
 
-    const queryMap = this.route.snapshot.queryParamMap;
-    this.priceId = this.getQueryParamCaseInsensitive(queryMap, 'priceId');
+    this.priceId = this.route.snapshot.paramMap.get('priceId');
 
     if (!this.priceId) {
       this.errorMessage = 'Missing required query parameter: priceId';

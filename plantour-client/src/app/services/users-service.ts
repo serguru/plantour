@@ -33,22 +33,7 @@ export interface UserDto {
   hasFacebookLinked: boolean;
 }
 
-export interface LandingDto
-{
-    guestPlanName: string;
-    trialPlanName: string;
-    basePlanName: string;
-    proPlanName: string;
-    basePlanMonthly: string;
-    basePlanYearly: string;
-    proPlanMonthly: string;
-    proPlanYearly: string;
-    guestPlanDurationDays: string;
-    baseMonthlyPriceUrl: string;
-    baseYearlyPriceUrl: string;
-    proMonthlyPriceUrl: string;
-    proYearlyPriceUrl: string;
-}
+
 
 
 @Injectable({
@@ -349,7 +334,4 @@ export class UsersService {
     });
   }
 
-  getLandingData(): Observable<LandingDto> {
-    return this.http.get<LandingDto>(`${this.apiUrl}/api/users/landing`);
-  }
 }

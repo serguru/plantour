@@ -41,6 +41,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Plan> Plans { get; set; }
 
+    public virtual DbSet<Price> Prices { get; set; }
+
     public virtual DbSet<RecentLog> RecentLogs { get; set; }
 
     public virtual DbSet<Setting> Settings { get; set; }
@@ -217,7 +219,17 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.Active).HasDefaultValue(true);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+        });
+
+        modelBuilder.Entity<Price>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("prices_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.Plan).WithMany(p => p.Prices)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("prices_plan_id_fkey");
         });
 
         modelBuilder.Entity<RecentLog>(entity =>

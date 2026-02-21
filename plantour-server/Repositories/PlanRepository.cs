@@ -10,6 +10,12 @@ public class PlanRepository : GenericRepository<Plan>
     {
         
     }
+    public async Task<IEnumerable<Plan>> GetAll()
+    {
+        return await _dbSet
+        .Include(p => p.Prices)
+        .ToListAsync();
+    }
 
     public async Task<Plan?> GetByName(string name)
     {
@@ -22,11 +28,6 @@ public class PlanRepository : GenericRepository<Plan>
         return plan?.Id ?? throw new InvalidOperationException("NoPlan not found");
     }
 
-    public async Task<Guid> GetTrialId()
-    {
-        var plan = await GetByName("Trial");
-        return plan?.Id ?? throw new InvalidOperationException("Trial not found");
-    }
 
 
 }

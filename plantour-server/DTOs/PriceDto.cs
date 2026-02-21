@@ -1,0 +1,21 @@
+using plantour_server.Utils;
+
+namespace plantour_server.DTOs;
+
+public class PriceDto
+{
+    public Guid Id { get; set; }
+
+    public Guid PlanId { get; set; }
+
+    public string PaddlePriceId { get; set; } = null!;
+
+    public string Name { get; set; } = null!;
+
+    public PlanPrice PlanPriceIndex { get; set; }
+
+    public int ValueCents { get; set; }
+
+    public string? Notes { get; set; }
+
+}

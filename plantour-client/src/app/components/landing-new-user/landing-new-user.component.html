@@ -97,19 +97,13 @@
 
         <div class="cta-row">
           <a
-            role="button"
-            tabindex="0"
             class="cta-button"
             [class.outline]="!plan.isPopular"
-            (click)="paddleService.joinPrice(plan.monthlyPriceLink!)"
-            (keydown.enter)="paddleService.joinPrice(plan.monthlyPriceLink!)"
-            (keydown.space)="$event.preventDefault(); paddleService.joinPrice(plan.monthlyPriceLink!)"
+            [href]="plan.monthlyPriceUrl"
           >
             {{ plan.monthlyButtonText }}
           </a>
         </div>
-
-
 
         <div class="price-row secondary">
           @if (plan.annualPrice) {
@@ -125,13 +119,9 @@
         @if(plan.annualPrice) {
         <div class="cta-row">
           <a
-            role="button"
-            tabindex="0"
             class="cta-button"
             [class.outline]="!plan.isPopular"
-            (click)="paddleService.joinPrice(plan.annualPriceLink!)"
-            (keydown.enter)="paddleService.joinPrice(plan.annualPriceLink!)"
-            (keydown.space)="$event.preventDefault(); paddleService.joinPrice(plan.annualPriceLink!)"
+            [href]="plan.annualPriceUrl"
           >
             {{ plan.annualButtonText }}
           </a>

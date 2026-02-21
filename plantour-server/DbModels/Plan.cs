@@ -17,17 +17,20 @@ public partial class Plan
     [Column("name")]
     public string Name { get; set; } = null!;
 
-    [Column("description")]
-    public string? Description { get; set; }
+    [Column("notes")]
+    public string? Notes { get; set; }
 
     [Column("active")]
     public bool? Active { get; set; }
 
+    [Column("public")]
+    public bool? Public { get; set; }
+
     [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
 
-    [Column("updated_at", TypeName = "timestamp without time zone")]
-    public DateTime? UpdatedAt { get; set; }
+    [InverseProperty("Plan")]
+    public virtual ICollection<Price> Prices { get; set; } = new List<Price>();
 
     [InverseProperty("Plan")]
     public virtual ICollection<User> Users { get; set; } = new List<User>();
