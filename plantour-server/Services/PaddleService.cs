@@ -123,6 +123,36 @@ public class PaddleService : IPaddleService
         return email;
     }
 
+
+    public async Task<bool> ActiveSubscriptionExists(string email)
+    {
+        string? customerId = await GetCustomerIdByEnmailAsync(email);
+        if (String.IsNullOrWhiteSpace(customerId))
+        {
+            return false;
+        }
+
+        var response = await _httpclient.GetAsync($"subscriptions?customer_id={Uri.EscapeDataString(customerId)}&status=active");  
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return false;
+        }
+        
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync();
+        using var json = JsonDocument.Parse(content);
+
+        if (!json.RootElement.TryGetProperty("data", out var dataElement))
+        {
+            throw new CustomException("Paddle response does not contain data field");
+        }
+
+        var list = dataElement.EnumerateArray();
+
+        return list.Any();
+    }
+
     public async Task<string?> GetSubscriptionIdAsync(PaddleSubscriptionIdRequest request)
     {
         string? customerId = await GetCustomerIdByEnmailAsync(request.Email);

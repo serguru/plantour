@@ -1,0 +1,59 @@
+.checkout-page {
+	max-width: 960px;
+	margin: 0 auto;
+	padding: 1rem;
+}
+
+h1 {
+	margin: 0 0 0.75rem;
+}
+
+.controls-wrapper {
+	max-width: 420px;
+	margin-bottom: 1rem;
+}
+
+.form-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.form-field label {
+	font-weight: 500;
+}
+
+.form-field input {
+	width: 100%;
+}
+
+.error-message {
+	font-size: 0.85rem;
+}
+
+.form-actions {
+	display: flex;
+}
+
+.proceed-button {
+	padding: 0.6rem 1rem;
+	cursor: pointer;
+}
+
+.status {
+	margin: 0 0 1rem;
+}
+
+.status.error {
+	font-weight: 600;
+}
+
+.checkout-frame-wrapper {
+	width: 100%;
+}
+
+.paddle-inline-checkout-container {
+	width: 100%;
+	min-width: 312px;
+}

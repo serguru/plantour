@@ -17,6 +17,18 @@ public class PaddleController : ControllerBase
         _service = service;
     }
 
+    [HttpGet("active-subscription-exists")]
+    public async Task<ActionResult<bool>> ActiveSubscriptionExists([FromQuery] string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return BadRequest("Email is required");
+        }
+
+        var activeExists = await _service.ActiveSubscriptionExists(email);
+        return Ok(activeExists);
+    }
+
     [HttpPost]
     public async Task<ActionResult> GetSubscriptionId([FromBody] PaddleSubscriptionIdRequest request)
     {

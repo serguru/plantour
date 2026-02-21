@@ -5,5 +5,6 @@ namespace plantour_server.Services;
 
 public interface IPaddleService
 {
+    Task<bool> ActiveSubscriptionExists(string email);
     Task<string?> GetSubscriptionIdAsync(PaddleSubscriptionIdRequest request);
 }

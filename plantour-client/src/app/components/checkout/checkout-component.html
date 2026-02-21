@@ -1,0 +1,58 @@
+<section class="checkout-page">
+	<h1>Secure checkout</h1>
+
+	@if (!showCheckout && !errorMessage) {
+		<form
+			[formGroup]="emailForm"
+			(ngSubmit)="onProceed()"
+			class="controls-wrapper"
+		>
+			<div class="form-field">
+				<label for="checkout-email">Please enter your email</label>
+				<input
+					pInputText
+					id="checkout-email"
+					type="email"
+					formControlName="email"
+					placeholder="your.email@example.com"
+					[class.p-invalid]="emailInvalid"
+				/>
+				@if (emailInvalid) {
+					<small class="error-message">Please enter a valid email address</small>
+				}
+			</div>
+
+			<div class="form-actions">
+				<button
+					type="submit"
+					class="proceed-button"
+					[disabled]="isLoading || emailForm.invalid"
+				>
+					@if (isLoading) {
+						Checking...
+					} @else {
+						Proceed
+					}
+				</button>
+			</div>
+		</form>
+	}
+
+	@if (errorMessage) {
+		<p class="status error">{{ errorMessage }}</p>
+	}
+
+	@if (statusMessage) {
+		<p class="status">{{ statusMessage }}</p>
+	}
+
+	@if (showCheckout && isLoading) {
+		<p class="status">Loading checkout...</p>
+	}
+
+	@if (showCheckout) {
+		<div class="checkout-frame-wrapper">
+			<div [class]="checkoutContainerClass"></div>
+		</div>
+	}
+</section>
