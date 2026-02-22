@@ -3,7 +3,7 @@ using plantour_server.Models;
 
 namespace plantour_server.Utils;
 
-[SupportedOSPlatform("windows")]
+// [SupportedOSPlatform("windows")]
 public class AccessRules
 {
     private readonly List<AccessRule> _rules = new();
@@ -30,16 +30,14 @@ public class AccessRules
         AccessRule rule = new AccessRule()
         {
             Id = 10,
-            Name = "Can add/edit/delete travelers",
-            Granted = false,    
+            Name = "Can add/edit/delete travelers"
         };
         AddRuleWithValidation(rule);
 
         rule = new AccessRule()
         {
             Id = 20,
-            Name = "Can add/edit/delete shared items",
-            Granted = false,    
+            Name = "Can add/edit/delete shared items"
         };
         AddRuleWithValidation(rule);
 
@@ -47,33 +45,49 @@ public class AccessRules
         rule = new AccessRule()
         {
             Id = 30,
-            Name = "Can add/edit/delete trips",
-            Granted = false,    
+            Name = "Can add/edit/delete trips"
         };
         AddRuleWithValidation(rule);
 
         rule = new AccessRule()
         {
             Id = 40,
-            Name = "Can have a list of trip items",
-            Granted = false,    
+            Name = "Can have a list of trip items"
         };
         AddRuleWithValidation(rule);
 
         rule = new AccessRule()
         {
             Id = 50,
-            Name = "Can have a list of trip bags",
-            Granted = false,    
+            Name = "Can have a list of trip bags"
         };  
         AddRuleWithValidation(rule);
 
         rule = new AccessRule()
         {
             Id = 60,
-            Name = "Can add a dictionary item over a limit",
-            Value = 5,
-            Granted = false,    
+            Name = "Can add a dictionary/trip item over a limit"
+        };  
+        AddRuleWithValidation(rule);
+
+        rule = new AccessRule()
+        {
+            Id = 70,
+            Name = "Can add a dictionary/trip traveler over a limit"
+        };  
+        AddRuleWithValidation(rule);
+
+        rule = new AccessRule()
+        {
+            Id = 80,
+            Name = "Can send extended prompts to the AI"
+        };  
+        AddRuleWithValidation(rule);
+
+        rule = new AccessRule()
+        {
+            Id = 90,
+            Name = "Can send prompts to the AI over a limit"
         };  
         AddRuleWithValidation(rule);
     }

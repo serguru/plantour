@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { UsersService } from '../../services/users-service';
 import { PaddleService } from '../../services/paddle-service';
 import { AppButton } from '../button/button-component';
-import { LandingDto, LandingService } from '../../services/landing-service';
+import { LandingDto, LandingService, PlanDto } from '../../services/landing-service';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 
 interface PlanFeature {
@@ -23,6 +23,11 @@ interface Plan {
   monthlyPriceUrl?: string;
   annualPriceUrl?: string;
   features: PlanFeature[];
+  allowedItems: number;
+  allowedTravelers: number;
+  allowedAiPrompts: number;
+  extendedAiAllowed: boolean;
+
 }
 
 interface LandingFeature {
@@ -92,6 +97,17 @@ export class LandingNewUserComponent implements OnInit {
       description: 'Reuse proven packing setups for future journeys. Start in seconds instead of planning from scratch.'
     }
   ];
+
+
+  featuresByPlan = (plan: PlanDto) => {
+    return [
+      { label: 'Max Items', value: `${plan.allowedItems > 0 ? plan.allowedItems + ' per trip' : 'Unlimited'}` },
+      { label: 'Max Participants', value: `${plan.allowedTravelers > 0 ? plan.allowedTravelers + ' per trip' : 'Unlimited'}` },
+      { label: 'PDF Export', value: true },
+      { label: 'AI Suggestions', value: `${plan.allowedAiPrompts > 0 ? plan.allowedAiPrompts : 'Unlimited'} ${plan.extendedAiAllowed ? 'extended' : 'regular'} per day` },
+      { label: 'Shared Items', value: true },
+    ]
+  }
 
   setPlans(data: LandingDto): void {
     // this.plans = [
@@ -163,13 +179,7 @@ export class LandingNewUserComponent implements OnInit {
               description: 'For small trips and light packers',
               monthlyButtonText: 'Join Free',
               monthlyPriceUrl: '/sign-in',
-              features: [
-                { label: 'Max Items', value: '10 per trip' },
-                { label: 'Max Participants', value: '2 per trip' },
-                { label: 'PDF Export', value: true },
-                { label: 'AI Suggestions', value: '30 regular / month' },
-                { label: 'Shared Items', value: true },
-              ],
+              features: this.featuresByPlan(plan),
               order: 1
             }
           );
@@ -190,13 +200,7 @@ export class LandingNewUserComponent implements OnInit {
               annualButtonText: 'Start yearly',
               monthlyPriceUrl: `/checkout/${monthlyPriceObject.paddlePriceId}`,
               annualPriceUrl: `/checkout/${yearlyPriceObject.paddlePriceId}`,
-              features: [
-                { label: 'Max Items', value: 'Unlimited', highlight: true },
-                { label: 'Max Participants', value: '5 per trip' },
-                { label: 'PDF Export', value: true },
-                { label: 'AI Suggestions', value: '10 regular / day' },
-                { label: 'Shared Items', value: true },
-              ],
+              features: this.featuresByPlan(plan),
               order: 2
             }
           );
@@ -216,13 +220,7 @@ export class LandingNewUserComponent implements OnInit {
               annualButtonText: 'Go yearly',
               monthlyPriceUrl: `/checkout/${monthlyPriceObject1.paddlePriceId}`,
               annualPriceUrl: `/checkout/${yearlyPriceObject1.paddlePriceId}`,
-              features: [
-                { label: 'Max Items', value: 'Unlimited' },
-                { label: 'Participants', value: 'Unlimited', highlight: true },
-                { label: 'PDF Export', value: true },
-                { label: 'AI Suggestions', value: '100 extended / day', highlight: true },
-                { label: 'Shared Items', value: true },
-              ],
+              features: this.featuresByPlan(plan),
               order: 3
             }
           );

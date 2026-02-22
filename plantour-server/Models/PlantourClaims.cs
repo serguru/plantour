@@ -12,6 +12,7 @@ public static class PlantourClaims
     public const string Role = ClaimTypes.Role;
     public const string AdminId = "admin_id";
     public const string AccessCode = "access_code";
+    public const string AccessRules = "access_rules";
     public const string Subject = JwtRegisteredClaimNames.Sub;
     public const string Expires = JwtRegisteredClaimNames.Exp;
     public const string Issuer = JwtRegisteredClaimNames.Iss;

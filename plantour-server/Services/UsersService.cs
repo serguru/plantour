@@ -38,6 +38,7 @@ public class UsersService(
     HttpCurrentUser httpCurrentUser,
     AccessCodeGenerator accessCodeGenerator,
     IHttpClientFactory httpClientFactory,
+    IAccessRulesService accessRulesService,
     IOptions<SocialAuthSettings> socialAuthSettings) : IUsersService
 {
     private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
@@ -51,6 +52,7 @@ public class UsersService(
     private readonly IAdminsParticipantService _adminsParticipantService = adminsParticipantService;
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly SocialAuthSettings _socialAuthSettings = socialAuthSettings.Value;
+    private readonly IAccessRulesService _accessRulesService = accessRulesService;
 
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
@@ -432,7 +434,9 @@ public class UsersService(
             throw new UnauthorizedException("Invalid refresh token role");
         }
 
-        var accessToken = _tokenService.CreateAccessToken(user, role, storedToken.AdminId);
+        var accessRules = await _accessRulesService.GetAccessRulesAsync();
+
+        var accessToken = _tokenService.CreateAccessToken(user, role, accessRules, storedToken.AdminId );
         var newRefreshToken = _tokenService.CreateRefreshToken();
 
         await _refreshTokenService.RotateAsync(storedToken, newRefreshToken, ipAddress);
@@ -482,7 +486,8 @@ public class UsersService(
 
     private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? ipAddress, string? message)
     {
-        var accessToken = _tokenService.CreateAccessToken(user, role, adminId);
+        var accessRules = await _accessRulesService.GetAccessRulesAsync();
+        var accessToken = _tokenService.CreateAccessToken(user, role, accessRules, adminId);
         var refreshToken = _tokenService.CreateRefreshToken();
 
         await _refreshTokenService.CreateAsync(user.Id, role, adminId, refreshToken, ipAddress);

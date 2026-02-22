@@ -22,6 +22,12 @@ export interface PlanDto
     notes?: string;
     active?: boolean;
     createdAt: string;
+
+    allowedItems: number;
+    allowedTravelers: number;
+    allowedAiPrompts: number;
+    extendedAiAllowed: boolean;
+
     prices: PriceDto[];
 }
 
@@ -30,24 +36,6 @@ export interface LandingDto
     plans: PlanDto[];
     guestPlanDurationDays: string;
 }
-
-// export interface LandingDto
-// {
-//     guestPlanName: string;
-//     trialPlanName: string;
-//     basePlanName: string;
-//     proPlanName: string;
-//     basePlanMonthly: string;
-//     basePlanYearly: string;
-//     proPlanMonthly: string;
-//     proPlanYearly: string;
-//     guestPlanDurationDays: string;
-//     baseMonthlyPriceUrl: string;
-//     baseYearlyPriceUrl: string;
-//     proMonthlyPriceUrl: string;
-//     proYearlyPriceUrl: string;
-// }
-
 
 @Injectable({
   providedIn: 'root',
@@ -61,7 +49,6 @@ export class LandingService {
     this.apiUrl = environment.apiUrl;
   }
   private apiUrl: string;
-
 
   getLandingData(): Observable<LandingDto> {
     return this.http.get<LandingDto>(`${this.apiUrl}/api/users/landing`);

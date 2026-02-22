@@ -40,7 +40,8 @@ export class PaddleService {
     });
 
     if (!instance) {
-      throw new Error('Unable to initialize Paddle');
+      console.error('Failed to initialize Paddle');
+      return;
     }
 
     this.paddle.set(instance);

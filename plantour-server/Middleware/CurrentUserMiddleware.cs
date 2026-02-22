@@ -6,6 +6,8 @@ using plantour_server.Repositories;
 using plantour_server.Services;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
+using System.Text.Json;
+using plantour_server.Utils;
 
 namespace PlantourApi.Middleware;
 
@@ -88,6 +90,10 @@ public class CurrentUserMiddleware
                     currentUser.AdminId = adminId;
                     _logger.LogDebug("Participant user authenticated: {ParticipantId}, AdminId: {AdminId}", userId, adminId);
                 }
+
+                currentUser.AccessRulesObject = context.User.FindFirst(PlantourClaims.AccessRules) != null
+                    ? JsonSerializer.Deserialize<AccessRules>(context.User.FindFirst(PlantourClaims.AccessRules)?.Value ?? string.Empty) ?? new AccessRules()
+                    : new AccessRules();    
 
                 // Add user context to Serilog
                 using (LogContext.PushProperty("UserId", currentUser.UserId))

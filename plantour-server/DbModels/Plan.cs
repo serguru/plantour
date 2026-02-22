@@ -26,6 +26,18 @@ public partial class Plan
     [Column("public")]
     public bool? Public { get; set; }
 
+    [Column("allowed_items")]
+    public int? AllowedItems { get; set; }
+
+    [Column("allowed_travelers")]
+    public int? AllowedTravelers { get; set; }
+
+    [Column("allowed_ai_prompts")]
+    public int? AllowedAiPrompts { get; set; }
+
+    [Column("extended_ai_allowed")]
+    public bool ExtendedAiAllowed { get; set; }
+
     [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
 

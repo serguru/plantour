@@ -1,3 +1,4 @@
+using plantour_server.Utils;
 using PlantourApi.Middleware;
 
 namespace PlantourApi.Models;
@@ -26,6 +27,8 @@ public class CurrentUser
     public bool IsAuthenticated => Role != UserRole.Public;
     public bool IsAdmin => Role == UserRole.Admin;
     public bool IsParticipant => Role == UserRole.Participant;
+
+    public AccessRules AccessRulesObject { get; set; } = new();
 
     public void RaiseIfNotAuthenticated()
     {

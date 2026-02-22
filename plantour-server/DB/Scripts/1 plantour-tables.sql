@@ -239,14 +239,18 @@ create table plantour.plans (
     notes text,
     active boolean default true,
     public boolean,
+    allowed_items int,
+    allowed_travelers int,
+    allowed_AI_prompts int, -- per day
+    extended_AI_allowed boolean not null default false,
     created_at timestamp not null default (now() at time zone 'utc')
 );
-insert into plantour.plans (name, notes, public) values
-('NoPlan', 'For users having no plan', false),
-('Guest', 'To get acquainted with Plantour', false),
-('Starter','For small trips and light packers', true),
-('Family', 'Perfect for families and small groups', true),
-('Expedition', 'Ideal for large groups and expeditions', true);
+insert into plantour.plans (name, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
+('NoPlan', 'For users having no plan', false, 0, 0, 0, false),
+('Guest', 'To get acquainted with Plantour', false, 10, 2, 2, false),
+('Starter','For small trips and light packers', true, 10, 2, 5, false),
+('Family', 'Perfect for families and small groups', true, null, 5, 20, false),
+('Expedition', 'Ideal for large groups and expeditions', true, null, null, 100, true);
 
 create table plantour.prices (
     id uuid primary key default gen_random_uuid(),

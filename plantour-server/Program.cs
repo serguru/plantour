@@ -309,7 +309,8 @@ try
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
     builder.Services.AddScoped<IPaddleService, PaddleService>();
-
+    builder.Services.AddScoped<IPaddleService, PaddleService>();
+    builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
     builder.Services.AddScoped<AccessCodeGenerator>();
 
     // TODO: what is AddHttpClient?

@@ -2,10 +2,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using plantour_server.DbModels;
 using plantour_server.Models;
+using plantour_server.Utils;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
@@ -19,7 +21,7 @@ public class TokenService : ITokenService
         _jwtSettings = jwtSettings.Value;
     }
 
-    public AccessTokenResult CreateAccessToken(User user, UserRole role, Guid? adminId = null, bool isTemporary = false)
+    public AccessTokenResult CreateAccessToken(User user, UserRole role, AccessRules accessRules, Guid? adminId = null, bool isTemporary = false)
     {
         var handler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
@@ -32,6 +34,7 @@ public class TokenService : ITokenService
             new(PlantourClaims.FirstName, user.FirstName ?? string.Empty),
             new(PlantourClaims.LastName, user.LastName ?? string.Empty),
             new(PlantourClaims.Role, role.ToString()),
+            new(PlantourClaims.AccessRules, JsonSerializer.Serialize(accessRules)),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
