@@ -60,6 +60,11 @@ export class PaddleService {
     });
   }
 
+  async closeCheckout(): Promise<void> {
+    const paddle = await this.getPaddleOrThrow();
+    paddle.Checkout.close();
+  }
+
   async openInlineCheckout(options: {
     priceId: string;
     frameTarget: string;

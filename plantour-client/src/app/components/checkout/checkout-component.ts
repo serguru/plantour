@@ -111,6 +111,19 @@ export class CheckoutComponent implements OnInit {
     return !!control && control.invalid && control.touched;
   }
 
+  async onBackToFirstScreen(): Promise<void> {
+    this.showCheckout = false;
+    this.errorMessage = '';
+    this.isLoading = false;
+    this.isHandlingCheckoutResult = false;
+
+    try {
+      await this.paddleService.closeCheckout();
+    } catch {
+      // ignore close errors and still return to first screen
+    }
+  }
+
   private getQueryParamCaseInsensitive(queryMap: ParamMap, key: string): string | null {
     const normalizedKey = key.toLowerCase();
     const matchedKey = queryMap.keys.find(paramKey => paramKey.toLowerCase() === normalizedKey);

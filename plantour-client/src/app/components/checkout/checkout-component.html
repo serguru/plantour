@@ -6,6 +6,18 @@
 		</div>
 	</div>
 
+	@if (showCheckout) {
+		<div class="checkout-actions">
+			<app-button
+				[type]="'button'"
+				[label]="'Back'"
+				[icon]="'pi pi-arrow-left'"
+				[severity]="'secondary'"
+				(click)="onBackToFirstScreen()"
+			></app-button>
+		</div>
+	}
+
 	@if (!showCheckout) {
 		<div class="first-view">
 			<div class="controls-wrapper">
