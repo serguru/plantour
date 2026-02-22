@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 //using plantour_server.Authorization;
@@ -122,6 +123,16 @@ try
     builder.Services.AddControllers();
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddDataProtection();
+    builder.Services.AddHybridCache(options =>
+    {
+        options.MaximumPayloadBytes = 1024 * 1024;
+        options.MaximumKeyLength = 1024;
+        options.DefaultEntryOptions = new HybridCacheEntryOptions
+        {
+            Expiration = TimeSpan.FromMinutes(10),
+            LocalCacheExpiration = TimeSpan.FromMinutes(5)
+        };
+    });
 
     // Configure Temporary User settings
     var tempUserSettings = builder.Configuration.GetSection("TemporaryUserSettings");
