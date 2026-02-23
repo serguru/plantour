@@ -26,6 +26,8 @@ public class AiService : IAiService
     private readonly TripThingRepository _tripThingRepository;
     private readonly TripSharedRepository _tripSharedRepository;
 
+
+// TODO: Explore using the Gemini streaming API 
     public AiService(
         HttpClient httpClient,
         IOptions<GeminiSettings> settings,

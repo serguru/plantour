@@ -16,7 +16,7 @@ public interface IThingService
     Task<int> InsertTemplateAiUserThingsAsync(Guid[] ids);
     Task<int> DeleteTemplateUserThingsAsync(Guid[] ids);
     Task<int> DeleteTemplateAiUserThingsAsync(Guid[] ids);
-    Task<int> InsertFromAiTemplateAsync(IEnumerable<AiItemDto> items);
+    //Task<int> InsertFromAiTemplateAsync(IEnumerable<AiItemDto> items);
 
 
 

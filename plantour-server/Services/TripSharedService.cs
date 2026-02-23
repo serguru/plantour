@@ -203,50 +203,50 @@ public class TripSharedService(
         return await _dicTripRepository.DeleteTripSharedThingsAsync(_currentUser.AdminId, tripId, thingIds);
     }
 
-    public async Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AiItemDto> things)
-    {
-        _currentUser.RaiseIfNotAdmin();
+    // public async Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AiItemDto> things)
+    // {
+    //     _currentUser.RaiseIfNotAdmin();
 
-        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
-        {
-            throw new CustomException("User does not have access to this trip");
-        }
+    //     if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+    //     {
+    //         throw new CustomException("User does not have access to this trip");
+    //     }
 
-        var existingThings = await _tripSharedRepository.GetAllFullAsync(tripId);
-        var existingNames = new HashSet<string>(
-            existingThings.Select(t => t.Name),
-            StringComparer.OrdinalIgnoreCase);
+    //     var existingThings = await _tripSharedRepository.GetAllFullAsync(tripId);
+    //     var existingNames = new HashSet<string>(
+    //         existingThings.Select(t => t.Name),
+    //         StringComparer.OrdinalIgnoreCase);
 
-        var newThings = things
-            .Where(i => !string.IsNullOrWhiteSpace(i.Name))
-            .GroupBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.First())
-            .Where(i => !existingNames.Contains(i.Name));
+    //     var newThings = things
+    //         .Where(i => !string.IsNullOrWhiteSpace(i.Name))
+    //         .GroupBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
+    //         .Select(g => g.First())
+    //         .Where(i => !existingNames.Contains(i.Name));
 
-        var entities = newThings.Select(i => new TripSharedThing
-        {
-            Id = Guid.NewGuid(),
-            TripId = tripId,
-            Category = string.IsNullOrWhiteSpace(i.Category) ? null : i.Category,
-            Name = i.Name,
-            Units = string.IsNullOrWhiteSpace(i.Units) ? null : i.Units,
-            Value = i.Value,
-            Notes = string.IsNullOrWhiteSpace(i.Notes) ? null : i.Notes,
-            AssignedToId = null,
-            AssignedThingId = null,
-            AssignedAt = null,
-            AssignedDeadline = null,
-            Rejected = false
-        }).ToList();
+    //     var entities = newThings.Select(i => new TripSharedThing
+    //     {
+    //         Id = Guid.NewGuid(),
+    //         TripId = tripId,
+    //         Category = string.IsNullOrWhiteSpace(i.Category) ? null : i.Category,
+    //         Name = i.Name,
+    //         Units = string.IsNullOrWhiteSpace(i.Units) ? null : i.Units,
+    //         Value = i.Value,
+    //         Notes = string.IsNullOrWhiteSpace(i.Notes) ? null : i.Notes,
+    //         AssignedToId = null,
+    //         AssignedThingId = null,
+    //         AssignedAt = null,
+    //         AssignedDeadline = null,
+    //         Rejected = false
+    //     }).ToList();
 
-        if (entities.Count == 0)
-        {
-            return 0;
-        }
+    //     if (entities.Count == 0)
+    //     {
+    //         return 0;
+    //     }
 
-        await _tripSharedRepository.AddRangeAsync(entities);
-        return entities.Count;
-    }
+    //     await _tripSharedRepository.AddRangeAsync(entities);
+    //     return entities.Count;
+    // }
 
     public async Task ToggleAcceptAssignmentAsync(Guid tripId, Guid id)
     {
