@@ -58,10 +58,10 @@ public partial class User
     public Guid AccessTypeId { get; set; }
 
     [Column("paddle_customer_id")]
-    public Guid? PaddleCustomerId { get; set; }
+    public string? PaddleCustomerId { get; set; }
 
     [Column("paddle_subscription_id")]
-    public Guid? PaddleSubscriptionId { get; set; }
+    public string? PaddleSubscriptionId { get; set; }
 
     [ForeignKey("AccessTypeId")]
     [InverseProperty("Users")]

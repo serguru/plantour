@@ -134,9 +134,7 @@ try
         };
     });
 
-    // Configure Temporary User settings
-    var tempUserSettings = builder.Configuration.GetSection("TemporaryUserSettings");
-    builder.Services.Configure<TemporaryUserSettings>(tempUserSettings);
+    
     // Configure JWT settings
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
     builder.Services.Configure<JwtSettings>(jwtSettings);
@@ -275,8 +273,8 @@ try
         options.AddPolicy("AdminOrParticipant", policy =>
             policy.Requirements.Add(new UserRoleRequirement(UserRole.Admin, UserRole.Participant)));
 
-        options.AddPolicy("Public", policy =>
-            policy.Requirements.Add(new UserRoleRequirement(UserRole.Public, UserRole.Participant, UserRole.Admin)));
+        // options.AddPolicy("Public", policy =>
+        //     policy.Requirements.Add(new UserRoleRequirement(null, UserRole.Participant, UserRole.Admin)));
     });
 
     // Register authorization handlers
@@ -308,7 +306,6 @@ try
     builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
-    builder.Services.AddScoped<IPaddleService, PaddleService>();
     builder.Services.AddScoped<IPaddleService, PaddleService>();
     builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
     builder.Services.AddScoped<AccessCodeGenerator>();

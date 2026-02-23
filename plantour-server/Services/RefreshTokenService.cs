@@ -1,5 +1,6 @@
 using plantour_server.DbModels;
 using plantour_server.Repositories;
+using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 // TODO: an access token must contain info on user's plan and price
@@ -76,7 +77,7 @@ public class RefreshTokenService : IRefreshTokenService
 
         var role = Enum.TryParse<UserRole>(existingToken.Role, out var parsedRole)
             ? parsedRole
-            : UserRole.Public;
+            : throw new CustomException("Invalid user role");
             
         await CreateAsync(existingToken.UserId, role, existingToken.AdminId, cappedTokenResult, revokedByIp);
     }

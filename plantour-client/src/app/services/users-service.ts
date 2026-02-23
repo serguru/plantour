@@ -2,7 +2,7 @@ import { Injectable, Inject, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, finalize, map, of, shareReplay, tap, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
-import { AccessToken, AuthResponse, SignUpParticipantRequest, SignUpRequest } from '../models/auth.models';
+import { AccessRule, AccessToken, AuthResponse, SignUpParticipantRequest, SignUpRequest } from '../models/auth.models';
 import { ContactSubmissionRequest, ContactSubmissionDto } from '../models/contact.models';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { AppService } from './app-service';
@@ -33,9 +33,6 @@ export interface UserDto {
   hasFacebookLinked: boolean;
 }
 
-
-
-
 @Injectable({
   providedIn: 'root',
 })
@@ -57,10 +54,8 @@ export class UsersService {
   private readonly claimNameIdentifier = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
   private readonly claimAdminId = 'admin_id';
 
-  // Основной источник правды — Writable Signal
   private _userSignal = signal<AccessToken | null>(this.getUserFromLocalStorage());
 
-  // Публичные сигналы теперь 100% синхронные через computed
   userSignal = this._userSignal.asReadonly();
 
   userTextSignal = computed(() => {
@@ -109,7 +104,11 @@ export class UsersService {
     const token = this.localStorageService.getItem(this.accessTokenKey);
     if (!token) return null;
     try {
-      return jwtDecode<AccessToken>(token);
+
+      const decoded = jwtDecode<AccessToken>(token);
+      decoded.access_rules = JSON.parse(decoded.access_rules as unknown as string) as AccessRule[] || [];
+
+      return decoded;
     } catch {
       return null;
     }

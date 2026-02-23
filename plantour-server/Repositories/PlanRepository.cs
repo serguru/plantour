@@ -125,7 +125,7 @@ public class PlanRepository : GenericRepository<Plan>
         return plans.Select(ToPlan).ToList();
     }
 
-    public async Task<Plan?> GetByName(string name)
+    public async Task<Plan?> GetByNameAsync(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -166,10 +166,48 @@ public class PlanRepository : GenericRepository<Plan>
 
     public async Task<Guid> GetNoPlanId()
     {
-        var plan = await GetByName("NoPlan");
+        var plan = await GetByNameAsync("NoPlan");
         return plan?.Id ?? throw new InvalidOperationException("NoPlan not found");
     }
 
+    public async Task<Plan?> GetByPriceIdAsync(string priceId)
+    {
+        if (string.IsNullOrWhiteSpace(priceId))
+        {
+            return null;
+        }
+
+        var plans = await GetAllPlansSnapshotAsync();
+        var plan = plans.FirstOrDefault(x => x.Prices.Any(p => p.PaddlePriceId == priceId));
+
+        if (plan != null)
+        {
+            return ToPlan(plan);
+        }
+
+        var dbPlan = await _dbSet
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Prices.Any(p => p.PaddlePriceId == priceId));
+
+        if (dbPlan == null)
+        {
+            return null;
+        }
+
+        return new Plan
+        {
+            Id = dbPlan.Id,
+            Name = dbPlan.Name,
+            Notes = dbPlan.Notes,
+            Active = dbPlan.Active,
+            Public = dbPlan.Public,
+            AllowedItems = dbPlan.AllowedItems,
+            AllowedTravelers = dbPlan.AllowedTravelers,
+            AllowedAiPrompts = dbPlan.AllowedAiPrompts,
+            ExtendedAiAllowed = dbPlan.ExtendedAiAllowed,
+            CreatedAt = dbPlan.CreatedAt
+        };
+    }
 
 
 }

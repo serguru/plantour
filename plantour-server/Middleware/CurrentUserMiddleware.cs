@@ -24,7 +24,7 @@ public class CurrentUserMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var currentUser = new CurrentUser { Role = UserRole.Public };
+        var currentUser = new CurrentUser();
 
         // 1. Проверяем, что пользователь успешно прошел проверку токена
         if (context.User.Identity?.IsAuthenticated == true)
@@ -51,11 +51,11 @@ public class CurrentUserMiddleware
                     currentUser.Discount = user.Discount;
                     currentUser.PlanId = user.PlanId;
                     currentUser.AccessTypeId = user.AccessTypeId;
+                    currentUser.PaddleSubscriptionId = user.PaddleSubscriptionId;
+                    currentUser.PaddleCustomerId = user.PaddleCustomerId;
                     currentUser.PlanName = user.Plan?.Name;
                     currentUser.AccessTypeName = user.AccessType?.Name;
                     currentUser.EmailConfirmed = await emailConfirmationService.IsEmailConfirmedAsync(user.Id);
-
-                    _logger.LogDebug("User authenticated successfully: {UserId} ({Email})", user.Id, user.Email);
                 }
                 else
                 {
@@ -63,8 +63,6 @@ public class CurrentUserMiddleware
                     currentUser.Email = context.User.FindFirst(PlantourClaims.Email)?.Value ?? string.Empty;
                     currentUser.FirstName = context.User.FindFirst(PlantourClaims.FirstName)?.Value;
                     currentUser.LastName = context.User.FindFirst(PlantourClaims.LastName)?.Value;
-
-                    _logger.LogWarning("User not found in database. UserId: {UserId}, Email: {Email}", userId, currentUser.Email);
                 }
 
                 // 4. Логика с ролями и AdminId
@@ -76,24 +74,18 @@ public class CurrentUserMiddleware
                     currentUser.Role = parsedRole;
                 }
 
-                currentUser.Roles = currentUser.Role == UserRole.Public
-                    ? new List<UserRole>()
-                    : new List<UserRole> { currentUser.Role };
-
-                if (currentUser.Role == UserRole.Admin)
+                if (currentUser.IsAdmin)
                 {
                     currentUser.AdminId = userId;
-                    _logger.LogDebug("Admin user authenticated: {AdminId}", userId);
                 }
-                else if (currentUser.Role == UserRole.Participant && Guid.TryParse(adminIdStr, out var adminId))
+                else if (currentUser.IsParticipant && Guid.TryParse(adminIdStr, out var adminId))
                 {
                     currentUser.AdminId = adminId;
-                    _logger.LogDebug("Participant user authenticated: {ParticipantId}, AdminId: {AdminId}", userId, adminId);
                 }
 
-                currentUser.AccessRulesObject = context.User.FindFirst(PlantourClaims.AccessRules) != null
-                    ? JsonSerializer.Deserialize<AccessRules>(context.User.FindFirst(PlantourClaims.AccessRules)?.Value ?? string.Empty) ?? new AccessRules()
-                    : new AccessRules();    
+                currentUser.AccessRules = context.User.FindFirst(PlantourClaims.AccessRules) != null
+                    ? JsonSerializer.Deserialize<List<AccessRule>>(context.User.FindFirst(PlantourClaims.AccessRules)?.Value ?? string.Empty) ?? new List<AccessRule>()
+                    : new List<AccessRule>();    
 
                 // Add user context to Serilog
                 using (LogContext.PushProperty("UserId", currentUser.UserId))

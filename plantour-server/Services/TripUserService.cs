@@ -32,6 +32,18 @@ public class TripUserService(
             throw new CustomException("User does not have access to this trip");
         }
 
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 50);
+        var granted = rule!.Granted;
+
+        if (!granted)
+        {
+            int limit = rule.Value!.Value;
+            var currentCount = await _tripUserRepository.CountAsync(_currentUser.AdminId, tripId);
+            if (currentCount + ids.Length > limit)
+            {
+                throw new CustomException($"You've reached the limit of {limit} travelers you can add to your trip. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
+            }
+        }
 
         return await _dicTripRepository.InsertTripUsersAsync(_currentUser.AdminId, tripId, ids);
     }
@@ -136,6 +148,40 @@ public class TripUserService(
         {
             throw new CustomException("Trip User already exists for this trip");
         }
+
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 50);
+        var granted = rule!.Granted;
+
+        if (!granted)
+        {
+            var limit = rule.Value;
+            var currentCount = await _tripUserRepository.CountAsync(_currentUser.AdminId, request.TripId);
+            if (currentCount >= limit)
+            {
+                throw new CustomException($"You've reached the limit of {limit} travelers you can add to your trip. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
+            }
+        }
+
+    // var user = this.usersService.userSignal();
+
+    // if (!user) {
+    //   this.messagesService.showError('You must be logged in to add a traveler');
+    //   return;
+    // }
+
+    // const rule = user.access_rules!.find(x => x.id === 50);
+    // const granted = rule!.granted;
+
+    // if (!granted) {
+     
+     
+     
+    //   this.messagesService.showError('You have reached the limit of travelers you can add. Please contact support to increase your limit.');
+    //   return;
+    // }
+
+
+
 
         var entity = _mapper.Map<TripUser>(request);
         entity.Id = Guid.NewGuid();

@@ -9,6 +9,8 @@ import { Router } from '@angular/router';
 import { AppButton } from '../button/button-component';
 import { MessagesService } from '../../services/messages-service';
 
+// TODO: make sure this component works correctly for both registered and not registered users
+
 @Component({
   selector: 'app-checkout-component',
   standalone: true,

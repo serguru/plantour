@@ -1,3 +1,11 @@
+export interface AccessRule {
+  id: number;
+  name: string;
+  notes?: string | null;
+  granted: boolean;
+  value?: number | null;
+}
+
 export interface AccessToken {
   exp: number;
   role?: string;
@@ -7,6 +15,7 @@ export interface AccessToken {
   first_name?: string;
   last_name?: string;
   [key: string]: any;
+  access_rules?: AccessRule[] | null;
 }
 
 

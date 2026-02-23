@@ -16,16 +16,33 @@ public class TokenService : ITokenService
 {
     private readonly JwtSettings _jwtSettings;
 
-    public TokenService(IOptions<JwtSettings> jwtSettings)
+    private readonly IAccessRulesService _accessRulesService;
+
+    public TokenService(IOptions<JwtSettings> jwtSettings, IAccessRulesService accessRulesService)
     {
         _jwtSettings = jwtSettings.Value;
+        _accessRulesService = accessRulesService;
     }
 
-    public AccessTokenResult CreateAccessToken(User user, UserRole role, AccessRules accessRules, Guid? adminId = null, bool isTemporary = false)
+    public async Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid? adminId = null, bool isTemporary = false)
     {
         var handler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
-        var expiresAtUtc = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
+        DateTime expiresAtUtc;
+        if (isTemporary)
+        {
+            expiresAtUtc = DateTime.UtcNow.AddDays(_jwtSettings.TemporaryUserAccessTokenExpirationDays);
+        }
+        else
+        {
+            expiresAtUtc = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
+        }
+
+        AccessProcessResult accessProcessResult = await _accessRulesService.ProcessAccessRulesAsync(user, role, isTemporary);
+
+        user = accessProcessResult.UserObject; // Get the updated user object with the latest plan and access type details
+
+        var rules = accessProcessResult.AccessRulesObject.GetAllRules();
 
         var claims = new List<Claim>
         {
@@ -34,7 +51,8 @@ public class TokenService : ITokenService
             new(PlantourClaims.FirstName, user.FirstName ?? string.Empty),
             new(PlantourClaims.LastName, user.LastName ?? string.Empty),
             new(PlantourClaims.Role, role.ToString()),
-            new(PlantourClaims.AccessRules, JsonSerializer.Serialize(accessRules)),
+            new(PlantourClaims.PaddleSubscriptionId, user.PaddleSubscriptionId ?? string.Empty),
+            new(PlantourClaims.AccessRules, JsonSerializer.Serialize(rules)),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -60,6 +78,7 @@ public class TokenService : ITokenService
         };
 
         var token = handler.CreateToken(tokenDescriptor);
+
         return new AccessTokenResult(handler.WriteToken(token), expiresAtUtc);
     }
 

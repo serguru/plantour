@@ -315,8 +315,8 @@ create table users (
     discount int not null check(discount >= 0) default 0,
     plan_id uuid not null references plans(id),
     access_type_id uuid not null references access_types(id),
-    paddle_customer_id uuid unique,
-    paddle_subscription_id uuid unique
+    paddle_customer_id text unique,
+    paddle_subscription_id text unique
 );
 
 --create table transactions (

@@ -19,6 +19,8 @@ using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Services;
 
+
+// TODO: if a user is in pending status tried to sign in with email/password, we should check if their email is confirmed and if yes, let them in. Otherwise show them a message to confirm or resend a confirmation email.
 public class UsersService(
     IOptions<JwtSettings> jwtSettings,
     IMapper mapper,
@@ -406,37 +408,40 @@ public class UsersService(
 
     public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request, string? ipAddress)
     {
+        if (_currentUser == null ||_currentUser.PlanName == "Guest" || _currentUser.AccessTypeName != "Active" || _currentUser.Role == null )
+        {
+            throw new CustomException("Cannot refresh token", "NO_ACCESS");
+        }
+
         var storedToken = await _refreshTokenService.GetActiveTokenAsync(request.RefreshToken);
         if (storedToken == null)
         {
             var anyToken = await _refreshTokenService.GetTokenAsync(request.RefreshToken);
             if (anyToken != null && Enum.TryParse<UserRole>(anyToken.Role, out var tokenRole) && tokenRole == UserRole.Participant)
             {
-                throw new UnauthorizedException("Please ask your Administartor to re-send the invitation email to you", "WRONG_PARTICIPANT_TOKEN");
+                throw new CustomException("Please ask your Administartor to re-send the invitation email to you", "WRONG_PARTICIPANT_TOKEN");
             }
 
-            throw new UnauthorizedException("Please sign in again", "WRONG_TOKEN");
+            throw new CustomException("Please sign in again", "WRONG_TOKEN");
         }
 
         var user = await _usersRepository.GetByIdWithDetailsAsync(storedToken.UserId);
         if (user == null)
         {
-            throw new UnauthorizedException("User not found");
+            throw new CustomException("User not found", "NO_ACCESS");
         }
 
         if (user.AccessType == null || !string.Equals(user.AccessType.Name, "Active", StringComparison.OrdinalIgnoreCase))
         {
-            throw new ForbiddenException(GetAccessStatusMessage(user.AccessType?.Name), "NO_ACCESS");
+            throw new CustomException(GetAccessStatusMessage(user.AccessType?.Name), "NO_ACCESS");
         }
 
         if (!Enum.TryParse<UserRole>(storedToken.Role, out var role))
         {
-            throw new UnauthorizedException("Invalid refresh token role");
+            throw new CustomException("Invalid refresh token role", "NO_ACCESS");
         }
 
-        var accessRules = await _accessRulesService.GetAccessRulesAsync();
-
-        var accessToken = _tokenService.CreateAccessToken(user, role, accessRules, storedToken.AdminId );
+        AccessTokenResult accessToken = await _tokenService.CreateAccessToken(user, role, storedToken.AdminId);
         var newRefreshToken = _tokenService.CreateRefreshToken();
 
         await _refreshTokenService.RotateAsync(storedToken, newRefreshToken, ipAddress);
@@ -486,8 +491,7 @@ public class UsersService(
 
     private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? ipAddress, string? message)
     {
-        var accessRules = await _accessRulesService.GetAccessRulesAsync();
-        var accessToken = _tokenService.CreateAccessToken(user, role, accessRules, adminId);
+        AccessTokenResult accessToken = await _tokenService.CreateAccessToken(user, role, adminId);
         var refreshToken = _tokenService.CreateRefreshToken();
 
         await _refreshTokenService.CreateAsync(user.Id, role, adminId, refreshToken, ipAddress);

@@ -3,7 +3,6 @@ using plantour_server.Models;
 
 namespace plantour_server.Utils;
 
-// [SupportedOSPlatform("windows")]
 public class AccessRules
 {
     private readonly List<AccessRule> _rules = new();
@@ -49,44 +48,44 @@ public class AccessRules
         };
         AddRuleWithValidation(rule);
 
+        // rule = new AccessRule()
+        // {
+        //     Id = 40,
+        //     Name = "Can have a list of trip items"
+        // };
+        // AddRuleWithValidation(rule);
+
+        // rule = new AccessRule()
+        // {
+        //     Id = 50,
+        //     Name = "Can have a list of trip bags"
+        // };  
+        // AddRuleWithValidation(rule);
+
         rule = new AccessRule()
         {
             Id = 40,
-            Name = "Can have a list of trip items"
-        };
-        AddRuleWithValidation(rule);
-
-        rule = new AccessRule()
-        {
-            Id = 50,
-            Name = "Can have a list of trip bags"
-        };  
-        AddRuleWithValidation(rule);
-
-        rule = new AccessRule()
-        {
-            Id = 60,
             Name = "Can add a dictionary/trip item over a limit"
         };  
         AddRuleWithValidation(rule);
 
         rule = new AccessRule()
         {
-            Id = 70,
-            Name = "Can add a dictionary/trip traveler over a limit"
+            Id = 50,
+            Name = "Can add a trip traveler over a limit"
         };  
         AddRuleWithValidation(rule);
 
         rule = new AccessRule()
         {
-            Id = 80,
+            Id = 60,
             Name = "Can send extended prompts to the AI"
         };  
         AddRuleWithValidation(rule);
 
         rule = new AccessRule()
         {
-            Id = 90,
+            Id = 70,
             Name = "Can send prompts to the AI over a limit"
         };  
         AddRuleWithValidation(rule);
@@ -112,6 +111,20 @@ public class AccessRules
         
         _rules[index].Value = value;
     }
+
+    public AccessRule GetById(int id)
+    {
+        var rule = _rules.FirstOrDefault(r => r.Id == id);
+        if (rule == null)
+            throw new KeyNotFoundException($"Rule with Id {id} not found");
+        return rule;
+    }
+
+    public AccessRule[] GetAllRules()
+    {
+        return [.. _rules];
+    }
+
 
 
 }

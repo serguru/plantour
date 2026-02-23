@@ -1,3 +1,4 @@
+using plantour_server.Models;
 using plantour_server.Utils;
 using PlantourApi.Middleware;
 
@@ -8,7 +9,7 @@ public class CurrentUser
 {
     public Guid UserId { get; set; }
     public Guid AdminId { get; set; }
-    public UserRole Role { get; set; }
+    public UserRole? Role { get; set; }
     public string Email { get; set; } = null!;
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
@@ -22,13 +23,14 @@ public class CurrentUser
     public Guid AccessTypeId { get; set; }
     public string? PlanName { get; set; }
     public string? AccessTypeName { get; set; }
+    public string? PaddleSubscriptionId { get; set; }
+    public string? PaddleCustomerId { get; set; }
     public bool EmailConfirmed { get; set; }
-    public List<UserRole> Roles { get; set; } = new();
-    public bool IsAuthenticated => Role != UserRole.Public;
+    public bool IsAuthenticated => Role != null;
     public bool IsAdmin => Role == UserRole.Admin;
     public bool IsParticipant => Role == UserRole.Participant;
 
-    public AccessRules AccessRulesObject { get; set; } = new();
+    public List<AccessRule> AccessRules { get; set; } = new();
 
     public void RaiseIfNotAuthenticated()
     {

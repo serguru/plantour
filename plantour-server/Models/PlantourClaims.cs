@@ -17,6 +17,8 @@ public static class PlantourClaims
     public const string Expires = JwtRegisteredClaimNames.Exp;
     public const string Issuer = JwtRegisteredClaimNames.Iss;
     public const string Audience = JwtRegisteredClaimNames.Aud;
+    public const string PaddleSubscriptionId = "paddle_subscription_id";
+    public const string PaddleCustomerId = "paddle_customer_id";
 }
 
 public static class PlantourRoles
