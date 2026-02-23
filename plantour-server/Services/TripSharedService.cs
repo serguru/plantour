@@ -102,6 +102,20 @@ public class TripSharedService(
             }
         }
 
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        var granted = rule!.Granted;
+
+        if (!granted)
+        {
+            int limit = rule.Value!.Value;
+            var currentCount = await _tripSharedRepository.CountAsync(request.TripId);
+            if (currentCount >= limit)
+            {
+                throw new CustomException($"You've reached the limit of {limit} shared items you can add to your trip. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
+            }
+        }
+
+
         var entity = _mapper.Map<TripSharedThing>(request);
         entity.Id = Guid.NewGuid();
         entity.AssignedAt = request.AssignedToId != null ? DateTime.UtcNow : null;
@@ -178,7 +192,7 @@ public class TripSharedService(
         await _tripSharedRepository.DeleteAsync(tripId, id);
     }
 
-    public async Task<int> InsertTripSharedsAsync(Guid tripId, Guid[] thingIds)
+    public async Task<int> InsertTripSharedsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAdmin();
 
@@ -187,7 +201,21 @@ public class TripSharedService(
             throw new CustomException("User does not have access to this trip");
         }
 
-        return await _dicTripRepository.InsertTripSharedThingsAsync(_currentUser.AdminId, tripId, thingIds);
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        var granted = rule!.Granted;
+
+        if (!granted)
+        {
+            int limit = rule.Value!.Value;
+            var currentCount = await _tripSharedRepository.CountAsync(tripId);
+            if (currentCount + ids.Length > limit)
+            {
+                throw new CustomException($"You've reached the limit of {limit} shared items you can add to your trip. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
+            }
+        }
+
+
+        return await _dicTripRepository.InsertTripSharedThingsAsync(_currentUser.AdminId, tripId, ids);
     }
 
     public async Task<int> DeleteTripSharedsAsync(Guid tripId, Guid[] thingIds)
@@ -327,12 +355,40 @@ public class TripSharedService(
     public async Task<int> InsertTemplateTripSharedThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAdmin();
+
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        var granted = rule!.Granted;
+
+        if (!granted)
+        {
+            int limit = rule.Value!.Value;
+            var currentCount = await _tripSharedRepository.CountAsync(tripId);
+            if (currentCount + ids.Length > limit)
+            {
+                throw new CustomException($"You've reached the limit of {limit} shared items you can add to your trip. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
+            }
+        }
+
         return await _dicTripRepository.InsertTemplateTripSharedThingsAsync(_currentUser.AdminId, tripId, ids);
     }
 
     public async Task<int> InsertTemplateAiTripSharedThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAdmin();
+
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        var granted = rule!.Granted;
+
+        if (!granted)
+        {
+            int limit = rule.Value!.Value;
+            var currentCount = await _tripSharedRepository.CountAsync(tripId);
+            if (currentCount + ids.Length > limit)
+            {
+                throw new CustomException($"You've reached the limit of {limit} shared items you can add to your trip. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
+            }
+        }
+
         return await _dicTripRepository.InsertTemplateAiTripSharedThingsAsync(_currentUser.AdminId, tripId, ids);
     }
 

@@ -22,6 +22,14 @@ public class TripSharedRepository(PlantourContext context) : GenericRepository<T
             .ToListAsync();
     }
 
+    public async Task<int> CountAsync(Guid tripId)
+    {
+        return await _dbSet
+            .CountAsync(x => x.TripId == tripId);
+    }
+
+
+
     public async Task<IEnumerable<TripSharedThing>> GetAllFullForAssigneeAsync(Guid tripId, Guid assigneeId)
     {
         return await _dbSet
