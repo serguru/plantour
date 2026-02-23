@@ -26,16 +26,15 @@ public class AccessRulesService : IAccessRulesService
         _planRepository = planRepository;
     }
 
-    private async Task<AccessProcessResult> ProcessTemporaryUser(User user, UserRole role)
+    private async Task<AccessProcessResult> ProcessTemporaryUser(User user)
     {
         AccessProcessResult result = new();
         var a = new AccessRules();
-        var isAdmin = role == UserRole.Admin;
         var plan = await _planRepository.GetByNameAsync("Starter");
 
-        a.GetById(10).Granted = isAdmin; // Can add/edit/delete travelers
-        a.GetById(20).Granted = isAdmin; // Can add/edit/delete shared items
-        a.GetById(30).Granted = isAdmin; // Can add/edit/delete trips
+        a.GetById(10).Granted = true; // Can add/edit/delete travelers
+        a.GetById(20).Granted = true; // Can add/edit/delete shared items
+        a.GetById(30).Granted = true; // Can add/edit/delete trips
         a.GetById(40).Granted = false; // Can add a dictionary/trip item over a limit
         a.GetById(40).Value = plan!.AllowedItems; // Get allowed items from the Starter plan
         a.GetById(50).Granted = false; // Can add a trip traveler over a limit
@@ -49,9 +48,8 @@ public class AccessRulesService : IAccessRulesService
 
         return result;
     }
-    private async Task<AccessProcessResult> ProcessUser(PaddleSubscription? subscription, User user, UserRole role)
+    private async Task<AccessRules> ProcessUser(PaddleSubscription? subscription, UserRole role)
     {
-        AccessProcessResult result = new();
         var a = new AccessRules();
         var isAdmin = role == UserRole.Admin;
         Plan? plan;
@@ -75,25 +73,25 @@ public class AccessRulesService : IAccessRulesService
         a.GetById(70).Granted = plan!.AllowedAiPrompts == null; // Can send prompts to the AI over a limit
         a.GetById(70).Value = plan!.AllowedAiPrompts == null ? null : plan.AllowedAiPrompts; // Get allowed AI prompts from the plan
 
-        result.AccessRulesObject = a;
-        result.UserObject = user;
-
-
-
-
-        return result;
+        return a;
     }
 
     // TODO: If a temporary user clicks sign out show them a warning first
     // TODO: for temporary users, i.e. guests, show a banner at the top
     // TODO: if a temporary user wants to move to a public plan they can choose that plan in the profile page and then a new account will be created
-    public async Task<AccessProcessResult> ProcessAccessRulesAsync(User user, UserRole role, bool isTemporary)
+    public async Task<AccessProcessResult> ProcessAccessRulesAsync(User user,  UserRole role, Guid adminId, bool isTemporary)
     {
         if (isTemporary)
         {
-            return await ProcessTemporaryUser(user, role);
+            return await ProcessTemporaryUser(user);
         }
-        var subscription = await _paddleService.GetActiveSubscriptionByUserAsync(user);
-        return await ProcessUser(subscription, user, role);
+        var subscription = await _paddleService.GetActiveSubscriptionByUserAsync(user, role, adminId);
+
+        AccessProcessResult result = new()
+        {
+            AccessRulesObject = await ProcessUser(subscription, role),
+            UserObject = user
+        };
+        return result;
     }
 }

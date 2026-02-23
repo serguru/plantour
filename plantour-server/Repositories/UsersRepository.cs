@@ -4,8 +4,18 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
+// TODO: check if user must be active
 public class UsersRepository(PlantourContext context) : GenericRepository<User>(context)
 {
+
+    public async Task<User?> GetActiveByIdAsync(Guid id)
+    {
+        return await _dbSet
+            .Include(x => x.AccessType)
+            .Include(x => x.Plan)
+            .FirstOrDefaultAsync(x => x.Id == id && x.AccessType.Name.Equals("Active", StringComparison.OrdinalIgnoreCase));
+    }
+
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await _dbSet

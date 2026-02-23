@@ -88,7 +88,7 @@ public class CurrentUserMiddleware
                     : new List<AccessRule>();    
 
                 // Add user context to Serilog
-                using (LogContext.PushProperty("UserId", currentUser.UserId))
+            using (LogContext.PushProperty("UserId", currentUser.UserId))
                 using (LogContext.PushProperty("UserEmail", currentUser.Email))
                 using (LogContext.PushProperty("UserRole", currentUser.Role))
                 {

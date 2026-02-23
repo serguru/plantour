@@ -12,6 +12,7 @@ using PlantourApi.Models;
 
 namespace plantour_server.Services;
 
+// TODO: check why add traveler form does not close automatically after adding a traveler
 public class TokenService : ITokenService
 {
     private readonly JwtSettings _jwtSettings;
@@ -24,7 +25,9 @@ public class TokenService : ITokenService
         _accessRulesService = accessRulesService;
     }
 
-    public async Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid? adminId = null, bool isTemporary = false)
+
+    // TODO: for ACTIVE users only!!!
+    public async Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid adminId, bool isTemporary = false)
     {
         var handler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
@@ -37,8 +40,9 @@ public class TokenService : ITokenService
         {
             expiresAtUtc = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
         }
+        
 
-        AccessProcessResult accessProcessResult = await _accessRulesService.ProcessAccessRulesAsync(user, role, isTemporary);
+        AccessProcessResult accessProcessResult = await _accessRulesService.ProcessAccessRulesAsync(user, role, adminId, isTemporary);
 
         user = accessProcessResult.UserObject; // Get the updated user object with the latest plan and access type details
 
@@ -56,9 +60,9 @@ public class TokenService : ITokenService
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
-        if (adminId.HasValue && role == UserRole.Participant)
+        if (role == UserRole.Participant)
         {
-            claims.Add(new Claim(PlantourClaims.AdminId, adminId.Value.ToString()));
+            claims.Add(new Claim(PlantourClaims.AdminId, adminId.ToString()));
         }
 
         if (isTemporary)

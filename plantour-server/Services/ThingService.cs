@@ -33,7 +33,6 @@ public class ThingService(
         return _mapper.Map<IEnumerable<ThingDto>>(entities);
     }
 
-
     public async Task<IEnumerable<ThingDto>> GetAllForTripAsync(Guid tripId)
     {
         _currentUser.RaiseIfNotAuthenticated();
@@ -55,7 +54,7 @@ public class ThingService(
         }).ToList();
 
         return result;
-    }   
+    }
 
     public async Task<IEnumerable<ThingDto>> GetAllForTripSharedAsync(Guid tripId)
     {
@@ -78,7 +77,7 @@ public class ThingService(
         }).ToList();
 
         return result;
-    }   
+    }
 
     public async Task<ThingDto?> GetByIdAsync(Guid id)
     {
@@ -94,21 +93,8 @@ public class ThingService(
         if (await _userThingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower()))
         {
             throw new CustomException("Item with the same name already exists");
-        }   
-
-        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
-        var granted = rule!.Granted;
-
-        if (!granted)
-        {
-            int limit = rule.Value!.Value;
-            var currentCount = await _userThingRepository.CountAsync(_currentUser.UserId);
-            if (currentCount >= limit)
-            {
-                throw new CustomException($"You've reached the limit of {limit} items you can add to your dictionary. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
-            }
         }
-
+        await CheckAccessAsync(1);
         var entity = _mapper.Map<UserThing>(request);
         entity.Id = Guid.NewGuid();
         entity.UserId = _currentUser.UserId;
@@ -124,11 +110,11 @@ public class ThingService(
         {
             throw new CustomException("Item not found or access denied");
         }
-        
+
         if (await _userThingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower() && x.Id != request.Id))
         {
             throw new CustomException("Another item with the same name already exists");
-        }   
+        }
 
         _mapper.Map(request, entity);
         entity.UserId = _currentUser.UserId;
@@ -161,40 +147,40 @@ public class ThingService(
     public async Task<int> InsertTemplateUserThingsAsync(Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
+        await CheckAccessAsync(ids.Length);
+        return await _dicTripRepository.InsertTemplateUserThingsAsync(_currentUser.UserId, ids);
+    }
 
+
+    private async Task CheckAccessAsync(int addQty)
+    {
         var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
         var granted = rule!.Granted;
 
-        if (!granted)
+        if (granted)
         {
-            int limit = rule.Value!.Value;
-            var currentCount = await _userThingRepository.CountAsync(_currentUser.UserId);
-            if (currentCount + ids.Length > limit)
-            {
-                throw new CustomException($"You've reached the limit of {limit} items you can add to your dictionary. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
-            }
+            return;
         }
 
+        int limit = rule.Value!.Value;
 
-        return await _dicTripRepository.InsertTemplateUserThingsAsync(_currentUser.UserId, ids);
+        var s1 = $"You've reached the limit of {limit} items you can add to your trip.";
+
+        var s2 = _currentUser.IsAdmin ? "Please upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
+
+
+        var currentCount = await _userThingRepository.CountAsync(_currentUser.UserId);
+        if (currentCount + addQty > limit)
+        {
+            throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+        }
     }
+
+
     public async Task<int> InsertTemplateAiUserThingsAsync(Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
-
-        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
-        var granted = rule!.Granted;
-
-        if (!granted)
-        {
-            int limit = rule.Value!.Value;
-            var currentCount = await _userThingRepository.CountAsync(_currentUser.UserId);
-            if (currentCount + ids.Length > limit)
-            {
-                throw new CustomException($"You've reached the limit of {limit} items you can add to your dictionary. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
-            }
-        }
-
+        await CheckAccessAsync(ids.Length);
         return await _dicTripRepository.InsertTemplateAiUserThingsAsync(_currentUser.UserId, ids);
     }
 

@@ -125,6 +125,4 @@ public class AccessRules
         return [.. _rules];
     }
 
-
-
 }

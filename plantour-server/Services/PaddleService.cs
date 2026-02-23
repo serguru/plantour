@@ -362,7 +362,7 @@ public class PaddleService : IPaddleService
         return subscription;
     }
 
-    public async Task<PaddleSubscription?> GetActiveSubscriptionByUserAsync(User user)
+    public async Task<PaddleSubscription?> GetActiveSubscriptionByUserAsync(User user, UserRole role, Guid adminId)
     {
         if (user == null)
         {
@@ -371,30 +371,41 @@ public class PaddleService : IPaddleService
 
         PaddleSubscription? subscription = null;
 
-        if (!string.IsNullOrWhiteSpace(user.PaddleSubscriptionId))
-        {
-            subscription = await GetActiveSubscriptionByIdAsync(user.PaddleSubscriptionId);
-        }
+        var admin = user;
 
-        if (subscription == null)
+        if (role == UserRole.Participant)
         {
-            subscription = await GetActiveSubscriptionByEmailAsync(user.Email);
-        }
-
-        if (subscription == null)
-        {
-            if (!string.IsNullOrWhiteSpace(user.PaddleCustomerId))
+            admin = await _usersRepository.GetActiveByIdAsync(adminId);
+            if (admin == null)
             {
-                user.PaddleSubscriptionId = null;
-                await _usersRepository.UpdateAsync(user);
+                throw new CustomException("Admin user not found");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(admin.PaddleSubscriptionId))
+        {
+            subscription = await GetActiveSubscriptionByIdAsync(admin.PaddleSubscriptionId);
+        }
+
+        if (subscription == null)
+        {
+            subscription = await GetActiveSubscriptionByEmailAsync(admin.Email);
+        }
+
+        if (subscription == null)
+        {
+            if (!string.IsNullOrWhiteSpace(admin.PaddleCustomerId))
+            {
+                admin.PaddleSubscriptionId = null;
+                await _usersRepository.UpdateAsync(admin);
             }
             return null;
         }
 
-        if (user.PaddleSubscriptionId != subscription!.Id)
+        if (admin.PaddleSubscriptionId != subscription!.Id)
         {
-            user.PaddleSubscriptionId = subscription!.Id;
-            await _usersRepository.UpdateAsync(user);
+            admin.PaddleSubscriptionId = subscription!.Id;
+            await _usersRepository.UpdateAsync(admin);
         }
 
         return subscription;

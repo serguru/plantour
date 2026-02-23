@@ -8,7 +8,7 @@ namespace plantour_server.Services;
 
 public interface IAccessRulesService
 {
-    Task<AccessProcessResult> ProcessAccessRulesAsync(User user, UserRole role, bool isTemporary);
+    Task<AccessProcessResult> ProcessAccessRulesAsync(User user, UserRole role, Guid adminId,bool isTemporary);
 
 
 }

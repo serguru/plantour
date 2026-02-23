@@ -9,7 +9,7 @@ public record RefreshTokenResult(string Token, string TokenHash, DateTime Expire
 
 public interface ITokenService
 {
-    Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid? adminId = null, bool isTemporary = false);
+    Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid adminId, bool isTemporary = false);
     RefreshTokenResult CreateRefreshToken();
     string HashToken(string token);
 }
