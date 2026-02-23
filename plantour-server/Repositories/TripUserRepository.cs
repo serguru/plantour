@@ -73,9 +73,7 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
 
     public async Task<int> CountAsync(Guid adminId, Guid tripId)
     {
-        return await _dbSet
-            .Where(x => x.TripId == tripId && x.AdminParticipant.AdminId == adminId)
-            .CountAsync();
+        return await _dbSet.CountAsync(x => x.TripId == tripId && x.AdminParticipant.AdminId == adminId);
     }
 
 }

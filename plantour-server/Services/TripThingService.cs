@@ -26,28 +26,70 @@ public class TripThingService(
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
 
-    public async Task<int> InsertTripUserThingsAsync(Guid tripId, Guid[] packageIds)
+    public async Task<int> InsertTripUserThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
-        return await _dicTripRepository.InsertTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageIds);
+
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        var granted = rule!.Granted;
+
+        if (!granted)
+        {
+            int limit = rule.Value!.Value;
+            var currentCount = await _tripUserThingRepository.CountAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
+            if (currentCount + ids.Length > limit)
+            {
+                throw new CustomException($"You've reached the limit of {limit} items you can add to your trip. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
+            }
+        }
+
+        return await _dicTripRepository.InsertTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
-    public async Task<int> DeleteTripUserThingsAsync(Guid tripId, Guid[] packageIds)
+    public async Task<int> DeleteTripUserThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
-        return await _dicTripRepository.DeleteTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageIds);
+        return await _dicTripRepository.DeleteTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
 
     public async Task<int> InsertTemplateTripUserThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
+
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        var granted = rule!.Granted;
+
+        if (!granted)
+        {
+            int limit = rule.Value!.Value;
+            var currentCount = await _tripUserThingRepository.CountAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
+            if (currentCount + ids.Length > limit)
+            {
+                throw new CustomException($"You've reached the limit of {limit} items you can add to your trip. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
+            }
+        }
         return await _dicTripRepository.InsertTemplateTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
     public async Task<int> InsertTemplateAiTripUserThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
+
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        var granted = rule!.Granted;
+
+        if (!granted)
+        {
+            int limit = rule.Value!.Value;
+            var currentCount = await _tripUserThingRepository.CountAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
+            if (currentCount + ids.Length > limit)
+            {
+                throw new CustomException($"You've reached the limit of {limit} items you can add to your trip. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
+            }
+        }
+
+
         return await _dicTripRepository.InsertTemplateAiTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
@@ -103,6 +145,7 @@ public class TripThingService(
             throw new CustomException("Trip user not found");
         }
 
+
         var exists = await _tripUserThingRepository.AnyAsync(x =>
             x.TripUserId == tripUser.Id &&
             x.Name.ToLower() == request.Name.ToLower());
@@ -111,6 +154,20 @@ public class TripThingService(
         {
             throw new CustomException("Item with the same name already exists");
         }
+
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        var granted = rule!.Granted;
+
+        if (!granted)
+        {
+            int limit = rule.Value!.Value;
+            var currentCount = await _tripUserThingRepository.CountAsync(_currentUser.AdminId, _currentUser.UserId, request.TripId);
+            if (currentCount >= limit)
+            {
+                throw new CustomException($"You've reached the limit of {limit} items you can add to your trip. Please upgrade your plan to remove this limit.", "PLAN_LIMIT_REACHED");
+            }
+        }
+
 
         var entity = _mapper.Map<TripUserThing>(request);
         entity.Id = Guid.NewGuid();
