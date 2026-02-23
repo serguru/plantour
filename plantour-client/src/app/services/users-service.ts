@@ -58,6 +58,12 @@ export class UsersService {
 
   userSignal = this._userSignal.asReadonly();
 
+  userRoleSignal = computed(() => {
+    const user = this._userSignal();
+    if (!user) return null;
+    return this.getRole(user) ?? null;
+  });
+
   userTextSignal = computed(() => {
     const user = this._userSignal();
     if (!user) return "Profile";

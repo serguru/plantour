@@ -154,8 +154,6 @@ export class TemplatesAiComponent {
     this.prompts.unshift(prompt);
   }
 
-
-
   ngOnInit(): void {
 
     this.componentService.updateComponentId(this.componentId);
@@ -329,6 +327,7 @@ export class TemplatesAiComponent {
         if (trip) {
           targetCondition.target = this.getTargetByTrip(trip);
         } else {
+          targetCondition.target = null;
           const trip = this.currentTripDtoSignal();
           if (trip && trips?.find(t => t.id === trip.id)) {
             targetCondition.target = this.getTargetByTrip(trip);

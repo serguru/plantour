@@ -32,7 +32,6 @@ export class Toolbar implements OnInit {
   currentTrip = toSignal(this.currentTripService.currentTripDto$);
   private destroyRef = inject(DestroyRef);
 
-
   onFeaturesClick($event, popoverFeatures) {
     $event.preventDefault();
     popoverFeatures.toggle($event);

@@ -7,6 +7,7 @@ using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Models;
 using plantour_server.Repositories;
+using plantour_server.Utils.Logging;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 
@@ -20,6 +21,7 @@ public class AiService : IAiService
     private readonly AiPromptRepository _aiPromptRepository;
     private readonly ICheckAccessService _checkAccessService;
     private readonly AiRepository _aiRepository;
+    private readonly AiPromptChecksRepository _aiPromptChecksRepository;
     private readonly ThingRepository _thingsRepository;
     private readonly IMapper _mapper;
     private readonly CurrentUser _currentUser;
@@ -27,7 +29,7 @@ public class AiService : IAiService
     private readonly TripSharedRepository _tripSharedRepository;
 
 
-// TODO: Explore using the Gemini streaming API 
+    // TODO: Explore using the Gemini streaming API 
     public AiService(
         HttpClient httpClient,
         IOptions<GeminiSettings> settings,
@@ -37,6 +39,7 @@ public class AiService : IAiService
         TripSharedRepository tripSharedRepository,
         ThingRepository thingsRepository,
         TripThingRepository tripThingRepository,
+        AiPromptChecksRepository aiPromptChecksRepository,
 
         IMapper mapper,
         HttpCurrentUser httpCurrentUser)
@@ -51,6 +54,7 @@ public class AiService : IAiService
         _tripSharedRepository = tripSharedRepository;
         _thingsRepository = thingsRepository;
         _tripThingRepository = tripThingRepository;
+        _aiPromptChecksRepository = aiPromptChecksRepository;
 
         if (!string.IsNullOrWhiteSpace(_settings.ApiBaseUrl))
         {
@@ -71,6 +75,58 @@ public class AiService : IAiService
         var dtos = _mapper.Map<IEnumerable<AiPromptDto>>(prompts);
         return dtos;
     }
+
+    private async Task CheckAccessAsync()
+    {
+        AiPromptCheck? check = await _aiPromptChecksRepository.GetByIdAsync(_currentUser.UserId);
+        if (check == null)
+        {
+            check = new AiPromptCheck
+            {
+                Id = _currentUser.UserId,
+                Count = 1,
+                Start = DateTime.UtcNow
+            };
+            await _aiPromptChecksRepository.AddAsync(check);
+            return;
+        }
+
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 70);
+        var granted = rule!.Granted;
+
+        if (granted)
+        {
+            return;
+        }
+
+        var now = DateTime.UtcNow;
+        if (now - check.Start > TimeSpan.FromDays(1))
+        {
+            check.Count = 1;
+            check.Start = now;
+            await _aiPromptChecksRepository.UpdateAsync(check);
+            return;
+        }
+
+        int limit = rule.Value!.Value;
+
+        if (check.Count < limit)
+        {
+            check.Count += 1;
+            await _aiPromptChecksRepository.UpdateAsync(check);
+            return;
+        }
+
+
+        var s0 = $"You will be able to send more prompts after {check.Start.AddDays(1).ToLocalTime():f}.";
+
+        var s1 = $"You've reached the limit of {limit} AI prompts per day. {s0}";
+        var s2 = _currentUser.IsAdmin ? "\nPlease upgrade your plan to remove this limit." : "\nPlease ask your administrator to upgrade the plan to remove this limit.";
+        throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+    }
+
+
+
 
     // TODO: Prompts older than 1 month should be cleaned up from the database periodically
     public async Task<IEnumerable<AiItemDto>> GetAllByPromptAsync(string prompt)
@@ -96,6 +152,8 @@ public class AiService : IAiService
         {
             throw new CustomException("Gemini API key is not configured");
         }
+
+        await CheckAccessAsync();
 
         var requestBody = new
         {
@@ -149,7 +207,7 @@ public class AiService : IAiService
         try
         {
             raw_items = JsonSerializer.Deserialize<List<AiItemRaw>>(textPayload, _jsonOptions);
-            
+
             if (raw_items == null || raw_items.Count == 0)
             {
                 return Array.Empty<AiItemDto>();

@@ -10,4 +10,5 @@ public interface ICheckAccessService
     Task<bool> HasAdminAccessToTripAsync(Guid tripId, Guid userId);
     Task<bool> HasParticipantAccessToTripAsync(Guid tripId, Guid adminId, Guid participantId);
     Task<bool> CurrentUserHasAccessToTripAsync(Guid tripId);
+    
 }

@@ -153,6 +153,7 @@ export class PacksComponent implements OnInit {
     if (targetCondition) {
       const trip = trips?.find(t => t.id === targetCondition.target?.id);
       if (!trip) {
+        targetCondition.target = null;
         const trip = this.currentTripDtoSignal();
         if (trip && trips?.find(t => t.id === trip.id)) {
           targetCondition.target = {

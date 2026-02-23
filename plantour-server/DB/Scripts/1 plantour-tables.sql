@@ -319,7 +319,12 @@ create table users (
     paddle_subscription_id text unique
 );
 
---create table transactions (
+create table ai_prompt_checks (
+    id uuid primary key not null references users(id) on delete cascade,
+    start timestamp not null ,
+    count int not null check(count >= 0)
+);
+
 
 create table admins_participants (
     id uuid not null primary key default gen_random_uuid(),

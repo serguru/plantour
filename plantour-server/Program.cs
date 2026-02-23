@@ -347,6 +347,7 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.AiPromptChecksRepository>();
    
 
     builder.Services.AddScoped<HttpCurrentUser>();
