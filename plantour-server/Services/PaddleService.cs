@@ -430,13 +430,21 @@ public class PaddleService : IPaddleService
             throw new CustomException("Paddle customer not found for the current user");
         }
 
+        string? subscriptionId = _currentUser.PaddleSubscriptionId;
+
+        if (string.IsNullOrWhiteSpace(subscriptionId))
+        {
+            var activeSubscription = await GetActiveSubscriptionByEmailAsync(_currentUser.Email);
+            subscriptionId = activeSubscription?.Id;
+        }
+
         HttpContent? content = null;
 
-        if (!string.IsNullOrWhiteSpace(_currentUser.PaddleSubscriptionId))
+        if (!string.IsNullOrWhiteSpace(subscriptionId))
         {
             var requestBody = JsonSerializer.Serialize(new
             {
-                subscription_ids = new[] { _currentUser.PaddleSubscriptionId }
+                subscription_ids = new[] { subscriptionId }
             });
             content = new StringContent(requestBody, Encoding.UTF8, "application/json");
         }

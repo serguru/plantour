@@ -74,3 +74,33 @@ Content-Type: application/json
 - Returned URL token is temporary; do not store in DB/localStorage.
 - If customer does not exist in Paddle, endpoint returns an error.
 - If API key is missing/invalid, endpoint returns Paddle/API error from backend.
+
+## Why you may not see an "Upgrade" button
+
+Based on Paddle docs, customer portal sessions provide:
+- general overview link (`urls.general.overview`)
+- subscription deep links for `cancel_subscription`
+- subscription deep links for `update_subscription_payment_method`
+
+Paddle docs do **not** define a dedicated "upgrade" deep link in customer portal sessions.
+
+### What enables plan switching in the portal
+
+Plan switching in the portal is available through **Paddle Retain Cancellation Flows** as a salvage attempt:
+- Configure Retain in Paddle Dashboard
+- Configure Cancellation Flows
+- Add salvage attempt type **Plan switch**
+- Map source plan -> offered plan in the flow settings
+
+Important: Paddle docs state Retain uses live data and cannot be fully tested with sandbox accounts.
+
+### If you need direct upgrade outside cancellation flow
+
+Implement your own upgrade workflow in app/API using subscription update operations:
+- `PATCH /subscriptions/{subscription_id}`
+- Replace `items` with target price(s)
+- Use `proration_billing_mode`
+
+From Paddle docs, recurring items on a subscription must share the same billing interval, and subscription changes are blocked when:
+- subscription is `past_due`
+- next billing period is within 30 minutes
