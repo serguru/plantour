@@ -61,6 +61,10 @@ export class PaddleService {
     });
   }
 
+  createCustomerPortalSession(): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(`${this.environment.apiUrl}/api/paddle/customer-portal-session`, {});
+  }
+
   async closeCheckout(): Promise<void> {
     const paddle = await this.getPaddleOrThrow();
     paddle.Checkout.close();

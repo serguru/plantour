@@ -28,7 +28,12 @@
         }
 
         <p class="billing-row">
-            Manage your <a href="">billing, plan and subscription</a>
+            Manage your <a
+                href=""
+                (click)="onOpenCustomerPortal($event)"
+                [attr.aria-disabled]="isOpeningPortal()"
+                [attr.tabindex]="isOpeningPortal() ? -1 : null"
+            >{{ isOpeningPortal() ? 'billing portal (opening...)' : 'billing, plan and subscription' }}</a>
         </p>
 
         <section class="profile-section">

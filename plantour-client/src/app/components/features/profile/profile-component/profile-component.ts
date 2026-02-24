@@ -10,10 +10,13 @@ import { MessagesService } from '../../../../services/messages-service';
 import { AppButton } from '../../../button/button-component';
 import { SocialAuthService } from '../../../../services/social-auth-service';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../../../environment.token';
+import { PaddleService } from '../../../../services/paddle-service';
+import { firstValueFrom } from 'rxjs';
 
 // TODO: move c hange password form to a separate component and use it in both profile and auth pages
 // TODO: add styles to custom portal link
 // TODO: check social logins section logic
+// TODO: find out how to show local prices to customers with Paddle
 @Component({
   selector: 'app-profile-component',
   standalone: true,
@@ -46,10 +49,12 @@ export class ProfileComponent implements OnInit {
   isLoadingProfile = signal(false);
   isUpdatingProfile = signal(false);
   isUpdatingPassword = signal(false);
+  isOpeningPortal = signal(false);
 
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
   private socialAuthService = inject(SocialAuthService);
+  private paddleService = inject(PaddleService);
   private fb = inject(FormBuilder);
 
   currentUser = this.usersService.userSignal;
@@ -262,6 +267,32 @@ export class ProfileComponent implements OnInit {
         this.messagesService.showInfo('Facebook Disconnected', 'Facebook login has been disconnected.');
       }
     });
+  }
+
+  async onOpenCustomerPortal(event: Event): Promise<void> {
+    event.preventDefault();
+
+    if (this.isOpeningPortal()) {
+      return;
+    }
+
+    this.isOpeningPortal.set(true);
+
+    try {
+      const response = await firstValueFrom(this.paddleService.createCustomerPortalSession());
+
+      if (!response?.url) {
+        this.messagesService.showError('Billing', 'Could not create customer portal session. Please try again.');
+        return;
+      }
+
+      window.location.assign(response.url);
+    } catch (error: any) {
+      const errorMessage = error?.error?.message || 'Failed to open customer portal.';
+      this.messagesService.showError('Billing', errorMessage);
+    } finally {
+      this.isOpeningPortal.set(false);
+    }
   }
 
   onUpdateProfile(): void {

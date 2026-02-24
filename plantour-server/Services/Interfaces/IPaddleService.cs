@@ -11,5 +11,6 @@ public interface IPaddleService
     Task<PaddleSubscription?> GetActiveSubscriptionByUserAsync(User user, UserRole role, Guid adminId);
 
     Task<string?> GetSubscriptionIdAsync(PaddleSubscriptionIdRequest request);
+    Task<PortalSessionResponse> CreateCustomerPortalSessionAsync();
 
 }

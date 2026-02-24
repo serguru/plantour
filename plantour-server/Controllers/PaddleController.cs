@@ -35,4 +35,12 @@ public class PaddleController : ControllerBase
         var subscriptionId = await _service.GetSubscriptionIdAsync(request);
         return Ok(subscriptionId);
     }
+
+    [HttpPost("customer-portal-session")]
+    [AdminOnly]
+    public async Task<ActionResult<PortalSessionResponse>> CreateCustomerPortalSession()
+    {
+        var response = await _service.CreateCustomerPortalSessionAsync();
+        return Ok(response);
+    }
 }

@@ -1,5 +1,6 @@
 using AutoMapper;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
@@ -16,15 +17,18 @@ public class PaddleService : IPaddleService
     private readonly string _baseUrl;
     private readonly string _apiKey;
     private readonly HttpClient _httpclient;
+    private readonly CurrentUser _currentUser;
 
     private readonly UsersRepository _usersRepository;
 
     public PaddleService(
         HttpClient httpClient,
+        HttpCurrentUser httpCurrentUser,
         UsersRepository usersRepository,
         IConfiguration configuration
     )
     {
+        _currentUser = httpCurrentUser.CurrentUser;
         _usersRepository = usersRepository;
         _baseUrl = configuration["PaddleSettings:ApiBaseUrl"] ?? throw new CustomException("PaddleSettings:ApiBaseUrl is not configured");
         _apiKey = configuration["PaddleSettings:ApiKey"] ?? throw new CustomException("PaddleSettings:ApiKey is not configured");
@@ -409,6 +413,58 @@ public class PaddleService : IPaddleService
         }
 
         return subscription;
+    }
+
+    public async Task<PortalSessionResponse> CreateCustomerPortalSessionAsync()
+    {
+        _currentUser.RaiseIfNotAdmin();
+
+        var customerId = _currentUser.PaddleCustomerId;
+        if (string.IsNullOrWhiteSpace(customerId))
+        {
+            customerId = await GetCustomerIdByEnmailAsync(_currentUser.Email);
+        }
+
+        if (string.IsNullOrWhiteSpace(customerId))
+        {
+            throw new CustomException("Paddle customer not found for the current user");
+        }
+
+        HttpContent? content = null;
+
+        if (!string.IsNullOrWhiteSpace(_currentUser.PaddleSubscriptionId))
+        {
+            var requestBody = JsonSerializer.Serialize(new
+            {
+                subscription_ids = new[] { _currentUser.PaddleSubscriptionId }
+            });
+            content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+        }
+
+        var response = await _httpclient.PostAsync($"customers/{Uri.EscapeDataString(customerId)}/portal-sessions", content);
+        response.EnsureSuccessStatusCode();
+
+        var responseContent = await response.Content.ReadAsStringAsync();
+        using var json = JsonDocument.Parse(responseContent);
+
+        if (!json.RootElement.TryGetProperty("data", out var dataElement) ||
+            !dataElement.TryGetProperty("urls", out var urlsElement) ||
+            !urlsElement.TryGetProperty("general", out var generalElement) ||
+            !generalElement.TryGetProperty("overview", out var overviewElement))
+        {
+            throw new CustomException("Paddle portal session response does not contain data.urls.general.overview");
+        }
+
+        var url = overviewElement.GetString();
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            throw new CustomException("Paddle portal URL is missing in response");
+        }
+
+        return new PortalSessionResponse
+        {
+            Url = url
+        };
     }
 
 
