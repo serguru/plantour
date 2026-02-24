@@ -5,7 +5,36 @@
   </div>
 </div>
 
+
 <div class="controls-wrapper">
+
+  <div class="upper-message">
+    <i class="pi pi-info-circle"></i>
+    <div>
+      <p>To create an account you can:</p>
+      <p>- Sign in with Google or Facebook. No email confirmation required.</p>
+      <p>- Enter your email and password. The confirmation email will be sent.</p>
+    </div>
+  </div>
+
+  <div class="buttons">
+    
+    <app-button
+      [label]="'Continue with Google'"
+      [icon]="'pi pi-google'"
+      [disabled]="isLoading"
+      (click)="onSignUpWithGoogle()"
+    />
+
+    <app-button
+      [label]="'Continue with Facebook'"
+      [icon]="'pi pi-facebook'"
+      [disabled]="isLoading"
+      (click)="onSignUpWithFacebook()"
+    />
+    
+  </div>
+
   <form
     [formGroup]="signUpForm"
     (ngSubmit)="onSubmit()"
@@ -131,26 +160,5 @@
         (click)="onSignIn()"
       >Sign In here</button>
     </div>
-
-    <div class="pale-prompt">or continue with</div>
-    <div class="form-actions">
-      <app-button
-        type="button"
-        [label]="'Continue with Google'"
-        [icon]="'pi pi-google'"
-        [disabled]="isLoading"
-        (click)="onSignUpWithGoogle()"
-      />
-    </div>
-    <div class="form-actions">
-      <app-button
-        type="button"
-        [label]="'Continue with Facebook'"
-        [icon]="'pi pi-facebook'"
-        [disabled]="isLoading"
-        (click)="onSignUpWithFacebook()"
-      />
-    </div>
-
   </form>
 </div>

@@ -553,21 +553,6 @@ p-panel.list-actions-panel {
   // }
 }
 
-.multiple-lines {
-  flex-direction: column;
-  align-items: end;
-  gap: 0;
-  .first {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  .second {
-    display: flex;
-    font-size: smaller;
-    justify-content: end;
-  }
-}
 
 .pl-menu-item.disabled {
     color: rgb(202, 202, 202);

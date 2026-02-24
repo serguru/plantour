@@ -1,4 +1,4 @@
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { MessagesService } from '../../services/messages-service';
 import { AppButton } from '../button/button-component';
 import { SocialAuthService } from '../../services/social-auth-service';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
+import { MessagePanel } from '../message-panel/message-panel-component/message-panel-component';
 
 // TODO: while signing up check for a PaymentProcessor pending user and their payments and subscriptions
 @Component({
@@ -40,6 +41,8 @@ export class SignUpComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private location = inject(Location);
+
+  message = signal("To create an account: sign in with Google or Facebook account or enter your email and password. After signing up, check your email for a confirmation link to activate your account before signing in.");
 
   constructor(
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig

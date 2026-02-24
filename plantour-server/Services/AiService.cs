@@ -78,6 +78,13 @@ public class AiService : IAiService
 
     private async Task CheckAccessAsync()
     {
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 70);
+        var granted = rule!.Granted;
+        if (granted)
+        {
+            return;
+        }
+
         AiPromptCheck? check = await _aiPromptChecksRepository.GetByIdAsync(_currentUser.UserId);
         if (check == null)
         {
@@ -91,15 +98,12 @@ public class AiService : IAiService
             return;
         }
 
-        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 70);
-        var granted = rule!.Granted;
-
-        if (granted)
+        var now = DateTime.UtcNow;
+        if (check.Start > now)
         {
-            return;
+            throw new CustomException("Invalid prompt check record. Start time cannot be in the future.");
         }
 
-        var now = DateTime.UtcNow;
         if (now - check.Start > TimeSpan.FromDays(1))
         {
             check.Count = 1;

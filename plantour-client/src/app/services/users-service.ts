@@ -10,6 +10,7 @@ import { LocalStorageService } from './local-storage-service';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { MessagesService } from './messages-service';
+import { getFullName } from '../helpers/utils';
 
 export interface TemporaryUserResponse {
   accessToken: string;
@@ -61,28 +62,34 @@ export class UsersService {
   userRoleSignal = computed(() => {
     const user = this._userSignal();
     if (!user) return null;
-    return this.getRole(user) ?? null;
+    return this.getRole() ?? null;
   });
 
   userTextSignal = computed(() => {
     const user = this._userSignal();
-    if (!user) return "Profile";
-
-    const firstName = this.getClaim(user, [this.claimGivenName, 'first_name']);
-    const lastName = this.getClaim(user, [this.claimSurname, 'last_name']);
-    const email = this.getClaim(user, [this.claimEmail, 'email']);
-
-    if (firstName && lastName) {
-      return `${firstName} ${lastName}`;
+    if (!user) {
+      return "Profile";
     }
-    return email ?? 'Profile';
+
+    // const firstName = this.getClaim(user, [this.claimGivenName, 'first_name']);
+    // const lastName = this.getClaim(user, [this.claimSurname, 'last_name']);
+    // const email = this.getClaim(user, [this.claimEmail, 'email']);
+
+    // if (firstName && lastName) {
+    //   return `${firstName} ${lastName}`;
+    // }
+    // return email ?? 'Profile';
+
+
+    const result = getFullName(user.given_name ?? '', user.family_name ?? '', user.email ?? '', false);
+    return result;
+
   });
 
   isAuthenticatedSignal = computed(() => {
-    const user = this._userSignal();
     const now = Math.floor(Date.now() / 1000);
-    const role = this.getRole(user);
-
+    const role = this.getRole();
+    const user = this._userSignal();
     if (!user || !user.exp || user.exp <= now || ['Admin', 'Participant'].indexOf(role ?? '') === -1) {
       return false;
     }
@@ -90,12 +97,12 @@ export class UsersService {
   });
 
   isAdminSignal = computed(() => {
-    const role = this.getRole(this._userSignal());
+    const role = this.getRole();
     return role === 'Admin' && this.isAuthenticatedSignal();
   });
 
   isParticipantSignal = computed(() => {
-    const role = this.getRole(this._userSignal());
+    const role = this.getRole();
     return role === 'Participant' && this.isAuthenticatedSignal();
   });
 
@@ -299,29 +306,28 @@ export class UsersService {
   }
 
   getCurrentUserId(): string | null {
-
     const us = this._userSignal();
-
-    return this.getClaim(us, [this.claimNameIdentifier, 'nameid']) ?? null;
+    return us?.nameid ?? null;
   }
 
-  private getClaim(token: AccessToken | null, keys: string[]): string | undefined {
-    if (!token) {
-      return undefined;
-    }
+  // private getClaim(token: AccessToken | null, keys: string[]): string | undefined {
+  //   if (!token) {
+  //     return undefined;
+  //   }
 
-    for (const key of keys) {
-      const value = token[key];
-      if (typeof value === 'string' && value.length > 0) {
-        return value;
-      }
-    }
+  //   for (const key of keys) {
+  //     const value = token[key];
+  //     if (typeof value === 'string' && value.length > 0) {
+  //       return value;
+  //     }
+  //   }
 
-    return undefined;
-  }
+  //   return undefined;
+  // }
 
-  private getRole(token: AccessToken | null): string | undefined {
-    return this.getClaim(token, [this.claimRole, 'role']);
+  public getRole(): string | null {
+    const token = this._userSignal();
+    return token?.role ?? null;
   }
 
   getProfile(): Observable<UserDto> {

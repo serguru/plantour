@@ -5,3 +5,12 @@
     width: 100%;
 }
 
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    //flex-wrap: wrap;
+    // align-items: center;
+    // justify-items: center;
+    margin-bottom: 1rem;
+}

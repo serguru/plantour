@@ -178,7 +178,7 @@ export class LandingNewUserComponent implements OnInit {
               monthlyPrice: "0",
               description: 'For small trips and light packers',
               monthlyButtonText: 'Join Free',
-              monthlyPriceUrl: '/sign-in',
+              monthlyPriceUrl: '/sign-up',
               features: this.featuresByPlan(plan),
               order: 1
             }

@@ -172,17 +172,12 @@
           <span class="button-label">{{tripTextLabel}}</span>
         </a>
         <a
-          class="pl-menu-item multiple-lines"
+          class="pl-menu-item"
           [class.selected]="isNavigatedComponent('profile')"
           (click)="featureClick($event, '/profile', popoverFeatures)"
         >
-          <div class="first">
-            <span class="pi pi-user"></span>
-            <span class="button-label">{{usersService.userTextSignal()}}</span>
-          </div>
-          <div class="second">
-            <span>{{usersService.userRoleSignal()?.toLowerCase()}}</span>
-          </div>
+          <span class="pi pi-user"></span>
+          <span class="button-label">{{usersService.userTextSignal()}}</span>
         </a>
         }
         <a
