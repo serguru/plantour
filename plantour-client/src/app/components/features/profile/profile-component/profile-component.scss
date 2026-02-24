@@ -6,17 +6,96 @@
     overflow: auto;
 }
 
-.form-section-title {
-    font-family: var(--font-heading);
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--primary-text-color);
+.user-summary {
+    border: 1px solid var(--secondary-border-color);
+    border-radius: 8px;
+    background-color: var(--surface-0);
     margin-bottom: 1rem;
-    margin-top: 0.5rem;
+    overflow: hidden;
 }
 
-.form-divider {
-    height: 1px;
-    background-color: var(--secondary-border-color);
-    margin: 2rem 0;
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--secondary-border-color);
+
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.summary-label {
+    color: var(--pale-color);
+}
+
+.summary-value {
+    color: var(--primary-text-color);
+    font-weight: 500;
+}
+
+.billing-row {
+    margin: 0 0 1rem 0;
+    color: var(--primary-text-color);
+    text-align: center;
+
+    a {
+        color: var(--primary-color);
+    }
+}
+
+.profile-section {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--secondary-border-color);
+    border-radius: 8px;
+    background-color: var(--surface-0);
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.section-header {
+    width: 100%;
+    box-sizing: border-box;
+    border: 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    cursor: pointer;
+}
+
+.section-header-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-icon {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.section-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    color: var(--primary-text-color);
+    font-weight: 600;
+}
+
+.section-content {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0 1rem 1rem;
+}
+
+.section-content form {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }

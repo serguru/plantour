@@ -360,3 +360,8 @@ If I need to know a current customer status and plan I send a REST request to th
 What important thing am I missing?
 
 
+Add three rows at the top: Full name, email and role, take them from users-service. If no user show nothing.
+
+Then add a link 'Manage your <a...>billing, plan and subscription</a>', leave href empty for now.
+
+Explore collapsible sections implementation in Help component. Explore signup. Rewrite Pesonal Information, Social login and Change Password as collapsible sections, with icons. Above email add a read only row Role: Admin or Participant, take role from users-service. 

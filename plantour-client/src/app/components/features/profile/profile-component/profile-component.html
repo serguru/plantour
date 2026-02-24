@@ -1,4 +1,5 @@
-<div class="page-container">
+<!-- Do not remove form-container, it is referenced from style.css -->
+<div class="page-container form-container">
 
     <div class="page-header">
         <div class="page-left">
@@ -9,233 +10,281 @@
 
     <div class="controls-wrapper">
 
-        @if(customerPortalUrl()) {
-        <a [href]="customerPortalUrl()" target="_blank" rel="noopener noreferrer">
-            Manage Billing
-        </a>
-        }
-
-        <!-- Profile Information Form -->
-        <form
-            [formGroup]="profileForm"
-            (ngSubmit)="onUpdateProfile()"
-        >
-            <h3 class="form-section-title">Personal Information</h3>
-
-            <!-- Email Field -->
-            <div class="form-field">
-                <label for="email">Email <span class="required">*</span></label>
-                <input
-                    pInputText
-                    id="email"
-                    type="email"
-                    formControlName="email"
-                    placeholder="your.email@example.com"
-                    [class.p-invalid]="isProfileFieldInvalid('email')"
-                />
-                @if (isProfileFieldInvalid('email')) {
-                <small class="error-message">
-                    {{ getProfileFieldError('email') }}
-                </small>
-                }
+        @if (currentUser()) {
+        <div class="user-summary">
+            <div class="summary-row">
+                <h3 class="summary-label">Full name</h3>
+                <h3 class="section-title">{{ fullName() }}</h3>
             </div>
-
-            <!-- First Name Field -->
-            <div class="form-field">
-                <label for="firstName">First Name</label>
-                <input
-                    pInputText
-                    id="firstName"
-                    type="text"
-                    formControlName="firstName"
-                    placeholder="Enter your first name"
-                    [class.p-invalid]="isProfileFieldInvalid('firstName')"
-                />
-                @if (isProfileFieldInvalid('firstName')) {
-                <small class="error-message">
-                    {{ getProfileFieldError('firstName') }}
-                </small>
-                }
+            <div class="summary-row">
+                <h3 class="summary-label">Email</h3>
+                <h3 class="section-title">{{ userEmail() }}</h3>
             </div>
-
-            <!-- Last Name Field -->
-            <div class="form-field">
-                <label for="lastName">Last Name</label>
-                <input
-                    pInputText
-                    id="lastName"
-                    type="text"
-                    formControlName="lastName"
-                    placeholder="Enter your last name"
-                    [class.p-invalid]="isProfileFieldInvalid('lastName')"
-                />
-                @if (isProfileFieldInvalid('lastName')) {
-                <small class="error-message">
-                    {{ getProfileFieldError('lastName') }}
-                </small>
-                }
-            </div>
-
-            <!-- Phone Field -->
-            <div class="form-field">
-                <label for="phone">Phone</label>
-                <input
-                    pInputText
-                    id="phone"
-                    type="tel"
-                    formControlName="phone"
-                    placeholder="Enter your phone number"
-                    [class.p-invalid]="isProfileFieldInvalid('phone')"
-                />
-                @if (isProfileFieldInvalid('phone')) {
-                <small class="error-message">
-                    {{ getProfileFieldError('phone') }}
-                </small>
-                }
-            </div>
-
-            <!-- Submit Button -->
-            <div class="form-actions">
-                <app-button
-                    type="submit"
-                    [label]="'Update Profile'"
-                    [icon]="'pi pi-save'"
-                    [loading]="isUpdatingProfile()"
-                    [disabled]="profileForm.invalid || isUpdatingProfile()"
-                />
-            </div>
-        </form>
-
-        <div class="form-divider"></div>
-
-        <div>
-            <h3 class="form-section-title">Social Login</h3>
-
-            <div class="pale-prompt">Google login: {{ hasGoogleLinked() ? 'Connected' : 'Not connected' }}</div>
-            <div class="form-actions">
-                @if (hasGoogleLinked()) {
-                <app-button
-                    type="button"
-                    [label]="'Reset Google'"
-                    [icon]="'pi pi-refresh'"
-                    [disabled]="isGoogleBusy()"
-                    (click)="onResetGoogle()"
-                />
-                } @else {
-                <app-button
-                    type="button"
-                    [label]="'Connect Google'"
-                    [icon]="'pi pi-google'"
-                    [disabled]="isGoogleBusy()"
-                    (click)="onConnectGoogle()"
-                />
-                }
-            </div>
-
-            <div class="pale-prompt">Facebook login: {{ hasFacebookLinked() ? 'Connected' : 'Not connected' }}</div>
-            <div class="form-actions">
-                @if (hasFacebookLinked()) {
-                <app-button
-                    type="button"
-                    [label]="'Reset Facebook'"
-                    [icon]="'pi pi-refresh'"
-                    [disabled]="isFacebookBusy()"
-                    (click)="onResetFacebook()"
-                />
-                } @else {
-                <app-button
-                    type="button"
-                    [label]="'Connect Facebook'"
-                    [icon]="'pi pi-facebook'"
-                    [disabled]="isFacebookBusy()"
-                    (click)="onConnectFacebook()"
-                />
-                }
+            <div class="summary-row">
+                <h3 class="summary-label">Role</h3>
+                <h3 class="section-title">{{ userRole() }}</h3>
             </div>
         </div>
+        }
 
-        <!-- Divider -->
-        <div class="form-divider"></div>
+        <p class="billing-row">
+            Manage your <a href="">billing, plan and subscription</a>
+        </p>
 
-        <!-- Password Update Form -->
-        <form
-            [formGroup]="passwordForm"
-            (ngSubmit)="onUpdatePassword()"
-        >
-            <h3 class="form-section-title">{{ hasPassword() ? 'Change Password' : 'Set Password' }}</h3>
+        <section class="profile-section">
+            <button
+                type="button"
+                class="section-header"
+                (click)="toggleSection('personal-information')"
+                [attr.aria-expanded]="isSectionExpanded('personal-information')"
+            >
+                <div class="section-header-content">
+                    <i class="pi pi-id-card section-icon"></i>
+                    <h3 class="section-title">Personal Information</h3>
+                </div>
+                <i [class]="isSectionExpanded('personal-information') ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+            </button>
 
-            <!-- Current Password Field -->
-            @if (hasPassword()) {
-            <div class="form-field">
-                <label for="currentPassword">Current Password <span class="required">*</span></label>
-                <p-password
-                    id="currentPassword"
-                    formControlName="currentPassword"
-                    placeholder="Enter your current password"
-                    [toggleMask]="true"
-                    [feedback]="false"
-                    [class.p-invalid]="isPasswordFieldInvalid('currentPassword')"
-                    styleClass="w-full"
+            @if (isSectionExpanded('personal-information')) {
+            <div class="section-content">
+                <form
+                    [formGroup]="profileForm"
+                    (ngSubmit)="onUpdateProfile()"
                 >
-                </p-password>
-                @if (isPasswordFieldInvalid('currentPassword')) {
-                <small class="error-message">
-                    {{ getPasswordFieldError('currentPassword') }}
-                </small>
-                }
+                    <div class="form-field">
+                        <label for="email">Email <span class="required">*</span></label>
+                        <input
+                            pInputText
+                            id="email"
+                            type="email"
+                            formControlName="email"
+                            placeholder="your.email@example.com"
+                            [class.p-invalid]="isProfileFieldInvalid('email')"
+                        />
+                        @if (isProfileFieldInvalid('email')) {
+                        <small class="error-message">
+                            {{ getProfileFieldError('email') }}
+                        </small>
+                        }
+                    </div>
+
+                    <div class="form-field">
+                        <label for="firstName">First Name</label>
+                        <input
+                            pInputText
+                            id="firstName"
+                            type="text"
+                            formControlName="firstName"
+                            placeholder="Enter your first name"
+                            [class.p-invalid]="isProfileFieldInvalid('firstName')"
+                        />
+                        @if (isProfileFieldInvalid('firstName')) {
+                        <small class="error-message">
+                            {{ getProfileFieldError('firstName') }}
+                        </small>
+                        }
+                    </div>
+
+                    <div class="form-field">
+                        <label for="lastName">Last Name</label>
+                        <input
+                            pInputText
+                            id="lastName"
+                            type="text"
+                            formControlName="lastName"
+                            placeholder="Enter your last name"
+                            [class.p-invalid]="isProfileFieldInvalid('lastName')"
+                        />
+                        @if (isProfileFieldInvalid('lastName')) {
+                        <small class="error-message">
+                            {{ getProfileFieldError('lastName') }}
+                        </small>
+                        }
+                    </div>
+
+                    <div class="form-field">
+                        <label for="phone">Phone</label>
+                        <input
+                            pInputText
+                            id="phone"
+                            type="tel"
+                            formControlName="phone"
+                            placeholder="Enter your phone number"
+                            [class.p-invalid]="isProfileFieldInvalid('phone')"
+                        />
+                        @if (isProfileFieldInvalid('phone')) {
+                        <small class="error-message">
+                            {{ getProfileFieldError('phone') }}
+                        </small>
+                        }
+                    </div>
+
+                    <div class="form-actions">
+                        <app-button
+                            type="submit"
+                            [label]="'Update Profile'"
+                            [icon]="'pi pi-save'"
+                            [loading]="isUpdatingProfile()"
+                            [disabled]="profileForm.invalid || isUpdatingProfile()"
+                        />
+                    </div>
+                </form>
             </div>
             }
+        </section>
 
-            <!-- New Password Field -->
-            <div class="form-field">
-                <label for="newPassword">New Password <span class="required">*</span></label>
-                <p-password
-                    id="newPassword"
-                    formControlName="newPassword"
-                    placeholder="Enter your new password"
-                    [toggleMask]="true"
-                    [feedback]="false"
-                    [class.p-invalid]="isPasswordFieldInvalid('newPassword')"
-                    styleClass="w-full"
+        <section class="profile-section">
+            <button
+                type="button"
+                class="section-header"
+                (click)="toggleSection('social-login')"
+                [attr.aria-expanded]="isSectionExpanded('social-login')"
+            >
+                <div class="section-header-content">
+                    <i class="pi pi-share-alt section-icon"></i>
+                    <h3 class="section-title">Social Login</h3>
+                </div>
+                <i [class]="isSectionExpanded('social-login') ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+            </button>
+
+            @if (isSectionExpanded('social-login')) {
+            <div class="section-content">
+                <div class="pale-prompt">Google login: {{ hasGoogleLinked() ? 'Connected' : 'Not connected' }}</div>
+                <div class="form-actions">
+                    @if (hasGoogleLinked()) {
+                    <app-button
+                        type="button"
+                        [label]="'Reset Google'"
+                        [icon]="'pi pi-refresh'"
+                        [disabled]="isGoogleBusy()"
+                        (click)="onResetGoogle()"
+                    />
+                    } @else {
+                    <app-button
+                        type="button"
+                        [label]="'Connect Google'"
+                        [icon]="'pi pi-google'"
+                        [disabled]="isGoogleBusy()"
+                        (click)="onConnectGoogle()"
+                    />
+                    }
+                </div>
+
+                <div class="pale-prompt">Facebook login: {{ hasFacebookLinked() ? 'Connected' : 'Not connected' }}</div>
+                <div class="form-actions">
+                    @if (hasFacebookLinked()) {
+                    <app-button
+                        type="button"
+                        [label]="'Reset Facebook'"
+                        [icon]="'pi pi-refresh'"
+                        [disabled]="isFacebookBusy()"
+                        (click)="onResetFacebook()"
+                    />
+                    } @else {
+                    <app-button
+                        type="button"
+                        [label]="'Connect Facebook'"
+                        [icon]="'pi pi-facebook'"
+                        [disabled]="isFacebookBusy()"
+                        (click)="onConnectFacebook()"
+                    />
+                    }
+                </div>
+            </div>
+            }
+        </section>
+
+        <section class="profile-section">
+            <button
+                type="button"
+                class="section-header"
+                (click)="toggleSection('change-password')"
+                [attr.aria-expanded]="isSectionExpanded('change-password')"
+            >
+                <div class="section-header-content">
+                    <i class="pi pi-lock section-icon"></i>
+                    <h3 class="section-title">{{ hasPassword() ? 'Change Password' : 'Set Password' }}</h3>
+                </div>
+                <i [class]="isSectionExpanded('change-password') ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+            </button>
+
+            @if (isSectionExpanded('change-password')) {
+            <div class="section-content">
+                <form
+                    [formGroup]="passwordForm"
+                    (ngSubmit)="onUpdatePassword()"
                 >
-                </p-password>
-                @if (isPasswordFieldInvalid('newPassword')) {
-                <small class="error-message">
-                    {{ getPasswordFieldError('newPassword') }}
-                </small>
-                }
-            </div>
+                    @if (hasPassword()) {
+                    <div class="form-field">
+                        <label for="currentPassword">Current Password <span class="required">*</span></label>
+                        <p-password
+                            id="currentPassword"
+                            formControlName="currentPassword"
+                            placeholder="Enter your current password"
+                            [toggleMask]="true"
+                            [feedback]="false"
+                            [class.p-invalid]="isPasswordFieldInvalid('currentPassword')"
+                            styleClass="w-full"
+                        >
+                        </p-password>
+                        @if (isPasswordFieldInvalid('currentPassword')) {
+                        <small class="error-message">
+                            {{ getPasswordFieldError('currentPassword') }}
+                        </small>
+                        }
+                    </div>
+                    }
 
-            <!-- Confirm New Password Field -->
-            <div class="form-field">
-                <label for="confirmNewPassword">Confirm New Password <span class="required">*</span></label>
-                <p-password
-                    id="confirmNewPassword"
-                    formControlName="confirmNewPassword"
-                    placeholder="Confirm your new password"
-                    [toggleMask]="true"
-                    [feedback]="false"
-                    [class.p-invalid]="isConfirmNewPasswordInvalid()"
-                    styleClass="w-full"
-                >
-                </p-password>
-                @if (isConfirmNewPasswordInvalid()) {
-                <small class="error-message">
-                    {{ getConfirmNewPasswordError() }}
-                </small>
-                }
-            </div>
+                    <div class="form-field">
+                        <label for="newPassword">New Password <span class="required">*</span></label>
+                        <p-password
+                            id="newPassword"
+                            formControlName="newPassword"
+                            placeholder="Enter your new password"
+                            [toggleMask]="true"
+                            [feedback]="false"
+                            [class.p-invalid]="isPasswordFieldInvalid('newPassword')"
+                            styleClass="w-full"
+                        >
+                        </p-password>
+                        @if (isPasswordFieldInvalid('newPassword')) {
+                        <small class="error-message">
+                            {{ getPasswordFieldError('newPassword') }}
+                        </small>
+                        }
+                    </div>
 
-            <!-- Submit Button -->
-            <div class="form-actions">
-                <app-button
-                    type="submit"
-                    [label]="'Update Password'"
-                    [icon]="'pi pi-lock'"
-                    [loading]="isUpdatingPassword()"
-                    [disabled]="passwordForm.invalid || isUpdatingPassword()"
-                />
+                    <div class="form-field">
+                        <label for="confirmNewPassword">Confirm New Password <span class="required">*</span></label>
+                        <p-password
+                            id="confirmNewPassword"
+                            formControlName="confirmNewPassword"
+                            placeholder="Confirm your new password"
+                            [toggleMask]="true"
+                            [feedback]="false"
+                            [class.p-invalid]="isConfirmNewPasswordInvalid()"
+                            styleClass="w-full"
+                        >
+                        </p-password>
+                        @if (isConfirmNewPasswordInvalid()) {
+                        <small class="error-message">
+                            {{ getConfirmNewPasswordError() }}
+                        </small>
+                        }
+                    </div>
+
+                    <div class="form-actions">
+                        <app-button
+                            type="submit"
+                            [label]="'Update Password'"
+                            [icon]="'pi pi-lock'"
+                            [loading]="isUpdatingPassword()"
+                            [disabled]="passwordForm.invalid || isUpdatingPassword()"
+                        />
+                    </div>
+                </form>
             </div>
-        </form>
+            }
+        </section>
     </div>
 </div>
