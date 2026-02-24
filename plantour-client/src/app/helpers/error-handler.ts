@@ -6,20 +6,17 @@ export class GlobalErrorHandler implements ErrorHandler {
   constructor(private injector: Injector) {}
 
   handleError(error: any): void {
-    let message = '';
 
-    if (error?.error?.code === 'BASE_API_EXCEPTION' && error?.error?.message) {
-      message = error.error.message;
-    } else if (error?.message) {
-      message = error.message;
-    }
-
-    if (message) {
+    if (error?.error?.isCustom && error?.error?.message) {
+      let message = error.error.message;
       const messagesService = this.injector.get(MessagesService);
-      messagesService.showError(message);
+      if (error.error.code === 'PLAN_LIMIT_REACHED') {
+         messagesService.showWarning(message);
+      } else if (error.error.message) {  
+         messagesService.showError(message);
+      }
       return;
     }
-
     throw error; 
   }
 }

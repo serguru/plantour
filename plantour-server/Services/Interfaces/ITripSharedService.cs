@@ -16,7 +16,7 @@ public interface ITripSharedService
     Task<int> InsertTemplateAiTripSharedThingsAsync(Guid tripId, Guid[] ids);
     Task<int> DeleteTemplateTripSharedThingsAsync(Guid tripId, Guid[] ids);
     Task<int> DeleteTemplateAiTripSharedThingsAsync(Guid tripId, Guid[] ids);
-    Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AiItemDto> things);
+    //Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AiItemDto> things);
     Task<int> AssignTripSharedThingsAsync(MultipleIdsAssignRequest request);
     Task<int> UnassignTripSharedThingsAsync(Guid tripId, Guid[] ids);
     Task ToggleAcceptAssignmentAsync(Guid tripId, Guid id);

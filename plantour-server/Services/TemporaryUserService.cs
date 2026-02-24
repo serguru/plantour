@@ -29,7 +29,8 @@ public class TemporaryUserService : ITemporaryUserService
     private readonly AdminsParticipantRepository _adminsParticipantRepository;
     private readonly PlantourContext _context;
     private readonly IMapper _mapper;
-
+    private readonly IAccessRulesService _accessRulesService;
+    
     public TemporaryUserService(
         UsersRepository usersRepository,
         ITokenService tokenService,
@@ -43,12 +44,14 @@ public class TemporaryUserService : ITemporaryUserService
         LookupsRepository lookupsRepository,
         AdminsParticipantRepository adminsParticipantRepository,
         PlantourContext context,
-        IMapper mapper)
+        IMapper mapper,
+        IAccessRulesService accessRulesService)
     {
         _usersRepository = usersRepository;
         _tokenService = tokenService;
         _refreshTokenService = refreshTokenService;
         _tripRepository = tripRepository;
+        _accessRulesService = accessRulesService;
         _tripUserRepository = tripUserRepository;
         _packRepository = packRepository;
         _thingRepository = thingRepository;
@@ -108,9 +111,7 @@ public class TemporaryUserService : ITemporaryUserService
 
         // Populate test data for the user
         Trip activeTrip = await PopulateSampleDataAsync(user);
-
-        // Generate admin access token with extended expiration
-        var accessToken = _tokenService.CreateAccessToken(user, UserRole.Admin, user.Id, true);
+        var accessToken = await _tokenService.CreateAccessToken(user, UserRole.Admin, user.Id, true);
         var refreshToken = _tokenService.CreateRefreshToken();
 
         await _refreshTokenService.CreateAsync(user.Id, UserRole.Admin, user.Id, refreshToken, null);

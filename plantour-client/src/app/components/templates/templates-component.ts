@@ -303,6 +303,7 @@ export class TemplatesComponent {
         if (trip) {
           targetCondition.target = this.getTargetByTrip(trip);
         } else {
+          targetCondition.target = null;
           const trip = this.currentTripDtoSignal();
           if (trip && trips?.find(t => t.id === trip.id)) {
             targetCondition.target = this.getTargetByTrip(trip);

@@ -14,9 +14,7 @@ public class TripSharedService(
     HttpCurrentUser httpCurrentUser,
     DicTripRepository dicTripRepository,
     TripUserRepository tripUserRepository,
-    ThingRepository thingRepository,
     TripThingRepository tripThingRepository
-
     ) : ITripSharedService
 {
     private readonly TripSharedRepository _tripSharedRepository = tripSharedRepository;
@@ -25,7 +23,7 @@ public class TripSharedService(
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
-    private readonly ThingRepository _thingRepository = thingRepository;
+    //private readonly ThingRepository _thingRepository = thingRepository;
     private readonly TripThingRepository _tripThingRepository = tripThingRepository;
 
     public async Task<IEnumerable<TripSharedDto>> GetAllFullAsync(Guid tripId)
@@ -101,6 +99,8 @@ public class TripSharedService(
                 throw new CustomException("AssignedTo trip user not found or does not belong to the same trip");
             }
         }
+
+        await CheckAccessAsync(request.TripId, 1);
 
         var entity = _mapper.Map<TripSharedThing>(request);
         entity.Id = Guid.NewGuid();
@@ -178,16 +178,11 @@ public class TripSharedService(
         await _tripSharedRepository.DeleteAsync(tripId, id);
     }
 
-    public async Task<int> InsertTripSharedsAsync(Guid tripId, Guid[] thingIds)
+    public async Task<int> InsertTripSharedsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAdmin();
-
-        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
-        {
-            throw new CustomException("User does not have access to this trip");
-        }
-
-        return await _dicTripRepository.InsertTripSharedThingsAsync(_currentUser.AdminId, tripId, thingIds);
+        await CheckAccessAsync(tripId, ids.Length);
+        return await _dicTripRepository.InsertTripSharedThingsAsync(_currentUser.AdminId, tripId, ids);
     }
 
     public async Task<int> DeleteTripSharedsAsync(Guid tripId, Guid[] thingIds)
@@ -201,51 +196,6 @@ public class TripSharedService(
         }
 
         return await _dicTripRepository.DeleteTripSharedThingsAsync(_currentUser.AdminId, tripId, thingIds);
-    }
-
-    public async Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AiItemDto> things)
-    {
-        _currentUser.RaiseIfNotAdmin();
-
-        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
-        {
-            throw new CustomException("User does not have access to this trip");
-        }
-
-        var existingThings = await _tripSharedRepository.GetAllFullAsync(tripId);
-        var existingNames = new HashSet<string>(
-            existingThings.Select(t => t.Name),
-            StringComparer.OrdinalIgnoreCase);
-
-        var newThings = things
-            .Where(i => !string.IsNullOrWhiteSpace(i.Name))
-            .GroupBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.First())
-            .Where(i => !existingNames.Contains(i.Name));
-
-        var entities = newThings.Select(i => new TripSharedThing
-        {
-            Id = Guid.NewGuid(),
-            TripId = tripId,
-            Category = string.IsNullOrWhiteSpace(i.Category) ? null : i.Category,
-            Name = i.Name,
-            Units = string.IsNullOrWhiteSpace(i.Units) ? null : i.Units,
-            Value = i.Value,
-            Notes = string.IsNullOrWhiteSpace(i.Notes) ? null : i.Notes,
-            AssignedToId = null,
-            AssignedThingId = null,
-            AssignedAt = null,
-            AssignedDeadline = null,
-            Rejected = false
-        }).ToList();
-
-        if (entities.Count == 0)
-        {
-            return 0;
-        }
-
-        await _tripSharedRepository.AddRangeAsync(entities);
-        return entities.Count;
     }
 
     public async Task ToggleAcceptAssignmentAsync(Guid tripId, Guid id)
@@ -305,7 +255,7 @@ public class TripSharedService(
             if (thing != null)
             {
                 await _tripThingRepository.DeleteAsync(thing.Id);
-            }                
+            }
 
             entity.AssignedThingId = null;
         }
@@ -344,7 +294,7 @@ public class TripSharedService(
             entity.Rejected = false;
         }
         else // reject
-        {   
+        {
             entity.Rejected = true;
 
             if (entity.AssignedThingId != null)
@@ -358,10 +308,10 @@ public class TripSharedService(
                 if (thing1 != null)
                 {
                     await _tripThingRepository.DeleteAsync(thing1.Id);
-                }                
+                }
 
                 entity.AssignedThingId = null;
-            }   
+            }
 
         }
 
@@ -372,12 +322,38 @@ public class TripSharedService(
     public async Task<int> InsertTemplateTripSharedThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAdmin();
+        await CheckAccessAsync(tripId, ids.Length);
         return await _dicTripRepository.InsertTemplateTripSharedThingsAsync(_currentUser.AdminId, tripId, ids);
+    }
+
+    private async Task CheckAccessAsync(Guid tripId, int addQty)
+    {
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        var granted = rule!.Granted;
+
+        if (granted)
+        {
+            return;
+        }
+
+        int limit = rule.Value!.Value;
+
+        var s1 = $"You've reached the limit of {limit} shared items you can add to your trip.";
+
+        var s2 = _currentUser.IsAdmin ? "Please upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
+
+
+        var currentCount = await _tripSharedRepository.CountAsync(tripId);
+        if (currentCount + addQty > limit)
+        {
+            throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+        }
     }
 
     public async Task<int> InsertTemplateAiTripSharedThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAdmin();
+        await CheckAccessAsync(tripId, ids.Length);
         return await _dicTripRepository.InsertTemplateAiTripSharedThingsAsync(_currentUser.AdminId, tripId, ids);
     }
 

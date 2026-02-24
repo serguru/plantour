@@ -26,28 +26,56 @@ public class TripThingService(
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
 
-    public async Task<int> InsertTripUserThingsAsync(Guid tripId, Guid[] packageIds)
+    private async Task CheckAccessAsync(Guid tripId, int addQty)
     {
-        _currentUser.RaiseIfNotAuthenticated();
-        return await _dicTripRepository.InsertTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageIds);
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        var granted = rule!.Granted;
+
+        if (granted)
+        {
+            return;
+        }
+
+        int limit = rule.Value!.Value;
+
+        var s1 = $"You've reached the limit of {limit} shared items you can add to your trip.";
+
+        var s2 = _currentUser.IsAdmin ? "Please upgrade your plan to remove this limit." : "Please ask your admin to upgrade the plan to remove this limit.";
+
+
+        var currentCount = await _tripUserThingRepository.CountAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
+        if (currentCount + addQty > limit)
+        {
+            throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+        }
     }
 
-    public async Task<int> DeleteTripUserThingsAsync(Guid tripId, Guid[] packageIds)
+
+    public async Task<int> InsertTripUserThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
-        return await _dicTripRepository.DeleteTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, packageIds);
+        await CheckAccessAsync(tripId, ids.Length);
+        return await _dicTripRepository.InsertTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
+    }
+
+    public async Task<int> DeleteTripUserThingsAsync(Guid tripId, Guid[] ids)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        return await _dicTripRepository.DeleteTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
 
     public async Task<int> InsertTemplateTripUserThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
+        await CheckAccessAsync(tripId, ids.Length);
         return await _dicTripRepository.InsertTemplateTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
     public async Task<int> InsertTemplateAiTripUserThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
+        await CheckAccessAsync(tripId, ids.Length);
         return await _dicTripRepository.InsertTemplateAiTripUserThingsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
@@ -103,6 +131,7 @@ public class TripThingService(
             throw new CustomException("Trip user not found");
         }
 
+
         var exists = await _tripUserThingRepository.AnyAsync(x =>
             x.TripUserId == tripUser.Id &&
             x.Name.ToLower() == request.Name.ToLower());
@@ -111,7 +140,7 @@ public class TripThingService(
         {
             throw new CustomException("Item with the same name already exists");
         }
-
+        await CheckAccessAsync(request.TripId, 1);
         var entity = _mapper.Map<TripUserThing>(request);
         entity.Id = Guid.NewGuid();
         entity.TripUserId = tripUser.Id;
@@ -205,67 +234,5 @@ public class TripThingService(
         entity.Finished = finished;
         await  _tripUserThingRepository.UpdateAsync(entity);
     }
-
-    public async Task<int> InsertFromAiTemplateAsync(Guid tripId, IEnumerable<AiItemDto> things)
-    {
-        _currentUser.RaiseIfNotAuthenticated();
-
-        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
-        {
-            throw new CustomException("User does not have access to this trip");
-        }
-
-        var tripUser = await _tripUserRepository.GetByTripIdAsync(
-            _currentUser.AdminId,
-            _currentUser.UserId,
-            tripId);
-
-        if (tripUser == null)
-        {
-            throw new CustomException("Trip user not found");
-        }
-
-        var existingThings = await _tripUserThingRepository.GetAllAsync(
-            _currentUser.AdminId,
-            _currentUser.UserId,
-            tripId);
-
-        var existingNames = new HashSet<string>(
-            existingThings.Select(t => t.Name),
-            StringComparer.OrdinalIgnoreCase);
-
-        var newThings = things
-            .Where(i => !string.IsNullOrWhiteSpace(i.Name))
-            .GroupBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.First())
-            .Where(i => !existingNames.Contains(i.Name));
-
-        var entities = newThings.Select(i => new TripUserThing
-        {
-            Id = Guid.NewGuid(),
-            TripUserId = tripUser.Id,
-            Category = string.IsNullOrWhiteSpace(i.Category) ? null : i.Category,
-            Name = i.Name,
-            Units = string.IsNullOrWhiteSpace(i.Units) ? null : i.Units,
-            Value = i.Value,
-            Notes = string.IsNullOrWhiteSpace(i.Notes) ? null : i.Notes,
-            TripUserPackageId = null,
-            Finished = null,
-            FinishedAt = null
-        }).ToList();
-
-        if (entities.Count == 0)
-        {
-            return 0;
-        }
-
-        await _tripUserThingRepository.AddRangeAsync(entities);
-        return entities.Count;
-    }
-
-
-
-
-
 
 }

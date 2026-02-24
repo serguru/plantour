@@ -2,7 +2,7 @@ import { Injectable, Inject, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, finalize, map, of, shareReplay, tap, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
-import { AccessToken, AuthResponse, SignUpParticipantRequest, SignUpRequest } from '../models/auth.models';
+import { AccessRule, AccessToken, AuthResponse, SignUpParticipantRequest, SignUpRequest } from '../models/auth.models';
 import { ContactSubmissionRequest, ContactSubmissionDto } from '../models/contact.models';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { AppService } from './app-service';
@@ -10,6 +10,7 @@ import { LocalStorageService } from './local-storage-service';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { MessagesService } from './messages-service';
+import { getFullName } from '../helpers/utils';
 
 export interface TemporaryUserResponse {
   accessToken: string;
@@ -33,24 +34,6 @@ export interface UserDto {
   hasFacebookLinked: boolean;
 }
 
-export interface LandingDto
-{
-    guestPlanName: string;
-    trialPlanName: string;
-    basePlanName: string;
-    proPlanName: string;
-    basePlanMonthly: string;
-    basePlanYearly: string;
-    proPlanMonthly: string;
-    proPlanYearly: string;
-    guestPlanDurationDays: string;
-    baseMonthlyPriceUrl: string;
-    baseYearlyPriceUrl: string;
-    proMonthlyPriceUrl: string;
-    proYearlyPriceUrl: string;
-}
-
-
 @Injectable({
   providedIn: 'root',
 })
@@ -72,31 +55,41 @@ export class UsersService {
   private readonly claimNameIdentifier = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
   private readonly claimAdminId = 'admin_id';
 
-  // Основной источник правды — Writable Signal
   private _userSignal = signal<AccessToken | null>(this.getUserFromLocalStorage());
 
-  // Публичные сигналы теперь 100% синхронные через computed
   userSignal = this._userSignal.asReadonly();
+
+  userRoleSignal = computed(() => {
+    const user = this._userSignal();
+    if (!user) return null;
+    return this.getRole() ?? null;
+  });
 
   userTextSignal = computed(() => {
     const user = this._userSignal();
-    if (!user) return "Profile";
-
-    const firstName = this.getClaim(user, [this.claimGivenName, 'first_name']);
-    const lastName = this.getClaim(user, [this.claimSurname, 'last_name']);
-    const email = this.getClaim(user, [this.claimEmail, 'email']);
-
-    if (firstName && lastName) {
-      return `${firstName} ${lastName}`;
+    if (!user) {
+      return "Profile";
     }
-    return email ?? 'Profile';
+
+    // const firstName = this.getClaim(user, [this.claimGivenName, 'first_name']);
+    // const lastName = this.getClaim(user, [this.claimSurname, 'last_name']);
+    // const email = this.getClaim(user, [this.claimEmail, 'email']);
+
+    // if (firstName && lastName) {
+    //   return `${firstName} ${lastName}`;
+    // }
+    // return email ?? 'Profile';
+
+
+    const result = getFullName(user.given_name ?? '', user.family_name ?? '', user.email ?? '', false);
+    return result;
+
   });
 
   isAuthenticatedSignal = computed(() => {
-    const user = this._userSignal();
     const now = Math.floor(Date.now() / 1000);
-    const role = this.getRole(user);
-
+    const role = this.getRole();
+    const user = this._userSignal();
     if (!user || !user.exp || user.exp <= now || ['Admin', 'Participant'].indexOf(role ?? '') === -1) {
       return false;
     }
@@ -104,12 +97,12 @@ export class UsersService {
   });
 
   isAdminSignal = computed(() => {
-    const role = this.getRole(this._userSignal());
+    const role = this.getRole();
     return role === 'Admin' && this.isAuthenticatedSignal();
   });
 
   isParticipantSignal = computed(() => {
-    const role = this.getRole(this._userSignal());
+    const role = this.getRole();
     return role === 'Participant' && this.isAuthenticatedSignal();
   });
 
@@ -124,7 +117,11 @@ export class UsersService {
     const token = this.localStorageService.getItem(this.accessTokenKey);
     if (!token) return null;
     try {
-      return jwtDecode<AccessToken>(token);
+
+      const decoded = jwtDecode<AccessToken>(token);
+      decoded.access_rules = JSON.parse(decoded.access_rules as unknown as string) as AccessRule[] || [];
+
+      return decoded;
     } catch {
       return null;
     }
@@ -309,29 +306,28 @@ export class UsersService {
   }
 
   getCurrentUserId(): string | null {
-
     const us = this._userSignal();
-
-    return this.getClaim(us, [this.claimNameIdentifier, 'nameid']) ?? null;
+    return us?.nameid ?? null;
   }
 
-  private getClaim(token: AccessToken | null, keys: string[]): string | undefined {
-    if (!token) {
-      return undefined;
-    }
+  // private getClaim(token: AccessToken | null, keys: string[]): string | undefined {
+  //   if (!token) {
+  //     return undefined;
+  //   }
 
-    for (const key of keys) {
-      const value = token[key];
-      if (typeof value === 'string' && value.length > 0) {
-        return value;
-      }
-    }
+  //   for (const key of keys) {
+  //     const value = token[key];
+  //     if (typeof value === 'string' && value.length > 0) {
+  //       return value;
+  //     }
+  //   }
 
-    return undefined;
-  }
+  //   return undefined;
+  // }
 
-  private getRole(token: AccessToken | null): string | undefined {
-    return this.getClaim(token, [this.claimRole, 'role']);
+  public getRole(): string | null {
+    const token = this._userSignal();
+    return token?.role ?? null;
   }
 
   getProfile(): Observable<UserDto> {
@@ -349,7 +345,4 @@ export class UsersService {
     });
   }
 
-  getLandingData(): Observable<LandingDto> {
-    return this.http.get<LandingDto>(`${this.apiUrl}/api/users/landing`);
-  }
 }

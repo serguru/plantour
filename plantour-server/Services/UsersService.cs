@@ -19,6 +19,8 @@ using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Services;
 
+
+// TODO: if a user is in pending status tried to sign in with email/password, we should check if their email is confirmed and if yes, let them in. Otherwise show them a message to confirm or resend a confirmation email.
 public class UsersService(
     IOptions<JwtSettings> jwtSettings,
     IMapper mapper,
@@ -38,6 +40,7 @@ public class UsersService(
     HttpCurrentUser httpCurrentUser,
     AccessCodeGenerator accessCodeGenerator,
     IHttpClientFactory httpClientFactory,
+    IAccessRulesService accessRulesService,
     IOptions<SocialAuthSettings> socialAuthSettings) : IUsersService
 {
     private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
@@ -51,6 +54,7 @@ public class UsersService(
     private readonly IAdminsParticipantService _adminsParticipantService = adminsParticipantService;
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly SocialAuthSettings _socialAuthSettings = socialAuthSettings.Value;
+    private readonly IAccessRulesService _accessRulesService = accessRulesService;
 
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
@@ -163,6 +167,7 @@ public class UsersService(
         };
     }
 
+    // TODO: ensure social login works from a phone
     public async Task<UserDto> LinkSocialProviderAsync(SocialSignInRequest request)
     {
         var provider = request.Provider.Trim().ToLowerInvariant();
@@ -403,35 +408,40 @@ public class UsersService(
 
     public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request, string? ipAddress)
     {
+        if (_currentUser == null ||_currentUser.PlanName == "Guest" || _currentUser.AccessTypeName != "Active" || _currentUser.Role == null )
+        {
+            throw new CustomException("Cannot refresh token", "NO_ACCESS");
+        }
+
         var storedToken = await _refreshTokenService.GetActiveTokenAsync(request.RefreshToken);
         if (storedToken == null)
         {
             var anyToken = await _refreshTokenService.GetTokenAsync(request.RefreshToken);
             if (anyToken != null && Enum.TryParse<UserRole>(anyToken.Role, out var tokenRole) && tokenRole == UserRole.Participant)
             {
-                throw new UnauthorizedException("Please ask your Administartor to re-send the invitation email to you", "WRONG_PARTICIPANT_TOKEN");
+                throw new CustomException("Please ask your Administartor to re-send the invitation email to you", "WRONG_PARTICIPANT_TOKEN");
             }
 
-            throw new UnauthorizedException("Please sign in again", "WRONG_TOKEN");
+            throw new CustomException("Please sign in again", "WRONG_TOKEN");
         }
 
         var user = await _usersRepository.GetByIdWithDetailsAsync(storedToken.UserId);
         if (user == null)
         {
-            throw new UnauthorizedException("User not found");
+            throw new CustomException("User not found", "NO_ACCESS");
         }
 
         if (user.AccessType == null || !string.Equals(user.AccessType.Name, "Active", StringComparison.OrdinalIgnoreCase))
         {
-            throw new ForbiddenException(GetAccessStatusMessage(user.AccessType?.Name), "NO_ACCESS");
+            throw new CustomException(GetAccessStatusMessage(user.AccessType?.Name), "NO_ACCESS");
         }
 
         if (!Enum.TryParse<UserRole>(storedToken.Role, out var role))
         {
-            throw new UnauthorizedException("Invalid refresh token role");
+            throw new CustomException("Invalid refresh token role", "NO_ACCESS");
         }
 
-        var accessToken = _tokenService.CreateAccessToken(user, role, storedToken.AdminId);
+        AccessTokenResult accessToken = await _tokenService.CreateAccessToken(user, role, storedToken.AdminId);
         var newRefreshToken = _tokenService.CreateRefreshToken();
 
         await _refreshTokenService.RotateAsync(storedToken, newRefreshToken, ipAddress);
@@ -481,7 +491,7 @@ public class UsersService(
 
     private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? ipAddress, string? message)
     {
-        var accessToken = _tokenService.CreateAccessToken(user, role, adminId);
+        AccessTokenResult accessToken = await _tokenService.CreateAccessToken(user, role, adminId);
         var refreshToken = _tokenService.CreateRefreshToken();
 
         await _refreshTokenService.CreateAsync(user.Id, role, adminId, refreshToken, ipAddress);
@@ -620,40 +630,16 @@ public class UsersService(
 
     public async Task<LandingDto> GetLandingAsync()
     {
-        int basePlanMonthly = (int)await _settingsRepository.GetSettingByKey("base_plan_monthly_cents");
-        string basePlanMonthlyStr = (basePlanMonthly / 100.0).ToString("0.00");
+        var plans = await _planRepository.GetAll();
+        plans = plans.Where(p => p.Public!.Value).ToList();
 
-        int proPlanMonthly = (int)await _settingsRepository.GetSettingByKey("pro_plan_monthly_cents");
-        string proPlanMonthlyStr = (proPlanMonthly / 100.0).ToString("0.00");
-
-        int basePlanYearly = (int)await _settingsRepository.GetSettingByKey("base_plan_yearly_cents");
-        string basePlanYearlyStr = (basePlanYearly / 100.0).ToString("0.00");
-
-        int proPlanYearly = (int)await _settingsRepository.GetSettingByKey("pro_plan_yearly_cents");
-        string proPlanYearlyStr = (proPlanYearly / 100.0).ToString("0.00");
-
-        int guestPlanDurationDays = (int)await _settingsRepository.GetSettingByKey("guest_plan_duration_days");
-        string guestPlanDurationDaysStr = guestPlanDurationDays.ToString() + " days";
-
-
-
-
-        return new LandingDto
+        var result = new LandingDto()
         {
-            GuestPlanName = (await this._settingsRepository.GetSettingByKey("guest_plan_name") as string)!,
-            TrialPlanName = (await this._settingsRepository.GetSettingByKey("trial_plan_name") as string)!,
-            BasePlanName = (await this._settingsRepository.GetSettingByKey("base_plan_name") as string)!,
-            ProPlanName = (await this._settingsRepository.GetSettingByKey("pro_plan_name") as string)!,
-            BasePlanMonthly = basePlanMonthlyStr,
-            BasePlanYearly = basePlanYearlyStr,
-            ProPlanMonthly = proPlanMonthlyStr,
-            ProPlanYearly = proPlanYearlyStr,
-            GuestPlanDurationDays = guestPlanDurationDaysStr,
-            BaseMonthlyPriceUrl = (await this._settingsRepository.GetSettingByKey("base_monthly_price_url") as string)!,
-            BaseYearlyPriceUrl = (await this._settingsRepository.GetSettingByKey("base_yearly_price_url") as string)!,
-            ProMonthlyPriceUrl = (await this._settingsRepository.GetSettingByKey("pro_monthly_price_url") as string)!,
-            ProYearlyPriceUrl = (await this._settingsRepository.GetSettingByKey("pro_yearly_price_url") as string)!,
+            Plans = _mapper.Map<List<PlanDto>>(plans),
+            
+            GuestPlanDurationDays = (int)await _settingsRepository.GetSettingByKey("guest_plan_duration_days") + " days"
         };
+        return result; 
     }
 
     private async Task<AuthResponse> SignInWithGoogleAsync(string? googleIdToken)

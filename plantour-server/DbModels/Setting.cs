@@ -19,8 +19,8 @@ public partial class Setting
     [Column("value_type")]
     public string ValueType { get; set; } = null!;
 
-    [Column("description")]
-    public string? Description { get; set; }
+    [Column("notes")]
+    public string? Notes { get; set; }
 
     [Column("updated_at", TypeName = "timestamp without time zone")]
     public DateTime UpdatedAt { get; set; }

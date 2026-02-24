@@ -352,6 +352,12 @@ export const routes: Routes = [
     data: { componentId: 'templates-ai' }
   },
   {
+    path: 'checkout/:priceId',
+    loadComponent: () => import('./components/checkout/checkout-component').then(m => m.CheckoutComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'checkout' }
+  },
+  {
     path: '**',
     redirectTo: ''
   }

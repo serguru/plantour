@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
 using plantour_server.DbModels;
 using PlantourApi.Middleware;
@@ -6,14 +7,25 @@ using PlantourApi.Models;
 
 namespace plantour_server.Repositories;
 
-// string base_month_price_id = _settingsRepository.GetSettingByKey("base_month_price_id").Result.ToString() ?? throw new CustomException("Base month price ID is not configured");
-// string base_year_price_id = _settingsRepository.GetSettingByKey("base_year_price_id").Result.ToString() ?? throw new CustomException("Base year price ID is not configured");
-// string pro_month_price_id = _settingsRepository.GetSettingByKey("pro_month_price_id").Result.ToString() ?? throw new CustomException("Pro month price ID is not configured");
-// string pro_year_price_id = _settingsRepository.GetSettingByKey("pro_year_price_id").Result.ToString() ?? throw new CustomException("Pro year price ID is not configured");
-
-
-public class SettingsRepository(PlantourContext context) : GenericRepository<Setting>(context)
+public class SettingsRepository(PlantourContext context, HybridCache cache) : GenericRepository<Setting>(context)
 {
+    private const string AllSettingsCacheKey = "settings:all:v1";
+    private const string SettingByKeyCacheKeyPrefix = "settings:by-key:v1:";
+
+    private static readonly HybridCacheEntryOptions SettingEntryOptions = new()
+    {
+        Expiration = TimeSpan.FromMinutes(30),
+        LocalCacheExpiration = TimeSpan.FromMinutes(10)
+    };
+
+    private readonly HybridCache _cache = cache;
+
+    private sealed class SettingCacheItem
+    {
+        public required string ValueType { get; init; }
+        public required string Value { get; init; }
+    }
+
 
     private int StrToInt(string value)
     {
@@ -35,14 +47,32 @@ public class SettingsRepository(PlantourContext context) : GenericRepository<Set
         return result;
     }
 
-    public async Task<Object> GetSettingByKey(string key)
+    private async Task<Dictionary<string, SettingCacheItem>> GetAllSettingsSnapshotAsync(CancellationToken cancellationToken = default)
     {
-        var setting = await _dbSet.FirstOrDefaultAsync(s => s.Key == key);
-        if (setting == null)
-        {
-            throw new NotFoundException($"Setting with key '{key}' not found");
-        }
+        return await _cache.GetOrCreateAsync(
+            AllSettingsCacheKey,
+            async cancel => await _dbSet
+                .AsNoTracking()
+                .Select(s => new
+                {
+                    s.Key,
+                    s.ValueType,
+                    s.Value
+                })
+                .ToDictionaryAsync(
+                    x => x.Key,
+                    x => new SettingCacheItem
+                    {
+                        ValueType = x.ValueType,
+                        Value = x.Value
+                    },
+                    cancel),
+            SettingEntryOptions,
+            cancellationToken: cancellationToken);
+    }
 
+    private object ConvertSettingValue(string key, SettingCacheItem setting)
+    {
         return setting.ValueType switch
         {
             "integer" => StrToInt(setting.Value),
@@ -52,20 +82,42 @@ public class SettingsRepository(PlantourContext context) : GenericRepository<Set
         };
     }
 
-    public async Task<List<string>> GetPriceIds()
+    public async Task<object> GetSettingByKey(string key)
     {
-        var requiredKeys = new List<string>
+        if (string.IsNullOrWhiteSpace(key))
         {
-            "base_month_price_id",
-            "base_year_price_id",
-            "pro_month_price_id",
-            "pro_year_price_id"
-        };
-        var priceIds = _dbSet.Where(s => requiredKeys.Contains(s.Key))
-            .Select(s => s.Value)
-            .ToList();
-        return priceIds;
+            throw new CustomException("Setting key is required");
+        }
+
+        var allSettings = await GetAllSettingsSnapshotAsync();
+
+        if (allSettings.TryGetValue(key, out var cachedSetting))
+        {
+            return ConvertSettingValue(key, cachedSetting);
+        }
+
+        var setting = await _cache.GetOrCreateAsync(
+            $"{SettingByKeyCacheKeyPrefix}{key}",
+            async cancel => await _dbSet
+                .AsNoTracking()
+                .Where(s => s.Key == key)
+                .Select(s => new SettingCacheItem
+                {
+                    ValueType = s.ValueType,
+                    Value = s.Value
+                })
+                .FirstOrDefaultAsync(cancel),
+            SettingEntryOptions,
+            cancellationToken: default);
+
+        if (setting == null)
+        {
+            throw new CustomException($"Setting with key '{key}' not found");
+        }
+
+        return ConvertSettingValue(key, setting);
     }
+
 
 
 }

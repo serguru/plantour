@@ -1,0 +1,72 @@
+<section class="checkout-page">
+	<div class="page-header">
+		<div class="page-left">
+			<i class="pi pi-credit-card"></i>
+			<h2>Secure checkout</h2>
+		</div>
+	</div>
+
+	@if (showCheckout) {
+		<div class="checkout-actions">
+			<app-button
+				[type]="'button'"
+				[label]="'Back'"
+				[icon]="'pi pi-arrow-left'"
+				[severity]="'secondary'"
+				(click)="onBackToFirstScreen()"
+			></app-button>
+		</div>
+	}
+
+	@if (!showCheckout) {
+		<div class="first-view">
+			<div class="controls-wrapper">
+				<form
+					[formGroup]="emailForm"
+					(ngSubmit)="onProceed()"
+				>
+					<div class="form-field">
+						<label for="checkout-email">Please enter your email</label>
+						<input
+							pInputText
+							id="checkout-email"
+							type="email"
+							formControlName="email"
+							placeholder="your.email@example.com"
+							[class.p-invalid]="emailInvalid"
+						/>
+						@if (emailInvalid) {
+							<small class="error-message">Please enter a valid email address</small>
+						}
+					</div>
+
+					@if (errorMessage) {
+						<div class="error-alert">
+							<i class="pi pi-exclamation-triangle"></i>
+							<span>{{ errorMessage }}</span>
+						</div>
+					}
+
+					<div class="form-actions">
+						<app-button
+							[type]="'submit'"
+							[label]="'Proceed'"
+							[loading]="isLoading"
+							[disabled]="isLoading || emailForm.invalid"
+						></app-button>
+					</div>
+				</form>
+			</div>
+		</div>
+	}
+
+	@if (showCheckout && isLoading) {
+		<p class="status">Loading checkout...</p>
+	}
+
+	@if (showCheckout) {
+		<div class="checkout-frame-wrapper">
+			<div [class]="checkoutContainerClass"></div>
+		</div>
+	}
+</section>

@@ -236,18 +236,65 @@ insert into transaction_types (name) values
 create table plantour.plans (
     id uuid primary key default gen_random_uuid(),
     name text not null unique,
-    description text,
+    notes text,
     active boolean default true,
-    created_at timestamp not null default (now() at time zone 'utc'),
-    updated_at timestamp default (now() at time zone 'utc')
+    public boolean,
+    allowed_items int,
+    allowed_travelers int,
+    allowed_AI_prompts int, -- per day
+    extended_AI_allowed boolean not null default false,
+    created_at timestamp not null default (now() at time zone 'utc')
 );
-insert into plans (name) values
-('NoPlan'),
-('Guest'),
-('Trial'),
-('Company'),
-('Expedition');
+insert into plantour.plans (name, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
+('NoPlan', 'For users having no plan', false, 0, 0, 0, false),
+('Guest', 'To get acquainted with Plantour', false, 10, 2, 2, false),
+('Starter','For small trips and light packers', true, 10, 2, 5, false),
+('Family', 'Perfect for families and small groups', true, null, 5, 20, false),
+('Expedition', 'Ideal for large groups and expeditions', true, null, null, 100, true);
 
+create table plantour.prices (
+    id uuid primary key default gen_random_uuid(),
+    plan_id uuid not null references plans(id),
+    paddle_price_id text not null unique,
+    name text not null unique,
+    enum_id int not null unique,
+    value_cents int not null check(value_cents > 0),
+    notes text
+);
+
+insert into plantour.prices (paddle_price_id,plan_id,name,enum_id,value_cents,notes) values
+(
+    'pri_01khvsx5szpnfqd97c6sdv3e2w',
+    (select id from plantour.plans where name = 'Family'),
+    'PriceFamilyMonthly',
+    1,
+    499,
+    'The Family plan price. Billed monthly.'
+),
+(
+    'pri_01khvsyg17b43cm5kf0t63zfnr',
+    (select id from plantour.plans where name = 'Family'),
+    'PriceFamilyYearly',
+    2,
+    2999,
+    'The Family plan price. Billed yearly.'
+),
+(
+    'pri_01khvsg62zpjhh6qbmc5sfmkm3',
+    (select id from plantour.plans where name = 'Expedition'),
+    'PriceExpeditionMonthly',
+    3,
+    1499,
+    'The Expedition plan price. Billed monthly.'
+),
+(
+    'pri_01khvspsgmrkcggdxxtksbzy88',
+    (select id from plantour.plans where name = 'Expedition'),
+    'PriceExpeditionYearly',
+    4,
+    8999,
+    'The Expedition plan price. Billed yearly.'
+);
 
 
 -----------------------------------------------------------------------
@@ -267,10 +314,17 @@ create table users (
     created_at timestamp not null default (now() at time zone 'utc'),
     discount int not null check(discount >= 0) default 0,
     plan_id uuid not null references plans(id),
-    access_type_id uuid not null references access_types(id)
+    access_type_id uuid not null references access_types(id),
+    paddle_customer_id text unique,
+    paddle_subscription_id text unique
 );
 
---create table transactions (
+create table ai_prompt_checks (
+    id uuid primary key not null references users(id) on delete cascade,
+    start timestamp not null ,
+    count int not null check(count >= 0)
+);
+
 
 create table admins_participants (
     id uuid not null primary key default gen_random_uuid(),
@@ -661,37 +715,33 @@ create table plantour.settings (
     key text not null primary key,
     value text not null,
     value_type text not null check (value_type in ('string', 'integer', 'boolean')) default 'string',
-    description text,
+    notes text,
     updated_at timestamp not null default (now() at time zone 'utc')
 );
 
 insert into plantour.settings (key, value, value_type)
 values 
-    ('guest_plan_name', 'Guest', 'string'),
-    ('trial_plan_name', 'Starter', 'string'),
-    ('base_plan_name', 'Family', 'string'),
-    ('pro_plan_name', 'Expedition', 'string'),
-    ('base_monthly_price_url', 'add one', 'string'),
-    ('base_yearly_price_url', 'add one', 'string'),
-    ('pro_monthly_price_url', 'add one', 'string'),
-    ('pro_yearly_price_url', 'add one', 'string'),
-    ('base_plan_monthly_cents', '499', 'integer'),
-    ('base_plan_yearly_cents', '2999', 'integer'),
-    ('pro_plan_monthly_cents', '1499', 'integer'),
-    ('pro_plan_yearly_cents', '8999', 'integer'),
+    -- ('guest_plan_name', 'Guest', 'string'),
+    -- ('trial_plan_name', 'Starter', 'string'),
+    -- ('base_plan_name', 'Family', 'string'),
+    -- ('pro_plan_name', 'Expedition', 'string'),
+
+    -- ('base_monthly_price_url', 'pri_01khvsx5szpnfqd97c6sdv3e2w', 'string'),
+    -- ('base_yearly_price_url', 'pri_01khvsyg17b43cm5kf0t63zfnr', 'string'),
+    -- ('pro_monthly_price_url', 'pri_01khvsg62zpjhh6qbmc5sfmkm3', 'string'),
+    -- ('pro_yearly_price_url', 'pri_01khvspsgmrkcggdxxtksbzy88', 'string'),
+
+    -- ('base_plan_monthly_cents', '499', 'integer'),
+    -- ('base_plan_yearly_cents', '2999', 'integer'),
+    -- ('pro_plan_monthly_cents', '1499', 'integer'),
+    -- ('pro_plan_yearly_cents', '8999', 'integer'),
     ('user_email_confirmation_url', 'http://localhost:4203/confirm-email', 'string'),
     ('guest_plan_duration_days', '14', 'integer'),
     ('email_confirmation_token_minutes', '60',  'integer'),
     ('user_token_expiration_minutes', '1440',  'integer'),
-    ('base_month_price_id', 'price_1T0cOKIGohUudrjhpqEx8orN',  'string'),
-    ('base_year_price_id', 'price_1T0pwbIGohUudrjhr6f3wB0e',  'string'),
-    ('pro_month_price_id', 'price_1T0cQSIGohUudrjhZGYzUs3A',  'string'),
-    ('pro_year_price_id', 'price_1T0cQuIGohUudrjhNWhqNMDT',  'string'),
     ('checkout_session_success_url', 'profile',  'string'),
     ('checkout_session_cancel_url', 'profile',  'string'),
-
     ('plantour_app_origin', 'http://localhost:4203',  'string'),
-
     ('user_refresh_token_expiration_days', '30',  'integer');
     
     

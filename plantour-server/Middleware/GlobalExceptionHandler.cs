@@ -107,7 +107,8 @@ public class GlobalExceptionHandler : IExceptionHandler
                 StatusCode = statusCode,
                 Message = exception.Message,
                 Code = code,
-                Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}"
+                Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}",
+                IsCustom = exception is BaseApiException
             };
 
             httpContext.Response.StatusCode = statusCode;

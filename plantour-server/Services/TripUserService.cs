@@ -23,6 +23,31 @@ public class TripUserService(
 
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 
+
+    private async Task CheckAccessAsync(Guid tripId, int addQty)
+    {
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 50);
+        var granted = rule!.Granted;
+
+        if (granted)
+        {
+            return;
+        }
+
+        int limit = rule.Value!.Value;
+
+        var s1 = $"You've reached the limit of {limit} participants you can add to your trip.";
+
+        var s2 = _currentUser.IsAdmin ? "Please upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
+
+
+        var currentCount = await _tripUserRepository.CountAsync(_currentUser.AdminId, tripId);
+        if (currentCount + addQty > limit)
+        {
+            throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+        }
+    }
+
     public async Task<int> InsertTripUsersAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAdmin();
@@ -32,7 +57,7 @@ public class TripUserService(
             throw new CustomException("User does not have access to this trip");
         }
 
-
+        await CheckAccessAsync(tripId, ids.Length);
         return await _dicTripRepository.InsertTripUsersAsync(_currentUser.AdminId, tripId, ids);
     }
 
@@ -137,6 +162,7 @@ public class TripUserService(
             throw new CustomException("Trip User already exists for this trip");
         }
 
+        await CheckAccessAsync(request.TripId, 1);
         var entity = _mapper.Map<TripUser>(request);
         entity.Id = Guid.NewGuid();
         await _tripUserRepository.AddAsync(entity);

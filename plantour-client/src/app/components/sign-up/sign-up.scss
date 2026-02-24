@@ -4,3 +4,32 @@
     height: 100%;
     width: 100%;
 }
+
+.upper-message {
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  display: flex;
+  //align-items: ;
+  gap: 1.75rem;
+  border-width: 1px;
+  border-style: solid;
+  background: var(--info-background-color);
+  color: var(--info-color);
+  border-color: var(--info-color);
+  margin-bottom: 1rem;
+
+  i {
+    font-size: 1.25rem;
+  }
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    //flex-wrap: wrap;
+    // align-items: center;
+    // justify-items: center;
+    margin-bottom: 1rem;
+}

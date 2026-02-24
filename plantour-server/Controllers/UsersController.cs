@@ -41,7 +41,6 @@ public class UsersController : ControllerBase
         [AllowAnonymous]
         public async Task<ActionResult<AuthResponse>> SignInAdmin([FromBody] SignInRequest request)
         {
-                // throw new NotImplementedException("Not implemented yet");
                 var response = await _authService.SignInAsync(request);
                 return Ok(response);
         }
@@ -108,7 +107,7 @@ public class UsersController : ControllerBase
         #region Common Endpoints
 
         [HttpPost("refresh")]
-        [AllowAnonymous]
+        [AdminOrParticipant]
         public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
         {
                 var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
@@ -117,7 +116,7 @@ public class UsersController : ControllerBase
         }
 
         [HttpPost("revoke")]
-        [AllowAnonymous]
+        [AdminOrParticipant]
         public async Task<IActionResult> RevokeRefreshToken([FromBody] RevokeRefreshTokenRequest request)
         {
                 var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();

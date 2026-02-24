@@ -1,12 +1,25 @@
+export interface AccessRule {
+  id: number;
+  name: string;
+  notes?: string | null;
+  granted: boolean;
+  value?: number | null;
+}
+
 export interface AccessToken {
+  aud: string;
+  email: string;
   exp: number;
-  role?: string;
-  admin_id?: string;
-  adminId?: string;
-  email?: string;
-  first_name?: string;
-  last_name?: string;
-  [key: string]: any;
+  family_name?: string;
+  given_name?: string;
+  iat: number;
+  iss: string;
+  jti: string;
+  nameid?: string;
+  nbf: number;
+  paddle_subscription_id?: string;
+  access_rules?: AccessRule[] | null;
+  role: 'Admin' | 'Participant';
 }
 
 

@@ -6,6 +6,8 @@ using PlantourApi.Middleware;
 
 namespace plantour_server.Controllers;
 
+
+// TODO: limit a select popup height in forms, add trip thing first
 [ApiController]
 [Route("api/[controller]")]
 public class TripThingController(ITripThingService service) : ControllerBase
@@ -58,13 +60,13 @@ public class TripThingController(ITripThingService service) : ControllerBase
         return Ok(new { deletedCount });
     }
 
-    [HttpPost("insert-from-ai-template")]
-    [AdminOrParticipant]
-    public async Task<ActionResult<int>> AddFromAiTemplate([FromBody] AddAiThingsRequest request)
-    {
-        var insertedCount = await _service.InsertFromAiTemplateAsync(request.TripId, request.Things);
-        return Ok(insertedCount);
-    }
+    // [HttpPost("insert-from-ai-template")]
+    // [AdminOrParticipant]
+    // public async Task<ActionResult<int>> AddFromAiTemplate([FromBody] AddAiThingsRequest request)
+    // {
+    //     var insertedCount = await _service.InsertFromAiTemplateAsync(request.TripId, request.Things);
+    //     return Ok(insertedCount);
+    // }
 
 
     [HttpGet("trip/{tripId}")]

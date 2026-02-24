@@ -33,7 +33,6 @@ public class ThingService(
         return _mapper.Map<IEnumerable<ThingDto>>(entities);
     }
 
-
     public async Task<IEnumerable<ThingDto>> GetAllForTripAsync(Guid tripId)
     {
         _currentUser.RaiseIfNotAuthenticated();
@@ -55,7 +54,7 @@ public class ThingService(
         }).ToList();
 
         return result;
-    }   
+    }
 
     public async Task<IEnumerable<ThingDto>> GetAllForTripSharedAsync(Guid tripId)
     {
@@ -78,7 +77,7 @@ public class ThingService(
         }).ToList();
 
         return result;
-    }   
+    }
 
     public async Task<ThingDto?> GetByIdAsync(Guid id)
     {
@@ -94,8 +93,8 @@ public class ThingService(
         if (await _userThingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower()))
         {
             throw new CustomException("Item with the same name already exists");
-        }   
-
+        }
+        await CheckAccessAsync(1);
         var entity = _mapper.Map<UserThing>(request);
         entity.Id = Guid.NewGuid();
         entity.UserId = _currentUser.UserId;
@@ -111,11 +110,11 @@ public class ThingService(
         {
             throw new CustomException("Item not found or access denied");
         }
-        
+
         if (await _userThingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower() && x.Id != request.Id))
         {
             throw new CustomException("Another item with the same name already exists");
-        }   
+        }
 
         _mapper.Map(request, entity);
         entity.UserId = _currentUser.UserId;
@@ -148,11 +147,40 @@ public class ThingService(
     public async Task<int> InsertTemplateUserThingsAsync(Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
+        await CheckAccessAsync(ids.Length);
         return await _dicTripRepository.InsertTemplateUserThingsAsync(_currentUser.UserId, ids);
     }
+
+
+    private async Task CheckAccessAsync(int addQty)
+    {
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        var granted = rule!.Granted;
+
+        if (granted)
+        {
+            return;
+        }
+
+        int limit = rule.Value!.Value;
+
+        var s1 = $"You've reached the limit of {limit} items you can add to your trip.";
+
+        var s2 = _currentUser.IsAdmin ? "Please upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
+
+
+        var currentCount = await _userThingRepository.CountAsync(_currentUser.UserId);
+        if (currentCount + addQty > limit)
+        {
+            throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+        }
+    }
+
+
     public async Task<int> InsertTemplateAiUserThingsAsync(Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
+        await CheckAccessAsync(ids.Length);
         return await _dicTripRepository.InsertTemplateAiUserThingsAsync(_currentUser.UserId, ids);
     }
 
@@ -168,41 +196,41 @@ public class ThingService(
         return await _dicTripRepository.DeleteTemplateAiUserThingsAsync(_currentUser.UserId, ids);
     }
 
-    public async Task<int> InsertFromAiTemplateAsync(IEnumerable<AiItemDto> items)
-    {
-        _currentUser.RaiseIfNotAuthenticated();
+    // public async Task<int> InsertFromAiTemplateAsync(IEnumerable<AiItemDto> items)
+    // {
+    //     _currentUser.RaiseIfNotAuthenticated();
 
-        var existingThings = await _userThingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
-        var existingNames = new HashSet<string>(
-            existingThings.Select(t => t.Name),
-            StringComparer.OrdinalIgnoreCase);
+    //     var existingThings = await _userThingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
+    //     var existingNames = new HashSet<string>(
+    //         existingThings.Select(t => t.Name),
+    //         StringComparer.OrdinalIgnoreCase);
 
-        var newItems = items
-            .Where(i => !string.IsNullOrWhiteSpace(i.Name))
-            .GroupBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.First())
-            .Where(i => !existingNames.Contains(i.Name));
+    //     var newItems = items
+    //         .Where(i => !string.IsNullOrWhiteSpace(i.Name))
+    //         .GroupBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
+    //         .Select(g => g.First())
+    //         .Where(i => !existingNames.Contains(i.Name));
 
-        var entities = newItems.Select(i => new UserThing
-        {
-            Id = Guid.NewGuid(),
-            UserId = _currentUser.UserId,
-            Category = string.IsNullOrWhiteSpace(i.Category) ? null : i.Category,
-            Name = i.Name,
-            Units = string.IsNullOrWhiteSpace(i.Units) ? null : i.Units,
-            Value = i.Value,
-            Notes = string.IsNullOrWhiteSpace(i.Notes) ? null : i.Notes,
-            Shared = false
-        }).ToList();
+    //     var entities = newItems.Select(i => new UserThing
+    //     {
+    //         Id = Guid.NewGuid(),
+    //         UserId = _currentUser.UserId,
+    //         Category = string.IsNullOrWhiteSpace(i.Category) ? null : i.Category,
+    //         Name = i.Name,
+    //         Units = string.IsNullOrWhiteSpace(i.Units) ? null : i.Units,
+    //         Value = i.Value,
+    //         Notes = string.IsNullOrWhiteSpace(i.Notes) ? null : i.Notes,
+    //         Shared = false
+    //     }).ToList();
 
-        if (entities.Count == 0)
-        {
-            return 0;
-        }
+    //     if (entities.Count == 0)
+    //     {
+    //         return 0;
+    //     }
 
-        await _userThingRepository.AddRangeAsync(entities);
-        return entities.Count;
-    }
+    //     await _userThingRepository.AddRangeAsync(entities);
+    //     return entities.Count;
+    // }
 
 
 }

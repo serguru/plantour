@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 //using plantour_server.Authorization;
@@ -122,10 +123,18 @@ try
     builder.Services.AddControllers();
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddDataProtection();
+    builder.Services.AddHybridCache(options =>
+    {
+        options.MaximumPayloadBytes = 1024 * 1024;
+        options.MaximumKeyLength = 1024;
+        options.DefaultEntryOptions = new HybridCacheEntryOptions
+        {
+            Expiration = TimeSpan.FromMinutes(10),
+            LocalCacheExpiration = TimeSpan.FromMinutes(5)
+        };
+    });
 
-    // Configure Temporary User settings
-    var tempUserSettings = builder.Configuration.GetSection("TemporaryUserSettings");
-    builder.Services.Configure<TemporaryUserSettings>(tempUserSettings);
+    
     // Configure JWT settings
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
     builder.Services.Configure<JwtSettings>(jwtSettings);
@@ -138,9 +147,6 @@ try
 
     // Configure Gemini settings
     builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
-
-    // Configure PaymentProcessor settings
-    builder.Services.Configure<PaymentProcessorSettings>(builder.Configuration.GetSection("PaymentProcessorSettings"));
 
     var jwtConfig = jwtSettings.Get<JwtSettings>();
     var key = Encoding.UTF8.GetBytes(jwtConfig!.SecretKey);
@@ -267,8 +273,8 @@ try
         options.AddPolicy("AdminOrParticipant", policy =>
             policy.Requirements.Add(new UserRoleRequirement(UserRole.Admin, UserRole.Participant)));
 
-        options.AddPolicy("Public", policy =>
-            policy.Requirements.Add(new UserRoleRequirement(UserRole.Public, UserRole.Participant, UserRole.Admin)));
+        // options.AddPolicy("Public", policy =>
+        //     policy.Requirements.Add(new UserRoleRequirement(null, UserRole.Participant, UserRole.Admin)));
     });
 
     // Register authorization handlers
@@ -300,7 +306,8 @@ try
     builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
-
+    builder.Services.AddScoped<IPaddleService, PaddleService>();
+    builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
     builder.Services.AddScoped<AccessCodeGenerator>();
 
     // TODO: what is AddHttpClient?
@@ -340,6 +347,7 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.AiPromptChecksRepository>();
    
 
     builder.Services.AddScoped<HttpCurrentUser>();
