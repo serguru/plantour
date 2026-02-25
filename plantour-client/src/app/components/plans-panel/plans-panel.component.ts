@@ -68,8 +68,8 @@ export class PlansPanelComponent implements OnInit {
           );
           break;
         case 'Family':
-          const monthlyPriceObject = plan.prices?.find(p => p.name === 'PriceFamilyMonthly')!;
-          const yearlyPriceObject = plan.prices?.find(p => p.name === 'PriceFamilyYearly')!;
+          const monthlyPriceObject = plan.prices?.find(p => p.name === 'Family Monthly')!;
+          const yearlyPriceObject = plan.prices?.find(p => p.name === 'Family Yearly')!;
 
           plans.push(
             {
@@ -80,16 +80,16 @@ export class PlansPanelComponent implements OnInit {
               isPopular: true,
               monthlyButtonText: 'Start monthly',
               annualButtonText: 'Start yearly',
-              monthlyPriceUrl: `/checkout/${monthlyPriceObject.paddlePriceId}/${encodeURIComponent(plan.name + ' Monthly')}`,
-              annualPriceUrl: `/checkout/${yearlyPriceObject.paddlePriceId}/${encodeURIComponent(plan.name + ' Yearly')}`,
+              monthlyPriceUrl: `/checkout/${monthlyPriceObject.paddlePriceId}/${encodeURIComponent('Family Monthly')}`,
+              annualPriceUrl: `/checkout/${yearlyPriceObject.paddlePriceId}/${encodeURIComponent('Family Yearly')}`,
               features: this.featuresByPlan(plan),
               order: 2
             }
           );
           break;
         case 'Expedition':
-          const monthlyPriceObject1 = plan.prices?.find(p => p.name === 'PriceExpeditionMonthly')!;
-          const yearlyPriceObject1 = plan.prices?.find(p => p.name === 'PriceExpeditionYearly')!;
+          const monthlyPriceObject1 = plan.prices?.find(p => p.name === 'Expedition Monthly')!;
+          const yearlyPriceObject1 = plan.prices?.find(p => p.name === 'Expedition Yearly')!;
 
           plans.push(
             {
@@ -99,8 +99,8 @@ export class PlansPanelComponent implements OnInit {
               description: plan.notes || '',
               monthlyButtonText: 'Go monthly',
               annualButtonText: 'Go yearly',
-              monthlyPriceUrl: `/checkout/${monthlyPriceObject1.paddlePriceId}/${encodeURIComponent(plan.name + ' Monthly')}`,
-              annualPriceUrl: `/checkout/${yearlyPriceObject1.paddlePriceId}/${encodeURIComponent(plan.name + ' Yearly')}`,
+              monthlyPriceUrl: `/checkout/${monthlyPriceObject1.paddlePriceId}/${encodeURIComponent('Expedition Monthly')}`,
+              annualPriceUrl: `/checkout/${yearlyPriceObject1.paddlePriceId}/${encodeURIComponent('Expedition Yearly')}`,
               features: this.featuresByPlan(plan),
               order: 3
             }

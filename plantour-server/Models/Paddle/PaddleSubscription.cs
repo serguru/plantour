@@ -7,5 +7,6 @@ public class PaddleSubscription
     public required string CustomerId { get; set; }
     public required string  PriceId { get; set; }
     public required string CreatedAt { get; set; }
+    public required string PriceName { get; set; }
     
 }

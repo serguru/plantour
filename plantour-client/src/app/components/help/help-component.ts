@@ -21,9 +21,11 @@ import { SeoService } from '../../services/seo-service';
 
   // TODO: add info on social login (Google + Facebook)
 
-  // TODO: move help content to the DB and add the search functionality. This will allow to keep the content up to date without the need to deploy new versions of the app and also will allow users to search for specific topics/questions.
+  // TODO: start using https://pagefind.app/ and add the search functionality. This will allow to keep the content up to date without the need to deploy new versions of the app and also will allow users to search for specific topics/questions.
 
   // TODO: explain the app does not support a dark theme
+
+  // TODO: it is necessary to read carefully all the content of the help sections and make sure it is correct and does not contain any mistakes. It is also important to make sure the content is clear and easy to understand for users.
 @Component({
   selector: 'app-help',
   standalone: true,

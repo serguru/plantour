@@ -7,4 +7,6 @@ public class AccessProcessResult
 {
     public AccessRules AccessRulesObject { get; set; } = null!;
     public User UserObject { get; set; } = null!;
+
+    public string SubscriptionPlanPeriod { get; set; } = null!;
 }

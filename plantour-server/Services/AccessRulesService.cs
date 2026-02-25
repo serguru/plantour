@@ -12,6 +12,10 @@ using PlantourApi.Models;
 
 namespace plantour_server.Services;
 
+
+// TODO: prevent users from changing their email because after that they will be not in sync with Paddle
+// TODO: add an explanation to the profile page for users about social login reset
+// TODO: change password section must work correctly even there is no password set
 public class AccessRulesService : IAccessRulesService
 {
     private readonly IPaddleService _paddleService;
@@ -45,6 +49,8 @@ public class AccessRulesService : IAccessRulesService
 
         result.AccessRulesObject = a;
         result.UserObject = user;
+
+        result.SubscriptionPlanPeriod = "Guest";
 
         return result;
     }
@@ -87,10 +93,14 @@ public class AccessRulesService : IAccessRulesService
         }
         var subscription = await _paddleService.GetActiveSubscriptionByUserAsync(user, role, adminId);
 
+
+        var s = subscription == null ? user.Plan.Name : subscription.PriceName;
+
         AccessProcessResult result = new()
         {
             AccessRulesObject = await ProcessUser(subscription, role),
-            UserObject = user
+            UserObject = user,
+            SubscriptionPlanPeriod = s
         };
         return result;
     }

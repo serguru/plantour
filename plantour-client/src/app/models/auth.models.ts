@@ -20,6 +20,7 @@ export interface AccessToken {
   paddle_subscription_id?: string;
   access_rules?: AccessRule[] | null;
   role: 'Admin' | 'Participant';
+  plan_period: string;
 }
 
 

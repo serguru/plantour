@@ -20,16 +20,20 @@ public class PaddleService : IPaddleService
     private readonly CurrentUser _currentUser;
 
     private readonly UsersRepository _usersRepository;
+    private readonly PlanRepository _planRepository;
 
     public PaddleService(
         HttpClient httpClient,
         HttpCurrentUser httpCurrentUser,
         UsersRepository usersRepository,
+        PlanRepository planRepository,
         IConfiguration configuration
     )
     {
         _currentUser = httpCurrentUser.CurrentUser;
         _usersRepository = usersRepository;
+        _planRepository = planRepository;
+
         _baseUrl = configuration["PaddleSettings:ApiBaseUrl"] ?? throw new CustomException("PaddleSettings:ApiBaseUrl is not configured");
         _apiKey = configuration["PaddleSettings:ApiKey"] ?? throw new CustomException("PaddleSettings:ApiKey is not configured");
 
@@ -193,12 +197,12 @@ public class PaddleService : IPaddleService
         }
 
 
-        PaddleSubscription result = Json2Subscription(list.First());
+        var result = await Json2Subscription(list.First());
 
         return result;
     }
 
-    private PaddleSubscription Json2Subscription(JsonElement json)
+    private async Task<PaddleSubscription> Json2Subscription(JsonElement json)
     {
         if (!json.TryGetProperty("id", out var idElement) ||
             !json.TryGetProperty("status", out var statusElement) ||
@@ -221,14 +225,20 @@ public class PaddleService : IPaddleService
             !priceElement.TryGetProperty("id", out var priceIdElement))
         {
 
-            throw new CustomException("Paddle response does not contain items[0].price.id");
+            throw new CustomException("Paddle response does not contain items[0].price.id or items[0].price.name");
         }
         string? priceId = priceIdElement.GetString();
 
-
-        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(status) || string.IsNullOrWhiteSpace(customerId) || string.IsNullOrWhiteSpace(createdAt) || string.IsNullOrWhiteSpace(priceId))
+        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(status) || string.IsNullOrWhiteSpace(customerId) || string.IsNullOrWhiteSpace(createdAt) || string.IsNullOrWhiteSpace(priceId) )
         {
             throw new CustomException("Paddle subscription properties cannot be empty");
+        }
+
+        string? priceName = await _planRepository.GetPriceNameByPriceIdAsync(priceId);
+
+        if (string.IsNullOrWhiteSpace(priceName))
+        {
+            throw new CustomException($"No price name found for PriceId: {priceId}");
         }
 
         return new PaddleSubscription
@@ -237,7 +247,8 @@ public class PaddleService : IPaddleService
             Status = status,
             CustomerId = customerId,
             PriceId = priceId,
-            CreatedAt = createdAt
+            CreatedAt = createdAt,
+            PriceName = priceName
         };
     }
 
@@ -277,49 +288,7 @@ public class PaddleService : IPaddleService
 
         foreach (var item in list)
         {
-            if (!item.TryGetProperty("id", out var idElement) ||
-                !item.TryGetProperty("status", out var statusElement) ||
-                !item.TryGetProperty("created_at", out var createdAtElement))
-            {
-                throw new CustomException("Paddle response does not contain required subscription properties");
-            }
-            string? id = idElement.GetString();
-            string? status = statusElement.GetString();
-            string? createdAt = createdAtElement.GetString();
-
-            if (!item.TryGetProperty("items", out var itemsElement) ||
-                itemsElement.ValueKind != JsonValueKind.Array ||
-                itemsElement.GetArrayLength() == 0)
-            {
-                throw new CustomException("Paddle response does not contain subscription items");
-            }
-
-            var firstItem = itemsElement[0];
-            if (!firstItem.TryGetProperty("price", out var priceElement) ||
-                !priceElement.TryGetProperty("id", out var priceIdElement))
-            {
-                throw new CustomException("Paddle response does not contain items[0].price.id");
-            }
-
-            string? priceId = priceIdElement.GetString();
-            if (!string.Equals(priceId, request.PriceId, StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(status) || string.IsNullOrWhiteSpace(customerId) || string.IsNullOrWhiteSpace(priceId) || string.IsNullOrWhiteSpace(createdAt))
-            {
-                throw new CustomException("Paddle subscription properties cannot be empty");
-            }
-
-            subscriptions.Add(new PaddleSubscription
-            {
-                Id = id,
-                Status = status,
-                CustomerId = customerId,
-                PriceId = priceId,
-                CreatedAt = createdAt
-            });
+            subscriptions.Add(await Json2Subscription(item));
         }
 
         if (subscriptions.Count == 0)
@@ -357,7 +326,7 @@ public class PaddleService : IPaddleService
         var content = await response.Content.ReadAsStringAsync();
         using var json = JsonDocument.Parse(content);
 
-        var subscription = Json2Subscription(json.RootElement.GetProperty("data"));
+        var subscription = await Json2Subscription(json.RootElement.GetProperty("data"));
         if (!string.Equals(subscription.Status, "active", StringComparison.OrdinalIgnoreCase))
         {
             return null; // Subscription is not active
@@ -411,6 +380,15 @@ public class PaddleService : IPaddleService
             admin.PaddleSubscriptionId = subscription!.Id;
             await _usersRepository.UpdateAsync(admin);
         }
+
+        string? priceName = await _planRepository.GetPriceNameByPriceIdAsync(subscription.PriceId);
+
+        if (string.IsNullOrWhiteSpace(priceName))
+        {
+            throw new CustomException($"No price name found for PriceId: {subscription.PriceId}");
+        }
+
+        subscription.PriceName = priceName;
 
         return subscription;
     }

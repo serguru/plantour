@@ -10,6 +10,7 @@ public static class PlantourClaims
     public const string FirstName = ClaimTypes.GivenName;
     public const string LastName = ClaimTypes.Surname;
     public const string Role = ClaimTypes.Role;
+    public const string PlanPeriod = "plan_period";
     public const string AdminId = "admin_id";
     public const string AccessRules = "access_rules";
     public const string Subject = JwtRegisteredClaimNames.Sub;

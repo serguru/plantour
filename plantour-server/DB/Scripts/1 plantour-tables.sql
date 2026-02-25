@@ -266,7 +266,7 @@ insert into plantour.prices (paddle_price_id,plan_id,name,enum_id,value_cents,no
 (
     'pri_01khvsx5szpnfqd97c6sdv3e2w',
     (select id from plantour.plans where name = 'Family'),
-    'PriceFamilyMonthly',
+    'Family Monthly',
     1,
     499,
     'The Family plan price. Billed monthly.'
@@ -274,7 +274,7 @@ insert into plantour.prices (paddle_price_id,plan_id,name,enum_id,value_cents,no
 (
     'pri_01khvsyg17b43cm5kf0t63zfnr',
     (select id from plantour.plans where name = 'Family'),
-    'PriceFamilyYearly',
+    'Family Yearly',
     2,
     2999,
     'The Family plan price. Billed yearly.'
@@ -282,7 +282,7 @@ insert into plantour.prices (paddle_price_id,plan_id,name,enum_id,value_cents,no
 (
     'pri_01khvsg62zpjhh6qbmc5sfmkm3',
     (select id from plantour.plans where name = 'Expedition'),
-    'PriceExpeditionMonthly',
+    'Expedition Monthly',
     3,
     1499,
     'The Expedition plan price. Billed monthly.'
@@ -290,7 +290,7 @@ insert into plantour.prices (paddle_price_id,plan_id,name,enum_id,value_cents,no
 (
     'pri_01khvspsgmrkcggdxxtksbzy88',
     (select id from plantour.plans where name = 'Expedition'),
-    'PriceExpeditionYearly',
+    'Expedition Yearly',
     4,
     8999,
     'The Expedition plan price. Billed yearly.'

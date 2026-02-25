@@ -210,4 +210,15 @@ public class PlanRepository : GenericRepository<Plan>
     }
 
 
+    public async Task<string?> GetPriceNameByPriceIdAsync(string priceId)
+    {
+        if (string.IsNullOrWhiteSpace(priceId))
+        {
+            return null;
+        }
+        var plans = await GetAllPlansSnapshotAsync();
+        var price = plans.SelectMany(p => p.Prices).FirstOrDefault(p => p.PaddlePriceId == priceId);
+        return price?.Name;
+    }   
+
 }

@@ -358,6 +358,13 @@ export const routes: Routes = [
     data: { componentId: 'checkout' }
   },
   {
+    path: 'plans',
+    canActivate: [adminOnlyGuard],
+    loadComponent: () => import('./components/plans/plans-component').then(m => m.PlansComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'plans' }
+  },
+  {
     path: '**',
     redirectTo: ''
   }

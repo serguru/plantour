@@ -106,6 +106,12 @@ export class UsersService {
     return role === 'Participant' && this.isAuthenticatedSignal();
   });
 
+  planPeriodSignal = computed(() => {
+    const user = this._userSignal();
+    if (!user) return null;
+    return user['plan_period'] ?? null;
+  });
+
   constructor(
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
