@@ -1,153 +1,157 @@
-<div class="page-header">
-  <div class="page-left">
-    <i class="pi pi-sign-in"></i>
-    <h2>Sign In</h2>
-  </div>
-</div>
+<div class="page-container">
 
-<div class="radio-container">
-  <div>Please sign in as:</div>
 
-  <div class="radio-item">
-    <p-radiobutton
-      name="signInType"
-      value="admin"
-      [(ngModel)]="signInType"
-      inputId="admin"
-    />
-    <div for="admin">Admin</div>
+  <div class="page-header">
+    <div class="page-left">
+      <i class="pi pi-sign-in"></i>
+      <h2>Sign In</h2>
+    </div>
   </div>
 
-  <div class="radio-item">
-    <p-radiobutton
-      name="signInType"
-      value="participant"
-      [(ngModel)]="signInType"
-      inputId="participant"
-    />
-    <label for="participant">Participant</label>
-  </div>
-</div>
-<div class="help-link-container">
-  <a
-    class="help-link"
-    href="/help/account/login"
-    alt="How to sign in"
-  >How to sign in</a>
-</div>
+  <div class="radio-container">
+    <div>Please sign in as:</div>
 
-<div class="controls-wrapper">
-
-  @if (isAdmin) {
-  <div class="buttons">
-    <app-button
-      [label]="'Continue with Google'"
-      [icon]="'pi pi-google'"
-      [disabled]="isLoading"
-      (click)="onSignInWithGoogle()"
-    />
-
-    <app-button
-      [label]="'Continue with Facebook'"
-      [icon]="'pi pi-facebook'"
-      [disabled]="isLoading"
-      (click)="onSignInWithFacebook()"
-    />
-
-  </div>
-  }
-
-  <form
-    [formGroup]="currentForm"
-    (ngSubmit)="onSubmit()"
-  >
-    <!-- Email Field -->
-    @if(isAdmin) {
-    <div class="form-field">
-      <label for="email">Email <span class="required">*</span></label>
-      <input
-        pInputText
-        id="email"
-        type="email"
-        formControlName="email"
-        placeholder="your.email@example.com"
-        [class.p-invalid]="isFieldInvalid('email')"
+    <div class="radio-item">
+      <p-radiobutton
+        name="signInType"
+        value="admin"
+        [(ngModel)]="signInType"
+        inputId="admin"
       />
-      @if (isFieldInvalid('email')) {
-      <small class="error-message">
-        {{ getFieldError('email') }}
-      </small>
-
-      }
+      <div for="admin">Admin</div>
     </div>
 
-    <!-- Password Field -->
-    <div class="form-field">
-      <label for="password">Password <span class="required">*</span></label>
-      <p-password
-        id="password"
-        formControlName="password"
-        placeholder="Enter your password"
-        [toggleMask]="true"
-        [feedback]="false"
-        [class.p-invalid]="isFieldInvalid('password')"
-        styleClass="w-full"
-      >
-      </p-password>
-      @if (isFieldInvalid('password')) {
-      <small class="error-message">
-        {{ getFieldError('password') }}
-      </small>
-      }
+    <div class="radio-item">
+      <p-radiobutton
+        name="signInType"
+        value="participant"
+        [(ngModel)]="signInType"
+        inputId="participant"
+      />
+      <label for="participant">Participant</label>
     </div>
-    } @else {
-    <!-- Access Code Field -->
-    <div class="form-field">
-      <label for="accessCode">Access Code <span class="required">*</span></label>
-      <p-password
-        id="accessCode"
-        formControlName="accessCode"
-        placeholder="Enter your access code"
-        [toggleMask]="true"
-        [feedback]="false"
-        [class.p-invalid]="isFieldInvalid('accessCode')"
-        styleClass="w-full"
-      >
-      </p-password>
-      @if (isFieldInvalid('accessCode')) {
-      <small class="error-message">
-        {{ getFieldError('accessCode') }}
-      </small>
-      }
-    </div>
-    }
+  </div>
+  <div class="help-link-container">
+    <a
+      class="help-link"
+      href="/help/account/login"
+      alt="How to sign in"
+    >How to sign in</a>
+  </div>
 
-    <!-- Error Message -->
-    @if (errorMessage) {
-    <div class="error-alert">
-      <i class="pi pi-exclamation-triangle"></i>
-      <span>{{ errorMessage }}</span>
-    </div>
-    }
-    <!-- Form Actions -->
-    <div class="form-actions">
+  <div class="controls-wrapper">
+
+    @if (isAdmin) {
+    <div class="buttons">
       <app-button
-        type="submit"
-        label="Sign In"
-        icon="pi pi-sign-in"
-        [loading]="isLoading"
-        [disabled]="isLoading || currentForm.invalid"
+        label="Google"
+        [icon]="'pi pi-google'"
+        [disabled]="isLoading"
+        (click)="onSignInWithGoogle()"
       />
+
+      <app-button
+        label="Facebook"
+        [icon]="'pi pi-facebook'"
+        [disabled]="isLoading"
+        (click)="onSignInWithFacebook()"
+      />
+
     </div>
-    <div class="pale-prompt">
-      Not registered?
-      <button
-        type="button"
-        class="link-button"
-        (click)="onSignUp()"
-      >Sign Up here</button>
-    </div>
+    }
+
+    <form
+      [formGroup]="currentForm"
+      (ngSubmit)="onSubmit()"
+    >
+      <!-- Email Field -->
+      @if(isAdmin) {
+      <div class="form-field">
+        <label for="email">Email <span class="required">*</span></label>
+        <input
+          pInputText
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="your.email@example.com"
+          [class.p-invalid]="isFieldInvalid('email')"
+        />
+        @if (isFieldInvalid('email')) {
+        <small class="error-message">
+          {{ getFieldError('email') }}
+        </small>
+
+        }
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-field">
+        <label for="password">Password <span class="required">*</span></label>
+        <p-password
+          id="password"
+          formControlName="password"
+          placeholder="Enter your password"
+          [toggleMask]="true"
+          [feedback]="false"
+          [class.p-invalid]="isFieldInvalid('password')"
+          styleClass="w-full"
+        >
+        </p-password>
+        @if (isFieldInvalid('password')) {
+        <small class="error-message">
+          {{ getFieldError('password') }}
+        </small>
+        }
+      </div>
+      } @else {
+      <!-- Access Code Field -->
+      <div class="form-field">
+        <label for="accessCode">Access Code <span class="required">*</span></label>
+        <p-password
+          id="accessCode"
+          formControlName="accessCode"
+          placeholder="Enter your access code"
+          [toggleMask]="true"
+          [feedback]="false"
+          [class.p-invalid]="isFieldInvalid('accessCode')"
+          styleClass="w-full"
+        >
+        </p-password>
+        @if (isFieldInvalid('accessCode')) {
+        <small class="error-message">
+          {{ getFieldError('accessCode') }}
+        </small>
+        }
+      </div>
+      }
+
+      <!-- Error Message -->
+      @if (errorMessage) {
+      <div class="error-alert">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+      }
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <app-button
+          type="submit"
+          label="Sign In"
+          icon="pi pi-sign-in"
+          [loading]="isLoading"
+          [disabled]="isLoading || currentForm.invalid"
+        />
+      </div>
+      <div class="pale-prompt">
+        Not registered?
+        <button
+          type="button"
+          class="link-button"
+          (click)="onSignUp()"
+        >Sign Up here</button>
+      </div>
 
 
-  </form>
+    </form>
+  </div>
 </div>

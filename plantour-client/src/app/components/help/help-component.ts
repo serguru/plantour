@@ -21,6 +21,9 @@ import { SeoService } from '../../services/seo-service';
 
   // TODO: add info on social login (Google + Facebook)
 
+  // TODO: move help content to the DB and add the search functionality. This will allow to keep the content up to date without the need to deploy new versions of the app and also will allow users to search for specific topics/questions.
+
+  // TODO: explain the app does not support a dark theme
 @Component({
   selector: 'app-help',
   standalone: true,
