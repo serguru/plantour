@@ -32,6 +32,7 @@ export class CheckoutComponent implements OnInit {
   });
 
   priceId: string | null = null;
+  priceName: string | null = null;
   showCheckout = false;
   isLoading = false;
   errorMessage = '';
@@ -46,6 +47,12 @@ export class CheckoutComponent implements OnInit {
 
     if (!this.priceId) {
       this.errorMessage = 'Missing required query parameter: priceId';
+    }
+
+    this.priceName = this.route.snapshot.paramMap.get('priceName');
+
+    if (!this.priceName) {
+      this.errorMessage = 'Missing required query parameter: priceName';
     }
   }
 

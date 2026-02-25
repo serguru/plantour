@@ -80,8 +80,8 @@ export class PlansPanelComponent implements OnInit {
               isPopular: true,
               monthlyButtonText: 'Start monthly',
               annualButtonText: 'Start yearly',
-              monthlyPriceUrl: `/checkout/${monthlyPriceObject.paddlePriceId}`,
-              annualPriceUrl: `/checkout/${yearlyPriceObject.paddlePriceId}`,
+              monthlyPriceUrl: `/checkout/${monthlyPriceObject.paddlePriceId}/${encodeURIComponent(plan.name + ' Monthly')}`,
+              annualPriceUrl: `/checkout/${yearlyPriceObject.paddlePriceId}/${encodeURIComponent(plan.name + ' Yearly')}`,
               features: this.featuresByPlan(plan),
               order: 2
             }
@@ -99,8 +99,8 @@ export class PlansPanelComponent implements OnInit {
               description: plan.notes || '',
               monthlyButtonText: 'Go monthly',
               annualButtonText: 'Go yearly',
-              monthlyPriceUrl: `/checkout/${monthlyPriceObject1.paddlePriceId}`,
-              annualPriceUrl: `/checkout/${yearlyPriceObject1.paddlePriceId}`,
+              monthlyPriceUrl: `/checkout/${monthlyPriceObject1.paddlePriceId}/${encodeURIComponent(plan.name + ' Monthly')}`,
+              annualPriceUrl: `/checkout/${yearlyPriceObject1.paddlePriceId}/${encodeURIComponent(plan.name + ' Yearly')}`,
               features: this.featuresByPlan(plan),
               order: 3
             }
