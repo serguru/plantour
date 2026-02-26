@@ -19,6 +19,7 @@ interface Plan {
   monthlyPriceUrl?: string;
   annualPriceUrl?: string;
   features: PlanFeature[];
+  order: number;
 }
 
 @Component({
@@ -50,7 +51,7 @@ export class PlansPanelComponent implements OnInit {
   }
 
   private setPlans(data: LandingDto): void {
-    const plans: (Plan & { order: number })[] = [];
+    const plans: Plan[] = [];
 
     data.plans.forEach(plan => {
       switch (plan.name) {

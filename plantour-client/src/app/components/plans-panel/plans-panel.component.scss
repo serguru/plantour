@@ -12,6 +12,7 @@ $line: #e1eaec;
   align-items: stretch;
 }
 
+
 .plan-card {
   background: $paper;
   border-radius: 22px;
@@ -45,17 +46,20 @@ $line: #e1eaec;
     margin-bottom: 18px;
   }
 
-  .price-row.main {
+  .currency {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .currency.m {
+    margin-right: 0.2rem
+  }
+
+  .price-row {
     display: flex;
     justify-content: center;
     align-items: baseline;
     color: $ink;
-
-    .currency {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-right: 5px;
-    }
 
     .amount {
       font-size: 2.5rem;
@@ -65,28 +69,27 @@ $line: #e1eaec;
     }
 
     .period {
-      font-size: 0.95rem;
-      color: $ink-soft;
-      margin-left: 6px;
+      font-size: 1rem;
+      font-weight: 600;
     }
 
   }
 
-  .price-row.secondary {
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
-    gap: 0.3rem;
+  // .price-row.secondary {
+  //   display: flex;
+  //   justify-content: center;
+  //   align-items: baseline;
+  //   //gap: 0.3rem;
 
-    .amount {
-      font-size: 2rem;
-      font-weight: 700;
-      color: $primary-deep;
-      line-height: 1;
+  //   .amount {
+  //     font-size: 2rem;
+  //     font-weight: 700;
+  //     color: $primary-deep;
+  //     line-height: 1;
 
-    }
+  //   }
 
-  }
+  // }
 
   .annual-price {
     display: flex;
@@ -208,3 +211,4 @@ $line: #e1eaec;
     gap: 26px;
   }
 }
+

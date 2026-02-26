@@ -1,6 +1,7 @@
 <section class="pricing-grid">
   @for (plan of plans; track plan.name) {
-  <div class="plan-card">
+  <div class="plan-card" [class.popular]="plan.isPopular">
+
 
     <div class="plan-header">
       <h3 class="plan-name">{{ plan.name }}</h3>
@@ -9,10 +10,10 @@
     <p class="description">{{ plan.description }}</p>
 
     <div class="plan-top">
-      <div class="price-row main">
-        <span class="currency">$</span>
+      <div class="price-row">
+        <span class="currency" [class]="plan.order === 3 ? '':'m'">US$</span>
         <span class="amount">{{ plan.monthlyPrice }}</span>
-        <span class="period">/ month</span>
+        <span class="period">/month</span>
       </div>
 
       <div class="cta-row">
@@ -25,12 +26,11 @@
         </a>
       </div>
 
-      <div class="price-row secondary">
+      <div class="price-row">
         @if (plan.annualPrice) {
-        <span class="period">or</span>
-        <span class="currency">$</span>
+        <span class="currency m">US$</span>
         <span class="amount">{{ plan.annualPrice }}</span>
-        <span class="period">/ year</span>
+        <span class="period">/year</span>
         } @else {
         <span class="period">Forever free</span>
         }
