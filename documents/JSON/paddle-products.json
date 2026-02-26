@@ -1,0 +1,151 @@
+{
+    "data": [
+        {
+            "id": "pro_01khvsa34wt2mg7nqac3c45jyc",
+            "name": "Expedtition plan",
+            "tax_category": "saas",
+            "type": "standard",
+            "description": "Ideal for large groups of travelers and expeditions.",
+            "image_url": null,
+            "custom_data": null,
+            "status": "active",
+            "prices": [
+                {
+                    "id": "pri_01khvspsgmrkcggdxxtksbzy88",
+                    "product_id": "pro_01khvsa34wt2mg7nqac3c45jyc",
+                    "type": "standard",
+                    "description": "ea",
+                    "name": "Family Annually",
+                    "billing_cycle": {
+                        "interval": "year",
+                        "frequency": 1
+                    },
+                    "trial_period": null,
+                    "tax_mode": "location",
+                    "unit_price": {
+                        "amount": "8999",
+                        "currency_code": "USD"
+                    },
+                    "unit_price_overrides": [],
+                    "custom_data": null,
+                    "status": "active",
+                    "quantity": {
+                        "minimum": 1,
+                        "maximum": 1
+                    },
+                    "import_meta": null,
+                    "created_at": "2026-02-19T20:33:18.868364Z",
+                    "updated_at": "2026-02-21T02:55:47.886052Z"
+                },
+                {
+                    "id": "pri_01khvsg62zpjhh6qbmc5sfmkm3",
+                    "product_id": "pro_01khvsa34wt2mg7nqac3c45jyc",
+                    "type": "standard",
+                    "description": "em",
+                    "name": "Family Monthly",
+                    "billing_cycle": {
+                        "interval": "month",
+                        "frequency": 1
+                    },
+                    "trial_period": null,
+                    "tax_mode": "location",
+                    "unit_price": {
+                        "amount": "1499",
+                        "currency_code": "USD"
+                    },
+                    "unit_price_overrides": [],
+                    "custom_data": null,
+                    "status": "active",
+                    "quantity": {
+                        "minimum": 1,
+                        "maximum": 1
+                    },
+                    "import_meta": null,
+                    "created_at": "2026-02-19T20:29:42.367044Z",
+                    "updated_at": "2026-02-21T02:55:58.639112Z"
+                }
+            ],
+            "import_meta": null,
+            "created_at": "2026-02-19T20:26:22.748Z",
+            "updated_at": "2026-02-19T20:26:22.748Z"
+        },
+        {
+            "id": "pro_01khvs7gpz701mh82v0p500mcn",
+            "name": "Family plan",
+            "tax_category": "saas",
+            "type": "standard",
+            "description": "Perfect for families or small groups up to 5 travelers",
+            "image_url": null,
+            "custom_data": null,
+            "status": "active",
+            "prices": [
+                {
+                    "id": "pri_01khvsyg17b43cm5kf0t63zfnr",
+                    "product_id": "pro_01khvs7gpz701mh82v0p500mcn",
+                    "type": "standard",
+                    "description": "fa",
+                    "name": "Family Annually",
+                    "billing_cycle": {
+                        "interval": "year",
+                        "frequency": 1
+                    },
+                    "trial_period": null,
+                    "tax_mode": "location",
+                    "unit_price": {
+                        "amount": "2999",
+                        "currency_code": "USD"
+                    },
+                    "unit_price_overrides": [],
+                    "custom_data": null,
+                    "status": "active",
+                    "quantity": {
+                        "minimum": 1,
+                        "maximum": 1
+                    },
+                    "import_meta": null,
+                    "created_at": "2026-02-19T20:37:31.303749Z",
+                    "updated_at": "2026-02-21T02:56:21.291798Z"
+                },
+                {
+                    "id": "pri_01khvsx5szpnfqd97c6sdv3e2w",
+                    "product_id": "pro_01khvs7gpz701mh82v0p500mcn",
+                    "type": "standard",
+                    "description": "fm",
+                    "name": "Family Monthly",
+                    "billing_cycle": {
+                        "interval": "month",
+                        "frequency": 1
+                    },
+                    "trial_period": null,
+                    "tax_mode": "location",
+                    "unit_price": {
+                        "amount": "499",
+                        "currency_code": "USD"
+                    },
+                    "unit_price_overrides": [],
+                    "custom_data": null,
+                    "status": "active",
+                    "quantity": {
+                        "minimum": 1,
+                        "maximum": 1
+                    },
+                    "import_meta": null,
+                    "created_at": "2026-02-19T20:36:48.063105Z",
+                    "updated_at": "2026-02-21T02:56:30.293694Z"
+                }
+            ],
+            "import_meta": null,
+            "created_at": "2026-02-19T20:24:58.335Z",
+            "updated_at": "2026-02-19T20:24:58.335Z"
+        }
+    ],
+    "meta": {
+        "request_id": "e8b1043a-7d78-440e-86b8-67b10ec881d4",
+        "pagination": {
+            "per_page": 50,
+            "next": "https://sandbox-api.paddle.com/products?after=pro_01khvs7gpz701mh82v0p500mcn\u0026include=prices\u0026status=active",
+            "has_more": false,
+            "estimated_total": 2
+        }
+    }
+}

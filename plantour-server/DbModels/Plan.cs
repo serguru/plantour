@@ -8,6 +8,7 @@ namespace plantour_server.DbModels;
 
 [Table("plans", Schema = "plantour")]
 [Index("Name", Name = "plans_name_key", IsUnique = true)]
+[Index("PaddleProductId", Name = "plans_paddle_product_id_key", IsUnique = true)]
 public partial class Plan
 {
     [Key]
@@ -16,6 +17,9 @@ public partial class Plan
 
     [Column("name")]
     public string Name { get; set; } = null!;
+
+    [Column("paddle_product_id")]
+    public string? PaddleProductId { get; set; }
 
     [Column("notes")]
     public string? Notes { get; set; }
@@ -43,7 +47,4 @@ public partial class Plan
 
     [InverseProperty("Plan")]
     public virtual ICollection<Price> Prices { get; set; } = new List<Price>();
-
-    [InverseProperty("Plan")]
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

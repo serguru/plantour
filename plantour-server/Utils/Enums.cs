@@ -2,8 +2,11 @@ namespace plantour_server.Utils;
 
 public enum PlanPrice
 {
-    FamilyMonthly = 1,
-    FamilyYearly = 2,
-    ExpeditionMonthly = 3,
-    ExpeditionYearly = 4
+    NoPlan = 1,
+    Guest = 2,
+    Starter = 3,
+    FamilyMonthly = 4,
+    ExpeditionMonthly = 5,
+    FamilyYearly = 6,
+    ExpeditionYearly = 7
 }

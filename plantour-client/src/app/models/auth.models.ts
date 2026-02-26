@@ -10,16 +10,16 @@ export interface AccessToken {
   aud: string;
   email: string;
   exp: number;
-  family_name?: string;
-  given_name?: string;
+  first_name?: string;
+  last_name?: string;
   iat: number;
   iss: string;
   jti: string;
-  nameid?: string;
+  user_id?: string;
   nbf: number;
-  paddle_subscription_id?: string;
   access_rules?: AccessRule[] | null;
   role: 'Admin' | 'Participant';
+  plan_period: string;
 }
 
 

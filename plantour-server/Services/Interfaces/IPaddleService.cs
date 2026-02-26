@@ -13,4 +13,6 @@ public interface IPaddleService
     Task<string?> GetSubscriptionIdAsync(PaddleSubscriptionIdRequest request);
     Task<PortalSessionResponse> CreateCustomerPortalSessionAsync();
 
+    Task<IEnumerable<PaddleProduct>?> GetActiveProductsAsync();
+
 }

@@ -416,9 +416,10 @@ public partial class PlantourContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("users_access_type_id_fkey");
 
-            entity.HasOne(d => d.Plan).WithMany(p => p.Users)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("users_plan_id_fkey");
+            entity.HasOne(d => d.PriceEnum).WithMany(p => p.Users)
+                .HasPrincipalKey(p => p.PriceEnumId)
+                .HasForeignKey(d => d.PriceEnumId)
+                .HasConstraintName("users_price_enum_id_fkey");
         });
 
         modelBuilder.Entity<UserEmailConfirmation>(entity =>

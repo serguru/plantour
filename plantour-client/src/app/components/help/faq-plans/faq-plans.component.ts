@@ -17,7 +17,7 @@ export class FaqPlansComponent {
   faqs: FAQItem[] = [
     {
       question: 'What plans does Plantour offer?',
-      answer: 'Plantour offers three plans: Trial (Free forever with 10 items max), Company ($9.99/year for up to 5 travelers with shared items and trip comments), and Expedition ($19.99/year with no limitations, packing lists, and item templates).'
+      answer: 'Plantour offers three plans: Trial (Free forever with 10 items max), Family ($4.99/month or $19.99/year for up to 5 travelers with shared items and trip comments), and Expedition ($19.99/year with no limitations, packing lists, and item templates).'
     },
     {
       question: 'Is there a free plan?',
@@ -28,7 +28,7 @@ export class FaqPlansComponent {
       answer: 'The Trial plan limits you to 10 items maximum. This includes items in your dictionary and trip items combined. You can create trips and use basic packing features, but advanced collaboration features require upgrading.'
     },
     {
-      question: 'What does the Company plan include?',
+      question: 'What does the Family plan include?',
       answer: 'The Company plan ($9.99/year) supports up to 5 travelers, enables shared items for group coordination, and includes trip comments for team communication. It\'s ideal for families or small groups traveling together.'
     },
     {

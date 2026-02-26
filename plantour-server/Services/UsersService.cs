@@ -41,6 +41,7 @@ public class UsersService(
     AccessCodeGenerator accessCodeGenerator,
     IHttpClientFactory httpClientFactory,
     IAccessRulesService accessRulesService,
+    IPaddleService paddleService,
     IOptions<SocialAuthSettings> socialAuthSettings) : IUsersService
 {
     private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
@@ -55,7 +56,7 @@ public class UsersService(
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly SocialAuthSettings _socialAuthSettings = socialAuthSettings.Value;
     private readonly IAccessRulesService _accessRulesService = accessRulesService;
-
+    private readonly IPaddleService _paddleService = paddleService;
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly ITokenService _tokenService = tokenService;
@@ -88,7 +89,7 @@ public class UsersService(
             LastName = request.LastName,
             Phone = request.Phone,
             AccessTypeId = await _accessTypeRepository.GetPendingId(),
-            PlanId = await _planRepository.GetNoPlanId()
+            PriceEnumId = (int?)PlanPrice.NoPlan
         };
 
         await _usersRepository.AddAsync(user);
@@ -305,7 +306,7 @@ public class UsersService(
                 PasswordSalt = null,
                 Notes = $"Registered by admin {_currentUser.Email} on {DateTime.UtcNow}",
                 AccessTypeId = await _accessTypeRepository.GetActiveId(),
-                PlanId = await _planRepository.GetNoPlanId()
+                PriceEnumId = (int)PlanPrice.Starter
             };
             await _usersRepository.AddAsync(participant);
         }
@@ -408,7 +409,7 @@ public class UsersService(
 
     public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request, string? ipAddress)
     {
-        if (_currentUser == null ||_currentUser.PlanName == "Guest" || _currentUser.AccessTypeName != "Active" || _currentUser.Role == null )
+        if (_currentUser == null ||_currentUser.PriceEnumId <= PlanPrice.Guest || _currentUser.AccessTypeName != "Active" || _currentUser.Role == null )
         {
             throw new CustomException("Cannot refresh token", "NO_ACCESS");
         }
@@ -630,12 +631,26 @@ public class UsersService(
 
     public async Task<LandingDto> GetLandingAsync()
     {
+
+        var paddleProducts = await _paddleService.GetActiveProductsAsync();
+        if (paddleProducts == null || !paddleProducts.Any())
+        {
+            throw new CustomException("No active Paddle products found");
+        }
+
         var plans = await _planRepository.GetAll();
         plans = plans.Where(p => p.Public!.Value).ToList();
+        var planDtos = _mapper.Map<List<PlanDto>>(plans);
+
+        paddleProducts.ToList().ForEach(pp =>
+        {
+            var plan = planDtos.FirstOrDefault(p => p.PaddleProductId == pp.Id) ?? throw new CustomException($"No plan found for Paddle product Id {pp.Id}");
+            _mapper.Map(pp, plan);
+        });        
 
         var result = new LandingDto()
         {
-            Plans = _mapper.Map<List<PlanDto>>(plans),
+            Plans = planDtos,
             
             GuestPlanDurationDays = (int)await _settingsRepository.GetSettingByKey("guest_plan_duration_days") + " days"
         };
@@ -802,7 +817,7 @@ public class UsersService(
             FirstName = firstName,
             LastName = lastName,
             AccessTypeId = await _accessTypeRepository.GetActiveId(),
-            PlanId = await _planRepository.GetNoPlanId(),
+            PriceEnumId = (int?)PlanPrice.Starter,
             GoogleSub = provider == "google" ? providerUserId : null,
             FacebookUserId = provider == "facebook" ? providerUserId : null
         };

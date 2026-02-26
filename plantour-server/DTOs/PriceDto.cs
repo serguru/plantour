@@ -12,10 +12,9 @@ public class PriceDto
 
     public string Name { get; set; } = null!;
 
-    public PlanPrice PlanPriceIndex { get; set; }
-
     public int ValueCents { get; set; }
 
     public string? Notes { get; set; }
 
+    public PlanPrice PriceEnumId { get; set; }
 }

@@ -18,17 +18,15 @@ public class CurrentUser
     public string? Phone { get; set; }
     public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; }
-    public int Discount { get; set; }
-    public Guid PlanId { get; set; }
     public Guid AccessTypeId { get; set; }
-    public string? PlanName { get; set; }
     public string? AccessTypeName { get; set; }
     public string? PaddleSubscriptionId { get; set; }
-    public string? PaddleCustomerId { get; set; }
     public bool EmailConfirmed { get; set; }
     public bool IsAuthenticated => Role != null;
     public bool IsAdmin => Role == UserRole.Admin;
     public bool IsParticipant => Role == UserRole.Participant;
+
+    public PlanPrice? PriceEnumId { get; set; }
 
     public List<AccessRule> AccessRules { get; set; } = new();
 

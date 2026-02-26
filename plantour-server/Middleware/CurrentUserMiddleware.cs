@@ -48,13 +48,10 @@ public class CurrentUserMiddleware
                     currentUser.Phone = user.Phone;
                     currentUser.Notes = user.Notes;
                     currentUser.CreatedAt = user.CreatedAt;
-                    currentUser.Discount = user.Discount;
-                    currentUser.PlanId = user.PlanId;
                     currentUser.AccessTypeId = user.AccessTypeId;
                     currentUser.PaddleSubscriptionId = user.PaddleSubscriptionId;
-                    currentUser.PaddleCustomerId = user.PaddleCustomerId;
-                    currentUser.PlanName = user.Plan?.Name;
                     currentUser.AccessTypeName = user.AccessType?.Name;
+                    currentUser.PriceEnumId = (PlanPrice?)user.PriceEnumId;
                     currentUser.EmailConfirmed = await emailConfirmationService.IsEmailConfirmedAsync(user.Id);
                 }
                 else

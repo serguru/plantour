@@ -58,16 +58,22 @@ export class ProfileComponent implements OnInit {
   private fb = inject(FormBuilder);
 
   currentUser = this.usersService.userSignal;
+
+  isAdmin = this.usersService.isAdminSignal;
+
+  planPeriod = this.usersService.planPeriodSignal;
+
   fullName = computed(() => {
     const user = this.currentUser();
     if (!user) {
       return '';
     }
 
-    const fullName = `${user.given_name ?? ''} ${user.family_name ?? ''}`.trim();
+    const fullName = `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim();
     return fullName || user.email || '';
   });
   userEmail = computed(() => this.currentUser()?.email ?? '');
+  
   userRole = computed(() => {
     const role = this.usersService.getRole();
     return role === 'Admin' || role === 'Participant' ? role : '';

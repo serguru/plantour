@@ -352,10 +352,17 @@ export const routes: Routes = [
     data: { componentId: 'templates-ai' }
   },
   {
-    path: 'checkout/:priceId',
+    path: 'checkout/:priceId/:priceName',
     loadComponent: () => import('./components/checkout/checkout-component').then(m => m.CheckoutComponent),
     resolve: {cleanup: CleanupResolver},
     data: { componentId: 'checkout' }
+  },
+  {
+    path: 'plans',
+    canActivate: [adminOnlyGuard],
+    loadComponent: () => import('./components/plans/plans-component').then(m => m.PlansComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'plans' }
   },
   {
     path: '**',

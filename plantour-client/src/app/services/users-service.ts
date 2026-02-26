@@ -48,12 +48,12 @@ export class UsersService {
   private readonly accessTokenKey = 'accessToken';
   private readonly refreshTokenKey = 'refreshToken';
 
-  private readonly claimEmail = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress';
-  private readonly claimGivenName = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname';
-  private readonly claimSurname = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname';
-  private readonly claimRole = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
-  private readonly claimNameIdentifier = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
-  private readonly claimAdminId = 'admin_id';
+  // private readonly claimEmail = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress';
+  // private readonly claimGivenName = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname';
+  // private readonly claimSurname = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname';
+  // private readonly claimRole = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
+  // private readonly claimNameIdentifier = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
+  // private readonly claimAdminId = 'admin_id';
 
   private _userSignal = signal<AccessToken | null>(this.getUserFromLocalStorage());
 
@@ -81,7 +81,7 @@ export class UsersService {
     // return email ?? 'Profile';
 
 
-    const result = getFullName(user.given_name ?? '', user.family_name ?? '', user.email ?? '', false);
+    const result = getFullName(user.first_name ?? '', user.last_name ?? '', user.email ?? '', false);
     return result;
 
   });
@@ -104,6 +104,12 @@ export class UsersService {
   isParticipantSignal = computed(() => {
     const role = this.getRole();
     return role === 'Participant' && this.isAuthenticatedSignal();
+  });
+
+  planPeriodSignal = computed(() => {
+    const user = this._userSignal();
+    if (!user) return null;
+    return user['plan_period'] ?? null;
   });
 
   constructor(
@@ -307,7 +313,7 @@ export class UsersService {
 
   getCurrentUserId(): string | null {
     const us = this._userSignal();
-    return us?.nameid ?? null;
+    return us?.user_id ?? null;
   }
 
   // private getClaim(token: AccessToken | null, keys: string[]): string | undefined {

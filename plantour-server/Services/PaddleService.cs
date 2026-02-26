@@ -20,16 +20,20 @@ public class PaddleService : IPaddleService
     private readonly CurrentUser _currentUser;
 
     private readonly UsersRepository _usersRepository;
+    private readonly PlanRepository _planRepository;
 
     public PaddleService(
         HttpClient httpClient,
         HttpCurrentUser httpCurrentUser,
         UsersRepository usersRepository,
+        PlanRepository planRepository,
         IConfiguration configuration
     )
     {
         _currentUser = httpCurrentUser.CurrentUser;
         _usersRepository = usersRepository;
+        _planRepository = planRepository;
+
         _baseUrl = configuration["PaddleSettings:ApiBaseUrl"] ?? throw new CustomException("PaddleSettings:ApiBaseUrl is not configured");
         _apiKey = configuration["PaddleSettings:ApiKey"] ?? throw new CustomException("PaddleSettings:ApiKey is not configured");
 
@@ -193,12 +197,12 @@ public class PaddleService : IPaddleService
         }
 
 
-        PaddleSubscription result = Json2Subscription(list.First());
+        var result = await Json2Subscription(list.First());
 
         return result;
     }
 
-    private PaddleSubscription Json2Subscription(JsonElement json)
+    private async Task<PaddleSubscription> Json2Subscription(JsonElement json)
     {
         if (!json.TryGetProperty("id", out var idElement) ||
             !json.TryGetProperty("status", out var statusElement) ||
@@ -221,14 +225,20 @@ public class PaddleService : IPaddleService
             !priceElement.TryGetProperty("id", out var priceIdElement))
         {
 
-            throw new CustomException("Paddle response does not contain items[0].price.id");
+            throw new CustomException("Paddle response does not contain items[0].price.id or items[0].price.name");
         }
         string? priceId = priceIdElement.GetString();
 
-
-        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(status) || string.IsNullOrWhiteSpace(customerId) || string.IsNullOrWhiteSpace(createdAt) || string.IsNullOrWhiteSpace(priceId))
+        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(status) || string.IsNullOrWhiteSpace(customerId) || string.IsNullOrWhiteSpace(createdAt) || string.IsNullOrWhiteSpace(priceId) )
         {
             throw new CustomException("Paddle subscription properties cannot be empty");
+        }
+
+        string? priceName = await _planRepository.GetPriceNameByPriceIdAsync(priceId);
+
+        if (string.IsNullOrWhiteSpace(priceName))
+        {
+            throw new CustomException($"No price name found for PriceId: {priceId}");
         }
 
         return new PaddleSubscription
@@ -237,7 +247,8 @@ public class PaddleService : IPaddleService
             Status = status,
             CustomerId = customerId,
             PriceId = priceId,
-            CreatedAt = createdAt
+            CreatedAt = createdAt,
+            PriceName = priceName
         };
     }
 
@@ -277,49 +288,7 @@ public class PaddleService : IPaddleService
 
         foreach (var item in list)
         {
-            if (!item.TryGetProperty("id", out var idElement) ||
-                !item.TryGetProperty("status", out var statusElement) ||
-                !item.TryGetProperty("created_at", out var createdAtElement))
-            {
-                throw new CustomException("Paddle response does not contain required subscription properties");
-            }
-            string? id = idElement.GetString();
-            string? status = statusElement.GetString();
-            string? createdAt = createdAtElement.GetString();
-
-            if (!item.TryGetProperty("items", out var itemsElement) ||
-                itemsElement.ValueKind != JsonValueKind.Array ||
-                itemsElement.GetArrayLength() == 0)
-            {
-                throw new CustomException("Paddle response does not contain subscription items");
-            }
-
-            var firstItem = itemsElement[0];
-            if (!firstItem.TryGetProperty("price", out var priceElement) ||
-                !priceElement.TryGetProperty("id", out var priceIdElement))
-            {
-                throw new CustomException("Paddle response does not contain items[0].price.id");
-            }
-
-            string? priceId = priceIdElement.GetString();
-            if (!string.Equals(priceId, request.PriceId, StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(status) || string.IsNullOrWhiteSpace(customerId) || string.IsNullOrWhiteSpace(priceId) || string.IsNullOrWhiteSpace(createdAt))
-            {
-                throw new CustomException("Paddle subscription properties cannot be empty");
-            }
-
-            subscriptions.Add(new PaddleSubscription
-            {
-                Id = id,
-                Status = status,
-                CustomerId = customerId,
-                PriceId = priceId,
-                CreatedAt = createdAt
-            });
+            subscriptions.Add(await Json2Subscription(item));
         }
 
         if (subscriptions.Count == 0)
@@ -357,7 +326,7 @@ public class PaddleService : IPaddleService
         var content = await response.Content.ReadAsStringAsync();
         using var json = JsonDocument.Parse(content);
 
-        var subscription = Json2Subscription(json.RootElement.GetProperty("data"));
+        var subscription = await Json2Subscription(json.RootElement.GetProperty("data"));
         if (!string.Equals(subscription.Status, "active", StringComparison.OrdinalIgnoreCase))
         {
             return null; // Subscription is not active
@@ -398,9 +367,10 @@ public class PaddleService : IPaddleService
 
         if (subscription == null)
         {
-            if (!string.IsNullOrWhiteSpace(admin.PaddleCustomerId))
+            if (!string.IsNullOrWhiteSpace(admin.PaddleSubscriptionId))
             {
                 admin.PaddleSubscriptionId = null;
+                admin.PriceEnumId = (int)PlanPrice.Starter;
                 await _usersRepository.UpdateAsync(admin);
             }
             return null;
@@ -409,21 +379,26 @@ public class PaddleService : IPaddleService
         if (admin.PaddleSubscriptionId != subscription!.Id)
         {
             admin.PaddleSubscriptionId = subscription!.Id;
+            admin.PriceEnumId = null;
             await _usersRepository.UpdateAsync(admin);
         }
+
+        // string? priceName = await _planRepository.GetPriceNameByPriceIdAsync(subscription.PriceId);
+
+        // if (string.IsNullOrWhiteSpace(priceName))
+        // {
+        //     throw new CustomException($"No price name found for PriceId: {subscription.PriceId}");
+        // }
+
+        // subscription.PriceName = priceName;
 
         return subscription;
     }
 
+    // Called by admins only
     public async Task<PortalSessionResponse> CreateCustomerPortalSessionAsync()
     {
-        _currentUser.RaiseIfNotAdmin();
-
-        var customerId = _currentUser.PaddleCustomerId;
-        if (string.IsNullOrWhiteSpace(customerId))
-        {
-            customerId = await GetCustomerIdByEnmailAsync(_currentUser.Email);
-        }
+        string? customerId = await GetCustomerIdByEnmailAsync(_currentUser.Email);
 
         if (string.IsNullOrWhiteSpace(customerId))
         {
@@ -475,5 +450,146 @@ public class PaddleService : IPaddleService
         };
     }
 
+    public async Task<IEnumerable<PaddleProduct>?> GetActiveProductsAsync()
+    {
+        var response = await _httpclient.GetAsync("products?include=prices&status=active");
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+        response.EnsureSuccessStatusCode();
 
+        var content = await response.Content.ReadAsStringAsync();
+        using var json = JsonDocument.Parse(content);
+
+        if (!json.RootElement.TryGetProperty("data", out var dataElement))
+        {
+            throw new CustomException("Paddle response does not contain data field");
+        }
+
+        if (dataElement.ValueKind != JsonValueKind.Array)
+        {
+            throw new CustomException("Paddle response data field must be an array");
+        }
+
+        var list = dataElement.EnumerateArray().ToList();
+
+        if (!list.Any())
+        {
+            return null;
+        }
+
+        var products = new List<PaddleProduct>();
+
+        foreach (var productElement in list)
+        {
+            if (!productElement.TryGetProperty("id", out var productIdElement) ||
+                !productElement.TryGetProperty("name", out var productNameElement) ||
+                !productElement.TryGetProperty("description", out var productDescriptionElement) ||
+                !productElement.TryGetProperty("prices", out var pricesElement))
+            {
+                throw new CustomException("Paddle product does not contain required properties (id, name, description, prices)");
+            }
+
+            if (pricesElement.ValueKind != JsonValueKind.Array)
+            {
+                throw new CustomException("Paddle product prices field must be an array");
+            }
+
+            var productId = productIdElement.GetString();
+            var productName = productNameElement.GetString();
+            var productDescription = productDescriptionElement.GetString();
+
+            if (string.IsNullOrWhiteSpace(productId) ||
+                string.IsNullOrWhiteSpace(productName) ||
+                string.IsNullOrWhiteSpace(productDescription))
+            {
+                throw new CustomException("Paddle product properties cannot be empty");
+            }
+
+            var prices = new List<PaddlePrice>();
+
+            foreach (var priceElement in pricesElement.EnumerateArray())
+            {
+                if (!priceElement.TryGetProperty("id", out var priceIdElement) ||
+                    !priceElement.TryGetProperty("product_id", out var priceProductIdElement) ||
+                    !priceElement.TryGetProperty("name", out var priceNameElement) ||
+                    !priceElement.TryGetProperty("description", out var priceDescriptionElement) ||
+                    !priceElement.TryGetProperty("type", out var priceTypeElement) ||
+                    !priceElement.TryGetProperty("billing_cycle", out var billingCycleElement) ||
+                    !priceElement.TryGetProperty("unit_price", out var unitPriceElement))
+                {
+                    throw new CustomException("Paddle price does not contain required properties");
+                }
+
+                if (billingCycleElement.ValueKind != JsonValueKind.Object ||
+                    !billingCycleElement.TryGetProperty("interval", out var billingIntervalElement) ||
+                    !billingCycleElement.TryGetProperty("frequency", out var billingFrequencyElement))
+                {
+                    throw new CustomException("Paddle price billing_cycle does not contain required properties (interval, frequency)");
+                }
+
+                if (unitPriceElement.ValueKind != JsonValueKind.Object ||
+                    !unitPriceElement.TryGetProperty("amount", out var unitPriceAmountElement))
+                {
+                    throw new CustomException("Paddle price unit_price does not contain required property amount");
+                }
+
+                var priceId = priceIdElement.GetString();
+                var priceProductId = priceProductIdElement.GetString();
+                var priceName = priceNameElement.GetString();
+                var priceDescription = priceDescriptionElement.GetString();
+                var priceType = priceTypeElement.GetString();
+                var billingInterval = billingIntervalElement.GetString();
+
+                if (!billingFrequencyElement.TryGetInt32(out var billingFrequency))
+                {
+                    throw new CustomException("Paddle price billing_cycle.frequency must be an integer");
+                }
+
+                var amountText = unitPriceAmountElement.ValueKind switch
+                {
+                    JsonValueKind.String => unitPriceAmountElement.GetString(),
+                    JsonValueKind.Number => unitPriceAmountElement.GetRawText(),
+                    _ => null
+                };
+
+                if (string.IsNullOrWhiteSpace(amountText) || !int.TryParse(amountText, out var unitPriceAmount))
+                {
+                    throw new CustomException("Paddle price unit_price.amount must be a valid integer");
+                }
+
+                if (string.IsNullOrWhiteSpace(priceId) ||
+                    string.IsNullOrWhiteSpace(priceProductId) ||
+                    string.IsNullOrWhiteSpace(priceName) ||
+                    string.IsNullOrWhiteSpace(priceDescription) ||
+                    string.IsNullOrWhiteSpace(priceType) ||
+                    string.IsNullOrWhiteSpace(billingInterval))
+                {
+                    throw new CustomException("Paddle price properties cannot be empty");
+                }
+
+                prices.Add(new PaddlePrice
+                {
+                    Id = priceId,
+                    ProductId = priceProductId,
+                    Name = priceName,
+                    Description = priceDescription,
+                    Type = priceType,
+                    BillingCycleInterval = billingInterval,
+                    BillingCycleFrequency = billingFrequency,
+                    UnitPriceAmount = unitPriceAmount
+                });
+            }
+
+            products.Add(new PaddleProduct
+            {
+                Id = productId,
+                Name = productName,
+                Description = productDescription,
+                Prices = prices
+            });
+        }
+        return products;
+    }
 }

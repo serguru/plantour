@@ -165,7 +165,7 @@ try
     {
         options.RequireHttpsMetadata = false;
         options.SaveToken = true;
-        options.MapInboundClaims = true;
+        options.MapInboundClaims = false; // Prevent default claim type mapping
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,

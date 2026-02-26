@@ -20,17 +20,17 @@ public class PlanRepository : GenericRepository<Plan>
     {
         public Guid Id { get; init; }
         public Guid PlanId { get; init; }
-        public required string PaddlePriceId { get; init; }
+        public string? PaddlePriceId { get; init; }
         public required string Name { get; init; }
-        public int EnumId { get; init; }
-        public int ValueCents { get; init; }
-        public string? Notes { get; init; }
+        public required int PriceEnumId { get; init; }
+        public required int ValueCents { get; init; }
     }
 
     private sealed class PlanCacheItem
     {
         public Guid Id { get; init; }
         public required string Name { get; init; }
+        public string? PaddleProductId { get; init; }
         public string? Notes { get; init; }
         public bool? Active { get; init; }
         public bool? Public { get; init; }
@@ -53,6 +53,7 @@ public class PlanRepository : GenericRepository<Plan>
         {
             Id = item.Id,
             Name = item.Name,
+            PaddleProductId = item.PaddleProductId,
             Notes = item.Notes,
             Active = item.Active,
             Public = item.Public,
@@ -72,9 +73,8 @@ public class PlanRepository : GenericRepository<Plan>
                 PlanId = priceItem.PlanId,
                 PaddlePriceId = priceItem.PaddlePriceId,
                 Name = priceItem.Name,
-                EnumId = priceItem.EnumId,
+                PriceEnumId = priceItem.PriceEnumId,
                 ValueCents = priceItem.ValueCents,
-                Notes = priceItem.Notes,
                 Plan = plan
             };
 
@@ -95,6 +95,7 @@ public class PlanRepository : GenericRepository<Plan>
                 {
                     Id = p.Id,
                     Name = p.Name,
+                    PaddleProductId = p.PaddleProductId,
                     Notes = p.Notes,
                     Active = p.Active,
                     Public = p.Public,
@@ -107,11 +108,9 @@ public class PlanRepository : GenericRepository<Plan>
                     {
                         Id = price.Id,
                         PlanId = price.PlanId,
-                        PaddlePriceId = price.PaddlePriceId,
                         Name = price.Name,
-                        EnumId = price.EnumId,
-                        ValueCents = price.ValueCents,
-                        Notes = price.Notes
+                        PriceEnumId = price.PriceEnumId,
+                        ValueCents = price.ValueCents
                     }).ToList()
                 })
                 .ToListAsync(cancel),
@@ -209,5 +208,16 @@ public class PlanRepository : GenericRepository<Plan>
         };
     }
 
+
+    public async Task<string?> GetPriceNameByPriceIdAsync(string priceId)
+    {
+        if (string.IsNullOrWhiteSpace(priceId))
+        {
+            return null;
+        }
+        var plans = await GetAllPlansSnapshotAsync();
+        var price = plans.SelectMany(p => p.Prices).FirstOrDefault(p => p.PaddlePriceId == priceId);
+        return price?.Name;
+    }   
 
 }
