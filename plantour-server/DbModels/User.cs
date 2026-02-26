@@ -10,7 +10,6 @@ namespace plantour_server.DbModels;
 [Index("Email", Name = "users_email_key", IsUnique = true)]
 [Index("FacebookUserId", Name = "users_facebook_user_id_key", IsUnique = true)]
 [Index("GoogleSub", Name = "users_google_sub_key", IsUnique = true)]
-[Index("PaddleCustomerId", Name = "users_paddle_customer_id_key", IsUnique = true)]
 [Index("PaddleSubscriptionId", Name = "users_paddle_subscription_id_key", IsUnique = true)]
 public partial class User
 {
@@ -48,17 +47,11 @@ public partial class User
     [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
 
-    [Column("discount")]
-    public int Discount { get; set; }
-
-    [Column("plan_id")]
-    public Guid PlanId { get; set; }
-
     [Column("access_type_id")]
     public Guid AccessTypeId { get; set; }
 
-    [Column("paddle_customer_id")]
-    public string? PaddleCustomerId { get; set; }
+    [Column("price_enum_id")]
+    public int? PriceEnumId { get; set; }
 
     [Column("paddle_subscription_id")]
     public string? PaddleSubscriptionId { get; set; }
@@ -79,9 +72,9 @@ public partial class User
     [InverseProperty("User")]
     public virtual ICollection<AiPrompt> AiPrompts { get; set; } = new List<AiPrompt>();
 
-    [ForeignKey("PlanId")]
+    [ForeignKey("PriceEnumId")]
     [InverseProperty("Users")]
-    public virtual Plan Plan { get; set; } = null!;
+    public virtual Price? PriceEnum { get; set; }
 
     [InverseProperty("User")]
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();

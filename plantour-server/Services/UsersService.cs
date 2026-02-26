@@ -88,7 +88,7 @@ public class UsersService(
             LastName = request.LastName,
             Phone = request.Phone,
             AccessTypeId = await _accessTypeRepository.GetPendingId(),
-            PlanId = await _planRepository.GetNoPlanId()
+            PriceEnumId = (int?)PlanPrice.NoPlan
         };
 
         await _usersRepository.AddAsync(user);
@@ -305,7 +305,7 @@ public class UsersService(
                 PasswordSalt = null,
                 Notes = $"Registered by admin {_currentUser.Email} on {DateTime.UtcNow}",
                 AccessTypeId = await _accessTypeRepository.GetActiveId(),
-                PlanId = await _planRepository.GetNoPlanId()
+                PriceEnumId = (int)PlanPrice.Starter
             };
             await _usersRepository.AddAsync(participant);
         }
@@ -408,7 +408,7 @@ public class UsersService(
 
     public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request, string? ipAddress)
     {
-        if (_currentUser == null ||_currentUser.PlanName == "Guest" || _currentUser.AccessTypeName != "Active" || _currentUser.Role == null )
+        if (_currentUser == null ||_currentUser.PriceEnumId <= PlanPrice.Guest || _currentUser.AccessTypeName != "Active" || _currentUser.Role == null )
         {
             throw new CustomException("Cannot refresh token", "NO_ACCESS");
         }
@@ -802,7 +802,7 @@ public class UsersService(
             FirstName = firstName,
             LastName = lastName,
             AccessTypeId = await _accessTypeRepository.GetActiveId(),
-            PlanId = await _planRepository.GetNoPlanId(),
+            PriceEnumId = (int?)PlanPrice.Starter,
             GoogleSub = provider == "google" ? providerUserId : null,
             FacebookUserId = provider == "facebook" ? providerUserId : null
         };

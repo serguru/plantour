@@ -50,7 +50,7 @@ public class AccessRulesService : IAccessRulesService
         result.AccessRulesObject = a;
         result.UserObject = user;
 
-        result.SubscriptionPlanPeriod = "Guest";
+        result.PriceName = user.PriceEnum!.Name;
 
         return result;
     }
@@ -91,16 +91,17 @@ public class AccessRulesService : IAccessRulesService
         {
             return await ProcessTemporaryUser(user);
         }
+        // In this call the user can be updated, saved to the DB and the updated instance is returned
         var subscription = await _paddleService.GetActiveSubscriptionByUserAsync(user, role, adminId);
 
 
-        var s = subscription == null ? user.Plan.Name : subscription.PriceName;
+        var priceName = subscription == null ? user.PriceEnum!.Name : subscription.PriceName;
 
         AccessProcessResult result = new()
         {
             AccessRulesObject = await ProcessUser(subscription, role),
             UserObject = user,
-            SubscriptionPlanPeriod = s
+            PriceName = priceName
         };
         return result;
     }

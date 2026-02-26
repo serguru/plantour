@@ -6,7 +6,7 @@ begin;
 -- ====================================================================
 -- USERS (2 admins + 2 participants + 2 extra users)
 -- ====================================================================
-INSERT INTO users (email, password_hash, password_salt, first_name, last_name, phone, notes, plan_id, access_type_id)
+INSERT INTO users (email, password_hash, password_salt, first_name, last_name, phone, notes, price_enum_id, access_type_id)
 VALUES
     (
         'serguru@gmail.com',
@@ -16,7 +16,7 @@ VALUES
         'Cherny',
         '+1-604-000-0000',
         'Primary admin user',
-        (select id from plantour.plans where name = 'NoPlan'),
+        3,
         (select id from plantour.access_types where name = 'Active')
     ),
     (
@@ -27,7 +27,7 @@ VALUES
         'Gates',
         '+1-604-000-0001',
         'Secondary admin test user',
-        (select id from plantour.plans where name = 'NoPlan'),
+        3,
         (select id from plantour.access_types where name = 'Active')
     ),
     (
@@ -38,7 +38,7 @@ VALUES
         'Participant',
         '+1-604-000-0001',
         'First participant linked to admin',
-        (select id from plantour.plans where name = 'NoPlan'),
+        3,
         (select id from plantour.access_types where name = 'Active')
     ),
     (
@@ -49,7 +49,7 @@ VALUES
         'Participant',
         '+1-604-000-0002',
         'Second participant linked to admin',
-        (select id from plantour.plans where name = 'NoPlan'),
+        3,
         (select id from plantour.access_types where name = 'Active')
     ),
     (
@@ -60,7 +60,7 @@ VALUES
         'Tester',
         '+1-604-000-0003',
         'Extra test user',
-        (select id from plantour.plans where name = 'NoPlan'),
+        3,
         (select id from plantour.access_types where name = 'Active')
     ),
     (
@@ -71,7 +71,7 @@ VALUES
         'Tester',
         '+1-604-000-0004',
         'Extra test user',
-        (select id from plantour.plans where name = 'NoPlan'),
+        3,
         (select id from plantour.access_types where name = 'Active')
     );
 

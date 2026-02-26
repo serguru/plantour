@@ -12,6 +12,6 @@ public class PlanMappingProfile : Profile
             .ForMember(dest => dest.Prices, opt => opt.MapFrom(src => src.Prices));
 
         CreateMap<Price, PriceDto>()
-            .ForMember(dest => dest.PlanPriceIndex, opt => opt.MapFrom(src => src.EnumId));
+            .ForMember(dest => dest.PriceEnumId, opt => opt.MapFrom(src => src.PriceEnumId));
     }
 }

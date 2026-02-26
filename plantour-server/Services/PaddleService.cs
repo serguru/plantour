@@ -367,9 +367,10 @@ public class PaddleService : IPaddleService
 
         if (subscription == null)
         {
-            if (!string.IsNullOrWhiteSpace(admin.PaddleCustomerId))
+            if (!string.IsNullOrWhiteSpace(admin.PaddleSubscriptionId))
             {
                 admin.PaddleSubscriptionId = null;
+                admin.PriceEnumId = (int)PlanPrice.Starter;
                 await _usersRepository.UpdateAsync(admin);
             }
             return null;
@@ -378,30 +379,26 @@ public class PaddleService : IPaddleService
         if (admin.PaddleSubscriptionId != subscription!.Id)
         {
             admin.PaddleSubscriptionId = subscription!.Id;
+            admin.PriceEnumId = null;
             await _usersRepository.UpdateAsync(admin);
         }
 
-        string? priceName = await _planRepository.GetPriceNameByPriceIdAsync(subscription.PriceId);
+        // string? priceName = await _planRepository.GetPriceNameByPriceIdAsync(subscription.PriceId);
 
-        if (string.IsNullOrWhiteSpace(priceName))
-        {
-            throw new CustomException($"No price name found for PriceId: {subscription.PriceId}");
-        }
+        // if (string.IsNullOrWhiteSpace(priceName))
+        // {
+        //     throw new CustomException($"No price name found for PriceId: {subscription.PriceId}");
+        // }
 
-        subscription.PriceName = priceName;
+        // subscription.PriceName = priceName;
 
         return subscription;
     }
 
+    // Called by admins only
     public async Task<PortalSessionResponse> CreateCustomerPortalSessionAsync()
     {
-        _currentUser.RaiseIfNotAdmin();
-
-        var customerId = _currentUser.PaddleCustomerId;
-        if (string.IsNullOrWhiteSpace(customerId))
-        {
-            customerId = await GetCustomerIdByEnmailAsync(_currentUser.Email);
-        }
+        string? customerId = await GetCustomerIdByEnmailAsync(_currentUser.Email);
 
         if (string.IsNullOrWhiteSpace(customerId))
         {
@@ -453,5 +450,29 @@ public class PaddleService : IPaddleService
         };
     }
 
+    public async Task<string?> GetActivePlansAsync()
+    {
+        var response = await _httpclient.GetAsync("products?include=prices&status=active");
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {            return null;
+        }
+        response.EnsureSuccessStatusCode();
 
+        var content = await response.Content.ReadAsStringAsync();
+        using var json = JsonDocument.Parse(content);
+
+        if (!json.RootElement.TryGetProperty("data", out var dataElement))
+        {
+            throw new CustomException("Paddle response does not contain data field");
+        }
+
+        var list = dataElement.EnumerateArray();
+
+        if (!list.Any())
+        {
+            return null; // No customer found with this email
+        }
+
+        return null;
+    }
 }

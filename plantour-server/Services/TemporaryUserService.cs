@@ -11,6 +11,7 @@ using plantour_server.DbModels;
 using plantour_server.Repositories;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
+using plantour_server.Utils;
 
 namespace plantour_server.Services;
 
@@ -30,6 +31,7 @@ public class TemporaryUserService : ITemporaryUserService
     private readonly PlantourContext _context;
     private readonly IMapper _mapper;
     private readonly IAccessRulesService _accessRulesService;
+    private readonly AccessTypeRepository _accessTypeRepository;
     
     public TemporaryUserService(
         UsersRepository usersRepository,
@@ -45,7 +47,8 @@ public class TemporaryUserService : ITemporaryUserService
         AdminsParticipantRepository adminsParticipantRepository,
         PlantourContext context,
         IMapper mapper,
-        IAccessRulesService accessRulesService)
+        IAccessRulesService accessRulesService,
+        AccessTypeRepository accessTypeRepository)
     {
         _usersRepository = usersRepository;
         _tokenService = tokenService;
@@ -56,6 +59,7 @@ public class TemporaryUserService : ITemporaryUserService
         _packRepository = packRepository;
         _thingRepository = thingRepository;
         _tripThingRepository = tripThingRepository;
+        _accessTypeRepository = accessTypeRepository;
         _tripPackRepository = tripPackRepository;
         _lookupsRepository = lookupsRepository;
         _adminsParticipantRepository = adminsParticipantRepository;
@@ -104,7 +108,9 @@ public class TemporaryUserService : ITemporaryUserService
             PasswordHash = null,
             PasswordSalt = null,
             CreatedAt = DateTime.UtcNow,
-            Notes = "Temporary demo user"
+            Notes = "Automatically created temporary user",
+            PriceEnumId = (int)PlanPrice.Guest,
+            AccessTypeId = await _accessTypeRepository.GetActiveId()
         };
 
         await _usersRepository.AddAsync(user);

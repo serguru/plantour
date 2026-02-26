@@ -43,7 +43,4 @@ public partial class Plan
 
     [InverseProperty("Plan")]
     public virtual ICollection<Price> Prices { get; set; } = new List<Price>();
-
-    [InverseProperty("Plan")]
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

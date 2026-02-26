@@ -69,7 +69,7 @@ export class ProfileComponent implements OnInit {
       return '';
     }
 
-    const fullName = `${user.given_name ?? ''} ${user.family_name ?? ''}`.trim();
+    const fullName = `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim();
     return fullName || user.email || '';
   });
   userEmail = computed(() => this.currentUser()?.email ?? '');

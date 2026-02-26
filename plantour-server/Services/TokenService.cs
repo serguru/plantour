@@ -27,6 +27,8 @@ public class TokenService : ITokenService
 
 
     // TODO: for ACTIVE users only!!!
+
+    // For temporary a new user is created, otherwise they are retrieved from the DB
     public async Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid adminId, bool isTemporary = false)
     {
         var handler = new JwtSecurityTokenHandler();
@@ -40,11 +42,10 @@ public class TokenService : ITokenService
         {
             expiresAtUtc = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
         }
-        
 
         AccessProcessResult accessProcessResult = await _accessRulesService.ProcessAccessRulesAsync(user, role, adminId, isTemporary);
 
-        user = accessProcessResult.UserObject; // Get the updated user object with the latest plan and access type details
+        user = accessProcessResult.UserObject; // Get the updated user object with the latest PriceEnumId and access type details
 
         var rules = accessProcessResult.AccessRulesObject.GetAllRules();
 
@@ -55,7 +56,7 @@ public class TokenService : ITokenService
             new(PlantourClaims.FirstName, user.FirstName ?? string.Empty),
             new(PlantourClaims.LastName, user.LastName ?? string.Empty),
             new(PlantourClaims.Role, role.ToString()),
-            new(PlantourClaims.PlanPeriod, accessProcessResult.SubscriptionPlanPeriod),
+            new(PlantourClaims.PlanPeriod, accessProcessResult.PriceName),
             new(PlantourClaims.PaddleSubscriptionId, user.PaddleSubscriptionId ?? string.Empty),
             new(PlantourClaims.AccessRules, JsonSerializer.Serialize(rules)),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())

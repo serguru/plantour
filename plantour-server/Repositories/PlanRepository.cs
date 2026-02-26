@@ -20,11 +20,10 @@ public class PlanRepository : GenericRepository<Plan>
     {
         public Guid Id { get; init; }
         public Guid PlanId { get; init; }
-        public required string PaddlePriceId { get; init; }
+        public string? PaddlePriceId { get; init; }
         public required string Name { get; init; }
-        public int EnumId { get; init; }
-        public int ValueCents { get; init; }
-        public string? Notes { get; init; }
+        public required int PriceEnumId { get; init; }
+        public required int ValueCents { get; init; }
     }
 
     private sealed class PlanCacheItem
@@ -72,9 +71,8 @@ public class PlanRepository : GenericRepository<Plan>
                 PlanId = priceItem.PlanId,
                 PaddlePriceId = priceItem.PaddlePriceId,
                 Name = priceItem.Name,
-                EnumId = priceItem.EnumId,
+                PriceEnumId = priceItem.PriceEnumId,
                 ValueCents = priceItem.ValueCents,
-                Notes = priceItem.Notes,
                 Plan = plan
             };
 
@@ -109,9 +107,8 @@ public class PlanRepository : GenericRepository<Plan>
                         PlanId = price.PlanId,
                         PaddlePriceId = price.PaddlePriceId,
                         Name = price.Name,
-                        EnumId = price.EnumId,
-                        ValueCents = price.ValueCents,
-                        Notes = price.Notes
+                        PriceEnumId = price.PriceEnumId,
+                        ValueCents = price.ValueCents
                     }).ToList()
                 })
                 .ToListAsync(cancel),

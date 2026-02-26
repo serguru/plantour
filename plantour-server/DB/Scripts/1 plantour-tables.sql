@@ -255,45 +255,61 @@ insert into plantour.plans (name, notes, public, allowed_items,allowed_travelers
 create table plantour.prices (
     id uuid primary key default gen_random_uuid(),
     plan_id uuid not null references plans(id),
-    paddle_price_id text not null unique,
+    paddle_price_id text null unique,
     name text not null unique,
-    enum_id int not null unique,
-    value_cents int not null check(value_cents > 0),
-    notes text
+    price_enum_id int not null unique,
+    value_cents int not null check(value_cents >= 0)
 );
 
-insert into plantour.prices (paddle_price_id,plan_id,name,enum_id,value_cents,notes) values
+insert into plantour.prices (paddle_price_id,plan_id,name,price_enum_id,value_cents) values
+(
+    null,
+    (select id from plantour.plans where name = 'NoPlan'),
+    'No Plan Free',
+    1,
+    0
+),
+(
+    null,
+    (select id from plantour.plans where name = 'Guest'),
+    'Guest Free',
+    2,
+    0
+),
+(
+    null,
+    (select id from plantour.plans where name = 'Starter'),
+    'Starter Free',
+    3,
+    0
+),
 (
     'pri_01khvsx5szpnfqd97c6sdv3e2w',
     (select id from plantour.plans where name = 'Family'),
     'Family Monthly',
-    1,
-    499,
-    'The Family plan price. Billed monthly.'
-),
-(
-    'pri_01khvsyg17b43cm5kf0t63zfnr',
-    (select id from plantour.plans where name = 'Family'),
-    'Family Yearly',
-    2,
-    2999,
-    'The Family plan price. Billed yearly.'
+    4,
+    499
 ),
 (
     'pri_01khvsg62zpjhh6qbmc5sfmkm3',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Monthly',
-    3,
-    1499,
-    'The Expedition plan price. Billed monthly.'
+    5,
+    1499
+),
+(
+    'pri_01khvsyg17b43cm5kf0t63zfnr',
+    (select id from plantour.plans where name = 'Family'),
+    'Family Yearly',
+    6,
+    2999
 ),
 (
     'pri_01khvspsgmrkcggdxxtksbzy88',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Yearly',
-    4,
-    8999,
-    'The Expedition plan price. Billed yearly.'
+    7,
+    8999
 );
 
 
@@ -312,11 +328,19 @@ create table users (
     facebook_user_id text unique,
     notes text,
     created_at timestamp not null default (now() at time zone 'utc'),
-    discount int not null check(discount >= 0) default 0,
-    plan_id uuid not null references plans(id),
+    
+    -- discount int not null check(discount >= 0) default 0,
+    -- price_id uuid null references prices(id),
     access_type_id uuid not null references access_types(id),
-    paddle_customer_id text unique,
-    paddle_subscription_id text unique
+--    paddle_customer_id text unique,
+    price_enum_id int null references plantour.prices(price_enum_id),
+    paddle_subscription_id text unique,
+
+    constraint ch_users_enum_subscription check (
+        (price_enum_id is not null and price_enum_id between 1 and 3 and paddle_subscription_id is null)
+        or 
+        (price_enum_id is null and paddle_subscription_id is not null)
+    )
 );
 
 create table ai_prompt_checks (
@@ -441,7 +465,7 @@ create table trip_users (
     id uuid not null primary key default gen_random_uuid(),
     trip_id uuid not null references trips(id) on delete cascade,
     admin_participant_id uuid not null references admins_participants(id) on delete cascade,
-    packaging_complete boolean not null default(false),  
+    packaging_complete boolean not null default false,  
     notes text,
     nopack_weight_value decimal(10,3) check(nopack_weight_value > 0),
     nopack_weight_unit text
@@ -458,7 +482,7 @@ create table trip_user_packages (
     name text not null,
     label text,
     notes text,
-    packing_list_included boolean not null default(false),
+    packing_list_included boolean not null default false,
     weight_value decimal(10,3) check(weight_value > 0),
     weight_unit text
 );
