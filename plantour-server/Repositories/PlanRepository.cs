@@ -4,6 +4,7 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
+// TODO: add versioning to the app
 public class PlanRepository : GenericRepository<Plan>
 {
     private const string AllPlansCacheKey = "plans:all:v1";
@@ -108,6 +109,7 @@ public class PlanRepository : GenericRepository<Plan>
                     {
                         Id = price.Id,
                         PlanId = price.PlanId,
+                        PaddlePriceId = price.PaddlePriceId,
                         Name = price.Name,
                         PriceEnumId = price.PriceEnumId,
                         ValueCents = price.ValueCents
@@ -152,6 +154,7 @@ public class PlanRepository : GenericRepository<Plan>
         {
             Id = dbPlan.Id,
             Name = dbPlan.Name,
+            PaddleProductId = dbPlan.PaddleProductId,
             Notes = dbPlan.Notes,
             Active = dbPlan.Active,
             Public = dbPlan.Public,
