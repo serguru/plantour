@@ -30,6 +30,7 @@ public class PlanRepository : GenericRepository<Plan>
     {
         public Guid Id { get; init; }
         public required string Name { get; init; }
+        public string? PaddleProductId { get; init; }
         public string? Notes { get; init; }
         public bool? Active { get; init; }
         public bool? Public { get; init; }
@@ -52,6 +53,7 @@ public class PlanRepository : GenericRepository<Plan>
         {
             Id = item.Id,
             Name = item.Name,
+            PaddleProductId = item.PaddleProductId,
             Notes = item.Notes,
             Active = item.Active,
             Public = item.Public,
@@ -93,6 +95,7 @@ public class PlanRepository : GenericRepository<Plan>
                 {
                     Id = p.Id,
                     Name = p.Name,
+                    PaddleProductId = p.PaddleProductId,
                     Notes = p.Notes,
                     Active = p.Active,
                     Public = p.Public,
@@ -105,7 +108,6 @@ public class PlanRepository : GenericRepository<Plan>
                     {
                         Id = price.Id,
                         PlanId = price.PlanId,
-                        PaddlePriceId = price.PaddlePriceId,
                         Name = price.Name,
                         PriceEnumId = price.PriceEnumId,
                         ValueCents = price.ValueCents

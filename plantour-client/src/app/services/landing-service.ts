@@ -37,6 +37,8 @@ export interface LandingDto
     guestPlanDurationDays: string;
 }
 
+// TODO: the landing page title must word wrap properly
+
 @Injectable({
   providedIn: 'root',
 })

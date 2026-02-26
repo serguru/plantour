@@ -236,6 +236,7 @@ insert into transaction_types (name) values
 create table plantour.plans (
     id uuid primary key default gen_random_uuid(),
     name text not null unique,
+    paddle_product_id text null unique,
     notes text,
     active boolean default true,
     public boolean,
@@ -245,12 +246,12 @@ create table plantour.plans (
     extended_AI_allowed boolean not null default false,
     created_at timestamp not null default (now() at time zone 'utc')
 );
-insert into plantour.plans (name, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
-('NoPlan', 'For users having no plan', false, 0, 0, 0, false),
-('Guest', 'To get acquainted with Plantour', false, 10, 2, 2, false),
-('Starter','For small trips and light packers', true, 10, 2, 5, false),
-('Family', 'Perfect for families and small groups', true, null, 5, 20, false),
-('Expedition', 'Ideal for large groups and expeditions', true, null, null, 100, true);
+insert into plantour.plans (name, paddle_product_id, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
+('NoPlan', null, 'For users having no plan', false, 0, 0, 0, false),
+('Guest', null, 'To get acquainted with Plantour', false, 10, 2, 2, false),
+('Starter', null, 'For small trips and light packers', true, 10, 2, 5, false),
+('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, null, 5, 20, false),
+('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, null, null, 100, true);
 
 create table plantour.prices (
     id uuid primary key default gen_random_uuid(),

@@ -450,11 +450,12 @@ public class PaddleService : IPaddleService
         };
     }
 
-    public async Task<string?> GetActivePlansAsync()
+    public async Task<IEnumerable<PaddleProduct>?> GetActiveProductsAsync()
     {
         var response = await _httpclient.GetAsync("products?include=prices&status=active");
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {            return null;
+        {
+            return null;
         }
         response.EnsureSuccessStatusCode();
 
@@ -466,13 +467,129 @@ public class PaddleService : IPaddleService
             throw new CustomException("Paddle response does not contain data field");
         }
 
-        var list = dataElement.EnumerateArray();
+        if (dataElement.ValueKind != JsonValueKind.Array)
+        {
+            throw new CustomException("Paddle response data field must be an array");
+        }
+
+        var list = dataElement.EnumerateArray().ToList();
 
         if (!list.Any())
         {
-            return null; // No customer found with this email
+            return null;
         }
 
-        return null;
+        var products = new List<PaddleProduct>();
+
+        foreach (var productElement in list)
+        {
+            if (!productElement.TryGetProperty("id", out var productIdElement) ||
+                !productElement.TryGetProperty("name", out var productNameElement) ||
+                !productElement.TryGetProperty("description", out var productDescriptionElement) ||
+                !productElement.TryGetProperty("prices", out var pricesElement))
+            {
+                throw new CustomException("Paddle product does not contain required properties (id, name, description, prices)");
+            }
+
+            if (pricesElement.ValueKind != JsonValueKind.Array)
+            {
+                throw new CustomException("Paddle product prices field must be an array");
+            }
+
+            var productId = productIdElement.GetString();
+            var productName = productNameElement.GetString();
+            var productDescription = productDescriptionElement.GetString();
+
+            if (string.IsNullOrWhiteSpace(productId) ||
+                string.IsNullOrWhiteSpace(productName) ||
+                string.IsNullOrWhiteSpace(productDescription))
+            {
+                throw new CustomException("Paddle product properties cannot be empty");
+            }
+
+            var prices = new List<PaddlePrice>();
+
+            foreach (var priceElement in pricesElement.EnumerateArray())
+            {
+                if (!priceElement.TryGetProperty("id", out var priceIdElement) ||
+                    !priceElement.TryGetProperty("product_id", out var priceProductIdElement) ||
+                    !priceElement.TryGetProperty("name", out var priceNameElement) ||
+                    !priceElement.TryGetProperty("description", out var priceDescriptionElement) ||
+                    !priceElement.TryGetProperty("type", out var priceTypeElement) ||
+                    !priceElement.TryGetProperty("billing_cycle", out var billingCycleElement) ||
+                    !priceElement.TryGetProperty("unit_price", out var unitPriceElement))
+                {
+                    throw new CustomException("Paddle price does not contain required properties");
+                }
+
+                if (billingCycleElement.ValueKind != JsonValueKind.Object ||
+                    !billingCycleElement.TryGetProperty("interval", out var billingIntervalElement) ||
+                    !billingCycleElement.TryGetProperty("frequency", out var billingFrequencyElement))
+                {
+                    throw new CustomException("Paddle price billing_cycle does not contain required properties (interval, frequency)");
+                }
+
+                if (unitPriceElement.ValueKind != JsonValueKind.Object ||
+                    !unitPriceElement.TryGetProperty("amount", out var unitPriceAmountElement))
+                {
+                    throw new CustomException("Paddle price unit_price does not contain required property amount");
+                }
+
+                var priceId = priceIdElement.GetString();
+                var priceProductId = priceProductIdElement.GetString();
+                var priceName = priceNameElement.GetString();
+                var priceDescription = priceDescriptionElement.GetString();
+                var priceType = priceTypeElement.GetString();
+                var billingInterval = billingIntervalElement.GetString();
+
+                if (!billingFrequencyElement.TryGetInt32(out var billingFrequency))
+                {
+                    throw new CustomException("Paddle price billing_cycle.frequency must be an integer");
+                }
+
+                var amountText = unitPriceAmountElement.ValueKind switch
+                {
+                    JsonValueKind.String => unitPriceAmountElement.GetString(),
+                    JsonValueKind.Number => unitPriceAmountElement.GetRawText(),
+                    _ => null
+                };
+
+                if (string.IsNullOrWhiteSpace(amountText) || !int.TryParse(amountText, out var unitPriceAmount))
+                {
+                    throw new CustomException("Paddle price unit_price.amount must be a valid integer");
+                }
+
+                if (string.IsNullOrWhiteSpace(priceId) ||
+                    string.IsNullOrWhiteSpace(priceProductId) ||
+                    string.IsNullOrWhiteSpace(priceName) ||
+                    string.IsNullOrWhiteSpace(priceDescription) ||
+                    string.IsNullOrWhiteSpace(priceType) ||
+                    string.IsNullOrWhiteSpace(billingInterval))
+                {
+                    throw new CustomException("Paddle price properties cannot be empty");
+                }
+
+                prices.Add(new PaddlePrice
+                {
+                    Id = priceId,
+                    ProductId = priceProductId,
+                    Name = priceName,
+                    Description = priceDescription,
+                    Type = priceType,
+                    BillingCycleInterval = billingInterval,
+                    BillingCycleFrequency = billingFrequency,
+                    UnitPriceAmount = unitPriceAmount
+                });
+            }
+
+            products.Add(new PaddleProduct
+            {
+                Id = productId,
+                Name = productName,
+                Description = productDescription,
+                Prices = prices
+            });
+        }
+        return products;
     }
 }
