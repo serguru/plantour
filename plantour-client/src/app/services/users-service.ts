@@ -345,4 +345,13 @@ export class UsersService {
     });
   }
 
+  changePlanPrice(oldPlanPrice: string, newPlanPrice: string): Observable<{ updated: boolean }> {
+    return this.http.put<{ updated: boolean }>(`${this.apiUrl}/api/users/change-plan-price`, {
+      oldPlanPrice,
+      newPlanPrice
+    });
+  }
+
+      
+
 }

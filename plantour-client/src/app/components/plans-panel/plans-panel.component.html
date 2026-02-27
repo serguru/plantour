@@ -1,69 +1,50 @@
 @if(isAuthenticated) {
 <section class="plans-header">
-  <h3 class="plans-title">Your current plan is {{usersService.planPeriodSignal()}}. You can {{changeText}} it by clicking one of the buttons below.</h3>
+  <h3 class="plans-title">{{topWording}}</h3>
 
 
 </section>
 }
 
-<section class="pricing-grid" [class.two]="isAuthenticated">
-  @for (plan of plans; track plan.name) {
-  <div class="plan-card" [class.popular]="plan.isPopular">
+<section
+  class="pricing-grid"
+  [class.two]="isAuthenticated"
+>
 
-
+  @if(!isAuthenticated) {
+  <div class="plan-card">
     <div class="plan-header">
-      <h3 class="plan-name">{{ plan.name }}</h3>
+      <h3 class="plan-name">{{ starter.name }}</h3>
     </div>
 
-    <p class="description">{{ plan.description }}</p>
+    <p class="description">{{ starter.description }}</p>
 
     <div class="plan-top">
       <div class="price-row">
-        <span class="currency" [class]="plan.order === 3 ? '':'m'">US$</span>
-        <span class="amount">{{ plan.monthlyPrice }}</span>
+        <span class="currency m">US$</span>
+        <span class="amount">{{ starter.monthlyPrice }}</span>
         <span class="period">/month</span>
       </div>
 
       <div class="cta-row">
         <a
           class="cta-button"
-          [class.link-disabled]="isCurrentPlanPrice(plan.monthlyPriceName!)"
-          [class.outline]="!plan.isPopular"
-          [href]="plan.monthlyPriceUrl"
+          [href]="starter.monthlyPriceUrl"
         >
-          {{ plan.monthlyButtonText }}
+          {{ starter.monthlyButtonText }}
         </a>
       </div>
 
       <div class="price-row">
-        @if (plan.annualPrice) {
-        <span class="currency m">US$</span>
-        <span class="amount">{{ plan.annualPrice }}</span>
-        <span class="period">/year</span>
-        } @else {
         <span class="period">Forever free</span>
-        }
       </div>
-
-      @if(plan.annualPrice) {
-      <div class="cta-row">
-        <a
-          class="cta-button"
-          [class.link-disabled]="isCurrentPlanPrice(plan.annualPriceName!)"
-          [class.outline]="!plan.isPopular"
-          [href]="plan.annualPriceUrl"
-        >
-          {{ plan.annualButtonText }}
-        </a>
-      </div>
-      }
     </div>
 
 
     <div class="divider"></div>
 
     <ul class="plan-features">
-      @for (feat of plan.features; track feat.label) {
+      @for (feat of starter.features; track feat.label) {
       <li [class.disabled]="feat.value === false">
         <span class="feat-label">{{ feat.label }}</span>
         <span
@@ -82,5 +63,186 @@
       }
     </ul>
   </div>
+
   }
+
+
+  <div class="plan-card popular">
+
+
+    <div class="plan-header">
+      <h3 class="plan-name">{{ family.name }}</h3>
+    </div>
+
+    <p class="description">{{ family.description }}</p>
+
+    <div class="plan-top">
+      <div class="price-row">
+        <span class="currency">US$</span>
+        <span class="amount">{{ family.monthlyPrice }}</span>
+        <span class="period">/month</span>
+      </div>
+
+      <div class="cta-row">
+        @if (isAuthenticated) {
+        <a
+          class="cta-button"
+          [class.link-disabled]="!family.monthlyAvalable"
+          (click)="onPlanButtonClick($event, family.monthlyPriceName)"
+        >
+          {{ family.monthlyButtonText }}
+        </a>
+        } @else {
+        <a
+          class="cta-button"
+          [class.link-disabled]="isCurrentPlanPrice(family.monthlyPriceName!)"
+          [href]="family.monthlyPriceUrl"
+        >
+          {{ family.monthlyButtonText }}
+        </a>
+
+        }
+      </div>
+
+      <div class="price-row">
+        <span class="currency m">US$</span>
+        <span class="amount">{{ family.yearlyPrice }}</span>
+        <span class="period">/year</span>
+      </div>
+
+      <div class="cta-row">
+        @if (isAuthenticated) {
+        <a
+          class="cta-button"
+          [class.link-disabled]="!family.yearlyAvalable"
+          (click)="onPlanButtonClick($event, family.yearlyPriceName!)"
+        >
+          {{ family.yearlyButtonText }}
+        </a>
+        } @else {
+        <a
+          class="cta-button"
+          [class.link-disabled]="!family.yearlyAvalable"
+          [href]="family.yearlyPriceUrl"
+        >
+          {{ family.yearlyButtonText }}
+        </a>
+
+        }
+      </div>
+
+    </div>
+
+
+    <div class="divider"></div>
+
+    <ul class="plan-features">
+      @for (feat of family.features; track feat.label) {
+      <li [class.disabled]="feat.value === false">
+        <span class="feat-label">{{ feat.label }}</span>
+        <span
+          class="feat-value"
+          [class.highlight]="feat.highlight"
+        >
+          @if (feat.value === true) {
+          Included
+          } @else if (feat.value === false) {
+          —
+          } @else {
+          {{ feat.value }}
+          }
+        </span>
+      </li>
+      }
+    </ul>
+  </div>
+
+  <div class="plan-card">
+
+    <div class="plan-header">
+      <h3 class="plan-name">{{ expedition.name }}</h3>
+    </div>
+
+    <p class="description">{{ expedition.description }}</p>
+
+    <div class="plan-top">
+      <div class="price-row">
+        <span class="currency m">US$</span>
+        <span class="amount">{{ expedition.monthlyPrice }}</span>
+        <span class="period">/month</span>
+      </div>
+
+      <div class="cta-row">
+        @if (isAuthenticated) {
+        <a
+          class="cta-button outline"
+          [class.link-disabled]="!expedition.monthlyAvalable"
+          (click)="onPlanButtonClick($event, expedition.monthlyPriceName)"
+        >
+          {{ expedition.monthlyButtonText }}
+        </a>
+        } @else {
+        <a
+          class="cta-button outline"
+          [class.link-disabled]="isCurrentPlanPrice(expedition.monthlyPriceName!)"
+          [href]="expedition.monthlyPriceUrl"
+        >
+          {{ expedition.monthlyButtonText }}
+        </a>
+
+        }
+      </div>
+
+      <div class="price-row">
+        <span class="currency m">US$</span>
+        <span class="amount">{{ expedition.yearlyPrice }}</span>
+        <span class="period">/year</span>
+      </div>
+
+      <div class="cta-row">
+        @if (isAuthenticated) {
+        <a
+          class="cta-button outline"
+          [class.link-disabled]="!expedition.yearlyAvalable"
+          (click)="onPlanButtonClick($event, expedition.yearlyPriceName!)"
+        >
+          {{ expedition.yearlyButtonText }}
+        </a>
+        } @else {
+        <a
+          class="cta-button outline"
+          [class.link-disabled]="!expedition.yearlyAvalable"
+          [href]="expedition.yearlyPriceUrl"
+        >
+          {{ expedition.yearlyButtonText }}
+        </a>
+
+        }
+      </div>
+    </div>
+
+
+    <div class="divider"></div>
+
+    <ul class="plan-features">
+      @for (feat of expedition.features; track feat.label) {
+      <li [class.disabled]="feat.value === false">
+        <span class="feat-label">{{ feat.label }}</span>
+        <span
+          class="feat-value"
+          [class.highlight]="feat.highlight"
+        >
+          @if (feat.value === true) {
+          Included
+          } @else if (feat.value === false) {
+          —
+          } @else {
+          {{ feat.value }}
+          }
+        </span>
+      </li>
+      }
+    </ul>
+  </div>
+
 </section>

@@ -14,5 +14,7 @@ public interface IPaddleService
     Task<PortalSessionResponse> CreateCustomerPortalSessionAsync();
 
     Task<IEnumerable<PaddleProduct>?> GetActiveProductsAsync();
+    Task ChangePlanPriceAsync(string oldPlanPrice, string newPlanPrice);
+    
 
 }

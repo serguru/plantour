@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 
@@ -19,6 +19,10 @@ import {
   styleUrls: ['./modal-dialog-component.scss']
 })
 export class ModalDialogComponent implements OnInit, OnDestroy {
+
+  @ViewChild('okButton') okButton!: ElementRef;
+  @ViewChild('cancelButton') cancelButton!: ElementRef;
+
   state: DialogState | null = null;
   visible = false;
 
@@ -26,6 +30,18 @@ export class ModalDialogComponent implements OnInit, OnDestroy {
   private resolved = false;
 
   constructor(private messagesService: MessagesService) {}
+
+  onDialogShow() {
+    if (this.messagesService.focusOkButton) {
+      setTimeout(() => {
+        this.okButton?.nativeElement.focus();
+      });
+      return;
+    } 
+    setTimeout(() => {
+      this.cancelButton?.nativeElement.focus();
+    }); 
+  }
 
   ngOnInit(): void {
     this.sub = this.messagesService.dialogState$.subscribe((state) => {
