@@ -1,6 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LandingDto, LandingService, PlanDto } from '../../services/landing-service';
+import { UsersService } from '../../services/users-service';
+import { map } from 'rxjs';
 
 interface PlanFeature {
   label: string;
@@ -10,6 +12,8 @@ interface PlanFeature {
 
 interface Plan {
   name: string;
+  monthlyPriceName: string;
+  annualPriceName?: string;
   monthlyPrice: string;
   annualPrice?: string;
   description: string;
@@ -23,14 +27,35 @@ interface Plan {
 }
 
 @Component({
-  selector: 'app-plans-panel-component',
+  selector: 'app-plans-panel',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './plans-panel.component.html',
   styleUrl: './plans-panel.component.scss'
 })
 export class PlansPanelComponent implements OnInit {
-  private landingService = inject(LandingService);
+
+  landingService = inject(LandingService);
+  usersService = inject(UsersService);
+
+  get currentPlanPeriod(): string {
+    return this.usersService.planPeriodSignal() ?? '';
+  }
+
+  isCurrentPlanPrice(planPrice: string): boolean {
+    const cpp = this.currentPlanPeriod;
+    const result = cpp === planPrice;
+    return result;
+  }
+
+
+  get isAuthenticated(): boolean {
+    return this.usersService.isAuthenticatedSignal();
+  }
+
+  changeText = "";
+
+
 
   plans: Plan[] = [];
 
@@ -53,13 +78,17 @@ export class PlansPanelComponent implements OnInit {
   private setPlans(data: LandingDto): void {
     const plans: Plan[] = [];
 
-    data.plans.forEach(plan => {
+    const rate: any[] = [];
+
+    data.plans.filter(x => !(this.isAuthenticated && x.name === 'Starter')).forEach(plan => {
+
       switch (plan.name) {
         case 'Starter':
           plans.push(
             {
               name: 'Starter',
               monthlyPrice: '0',
+              monthlyPriceName: "Free",
               description: 'For small trips and light packers',
               monthlyButtonText: 'Join Free',
               monthlyPriceUrl: '/sign-up',
@@ -72,11 +101,16 @@ export class PlansPanelComponent implements OnInit {
           const monthlyPriceObject = plan.prices?.find(p => p.name === 'Family Monthly')!;
           const yearlyPriceObject = plan.prices?.find(p => p.name === 'Family Yearly')!;
 
+          rate.push({ name: 'Family Monthly', value: monthlyPriceObject.valueCents });
+          rate.push({ name: 'Family Yearly', value: yearlyPriceObject.valueCents });
+
           plans.push(
             {
               name: 'Family',
               monthlyPrice: (monthlyPriceObject?.valueCents / 100).toFixed(2),
               annualPrice: (yearlyPriceObject?.valueCents / 100).toFixed(2),
+              monthlyPriceName: monthlyPriceObject.name,
+              annualPriceName: yearlyPriceObject.name,
               description: plan.notes || '',
               isPopular: true,
               monthlyButtonText: 'Start monthly',
@@ -92,11 +126,17 @@ export class PlansPanelComponent implements OnInit {
           const monthlyPriceObject1 = plan.prices?.find(p => p.name === 'Expedition Monthly')!;
           const yearlyPriceObject1 = plan.prices?.find(p => p.name === 'Expedition Yearly')!;
 
+          rate.push({ name: 'Expedition Monthly', value: monthlyPriceObject1.valueCents });
+          rate.push({ name: 'Expedition Yearly', value: yearlyPriceObject1.valueCents });
+
+
           plans.push(
             {
               name: 'Expedition',
               monthlyPrice: (monthlyPriceObject1?.valueCents / 100).toFixed(2),
               annualPrice: (yearlyPriceObject1?.valueCents / 100).toFixed(2),
+              monthlyPriceName: monthlyPriceObject1.name,
+              annualPriceName: yearlyPriceObject1.name,
               description: plan.notes || '',
               monthlyButtonText: 'Go monthly',
               annualButtonText: 'Go yearly',
@@ -112,6 +152,20 @@ export class PlansPanelComponent implements OnInit {
       }
     });
 
+    rate.sort((a, b) => a.value - b.value);
+    const currentIndex = rate.findIndex(r => r.name === this.currentPlanPeriod);
+
+    this.changeText = "";
+
+    if (rate.length) {
+      if (currentIndex === 0 || currentIndex === -1) {
+        this.changeText = "upgrade";
+      } else if (currentIndex === rate.length - 1) {
+        this.changeText = "downgrade";
+      } else {
+        this.changeText = "upgrdade or downgrade";
+      }
+    }
     this.plans = plans.sort((a, b) => a.order - b.order);
   }
 }

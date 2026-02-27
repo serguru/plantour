@@ -34,14 +34,22 @@
         }
 
         @if(isAdmin()) {
-        <p class="billing-row">
-            Manage your <a
-                href=""
-                (click)="onOpenCustomerPortal($event)"
-                [attr.aria-disabled]="isOpeningPortal()"
-                [attr.tabindex]="isOpeningPortal() ? -1 : null"
-            >{{ isOpeningPortal() ? 'billing portal (opening...)' : 'billing, plan and subscription' }}</a>
-        </p>
+        <div class="form-actions">
+
+
+            <app-button
+                [label]="'Choose Plan'"
+                [icon]="'pi pi-money-bill'"
+                [loading]="isUpdatingProfile()"
+                (click)="onChoosePlanClick()"
+            />
+            <app-button
+                [label]="'Manage Billing'"
+                [icon]="'pi pi-receipt'"
+                [loading]="isUpdatingProfile()"
+                (click)="onManageBillingClick()"
+            />
+        </div>
         }
 
         <section class="profile-section">

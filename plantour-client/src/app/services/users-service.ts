@@ -48,13 +48,6 @@ export class UsersService {
   private readonly accessTokenKey = 'accessToken';
   private readonly refreshTokenKey = 'refreshToken';
 
-  // private readonly claimEmail = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress';
-  // private readonly claimGivenName = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname';
-  // private readonly claimSurname = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname';
-  // private readonly claimRole = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
-  // private readonly claimNameIdentifier = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
-  // private readonly claimAdminId = 'admin_id';
-
   private _userSignal = signal<AccessToken | null>(this.getUserFromLocalStorage());
 
   userSignal = this._userSignal.asReadonly();
@@ -109,7 +102,8 @@ export class UsersService {
   planPeriodSignal = computed(() => {
     const user = this._userSignal();
     if (!user) return null;
-    return user['plan_period'] ?? null;
+    const result = user['plan_period'];
+    return result ?? null;
   });
 
   constructor(

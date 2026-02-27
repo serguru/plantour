@@ -1,4 +1,12 @@
-<section class="pricing-grid">
+@if(isAuthenticated) {
+<section class="plans-header">
+  <h3 class="plans-title">Your current plan is {{usersService.planPeriodSignal()}}. You can {{changeText}} it by clicking one of the buttons below.</h3>
+
+
+</section>
+}
+
+<section class="pricing-grid" [class.two]="isAuthenticated">
   @for (plan of plans; track plan.name) {
   <div class="plan-card" [class.popular]="plan.isPopular">
 
@@ -19,6 +27,7 @@
       <div class="cta-row">
         <a
           class="cta-button"
+          [class.link-disabled]="isCurrentPlanPrice(plan.monthlyPriceName!)"
           [class.outline]="!plan.isPopular"
           [href]="plan.monthlyPriceUrl"
         >
@@ -40,6 +49,7 @@
       <div class="cta-row">
         <a
           class="cta-button"
+          [class.link-disabled]="isCurrentPlanPrice(plan.annualPriceName!)"
           [class.outline]="!plan.isPopular"
           [href]="plan.annualPriceUrl"
         >
