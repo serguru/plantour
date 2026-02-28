@@ -111,24 +111,6 @@ public class UsersController : ControllerBase
 
         #region Common Endpoints
 
-        [HttpPost("refresh")]
-        [AdminOrParticipant]
-        public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
-        {
-                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-                var response = await _authService.RefreshTokenAsync(request, ipAddress);
-                return Ok(response);
-        }
-
-        [HttpPost("revoke")]
-        [AdminOrParticipant]
-        public async Task<IActionResult> RevokeRefreshToken([FromBody] RevokeRefreshTokenRequest request)
-        {
-                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-                await _authService.RevokeRefreshTokenAsync(request, ipAddress);
-                return Ok(new { revoked = true });
-        }
-
         [Authorize]
         [HttpGet("validate")]
         public async Task<IActionResult> ValidateToken()

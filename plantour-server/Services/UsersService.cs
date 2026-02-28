@@ -31,7 +31,6 @@ public class UsersService(
     SettingsRepository settingsRepository,
     AccessTypeRepository accessTypeRepository,
     ITokenService tokenService,
-    IRefreshTokenService refreshTokenService,
     IEmailConfirmationService emailConfirmationService,
     UserEmailConfirmationRepository userEmailConfirmationRepository,
     IConfiguration configuration,
@@ -60,7 +59,6 @@ public class UsersService(
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly ITokenService _tokenService = tokenService;
-    private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
     private readonly IEmailConfirmationService _emailConfirmationService = emailConfirmationService;
     private readonly UserEmailConfirmationRepository _userEmailConfirmationRepository = userEmailConfirmationRepository;
     private readonly IConfiguration _configuration = configuration;
@@ -100,7 +98,6 @@ public class UsersService(
         return new AuthResponse
         {
             AccessToken = string.Empty,
-            RefreshToken = string.Empty,
             AccessTokenExpiresAtUtc = DateTime.MinValue,
             EmailConfirmationRequired = true,
             StatusCode = 200,
@@ -340,7 +337,7 @@ public class UsersService(
 
         var r = await CreateAuthResponseAsync(participant, UserRole.Participant, _currentUser.AdminId, null, "Welcome to Plantour");
 
-        await _invitationService.SendInvitationEmailByIdAsync(adminParticipant.Id, accessCode, r.AccessToken, r.RefreshToken);
+        await _invitationService.SendInvitationEmailByIdAsync(adminParticipant.Id, accessCode, r.AccessToken);
 
          var baseUrl = _configuration["InvitationAccess:BaseUrl"];
 
@@ -407,63 +404,6 @@ public class UsersService(
         }
     }
 
-    public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request, string? ipAddress)
-    {
-        if (_currentUser == null ||_currentUser.PriceEnumId <= PlanPrice.Guest || _currentUser.AccessTypeName != "Active" || _currentUser.Role == null )
-        {
-            throw new CustomException("Cannot refresh token", "NO_ACCESS");
-        }
-
-        var storedToken = await _refreshTokenService.GetActiveTokenAsync(request.RefreshToken);
-        if (storedToken == null)
-        {
-            var anyToken = await _refreshTokenService.GetTokenAsync(request.RefreshToken);
-            if (anyToken != null && Enum.TryParse<UserRole>(anyToken.Role, out var tokenRole) && tokenRole == UserRole.Participant)
-            {
-                throw new CustomException("Please ask your Administartor to re-send the invitation email to you", "WRONG_PARTICIPANT_TOKEN");
-            }
-
-            throw new CustomException("Please sign in again", "WRONG_TOKEN");
-        }
-
-        var user = await _usersRepository.GetByIdWithDetailsAsync(storedToken.UserId);
-        if (user == null)
-        {
-            throw new CustomException("User not found", "NO_ACCESS");
-        }
-
-        if (user.AccessType == null || !string.Equals(user.AccessType.Name, "Active", StringComparison.OrdinalIgnoreCase))
-        {
-            throw new CustomException(GetAccessStatusMessage(user.AccessType?.Name), "NO_ACCESS");
-        }
-
-        if (!Enum.TryParse<UserRole>(storedToken.Role, out var role))
-        {
-            throw new CustomException("Invalid refresh token role", "NO_ACCESS");
-        }
-
-        AccessTokenResult accessToken = await _tokenService.CreateAccessToken(user, role, storedToken.AdminId);
-        var newRefreshToken = _tokenService.CreateRefreshToken();
-
-        await _refreshTokenService.RotateAsync(storedToken, newRefreshToken, ipAddress);
-
-        return new AuthResponse
-        {
-            AccessToken = accessToken.Token,
-            RefreshToken = newRefreshToken.Token,
-            AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
-            EmailConfirmationRequired = false,
-            StatusCode = 200,
-            Code = "ACCESS_OK",
-            Message = "Access refreshed"
-        };
-    }
-
-    public async Task RevokeRefreshTokenAsync(RevokeRefreshTokenRequest request, string? ipAddress)
-    {
-        await _refreshTokenService.RevokeAsync(request.RefreshToken, ipAddress);
-    }
-
     public async Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request, CancellationToken cancellationToken = default)
     {
         var user = await _usersRepository.GetByEmailAsync(request.Email);
@@ -493,14 +433,11 @@ public class UsersService(
     private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? ipAddress, string? message)
     {
         AccessTokenResult accessToken = await _tokenService.CreateAccessToken(user, role, adminId);
-        var refreshToken = _tokenService.CreateRefreshToken();
 
-        await _refreshTokenService.CreateAsync(user.Id, role, adminId, refreshToken, ipAddress);
 
         return new AuthResponse
         {
             AccessToken = accessToken.Token,
-            RefreshToken = refreshToken.Token,
             AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
             EmailConfirmationRequired = false,
             StatusCode = 200,

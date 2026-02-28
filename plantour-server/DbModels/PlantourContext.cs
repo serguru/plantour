@@ -83,8 +83,6 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<UserPackage> UserPackages { get; set; }
 
-    public virtual DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
-
     public virtual DbSet<UserThing> UserThings { get; set; }
 
     public virtual DbSet<VTemplateThingsFull> VTemplateThingsFulls { get; set; }
@@ -439,16 +437,6 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserPackages).HasConstraintName("user_packages_user_id_fkey");
-        });
-
-        modelBuilder.Entity<UserRefreshToken>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("user_refresh_tokens_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-
-            entity.HasOne(d => d.User).WithMany(p => p.UserRefreshTokens).HasConstraintName("user_refresh_tokens_user_id_fkey");
         });
 
         modelBuilder.Entity<UserThing>(entity =>

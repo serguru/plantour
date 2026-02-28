@@ -14,7 +14,6 @@ import { getFullName } from '../helpers/utils';
 
 export interface TemporaryUserResponse {
   accessToken: string;
-  refreshToken: string;
   accessTokenExpiresAtUtc: string;
   email: string;
   firstName: string;
@@ -43,10 +42,8 @@ export class UsersService {
   localStorageService = inject(LocalStorageService);
   router = inject(Router);
   messagesService = inject(MessagesService);
-  private refreshInFlight?: Observable<AuthResponse>;
 
   private readonly accessTokenKey = 'accessToken';
-  private readonly refreshTokenKey = 'refreshToken';
 
   private _userSignal = signal<AccessToken | null>(this.getUserFromLocalStorage());
 
@@ -131,16 +128,9 @@ export class UsersService {
     this.localStorageService.setItem(this.accessTokenKey, token);
   }
 
-  private writeRefreshToken(token: string | null): void {
-    this.localStorageService.setItem(this.refreshTokenKey, token);
-  }
 
   getAccessToken(): string | null {
     return this.localStorageService.getItem(this.accessTokenKey);
-  }
-
-  getRefreshToken(): string | null {
-    return this.localStorageService.getItem(this.refreshTokenKey);
   }
 
   updateUser(token: string | null): void {
@@ -158,7 +148,6 @@ export class UsersService {
 
   public applyAuthResponse(response: any): void {
     this.writeAccessToken(response.accessToken || null);
-    this.writeRefreshToken(response.refreshToken || null);
     this.updateUser(response.accessToken || null);
   }
 
@@ -218,41 +207,13 @@ export class UsersService {
       .pipe(
         tap((r: TemporaryUserResponse) => {
           this.writeAccessToken(r.accessToken || null);
-          this.writeRefreshToken(r.refreshToken || null);
           this.updateUser(r.accessToken || null);
         })
       );
   }
 
   signOut(revoke: boolean = true): void {
-    const refreshToken = this.getRefreshToken();
     this.updateUser(null);
-    this.writeRefreshToken(null);
-    if (refreshToken && revoke) {
-      this.http.post(`${this.apiUrl}/api/users/revoke`, { refreshToken }).subscribe({ error: () => null });
-    }
-  }
-
-  refreshTokens(): Observable<AuthResponse> {
-    if (this.refreshInFlight) {
-      return this.refreshInFlight;
-    }
-
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      return throwError(() => new Error('No refresh token'));
-    }
-
-    this.refreshInFlight = this.http.post<AuthResponse>(`${this.apiUrl}/api/users/refresh`, { refreshToken })
-      .pipe(
-        tap((r: AuthResponse) => this.applyAuthResponse(r)),
-        finalize(() => {
-          this.refreshInFlight = undefined;
-        }),
-        shareReplay(1)
-      );
-
-    return this.refreshInFlight;
   }
 
   resendConfirmation(email: string): Observable<any> {
@@ -272,37 +233,6 @@ export class UsersService {
       return of(true);
     }
 
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      this.signOut();
-      this.messagesService.showWarning('Your session has expired. Please sign in again.');
-      this.router.navigate(['/sign-in']);
-      return of(false);
-    }
-
-    return this.refreshTokens().pipe(
-      map(() => true),
-      catchError((refreshError) => {
-        this.signOut();
-
-        const code = refreshError?.error?.code;
-        if (code === 'WRONG_PARTICIPANT_TOKEN') {
-          this.messagesService.showWarning('Your access has expired. Please ask your administrator to re-send the invitation email.');
-          this.router.navigate(['/sign-in/participant']);
-          return of(false);
-        }
-
-        if (type === 'participant') {
-          this.messagesService.showWarning('Your session has expired. Please sign in again.');
-          this.router.navigate(['/sign-in/participant']);
-          return of(false);
-        }
-
-        this.messagesService.showWarning('Your session has expired. Please sign in again.');
-        this.router.navigate(['/sign-in']);
-        return of(false);
-      })
-    );
   }
 
   getCurrentUserId(): string | null {

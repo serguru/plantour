@@ -86,8 +86,5 @@ public partial class User
     public virtual ICollection<UserPackage> UserPackages { get; set; } = new List<UserPackage>();
 
     [InverseProperty("User")]
-    public virtual ICollection<UserRefreshToken> UserRefreshTokens { get; set; } = new List<UserRefreshToken>();
-
-    [InverseProperty("User")]
     public virtual ICollection<UserThing> UserThings { get; set; } = new List<UserThing>();
 }

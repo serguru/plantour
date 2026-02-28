@@ -89,15 +89,6 @@ public class TokenService : ITokenService
         return new AccessTokenResult(handler.WriteToken(token), expiresAtUtc);
     }
 
-    public RefreshTokenResult CreateRefreshToken()
-    {
-        var createdAtUtc = DateTime.UtcNow;
-        var expiresAtUtc = createdAtUtc.AddDays(_jwtSettings.RefreshTokenExpirationDays);
-        var tokenBytes = RandomNumberGenerator.GetBytes(64);
-        var token = Convert.ToBase64String(tokenBytes);
-        var tokenHash = HashToken(token);
-        return new RefreshTokenResult(token, tokenHash, expiresAtUtc, createdAtUtc);
-    }
 
     public string HashToken(string token)
     {
