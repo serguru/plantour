@@ -229,10 +229,11 @@ export class UsersService {
   }
 
   currentUserOk$ = (type?: 'admin' | 'participant'): Observable<boolean> => {
-    if (this.isAuthenticatedSignal()) {
-      return of(true);
+    const result = this.isAuthenticatedSignal();
+    if (!result) {
+      this.router.navigate(['sign-in']);
     }
-
+    return of(result);
   }
 
   getCurrentUserId(): string | null {
