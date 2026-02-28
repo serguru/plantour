@@ -25,11 +25,9 @@ using Microsoft.AspNetCore.HttpOverrides;
 using plantour_server.Utils.Logging;
 using plantour_server.Utils;
 
-// TODO: protect the SEO while under maintenance, your app must return a 503 Service Unavailable status code. What it tells Google: "I'm still here, but I'm busy right now. Please come back later and don't delete my index." The "Retry-After" Header: Ideally, your server should also send a Retry-After header (e.g., 3600 for one hour). This tells the Googlebot exactly when to try again.
 
 QuestPDF.Settings.License = LicenseType.Community;
 
-// PostgreSQL timestamps: app stores UTC but DB columns are 'timestamp without time zone'.
 // This switch prevents Npgsql from throwing when a DateTime with Kind=Utc is written to such columns.
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -312,11 +310,8 @@ try
     builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
     builder.Services.AddScoped<AccessCodeGenerator>();
 
-    // TODO: what is AddHttpClient?
     builder.Services.AddHttpClient<IBrevoEmailClient, BrevoEmailClient>();
-    // TODO: what is AddHttpClient?
     builder.Services.AddHttpClient<IAiService, AiService>();
-
 
     // Register repositories
     builder.Services.AddScoped<plantour_server.Repositories.PackRepository>();
@@ -396,6 +391,8 @@ try
         });
     }
 
+
+    // TODO: test admin token expiration    
     //TODO: participant token expiration handling
 
     //app.UseMiddleware<ExceptionHandlingMiddleware>();

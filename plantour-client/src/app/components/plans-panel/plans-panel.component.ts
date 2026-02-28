@@ -1,15 +1,13 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LandingDto, LandingService, PlanDto } from '../../services/landing-service';
 import { UsersService } from '../../services/users-service';
-import { map } from 'rxjs';
-import { AppButton } from '../button/button-component';
 import { MessagesService } from '../../services/messages-service';
 import { Router } from '@angular/router';
-import { describe } from 'node:test';
 
 
 // TODO: it is necessary to add to the log user activity to proof their activity if they decided to get a refund.
+// TODO: implement forgot password functionality in the sign in
 interface PlanFeature {
   label: string;
   value: string | boolean;
@@ -127,7 +125,7 @@ export class PlansPanelComponent implements OnInit {
       { label: 'Max Items', value: `${plan.allowedItems > 0 ? plan.allowedItems + ' per trip' : 'Unlimited'}` },
       { label: 'Max Participants', value: `${plan.allowedTravelers > 0 ? plan.allowedTravelers + ' per trip' : 'Unlimited'}` },
       { label: 'PDF Export', value: true },
-      { label: 'AI Suggestions', value: `${plan.allowedAiPrompts > 0 ? plan.allowedAiPrompts : 'Unlimited'} ${plan.extendedAiAllowed ? 'extended' : 'regular'} per day` },
+      { label: 'AI Suggestions', value: `${plan.allowedAiPrompts > 0 ? plan.allowedAiPrompts : 'Unlimited'} ${plan.extendedAiAllowed ? '' : ''} per day` },
       { label: 'Shared Items', value: true },
     ];
   }

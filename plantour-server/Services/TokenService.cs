@@ -33,14 +33,15 @@ public class TokenService : ITokenService
     {
         var handler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
-        DateTime expiresAtUtc;
+        DateTime expiresAtUtc = DateTime.UtcNow;
+
         if (isTemporary)
         {
-            expiresAtUtc = DateTime.UtcNow.AddDays(_jwtSettings.TemporaryUserAccessTokenExpirationDays);
+            expiresAtUtc = expiresAtUtc.AddDays(_jwtSettings.TemporaryUserAccessTokenExpirationDays);
         }
         else
         {
-            expiresAtUtc = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
+            expiresAtUtc = expiresAtUtc.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
         }
 
         AccessProcessResult accessProcessResult = await _accessRulesService.ProcessAccessRulesAsync(user, role, adminId, isTemporary);
