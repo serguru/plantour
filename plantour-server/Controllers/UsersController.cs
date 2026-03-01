@@ -3,9 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using plantour_server.Attributes;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
+using plantour_server.Models;
 using plantour_server.Services;
 
 namespace plantour_server.Controllers;
+
+// TODO: if a temporary user signs out show them a warning message.
 
 [ApiController]
 [Route("api/[controller]")]
@@ -13,12 +16,14 @@ public class UsersController : ControllerBase
 {
         private readonly IUsersService _authService;
         private readonly ITemporaryUserService _temporaryUserService;
+        private readonly IPaddleService _paddleService;
         private readonly IContactSubmissionService _contactSubmissionService;
 
-        public UsersController(IUsersService authService, ITemporaryUserService temporaryUserService, IContactSubmissionService contactSubmissionService)
+        public UsersController(IUsersService authService, ITemporaryUserService temporaryUserService, IPaddleService paddleService, IContactSubmissionService contactSubmissionService)
         {
                 _authService = authService;
                 _temporaryUserService = temporaryUserService;
+                _paddleService = paddleService;
                 _contactSubmissionService = contactSubmissionService;
         }
 
@@ -106,32 +111,14 @@ public class UsersController : ControllerBase
 
         #region Common Endpoints
 
-        [HttpPost("refresh")]
-        [AdminOrParticipant]
-        public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
-        {
-                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-                var response = await _authService.RefreshTokenAsync(request, ipAddress);
-                return Ok(response);
-        }
-
-        [HttpPost("revoke")]
-        [AdminOrParticipant]
-        public async Task<IActionResult> RevokeRefreshToken([FromBody] RevokeRefreshTokenRequest request)
-        {
-                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-                await _authService.RevokeRefreshTokenAsync(request, ipAddress);
-                return Ok(new { revoked = true });
-        }
-
-        [Authorize]
-        [HttpGet("validate")]
-        public async Task<IActionResult> ValidateToken()
-        {
-                var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                var isValid = await _authService.ValidateTokenAsync(token);
-                return Ok(new { isValid });
-        }
+        // [Authorize]
+        // [HttpGet("validate")]
+        // public async Task<IActionResult> ValidateToken()
+        // {
+        //         var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        //         var isValid = await _authService.ValidateTokenAsync(token);
+        //         return Ok(new { isValid });
+        // }
 
         #endregion
 
@@ -200,6 +187,24 @@ public class UsersController : ControllerBase
         {
                 var profile = await _authService.GetLandingAsync();
                 return Ok(profile);
+        }
+
+
+        [HttpPut("change-plan-price")]
+        [AdminOnly]
+        public async Task<IActionResult> ChangePlanPrice([FromBody] UpdatePlanPriceRequest request)
+        {
+                await _paddleService.ChangePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
+                return Ok();
+        }
+
+        [HttpPost("refresh-token")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RefreshToken([FromBody] TokenRequestDto request)
+        {
+                var result = await _authService.RefreshTokenAsync(request);
+                return Ok(result);
+
         }
 
 

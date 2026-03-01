@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { BehaviorSubject } from 'rxjs';
 
@@ -24,6 +24,9 @@ export interface DialogState extends DialogConfig {
   providedIn: 'root'
 })
 export class MessagesService {
+
+  focusOkButton = false;
+
   // State for the modal dialog
   private dialogStateSubject = new BehaviorSubject<DialogState | null>(null);
   dialogState$ = this.dialogStateSubject.asObservable();
@@ -94,7 +97,8 @@ export class MessagesService {
       yesLabel: cfg.yesLabel,
       noLabel: cfg.noLabel,
       okLabel: cfg.okLabel,
-      cancelLabel: cfg.cancelLabel
+      cancelLabel: cfg.cancelLabel,
+      
     });
 
     return new Promise<DialogResult>((resolve) => {

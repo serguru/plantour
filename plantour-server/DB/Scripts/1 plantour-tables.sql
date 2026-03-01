@@ -551,27 +551,6 @@ create table user_email_confirmations (
 );
 create unique index idx_user_email_confirmations_user_id on user_email_confirmations(user_id);
 
------------------------------------------------------------------------
--- USER REFRESH TOKENS
------------------------------------------------------------------------
-create table user_refresh_tokens (
-    id uuid not null primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
-    role text not null,
-    admin_id uuid not null,
-    token_hash text not null,
-    created_at timestamp not null default (now() at time zone 'utc'),
-    expires_at timestamp not null,
-    revoked_at timestamp null,
-    replaced_by_token_hash text null,
-    created_by_ip text null,
-    revoked_by_ip text null
-);
-create unique index idx_user_refresh_tokens_user_token_hash on user_refresh_tokens(user_id, token_hash);
-create index idx_user_refresh_tokens_token_hash on user_refresh_tokens(token_hash);
-create index idx_user_refresh_tokens_user_id on user_refresh_tokens(user_id);
-
-
 create table contact_submissions (
     -- identification
     id uuid primary key default gen_random_uuid(),
@@ -766,8 +745,7 @@ values
     ('user_token_expiration_minutes', '1440',  'integer'),
     ('checkout_session_success_url', 'profile',  'string'),
     ('checkout_session_cancel_url', 'profile',  'string'),
-    ('plantour_app_origin', 'http://localhost:4203',  'string'),
-    ('user_refresh_token_expiration_days', '30',  'integer');
+    ('plantour_app_origin', 'http://localhost:4203',  'string');
     
     
 create table plantour.sitemap_urls (
@@ -779,3 +757,14 @@ create table plantour.sitemap_urls (
     created_at timestamp not null default (now() at time zone 'utc')
 );
 
+
+create table plantour.refresh_tokens (
+    id uuid primary key,
+    user_id uuid not null references users(id) on delete cascade,
+    token uuid not null unique,
+    expires_at timestamp not null,
+    created_at timestamp default current_timestamp
+    
+    -- a token is valid if it hasn't expired and hasn't been revoked
+    constraint chk_expiration check (expires_at > created_at)
+);

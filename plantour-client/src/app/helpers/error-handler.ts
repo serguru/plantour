@@ -1,5 +1,6 @@
 import { ErrorHandler, Injectable, Injector } from '@angular/core';
 import { MessagesService } from '../services/messages-service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
@@ -12,6 +13,9 @@ export class GlobalErrorHandler implements ErrorHandler {
       const messagesService = this.injector.get(MessagesService);
       if (error.error.code === 'PLAN_LIMIT_REACHED') {
          messagesService.showWarning(message);
+      } else if (error.error.code === 'REFRESH_TOKEN_FAILED') {
+         messagesService.showWarning("Your session has expired. Please sign in again or ask your administrator to re-issue your invitation.");
+         this.injector.get(Router).navigate(['sign-in']);
       } else if (error.error.message) {  
          messagesService.showError(message);
       }

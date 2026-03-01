@@ -12,6 +12,7 @@ using PlantourApi.Models;
 
 namespace plantour_server.Services;
 
+// TODO: if a user scheduled a downgrade and then signin in they should confirm they did not want to cancel that downgrade
 public class PaddleService : IPaddleService
 {
     private readonly string _baseUrl;
@@ -196,6 +197,10 @@ public class PaddleService : IPaddleService
             return null;
         }
 
+        if (list.Count() > 1)
+        {
+            throw new CustomException($"Multiple active subscriptions found for the same customer with email {email}, cannot determine which one is correct");
+        }
 
         var result = await Json2Subscription(list.First());
 
@@ -229,7 +234,7 @@ public class PaddleService : IPaddleService
         }
         string? priceId = priceIdElement.GetString();
 
-        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(status) || string.IsNullOrWhiteSpace(customerId) || string.IsNullOrWhiteSpace(createdAt) || string.IsNullOrWhiteSpace(priceId) )
+        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(status) || string.IsNullOrWhiteSpace(customerId) || string.IsNullOrWhiteSpace(createdAt) || string.IsNullOrWhiteSpace(priceId))
         {
             throw new CustomException("Paddle subscription properties cannot be empty");
         }
@@ -591,5 +596,68 @@ public class PaddleService : IPaddleService
             });
         }
         return products;
+    }
+
+    public async Task ChangePlanPriceAsync(string oldPlanPrice, string newPlanPrice)
+    {
+        if (!_currentUser.IsAdmin)
+        {
+            throw new CustomException("Only admins can change plan prices");
+        }
+
+        var products = await GetActiveProductsAsync();
+        var prices = products?.SelectMany(p => p.Prices).OrderBy(p => p.UnitPriceAmount).ToList();
+
+        var oldPrice = (prices?.FirstOrDefault(p => p.Name.Equals(oldPlanPrice, StringComparison.OrdinalIgnoreCase))) ?? throw new CustomException($"Old plan price '{oldPlanPrice}' not found");
+
+        var newPrice = (prices?.FirstOrDefault(p => p.Name.Equals(newPlanPrice, StringComparison.OrdinalIgnoreCase))) ?? throw new CustomException($"New plan price '{newPlanPrice}' not found");
+
+        PaddleSubscription? subscription = await GetActiveSubscriptionByEmailAsync(_currentUser.Email);
+
+        if (subscription == null)
+        {
+            throw new CustomException("No active subscription found for the current user with email " + _currentUser.Email);
+        }
+
+        if (subscription.PriceId != oldPrice.Id)
+        {
+            throw new CustomException($"Current subscription price ID '{subscription.PriceId}' does not match the expected old price ID '{oldPrice.Id}' for the user with email " + _currentUser.Email + ")");
+        }
+
+        // Determine downgrade or upgrade
+        bool isDowngrade = newPrice.UnitPriceAmount < oldPrice.UnitPriceAmount;
+
+        string prorationBillingMode = isDowngrade ? "full_next_billing_period" : "prorated_immediately";
+
+        var payload = new
+        {
+            items = new[]
+                    {
+                new {
+                    price_id = newPrice.Id,
+                    quantity = 1
+                }
+            },
+            proration_billing_mode = prorationBillingMode
+        };
+
+        // var json = JsonSerializer.Serialize(payload);
+        // var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        // Set Headers
+        // client.DefaultRequestHeaders.Clear();
+        // client.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiKey}");
+
+        var url = $"subscriptions/{subscription.Id}";
+
+        // Send PATCH request
+        var response = await _httpclient.PatchAsJsonAsync(url, payload);
+        string errorJson = await response.Content.ReadAsStringAsync();
+
+
+        // var request = new HttpRequestMessage(new HttpMethod("PATCH"), url) { Content = content };
+        // var response = await client.SendAsync(request);
+
+        response.EnsureSuccessStatusCode();
     }
 }

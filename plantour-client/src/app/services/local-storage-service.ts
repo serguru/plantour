@@ -57,6 +57,13 @@ export class LocalStorageService {
     }
     this.storage.removeItem(key);
   }
+
+  clear(): void {
+    if (!this.storage) {
+      return;
+    }
+    this.storage.clear();
+  }
  
 
   setComponentKey(componentId: string, key: string, value: any | null) {

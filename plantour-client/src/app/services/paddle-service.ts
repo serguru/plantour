@@ -47,10 +47,6 @@ export class PaddleService {
     this.paddle.set(instance);
   }
 
-  // joinPrice(priceId: string, email?: string): void {
-  //   void this.openOverlayCheckout(priceId, email);
-  // }
-
   setCheckoutEventHandler(handler: ((eventName: string) => void) | undefined): void {
     this.checkoutEventHandler = handler;
   }
@@ -100,31 +96,6 @@ export class PaddleService {
     });
   }
 
-  // private async openOverlayCheckout(priceId: string, email?: string): Promise<void> {
-
-  //   const paddle = await this.getPaddleOrThrow();
-
-
-  //   paddle.Checkout.open({
-      
-  //     items: [
-  //       {
-  //         priceId: priceId,
-  //         quantity: 1
-  //       }
-  //     ],
-  //     customer: email
-  //       ? {
-  //         email: email
-  //       }
-  //       : undefined,
-  //     settings: {
-  //       displayMode: 'overlay',
-  //     },
-  //   },
-  //   );
-  // }
-
   private async getPaddleOrThrow(): Promise<Paddle> {
     await this.paddleInitPromise;
 
@@ -136,5 +107,7 @@ export class PaddleService {
 
     return paddle;
   }
+
+
 }
 

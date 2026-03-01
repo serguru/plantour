@@ -19,7 +19,6 @@ public class TemporaryUserService : ITemporaryUserService
 {
     private readonly UsersRepository _usersRepository;
     private readonly ITokenService _tokenService;
-    private readonly IRefreshTokenService _refreshTokenService;
     private readonly TripRepository _tripRepository;
     private readonly TripUserRepository _tripUserRepository;
     private readonly PackRepository _packRepository;
@@ -36,7 +35,6 @@ public class TemporaryUserService : ITemporaryUserService
     public TemporaryUserService(
         UsersRepository usersRepository,
         ITokenService tokenService,
-        IRefreshTokenService refreshTokenService,
         TripRepository tripRepository,
         TripUserRepository tripUserRepository,
         PackRepository packRepository,
@@ -52,7 +50,6 @@ public class TemporaryUserService : ITemporaryUserService
     {
         _usersRepository = usersRepository;
         _tokenService = tokenService;
-        _refreshTokenService = refreshTokenService;
         _tripRepository = tripRepository;
         _accessRulesService = accessRulesService;
         _tripUserRepository = tripUserRepository;
@@ -118,14 +115,10 @@ public class TemporaryUserService : ITemporaryUserService
         // Populate test data for the user
         Trip activeTrip = await PopulateSampleDataAsync(user);
         var accessToken = await _tokenService.CreateAccessToken(user, UserRole.Admin, user.Id, true);
-        var refreshToken = _tokenService.CreateRefreshToken();
-
-        await _refreshTokenService.CreateAsync(user.Id, UserRole.Admin, user.Id, refreshToken, null);
 
         return new CreateTemporaryUserResponse
         {
             AccessToken = accessToken.Token,
-            RefreshToken = refreshToken.Token,
             AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
             Email = user.Email,
             FirstName = user.FirstName,

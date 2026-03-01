@@ -6,5 +6,5 @@ namespace plantour_server.Services.Interfaces;
 public interface IInvitationService
 {
     Task<SendInvitationEmailResponse> SendInvitationEmailAsync(SendInvitationEmailRequest request);
-    Task<SendInvitationEmailResponse> SendInvitationEmailByIdAsync(Guid adminParticipantId, string accessCode, string accessToken, string refreshToken);
+    Task<SendInvitationEmailResponse> SendInvitationEmailByIdAsync(Guid adminParticipantId, string accessCode, string accessToken);
 }

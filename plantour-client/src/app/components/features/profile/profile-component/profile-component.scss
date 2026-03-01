@@ -10,7 +10,6 @@
     border: 1px solid var(--secondary-border-color);
     border-radius: 8px;
     background-color: var(--surface-0);
-    margin-bottom: 1rem;
     overflow: hidden;
 }
 
@@ -98,4 +97,12 @@
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+}
+
+
+.billing-plans {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
 }

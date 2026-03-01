@@ -1506,17 +1506,11 @@ export class HelpComponent {
       return;
     }
 
+    // TODO: inspect temporary user creation
     this.usersService.registerTemporaryAdmin().subscribe({
+
       next: (response: TemporaryUserResponse) => {
 
-        localStorage.clear();
-        this.localStorageService.setItem('accessToken', response.accessToken);
-        this.localStorageService.setItem('refreshToken', response.refreshToken);
-        this.localStorageService.setComponentKey('trips', 'selectedId', response.currentTripId);
-        this.localStorageService.setItem('toolbar-showTripText', true);
-        this.currentTripService.updateCurrentTripVisible(true);
-
-        this.usersService.updateUser(response.accessToken);
         const path = `/trips/${response.currentTripId}/trip-things`;
         this.router.navigate([path]);
 

@@ -25,9 +25,11 @@ using Microsoft.AspNetCore.HttpOverrides;
 using plantour_server.Utils.Logging;
 using plantour_server.Utils;
 
+
+// TODO: test email confirmation after sign-up
+
 QuestPDF.Settings.License = LicenseType.Community;
 
-// PostgreSQL timestamps: app stores UTC but DB columns are 'timestamp without time zone'.
 // This switch prevents Npgsql from throwing when a DateTime with Kind=Utc is written to such columns.
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -302,7 +304,6 @@ try
     builder.Services.AddScoped<IPublicTemplatesService, PublicTemplatesService>();
     builder.Services.AddScoped<ITemporaryUserService, TemporaryUserService>();
     builder.Services.AddScoped<ITokenService, TokenService>();
-    builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
     builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
@@ -310,11 +311,8 @@ try
     builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
     builder.Services.AddScoped<AccessCodeGenerator>();
 
-    // TODO: what is AddHttpClient?
     builder.Services.AddHttpClient<IBrevoEmailClient, BrevoEmailClient>();
-    // TODO: what is AddHttpClient?
     builder.Services.AddHttpClient<IAiService, AiService>();
-
 
     // Register repositories
     builder.Services.AddScoped<plantour_server.Repositories.PackRepository>();
@@ -341,14 +339,13 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.TripSharedRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.UserRefreshTokenRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.UserEmailConfirmationRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptChecksRepository>();
-   
+    builder.Services.AddScoped<plantour_server.Repositories.RefreshTokenRepository>();
 
     builder.Services.AddScoped<HttpCurrentUser>();
 
@@ -394,6 +391,8 @@ try
         });
     }
 
+
+    // TODO: test admin token expiration    
     //TODO: participant token expiration handling
 
     //app.UseMiddleware<ExceptionHandlingMiddleware>();

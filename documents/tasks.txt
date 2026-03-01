@@ -369,14 +369,5 @@ Explore collapsible sections implementation in Help component. Explore signup. R
 
 Explore the official paddle documentation on how to integrate the Saas web app with Paddle Customer Portal. Read how to create Customer portal session here https://developer.paddle.com/api-reference/customer-portals/overview . Add the necessary code to the project. Put instructions how to use it to customer-portal.md.
 
-I need to provide a user with an ability to downgrade or update their plan/price.
-
-
-NoPlan
-Guest
-Starter
-Family Yearly
-Family Monthly
-Expedition Yearly
-Expedition Monthly
-
+There are access tokens and referesh tokens in the app. Explore the code and find out how it manages these tokens. Create a file documents/tokens-explanation.md and put there detailed, step-by-step explanantion how that logic works. Currently it does not work properly, instead of automatic re-issueing a new access token based on the current refresh tiken it sends the user to the login page. Find out why is that. Change no code, just explain the problem in the documents/tokens-explanation.md and how to fix it.
+ 

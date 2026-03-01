@@ -12,6 +12,7 @@ import { SocialAuthService } from '../../../../services/social-auth-service';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../../../environment.token';
 import { PaddleService } from '../../../../services/paddle-service';
 import { firstValueFrom } from 'rxjs';
+import { Router } from '@angular/router';
 
 // TODO: move c hange password form to a separate component and use it in both profile and auth pages
 // TODO: add styles to custom portal link
@@ -57,6 +58,8 @@ export class ProfileComponent implements OnInit {
   private paddleService = inject(PaddleService);
   private fb = inject(FormBuilder);
 
+  router = inject(Router);
+
   currentUser = this.usersService.userSignal;
 
   isAdmin = this.usersService.isAdminSignal;
@@ -73,7 +76,7 @@ export class ProfileComponent implements OnInit {
     return fullName || user.email || '';
   });
   userEmail = computed(() => this.currentUser()?.email ?? '');
-  
+
   userRole = computed(() => {
     const role = this.usersService.getRole();
     return role === 'Admin' || role === 'Participant' ? role : '';
@@ -275,8 +278,7 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  async onOpenCustomerPortal(event: Event): Promise<void> {
-    event.preventDefault();
+  async onOpenCustomerPortal(): Promise<void> {
 
     if (this.isOpeningPortal()) {
       return;
@@ -428,6 +430,26 @@ export class ProfileComponent implements OnInit {
     const field = this.passwordForm.get('confirmNewPassword');
     return !!(field && field.touched && (field.invalid || this.passwordForm.hasError('passwordMismatch')));
   }
+
+  onChoosePlanClick(): void {
+    this.router.navigate(['/plans']);
+  }
+  onManageBillingClick(): void {
+    this.onOpenCustomerPortal();
+  }
+
+
+  // <p class="billing-row">
+  //     Manage your <a
+  //         href=""
+  //         (click)="onOpenCustomerPortal($event)"
+  //         [attr.aria-disabled]="isOpeningPortal()"
+  //         [attr.tabindex]="isOpeningPortal() ? -1 : null"
+  //     >{{ isOpeningPortal() ? 'billing portal (opening...)' : 'billing, plan and subscription' }}</a>
+  // </p>
+
+
+
 
 }
 
