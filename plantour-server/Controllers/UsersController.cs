@@ -111,32 +111,14 @@ public class UsersController : ControllerBase
 
         #region Common Endpoints
 
-        [HttpPost("refresh")]
-        [AdminOrParticipant]
-        public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
-        {
-                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-                var response = await _authService.RefreshTokenAsync(request, ipAddress);
-                return Ok(response);
-        }
-
-        [HttpPost("revoke")]
-        [AdminOrParticipant]
-        public async Task<IActionResult> RevokeRefreshToken([FromBody] RevokeRefreshTokenRequest request)
-        {
-                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-                await _authService.RevokeRefreshTokenAsync(request, ipAddress);
-                return Ok(new { revoked = true });
-        }
-
-        [Authorize]
-        [HttpGet("validate")]
-        public async Task<IActionResult> ValidateToken()
-        {
-                var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                var isValid = await _authService.ValidateTokenAsync(token);
-                return Ok(new { isValid });
-        }
+        // [Authorize]
+        // [HttpGet("validate")]
+        // public async Task<IActionResult> ValidateToken()
+        // {
+        //         var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        //         var isValid = await _authService.ValidateTokenAsync(token);
+        //         return Ok(new { isValid });
+        // }
 
         #endregion
 
@@ -215,4 +197,15 @@ public class UsersController : ControllerBase
                 await _paddleService.ChangePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
                 return Ok();
         }
+
+        [HttpPost("refresh-token")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RefreshToken([FromBody] TokenRequestDto request)
+        {
+                var result = await _authService.RefreshTokenAsync(request);
+                return Ok(result);
+
+        }
+
+
 }

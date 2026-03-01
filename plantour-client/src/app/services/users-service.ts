@@ -11,10 +11,10 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { MessagesService } from './messages-service';
 import { getFullName } from '../helpers/utils';
+//import { CurrentTripService } from './current-trip-service';
 
 export interface TemporaryUserResponse {
   accessToken: string;
-  refreshToken: string;
   accessTokenExpiresAtUtc: string;
   email: string;
   firstName: string;
@@ -34,6 +34,13 @@ export interface UserDto {
   hasFacebookLinked: boolean;
 }
 
+export interface TokenRequestDto {
+  accessToken: string;
+  refreshToken: string;
+};
+
+
+
 @Injectable({
   providedIn: 'root',
 })
@@ -41,9 +48,12 @@ export class UsersService {
   private apiUrl: string;
   appService = inject(AppService);
   localStorageService = inject(LocalStorageService);
+
+
+  //currentTripService = inject(CurrentTripService);
+
   router = inject(Router);
   messagesService = inject(MessagesService);
-  private refreshInFlight?: Observable<AuthResponse>;
 
   private readonly accessTokenKey = 'accessToken';
   private readonly refreshTokenKey = 'refreshToken';
@@ -63,16 +73,6 @@ export class UsersService {
     if (!user) {
       return "Profile";
     }
-
-    // const firstName = this.getClaim(user, [this.claimGivenName, 'first_name']);
-    // const lastName = this.getClaim(user, [this.claimSurname, 'last_name']);
-    // const email = this.getClaim(user, [this.claimEmail, 'email']);
-
-    // if (firstName && lastName) {
-    //   return `${firstName} ${lastName}`;
-    // }
-    // return email ?? 'Profile';
-
 
     const result = getFullName(user.first_name ?? '', user.last_name ?? '', user.email ?? '', false);
     return result;
@@ -127,20 +127,37 @@ export class UsersService {
     }
   }
 
-  private writeAccessToken(token: string | null): void {
+  private getRefreshTokenFromLocalStorage(): string | null {
+    const result = this.localStorageService.getItem(this.refreshTokenKey);
+    if (!result) {
+      return null;
+    }
+    return result;
+  }
+
+  private getAccessTokenFromLocalStorage(): string | null {
+    const result = this.localStorageService.getItem(this.accessTokenKey);
+    if (!result) {
+      return null;
+    }
+    return result;
+  }
+
+
+  get accessToken(): string | null {
+    return this.getAccessTokenFromLocalStorage();
+  }
+
+  get refreshToken(): string | null {
+    return this.getRefreshTokenFromLocalStorage();
+  }
+
+  public writeAccessToken(token: string | null): void {
     this.localStorageService.setItem(this.accessTokenKey, token);
   }
 
-  private writeRefreshToken(token: string | null): void {
+  public writeRefreshToken(token: string | null): void {
     this.localStorageService.setItem(this.refreshTokenKey, token);
-  }
-
-  getAccessToken(): string | null {
-    return this.localStorageService.getItem(this.accessTokenKey);
-  }
-
-  getRefreshToken(): string | null {
-    return this.localStorageService.getItem(this.refreshTokenKey);
   }
 
   updateUser(token: string | null): void {
@@ -152,14 +169,13 @@ export class UsersService {
         console.error("Token decoding failed", e);
       }
     }
-    this.writeAccessToken(token);
     this._userSignal.set(user);
   }
 
   public applyAuthResponse(response: any): void {
+    this.updateUser(response.accessToken || null);
     this.writeAccessToken(response.accessToken || null);
     this.writeRefreshToken(response.refreshToken || null);
-    this.updateUser(response.accessToken || null);
   }
 
   loginAdmin(email: string, password: string): Observable<AuthResponse> {
@@ -217,42 +233,21 @@ export class UsersService {
     return this.http.post<TemporaryUserResponse>(`${this.apiUrl}/api/users/create-temporary-user`, {})
       .pipe(
         tap((r: TemporaryUserResponse) => {
-          this.writeAccessToken(r.accessToken || null);
-          this.writeRefreshToken(r.refreshToken || null);
+
+          this.localStorageService.clear();
           this.updateUser(r.accessToken || null);
-        })
-      );
+          this.writeAccessToken(r.accessToken || null);
+          this.writeRefreshToken(null);
+          this.localStorageService.setComponentKey('trips', 'selectedId', r.currentTripId);
+          this.localStorageService.setItem('toolbar-showTripText', true);
+//          this.currentTripService.updateCurrentTripVisible(true);
+        }));
   }
 
-  signOut(revoke: boolean = true): void {
-    const refreshToken = this.getRefreshToken();
+  signOut(): void {
     this.updateUser(null);
+    this.writeAccessToken(null);
     this.writeRefreshToken(null);
-    if (refreshToken && revoke) {
-      this.http.post(`${this.apiUrl}/api/users/revoke`, { refreshToken }).subscribe({ error: () => null });
-    }
-  }
-
-  refreshTokens(): Observable<AuthResponse> {
-    if (this.refreshInFlight) {
-      return this.refreshInFlight;
-    }
-
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      return throwError(() => new Error('No refresh token'));
-    }
-
-    this.refreshInFlight = this.http.post<AuthResponse>(`${this.apiUrl}/api/users/refresh`, { refreshToken })
-      .pipe(
-        tap((r: AuthResponse) => this.applyAuthResponse(r)),
-        finalize(() => {
-          this.refreshInFlight = undefined;
-        }),
-        shareReplay(1)
-      );
-
-    return this.refreshInFlight;
   }
 
   resendConfirmation(email: string): Observable<any> {
@@ -268,41 +263,11 @@ export class UsersService {
   }
 
   currentUserOk$ = (type?: 'admin' | 'participant'): Observable<boolean> => {
-    if (this.isAuthenticatedSignal()) {
-      return of(true);
+    const result = this.isAuthenticatedSignal();
+    if (!result) {
+      this.router.navigate(['sign-in']);
     }
-
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      this.signOut();
-      this.messagesService.showWarning('Your session has expired. Please sign in again.');
-      this.router.navigate(['/sign-in']);
-      return of(false);
-    }
-
-    return this.refreshTokens().pipe(
-      map(() => true),
-      catchError((refreshError) => {
-        this.signOut();
-
-        const code = refreshError?.error?.code;
-        if (code === 'WRONG_PARTICIPANT_TOKEN') {
-          this.messagesService.showWarning('Your access has expired. Please ask your administrator to re-send the invitation email.');
-          this.router.navigate(['/sign-in/participant']);
-          return of(false);
-        }
-
-        if (type === 'participant') {
-          this.messagesService.showWarning('Your session has expired. Please sign in again.');
-          this.router.navigate(['/sign-in/participant']);
-          return of(false);
-        }
-
-        this.messagesService.showWarning('Your session has expired. Please sign in again.');
-        this.router.navigate(['/sign-in']);
-        return of(false);
-      })
-    );
+    return of(result);
   }
 
   getCurrentUserId(): string | null {
@@ -352,6 +317,32 @@ export class UsersService {
     });
   }
 
-      
+  refreshTokens(): Observable<AuthResponse> {
+    const payload = {
+      accessToken: this.accessToken,
+      refreshToken: this.refreshToken
+    };
+    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/refresh-token`, payload).pipe(
+      tap(res => {
+        this.applyAuthResponse(res);
+      })
+    );
+  }
+
+  isJwtExpired = (jwt: string): boolean => {
+    try {
+      const decoded: any = jwtDecode(jwt);
+      const exp: number | undefined = decoded?.exp;
+      if (!exp) {
+        return true;
+      }
+      const now = Math.floor(Date.now() / 1000);
+      return exp <= now;
+    } catch {
+      return true;
+    }
+  };
+
+
 
 }

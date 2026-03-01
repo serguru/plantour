@@ -16,6 +16,7 @@ using PlantourApi.Models;
 using plantour_server.Repositories;
 using PlantourApi.Middleware;
 using plantour_server.Services.Interfaces;
+using System.Security.Claims;
 
 namespace plantour_server.Services;
 
@@ -31,7 +32,6 @@ public class UsersService(
     SettingsRepository settingsRepository,
     AccessTypeRepository accessTypeRepository,
     ITokenService tokenService,
-    IRefreshTokenService refreshTokenService,
     IEmailConfirmationService emailConfirmationService,
     UserEmailConfirmationRepository userEmailConfirmationRepository,
     IConfiguration configuration,
@@ -41,11 +41,13 @@ public class UsersService(
     AccessCodeGenerator accessCodeGenerator,
     IHttpClientFactory httpClientFactory,
     IAccessRulesService accessRulesService,
+    RefreshTokenRepository refreshTokenRepository,
     IPaddleService paddleService,
     IOptions<SocialAuthSettings> socialAuthSettings) : IUsersService
 {
     private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
     private readonly UsersRepository _usersRepository = usersRepository;
+    private readonly RefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
     private readonly PlanRepository _planRepository = planRepository;
     private readonly SettingsRepository _settingsRepository = settingsRepository;
@@ -60,7 +62,6 @@ public class UsersService(
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly ITokenService _tokenService = tokenService;
-    private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
     private readonly IEmailConfirmationService _emailConfirmationService = emailConfirmationService;
     private readonly UserEmailConfirmationRepository _userEmailConfirmationRepository = userEmailConfirmationRepository;
     private readonly IConfiguration _configuration = configuration;
@@ -100,7 +101,6 @@ public class UsersService(
         return new AuthResponse
         {
             AccessToken = string.Empty,
-            RefreshToken = string.Empty,
             AccessTokenExpiresAtUtc = DateTime.MinValue,
             EmailConfirmationRequired = true,
             StatusCode = 200,
@@ -182,51 +182,51 @@ public class UsersService(
         switch (provider)
         {
             case "google":
-            {
-                var identity = await VerifyGoogleTokenAsync(request.GoogleIdToken);
-                var existing = await _usersRepository.GetByGoogleSubAsync(identity.ProviderUserId);
-                if (existing != null && existing.Id != user.Id)
                 {
-                    throw new CustomException("This Google account is already linked to another Plantour account");
+                    var identity = await VerifyGoogleTokenAsync(request.GoogleIdToken);
+                    var existing = await _usersRepository.GetByGoogleSubAsync(identity.ProviderUserId);
+                    if (existing != null && existing.Id != user.Id)
+                    {
+                        throw new CustomException("This Google account is already linked to another Plantour account");
+                    }
+
+                    user.GoogleSub = identity.ProviderUserId;
+
+                    if (string.IsNullOrWhiteSpace(user.FirstName) && !string.IsNullOrWhiteSpace(identity.FirstName))
+                    {
+                        user.FirstName = identity.FirstName;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(user.LastName) && !string.IsNullOrWhiteSpace(identity.LastName))
+                    {
+                        user.LastName = identity.LastName;
+                    }
+
+                    break;
                 }
-
-                user.GoogleSub = identity.ProviderUserId;
-
-                if (string.IsNullOrWhiteSpace(user.FirstName) && !string.IsNullOrWhiteSpace(identity.FirstName))
-                {
-                    user.FirstName = identity.FirstName;
-                }
-
-                if (string.IsNullOrWhiteSpace(user.LastName) && !string.IsNullOrWhiteSpace(identity.LastName))
-                {
-                    user.LastName = identity.LastName;
-                }
-
-                break;
-            }
             case "facebook":
-            {
-                var identity = await VerifyFacebookTokenAsync(request.FacebookAccessToken);
-                var existing = await _usersRepository.GetByFacebookUserIdAsync(identity.ProviderUserId);
-                if (existing != null && existing.Id != user.Id)
                 {
-                    throw new CustomException("This Facebook account is already linked to another Plantour account");
+                    var identity = await VerifyFacebookTokenAsync(request.FacebookAccessToken);
+                    var existing = await _usersRepository.GetByFacebookUserIdAsync(identity.ProviderUserId);
+                    if (existing != null && existing.Id != user.Id)
+                    {
+                        throw new CustomException("This Facebook account is already linked to another Plantour account");
+                    }
+
+                    user.FacebookUserId = identity.ProviderUserId;
+
+                    if (string.IsNullOrWhiteSpace(user.FirstName) && !string.IsNullOrWhiteSpace(identity.FirstName))
+                    {
+                        user.FirstName = identity.FirstName;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(user.LastName) && !string.IsNullOrWhiteSpace(identity.LastName))
+                    {
+                        user.LastName = identity.LastName;
+                    }
+
+                    break;
                 }
-
-                user.FacebookUserId = identity.ProviderUserId;
-
-                if (string.IsNullOrWhiteSpace(user.FirstName) && !string.IsNullOrWhiteSpace(identity.FirstName))
-                {
-                    user.FirstName = identity.FirstName;
-                }
-
-                if (string.IsNullOrWhiteSpace(user.LastName) && !string.IsNullOrWhiteSpace(identity.LastName))
-                {
-                    user.LastName = identity.LastName;
-                }
-
-                break;
-            }
             default:
                 throw new CustomException("Unsupported social provider");
         }
@@ -340,9 +340,9 @@ public class UsersService(
 
         var r = await CreateAuthResponseAsync(participant, UserRole.Participant, _currentUser.AdminId, null, "Welcome to Plantour");
 
-        await _invitationService.SendInvitationEmailByIdAsync(adminParticipant.Id, accessCode, r.AccessToken, r.RefreshToken);
+        await _invitationService.SendInvitationEmailByIdAsync(adminParticipant.Id, accessCode, r.AccessToken);
 
-         var baseUrl = _configuration["InvitationAccess:BaseUrl"];
+        var baseUrl = _configuration["InvitationAccess:BaseUrl"];
 
         AdminsParticipantDto result = _mapper.Map<AdminsParticipantDto>(adminParticipant);
 
@@ -380,89 +380,32 @@ public class UsersService(
     #region Token Management
 
 
-    public async Task<bool> ValidateTokenAsync(string token)
-    {
-        try
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
+    // public async Task<bool> ValidateTokenAsync(string token)
+    // {
+    //     try
+    //     {
+    //         var tokenHandler = new JwtSecurityTokenHandler();
+    //         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
 
-            tokenHandler.ValidateToken(token, new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = true,
-                ValidIssuer = _jwtSettings.Issuer,
-                ValidateAudience = true,
-                ValidAudience = _jwtSettings.Audience,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            }, out SecurityToken validatedToken);
+    //         tokenHandler.ValidateToken(token, new TokenValidationParameters
+    //         {
+    //             ValidateIssuerSigningKey = true,
+    //             IssuerSigningKey = new SymmetricSecurityKey(key),
+    //             ValidateIssuer = true,
+    //             ValidIssuer = _jwtSettings.Issuer,
+    //             ValidateAudience = true,
+    //             ValidAudience = _jwtSettings.Audience,
+    //             ValidateLifetime = true,
+    //             ClockSkew = TimeSpan.Zero
+    //         }, out SecurityToken validatedToken);
 
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request, string? ipAddress)
-    {
-        if (_currentUser == null ||_currentUser.PriceEnumId <= PlanPrice.Guest || _currentUser.AccessTypeName != "Active" || _currentUser.Role == null )
-        {
-            throw new CustomException("Cannot refresh token", "NO_ACCESS");
-        }
-
-        var storedToken = await _refreshTokenService.GetActiveTokenAsync(request.RefreshToken);
-        if (storedToken == null)
-        {
-            var anyToken = await _refreshTokenService.GetTokenAsync(request.RefreshToken);
-            if (anyToken != null && Enum.TryParse<UserRole>(anyToken.Role, out var tokenRole) && tokenRole == UserRole.Participant)
-            {
-                throw new CustomException("Please ask your Administartor to re-send the invitation email to you", "WRONG_PARTICIPANT_TOKEN");
-            }
-
-            throw new CustomException("Please sign in again", "WRONG_TOKEN");
-        }
-
-        var user = await _usersRepository.GetByIdWithDetailsAsync(storedToken.UserId);
-        if (user == null)
-        {
-            throw new CustomException("User not found", "NO_ACCESS");
-        }
-
-        if (user.AccessType == null || !string.Equals(user.AccessType.Name, "Active", StringComparison.OrdinalIgnoreCase))
-        {
-            throw new CustomException(GetAccessStatusMessage(user.AccessType?.Name), "NO_ACCESS");
-        }
-
-        if (!Enum.TryParse<UserRole>(storedToken.Role, out var role))
-        {
-            throw new CustomException("Invalid refresh token role", "NO_ACCESS");
-        }
-
-        AccessTokenResult accessToken = await _tokenService.CreateAccessToken(user, role, storedToken.AdminId);
-        var newRefreshToken = _tokenService.CreateRefreshToken();
-
-        await _refreshTokenService.RotateAsync(storedToken, newRefreshToken, ipAddress);
-
-        return new AuthResponse
-        {
-            AccessToken = accessToken.Token,
-            RefreshToken = newRefreshToken.Token,
-            AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
-            EmailConfirmationRequired = false,
-            StatusCode = 200,
-            Code = "ACCESS_OK",
-            Message = "Access refreshed"
-        };
-    }
-
-    public async Task RevokeRefreshTokenAsync(RevokeRefreshTokenRequest request, string? ipAddress)
-    {
-        await _refreshTokenService.RevokeAsync(request.RefreshToken, ipAddress);
-    }
+    //         return true;
+    //     }
+    //     catch
+    //     {
+    //         return false;
+    //     }
+    // }
 
     public async Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request, CancellationToken cancellationToken = default)
     {
@@ -490,17 +433,16 @@ public class UsersService(
 
     #region Token Generation
 
+    // TODO: it is necessary to truncate old refresh tokens in the DB
     private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? ipAddress, string? message)
     {
         AccessTokenResult accessToken = await _tokenService.CreateAccessToken(user, role, adminId);
-        var refreshToken = _tokenService.CreateRefreshToken();
-
-        await _refreshTokenService.CreateAsync(user.Id, role, adminId, refreshToken, ipAddress);
+        RefreshToken refreshTokenObject = await _tokenService.GenerateRefreshToken(user.Id);
 
         return new AuthResponse
         {
             AccessToken = accessToken.Token,
-            RefreshToken = refreshToken.Token,
+            RefreshToken = refreshTokenObject.Token.ToString(),
             AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
             EmailConfirmationRequired = false,
             StatusCode = 200,
@@ -646,15 +588,15 @@ public class UsersService(
         {
             var plan = planDtos.FirstOrDefault(p => p.PaddleProductId == pp.Id) ?? throw new CustomException($"No plan found for Paddle product Id {pp.Id}");
             _mapper.Map(pp, plan);
-        });        
+        });
 
         var result = new LandingDto()
         {
             Plans = planDtos,
-            
+
             GuestPlanDurationDays = (int)await _settingsRepository.GetSettingByKey("guest_plan_duration_days") + " days"
         };
-        return result; 
+        return result;
     }
 
     private async Task<AuthResponse> SignInWithGoogleAsync(string? googleIdToken)
@@ -890,6 +832,97 @@ public class UsersService(
 
         [JsonPropertyName("last_name")]
         public string? LastName { get; set; }
+    }
+
+    public async Task<AuthResponseDto> RefreshTokenAsync(TokenRequestDto request)
+    {
+        bool valid = _tokenService.ValidateTokenExcludingExpired(request.AccessToken);
+
+        if (!valid)
+        {
+            throw new CustomException("Invalid access token", "REFRESH_TOKEN_FAILED");
+        }
+
+        var data = _tokenService.TokenToKeyValuePairs(request.AccessToken);
+
+        string? role = data.FirstOrDefault(kv => kv.Key == "role").Value;
+        if (string.IsNullOrWhiteSpace(role))
+        {
+            throw new CustomException("Role claim is missing or invalid in access token", "REFRESH_TOKEN_FAILED");
+        }
+
+        string? user_id = data.FirstOrDefault(kv => kv.Key == "user_id").Value;
+        if (string.IsNullOrWhiteSpace(user_id) || !Guid.TryParse(user_id, out Guid userId))
+        {
+            throw new CustomException("User Id claim is missing or invalid in access token", "REFRESH_TOKEN_FAILED");
+        }
+
+        Guid adminId = userId;
+
+        if (role == "Participant")
+        {
+            string? admin_id = data.FirstOrDefault(kv => kv.Key == "admin_id").Value;
+            if (string.IsNullOrWhiteSpace(admin_id) || !Guid.TryParse(admin_id, out adminId))
+            {
+                throw new CustomException("Admin Id claim is missing or invalid in access token", "REFRESH_TOKEN_FAILED");
+            }
+
+            var admin = await _usersRepository.GetActiveByIdAsync(adminId);
+            if (admin == null)
+            {
+                throw new CustomException("Active admin not found while refreshing token", "REFRESH_TOKEN_FAILED");
+            }
+
+            adminId = admin.Id;
+        }
+
+
+        string? temporary = data.FirstOrDefault(kv => kv.Key == "temporary").Value;
+        if (string.IsNullOrWhiteSpace(temporary))
+        {
+            throw new CustomException("Temporary claim is missing or invalid in access token", "REFRESH_TOKEN_FAILED");
+        }
+
+        bool isTemporary = temporary == "true";
+
+        if (isTemporary)
+        {
+            throw new CustomException("Tokens for temporary users cannot be refreshed", "REFRESH_TOKEN_FAILED");
+        }
+
+        User? user = await _usersRepository.GetActiveByIdAsync(userId);
+
+        if (user == null)
+        {
+            throw new CustomException("Active user not found while refreshing token", "REFRESH_TOKEN_FAILED");
+        }   
+
+        var existingRefreshTokens = await _refreshTokenRepository.FindAsync(rt => rt.UserId == userId && rt.Token == Guid.Parse(request.RefreshToken));
+
+        var existingRefreshToken = existingRefreshTokens.FirstOrDefault();
+
+        if (existingRefreshToken == null)
+        {
+            throw new CustomException("Refresh token not found", "REFRESH_TOKEN_FAILED");
+        }
+
+        if (existingRefreshToken.ExpiresAt <= DateTime.UtcNow)
+        {
+            await _refreshTokenRepository.DeleteAsync(existingRefreshToken.Id);
+            throw new CustomException("Refresh token has expired", "REFRESH_TOKEN_FAILED");
+        }
+
+        var newRefreshToken = await _tokenService.GenerateRefreshToken(userId);
+
+        UserRole userRole = role == "Admin" ? UserRole.Admin : UserRole.Participant;
+
+        AuthResponseDto result = new()
+        {
+            AccessToken = (await _tokenService.CreateAccessToken(user, userRole, adminId, isTemporary)).Token,
+            RefreshToken = newRefreshToken.Token.ToString()
+        };
+
+        return result;
     }
 }
 

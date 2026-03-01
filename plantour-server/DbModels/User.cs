@@ -77,6 +77,9 @@ public partial class User
     public virtual Price? PriceEnum { get; set; }
 
     [InverseProperty("User")]
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+    [InverseProperty("User")]
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 
     [InverseProperty("User")]
@@ -84,9 +87,6 @@ public partial class User
 
     [InverseProperty("User")]
     public virtual ICollection<UserPackage> UserPackages { get; set; } = new List<UserPackage>();
-
-    [InverseProperty("User")]
-    public virtual ICollection<UserRefreshToken> UserRefreshTokens { get; set; } = new List<UserRefreshToken>();
 
     [InverseProperty("User")]
     public virtual ICollection<UserThing> UserThings { get; set; } = new List<UserThing>();
