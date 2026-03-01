@@ -111,14 +111,14 @@ public class UsersController : ControllerBase
 
         #region Common Endpoints
 
-        [Authorize]
-        [HttpGet("validate")]
-        public async Task<IActionResult> ValidateToken()
-        {
-                var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                var isValid = await _authService.ValidateTokenAsync(token);
-                return Ok(new { isValid });
-        }
+        // [Authorize]
+        // [HttpGet("validate")]
+        // public async Task<IActionResult> ValidateToken()
+        // {
+        //         var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        //         var isValid = await _authService.ValidateTokenAsync(token);
+        //         return Ok(new { isValid });
+        // }
 
         #endregion
 
@@ -197,4 +197,15 @@ public class UsersController : ControllerBase
                 await _paddleService.ChangePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
                 return Ok();
         }
+
+        [HttpPost("refresh-token")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RefreshToken([FromBody] TokenRequestDto request)
+        {
+                var result = await _authService.RefreshTokenAsync(request);
+                return Ok(result);
+
+        }
+
+
 }

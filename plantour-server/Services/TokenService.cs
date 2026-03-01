@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using plantour_server.DbModels;
 using plantour_server.Models;
+using plantour_server.Repositories;
 using plantour_server.Utils;
 using PlantourApi.Models;
 
@@ -19,14 +20,18 @@ public class TokenService : ITokenService
 
     private readonly IAccessRulesService _accessRulesService;
 
-    public TokenService(IOptions<JwtSettings> jwtSettings, IAccessRulesService accessRulesService)
+    private readonly RefreshTokenRepository _refreshTokenRepository;
+
+    public TokenService(IOptions<JwtSettings> jwtSettings, IAccessRulesService accessRulesService, RefreshTokenRepository refreshTokenRepository)
     {
         _jwtSettings = jwtSettings.Value;
         _accessRulesService = accessRulesService;
+        _refreshTokenRepository = refreshTokenRepository;
     }
 
 
     // TODO: for ACTIVE users only!!!
+    // TODO: a background scheduler must clear old rferesh tokens and AI prompts from the DB
 
     // For temporary a new user is created, otherwise they are retrieved from the DB
     public async Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid adminId, bool isTemporary = false)
@@ -68,10 +73,7 @@ public class TokenService : ITokenService
             claims.Add(new Claim(PlantourClaims.AdminId, adminId.ToString()));
         }
 
-        if (isTemporary)
-        {
-            claims.Add(new Claim("temporary", "true"));
-        }
+        claims.Add(new Claim("temporary", isTemporary ? "true" : "false"));
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -96,4 +98,108 @@ public class TokenService : ITokenService
         var hashBytes = SHA256.HashData(bytes);
         return Convert.ToHexString(hashBytes).ToLowerInvariant();
     }
+
+    public async Task<RefreshToken> GenerateRefreshToken(Guid userId)
+    {
+        var now = DateTime.UtcNow;
+        var expiresAt = now.AddDays(_jwtSettings.RefreshTokenExpirationDays);
+        Guid token = Guid.NewGuid();
+
+        var result = await _refreshTokenRepository.AddAsync(new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Token = token,
+            ExpiresAt = expiresAt,
+            CreatedAt = now
+        });
+
+        return result;
+    }
+
+    public List<KeyValuePair<string, string>> TokenToKeyValuePairs(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            throw new ArgumentException("Token cannot be null or empty.", nameof(token));
+        }
+
+        token = token.Trim();
+        if (token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            token = token["Bearer ".Length..].Trim();
+        }
+
+        var handler = new JwtSecurityTokenHandler();
+        if (!handler.CanReadToken(token))
+        {
+            throw new SecurityTokenException("Invalid JWT format.");
+        }
+
+        JwtSecurityToken jwtToken;
+        try
+        {
+            jwtToken = handler.ReadJwtToken(token);
+        }
+        catch (Exception ex)
+        {
+            throw new SecurityTokenException("Failed to parse JWT token.", ex);
+        }
+
+        List<KeyValuePair<string, string>> result = new();
+
+        foreach (var claim in jwtToken.Claims)
+        {
+            result.Add(new KeyValuePair<string, string>(claim.Type, claim.Value));
+        }
+
+        return result;
+
+    }
+
+    public bool ValidateTokenExcludingExpired(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return false;
+        }
+
+        token = token.Trim();
+        if (token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            token = token["Bearer ".Length..].Trim();
+        }
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
+
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = true,
+            ValidIssuer = _jwtSettings.Issuer,
+            ValidateAudience = true,
+            ValidAudience = _jwtSettings.Audience,
+            ValidateLifetime = false,
+            ClockSkew = TimeSpan.Zero
+        };
+
+        try
+        {
+            tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+
+            if (validatedToken is not JwtSecurityToken jwt ||
+                !string.Equals(jwt.Header.Alg, SecurityAlgorithms.HmacSha256, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
 }

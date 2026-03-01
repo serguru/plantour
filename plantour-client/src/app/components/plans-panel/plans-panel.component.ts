@@ -54,6 +54,7 @@ export class PlansPanelComponent implements OnInit {
   starter!: Plan;
   family!: Plan;
   expedition!: Plan;
+  plansLoaded = false;
 
   get currentPlanPeriod(): string {
     return this.usersService.planPeriodSignal() ?? '';
@@ -279,6 +280,7 @@ export class PlansPanelComponent implements OnInit {
     clicking one of the button${s} below.`;
 
     this.rate.sort((a, b) => a.value - b.value);
+    this.plansLoaded = true;
   }
 
 

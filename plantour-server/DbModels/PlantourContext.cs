@@ -47,6 +47,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<RecentLog> RecentLogs { get; set; }
 
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
     public virtual DbSet<Setting> Settings { get; set; }
 
     public virtual DbSet<SitemapUrl> SitemapUrls { get; set; }
@@ -244,6 +246,16 @@ public partial class PlantourContext : DbContext
         modelBuilder.Entity<RecentLog>(entity =>
         {
             entity.ToView("recent_logs", "plantour");
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("refresh_tokens_pkey");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens).HasConstraintName("refresh_tokens_user_id_fkey");
         });
 
         modelBuilder.Entity<Setting>(entity =>

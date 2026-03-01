@@ -757,3 +757,14 @@ create table plantour.sitemap_urls (
     created_at timestamp not null default (now() at time zone 'utc')
 );
 
+
+create table plantour.refresh_tokens (
+    id uuid primary key,
+    user_id uuid not null references users(id) on delete cascade,
+    token uuid not null unique,
+    expires_at timestamp not null,
+    created_at timestamp default current_timestamp
+    
+    -- a token is valid if it hasn't expired and hasn't been revoked
+    constraint chk_expiration check (expires_at > created_at)
+);

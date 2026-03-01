@@ -8,13 +8,18 @@ namespace plantour_server.Repositories;
 public class UsersRepository(PlantourContext context) : GenericRepository<User>(context)
 {
 
+    public async Task<bool> ActiveUserExistsByIdAsync(Guid userId)
+    {
+        return await _dbSet.Include(x => x.AccessType).AnyAsync(u => u.Id == userId && u.AccessType.Name.Equals("Active", StringComparison.OrdinalIgnoreCase));
+    }
+
     public async Task<User?> GetActiveByIdAsync(Guid id)
     {
         return await _dbSet
             .Include(x => x.AccessType)
             .Include(x => x.PriceEnum)
                 .ThenInclude(x => x != null ? x.Plan : null)
-            .FirstOrDefaultAsync(x => x.Id == id && x.AccessType.Name.Equals("Active", StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefaultAsync(x => x.Id == id && x.AccessType.Name.ToLower() == "active");
     }
 
     public async Task<User?> GetByEmailAsync(string email)

@@ -14,7 +14,7 @@ public interface IUsersService
     Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request);
 
     // Token management
-    Task<bool> ValidateTokenAsync(string token);
+    //Task<bool> ValidateTokenAsync(string token);
 
     // Email confirmation
     Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request, CancellationToken cancellationToken = default);
@@ -28,4 +28,6 @@ public interface IUsersService
     Task<UserDto> UnlinkSocialProviderAsync(string provider);
 
     Task<LandingDto> GetLandingAsync();
+
+    Task<AuthResponseDto> RefreshTokenAsync(TokenRequestDto request);
 }

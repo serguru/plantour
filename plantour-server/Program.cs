@@ -26,6 +26,8 @@ using plantour_server.Utils.Logging;
 using plantour_server.Utils;
 
 
+// TODO: test email confirmation after sign-up
+
 QuestPDF.Settings.License = LicenseType.Community;
 
 // This switch prevents Npgsql from throwing when a DateTime with Kind=Utc is written to such columns.
@@ -343,7 +345,7 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptChecksRepository>();
-   
+    builder.Services.AddScoped<plantour_server.Repositories.RefreshTokenRepository>();
 
     builder.Services.AddScoped<HttpCurrentUser>();
 

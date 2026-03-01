@@ -11,6 +11,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { MessagesService } from './messages-service';
 import { getFullName } from '../helpers/utils';
+//import { CurrentTripService } from './current-trip-service';
 
 export interface TemporaryUserResponse {
   accessToken: string;
@@ -33,6 +34,13 @@ export interface UserDto {
   hasFacebookLinked: boolean;
 }
 
+export interface TokenRequestDto {
+  accessToken: string;
+  refreshToken: string;
+};
+
+
+
 @Injectable({
   providedIn: 'root',
 })
@@ -40,10 +48,15 @@ export class UsersService {
   private apiUrl: string;
   appService = inject(AppService);
   localStorageService = inject(LocalStorageService);
+
+
+  //currentTripService = inject(CurrentTripService);
+
   router = inject(Router);
   messagesService = inject(MessagesService);
 
   private readonly accessTokenKey = 'accessToken';
+  private readonly refreshTokenKey = 'refreshToken';
 
   private _userSignal = signal<AccessToken | null>(this.getUserFromLocalStorage());
 
@@ -60,16 +73,6 @@ export class UsersService {
     if (!user) {
       return "Profile";
     }
-
-    // const firstName = this.getClaim(user, [this.claimGivenName, 'first_name']);
-    // const lastName = this.getClaim(user, [this.claimSurname, 'last_name']);
-    // const email = this.getClaim(user, [this.claimEmail, 'email']);
-
-    // if (firstName && lastName) {
-    //   return `${firstName} ${lastName}`;
-    // }
-    // return email ?? 'Profile';
-
 
     const result = getFullName(user.first_name ?? '', user.last_name ?? '', user.email ?? '', false);
     return result;
@@ -124,13 +127,37 @@ export class UsersService {
     }
   }
 
-  private writeAccessToken(token: string | null): void {
-    this.localStorageService.setItem(this.accessTokenKey, token);
+  private getRefreshTokenFromLocalStorage(): string | null {
+    const result = this.localStorageService.getItem(this.refreshTokenKey);
+    if (!result) {
+      return null;
+    }
+    return result;
+  }
+
+  private getAccessTokenFromLocalStorage(): string | null {
+    const result = this.localStorageService.getItem(this.accessTokenKey);
+    if (!result) {
+      return null;
+    }
+    return result;
   }
 
 
-  getAccessToken(): string | null {
-    return this.localStorageService.getItem(this.accessTokenKey);
+  get accessToken(): string | null {
+    return this.getAccessTokenFromLocalStorage();
+  }
+
+  get refreshToken(): string | null {
+    return this.getRefreshTokenFromLocalStorage();
+  }
+
+  public writeAccessToken(token: string | null): void {
+    this.localStorageService.setItem(this.accessTokenKey, token);
+  }
+
+  public writeRefreshToken(token: string | null): void {
+    this.localStorageService.setItem(this.refreshTokenKey, token);
   }
 
   updateUser(token: string | null): void {
@@ -142,13 +169,13 @@ export class UsersService {
         console.error("Token decoding failed", e);
       }
     }
-    this.writeAccessToken(token);
     this._userSignal.set(user);
   }
 
   public applyAuthResponse(response: any): void {
-    this.writeAccessToken(response.accessToken || null);
     this.updateUser(response.accessToken || null);
+    this.writeAccessToken(response.accessToken || null);
+    this.writeRefreshToken(response.refreshToken || null);
   }
 
   loginAdmin(email: string, password: string): Observable<AuthResponse> {
@@ -206,14 +233,21 @@ export class UsersService {
     return this.http.post<TemporaryUserResponse>(`${this.apiUrl}/api/users/create-temporary-user`, {})
       .pipe(
         tap((r: TemporaryUserResponse) => {
-          this.writeAccessToken(r.accessToken || null);
+
+          this.localStorageService.clear();
           this.updateUser(r.accessToken || null);
-        })
-      );
+          this.writeAccessToken(r.accessToken || null);
+          this.writeRefreshToken(null);
+          this.localStorageService.setComponentKey('trips', 'selectedId', r.currentTripId);
+          this.localStorageService.setItem('toolbar-showTripText', true);
+//          this.currentTripService.updateCurrentTripVisible(true);
+        }));
   }
 
-  signOut(revoke: boolean = true): void {
+  signOut(): void {
     this.updateUser(null);
+    this.writeAccessToken(null);
+    this.writeRefreshToken(null);
   }
 
   resendConfirmation(email: string): Observable<any> {
@@ -283,6 +317,32 @@ export class UsersService {
     });
   }
 
-      
+  refreshTokens(): Observable<AuthResponse> {
+    const payload = {
+      accessToken: this.accessToken,
+      refreshToken: this.refreshToken
+    };
+    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/refresh-token`, payload).pipe(
+      tap(res => {
+        this.applyAuthResponse(res);
+      })
+    );
+  }
+
+  isJwtExpired = (jwt: string): boolean => {
+    try {
+      const decoded: any = jwtDecode(jwt);
+      const exp: number | undefined = decoded?.exp;
+      if (!exp) {
+        return true;
+      }
+      const now = Math.floor(Date.now() / 1000);
+      return exp <= now;
+    } catch {
+      return true;
+    }
+  };
+
+
 
 }
