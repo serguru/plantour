@@ -24,9 +24,12 @@ using NpgsqlTypes;
 using Microsoft.AspNetCore.HttpOverrides;
 using plantour_server.Utils.Logging;
 using plantour_server.Utils;
+using Hangfire;
+using Hangfire.PostgreSql;
 
 
 // TODO: test email confirmation after sign-up
+// TODO: add versioning using NX
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -63,6 +66,29 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     Args = args,
     EnvironmentName = NormalizeAspNetEnvironmentName(rawEnvironmentName)
 });
+
+var env = builder.Environment;
+var hfUser = builder.Configuration["Hangfire:User"] ?? "admin";
+var hfPass = builder.Configuration["Hangfire:Pass"] ?? "default_password";
+
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(options =>
+    {
+        // Use the connection string from your appsettings
+        options.UseNpgsqlConnection(builder.Configuration.GetConnectionString("HangfireConnection"));
+    }, new PostgreSqlStorageOptions
+    {
+        // Correct property name is SchemaName
+        SchemaName = "hangfire",
+
+        // This ensures Hangfire creates the "hangfire" schema if it doesn't exist
+        PrepareSchemaIfNecessary = true
+    }));
+
+builder.Services.AddHangfireServer();
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -136,7 +162,7 @@ try
         };
     });
 
-    
+
     // Configure JWT settings
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
     builder.Services.Configure<JwtSettings>(jwtSettings);
@@ -409,7 +435,13 @@ try
     {
         app.UseHttpsRedirection();
     }
-
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = new[] { new HangfireAdminFilter(env, hfUser, hfPass) },
+        // Optional: Only allow the 'Back to site' link to work
+        AppPath = "/"
+    });
+    
     app.UseCors("AllowOrigins");
 
     app.UseAuthentication();
@@ -418,7 +450,6 @@ try
     app.UseAuthorization();
 
     app.MapControllers();
-
     app.Run();
 }
 catch (Exception ex)

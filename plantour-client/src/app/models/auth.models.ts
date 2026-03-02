@@ -20,7 +20,11 @@ export interface AccessToken {
   access_rules?: AccessRule[] | null;
   role: 'Admin' | 'Participant';
   plan_period: string;
+  billing_period_start?: string;
+  billing_period_end?: string;
 }
+
+
 
 
 // Request models

@@ -52,6 +52,9 @@ public class AccessRulesService : IAccessRulesService
 
         result.PriceName = user.PriceEnum!.Name;
 
+        result.BillingPeriodStart = null;
+        result.BillingPeriodEnd = null;
+
         return result;
     }
     private async Task<AccessRules> ProcessUser(PaddleSubscription? subscription, UserRole role)
@@ -96,12 +99,16 @@ public class AccessRulesService : IAccessRulesService
 
 
         var priceName = subscription == null ? user.PriceEnum!.Name : subscription.PriceName;
+        var billingPeriodStart = subscription == null ? null : subscription.BillingPeriodStart;
+        var billingPeriodEnd = subscription == null ? null : subscription.BillingPeriodEnd;
 
         AccessProcessResult result = new()
         {
             AccessRulesObject = await ProcessUser(subscription, role),
             UserObject = user,
-            PriceName = priceName
+            PriceName = priceName,
+            BillingPeriodStart = billingPeriodStart,
+            BillingPeriodEnd = billingPeriodEnd
         };
         return result;
     }

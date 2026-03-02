@@ -190,11 +190,19 @@ public class UsersController : ControllerBase
         }
 
 
-        [HttpPut("change-plan-price")]
+        [HttpPut("downgrade-plan-price")]
         [AdminOnly]
-        public async Task<IActionResult> ChangePlanPrice([FromBody] UpdatePlanPriceRequest request)
+        public async Task<IActionResult> DowngradePlanPrice([FromBody] UpdatePlanPriceRequest request)
         {
-                await _paddleService.ChangePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
+                await _authService.DowngradePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
+                return Ok();
+        }
+
+        [HttpPut("upgrade-plan-price")]
+        [AdminOnly]
+        public async Task<IActionResult> UpgradePlanPrice([FromBody] UpdatePlanPriceRequest request)
+        {
+                await _paddleService.UpgradePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
                 return Ok();
         }
 
@@ -206,6 +214,4 @@ public class UsersController : ControllerBase
                 return Ok(result);
 
         }
-
-
 }

@@ -133,7 +133,6 @@ public class PaddleService : IPaddleService
         return email;
     }
 
-
     public async Task<bool> ActiveSubscriptionExists(string email)
     {
         string? customerId = await GetCustomerIdByEnmailAsync(email);
@@ -246,6 +245,16 @@ public class PaddleService : IPaddleService
             throw new CustomException($"No price name found for PriceId: {priceId}");
         }
 
+        string? billingPeriodStart = null;
+        string? billingPeriodEnd = null;
+        if (json.TryGetProperty("current_billing_period", out var billingPeriodElement) &&
+            billingPeriodElement.TryGetProperty("starts_at", out var billingPeriodStartElement) &&
+            billingPeriodElement.TryGetProperty("ends_at", out var billingPeriodEndElement))
+        {
+            billingPeriodStart = billingPeriodStartElement.GetString();
+            billingPeriodEnd = billingPeriodEndElement.GetString();
+        }
+
         return new PaddleSubscription
         {
             Id = id,
@@ -253,7 +262,9 @@ public class PaddleService : IPaddleService
             CustomerId = customerId,
             PriceId = priceId,
             CreatedAt = createdAt,
-            PriceName = priceName
+            PriceName = priceName,
+            BillingPeriodStart = billingPeriodStart,
+            BillingPeriodEnd = billingPeriodEnd
         };
     }
 
@@ -598,7 +609,9 @@ public class PaddleService : IPaddleService
         return products;
     }
 
-    public async Task ChangePlanPriceAsync(string oldPlanPrice, string newPlanPrice)
+    //TODO: You can't make changes to a subscription if the next billing period is within 30 minutes, or the subscription status is past_due.
+
+    public async Task UpgradePlanPriceAsync(string oldPlanPrice, string newPlanPrice)
     {
         if (!_currentUser.IsAdmin)
         {
@@ -624,11 +637,6 @@ public class PaddleService : IPaddleService
             throw new CustomException($"Current subscription price ID '{subscription.PriceId}' does not match the expected old price ID '{oldPrice.Id}' for the user with email " + _currentUser.Email + ")");
         }
 
-        // Determine downgrade or upgrade
-        bool isDowngrade = newPrice.UnitPriceAmount < oldPrice.UnitPriceAmount;
-
-        string prorationBillingMode = isDowngrade ? "full_next_billing_period" : "prorated_immediately";
-
         var payload = new
         {
             items = new[]
@@ -638,26 +646,13 @@ public class PaddleService : IPaddleService
                     quantity = 1
                 }
             },
-            proration_billing_mode = prorationBillingMode
+            proration_billing_mode = "prorated_immediately"
         };
 
-        // var json = JsonSerializer.Serialize(payload);
-        // var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        // Set Headers
-        // client.DefaultRequestHeaders.Clear();
-        // client.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiKey}");
 
         var url = $"subscriptions/{subscription.Id}";
-
-        // Send PATCH request
         var response = await _httpclient.PatchAsJsonAsync(url, payload);
         string errorJson = await response.Content.ReadAsStringAsync();
-
-
-        // var request = new HttpRequestMessage(new HttpMethod("PATCH"), url) { Content = content };
-        // var response = await client.SendAsync(request);
-
         response.EnsureSuccessStatusCode();
     }
 }

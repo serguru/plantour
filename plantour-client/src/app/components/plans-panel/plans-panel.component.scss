@@ -13,7 +13,6 @@ $line: #e1eaec;
 
 }
 
-
 .plan-card {
   background: $paper;
   border-radius: 22px;
@@ -214,10 +213,9 @@ $line: #e1eaec;
 .plans-header {
   padding-bottom: 1rem;
   display: flex;
+  flex-flow: column;
   align-items: center;
   justify-content: center;  
-
-
 }
 
 .plans-title {

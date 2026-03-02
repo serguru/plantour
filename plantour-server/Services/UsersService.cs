@@ -924,5 +924,10 @@ public class UsersService(
 
         return result;
     }
+
+    public async Task DowngradePlanPriceAsync(string oldPlanPrice, string newPlanPrice)
+    {
+        return;
+    }
 }
 

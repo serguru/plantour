@@ -61,6 +61,9 @@ public class CurrentUserMiddleware
                     currentUser.FirstName = context.User.FindFirst(PlantourClaims.FirstName)?.Value;
                     currentUser.LastName = context.User.FindFirst(PlantourClaims.LastName)?.Value;
                 }
+                
+                currentUser.BillingPeriodStart = context.User.FindFirst(PlantourClaims.BillingPeriodStart)?.Value;
+                currentUser.BillingPeriodEnd = context.User.FindFirst(PlantourClaims.BillingPeriodEnd)?.Value;
 
                 // 4. Логика с ролями и AdminId
                 var roleClaim = context.User.FindFirst(PlantourClaims.Role)?.Value;

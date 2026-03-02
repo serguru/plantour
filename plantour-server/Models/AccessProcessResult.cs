@@ -9,4 +9,7 @@ public class AccessProcessResult
     public User UserObject { get; set; } = null!;
 
     public string PriceName { get; set; } = null!;
+
+    public string? BillingPeriodStart { get; set; }
+    public string? BillingPeriodEnd { get; set; }
 }

@@ -11,7 +11,6 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { MessagesService } from './messages-service';
 import { getFullName } from '../helpers/utils';
-//import { CurrentTripService } from './current-trip-service';
 
 export interface TemporaryUserResponse {
   accessToken: string;
@@ -62,6 +61,29 @@ export class UsersService {
 
   userSignal = this._userSignal.asReadonly();
 
+  userBillingPeriodStartSignal = computed(() => {
+    const user = this._userSignal();
+    if (!user) return null;
+    const result = user['billing_period_start'];
+
+    if (!result) {
+      return null;
+    }
+
+    return `${new Date(result).toLocaleDateString()}`;
+  });
+
+  userBillingPeriodEndSignal = computed(() => { 
+    const user = this._userSignal();
+    if (!user) return null;
+    const result = user['billing_period_end'];
+    if (!result) {
+      return null;
+    }
+    return `${new Date(result).toLocaleDateString()}`;
+  });
+
+
   userRoleSignal = computed(() => {
     const user = this._userSignal();
     if (!user) return null;
@@ -83,7 +105,8 @@ export class UsersService {
     const now = Math.floor(Date.now() / 1000);
     const role = this.getRole();
     const user = this._userSignal();
-    if (!user || !user.exp || user.exp <= now || ['Admin', 'Participant'].indexOf(role ?? '') === -1) {
+//    if (!user || !user.exp || user.exp <= now || ['Admin', 'Participant'].indexOf(role ?? '') === -1) {
+    if (!user || ['Admin', 'Participant'].indexOf(role ?? '') === -1) {
       return false;
     }
     return true;
@@ -275,21 +298,6 @@ export class UsersService {
     return us?.user_id ?? null;
   }
 
-  // private getClaim(token: AccessToken | null, keys: string[]): string | undefined {
-  //   if (!token) {
-  //     return undefined;
-  //   }
-
-  //   for (const key of keys) {
-  //     const value = token[key];
-  //     if (typeof value === 'string' && value.length > 0) {
-  //       return value;
-  //     }
-  //   }
-
-  //   return undefined;
-  // }
-
   public getRole(): string | null {
     const token = this._userSignal();
     return token?.role ?? null;
@@ -310,8 +318,15 @@ export class UsersService {
     });
   }
 
-  changePlanPrice(oldPlanPrice: string, newPlanPrice: string): Observable<{ updated: boolean }> {
-    return this.http.put<{ updated: boolean }>(`${this.apiUrl}/api/users/change-plan-price`, {
+  downgradePlanPrice(oldPlanPrice: string, newPlanPrice: string): Observable<{ updated: boolean }> {
+    return this.http.put<{ updated: boolean }>(`${this.apiUrl}/api/users/downgrade-plan-price`, {
+      oldPlanPrice,
+      newPlanPrice
+    });
+  }
+
+  upgradePlanPrice(oldPlanPrice: string, newPlanPrice: string): Observable<{ updated: boolean }> {
+    return this.http.put<{ updated: boolean }>(`${this.apiUrl}/api/users/upgrade-plan-price`, {
       oldPlanPrice,
       newPlanPrice
     });
