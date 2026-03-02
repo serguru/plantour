@@ -15,31 +15,72 @@ public class HangfireAdminFilter : IDashboardAuthorizationFilter
         _expectedPass = pass;
     }
 
+    // public bool Authorize(DashboardContext context)
+    // {
+    //     return true;
+    //     var httpContext = context.GetHttpContext();
+
+    //     // 1. Always allow in Local Development
+    //     if (_isDevelopment) return true;
+
+    //     // 2. Enforce Basic Auth in QA/Prod
+    //     string authHeader = httpContext.Request.Headers["Authorization"]!;
+    //     if (string.IsNullOrEmpty(authHeader)) return false;
+
+    //     try
+    //     {
+    //         var authHeaderValue = AuthenticationHeaderValue.Parse(authHeader);
+    //         if (!"Basic".Equals(authHeaderValue.Scheme, StringComparison.OrdinalIgnoreCase)) return false;
+
+    //         var credentials = Encoding.UTF8.GetString(Convert.FromBase64String(authHeaderValue.Parameter ?? "")).Split(':');
+    //         if (credentials.Length != 2) return false;
+
+    //         return credentials[0] == _expectedUser && credentials[1] == _expectedPass;
+    //     }
+    //     catch
+    //     {
+    //         return false;
+    //     }
+    // }
+
     public bool Authorize(DashboardContext context)
     {
-        return true;
         var httpContext = context.GetHttpContext();
 
-        // 1. Always allow in Local Development
         if (_isDevelopment) return true;
 
-        // 2. Enforce Basic Auth in QA/Prod
-        string authHeader = httpContext.Request.Headers["Authorization"]!;
-        if (string.IsNullOrEmpty(authHeader)) return false;
+        // 1. Get header safely
+        string? authHeader = httpContext.Request.Headers["Authorization"];
 
-        try
+        if (!string.IsNullOrWhiteSpace(authHeader))
         {
-            var authHeaderValue = AuthenticationHeaderValue.Parse(authHeader);
-            if (!"Basic".Equals(authHeaderValue.Scheme, StringComparison.OrdinalIgnoreCase)) return false;
+            try
+            {
+                var authHeaderValue = AuthenticationHeaderValue.Parse(authHeader);
 
-            var credentials = Encoding.UTF8.GetString(Convert.FromBase64String(authHeaderValue.Parameter ?? "")).Split(':');
-            if (credentials.Length != 2) return false;
+                if ("Basic".Equals(authHeaderValue.Scheme, StringComparison.OrdinalIgnoreCase))
+                {
+                    // authHeaderValue.Parameter can also be null, so we use ?? ""
+                    var parameter = authHeaderValue.Parameter ?? "";
+                    var credentials = Encoding.UTF8.GetString(Convert.FromBase64String(parameter)).Split(':');
 
-            return credentials[0] == _expectedUser && credentials[1] == _expectedPass;
+                    if (credentials.Length == 2 &&
+                        credentials[0] == _expectedUser &&
+                        credentials[1] == _expectedPass)
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch
+            {
+                // If parsing fails, we'll just fall through to the challenge
+            }
         }
-        catch
-        {
-            return false;
-        }
+
+        // 2. Failure: Send the 401 Challenge to the browser
+        httpContext.Response.StatusCode = 401;
+        httpContext.Response.Headers["WWW-Authenticate"] = "Basic realm=\"Hangfire Dashboard\"";
+        return false;
     }
 }
