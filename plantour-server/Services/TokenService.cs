@@ -63,6 +63,8 @@ public class TokenService : ITokenService
             new(PlantourClaims.LastName, user.LastName ?? string.Empty),
             new(PlantourClaims.Role, role.ToString()),
             new(PlantourClaims.PlanPeriod, accessProcessResult.PriceName),
+            new(PlantourClaims.BillingPeriodStart, accessProcessResult.BillingPeriodStart ?? string.Empty),
+            new(PlantourClaims.BillingPeriodEnd, accessProcessResult.BillingPeriodEnd ?? string.Empty),
             new(PlantourClaims.PaddleSubscriptionId, user.PaddleSubscriptionId ?? string.Empty),
             new(PlantourClaims.AccessRules, JsonSerializer.Serialize(rules)),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())

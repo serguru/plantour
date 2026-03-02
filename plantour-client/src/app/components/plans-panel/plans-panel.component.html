@@ -2,9 +2,8 @@
 
 @if(isAuthenticated) {
 <section class="plans-header">
-  <h3 class="plans-title">{{topWording}}</h3>
-
-
+  <h3 class="plans-title">{{topWording1}}</h3>
+  <h3 class="plans-title">{{topWording2}}</h3>
 </section>
 }
 
@@ -68,10 +67,7 @@
 
   }
 
-
   <div class="plan-card popular">
-
-
     <div class="plan-header">
       <h3 class="plan-name">{{ family.name }}</h3>
     </div>
@@ -80,7 +76,7 @@
 
     <div class="plan-top">
       <div class="price-row">
-        <span class="currency">US$</span>
+        <span class="currency m">US$</span>
         <span class="amount">{{ family.monthlyPrice }}</span>
         <span class="period">/month</span>
       </div>
@@ -90,7 +86,7 @@
         <a
           class="cta-button"
           [class.link-disabled]="!family.monthlyAvalable"
-          (click)="onPlanButtonClick($event, family.monthlyPriceName)"
+          (click)="onPlanButtonClick($event, family.monthlyPriceName, isDowngrade(family.monthlyButtonText))"
         >
           {{ family.monthlyButtonText }}
         </a>
@@ -117,7 +113,7 @@
         <a
           class="cta-button"
           [class.link-disabled]="!family.yearlyAvalable"
-          (click)="onPlanButtonClick($event, family.yearlyPriceName!)"
+          (click)="onPlanButtonClick($event, family.yearlyPriceName!, isDowngrade(family.yearlyButtonText!))"
         >
           {{ family.yearlyButtonText }}
         </a>
@@ -169,7 +165,7 @@
 
     <div class="plan-top">
       <div class="price-row">
-        <span class="currency m">US$</span>
+        <span class="currency">US$</span>
         <span class="amount">{{ expedition.monthlyPrice }}</span>
         <span class="period">/month</span>
       </div>
@@ -179,7 +175,7 @@
         <a
           class="cta-button outline"
           [class.link-disabled]="!expedition.monthlyAvalable"
-          (click)="onPlanButtonClick($event, expedition.monthlyPriceName)"
+          (click)="onPlanButtonClick($event, expedition.monthlyPriceName, isDowngrade(expedition.monthlyButtonText))"
         >
           {{ expedition.monthlyButtonText }}
         </a>
@@ -206,7 +202,7 @@
         <a
           class="cta-button outline"
           [class.link-disabled]="!expedition.yearlyAvalable"
-          (click)="onPlanButtonClick($event, expedition.yearlyPriceName!)"
+          (click)="onPlanButtonClick($event, expedition.yearlyPriceName!, isDowngrade(expedition.yearlyButtonText!))"
         >
           {{ expedition.yearlyButtonText }}
         </a>

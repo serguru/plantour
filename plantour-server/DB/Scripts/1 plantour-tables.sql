@@ -329,11 +329,7 @@ create table users (
     facebook_user_id text unique,
     notes text,
     created_at timestamp not null default (now() at time zone 'utc'),
-    
-    -- discount int not null check(discount >= 0) default 0,
-    -- price_id uuid null references prices(id),
     access_type_id uuid not null references access_types(id),
---    paddle_customer_id text unique,
     price_enum_id int null references plantour.prices(price_enum_id),
     paddle_subscription_id text unique,
 
@@ -343,6 +339,26 @@ create table users (
         (price_enum_id is null and paddle_subscription_id is not null)
     )
 );
+
+create or replace function plantour.prevent_user_email_update()
+returns trigger
+language plpgsql
+as $$
+begin
+    if new.email is distinct from old.email then
+        raise exception 'User email cannot be changed';
+    end if;
+
+    return new;
+end;
+$$;
+
+create trigger trg_prevent_user_email_update
+before update on plantour.users
+for each row
+execute function plantour.prevent_user_email_update();
+
+
 
 create table ai_prompt_checks (
     id uuid primary key not null references users(id) on delete cascade,

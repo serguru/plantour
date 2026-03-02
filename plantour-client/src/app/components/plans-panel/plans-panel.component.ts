@@ -4,7 +4,7 @@ import { LandingDto, LandingService, PlanDto } from '../../services/landing-serv
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
 import { Router } from '@angular/router';
-
+import { switchMap } from 'rxjs';
 
 // TODO: it is necessary to add to the log user activity to proof their activity if they decided to get a refund.
 // TODO: implement forgot password functionality in the sign in
@@ -46,37 +46,39 @@ export class PlansPanelComponent implements OnInit {
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
   router = inject(Router);
-  topWording = "";
-
-  changeText = "";
-  rate: any[] = [];
+  topWording1 = "";
+  topWording2 = "";
 
   starter!: Plan;
   family!: Plan;
   expedition!: Plan;
   plansLoaded = false;
 
+  isDowngrade(text: string): boolean {
+    const result = text.startsWith('Downgrade');
+    return result;
+  }
+
   get currentPlanPeriod(): string {
     return this.usersService.planPeriodSignal() ?? '';
   }
 
-  async onPlanButtonClick(event: Event, planPrice: string): Promise<void> {
+  async onPlanButtonClick(event: Event, planPrice: string, isDowngrade: boolean): Promise<void> {
     event.preventDefault();
 
     const currentName = this.currentPlanPeriod;
-    const currentIndex = this.rate.findIndex(r => r.name === currentName);
-
     const newName = planPrice;
-    const newIndex = this.rate.findIndex(r => r.name === newName);
-
-    const isDowngrade = newIndex < currentIndex;
 
     let message = "";
     let title = "";
     this.messagesService.focusOkButton = !isDowngrade;
 
+    let endDate: string | null = null;
+
+
     if (isDowngrade) {
-      message = `You are downgrading from ${currentName} to ${newName}. The new plan will be in effect from the next billing cycle. Are you sure you want to proceed?`;
+      endDate = this.usersService.userBillingPeriodEndSignal() || '';
+      message = `You are downgrading from ${currentName} to ${newName}. The new plan will be in effect from the next billing cycle ${endDate ? ' before ' + endDate : ''}. Are you sure you want to proceed?`;
       title = `Downgrade to ${newName}`;
     } else {
       message = `You are upgrading from ${currentName} to ${newName}. The new plan will be in effect immediately. Click Yes to proceed.`;
@@ -94,15 +96,23 @@ export class PlansPanelComponent implements OnInit {
       return;
     }
 
-    this.usersService.changePlanPrice(currentName, newName).subscribe({
-      next: _ => {
-        this.messagesService.showInfo("Your plan has been updated. Please sign in.");
-        this.usersService.signOut();
-        this.router.navigate(["sign-in"]);
-      }
-    });
+    if (isDowngrade) {
+      this.usersService.downgradePlanPrice(currentName, newName).subscribe(() => {
+        this.messagesService.showInfo(`Your plan will be downgraded at the end of the current billing cycle${endDate ? ' before ' + endDate : ''}`);
 
-    return;
+      });
+      return;
+    }
+
+    this.usersService.upgradePlanPrice(currentName, newName).pipe(
+      switchMap(_ => this.usersService.refreshTokens()
+      )
+    ).subscribe(
+        () => {
+          this.router.navigate(['profile']);
+          this.messagesService.showInfo("Your plan has been upgraded");
+        }
+      );
   }
 
   isCurrentPlanPrice(planPrice: string): boolean {
@@ -112,9 +122,9 @@ export class PlansPanelComponent implements OnInit {
   }
 
   get isAuthenticated(): boolean {
-    return this.usersService.isAuthenticatedSignal();
+    const result = this.usersService.isAuthenticatedSignal();
+    return result;
   }
-
 
   ngOnInit(): void {
     this.landingService.getLandingData().subscribe((data: LandingDto) => {
@@ -157,9 +167,6 @@ export class PlansPanelComponent implements OnInit {
           const monthlyPriceObject = plan.prices?.find(p => p.name === 'Family Monthly')!;
           const yearlyPriceObject = plan.prices?.find(p => p.name === 'Family Yearly')!;
 
-          this.rate.push({ name: 'Family Monthly', value: monthlyPriceObject.valueCents });
-          this.rate.push({ name: 'Family Yearly', value: yearlyPriceObject.valueCents });
-
           this.family =
           {
             name: 'Family',
@@ -181,10 +188,6 @@ export class PlansPanelComponent implements OnInit {
         case 'Expedition':
           const monthlyPriceObject1 = plan.prices?.find(p => p.name === 'Expedition Monthly')!;
           const yearlyPriceObject1 = plan.prices?.find(p => p.name === 'Expedition Yearly')!;
-
-          this.rate.push({ name: 'Expedition Monthly', value: monthlyPriceObject1.valueCents });
-          this.rate.push({ name: 'Expedition Yearly', value: yearlyPriceObject1.valueCents });
-
 
           this.expedition =
           {
@@ -208,78 +211,61 @@ export class PlansPanelComponent implements OnInit {
       }
     });
 
-    let s = "s";
-    let changeText = "upgrade";
-
     if (this.isAuthenticated) {
 
       switch (this.currentPlanPeriod) {
         case 'Family Monthly':
-          this.family.monthlyButtonText = 'Current monthly';
+          this.family.monthlyButtonText = 'Current Monthly';
           this.family.monthlyAvalable = false;
-
-          this.family.yearlyButtonText = 'Upgrade to yearly';
+          this.family.yearlyButtonText = 'Upgrade to Yearly';
           this.family.yearlyAvalable = true;
-
-          this.expedition.monthlyButtonText = 'Upgrade to monthly';
+          this.expedition.monthlyButtonText = 'Upgrade to Monthly';
           this.expedition.monthlyAvalable = true;
-
-          this.expedition.yearlyButtonText = 'Upgrade to yearly';
+          this.expedition.yearlyButtonText = 'Upgrade to Yearly';
           this.expedition.yearlyAvalable = true;
           break;
         case 'Family Yearly':
-          this.family.monthlyButtonText = 'Monthly unavailable';
-          this.family.monthlyAvalable = false;
-
-          this.family.yearlyButtonText = 'Current yearly';
-          this.family.yearlyAvalable = false;
-
-          this.expedition.monthlyButtonText = 'Monthly unavailable';
-          this.expedition.monthlyAvalable = false;
-
-          this.expedition.yearlyButtonText = 'Upgrade to yearly';
-          this.expedition.yearlyAvalable = true;
-          break;
-        case 'Expedition Monthly':
-          this.family.monthlyButtonText = 'Downgrade to monthly';
+          this.family.monthlyButtonText = 'Downgrade to Monthly';
           this.family.monthlyAvalable = true;
 
-          this.family.yearlyButtonText = 'Yearly unavailable';
+          this.family.yearlyButtonText = 'Current Yearly';
           this.family.yearlyAvalable = false;
 
-          this.expedition.monthlyButtonText = 'Current monthly';
-          this.expedition.monthlyAvalable = false;
+          this.expedition.monthlyButtonText = 'Downgrade to Monthly';
+          this.expedition.monthlyAvalable = true;
 
-          this.expedition.yearlyButtonText = 'Upgrade to yearly';
+          this.expedition.yearlyButtonText = 'Upgrade to Yearly';
+          this.expedition.yearlyAvalable = true;
+
+          break;
+        case 'Expedition Monthly':
+          this.family.monthlyButtonText = 'Downgrade to Monthly';
+          this.family.monthlyAvalable = true;
+          this.family.yearlyButtonText = 'Upgrade to Yearly';
+          this.family.yearlyAvalable = true;
+          this.expedition.monthlyButtonText = 'Current Monthly';
+          this.expedition.monthlyAvalable = false;
+          this.expedition.yearlyButtonText = 'Upgrade to Yearly';
           this.expedition.yearlyAvalable = true;
           break;
         case 'Expedition Yearly':
-          this.family.monthlyButtonText = 'Monthly unavailable';
-          this.family.monthlyAvalable = false;
-
-          this.family.yearlyButtonText = 'Downgrade to yearly';
+          this.family.monthlyButtonText = 'Downgrade to Monthly';
+          this.family.monthlyAvalable = true;
+          this.family.yearlyButtonText = 'Downgrade to Yearly';
           this.family.yearlyAvalable = true;
-
-          this.expedition.monthlyButtonText = 'Monthly unavailable';
-          this.expedition.monthlyAvalable = false;
-
-          this.expedition.yearlyButtonText = 'Current yearly';
+          this.expedition.monthlyButtonText = 'Downgrade to Monthly';
+          this.expedition.monthlyAvalable = true;
+          this.expedition.yearlyButtonText = 'Current Yearly';
           this.expedition.yearlyAvalable = false;
-
-          s = "";
-
           break;
         default:
           throw new Error(`Unknown plan period: ${this.currentPlanPeriod}`);
       }
     }
 
+    this.topWording1 = `Your current plan is '${this.currentPlanPeriod}'.`
+    this.topWording2 = `You can change it by clicking one of the buttons below.`;
 
-
-    this.topWording = `Your current plan is ${this.currentPlanPeriod}. You can ${changeText} it by
-    clicking one of the button${s} below.`;
-
-    this.rate.sort((a, b) => a.value - b.value);
     this.plansLoaded = true;
   }
 

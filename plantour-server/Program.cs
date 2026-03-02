@@ -27,6 +27,7 @@ using plantour_server.Utils;
 
 
 // TODO: test email confirmation after sign-up
+// TODO: add versioning using NX
 
 QuestPDF.Settings.License = LicenseType.Community;
 

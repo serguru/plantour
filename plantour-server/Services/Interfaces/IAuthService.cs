@@ -30,4 +30,7 @@ public interface IUsersService
     Task<LandingDto> GetLandingAsync();
 
     Task<AuthResponseDto> RefreshTokenAsync(TokenRequestDto request);
+
+    Task DowngradePlanPriceAsync(string oldPlanPrice, string newPlanPrice);
+
 }
