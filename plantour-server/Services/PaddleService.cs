@@ -646,7 +646,7 @@ public class PaddleService : IPaddleService
                     quantity = 1
                 }
             },
-            proration_billing_mode = "do_not_bill"
+            proration_billing_mode = "prorated_immediately"
         };
 
 
