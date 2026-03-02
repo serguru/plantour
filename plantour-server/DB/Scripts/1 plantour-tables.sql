@@ -358,14 +358,11 @@ before update on plantour.users
 for each row
 execute function plantour.prevent_user_email_update();
 
-
-
 create table ai_prompt_checks (
     id uuid primary key not null references users(id) on delete cascade,
     start timestamp not null ,
     count int not null check(count >= 0)
 );
-
 
 create table admins_participants (
     id uuid not null primary key default gen_random_uuid(),
@@ -623,7 +620,7 @@ create unique index idx_ai_prompts_prompt_id_name on ai_things(prompt_id, name);
 -- this script creates the necessary tables for storing serilog logs in postgresql
 
 -- main logs table
-create table if not exists plantour.logs (
+create table plantour.logs (
     id serial primary key,
     message_template text,
     level text,
@@ -779,7 +776,7 @@ create table plantour.refresh_tokens (
     user_id uuid not null references users(id) on delete cascade,
     token uuid not null unique,
     expires_at timestamp not null,
-    created_at timestamp default current_timestamp
+    created_at timestamp not null default current_timestamp
     
     -- a token is valid if it hasn't expired and hasn't been revoked
     constraint chk_expiration check (expires_at > created_at)

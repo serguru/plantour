@@ -144,7 +144,7 @@ public class AiService : IAiService
 
         prompt = prompt.Trim();
 
-        var promptEntity = await _aiPromptRepository.GetByPromptMonthAsync(_currentUser.UserId, prompt);
+        var promptEntity = await _aiPromptRepository.GetByPromptAsync(_currentUser.UserId, prompt);
 
         if (promptEntity != null)
         {

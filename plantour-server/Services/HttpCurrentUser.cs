@@ -15,8 +15,15 @@ public class HttpCurrentUser
     {
         get
         {
+            CurrentUser? result = null;
             var httpContext = _httpContextAccessor.HttpContext;
-            var result = httpContext!.Items["CurrentUser"] as CurrentUser;
+            if (httpContext != null)
+            {
+                result = httpContext.Items["CurrentUser"] as CurrentUser;
+            } else
+            {
+                result = new CurrentUser();
+            }
             return result!;
         }
     }

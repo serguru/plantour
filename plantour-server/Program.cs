@@ -26,7 +26,7 @@ using plantour_server.Utils.Logging;
 using plantour_server.Utils;
 using Hangfire;
 using Hangfire.PostgreSql;
-
+using plantour_server.Utils.ProgramAdds;
 
 // TODO: test email confirmation after sign-up
 // TODO: add versioning using NX
@@ -435,7 +435,7 @@ try
     {
         app.UseHttpsRedirection();
     }
-    
+
     app.UseCors("AllowOrigins");
 
     app.UseAuthentication();
@@ -453,6 +453,9 @@ try
 
 
     app.MapControllers();
+
+    app.RegisterRecurringJobs();
+
     app.Run();
 }
 catch (Exception ex)
