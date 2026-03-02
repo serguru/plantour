@@ -435,12 +435,6 @@ try
     {
         app.UseHttpsRedirection();
     }
-    app.UseHangfireDashboard("/hangfire", new DashboardOptions
-    {
-        Authorization = new[] { new HangfireAdminFilter(env, hfUser, hfPass) },
-        // Optional: Only allow the 'Back to site' link to work
-        AppPath = "/"
-    });
     
     app.UseCors("AllowOrigins");
 
@@ -448,6 +442,15 @@ try
     app.UseMiddleware<CurrentUserMiddleware>();
     app.UseMiddleware<ApiVisitLoggingMiddleware>();
     app.UseAuthorization();
+
+
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = new[] { new HangfireAdminFilter(env, hfUser, hfPass) },
+        // Optional: Only allow the 'Back to site' link to work
+        AppPath = "/"
+    });
+
 
     app.MapControllers();
     app.Run();
