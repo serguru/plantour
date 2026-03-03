@@ -25,4 +25,4 @@ RUN dotnet publish "./plantour-server.csproj" -c $BUILD_CONFIGURATION -o /app/pu
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "plantour-server.dll"]
+ENTRYPOINT ["dotnet", "plantour_server.dll"]
