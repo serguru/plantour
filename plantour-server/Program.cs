@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using plantour_server.Utils.Logging;
 using plantour_server.Utils;
 using TickerQ.DependencyInjection;
+using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
 using TickerQ.Utilities.Entities;
 using plantour_server.Services.TickerQ;
@@ -189,6 +190,25 @@ try
             {
                 dbOptions.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
             }, schema: "plantour");
+        });
+
+        options.AddDashboard(dashboardOptions =>
+        {
+            dashboardOptions.SetBasePath("/tickerq/dashboard");
+
+            if (!env.IsDevelopment())
+            {
+                var dashboardUsername = builder.Configuration["TickerQ:DashboardAuth:Username"];
+                var dashboardPassword = builder.Configuration["TickerQ:DashboardAuth:Password"];
+
+                if (string.IsNullOrWhiteSpace(dashboardUsername) || string.IsNullOrWhiteSpace(dashboardPassword))
+                {
+                    throw new InvalidOperationException(
+                        "TickerQ dashboard auth is required outside Development. Set TickerQ:DashboardAuth:Username and TickerQ:DashboardAuth:Password.");
+                }
+
+                dashboardOptions.WithBasicAuth(dashboardUsername, dashboardPassword);
+            }
         });
     });
 
