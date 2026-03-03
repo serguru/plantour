@@ -31,11 +31,6 @@ public class SchedulerService(
     private readonly LogsRepository _logsRepository = logsRepository;
     private readonly AiPromptRepository _aiPromptRepository = aiPromptRepository;
 
-    public void AddDowngradePlanTask()
-    {
-        //throw new NotImplementedException();
-    }
-
     public async Task DeleteExpiredRefreshTokensAsync()
     {
         await _refreshTokenRepository.DeleteRangeAsync(x => x.ExpiresAt < DateTime.UtcNow, CancellationToken.None);

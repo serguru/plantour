@@ -24,6 +24,10 @@ using NpgsqlTypes;
 using Microsoft.AspNetCore.HttpOverrides;
 using plantour_server.Utils.Logging;
 using plantour_server.Utils;
+using TickerQ.DependencyInjection;
+using TickerQ.EntityFrameworkCore.DependencyInjection;
+using TickerQ.Utilities.Entities;
+using plantour_server.Services.TickerQ;
 
 // TODO: test email confirmation after sign-up
 // TODO: add versioning using NX
@@ -89,16 +93,25 @@ var columnOptions = new Dictionary<string, ColumnWriterBase>
     { "time_stamp", new UnspecifiedUtcTimestampColumnWriter() },
     { "exception", new ExceptionColumnWriter(NpgsqlDbType.Text) },
     { "log_event", new LogEventSerializedColumnWriter(NpgsqlDbType.Text) },
-    { "properties", new PropertiesColumnWriter(NpgsqlDbType.Jsonb) }
+    { "properties", new PropertiesColumnWriter(NpgsqlDbType.Jsonb) },
+    { "event_type", new SinglePropertyColumnWriter("event_type", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar) },
+    { "subtype", new SinglePropertyColumnWriter("subtype", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar) }
 };
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Read MinimumLevel from appsettings
-var minimumLevelString = builder.Configuration["Serilog:MinimumLevel"] ?? "Information";
-var minimumLevel = Enum.Parse<LogEventLevel>(minimumLevelString);
+var minimumLevelSection = builder.Configuration.GetSection("Serilog:MinimumLevel");
+var minimumLevelString = minimumLevelSection["Default"]
+    ?? minimumLevelSection.Value
+    ?? "Information";
 
-Serilog.Log.Logger = new LoggerConfiguration()
+if (!Enum.TryParse<LogEventLevel>(minimumLevelString, true, out var minimumLevel))
+{
+    minimumLevel = LogEventLevel.Information;
+}
+
+var loggerConfiguration = new LoggerConfiguration()
     .MinimumLevel.Is(minimumLevel)
     .Enrich.FromLogContext()
     .Enrich.WithEnvironmentUserName()
@@ -111,8 +124,17 @@ Serilog.Log.Logger = new LoggerConfiguration()
         schemaName: "plantour",
         needAutoCreateTable: false
     )
-    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-    .CreateLogger();
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}");
+
+foreach (var overrideSection in minimumLevelSection.GetSection("Override").GetChildren())
+{
+    if (Enum.TryParse<LogEventLevel>(overrideSection.Value, true, out var overrideLevel))
+    {
+        loggerConfiguration.MinimumLevel.Override(overrideSection.Key, overrideLevel);
+    }
+}
+
+Serilog.Log.Logger = loggerConfiguration.CreateLogger();
 
 try
 {
@@ -158,6 +180,38 @@ try
     // Configure PostgreSQL connection
     builder.Services.AddDbContext<PlantourContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    builder.Services.AddTickerQ(options =>
+    {
+        options.AddOperationalStore(efOptions =>
+        {
+            efOptions.UseTickerQDbContext<TickerQOperationalDbContext>(dbOptions =>
+            {
+                dbOptions.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+            }, schema: "plantour");
+        });
+    });
+
+    var enableCronTickers = builder.Configuration.GetValue<bool?>("TickerQ:EnableCronTickers") ?? true;
+    var enableTimeTickers = builder.Configuration.GetValue<bool?>("TickerQ:EnableTimeTickers") ?? true;
+
+    if (enableCronTickers)
+    {
+        builder.Services.AddSingleton<TickerQRecurringTasksScheduler>();
+    }
+    else
+    {
+        Serilog.Log.Information("TickerQ recurring cron task seeding is disabled by configuration (TickerQ:EnableCronTickers=false).");
+    }
+
+    if (enableTimeTickers)
+    {
+        builder.Services.AddHostedService<TickerQDemoTaskScheduler>();
+    }
+    else
+    {
+        Serilog.Log.Information("TickerQ time task seeding is disabled by configuration (TickerQ:EnableTimeTickers=false).");
+    }
 
     // Configure JWT Authentication
     builder.Services.AddAuthentication(options =>
@@ -311,6 +365,7 @@ try
     builder.Services.AddScoped<IDashboardService, DashboardService>();
     builder.Services.AddScoped<IPaddleService, PaddleService>();
     builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
+    builder.Services.AddScoped<ISchedulerService, SchedulerService>();
     builder.Services.AddScoped<AccessCodeGenerator>();
 
     builder.Services.AddHttpClient<IBrevoEmailClient, BrevoEmailClient>();
@@ -343,6 +398,7 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.UserEmailConfirmationRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.LogsRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
@@ -418,6 +474,14 @@ try
     app.UseMiddleware<CurrentUserMiddleware>();
     app.UseMiddleware<ApiVisitLoggingMiddleware>();
     app.UseAuthorization();
+    app.UseTickerQ();
+
+    if (enableCronTickers)
+    {
+        using var cronSyncScope = app.Services.CreateScope();
+        var recurringTasksScheduler = cronSyncScope.ServiceProvider.GetRequiredService<TickerQRecurringTasksScheduler>();
+        await recurringTasksScheduler.StartAsync(CancellationToken.None);
+    }
 
     app.MapControllers();
 

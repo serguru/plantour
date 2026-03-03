@@ -627,7 +627,9 @@ create table plantour.logs (
     time_stamp timestamp not null default (now() at time zone 'utc'),
     exception text,
     log_event text,
-    properties jsonb
+    properties jsonb,
+    event_type text,
+    subtype text
 );
 
 -- create indexes for better query performance

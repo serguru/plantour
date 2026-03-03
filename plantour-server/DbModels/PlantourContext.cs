@@ -31,6 +31,10 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<ContactSubmission> ContactSubmissions { get; set; }
 
+    public virtual DbSet<CronTicker> CronTickers { get; set; }
+
+    public virtual DbSet<CronTickerOccurrence> CronTickerOccurrences { get; set; }
+
     public virtual DbSet<Currency> Currencies { get; set; }
 
     public virtual DbSet<ErrorLog> ErrorLogs { get; set; }
@@ -60,6 +64,8 @@ public partial class PlantourContext : DbContext
     public virtual DbSet<ThingCategory> ThingCategories { get; set; }
 
     public virtual DbSet<ThingTemplate> ThingTemplates { get; set; }
+
+    public virtual DbSet<TimeTicker> TimeTickers { get; set; }
 
     public virtual DbSet<TransactionType> TransactionTypes { get; set; }
 
@@ -175,6 +181,16 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+        });
+
+        modelBuilder.Entity<CronTicker>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<CronTickerOccurrence>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<Currency>(entity =>
@@ -315,6 +331,11 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.TemperatureRanges).WithMany(p => p.ThingTemplates)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("thing_templates_temperature_ranges_id_fkey");
+        });
+
+        modelBuilder.Entity<TimeTicker>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<TransactionType>(entity =>

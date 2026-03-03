@@ -57,4 +57,10 @@ public partial class Log
     /// </summary>
     [Column("properties", TypeName = "jsonb")]
     public string? Properties { get; set; }
+
+    [Column("event_type")]
+    public string? EventType { get; set; }
+
+    [Column("subtype")]
+    public string? Subtype { get; set; }
 }
