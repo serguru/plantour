@@ -5,6 +5,7 @@ using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Models;
 using plantour_server.Services;
+using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Controllers;
 
@@ -18,13 +19,15 @@ public class UsersController : ControllerBase
         private readonly ITemporaryUserService _temporaryUserService;
         private readonly IPaddleService _paddleService;
         private readonly IContactSubmissionService _contactSubmissionService;
+        private readonly ISchedulerService _schedulerService;
 
-        public UsersController(IUsersService authService, ITemporaryUserService temporaryUserService, IPaddleService paddleService, IContactSubmissionService contactSubmissionService)
+        public UsersController(IUsersService authService, ITemporaryUserService temporaryUserService, IPaddleService paddleService, IContactSubmissionService contactSubmissionService, ISchedulerService schedulerService)
         {
                 _authService = authService;
                 _temporaryUserService = temporaryUserService;
                 _paddleService = paddleService;
                 _contactSubmissionService = contactSubmissionService;
+                _schedulerService = schedulerService;
         }
 
         #region Admin Endpoints
@@ -192,9 +195,9 @@ public class UsersController : ControllerBase
 
         [HttpPut("downgrade-plan-price")]
         [AdminOnly]
-        public async Task<IActionResult> DowngradePlanPrice([FromBody] UpdatePlanPriceRequest request)
+        public async Task<IActionResult> ScheduleDowngradePlanPrice([FromBody] UpdatePlanPriceRequest request)
         {
-                await _authService.DowngradePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
+                await _schedulerService.ScheduleDowngradePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
                 return Ok();
         }
 

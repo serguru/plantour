@@ -5,6 +5,7 @@ using plantour_server.DTOs;
 using plantour_server.Models;
 using plantour_server.Repositories;
 using plantour_server.Services.Interfaces;
+using plantour_server.Services.TickerQ;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 
@@ -18,6 +19,7 @@ public class SchedulerService(
     ICheckAccessService checkAccessService,
     IConfiguration configuration,
     AiPromptRepository aiPromptRepository,
+    ILogger<SchedulerService> logger,
     HttpCurrentUser httpCurrentUser) : ISchedulerService
 {
 
@@ -30,6 +32,8 @@ public class SchedulerService(
     private readonly RefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly LogsRepository _logsRepository = logsRepository;
     private readonly AiPromptRepository _aiPromptRepository = aiPromptRepository;
+
+    private readonly ILogger<SchedulerService> _logger = logger;
 
     public async Task DeleteExpiredRefreshTokensAsync()
     {
@@ -45,5 +49,20 @@ public class SchedulerService(
     {
         await _logsRepository.DeleteRangeAsync(x => x.TimeStamp < DateTime.UtcNow.AddDays(-7) && x.Level != null && x.Level.ToLower() == "error", CancellationToken.None);
     }
+
+    public async Task ScheduleDowngradePlanPriceAsync(string oldPlanPrice, string newPlanPrice)
+    {
+        _currentUser.RaiseIfNotAdmin();
+        var userId = _currentUser.UserId;
+        var executionTime = DateTime.UtcNow.AddMinutes(1); // temporary, for debugging only
+        // add code here to schedule the DowngradePlanPriceAsync execution
+    }
+
+    public async Task DowngradePlanPriceAsync(Guid guid, string oldPlanPrice, string newPlanPrice)
+    {
+        _logger.LogInformation("Executing DowngradePlanPriceAsync for guid: {Guid}, oldPlanPrice: {OldPlanPrice}, newPlanPrice: {NewPlanPrice}, triggeredAtUtc: {TriggeredAtUtc}", 
+        guid, oldPlanPrice, newPlanPrice,  DateTime.UtcNow);
+    }
+
 }
 

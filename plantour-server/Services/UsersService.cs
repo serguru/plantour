@@ -17,6 +17,7 @@ using plantour_server.Repositories;
 using PlantourApi.Middleware;
 using plantour_server.Services.Interfaces;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace plantour_server.Services;
 
@@ -925,9 +926,5 @@ public class UsersService(
         return result;
     }
 
-    public async Task DowngradePlanPriceAsync(string oldPlanPrice, string newPlanPrice)
-    {
-        return;
-    }
 }
 
