@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/net10.0/plantour-server.dll",
+            "program": "${workspaceFolder}/bin/Debug/net10.0/plantour_server.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,

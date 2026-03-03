@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("refresh_tokens", Schema = "plantour")]
-[Index("Token", Name = "ix_refreshtokens_token")]
 [Index("Token", Name = "refresh_tokens_token_key", IsUnique = true)]
 public partial class RefreshToken
 {
@@ -25,7 +24,7 @@ public partial class RefreshToken
     public DateTime ExpiresAt { get; set; }
 
     [Column("created_at", TypeName = "timestamp without time zone")]
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     [ForeignKey("UserId")]
     [InverseProperty("RefreshTokens")]
