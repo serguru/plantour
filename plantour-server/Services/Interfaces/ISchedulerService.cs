@@ -8,5 +8,6 @@ public interface ISchedulerService
     public Task DeleteOldAIPromptsAsync();
     public Task DeleteOldErrorLogsAsync();
     public Task ScheduleDowngradePlanPriceAsync(string oldPlanPrice, string newPlanPrice);
+    public Task DowngradePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice);
 
 }

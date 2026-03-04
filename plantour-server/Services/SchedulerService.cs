@@ -1,4 +1,6 @@
 using AutoMapper;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
@@ -8,6 +10,8 @@ using plantour_server.Services.Interfaces;
 using plantour_server.Services.TickerQ;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
+using TickerQ.Utilities.Entities;
+using TickerQ.Utilities.Interfaces.Managers;
 
 namespace plantour_server.Services;
 
@@ -19,6 +23,8 @@ public class SchedulerService(
     ICheckAccessService checkAccessService,
     IConfiguration configuration,
     AiPromptRepository aiPromptRepository,
+    PlantourContext context,
+    ITimeTickerManager<TimeTickerEntity> timeTickerManager,
     ILogger<SchedulerService> logger,
     HttpCurrentUser httpCurrentUser) : ISchedulerService
 {
@@ -32,6 +38,8 @@ public class SchedulerService(
     private readonly RefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly LogsRepository _logsRepository = logsRepository;
     private readonly AiPromptRepository _aiPromptRepository = aiPromptRepository;
+    private readonly PlantourContext _context = context;
+    private readonly ITimeTickerManager<TimeTickerEntity> _timeTickerManager = timeTickerManager;
 
     private readonly ILogger<SchedulerService> _logger = logger;
 
@@ -54,8 +62,44 @@ public class SchedulerService(
     {
         _currentUser.RaiseIfNotAdmin();
         var userId = _currentUser.UserId;
-        var executionTime = DateTime.UtcNow.AddMinutes(1); // temporary, for debugging only
-        // add code here to schedule the DowngradePlanPriceAsync execution
+        var executionTime = DateTime.UtcNow.AddHours(1); // temporary, for debugging only
+
+        var payload = new TickerQPlanDowngradeTask.PlanDowngradePayload
+        {
+            UserId = userId,
+            OldPlanPrice = oldPlanPrice,
+            NewPlanPrice = newPlanPrice
+        };
+
+        var addResult = await _timeTickerManager.AddAsync(new TimeTickerEntity
+        {
+            Function = TickerQPlanDowngradeTask.FunctionName,
+            Description = $"Plan downgrade from '{oldPlanPrice}' to '{newPlanPrice}'",
+            ExecutionTime = executionTime,
+            Request = JsonSerializer.SerializeToUtf8Bytes(payload)
+        });
+
+        if (!addResult.IsSucceeded)
+        {
+            throw new CustomException("Failed to schedule downgrade plan job");
+        }
+
+        var createdJob = await _context.TimeTickers.FirstOrDefaultAsync(x => x.Id == addResult.Result.Id);
+
+        if (createdJob != null)
+        {
+            createdJob.InitIdentifier = userId.ToString();
+            createdJob.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
+        _logger.LogInformation(
+            "Downgrade plan job scheduled. JobId: {JobId}, UserId: {UserId}, OldPlanPrice: {OldPlanPrice}, NewPlanPrice: {NewPlanPrice}, ExecutionTimeUtc: {ExecutionTimeUtc}",
+            addResult.Result.Id,
+            userId,
+            oldPlanPrice,
+            newPlanPrice,
+            executionTime);
     }
 
     public async Task DowngradePlanPriceAsync(Guid guid, string oldPlanPrice, string newPlanPrice)

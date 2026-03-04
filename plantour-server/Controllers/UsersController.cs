@@ -192,6 +192,7 @@ public class UsersController : ControllerBase
                 return Ok(profile);
         }
 
+        // TODO: add jobs cleaning code
 
         [HttpPut("downgrade-plan-price")]
         [AdminOnly]
@@ -199,6 +200,22 @@ public class UsersController : ControllerBase
         {
                 await _schedulerService.ScheduleDowngradePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
                 return Ok();
+        }
+
+        [HttpGet("downgrade-plan-price/scheduled")]
+        [AdminOnly]
+        public async Task<ActionResult<ScheduledPlanDowngradeInfoDto>> GetScheduledDowngradePlanPrice()
+        {
+                var result = await _authService.GetScheduledPlanDowngradeInfoAsync();
+                return Ok(result);
+        }
+
+        [HttpDelete("downgrade-plan-price/scheduled")]
+        [AdminOnly]
+        public async Task<IActionResult> CancelScheduledDowngradePlanPrice()
+        {
+                var cancelled = await _authService.CancelScheduledPlanDowngradeAsync();
+                return Ok(new { cancelled });
         }
 
         [HttpPut("upgrade-plan-price")]

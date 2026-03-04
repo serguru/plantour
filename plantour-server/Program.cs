@@ -424,6 +424,7 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptChecksRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.RefreshTokenRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.TimeTickerRepository>();
 
     builder.Services.AddScoped<HttpCurrentUser>();
 

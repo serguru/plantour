@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,7 @@ using PlantourApi.Models;
 using plantour_server.Repositories;
 using PlantourApi.Middleware;
 using plantour_server.Services.Interfaces;
+using plantour_server.Services.TickerQ;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -43,6 +45,7 @@ public class UsersService(
     IHttpClientFactory httpClientFactory,
     IAccessRulesService accessRulesService,
     RefreshTokenRepository refreshTokenRepository,
+    TimeTickerRepository timeTickerRepository,
     IPaddleService paddleService,
     IOptions<SocialAuthSettings> socialAuthSettings) : IUsersService
 {
@@ -60,6 +63,7 @@ public class UsersService(
     private readonly SocialAuthSettings _socialAuthSettings = socialAuthSettings.Value;
     private readonly IAccessRulesService _accessRulesService = accessRulesService;
     private readonly IPaddleService _paddleService = paddleService;
+    private readonly TimeTickerRepository _timeTickerRepository = timeTickerRepository;
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly ITokenService _tokenService = tokenService;
@@ -924,6 +928,56 @@ public class UsersService(
         };
 
         return result;
+    }
+
+    public async Task<ScheduledPlanDowngradeInfoDto> GetScheduledPlanDowngradeInfoAsync()
+    {
+        _currentUser.RaiseIfNotAdmin();
+
+        var initIdentifier = _currentUser.UserId.ToString();
+
+        var job = await _timeTickerRepository.GetLatestActiveByFunctionAndIdentifierAsync(
+            TickerQPlanDowngradeTask.FunctionName,
+            initIdentifier);
+
+        if (job == null)
+        {
+            return new ScheduledPlanDowngradeInfoDto
+            {
+                HasScheduledDowngrade = false
+            };
+        }
+
+        string? oldPlanPrice = null;
+        string? newPlanPrice = null;
+
+        if (job.Request is { Length: > 0 })
+        {
+            var payload = JsonSerializer.Deserialize<TickerQPlanDowngradeTask.PlanDowngradePayload>(job.Request);
+            oldPlanPrice = payload?.OldPlanPrice;
+            newPlanPrice = payload?.NewPlanPrice;
+        }
+
+        return new ScheduledPlanDowngradeInfoDto
+        {
+            HasScheduledDowngrade = true,
+            JobId = job.Id,
+            CreatedAt = job.CreatedAt,
+            ExecutionTime = job.ExecutionTime,
+            OldPlanPrice = oldPlanPrice,
+            NewPlanPrice = newPlanPrice
+        };
+    }
+
+    public async Task<bool> CancelScheduledPlanDowngradeAsync()
+    {
+        _currentUser.RaiseIfNotAdmin();
+
+        var initIdentifier = _currentUser.UserId.ToString();
+
+        return await _timeTickerRepository.CancelLatestActiveByFunctionAndIdentifierAsync(
+            TickerQPlanDowngradeTask.FunctionName,
+            initIdentifier);
     }
 
 }
