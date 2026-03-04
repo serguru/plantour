@@ -5,6 +5,7 @@ using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Models;
 using plantour_server.Services;
+using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Controllers;
 
@@ -18,13 +19,15 @@ public class UsersController : ControllerBase
         private readonly ITemporaryUserService _temporaryUserService;
         private readonly IPaddleService _paddleService;
         private readonly IContactSubmissionService _contactSubmissionService;
+        private readonly ISchedulerService _schedulerService;
 
-        public UsersController(IUsersService authService, ITemporaryUserService temporaryUserService, IPaddleService paddleService, IContactSubmissionService contactSubmissionService)
+        public UsersController(IUsersService authService, ITemporaryUserService temporaryUserService, IPaddleService paddleService, IContactSubmissionService contactSubmissionService, ISchedulerService schedulerService)
         {
                 _authService = authService;
                 _temporaryUserService = temporaryUserService;
                 _paddleService = paddleService;
                 _contactSubmissionService = contactSubmissionService;
+                _schedulerService = schedulerService;
         }
 
         #region Admin Endpoints
@@ -189,13 +192,30 @@ public class UsersController : ControllerBase
                 return Ok(profile);
         }
 
-
-        [HttpPut("downgrade-plan-price")]
+        // TODO: add jobs cleaning code
+// TODO: add to log user creates and deletes entities
+        [HttpPut("downgrade-plan-price/schedule")]
         [AdminOnly]
-        public async Task<IActionResult> DowngradePlanPrice([FromBody] UpdatePlanPriceRequest request)
+        public async Task<IActionResult> ScheduleOrRunDowngradePlanPrice([FromBody] UpdatePlanPriceRequest request)
         {
-                await _authService.DowngradePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
+                await _schedulerService.ScheduleOrRunDowngradePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
                 return Ok();
+        }
+
+        [HttpGet("downgrade-plan-price/scheduled")]
+        [AdminOnly]
+        public async Task<ActionResult<ScheduledPlanDowngradeInfoDto>> GetScheduledDowngradePlanPrice()
+        {
+                var result = await _authService.GetScheduledPlanDowngradeInfoAsync();
+                return Ok(result);
+        }
+
+        [HttpDelete("downgrade-plan-price/scheduled")]
+        [AdminOnly]
+        public async Task<IActionResult> CancelScheduledDowngradePlanPrice()
+        {
+                var cancelled = await _authService.CancelScheduledPlanDowngradeAsync();
+                return Ok(new { cancelled });
         }
 
         [HttpPut("upgrade-plan-price")]
@@ -212,6 +232,5 @@ public class UsersController : ControllerBase
         {
                 var result = await _authService.RefreshTokenAsync(request);
                 return Ok(result);
-
         }
 }

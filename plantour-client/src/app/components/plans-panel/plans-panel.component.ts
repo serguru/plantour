@@ -73,12 +73,39 @@ export class PlansPanelComponent implements OnInit {
     let title = "";
     this.messagesService.focusOkButton = !isDowngrade;
 
-    let endDate: string | null = null;
-
+    let endDate: Date | null = null;
 
     if (isDowngrade) {
-      endDate = this.usersService.userBillingPeriodEndSignal() || '';
-      message = `You are downgrading from ${currentName} to ${newName}. The new plan will be in effect from the next billing cycle ${endDate ? ' before ' + endDate : ''}. Are you sure you want to proceed?`;
+      // Local Date object 
+      const nextPaymentDate = this.usersService.userBillingPeriodEndSignal();
+      if (!nextPaymentDate) {
+        throw new Error("Cannot get billing period end date");
+      }
+      const nowDate = new Date();
+     
+      if (nextPaymentDate <= nowDate) {
+        throw new Error("Your next billing period has already ended");
+      }
+      
+      // is now within payment date - 1 and payment date?
+      const nextPaymentDate1 = new Date(nextPaymentDate);
+      nextPaymentDate1.setHours(nextPaymentDate1.getHours() - 1);
+      if (nowDate >= nextPaymentDate1 && nowDate <= nextPaymentDate) {
+        throw new Error("Cannot downgrade if the next payment within 1 hour from now");
+      }
+
+      const nextPaymentDate12 = new Date(nextPaymentDate);
+      nextPaymentDate12.setHours(nextPaymentDate12.getHours() - 12);
+      let immediately = false;
+      if (nowDate >= nextPaymentDate12 && nowDate < nextPaymentDate1) {
+        immediately = true;
+      }
+
+      if (immediately) {
+        message = `You are downgrading from ${currentName} to ${newName}. The new plan will be in effect immediately. Are you sure you want to proceed?`;
+      } else {
+        message = `You are downgrading from ${currentName} to ${newName}. The new plan will be in effect 12 hours before your next billing cycle at ${nextPaymentDate12!.toLocaleString()}  Are you sure you want to proceed?`;
+      }
       title = `Downgrade to ${newName}`;
     } else {
       message = `You are upgrading from ${currentName} to ${newName}. The new plan will be in effect immediately. Click Yes to proceed.`;

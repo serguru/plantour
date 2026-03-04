@@ -31,6 +31,9 @@ public interface IUsersService
 
     Task<AuthResponseDto> RefreshTokenAsync(TokenRequestDto request);
 
-    Task DowngradePlanPriceAsync(string oldPlanPrice, string newPlanPrice);
+    Task<ScheduledPlanDowngradeInfoDto> GetScheduledPlanDowngradeInfoAsync();
+
+    Task<bool> CancelScheduledPlanDowngradeAsync();
+
 
 }

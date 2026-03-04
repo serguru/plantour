@@ -99,6 +99,13 @@
     box-sizing: border-box;
 }
 
+.cancel-link {
+    margin-left: 0.5rem;
+    color: var(--primary-color);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 
 .billing-plans {
     display: flex;

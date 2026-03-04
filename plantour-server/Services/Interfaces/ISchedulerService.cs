@@ -7,4 +7,5 @@ public interface ISchedulerService
     public Task DeleteExpiredRefreshTokensAsync();
     public Task DeleteOldAIPromptsAsync();
     public Task DeleteOldErrorLogsAsync();
+    public Task ScheduleOrRunDowngradePlanPriceAsync(string oldPlanPrice, string newPlanPrice);
 }
