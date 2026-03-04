@@ -948,6 +948,11 @@ public class UsersService(
             };
         }
 
+        if (job.ExecutionTime == null)
+        {
+            throw new CustomException("Scheduled job has no execution time");
+        }
+
         string? oldPlanPrice = null;
         string? newPlanPrice = null;
 
@@ -958,16 +963,21 @@ public class UsersService(
             newPlanPrice = payload?.NewPlanPrice;
         }
 
+
+        string ct = DateTime.SpecifyKind(job.CreatedAt, DateTimeKind.Utc).ToString("o");
+        string et = DateTime.SpecifyKind(job.ExecutionTime.Value, DateTimeKind.Utc).ToString("o");
+
         return new ScheduledPlanDowngradeInfoDto
         {
             HasScheduledDowngrade = true,
             JobId = job.Id,
-            CreatedAt = job.CreatedAt,
-            ExecutionTime = job.ExecutionTime,
+            CreatedAt = ct,
+            ExecutionTime = et,
             OldPlanPrice = oldPlanPrice,
             NewPlanPrice = newPlanPrice
         };
     }
+
 
     public async Task<bool> CancelScheduledPlanDowngradeAsync()
     {

@@ -29,6 +29,23 @@
                 <h3 class="summary-label">Plan</h3>
                 <h3 class="section-title">{{ planPeriod() }}</h3>
             </div>
+            @if(scheduledDowngrade()?.hasScheduledDowngrade) {
+            <div class="summary-row">
+                <h3 class="summary-label">Scheduled downgrade</h3>
+                <h3 class="section-title">
+                    {{ formatScheduledDowngrade(scheduledDowngrade()) }}
+                    @if (scheduledDowngrade()?.hasScheduledDowngrade) {
+                    <a
+                        class="cancel-link"
+                        href=""
+                        (click)="onCancelScheduledDowngrade($event)"
+                        [attr.aria-disabled]="isCancellingScheduledDowngrade()"
+                        [attr.tabindex]="isCancellingScheduledDowngrade() ? -1 : null"
+                    >{{ isCancellingScheduledDowngrade() ? 'Cancelling...' : 'Cancel' }}</a>
+                    }
+                </h3>
+            </div>
+            }
             }
         </div>
         }
@@ -36,7 +53,7 @@
         @if(isAdmin()) {
         <div class="form-actions">
             <app-button
-                [label]="'Choose Plan'"
+                [label]="'Change Plan'"
                 [icon]="'pi pi-money-bill'"
                 [loading]="isUpdatingProfile()"
                 (click)="onChoosePlanClick()"

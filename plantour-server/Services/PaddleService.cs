@@ -9,6 +9,7 @@ using plantour_server.Repositories;
 using plantour_server.Utils;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
+using plantour_server.Services.TickerQ;
 
 namespace plantour_server.Services;
 
@@ -22,17 +23,20 @@ public class PaddleService : IPaddleService
 
     private readonly UsersRepository _usersRepository;
     private readonly PlanRepository _planRepository;
+    private readonly TimeTickerRepository _timeTickerRepository;
 
     public PaddleService(
         HttpClient httpClient,
         HttpCurrentUser httpCurrentUser,
         UsersRepository usersRepository,
         PlanRepository planRepository,
+        TimeTickerRepository timeTickerRepository,
         IConfiguration configuration
     )
     {
         _currentUser = httpCurrentUser.CurrentUser;
         _usersRepository = usersRepository;
+        _timeTickerRepository = timeTickerRepository;
         _planRepository = planRepository;
 
         _baseUrl = configuration["PaddleSettings:ApiBaseUrl"] ?? throw new CustomException("PaddleSettings:ApiBaseUrl is not configured");
@@ -351,6 +355,19 @@ public class PaddleService : IPaddleService
         return subscription;
     }
 
+    // userId can be participant or admin
+    public async Task<PaddleSubscription?> GetActiveSubscriptionByUserIdAsync(Guid userId, UserRole role, Guid adminId)
+    {
+        var user = await _usersRepository.GetActiveByIdAsync(userId);
+        if (user == null)
+        {
+            return null;
+        }
+
+        return await GetActiveSubscriptionByUserAsync(user, role, adminId);
+    }
+
+
     public async Task<PaddleSubscription?> GetActiveSubscriptionByUserAsync(User user, UserRole role, Guid adminId)
     {
         if (user == null)
@@ -617,7 +634,12 @@ public class PaddleService : IPaddleService
         {
             throw new CustomException("Only admins can change plan prices");
         }
+        await ChangePlanPriceAsync(_currentUser.AdminId, oldPlanPrice, newPlanPrice, false);
+    }
 
+    private async Task ChangePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice, bool isDowngrade)
+    {
+        var user = await _usersRepository.GetActiveByIdAsync(userId) ?? throw new CustomException("User not found");
         var products = await GetActiveProductsAsync();
         var prices = products?.SelectMany(p => p.Prices).OrderBy(p => p.UnitPriceAmount).ToList();
 
@@ -625,18 +647,32 @@ public class PaddleService : IPaddleService
 
         var newPrice = (prices?.FirstOrDefault(p => p.Name.Equals(newPlanPrice, StringComparison.OrdinalIgnoreCase))) ?? throw new CustomException($"New plan price '{newPlanPrice}' not found");
 
-        PaddleSubscription? subscription = await GetActiveSubscriptionByEmailAsync(_currentUser.Email);
+        if (isDowngrade)
+        {
+            if (oldPrice.UnitPriceAmount < newPrice.UnitPriceAmount)
+            {
+                throw new CustomException($"Old plan price '{oldPlanPrice}' is cheaper than new plan price '{newPlanPrice}', cannot downgrade");
+            }
+        }
+        else
+        {
+            if (oldPrice.UnitPriceAmount > newPrice.UnitPriceAmount)
+            {
+                throw new CustomException($"Old plan price '{oldPlanPrice}' is more expensive than new plan price '{newPlanPrice}', cannot upgrade");
+            }
+        }
+
+        PaddleSubscription? subscription = await GetActiveSubscriptionByEmailAsync(user.Email);
 
         if (subscription == null)
         {
-            throw new CustomException("No active subscription found for the current user with email " + _currentUser.Email);
+            throw new CustomException("No active subscription found for the user with email " + user.Email);
         }
 
         if (subscription.PriceId != oldPrice.Id)
         {
-            throw new CustomException($"Current subscription price ID '{subscription.PriceId}' does not match the expected old price ID '{oldPrice.Id}' for the user with email " + _currentUser.Email + ")");
+            throw new CustomException($"Current subscription price ID '{subscription.PriceId}' does not match the expected old price ID '{oldPrice.Id}' for the user with email " + user.Email + ")");
         }
-
         var payload = new
         {
             items = new[]
@@ -646,13 +682,17 @@ public class PaddleService : IPaddleService
                     quantity = 1
                 }
             },
-            proration_billing_mode = "prorated_immediately"
+            proration_billing_mode = isDowngrade ? "do_not_bill" : "prorated_immediately"
         };
-
 
         var url = $"subscriptions/{subscription.Id}";
         var response = await _httpclient.PatchAsJsonAsync(url, payload);
         string errorJson = await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode();
+    }
+
+    public async Task DowngradePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice)
+    {
+        await ChangePlanPriceAsync(userId, oldPlanPrice, newPlanPrice, true);
     }
 }

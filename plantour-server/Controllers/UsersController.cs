@@ -193,12 +193,12 @@ public class UsersController : ControllerBase
         }
 
         // TODO: add jobs cleaning code
-
-        [HttpPut("downgrade-plan-price")]
+// TODO: add to log user creates and deletes entities
+        [HttpPut("downgrade-plan-price/schedule")]
         [AdminOnly]
-        public async Task<IActionResult> ScheduleDowngradePlanPrice([FromBody] UpdatePlanPriceRequest request)
+        public async Task<IActionResult> ScheduleOrRunDowngradePlanPrice([FromBody] UpdatePlanPriceRequest request)
         {
-                await _schedulerService.ScheduleDowngradePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
+                await _schedulerService.ScheduleOrRunDowngradePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
                 return Ok();
         }
 
@@ -232,6 +232,5 @@ public class UsersController : ControllerBase
         {
                 var result = await _authService.RefreshTokenAsync(request);
                 return Ok(result);
-
         }
 }

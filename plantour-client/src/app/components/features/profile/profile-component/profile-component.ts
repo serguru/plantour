@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { catchError, finalize, EMPTY } from 'rxjs';
-import { UsersService, UserDto } from '../../../../services/users-service';
+import { ScheduledPlanDowngradeInfoDto, UsersService, UserDto } from '../../../../services/users-service';
 import { MessagesService } from '../../../../services/messages-service';
 import { AppButton } from '../../../button/button-component';
 import { SocialAuthService } from '../../../../services/social-auth-service';
@@ -51,6 +51,9 @@ export class ProfileComponent implements OnInit {
   isUpdatingProfile = signal(false);
   isUpdatingPassword = signal(false);
   isOpeningPortal = signal(false);
+  isLoadingScheduledDowngrade = signal(false);
+  isCancellingScheduledDowngrade = signal(false);
+  scheduledDowngrade = signal<ScheduledPlanDowngradeInfoDto | null>(null);
 
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
@@ -101,6 +104,10 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProfile();
+
+    if (this.isAdmin()) {
+      this.loadScheduledDowngrade();
+    }
 
   }
 
@@ -159,8 +166,77 @@ export class ProfileComponent implements OnInit {
           lastName: profile.lastName || '',
           phone: profile.phone || ''
         });
+
+        if (this.isAdmin()) {
+          this.loadScheduledDowngrade();
+        }
       }
     });
+  }
+
+  loadScheduledDowngrade(): void {
+    if (!this.isAdmin()) {
+      this.scheduledDowngrade.set(null);
+      return;
+    }
+
+    this.isLoadingScheduledDowngrade.set(true);
+
+    this.usersService.getScheduledDowngrade().pipe(
+      catchError((error) => {
+        const errorMsg = error.error?.message || 'Failed to load scheduled downgrade info.';
+        this.messagesService.showError('Load Failed', errorMsg);
+        return EMPTY;
+      }),
+      finalize(() => {
+        this.isLoadingScheduledDowngrade.set(false);
+      })
+    ).subscribe({
+      next: (info) => {
+        this.scheduledDowngrade.set(info);
+      }
+    });
+  }
+
+  onCancelScheduledDowngrade(event: Event): void {
+    event.preventDefault();
+
+    if (this.isCancellingScheduledDowngrade()) {
+      return;
+    }
+
+    this.isCancellingScheduledDowngrade.set(true);
+
+    this.usersService.cancelScheduledDowngrade().pipe(
+      catchError((error) => {
+        const errorMsg = error.error?.message || 'Failed to cancel scheduled downgrade.';
+        this.messagesService.showError('Cancel Failed', errorMsg);
+        return EMPTY;
+      }),
+      finalize(() => {
+        this.isCancellingScheduledDowngrade.set(false);
+      })
+    ).subscribe({
+      next: (response) => {
+        if (response?.cancelled) {
+          this.messagesService.showInfo('Scheduled Downgrade', 'Scheduled downgrade has been cancelled.');
+        } else {
+          this.messagesService.showWarning('Scheduled Downgrade', 'No scheduled downgrade found.');
+        }
+        this.loadScheduledDowngrade();
+      }
+    });
+  }
+
+  formatScheduledDowngrade(info: ScheduledPlanDowngradeInfoDto | null): string {
+    if (!info?.hasScheduledDowngrade) {
+      return 'None';
+    }
+
+    const targetPlan = info.newPlanPrice || 'selected plan';
+    const executionDate = info.executionTime ? new Date(info.executionTime).toLocaleString() : 'scheduled time';
+
+    return `To ${targetPlan} at ${executionDate}`;
   }
 
   onConnectGoogle(): void {

@@ -20,6 +20,10 @@ export class GlobalErrorHandler implements ErrorHandler {
          messagesService.showError(message);
       }
       return;
+    } else if (error?.message) {
+      const messagesService = this.injector.get(MessagesService);
+      messagesService.showError(error.message);
+      return;
     }
     throw error; 
   }

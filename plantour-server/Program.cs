@@ -212,26 +212,8 @@ try
         });
     });
 
-    var enableCronTickers = builder.Configuration.GetValue<bool?>("TickerQ:EnableCronTickers") ?? true;
-    var enableTimeTickers = builder.Configuration.GetValue<bool?>("TickerQ:EnableTimeTickers") ?? true;
 
-    if (enableCronTickers)
-    {
-        builder.Services.AddSingleton<TickerQRecurringTasksScheduler>();
-    }
-    else
-    {
-        Serilog.Log.Information("TickerQ recurring cron task seeding is disabled by configuration (TickerQ:EnableCronTickers=false).");
-    }
-
-    if (enableTimeTickers)
-    {
-        builder.Services.AddHostedService<TickerQDemoTaskScheduler>();
-    }
-    else
-    {
-        Serilog.Log.Information("TickerQ time task seeding is disabled by configuration (TickerQ:EnableTimeTickers=false).");
-    }
+    builder.Services.AddSingleton<TickerQRecurringTasksScheduler>();
 
     // Configure JWT Authentication
     builder.Services.AddAuthentication(options =>
@@ -497,12 +479,9 @@ try
     app.UseAuthorization();
     app.UseTickerQ();
 
-    if (enableCronTickers)
-    {
-        using var cronSyncScope = app.Services.CreateScope();
-        var recurringTasksScheduler = cronSyncScope.ServiceProvider.GetRequiredService<TickerQRecurringTasksScheduler>();
-        await recurringTasksScheduler.StartAsync(CancellationToken.None);
-    }
+    using var cronSyncScope = app.Services.CreateScope();
+    var recurringTasksScheduler = cronSyncScope.ServiceProvider.GetRequiredService<TickerQRecurringTasksScheduler>();
+    await recurringTasksScheduler.StartAsync(CancellationToken.None);
 
     app.MapControllers();
 

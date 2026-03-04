@@ -38,7 +38,14 @@ export interface TokenRequestDto {
   refreshToken: string;
 };
 
-
+export interface ScheduledPlanDowngradeInfoDto {
+  hasScheduledDowngrade: boolean;
+  jobId?: string | null;
+  createdAt?: string | null;
+  executionTime?: string | null;
+  oldPlanPrice?: string | null;
+  newPlanPrice?: string | null;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -61,7 +68,7 @@ export class UsersService {
 
   userSignal = this._userSignal.asReadonly();
 
-  userBillingPeriodStartSignal = computed(() => {
+  userBillingPeriodStartSignal = computed<Date | null>(() => {
     const user = this._userSignal();
     if (!user) return null;
     const result = user['billing_period_start'];
@@ -70,17 +77,17 @@ export class UsersService {
       return null;
     }
 
-    return `${new Date(result).toLocaleDateString()}`;
+    return new Date(result);
   });
 
-  userBillingPeriodEndSignal = computed(() => { 
+  userBillingPeriodEndSignal = computed<Date | null>(() => { 
     const user = this._userSignal();
     if (!user) return null;
     const result = user['billing_period_end'];
     if (!result) {
       return null;
     }
-    return `${new Date(result).toLocaleDateString()}`;
+    return new Date(result);
   });
 
 
@@ -319,10 +326,18 @@ export class UsersService {
   }
 
   downgradePlanPrice(oldPlanPrice: string, newPlanPrice: string): Observable<{ updated: boolean }> {
-    return this.http.put<{ updated: boolean }>(`${this.apiUrl}/api/users/downgrade-plan-price`, {
+    return this.http.put<{ updated: boolean }>(`${this.apiUrl}/api/users/downgrade-plan-price/schedule`, {
       oldPlanPrice,
       newPlanPrice
     });
+  }
+
+  getScheduledDowngrade(): Observable<ScheduledPlanDowngradeInfoDto> {
+    return this.http.get<ScheduledPlanDowngradeInfoDto>(`${this.apiUrl}/api/users/downgrade-plan-price/scheduled`);
+  }
+
+  cancelScheduledDowngrade(): Observable<{ cancelled: boolean }> {
+    return this.http.delete<{ cancelled: boolean }>(`${this.apiUrl}/api/users/downgrade-plan-price/scheduled`);
   }
 
   upgradePlanPrice(oldPlanPrice: string, newPlanPrice: string): Observable<{ updated: boolean }> {
