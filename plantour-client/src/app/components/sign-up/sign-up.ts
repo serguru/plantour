@@ -91,9 +91,17 @@ export class SignUpComponent {
         this.isLoading = false;
       })
     ).subscribe({
-      next: () => {
-        this.messagesService.showInfo('Sign Up Successful', 'Check your email to confirm your account before signing in.');
-        this.router.navigate(['/sign-in']);
+      next: (response) => {
+
+        if (response?.code === 'EMAIL_CONFIRMATION_REQUIRED') {
+          this.messagesService.showInfo('Sign Up Successful', 'Check your email to confirm your account before signing in.');
+          this.router.navigate(['/sign-in']);
+          return;
+        }
+
+        this.messagesService.showInfo('Sign Up Successful', 'Enjoy Plantour!');
+        this.router.navigate(['/dashboard']);
+
       }
     });
   }

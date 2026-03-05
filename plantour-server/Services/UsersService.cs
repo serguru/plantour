@@ -78,6 +78,7 @@ public class UsersService(
 
     public async Task<AuthResponse> SignUpAsync(SignUpRequest request)
     {
+
         User? user = await _usersRepository.GetByEmailAsync(request.Email);
 
         if (user != null && user.PasswordHash != null)
@@ -111,7 +112,15 @@ public class UsersService(
             user.PasswordSalt = passwordSalt;
         }
 
-        user.AccessTypeId = await _accessTypeRepository.GetPendingId();
+        bool needEmailConfirmation = user.GoogleSub == null && user.FacebookUserId == null;
+
+        if (needEmailConfirmation)
+        {
+            var subscription = await _paddleService.GetActiveSubscriptionByEmailAsync(request.Email);
+            needEmailConfirmation = subscription == null;
+        }
+
+        user.AccessTypeId = needEmailConfirmation ? await _accessTypeRepository.GetPendingId() : await _accessTypeRepository.GetActiveId();
 
         if (newUser)
         {
@@ -122,7 +131,11 @@ public class UsersService(
             await _usersRepository.UpdateAsync(user);
         }
 
-        // var emailToken = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(user);
+        if (!needEmailConfirmation)
+        {
+            return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
+        }
+
         await _emailConfirmationService.SendConfirmationEmailAsync(user);
 
         return new AuthResponse
@@ -742,6 +755,13 @@ public class UsersService(
 
         if (linkedUser != null)
         {
+            if (string.Equals(linkedUser.AccessType?.Name, "Pending", StringComparison.OrdinalIgnoreCase))
+            {
+                linkedUser.AccessTypeId = await _accessTypeRepository.GetActiveId();
+                await _usersRepository.UpdateAsync(linkedUser);
+                await _confirmationRepository.DeleteRangeAsync(x => x.UserId == linkedUser.Id);
+            }
+
             EnsureUserCanSignIn(linkedUser);
             return linkedUser;
         }
@@ -771,6 +791,7 @@ public class UsersService(
             if (string.Equals(emailUser.AccessType?.Name, "Pending", StringComparison.OrdinalIgnoreCase))
             {
                 emailUser.AccessTypeId = await _accessTypeRepository.GetActiveId();
+                await _confirmationRepository.DeleteRangeAsync(x => x.UserId == emailUser.Id);
             }
 
             await _usersRepository.UpdateAsync(emailUser);

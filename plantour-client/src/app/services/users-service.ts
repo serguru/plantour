@@ -80,7 +80,7 @@ export class UsersService {
     return new Date(result);
   });
 
-  userBillingPeriodEndSignal = computed<Date | null>(() => { 
+  userBillingPeriodEndSignal = computed<Date | null>(() => {
     const user = this._userSignal();
     if (!user) return null;
     const result = user['billing_period_end'];
@@ -112,7 +112,7 @@ export class UsersService {
     const now = Math.floor(Date.now() / 1000);
     const role = this.getRole();
     const user = this._userSignal();
-//    if (!user || !user.exp || user.exp <= now || ['Admin', 'Participant'].indexOf(role ?? '') === -1) {
+    //    if (!user || !user.exp || user.exp <= now || ['Admin', 'Participant'].indexOf(role ?? '') === -1) {
     if (!user || ['Admin', 'Participant'].indexOf(role ?? '') === -1) {
       return false;
     }
@@ -252,7 +252,14 @@ export class UsersService {
   }
 
   registerAdmin(data: SignUpRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/signup`, data);
+    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/signup`, data)
+      .pipe(
+        tap((r: AuthResponse) => {
+          if (r.code == "ACCESS_OK") {
+            this.applyAuthResponse(r);
+          }
+        })
+      );
   }
 
   registerParticipant(data: SignUpParticipantRequest): Observable<any> {
@@ -270,7 +277,7 @@ export class UsersService {
           this.writeRefreshToken(null);
           this.localStorageService.setComponentKey('trips', 'selectedId', r.currentTripId);
           this.localStorageService.setItem('toolbar-showTripText', true);
-//          this.currentTripService.updateCurrentTripVisible(true);
+          //          this.currentTripService.updateCurrentTripVisible(true);
         }));
   }
 

@@ -11,10 +11,14 @@ public interface IPaddleService
     Task<PaddleSubscription?> GetActiveSubscriptionByUserAsync(User user, UserRole role, Guid adminId);
     Task<PaddleSubscription?> GetActiveSubscriptionByUserIdAsync(Guid userId, UserRole role, Guid adminId);
 
-    Task<string?> GetSubscriptionIdAsync(PaddleSubscriptionIdRequest request);
+    Task<PaddleSubscription?> GetActiveSubscriptionByEmailAsync(string email);
+
+    Task<string?> GetActiveSubscriptionIdAsync(PaddleSubscriptionIdRequest request);
     Task<PortalSessionResponse> CreateCustomerPortalSessionAsync();
 
     Task<IEnumerable<PaddleProduct>?> GetActiveProductsAsync();
     Task UpgradePlanPriceAsync(string oldPlanPrice, string newPlanPrice);
     Task DowngradePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice);
+    Task<string?> GetActiveCustomerIdByEmailAsync(string email);
+    Task<string?> GetActiveCustomerEmailByIdAsync(PaddleCustomerEmailRequest request);
 }
