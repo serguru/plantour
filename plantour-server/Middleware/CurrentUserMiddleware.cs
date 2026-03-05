@@ -51,7 +51,7 @@ public class CurrentUserMiddleware
                     currentUser.AccessTypeId = user.AccessTypeId;
                     currentUser.PaddleSubscriptionId = user.PaddleSubscriptionId;
                     currentUser.AccessTypeName = user.AccessType?.Name;
-                    currentUser.PriceEnumId = (PlanPrice?)user.PriceEnumId;
+                    //currentUser.PriceEnumId = (PlanPrice?)user.PriceEnumId;
                     currentUser.EmailConfirmed = await emailConfirmationService.IsEmailConfirmedAsync(user.Id);
                 }
                 else

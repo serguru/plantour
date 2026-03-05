@@ -403,7 +403,7 @@ public class PaddleService : IPaddleService
             if (!string.IsNullOrWhiteSpace(admin.PaddleSubscriptionId))
             {
                 admin.PaddleSubscriptionId = null;
-                admin.PriceEnumId = (int)PlanPrice.Starter;
+                //admin.PriceEnumId = (int)PlanPrice.Starter;
                 await _usersRepository.UpdateAsync(admin);
             }
             return null;
@@ -412,7 +412,7 @@ public class PaddleService : IPaddleService
         if (admin.PaddleSubscriptionId != subscription!.Id)
         {
             admin.PaddleSubscriptionId = subscription!.Id;
-            admin.PriceEnumId = null;
+            //admin.PriceEnumId = null;
             await _usersRepository.UpdateAsync(admin);
         }
 

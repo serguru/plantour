@@ -13,7 +13,12 @@
     </p>
 
     <div class="actions">
+      @if(showSignIn) {
       <app-button label="Go to sign in" (click)="goToSignIn()"></app-button>
+      }
+      @if(showSignUp) {
+      <app-button label="Go to sign up" (click)="goToSignUp()"></app-button>
+      }
     </div>
   </div>
 </div>

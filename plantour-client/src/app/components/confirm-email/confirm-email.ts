@@ -24,12 +24,15 @@ export class ConfirmEmailComponent implements OnInit {
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
 
+  showSignIn = false;
+  showSignUp = false;
+
   ngOnInit(): void {
     const userId = this.route.snapshot.queryParamMap.get('userId');
     const token = this.route.snapshot.queryParamMap.get('token');
 
     if (!userId || !token) {
-      this.errorMessage = 'Invalid confirmation link.';
+      this.errorMessage = 'Invalid confirmation link';
       return;
     }
 
@@ -43,17 +46,24 @@ export class ConfirmEmailComponent implements OnInit {
         this.confirmed = result.confirmed === true;
         if (this.confirmed) {
           this.messagesService.showInfo('Email confirmed', 'You can now sign in.');
+          this.showSignIn = true;
         } else {
-          this.errorMessage = 'Confirmation failed. The link may be expired.';
+          this.errorMessage = 'Confirmation failed. The link may be expired. Please try to sign up one more time.';
+          this.showSignUp = true;
         }
       },
       error: () => {
-        this.errorMessage = 'Confirmation failed. The link may be expired.';
+        this.errorMessage = 'Confirmation failed. The link may be expired. Please try to sign up one more time.';
+        this.showSignUp = true;
       }
     });
   }
 
   goToSignIn(): void {
     this.router.navigate(['/sign-in']);
+  }
+
+  goToSignUp(): void {
+    this.router.navigate(['/sign-up']);
   }
 }

@@ -106,7 +106,7 @@ public class TemporaryUserService : ITemporaryUserService
             PasswordSalt = null,
             CreatedAt = DateTime.UtcNow,
             Notes = "Automatically created temporary user",
-            PriceEnumId = (int)PlanPrice.Guest,
+            //PriceEnumId = (int)PlanPrice.Guest,
             AccessTypeId = await _accessTypeRepository.GetActiveId()
         };
 

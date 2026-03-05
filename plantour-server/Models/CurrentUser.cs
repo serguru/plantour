@@ -40,18 +40,27 @@ public class CurrentUser
             throw new CustomException("User is not authenticated or the role is invalid");
         }
     }   
+
+    public bool IsActive {
+        get
+        {
+            if (AccessTypeName == null) return false;
+            return AccessTypeName.Equals("Active");
+        }
+    }
+
     public void RaiseIfNotAdmin()
     {
-        if (!IsAdmin || !IsAuthenticated)
+        if (!IsAdmin || !IsAuthenticated || !IsActive)
         {
-            throw new CustomException("User is not admin");
+            throw new CustomException("User is not admin or the account is not active");
         }
     }   
     public void RaiseIfNotParticipant()
     {
-        if (!IsParticipant || !IsAuthenticated)
+        if (!IsParticipant || !IsAuthenticated || !IsActive)
         {
-            throw new CustomException("User is not participant");
+            throw new CustomException("User is not participant or the account is not active");
         }
     }   
 }

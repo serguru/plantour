@@ -50,9 +50,6 @@ public partial class User
     [Column("access_type_id")]
     public Guid AccessTypeId { get; set; }
 
-    [Column("price_enum_id")]
-    public int? PriceEnumId { get; set; }
-
     [Column("paddle_subscription_id")]
     public string? PaddleSubscriptionId { get; set; }
 
@@ -71,10 +68,6 @@ public partial class User
 
     [InverseProperty("User")]
     public virtual ICollection<AiPrompt> AiPrompts { get; set; } = new List<AiPrompt>();
-
-    [ForeignKey("PriceEnumId")]
-    [InverseProperty("Users")]
-    public virtual Price? PriceEnum { get; set; }
 
     [InverseProperty("User")]
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();

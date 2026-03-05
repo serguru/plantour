@@ -47,6 +47,7 @@ public class UsersService(
     RefreshTokenRepository refreshTokenRepository,
     TimeTickerRepository timeTickerRepository,
     IPaddleService paddleService,
+    UserEmailConfirmationRepository confirmationRepository,
     IOptions<SocialAuthSettings> socialAuthSettings) : IUsersService
 {
     private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
@@ -71,13 +72,15 @@ public class UsersService(
     private readonly UserEmailConfirmationRepository _userEmailConfirmationRepository = userEmailConfirmationRepository;
     private readonly IConfiguration _configuration = configuration;
     private readonly IWebHostEnvironment _environment = environment;
+    private readonly UserEmailConfirmationRepository _confirmationRepository = confirmationRepository;
 
     #region Admin Authentication
 
     public async Task<AuthResponse> SignUpAsync(SignUpRequest request)
     {
-        // Check if user already exists
-        if (await _usersRepository.GetByEmailAsync(request.Email) != null)
+        User? user = await _usersRepository.GetByEmailAsync(request.Email);
+
+        if (user != null && user.PasswordHash != null)
         {
             throw new CustomException("User with this email already exists");
         }
@@ -85,23 +88,42 @@ public class UsersService(
         // Create password hash
         CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-        // Create new user
-        var user = new User
+        bool newUser = user == null;
+
+        if (newUser)
         {
-            Email = request.Email,
-            PasswordHash = passwordHash,
-            PasswordSalt = passwordSalt,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Phone = request.Phone,
-            AccessTypeId = await _accessTypeRepository.GetPendingId(),
-            PriceEnumId = (int?)PlanPrice.NoPlan
-        };
+            user = new User
+            {
+                Email = request.Email,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Phone = request.Phone
+            };
+        }
+        else
+        {
+            user!.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+            user.Phone = request.Phone;
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
+        }
 
-        await _usersRepository.AddAsync(user);
+        user.AccessTypeId = await _accessTypeRepository.GetPendingId();
 
-        var emailToken = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(user);
-        await _emailConfirmationService.SendConfirmationEmailAsync(user, emailToken);
+        if (newUser)
+        {
+            await _usersRepository.AddAsync(user);
+        }
+        else
+        {
+            await _usersRepository.UpdateAsync(user);
+        }
+
+        // var emailToken = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(user);
+        await _emailConfirmationService.SendConfirmationEmailAsync(user);
 
         return new AuthResponse
         {
@@ -110,21 +132,18 @@ public class UsersService(
             EmailConfirmationRequired = true,
             StatusCode = 200,
             Code = "EMAIL_CONFIRMATION_REQUIRED",
-            Message = "Please confirm your email address."
+            Message = "Please confirm your email address"
         };
     }
 
     public async Task<AuthResponse> SignInAsync(SignInRequest request)
     {
-        // Find user
         var user = await _usersRepository.GetByEmailAsync(request.Email);
-
         if (user == null || user.PasswordHash == null || user.PasswordSalt == null)
         {
             throw new UnauthorizedException("Wrong email or password", "NO_ACCESS");
         }
 
-        // Verify password
         if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
         {
             throw new UnauthorizedException("Wrong email or password", "NO_ACCESS");
@@ -133,29 +152,28 @@ public class UsersService(
         var accessTypeName = user.AccessType?.Name;
         if (string.Equals(accessTypeName, "Active", StringComparison.OrdinalIgnoreCase))
         {
-            return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, null, "Welcome back to Plantour");
+            return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome back to Plantour");
         }
 
         if (string.Equals(accessTypeName, "Pending", StringComparison.OrdinalIgnoreCase))
         {
             var confirmation = await _userEmailConfirmationRepository.GetByUserIdAsync(user.Id);
 
-            if (confirmation == null)
+            if (confirmation == null || confirmation.ExpiresAt <= DateTime.UtcNow)
             {
-                var token = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(user);
-                await _emailConfirmationService.SendConfirmationEmailAsync(user, token);
-                throw new ForbiddenException("Please go to the email we sent to you and click on the link to confirm your email address", "NO_ACCESS");
+                await _emailConfirmationService.SendConfirmationEmailAsync(user);
+                throw new CustomException("Please go to the email we sent to you and click on the link to confirm your email address", "NO_ACCESS");
             }
 
             if (confirmation.ConfirmedAt == null)
             {
-                throw new ForbiddenException("Please go to the email we sent to you and click on the link to confirm your email address", "NO_ACCESS");
+                throw new CustomException("Please go to the email we sent to you and click on the link to confirm your email address", "NO_ACCESS");
             }
 
             user.AccessTypeId = await _accessTypeRepository.GetActiveId();
             await _usersRepository.UpdateAsync(user);
 
-            return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, null, "Welcome to Plantour");
+            return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
         }
 
         throw new ForbiddenException(GetAccessStatusMessage(accessTypeName), "NO_ACCESS");
@@ -310,8 +328,7 @@ public class UsersService(
                 PasswordHash = null,
                 PasswordSalt = null,
                 Notes = $"Registered by admin {_currentUser.Email} on {DateTime.UtcNow}",
-                AccessTypeId = await _accessTypeRepository.GetActiveId(),
-                PriceEnumId = (int)PlanPrice.Starter
+                AccessTypeId = await _accessTypeRepository.GetActiveId()
             };
             await _usersRepository.AddAsync(participant);
         }
@@ -319,6 +336,11 @@ public class UsersService(
         if (await _adminsParticipantRepository.AnyAsync(x => x.AdminId == _currentUser.AdminId && x.ParticipantId == participant.Id))
         {
             throw new CustomException("Participant with this email is already registered under your admin account");
+        }
+
+        if (participant.AccessType?.Name != "Active")
+        {
+            throw new CustomException("Cannot sign up participant. The participant account is not active.");
         }
 
         Tuple<string, string> accessCodeResult = await _adminsParticipantService.GenerateAccessCodeAsync();
@@ -343,11 +365,11 @@ public class UsersService(
 
         await _adminsParticipantRepository.AddAsync(adminParticipant);
 
-        var r = await CreateAuthResponseAsync(participant, UserRole.Participant, _currentUser.AdminId, null, "Welcome to Plantour");
+        var r = await CreateAuthResponseAsync(participant, UserRole.Participant, _currentUser.AdminId, "Welcome to Plantour");
 
         await _invitationService.SendInvitationEmailByIdAsync(adminParticipant.Id, accessCode, r.AccessToken);
 
-        var baseUrl = _configuration["InvitationAccess:BaseUrl"];
+        //var baseUrl = _configuration["InvitationAccess:BaseUrl"];
 
         AdminsParticipantDto result = _mapper.Map<AdminsParticipantDto>(adminParticipant);
 
@@ -377,7 +399,7 @@ public class UsersService(
             throw new ForbiddenException("The account suspended (or banned or archived or pending)", "NO_ACCESS");
         }
 
-        return await CreateAuthResponseAsync(participant, UserRole.Participant, admin.Id, null, "Welcome back to Plantour");
+        return await CreateAuthResponseAsync(participant, UserRole.Participant, admin.Id, "Welcome back to Plantour");
     }
 
     #endregion
@@ -412,7 +434,7 @@ public class UsersService(
     //     }
     // }
 
-    public async Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request, CancellationToken cancellationToken = default)
+    public async Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request)
     {
         var user = await _usersRepository.GetByEmailAsync(request.Email);
         if (user == null)
@@ -425,8 +447,7 @@ public class UsersService(
             return;
         }
 
-        var token = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(user);
-        await _emailConfirmationService.SendConfirmationEmailAsync(user, token, cancellationToken);
+        await _emailConfirmationService.SendConfirmationEmailAsync(user);
     }
 
     public async Task<bool> ConfirmEmailAsync(ConfirmEmailRequest request)
@@ -439,7 +460,8 @@ public class UsersService(
     #region Token Generation
 
     // TODO: it is necessary to truncate old refresh tokens in the DB
-    private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? ipAddress, string? message)
+    // The user exists in the DB
+    private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? message)
     {
         AccessTokenResult accessToken = await _tokenService.CreateAccessToken(user, role, adminId);
         RefreshToken refreshTokenObject = await _tokenService.GenerateRefreshToken(user.Id);
@@ -615,7 +637,7 @@ public class UsersService(
             provider: "google",
             providerUserId: identity.ProviderUserId);
 
-        return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, null, "Welcome to Plantour");
+        return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
     }
 
     private async Task<AuthResponse> SignInWithFacebookAsync(string? facebookAccessToken)
@@ -629,7 +651,7 @@ public class UsersService(
             provider: "facebook",
             providerUserId: identity.ProviderUserId);
 
-        return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, null, "Welcome to Plantour");
+        return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
     }
 
     private async Task<SocialIdentity> VerifyGoogleTokenAsync(string? googleIdToken)
@@ -764,7 +786,7 @@ public class UsersService(
             FirstName = firstName,
             LastName = lastName,
             AccessTypeId = await _accessTypeRepository.GetActiveId(),
-            PriceEnumId = (int?)PlanPrice.Starter,
+            //PriceEnumId = (int?)PlanPrice.Starter,
             GoogleSub = provider == "google" ? providerUserId : null,
             FacebookUserId = provider == "facebook" ? providerUserId : null
         };
@@ -900,7 +922,7 @@ public class UsersService(
         if (user == null)
         {
             throw new CustomException("Active user not found while refreshing token", "REFRESH_TOKEN_FAILED");
-        }   
+        }
 
         var existingRefreshTokens = await _refreshTokenRepository.FindAsync(rt => rt.UserId == userId && rt.Token == Guid.Parse(request.RefreshToken));
 
@@ -989,6 +1011,8 @@ public class UsersService(
             TickerQPlanDowngradeTask.FunctionName,
             initIdentifier);
     }
+
+
 
 }
 

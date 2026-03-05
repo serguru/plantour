@@ -40,8 +40,7 @@ public class BrevoEmailClient : IBrevoEmailClient
         string? toName,
         string subject,
         string htmlContent,
-        string? textContent = null,
-        CancellationToken cancellationToken = default)
+        string? textContent = null)
     {
         if (string.IsNullOrWhiteSpace(_settings.ApiKey)
             || string.IsNullOrWhiteSpace(_settings.SenderEmail)
@@ -50,10 +49,12 @@ public class BrevoEmailClient : IBrevoEmailClient
             throw new CustomException("Brevo settings are not configured");
         }
 
+        toName = string.IsNullOrWhiteSpace(toName?.Trim()) ? toEmail : toName.Trim();
+
         var payload = new
         {
             sender = new { name = _settings.SenderName, email = _settings.SenderEmail },
-            to = new[] { new { email = toEmail, name = toName ?? string.Empty } },
+            to = new[] { new { email = toEmail, name = toName } },
             subject,
             htmlContent,
             textContent = string.IsNullOrWhiteSpace(textContent) ? htmlContent : textContent
@@ -64,8 +65,8 @@ public class BrevoEmailClient : IBrevoEmailClient
             Content = new StringContent(JsonSerializer.Serialize(payload, _jsonOptions), Encoding.UTF8, "application/json")
         };
 
-        using var response = await _httpClient.SendAsync(request, cancellationToken);
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+        using var response = await _httpClient.SendAsync(request);
+        var responseContent = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
         {

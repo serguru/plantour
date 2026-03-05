@@ -247,11 +247,10 @@ create table plantour.plans (
     created_at timestamp not null default (now() at time zone 'utc')
 );
 insert into plantour.plans (name, paddle_product_id, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
-('NoPlan', null, 'For users having no plan', false, 0, 0, 0, false),
 ('Guest', null, 'To get acquainted with Plantour', false, 10, 2, 2, false),
 ('Starter', null, 'For small trips and light packers', true, 10, 2, 5, false),
-('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, null, 5, 20, false),
-('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, null, null, 100, true);
+('Family', 'pro_01kjxac2mxwrnd4mxbg1mcrvzj', 'Perfect for families and small groups', true, null, 5, 20, false),
+('Expedition', 'pro_01kjxacxntgw124n3qt7wkpz0b', 'Ideal for large groups and expeditions', true, null, null, 100, true);
 
 create table plantour.prices (
     id uuid primary key default gen_random_uuid(),
@@ -265,51 +264,44 @@ create table plantour.prices (
 insert into plantour.prices (paddle_price_id,plan_id,name,price_enum_id,value_cents) values
 (
     null,
-    (select id from plantour.plans where name = 'NoPlan'),
-    'No Plan Free',
-    1,
-    0
-),
-(
-    null,
     (select id from plantour.plans where name = 'Guest'),
     'Guest Free',
-    2,
+    1,
     0
 ),
 (
     null,
     (select id from plantour.plans where name = 'Starter'),
     'Starter Free',
-    3,
+    2,
     0
 ),
 (
-    'pri_01khvsx5szpnfqd97c6sdv3e2w',
+    'pri_01kjxay8cfnq6d29b7mrxxp97f',
     (select id from plantour.plans where name = 'Family'),
     'Family Monthly',
-    4,
+    3,
     499
 ),
 (
-    'pri_01khvsg62zpjhh6qbmc5sfmkm3',
+    'pri_01kjxanhwzg54p8sng4z0q2xj4',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Monthly',
-    5,
+    4,
     1499
 ),
 (
-    'pri_01khvsyg17b43cm5kf0t63zfnr',
+    'pri_01kjxazjmygtm2wfd6zz5aykrb',
     (select id from plantour.plans where name = 'Family'),
     'Family Yearly',
-    6,
+    5,
     2999
 ),
 (
-    'pri_01khvspsgmrkcggdxxtksbzy88',
+    'pri_01kjxaqr1pc1pjjg0xm10wr1we',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Yearly',
-    7,
+    6,
     8999
 );
 
@@ -330,14 +322,7 @@ create table users (
     notes text,
     created_at timestamp not null default (now() at time zone 'utc'),
     access_type_id uuid not null references access_types(id),
-    price_enum_id int null references plantour.prices(price_enum_id),
-    paddle_subscription_id text unique,
-
-    constraint ch_users_enum_subscription check (
-        (price_enum_id is not null and price_enum_id between 1 and 3 and paddle_subscription_id is null)
-        or 
-        (price_enum_id is null and paddle_subscription_id is not null)
-    )
+    paddle_subscription_id text unique
 );
 
 create or replace function plantour.prevent_user_email_update()
@@ -559,6 +544,7 @@ create table user_email_confirmations (
     id uuid not null primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
     created_at timestamp not null default (now() at time zone 'utc'),
+    expires_at timestamp not null default (now() at time zone 'utc'),
     confirmed_at timestamp null,
     last_sent_at timestamp null
 );
@@ -740,20 +726,6 @@ create table plantour.settings (
 
 insert into plantour.settings (key, value, value_type)
 values 
-    -- ('guest_plan_name', 'Guest', 'string'),
-    -- ('trial_plan_name', 'Starter', 'string'),
-    -- ('base_plan_name', 'Family', 'string'),
-    -- ('pro_plan_name', 'Expedition', 'string'),
-
-    -- ('base_monthly_price_url', 'pri_01khvsx5szpnfqd97c6sdv3e2w', 'string'),
-    -- ('base_yearly_price_url', 'pri_01khvsyg17b43cm5kf0t63zfnr', 'string'),
-    -- ('pro_monthly_price_url', 'pri_01khvsg62zpjhh6qbmc5sfmkm3', 'string'),
-    -- ('pro_yearly_price_url', 'pri_01khvspsgmrkcggdxxtksbzy88', 'string'),
-
-    -- ('base_plan_monthly_cents', '499', 'integer'),
-    -- ('base_plan_yearly_cents', '2999', 'integer'),
-    -- ('pro_plan_monthly_cents', '1499', 'integer'),
-    -- ('pro_plan_yearly_cents', '8999', 'integer'),
     ('user_email_confirmation_url', 'http://localhost:4203/confirm-email', 'string'),
     ('guest_plan_duration_days', '14', 'integer'),
     ('email_confirmation_token_minutes', '60',  'integer'),

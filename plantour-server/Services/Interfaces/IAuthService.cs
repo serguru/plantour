@@ -17,7 +17,7 @@ public interface IUsersService
     //Task<bool> ValidateTokenAsync(string token);
 
     // Email confirmation
-    Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request, CancellationToken cancellationToken = default);
+    Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request);
     Task<bool> ConfirmEmailAsync(ConfirmEmailRequest request);
 
     // Profile management
@@ -34,6 +34,4 @@ public interface IUsersService
     Task<ScheduledPlanDowngradeInfoDto> GetScheduledPlanDowngradeInfoAsync();
 
     Task<bool> CancelScheduledPlanDowngradeAsync();
-
-
 }

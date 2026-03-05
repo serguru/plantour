@@ -54,11 +54,11 @@ public class GenericRepository<T> where T : class
         }
     }
 
-    public virtual async Task<int> DeleteRangeAsync(Expression<Func<T, bool>> predicate, CancellationToken token)
+    public virtual async Task<int> DeleteRangeAsync(Expression<Func<T, bool>> predicate)
     {
         int totalDeleted = await _dbSet
                 .Where(predicate)
-                .ExecuteDeleteAsync(token);
+                .ExecuteDeleteAsync();
         return totalDeleted;                
     }
 

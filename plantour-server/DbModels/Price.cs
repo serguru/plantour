@@ -34,7 +34,4 @@ public partial class Price
     [ForeignKey("PlanId")]
     [InverseProperty("Prices")]
     public virtual Plan Plan { get; set; } = null!;
-
-    [InverseProperty("PriceEnum")]
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

@@ -20,6 +20,9 @@ public partial class UserEmailConfirmation
     [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }
 
+    [Column("expires_at", TypeName = "timestamp without time zone")]
+    public DateTime ExpiresAt { get; set; }
+
     [Column("confirmed_at", TypeName = "timestamp without time zone")]
     public DateTime? ConfirmedAt { get; set; }
 

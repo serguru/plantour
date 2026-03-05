@@ -17,8 +17,8 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
     {
         return await _dbSet
             .Include(x => x.AccessType)
-            .Include(x => x.PriceEnum)
-                .ThenInclude(x => x != null ? x.Plan : null)
+            // .Include(x => x.PriceEnum)
+            //     .ThenInclude(x => x != null ? x.Plan : null)
             .FirstOrDefaultAsync(x => x.Id == id && x.AccessType.Name.ToLower() == "active");
     }
 
@@ -26,8 +26,8 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
     {
         return await _dbSet
             .Include(x => x.AccessType)
-            .Include(x => x.PriceEnum)
-                .ThenInclude(x => x != null ? x.Plan : null)
+            // .Include(x => x.PriceEnum)
+            //     .ThenInclude(x => x != null ? x.Plan : null)
             .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
     }
 
@@ -35,8 +35,8 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
     {
         return await _dbSet
             .Include(x => x.AccessType)
-            .Include(x => x.PriceEnum)
-                .ThenInclude(x => x != null ? x.Plan : null)
+            // .Include(x => x.PriceEnum)
+            //     .ThenInclude(x => x != null ? x.Plan : null)
             .FirstOrDefaultAsync(u => u.Id == userId);
     }
 
@@ -44,8 +44,8 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
     {
         return await _dbSet
             .Include(x => x.AccessType)
-            .Include(x => x.PriceEnum)
-                .ThenInclude(x => x != null ? x.Plan : null)
+            // .Include(x => x.PriceEnum)
+            //     .ThenInclude(x => x != null ? x.Plan : null)
             .FirstOrDefaultAsync(u => u.GoogleSub != null && u.GoogleSub == googleSub);
     }
 
@@ -53,8 +53,8 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
     {
         return await _dbSet
             .Include(x => x.AccessType)
-            .Include(x => x.PriceEnum)
-                .ThenInclude(x => x != null ? x.Plan : null)
+            // .Include(x => x.PriceEnum)
+            //     .ThenInclude(x => x != null ? x.Plan : null)
             .FirstOrDefaultAsync(u => u.FacebookUserId != null && u.FacebookUserId == facebookUserId);
     }
 

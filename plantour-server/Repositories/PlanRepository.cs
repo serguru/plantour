@@ -166,12 +166,6 @@ public class PlanRepository : GenericRepository<Plan>
         };
     }
 
-    public async Task<Guid> GetNoPlanId()
-    {
-        var plan = await GetByNameAsync("NoPlan");
-        return plan?.Id ?? throw new InvalidOperationException("NoPlan not found");
-    }
-
     public async Task<Plan?> GetByPriceIdAsync(string priceId)
     {
         if (string.IsNullOrWhiteSpace(priceId))

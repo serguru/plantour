@@ -446,11 +446,6 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.AccessType).WithMany(p => p.Users)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("users_access_type_id_fkey");
-
-            entity.HasOne(d => d.PriceEnum).WithMany(p => p.Users)
-                .HasPrincipalKey(p => p.PriceEnumId)
-                .HasForeignKey(d => d.PriceEnumId)
-                .HasConstraintName("users_price_enum_id_fkey");
         });
 
         modelBuilder.Entity<UserEmailConfirmation>(entity =>
@@ -459,6 +454,7 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.ExpiresAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.User).WithOne(p => p.UserEmailConfirmation).HasConstraintName("user_email_confirmations_user_id_fkey");
         });

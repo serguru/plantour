@@ -50,7 +50,7 @@ public class AccessRulesService : IAccessRulesService
         result.AccessRulesObject = a;
         result.UserObject = user;
 
-        result.PriceName = user.PriceEnum!.Name;
+//        result.PriceName = user.PriceEnum!.Name;
 
         result.BillingPeriodStart = null;
         result.BillingPeriodEnd = null;
@@ -97,16 +97,15 @@ public class AccessRulesService : IAccessRulesService
         // In this call the user can be updated, saved to the DB and the updated instance is returned
         var subscription = await _paddleService.GetActiveSubscriptionByUserAsync(user, role, adminId);
 
-
-        var priceName = subscription == null ? user.PriceEnum!.Name : subscription.PriceName;
-        var billingPeriodStart = subscription == null ? null : subscription.BillingPeriodStart;
-        var billingPeriodEnd = subscription == null ? null : subscription.BillingPeriodEnd;
+        //var priceName = subscription == null ? user.PriceEnum!.Name : subscription.PriceName;
+        var billingPeriodStart = subscription?.BillingPeriodStart;
+        var billingPeriodEnd = subscription?.BillingPeriodEnd;
 
         AccessProcessResult result = new()
         {
             AccessRulesObject = await ProcessUser(subscription, role),
             UserObject = user,
-            PriceName = priceName,
+            //PriceName = priceName,
             BillingPeriodStart = billingPeriodStart,
             BillingPeriodEnd = billingPeriodEnd
         };

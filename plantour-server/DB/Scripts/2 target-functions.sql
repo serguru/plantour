@@ -56,16 +56,6 @@ begin
 end;
 $$;
 
--- select plantour.insert_trip_user_packages(
---     '',
---     '',
---     '',
---     array[
---         '',
---         ''
---     ]::uuid[]
--- );
-
 create or replace function plantour.insert_trip_user_packages(
     p_admin_id uuid,
     p_participant_id uuid,

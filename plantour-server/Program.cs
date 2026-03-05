@@ -27,7 +27,6 @@ using plantour_server.Utils;
 using TickerQ.DependencyInjection;
 using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
-using TickerQ.Utilities.Entities;
 using plantour_server.Services.TickerQ;
 
 // TODO: test email confirmation after sign-up
