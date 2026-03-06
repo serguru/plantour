@@ -22,7 +22,6 @@ public class CurrentUser
     public string? BillingPeriodStart { get; set; }
     public string? BillingPeriodEnd { get; set; }
 
-    public bool EmailConfirmed { get; set; }
     public bool IsAuthenticated => Role != null;
     public bool IsAdmin => Role == UserRole.Admin;
     public bool IsParticipant => Role == UserRole.Participant;

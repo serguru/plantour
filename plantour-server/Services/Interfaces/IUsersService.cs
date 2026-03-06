@@ -5,8 +5,7 @@ namespace plantour_server.Services;
 public interface IUsersService
 {
     // Admin authentication
-    Task<AuthResponse> SignUpAsync(SignUpRequest request);
-    Task<AuthResponse> SignInAsync(SignInRequest request);
+    Task SendSignInEmailAdminAsync(SignInRequest request);
     Task<AuthResponse> SignInAdminSocialAsync(SocialSignInRequest request);
 
     // Participant authentication
@@ -16,9 +15,6 @@ public interface IUsersService
     // Token management
     //Task<bool> ValidateTokenAsync(string token);
 
-    // Email confirmation
-    Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request);
-    Task<bool> ConfirmEmailAsync(ConfirmEmailRequest request);
 
     // Profile management
     Task<UserDto> GetProfileAsync();

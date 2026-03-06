@@ -535,18 +535,6 @@ create table trip_comments (
 );
 create index idx_trip_comments_trip_id on trip_comments(trip_id);
 
------------------------------------------------------------------------
--- USER EMAIL CONFIRMATIONS
------------------------------------------------------------------------
-create table user_email_confirmations (
-    id uuid not null primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
-    created_at timestamp not null default (now() at time zone 'utc'),
-    expires_at timestamp not null default (now() at time zone 'utc'),
-    confirmed_at timestamp null,
-    last_sent_at timestamp null
-);
-create unique index idx_user_email_confirmations_user_id on user_email_confirmations(user_id);
 
 create table contact_submissions (
     -- identification

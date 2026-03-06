@@ -33,8 +33,6 @@ public class UsersService(
     SettingsRepository settingsRepository,
     AccessTypeRepository accessTypeRepository,
     ITokenService tokenService,
-    IEmailConfirmationService emailConfirmationService,
-    UserEmailConfirmationRepository userEmailConfirmationRepository,
     IConfiguration configuration,
     IWebHostEnvironment environment,
     IInvitationService invitationService,
@@ -45,7 +43,7 @@ public class UsersService(
     RefreshTokenRepository refreshTokenRepository,
     TimeTickerRepository timeTickerRepository,
     IPaddleService paddleService,
-    UserEmailConfirmationRepository confirmationRepository,
+    ISignInEmailService signInEmailService,
     IOptions<SocialAuthSettings> socialAuthSettings) : IUsersService
 {
     private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
@@ -66,108 +64,14 @@ public class UsersService(
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly ITokenService _tokenService = tokenService;
-    private readonly IEmailConfirmationService _emailConfirmationService = emailConfirmationService;
-    private readonly UserEmailConfirmationRepository _userEmailConfirmationRepository = userEmailConfirmationRepository;
     private readonly IConfiguration _configuration = configuration;
     private readonly IWebHostEnvironment _environment = environment;
-    private readonly UserEmailConfirmationRepository _confirmationRepository = confirmationRepository;
-
+    private readonly ISignInEmailService _signInEmailService = signInEmailService;
     #region Admin Authentication
 
-    public async Task<AuthResponse> SignUpAsync(SignUpRequest request)
+    public async Task SendSignInEmailAdminAsync(SignInRequest request)
     {
-
-        User? user = await _usersRepository.GetByEmailAsync(request.Email);
-
-
-        bool newUser = user == null;
-
-        if (newUser)
-        {
-            user = new User
-            {
-                Email = request.Email,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Phone = request.Phone
-            };
-        }
-        else
-        {
-            user!.FirstName = request.FirstName;
-            user.LastName = request.LastName;
-            user.Phone = request.Phone;
-        }
-
-        bool needEmailConfirmation = user.GoogleSub == null && user.FacebookUserId == null;
-
-        if (needEmailConfirmation)
-        {
-            var subscription = await _paddleService.GetActiveSubscriptionByEmailAsync(request.Email);
-            needEmailConfirmation = subscription == null;
-        }
-
-        user.AccessTypeId = needEmailConfirmation ? await _accessTypeRepository.GetPendingId() : await _accessTypeRepository.GetActiveId();
-
-        if (newUser)
-        {
-            await _usersRepository.AddAsync(user);
-        }
-        else
-        {
-            await _usersRepository.UpdateAsync(user);
-        }
-
-        if (!needEmailConfirmation)
-        {
-            return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
-        }
-
-        await _emailConfirmationService.SendConfirmationEmailAsync(user);
-
-        return new AuthResponse
-        {
-            AccessToken = string.Empty,
-            AccessTokenExpiresAtUtc = DateTime.MinValue,
-            EmailConfirmationRequired = true,
-            StatusCode = 200,
-            Code = "EMAIL_CONFIRMATION_REQUIRED",
-            Message = "Please confirm your email address"
-        };
-    }
-
-    public async Task<AuthResponse> SignInAsync(SignInRequest request)
-    {
-        var user = await _usersRepository.GetByEmailAsync(request.Email);
-
-        var accessTypeName = user.AccessType?.Name;
-        if (string.Equals(accessTypeName, "Active", StringComparison.OrdinalIgnoreCase))
-        {
-            return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome back to Plantour");
-        }
-
-        if (string.Equals(accessTypeName, "Pending", StringComparison.OrdinalIgnoreCase))
-        {
-            var confirmation = await _userEmailConfirmationRepository.GetByUserIdAsync(user.Id);
-
-            if (confirmation == null || confirmation.ExpiresAt <= DateTime.UtcNow)
-            {
-                await _emailConfirmationService.SendConfirmationEmailAsync(user);
-                throw new CustomException("Please go to the email we sent to you and click on the link to confirm your email address", "NO_ACCESS");
-            }
-
-            if (confirmation.ConfirmedAt == null)
-            {
-                throw new CustomException("Please go to the email we sent to you and click on the link to confirm your email address", "NO_ACCESS");
-            }
-
-            user.AccessTypeId = await _accessTypeRepository.GetActiveId();
-            await _usersRepository.UpdateAsync(user);
-
-            return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
-        }
-
-        throw new ForbiddenException(GetAccessStatusMessage(accessTypeName), "NO_ACCESS");
+        await _signInEmailService.SendSignInEmailAsync(request.Email);
     }
 
     public async Task<AuthResponse> SignInAdminSocialAsync(SocialSignInRequest request)
@@ -414,26 +318,6 @@ public class UsersService(
     //     }
     // }
 
-    public async Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request)
-    {
-        var user = await _usersRepository.GetByEmailAsync(request.Email);
-        if (user == null)
-        {
-            return;
-        }
-
-        if (await _emailConfirmationService.IsEmailConfirmedAsync(user.Id))
-        {
-            return;
-        }
-
-        await _emailConfirmationService.SendConfirmationEmailAsync(user);
-    }
-
-    public async Task<bool> ConfirmEmailAsync(ConfirmEmailRequest request)
-    {
-        return await _emailConfirmationService.ConfirmEmailAsync(request.UserId, request.Token);
-    }
 
     #endregion
 
@@ -451,7 +335,7 @@ public class UsersService(
             AccessToken = accessToken.Token,
             RefreshToken = refreshTokenObject.Token.ToString(),
             AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
-            EmailConfirmationRequired = false,
+            EmailSignInRequired = false,
             StatusCode = 200,
             Code = "ACCESS_OK",
             Message = message ?? "Welcome back to Plantour"
@@ -680,7 +564,7 @@ public class UsersService(
             {
                 linkedUser.AccessTypeId = await _accessTypeRepository.GetActiveId();
                 await _usersRepository.UpdateAsync(linkedUser);
-                await _confirmationRepository.DeleteRangeAsync(x => x.UserId == linkedUser.Id);
+                //await _confirmationRepository.DeleteRangeAsync(x => x.UserId == linkedUser.Id);
             }
 
             EnsureUserCanSignIn(linkedUser);
@@ -712,7 +596,7 @@ public class UsersService(
             if (string.Equals(emailUser.AccessType?.Name, "Pending", StringComparison.OrdinalIgnoreCase))
             {
                 emailUser.AccessTypeId = await _accessTypeRepository.GetActiveId();
-                await _confirmationRepository.DeleteRangeAsync(x => x.UserId == emailUser.Id);
+                //await _confirmationRepository.DeleteRangeAsync(x => x.UserId == emailUser.Id);
             }
 
             await _usersRepository.UpdateAsync(emailUser);

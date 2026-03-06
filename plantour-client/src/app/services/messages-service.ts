@@ -92,7 +92,7 @@ export class MessagesService {
     this.dialogStateSubject.next({
       visible: true,
       type: cfg.type,
-      title: cfg.title ?? 'Confirmation',
+      title: cfg.title ?? 'SignIn',
       message: cfg.message ?? '',
       yesLabel: cfg.yesLabel,
       noLabel: cfg.noLabel,

@@ -286,7 +286,7 @@ export class UsersService {
     this.writeRefreshToken(null);
   }
 
-  resendConfirmation(email: string): Observable<any> {
+  resendSignIn(email: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/api/users/admin/resend-confirmation`, { email });
   }
 

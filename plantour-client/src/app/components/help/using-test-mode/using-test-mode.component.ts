@@ -143,7 +143,7 @@ export class UsingTestModeComponent {
           description: 'If you sign out of your Test Mode account, you will lose access to it. The account will still exist for the full 7 days, but you\'ll need to start fresh with a new Test Mode account or create a regular account.'
         },
         {
-          title: 'No Email Confirmation',
+          title: 'No Email SignIn',
           description: 'Your email is auto-generated as robin.milesXXXX@plantour.app. This is a temporary test email and cannot receive notifications.'
         }
       ]

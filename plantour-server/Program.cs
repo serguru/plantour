@@ -361,7 +361,7 @@ try
     builder.Services.AddScoped<IPublicTemplatesService, PublicTemplatesService>();
     builder.Services.AddScoped<ITemporaryUserService, TemporaryUserService>();
     builder.Services.AddScoped<ITokenService, TokenService>();
-    builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
+    builder.Services.AddScoped<ISignInEmailService, SignInEmailService>();
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
     builder.Services.AddScoped<IPaddleService, PaddleService>();
@@ -397,7 +397,6 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.TripSharedRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.UserEmailConfirmationRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.LogsRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();

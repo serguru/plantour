@@ -60,7 +60,7 @@ export const routes: Routes = [
     data: { componentId: 'sign-up' }
   },
   {
-    path: 'confirm-email',
+    path: 'sign-in-email',
     canActivate: [publicGuard],
     loadComponent: () => import('./components/confirm-email/confirm-email').then(m => m.ConfirmEmailComponent),
     resolve: { cleanup: CleanupResolver },

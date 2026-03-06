@@ -66,7 +66,7 @@ export interface AuthResponse extends ApiErrorResponse {
   accessToken: string;
   refreshToken: string;
   accessTokenExpiresAtUtc: string;
-  emailConfirmationRequired: boolean;
+  emailSignInRequired: boolean;
 }
 
 export interface ParticipantAuthResponse {

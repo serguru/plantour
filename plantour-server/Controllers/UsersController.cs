@@ -32,25 +32,12 @@ public class UsersController : ControllerBase
 
         #region Admin Endpoints
 
-        [HttpPost("admin/signup")]
+        [HttpPost("admin/send-signin-email")]
         [AllowAnonymous]
-        public async Task<ActionResult<AuthResponse>> SignUpAdmin([FromBody] SignUpRequest request)
+        public async Task<ActionResult<AuthResponse>> SendSignInEmailAdmin([FromBody] SignInRequest request)
         {
-                // TODO: take into account that only active users can sign in
-                // TODO: remove temporary accounts as necessary
-                // TODO: add email verification step
-                // TODO: add "I want to receive promotional emails" checkbox
-                // TODO: find out how do I legally not return money for subscription
-                var response = await _usersService.SignUpAsync(request);
-                return Ok(response);
-        }
-
-        [HttpPost("admin/signin")]
-        [AllowAnonymous]
-        public async Task<ActionResult<AuthResponse>> SignInAdmin([FromBody] SignInRequest request)
-        {
-                var response = await _usersService.SignInAsync(request);
-                return Ok(response);
+                await _usersService.SendSignInEmailAdminAsync(request);
+                return Ok(new { sent = true });
         }
 
         // TODO: investigate and fix possible issues with Facebook login
@@ -60,22 +47,6 @@ public class UsersController : ControllerBase
         {
                 var response = await _usersService.SignInAdminSocialAsync(request);
                 return Ok(response);
-        }
-
-        [HttpPost("admin/confirm-email")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request)
-        {
-                var confirmed = await _usersService.ConfirmEmailAsync(request);
-                return Ok(new { confirmed });
-        }
-
-        [HttpPost("admin/resend-confirmation")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ResendConfirmation([FromBody] ResendEmailConfirmationRequest request)
-        {
-                await _usersService.SendEmailConfirmationAsync(request);
-                return Ok(new { sent = true });
         }
 
         #endregion

@@ -30,7 +30,7 @@ public class CurrentUserMiddleware
         if (context.User.Identity?.IsAuthenticated == true)
         {
             var usersRepository = context.RequestServices.GetRequiredService<UsersRepository>();
-            var emailConfirmationService = context.RequestServices.GetRequiredService<IEmailConfirmationService>();
+            var signInEmailService = context.RequestServices.GetRequiredService<ISignInEmailService>();
 
             // 2. Достаем UserId
             var userIdStr = context.User.FindFirst(PlantourClaims.UserId)?.Value;
@@ -49,8 +49,6 @@ public class CurrentUserMiddleware
                     currentUser.AccessTypeId = user.AccessTypeId;
                     currentUser.PaddleSubscriptionId = user.PaddleSubscriptionId;
                     currentUser.AccessTypeName = user.AccessType?.Name;
-                    //currentUser.PriceEnumId = (PlanPrice?)user.PriceEnumId;
-                    currentUser.EmailConfirmed = await emailConfirmationService.IsEmailConfirmedAsync(user.Id);
                 }
                 else
                 {

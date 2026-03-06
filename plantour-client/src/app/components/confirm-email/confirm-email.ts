@@ -48,12 +48,12 @@ export class ConfirmEmailComponent implements OnInit {
           this.messagesService.showInfo('Email confirmed', 'You can now sign in.');
           this.showSignIn = true;
         } else {
-          this.errorMessage = 'Confirmation failed. The link may be expired. Please try to sign up one more time.';
+          this.errorMessage = 'SignIn failed. The link may be expired. Please try to sign up one more time.';
           this.showSignUp = true;
         }
       },
       error: () => {
-        this.errorMessage = 'Confirmation failed. The link may be expired. Please try to sign up one more time.';
+        this.errorMessage = 'SignIn failed. The link may be expired. Please try to sign up one more time.';
         this.showSignUp = true;
       }
     });

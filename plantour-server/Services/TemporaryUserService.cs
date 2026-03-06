@@ -336,7 +336,7 @@ public class TemporaryUserService : ITemporaryUserService
         }
 
         // Documents category - 6 items
-        var documentsItems = new[] { "Passport", "Travel Insurance", "Hotel Confirmation", "Flight Ticket", "ID Card", "Vaccination Certificate" };
+        var documentsItems = new[] { "Passport", "Travel Insurance", "Hotel SignIn", "Flight Ticket", "ID Card", "Vaccination Certificate" };
         foreach (var item in documentsItems)
         {
             things.Add(new UserThing
