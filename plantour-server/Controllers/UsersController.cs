@@ -34,10 +34,10 @@ public class UsersController : ControllerBase
 
         [HttpPost("admin/send-signin-email")]
         [AllowAnonymous]
-        public async Task<ActionResult> SendSignInEmailAdmin([FromBody] SignInRequest request)
+        public async Task<ActionResult<SignInResponse>> SendSignInEmailAdmin([FromBody] SignInRequest request)
         {
-                await _usersService.SendSignInEmailAdminAsync(request);
-                return Ok(new { sent = true });
+                var response = await _usersService.SendSignInEmailAdminAsync(request);
+                return Ok(response);
         }
 
         [HttpPost("admin/signin-token")]

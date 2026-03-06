@@ -53,13 +53,6 @@ export const routes: Routes = [
     data: { componentId: 'sign-in' }
   },
   {
-    path: 'sign-up',
-    canActivate: [publicGuard],
-    loadComponent: () => import('./components/sign-up/sign-up').then(m => m.SignUpComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'sign-up' }
-  },
-  {
     path: 'signin-token',
     canActivate: [publicGuard],
     loadComponent: () => import('./components/signin-token/signin-token').then(m => m.SigninTokenComponent),

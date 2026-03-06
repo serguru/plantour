@@ -9,7 +9,7 @@ values
 	('/', now(), 80, true),
 	('/packing-list-generator', now(), 70, true),
 	('/packing-list-generator/templates', now(), 70, true),
-	('/sign-up', now(), 40, true),
+	('/sign-in', now(), 40, true),
 	('/help', now(), 60, true),
 	('/help/account', now(), 55, true),
 	('/help/account/login', now(), 50, true),

@@ -29,7 +29,6 @@ using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
 using plantour_server.Services.TickerQ;
 
-// TODO: test email confirmation after sign-up
 // TODO: add versioning using NX
 
 QuestPDF.Settings.License = LicenseType.Community;

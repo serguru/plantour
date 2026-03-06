@@ -13,6 +13,7 @@ import { AppButton } from '../button/button-component';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 import { SocialAuthService } from '../../services/social-auth-service';
 import { PasswordModule } from 'primeng/password';
+import { SignInResponse } from '../../models/auth.models';
 
 @Component({
   selector: 'app-sign-in',
@@ -36,6 +37,7 @@ export class SignInComponent implements OnInit {
   participantForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
   signInType: 'admin' | 'participant' = 'admin';
 
   private usersService = inject(UsersService);
@@ -48,13 +50,10 @@ export class SignInComponent implements OnInit {
   constructor(
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-
     let e = "";
-
     if (this.environment.environment === 'development') {
       e = 'serguru@gmail.com';
     }
-
     this.adminForm = this.fb.group({
       email: [e, [Validators.required, Validators.email]]
     });
@@ -62,10 +61,21 @@ export class SignInComponent implements OnInit {
       accessCode: ['', [Validators.required]],
     });
   }
+
+    onRadioClick(event): void {
+      this.successMessage = '';
+      this.errorMessage = '';
+    }
+
   ngOnInit(): void {
     const currentUrl = this.router.url; 
     const endsWithParticipant = currentUrl.split('?')[0].endsWith('/participant');    
     this.signInType = endsWithParticipant ? 'participant' : 'admin';
+  }
+
+  onEmailChange(e) {
+    this.errorMessage = '';
+    this.successMessage = '';  
   }
 
   get isAdmin(): boolean {
@@ -77,14 +87,23 @@ export class SignInComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.successMessage = '';
+    this.errorMessage = '';
+
+
     if (this.currentForm.invalid) {
       this.currentForm.markAllAsTouched();
       this.messagesService.showWarning('Validation Error', 'Please fill in all required fields correctly.');
       return;
     }
 
+    const currentEmail = this.usersService.userEmail();
+    if (currentEmail && currentEmail.toLowerCase() == this.adminForm.get('email')!.value.toLowerCase()) {
+      this.messagesService.showWarning('Already Signed In', 'You are already signed in with this email');
+      return;
+    }
+
     this.isLoading = true;
-    this.errorMessage = '';
 
     if (this.isAdmin) {
 
@@ -99,9 +118,8 @@ export class SignInComponent implements OnInit {
           this.isLoading = false;
         })
       ).subscribe({
-        next: (response) => {
-          this.messagesService.showInfo('Sign In email sent', "Please open the email sent to you and follow the link to sign in to Plantour.");
-          this.router.navigate(['']);
+        next: (response: SignInResponse) => {
+          this.successMessage = `Hello ${response.fullUserName}, we've sent you an email with a link that will be valid for ${response.signInEmailTokenMinutes} minutes. Please open the email and follow the link to sign in to Plantour.`;
         }
       });
       return;
@@ -153,10 +171,6 @@ export class SignInComponent implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.currentForm.get(fieldName);
     return !!(field && field.invalid && field.touched);
-  }
-
-  onSignUp(): void {
-    this.router.navigate(['/sign-up']);
   }
 
   async onSignInWithFacebook(): Promise<void> {

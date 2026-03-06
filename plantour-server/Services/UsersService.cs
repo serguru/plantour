@@ -69,9 +69,9 @@ public class UsersService(
     private readonly ISignInEmailService _signInEmailService = signInEmailService;
     #region Admin Authentication
 
-    public async Task SendSignInEmailAdminAsync(SignInRequest request)
+    public async Task<SignInResponse> SendSignInEmailAdminAsync(SignInRequest request)
     {
-        await _signInEmailService.SendSignInEmailAsync(request.Email);
+        return await _signInEmailService.SendSignInEmailAsync(request.Email);
     }
 
     public async Task<AuthResponse> SignInAdminSocialAsync(SocialSignInRequest request)

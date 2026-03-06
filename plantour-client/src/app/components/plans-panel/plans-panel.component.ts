@@ -183,7 +183,7 @@ export class PlansPanelComponent implements OnInit {
             monthlyPrice: '0',
             monthlyPriceName: "Free",
             monthlyButtonText: 'Join Free',
-            monthlyPriceUrl: '/sign-up',
+            monthlyPriceUrl: 'Starter Free',
             features: this.featuresByPlan(plan),
             monthlyAvalable: true,
             yearlyAvalable: true

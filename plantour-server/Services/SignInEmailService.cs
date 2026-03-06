@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 using plantour_server.DbModels;
+using plantour_server.DTOs;
 using plantour_server.Models;
 using plantour_server.Repositories;
 using plantour_server.Services.Interfaces;
@@ -38,18 +39,13 @@ public class SignInEmailService : ISignInEmailService
 
     }
 
-    private string GenerateSignInTokenAsync(string email)
+    private string GenerateSignInTokenAsync(string email, int emailSignInTokenMinutes)
     {
         if (String.IsNullOrWhiteSpace(email))
         {
             throw new CustomException("Unable to generate a sign-in token with the empty email");
         }
 
-        var emailSignInTokenMinutes = _jwtSettings.SignInEmailTokenMinutes;
-        if (emailSignInTokenMinutes <= 0)
-        {
-            throw new CustomException("SignInEmailTokenMinutes must be greater than 0");
-        }
 
         var payload = email;
         var token = _protector.Protect(payload, TimeSpan.FromMinutes(emailSignInTokenMinutes));
@@ -74,13 +70,20 @@ public class SignInEmailService : ISignInEmailService
     }
 
 
-    public async Task SendSignInEmailAsync(string email)
+    public async Task<SignInResponse> SendSignInEmailAsync(string email)
     {
         if (String.IsNullOrWhiteSpace(email))
         {
             throw new CustomException("Cannot send sign-in email to an empty email address");
         }
-        string token = GenerateSignInTokenAsync(email);
+
+        var emailSignInTokenMinutes = _jwtSettings.SignInEmailTokenMinutes;
+        if (emailSignInTokenMinutes <= 0)
+        {
+            throw new CustomException("SignInEmailTokenMinutes must be greater than 0");
+        }
+
+        string token = GenerateSignInTokenAsync(email, emailSignInTokenMinutes);
 
         string fullUserName = "";
 
@@ -93,8 +96,11 @@ public class SignInEmailService : ISignInEmailService
                 throw new CustomException("User does not have an active access to Plantour");
             }
             fullUserName = Utils.Misc.GenerateFullName(user.FirstName, user.LastName);
+            fullUserName = String.IsNullOrWhiteSpace(fullUserName) ? email : fullUserName;
+        } else
+        {
+            fullUserName = "New Plantour User";
         }
-        fullUserName = String.IsNullOrWhiteSpace(fullUserName) ? "New Plantour User" : fullUserName;
 
         var baseUrl = _configuration["SignInEmail:BaseUrl"];
         if (string.IsNullOrWhiteSpace(baseUrl))
@@ -123,6 +129,12 @@ public class SignInEmailService : ISignInEmailService
         catch (Exception ex)
         {
             throw new CustomException($"Failed to send sign-in email with message: {ex.Message}");
-        }   
+        }
+
+        return new SignInResponse
+        {
+            SignInEmailTokenMinutes = emailSignInTokenMinutes,
+            FullUserName = fullUserName
+        };
     }
 }

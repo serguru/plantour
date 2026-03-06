@@ -21,7 +21,7 @@ export class ReadyToRegisterComponent {
         {
           number: 1,
           title: 'Click "Create Account"',
-          details: 'From anywhere in Plantour, you\'ll see a "Create Account" or "Sign Up" button. Click it to get started.'
+          details: 'TODO: fix this'
         },
         {
           number: 2,

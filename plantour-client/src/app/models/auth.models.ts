@@ -24,13 +24,6 @@ export interface AccessToken {
   billing_period_end?: string;
 }
 
-// Request models
-export interface SignUpRequest {
-  email: string;
-  firstName?: string;
-  lastName?: string;
-}
-
 export interface SignInRequest {
   email: string;
 }
@@ -61,6 +54,12 @@ export interface ApiErrorResponse {
   message: string;
   instance?: string;
 }
+
+export interface SignInResponse {
+    signInEmailTokenMinutes: number;
+    fullUserName: string;
+}
+
 
 export interface AuthResponse extends ApiErrorResponse {
   accessToken: string;

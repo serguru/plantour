@@ -1,4 +1,5 @@
 using plantour_server.DbModels;
+using plantour_server.DTOs;
 
 namespace plantour_server.Services;
 
@@ -8,7 +9,7 @@ public interface ISignInEmailService
     // Task<string?> GetEmailFromSignInTokenAsync(string token);
 
 
-    Task SendSignInEmailAsync(string email);
+    Task<SignInResponse> SendSignInEmailAsync(string email);
 
     string? GetEmailFromSignInToken(string token);
 

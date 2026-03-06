@@ -2,7 +2,7 @@ import { Injectable, Inject, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, finalize, map, of, shareReplay, tap, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
-import { AccessRule, AccessToken, AuthResponse, SignUpParticipantRequest, SignUpRequest } from '../models/auth.models';
+import { AccessRule, AccessToken, AuthResponse, SignInResponse, SignUpParticipantRequest } from '../models/auth.models';
 import { ContactSubmissionRequest, ContactSubmissionDto } from '../models/contact.models';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { AppService } from './app-service';
@@ -66,6 +66,12 @@ export class UsersService {
   private _userSignal = signal<AccessToken | null>(this.getUserFromLocalStorage());
 
   userSignal = this._userSignal.asReadonly();
+
+  userEmail = computed(() => {
+    const user = this._userSignal();
+    if (!user) return null;
+    return user.email ?? null;
+  });
 
   userBillingPeriodStartSignal = computed<Date | null>(() => {
     const user = this._userSignal();
@@ -206,8 +212,8 @@ export class UsersService {
     this.writeRefreshToken(response.refreshToken || null);
   }
 
-  sendLoginEmailAdmin(email: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/send-signin-email`, { email });
+  sendLoginEmailAdmin(email: string): Observable<SignInResponse> {
+    return this.http.post<SignInResponse>(`${this.apiUrl}/api/users/admin/send-signin-email`, { email });
   }
 
   loginAdminByToken(token: string): Observable<AuthResponse> {
@@ -253,17 +259,6 @@ export class UsersService {
 
   unlinkSocialProvider(provider: 'google' | 'facebook'): Observable<UserDto> {
     return this.http.delete<UserDto>(`${this.apiUrl}/api/users/profile/social/${provider}`);
-  }
-
-  registerAdmin(data: SignUpRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/signup`, data)
-      .pipe(
-        tap((r: AuthResponse) => {
-          if (r.code == "ACCESS_OK") {
-            this.applyAuthResponse(r);
-          }
-        })
-      );
   }
 
   registerParticipant(data: SignUpParticipantRequest): Observable<any> {
