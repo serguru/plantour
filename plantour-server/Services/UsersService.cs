@@ -85,6 +85,46 @@ public class UsersService(
             _ => throw new CustomException("Unsupported social provider")
         };
     }
+    public async Task<AuthResponse> SignInAdminTokenAsync(string token)
+    {
+        string? email = _signInEmailService.GetEmailFromSignInToken(token);
+
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            throw new UnauthorizedException("Invalid or expired sign-in token", "NO_ACCESS");
+        }
+
+        User? user = await _usersRepository.GetByEmailAsync(email);
+
+        if (user == null)
+        {
+            user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = email,
+                FirstName = null,
+                LastName = null,
+                CreatedAt = DateTime.UtcNow,
+                Notes = null,
+                AccessTypeId = await _accessTypeRepository.GetActiveId()
+            };
+            await _usersRepository.AddAsync(user);
+        }
+
+        EnsureActiveUser(user);
+
+        return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
+    }
+
+    private void EnsureActiveUser(User user)
+    {
+        if (user.AccessType.Name != "Active")
+        {
+            throw new CustomException("The user is not active");
+        }
+    }
+
+
 
     // TODO: ensure social login works from a phone
     public async Task<UserDto> LinkSocialProviderAsync(SocialSignInRequest request)
@@ -288,38 +328,6 @@ public class UsersService(
 
     #endregion
 
-    #region Token Management
-
-
-    // public async Task<bool> ValidateTokenAsync(string token)
-    // {
-    //     try
-    //     {
-    //         var tokenHandler = new JwtSecurityTokenHandler();
-    //         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
-
-    //         tokenHandler.ValidateToken(token, new TokenValidationParameters
-    //         {
-    //             ValidateIssuerSigningKey = true,
-    //             IssuerSigningKey = new SymmetricSecurityKey(key),
-    //             ValidateIssuer = true,
-    //             ValidIssuer = _jwtSettings.Issuer,
-    //             ValidateAudience = true,
-    //             ValidAudience = _jwtSettings.Audience,
-    //             ValidateLifetime = true,
-    //             ClockSkew = TimeSpan.Zero
-    //         }, out SecurityToken validatedToken);
-
-    //         return true;
-    //     }
-    //     catch
-    //     {
-    //         return false;
-    //     }
-    // }
-
-
-    #endregion
 
     #region Token Generation
 

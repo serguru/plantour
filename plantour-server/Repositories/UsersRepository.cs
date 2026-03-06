@@ -26,8 +26,6 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
     {
         return await _dbSet
             .Include(x => x.AccessType)
-            // .Include(x => x.PriceEnum)
-            //     .ThenInclude(x => x != null ? x.Plan : null)
             .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
     }
 

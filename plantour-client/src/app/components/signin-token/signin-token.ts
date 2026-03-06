@@ -11,12 +11,12 @@ import { AppButton } from '../button/button-component';
   selector: 'app-confirm-email',
   standalone: true,
   imports: [CommonModule, ButtonModule, AppButton],
-  templateUrl: './confirm-email.html',
-  styleUrl: './confirm-email.scss',
+  templateUrl: './signin-token.html',
+  styleUrl: './signin-token.scss',
 })
-export class ConfirmEmailComponent implements OnInit {
+export class SigninTokenComponent implements OnInit {
   isLoading = false;
-  confirmed = false;
+  successMessage = '';
   errorMessage = '';
 
   private route = inject(ActivatedRoute);
@@ -24,37 +24,29 @@ export class ConfirmEmailComponent implements OnInit {
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
 
-  showSignIn = false;
-  showSignUp = false;
 
   ngOnInit(): void {
-    const userId = this.route.snapshot.queryParamMap.get('userId');
     const token = this.route.snapshot.queryParamMap.get('token');
 
-    if (!userId || !token) {
-      this.errorMessage = 'Invalid confirmation link';
+    if (!token) {
+      this.errorMessage = 'No token provided';
       return;
     }
 
     this.isLoading = true;
-    this.usersService.confirmEmail(userId, token).pipe(
+
+    this.usersService.loginAdminByToken(token).pipe(
       finalize(() => {
         this.isLoading = false;
       })
     ).subscribe({
       next: (result) => {
-        this.confirmed = result.confirmed === true;
-        if (this.confirmed) {
-          this.messagesService.showInfo('Email confirmed', 'You can now sign in.');
-          this.showSignIn = true;
-        } else {
-          this.errorMessage = 'SignIn failed. The link may be expired. Please try to sign up one more time.';
-          this.showSignUp = true;
-        }
+          this.successMessage = 'You are now signed in. Redirecting to dashboard...';
+          this.router.navigate(['/dashboard']);
       },
       error: () => {
-        this.errorMessage = 'SignIn failed. The link may be expired. Please try to sign up one more time.';
-        this.showSignUp = true;
+        this.errorMessage = 'Sign In failed. The link may be expired. Please try to sign in one more time.';
+        //this.router.navigate(['/sign-in']);
       }
     });
   }
@@ -63,7 +55,4 @@ export class ConfirmEmailComponent implements OnInit {
     this.router.navigate(['/sign-in']);
   }
 
-  goToSignUp(): void {
-    this.router.navigate(['/sign-up']);
-  }
 }

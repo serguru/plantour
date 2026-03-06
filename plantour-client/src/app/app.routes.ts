@@ -60,11 +60,11 @@ export const routes: Routes = [
     data: { componentId: 'sign-up' }
   },
   {
-    path: 'sign-in-email',
+    path: 'signin-token',
     canActivate: [publicGuard],
-    loadComponent: () => import('./components/confirm-email/confirm-email').then(m => m.ConfirmEmailComponent),
+    loadComponent: () => import('./components/signin-token/signin-token').then(m => m.SigninTokenComponent),
     resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'confirm-email' }
+    data: { componentId: 'signin-token' }
   },
   {
     path: 'help',

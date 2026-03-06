@@ -89,7 +89,6 @@ export class UsersService {
     return new Date(result);
   });
 
-
   userRoleSignal = computed(() => {
     const user = this._userSignal();
     if (!user) return null;
@@ -207,14 +206,20 @@ export class UsersService {
     this.writeRefreshToken(response.refreshToken || null);
   }
 
-  loginAdmin(email: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/signin`, { email })
+  sendLoginEmailAdmin(email: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/send-signin-email`, { email });
+  }
+
+  loginAdminByToken(token: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/signin-token`, { token })
       .pipe(
         tap((r: AuthResponse) => {
           this.applyAuthResponse(r);
         })
       );
   }
+
+  //signin-token
 
   loginParticipant(accessCode: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/participant/signin`, { accessCode })

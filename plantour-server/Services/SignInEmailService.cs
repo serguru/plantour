@@ -38,7 +38,7 @@ public class SignInEmailService : ISignInEmailService
 
     }
 
-    private Task<string> GenerateSignInTokenAsync(string email)
+    private string GenerateSignInTokenAsync(string email)
     {
         if (String.IsNullOrWhiteSpace(email))
         {
@@ -53,10 +53,10 @@ public class SignInEmailService : ISignInEmailService
 
         var payload = email;
         var token = _protector.Protect(payload, TimeSpan.FromMinutes(emailSignInTokenMinutes));
-        return Task.FromResult(token);
+        return token;
     }
 
-    private async Task<string?> GetEmailFromSignInTokenAsync(string token)
+    public string? GetEmailFromSignInToken(string token)
     {
         string email;
         try
@@ -80,7 +80,7 @@ public class SignInEmailService : ISignInEmailService
         {
             throw new CustomException("Cannot send sign-in email to an empty email address");
         }
-        string token = await GenerateSignInTokenAsync(email);
+        string token = GenerateSignInTokenAsync(email);
 
         string fullUserName = "";
 

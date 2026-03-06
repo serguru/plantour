@@ -12,6 +12,7 @@ import { RadioButton } from 'primeng/radiobutton';
 import { AppButton } from '../button/button-component';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 import { SocialAuthService } from '../../services/social-auth-service';
+import { PasswordModule } from 'primeng/password';
 
 @Component({
   selector: 'app-sign-in',
@@ -23,7 +24,8 @@ import { SocialAuthService } from '../../services/social-auth-service';
     InputTextModule,
     RadioButton,
     FormsModule,
-    AppButton
+    AppButton,
+    PasswordModule
   ],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.scss',
@@ -87,11 +89,10 @@ export class SignInComponent implements OnInit {
     if (this.isAdmin) {
 
       const { email } = this.currentForm.value;
-      this.usersService.loginAdmin(email).pipe(
+      this.usersService.sendLoginEmailAdmin(email).pipe(
         catchError((error) => {
-          const errorMsg = error.error?.message || 'Sign in failed. Please check your credentials and try again.';
+          const errorMsg = 'Sending sign-in email failed';
           this.errorMessage = errorMsg;
-          this.messagesService.showError('Sign In Failed', errorMsg);
           return EMPTY;
         }),
         finalize(() => {
@@ -99,8 +100,7 @@ export class SignInComponent implements OnInit {
         })
       ).subscribe({
         next: (response) => {
-          const message = response?.message || 'Welcome back to Plantour';
-          this.messagesService.showInfo('Sign In Successful', message);
+          this.messagesService.showInfo('Sign In email sent', "Please open the email sent to you and follow the link to sign in to Plantour.");
           this.router.navigate(['']);
         }
       });

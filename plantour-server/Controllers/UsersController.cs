@@ -34,10 +34,18 @@ public class UsersController : ControllerBase
 
         [HttpPost("admin/send-signin-email")]
         [AllowAnonymous]
-        public async Task<ActionResult<AuthResponse>> SendSignInEmailAdmin([FromBody] SignInRequest request)
+        public async Task<ActionResult> SendSignInEmailAdmin([FromBody] SignInRequest request)
         {
                 await _usersService.SendSignInEmailAdminAsync(request);
                 return Ok(new { sent = true });
+        }
+
+        [HttpPost("admin/signin-token")]
+        [AllowAnonymous]
+        public async Task<ActionResult<AuthResponse>> SignInAdminToken([FromBody] SignInRequestToken request)
+        {
+                AuthResponse result = await _usersService.SignInAdminTokenAsync(request.Token);
+                return Ok(result);
         }
 
         // TODO: investigate and fix possible issues with Facebook login

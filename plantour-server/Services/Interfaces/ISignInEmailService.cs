@@ -10,6 +10,8 @@ public interface ISignInEmailService
 
     Task SendSignInEmailAsync(string email);
 
+    string? GetEmailFromSignInToken(string token);
+
     // Task<bool> ConfirmEmailAsync(Guid userId, string token);
 
     // Task<bool> IsEmailConfirmedAsync(Guid userId);

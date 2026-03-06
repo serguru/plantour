@@ -250,7 +250,6 @@ export class PlansPanelComponent implements OnInit {
           this.expedition.yearlyButtonText = 'Upgrade to Yearly';
           this.expedition.yearlyAvalable = true;
           break;
-        case 'Family Yearly':
         case 'Family Monthly':
           this.family.monthlyButtonText = 'Current Monthly';
           this.family.monthlyAvalable = false;
