@@ -8,9 +8,6 @@ public class SignUpRequest
     [EmailAddress]
     public string Email { get; set; } = null!;
 
-    [Required]
-    [MinLength(6)]
-    public string Password { get; set; } = null!;
 
     [StringLength(100)]
     public string? FirstName { get; set; }

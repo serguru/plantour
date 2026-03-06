@@ -1,4 +1,3 @@
-// AccessCode hash helpers (same as password)
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
@@ -24,7 +23,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 namespace plantour_server.Services;
 
 
-// TODO: if a user is in pending status tried to sign in with email/password, we should check if their email is confirmed and if yes, let them in. Otherwise show them a message to confirm or resend a confirmation email.
 public class UsersService(
     IOptions<JwtSettings> jwtSettings,
     IMapper mapper,
@@ -81,13 +79,6 @@ public class UsersService(
 
         User? user = await _usersRepository.GetByEmailAsync(request.Email);
 
-        if (user != null && user.PasswordHash != null)
-        {
-            throw new CustomException("User with this email already exists");
-        }
-
-        // Create password hash
-        CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
         bool newUser = user == null;
 
@@ -96,8 +87,6 @@ public class UsersService(
             user = new User
             {
                 Email = request.Email,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Phone = request.Phone
@@ -108,8 +97,6 @@ public class UsersService(
             user!.FirstName = request.FirstName;
             user.LastName = request.LastName;
             user.Phone = request.Phone;
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
         }
 
         bool needEmailConfirmation = user.GoogleSub == null && user.FacebookUserId == null;
@@ -152,15 +139,6 @@ public class UsersService(
     public async Task<AuthResponse> SignInAsync(SignInRequest request)
     {
         var user = await _usersRepository.GetByEmailAsync(request.Email);
-        if (user == null || user.PasswordHash == null || user.PasswordSalt == null)
-        {
-            throw new UnauthorizedException("Wrong email or password", "NO_ACCESS");
-        }
-
-        if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
-        {
-            throw new UnauthorizedException("Wrong email or password", "NO_ACCESS");
-        }
 
         var accessTypeName = user.AccessType?.Name;
         if (string.Equals(accessTypeName, "Active", StringComparison.OrdinalIgnoreCase))
@@ -281,7 +259,6 @@ public class UsersService(
             throw new CustomException("User not found");
         }
 
-        var hasPassword = user.PasswordHash != null && user.PasswordSalt != null;
 
         switch (normalizedProvider)
         {
@@ -291,10 +268,6 @@ public class UsersService(
                     return MapUserDto(user);
                 }
 
-                if (!hasPassword && string.IsNullOrWhiteSpace(user.FacebookUserId))
-                {
-                    throw new CustomException("Cannot disconnect Google login. Set a password or link Facebook first.");
-                }
 
                 user.GoogleSub = null;
                 break;
@@ -304,10 +277,6 @@ public class UsersService(
                     return MapUserDto(user);
                 }
 
-                if (!hasPassword && string.IsNullOrWhiteSpace(user.GoogleSub))
-                {
-                    throw new CustomException("Cannot disconnect Facebook login. Set a password or link Google first.");
-                }
 
                 user.FacebookUserId = null;
                 break;
@@ -338,8 +307,6 @@ public class UsersService(
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Phone = request.Phone,
-                PasswordHash = null,
-                PasswordSalt = null,
                 Notes = $"Registered by admin {_currentUser.Email} on {DateTime.UtcNow}",
                 AccessTypeId = await _accessTypeRepository.GetActiveId()
             };
@@ -493,24 +460,6 @@ public class UsersService(
 
     #endregion
 
-    #region Password Helpers
-
-    private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-    {
-        using var hmac = new HMACSHA512();
-        passwordSalt = hmac.Key;
-        passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-    }
-
-    private bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
-    {
-        using var hmac = new HMACSHA512(storedSalt);
-        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-        return computedHash.SequenceEqual(storedHash);
-    }
-
-    #endregion
-
     private static string GetAccessStatusMessage(string? accessTypeName)
     {
         if (string.IsNullOrWhiteSpace(accessTypeName))
@@ -580,34 +529,6 @@ public class UsersService(
         return MapUserDto(user);
     }
 
-    public async Task UpdatePasswordAsync(UpdatePasswordRequest request)
-    {
-        var user = await _usersRepository.GetByIdAsync(_currentUser.UserId);
-        if (user == null)
-        {
-            throw new CustomException("User not found");
-        }
-
-        if (user.PasswordHash != null && user.PasswordSalt != null)
-        {
-            if (string.IsNullOrWhiteSpace(request.CurrentPassword))
-            {
-                throw new CustomException("Current password is required");
-            }
-
-            if (!VerifyPasswordHash(request.CurrentPassword, user.PasswordHash, user.PasswordSalt))
-            {
-                throw new UnauthorizedException("Current password is incorrect");
-            }
-        }
-
-        // Create new password hash
-        CreatePasswordHash(request.NewPassword, out byte[] passwordHash, out byte[] passwordSalt);
-        user.PasswordHash = passwordHash;
-        user.PasswordSalt = passwordSalt;
-
-        await _usersRepository.UpdateAsync(user);
-    }
 
     #endregion
 
@@ -802,8 +723,6 @@ public class UsersService(
         var newUser = new User
         {
             Email = email,
-            PasswordHash = null,
-            PasswordSalt = null,
             FirstName = firstName,
             LastName = lastName,
             AccessTypeId = await _accessTypeRepository.GetActiveId(),
@@ -845,7 +764,6 @@ public class UsersService(
             LastName = user.LastName,
             Phone = user.Phone,
             Notes = user.Notes,
-            HasPassword = user.PasswordHash != null && user.PasswordSalt != null,
             HasGoogleLinked = !string.IsNullOrWhiteSpace(user.GoogleSub),
             HasFacebookLinked = !string.IsNullOrWhiteSpace(user.FacebookUserId)
         };

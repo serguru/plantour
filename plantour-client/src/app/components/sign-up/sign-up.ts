@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractContro
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
 import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 import { UsersService } from '../../services/users-service';
@@ -24,7 +23,6 @@ import { MessagePanel } from '../message-panel/message-panel-component/message-p
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    PasswordModule,
     AppButton
   ],
   templateUrl: './sign-up.html',
@@ -43,7 +41,7 @@ export class SignUpComponent {
   private router = inject(Router);
   private location = inject(Location);
 
-  message = signal("To create an account: sign in with Google or Facebook account or enter your email and password. After signing up, check your email for a confirmation link to activate your account before signing in.");
+  message = signal("To create an account: sign in with Google or Facebook account or enter your email. After signing up, check your email for a confirmation link to activate your account before signing in.");
 
   constructor(
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
@@ -51,21 +49,8 @@ export class SignUpComponent {
     this.signUpForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       firstName: [''],
-      lastName: [''],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]]
-    }, { validators: this.passwordMatchValidator });
-  }
-
-  passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-    const password = control.get('password');
-    const confirmPassword = control.get('confirmPassword');
-
-    if (!password || !confirmPassword) {
-      return null;
-    }
-
-    return password.value === confirmPassword.value ? null : { passwordMismatch: true };
+      lastName: ['']
+    });
   }
 
   onSubmit(): void {
@@ -78,9 +63,9 @@ export class SignUpComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const { email, firstName, lastName, phone, password } = this.signUpForm.value;
+    const { email, firstName, lastName } = this.signUpForm.value;
 
-    this.usersService.registerAdmin({ email, password, firstName, lastName }).pipe(
+    this.usersService.registerAdmin({ email, firstName, lastName }).pipe(
       catchError((error) => {
         const errorMsg = error.error?.message || 'Sign up failed. Please try again.';
         this.errorMessage = errorMsg;
@@ -124,34 +109,12 @@ export class SignUpComponent {
     if (field.hasError('email')) {
       return 'Please enter a valid email address';
     }
-    if (field.hasError('minlength')) {
-      const minLength = field.getError('minlength').requiredLength;
-      return `Password must be at least ${minLength} characters`;
-    }
-    return '';
-  }
-
-  getConfirmPasswordError(): string {
-    const field = this.signUpForm.get('confirmPassword');
-    if (!field || !field.touched) return '';
-
-    if (field.hasError('required')) {
-      return 'This field is required';
-    }
-    if (this.signUpForm.hasError('passwordMismatch') && field.touched) {
-      return 'Passwords do not match';
-    }
     return '';
   }
 
   isFieldInvalid(fieldName: string): boolean {
     const field = this.signUpForm.get(fieldName);
     return !!(field && field.invalid && field.touched);
-  }
-
-  isConfirmPasswordInvalid(): boolean {
-    const field = this.signUpForm.get('confirmPassword');
-    return !!(field && field.touched && (field.invalid || this.signUpForm.hasError('passwordMismatch')));
   }
 
   onSignIn(): void {

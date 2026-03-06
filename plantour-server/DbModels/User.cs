@@ -20,12 +20,6 @@ public partial class User
     [Column("email")]
     public string Email { get; set; } = null!;
 
-    [Column("password_hash")]
-    public byte[]? PasswordHash { get; set; }
-
-    [Column("password_salt")]
-    public byte[]? PasswordSalt { get; set; }
-
     [Column("first_name")]
     public string? FirstName { get; set; }
 

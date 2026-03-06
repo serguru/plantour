@@ -312,8 +312,6 @@ insert into plantour.prices (paddle_price_id,plan_id,name,price_enum_id,value_ce
 create table users (
     id uuid not null primary key default gen_random_uuid(),
     email text not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-    password_hash bytea null,
-    password_salt bytea null,
     first_name text,
     last_name text,
     phone text,

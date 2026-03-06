@@ -28,7 +28,6 @@ export interface UserDto {
   lastName?: string | null;
   phone?: number | null;
   notes?: string | null;
-  hasPassword: boolean;
   hasGoogleLinked: boolean;
   hasFacebookLinked: boolean;
 }
@@ -208,8 +207,8 @@ export class UsersService {
     this.writeRefreshToken(response.refreshToken || null);
   }
 
-  loginAdmin(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/signin`, { email, password })
+  loginAdmin(email: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/signin`, { email })
       .pipe(
         tap((r: AuthResponse) => {
           this.applyAuthResponse(r);
@@ -323,13 +322,6 @@ export class UsersService {
 
   updateProfile(request: { email?: string; firstName?: string; lastName?: string; phone?: string }): Observable<UserDto> {
     return this.http.put<UserDto>(`${this.apiUrl}/api/users/profile`, request);
-  }
-
-  updatePassword(currentPassword: string, newPassword: string): Observable<{ updated: boolean }> {
-    return this.http.put<{ updated: boolean }>(`${this.apiUrl}/api/users/password`, {
-      currentPassword,
-      newPassword
-    });
   }
 
   downgradePlanPrice(oldPlanPrice: string, newPlanPrice: string): Observable<{ updated: boolean }> {

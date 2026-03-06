@@ -102,8 +102,6 @@ public class TemporaryUserService : ITemporaryUserService
             Email = email,
             FirstName = "Robin",
             LastName = "Miles",
-            PasswordHash = null,
-            PasswordSalt = null,
             CreatedAt = DateTime.UtcNow,
             Notes = "Automatically created temporary user",
             //PriceEnumId = (int)PlanPrice.Guest,

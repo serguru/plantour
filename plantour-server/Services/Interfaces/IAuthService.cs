@@ -23,7 +23,6 @@ public interface IUsersService
     // Profile management
     Task<UserDto> GetProfileAsync();
     Task<UserDto> UpdateProfileAsync(UpdateProfileRequest request);
-    Task UpdatePasswordAsync(UpdatePasswordRequest request);
     Task<UserDto> LinkSocialProviderAsync(SocialSignInRequest request);
     Task<UserDto> UnlinkSocialProviderAsync(string provider);
 

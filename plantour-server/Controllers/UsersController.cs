@@ -9,8 +9,6 @@ using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Controllers;
 
-// TODO: if a user has an empty password the only way for them to set the password is to change it being under participant role 
-
 // TODO: if a temporary user signs out show them a warning message.
 
 [ApiController]
@@ -149,13 +147,6 @@ public class UsersController : ControllerBase
                 return Ok(updatedProfile);
         }
 
-        [HttpPut("password")]
-        [Authorize]
-        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordRequest request)
-        {
-                await _usersService.UpdatePasswordAsync(request);
-                return Ok(new { updated = true });
-        }
 
         [HttpPost("profile/social/link")]
         [Authorize]

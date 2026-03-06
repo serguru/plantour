@@ -36,7 +36,7 @@ export class UsingTestModeComponent {
         {
           icon: 'lock-open',
           title: 'No Sign-In Required',
-          description: 'Your account is created instantly with no email verification or password needed. Start exploring immediately!'
+          description: 'Your account is created instantly with no email verification needed. Start exploring immediately!'
         },
         {
           icon: 'globe',
@@ -171,7 +171,7 @@ export class UsingTestModeComponent {
         },
         {
           title: 'Account Converted!',
-          description: 'Your Test Mode account is now a regular Plantour account. The 7-day expiration is removed, and all your data (trips, items, travelers, bags) is preserved permanently. You can now set a password and manage your account normally.'
+          description: 'Your Test Mode account is now a regular Plantour account. The 7-day expiration is removed, and all your data (trips, items, travelers, bags) is preserved permanently. You can now manage your account normally.'
         }
       ]
     },

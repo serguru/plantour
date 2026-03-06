@@ -13,9 +13,9 @@
       <i class="pi pi-info-circle"></i>
       <div>
         <p>To create an account, you have two options:</p>
-        <p>1) Continue with Google or Facebook. No email confirmation required.</p>
+        <p>1) Continue with Google or Facebook</p>
         <p>or</p>
-        <p>2) Enter your email and password. The confirmation email will be sent.</p>
+        <p>2) Enter your email</p>
       </div>
     </div>
 
@@ -45,7 +45,7 @@
       (ngSubmit)="onSubmit()"
     >
       <fieldset>
-        <legend>Enter your email and password</legend>
+        <legend>Enter your email</legend>
         <!-- Email Field -->
         <div class="form-field">
           <label for="email">Email <span class="required">*</span></label>
@@ -107,51 +107,6 @@
           }
         </div>
 
-        <!-- Password Field -->
-        <div class="form-field">
-          <label
-            for="password"
-            class="mt"
-          >Password <span class="required">*</span></label>
-          <p-password
-            id="password"
-            formControlName="password"
-            placeholder="Enter your password"
-            [toggleMask]="true"
-            [feedback]="false"
-            [class.p-invalid]="isFieldInvalid('password')"
-            styleClass="w-full"
-          >
-          </p-password>
-          @if (isFieldInvalid('password')) {
-          <small class="error-message">
-            {{ getFieldError('password') }}
-          </small>
-          }
-        </div>
-
-        <!-- Confirm Password Field -->
-        <div class="form-field">
-          <label
-            for="confirmPassword"
-            class="mt"
-          >Confirm Password <span class="required">*</span></label>
-          <p-password
-            id="confirmPassword"
-            formControlName="confirmPassword"
-            placeholder="Confirm your password"
-            [toggleMask]="true"
-            [feedback]="false"
-            [class.p-invalid]="isConfirmPasswordInvalid()"
-            styleClass="w-full"
-          >
-          </p-password>
-          @if (isConfirmPasswordInvalid()) {
-          <small class="error-message">
-            {{ getConfirmPasswordError() }}
-          </small>
-          }
-        </div>
 
         <!-- Error Message -->
         @if (errorMessage) {

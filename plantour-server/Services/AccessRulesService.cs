@@ -15,7 +15,6 @@ namespace plantour_server.Services;
 
 // TODO: prevent users from changing their email because after that they will be not in sync with Paddle
 // TODO: add an explanation to the profile page for users about social login reset
-// TODO: change password section must work correctly even there is no password set
 public class AccessRulesService : IAccessRulesService
 {
     private readonly IPaddleService _paddleService;

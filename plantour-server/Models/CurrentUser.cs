@@ -13,8 +13,6 @@ public class CurrentUser
     public string Email { get; set; } = null!;
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
-    public byte[]? PasswordHash { get; set; }
-    public byte[]? PasswordSalt { get; set; }
     public string? Phone { get; set; }
     public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; }

@@ -6,12 +6,11 @@ begin;
 -- ====================================================================
 -- USERS (2 admins + 2 participants + 2 extra users)
 -- ====================================================================
-INSERT INTO users (email, password_hash, password_salt, first_name, last_name, phone, notes, access_type_id)
+INSERT INTO users (email, first_name, last_name, phone, notes, access_type_id)
 VALUES
     (
         'serguru@gmail.com',
-        '\x35c846498f41a7ed1513b765c264ab222f7c3b015163fc07c78f6af00554436d2bb8f3d105a848584a0103f228132affc301505136188d50194e14f9a32d0f64',
-        '\x727465da121430b0bf747ea4a4cc3c21f458c61b824b15d354fc8e10adb5d2a7e82a3aa26363d48178341995f078275e2d5b3c5df70536c6af73a6dff32e15b7',
+
         'Serge',
         'Cherny',
         '+1-604-000-0000',
@@ -20,8 +19,6 @@ VALUES
     ),
     (
         'sechevan@gmail.com',
-        '\x35c846498f41a7ed1513b765c264ab222f7c3b015163fc07c78f6af00554436d2bb8f3d105a848584a0103f228132affc301505136188d50194e14f9a32d0f64',
-        '\x727465da121430b0bf747ea4a4cc3c21f458c61b824b15d354fc8e10adb5d2a7e82a3aa26363d48178341995f078275e2d5b3c5df70536c6af73a6dff32e15b7',
         'Bill',
         'Gates',
         '+1-604-000-0001',
@@ -30,8 +27,6 @@ VALUES
     ),
     (
         'alice.participant@plantour.test',
-        NULL,
-        NULL,
         'Alice',
         'Participant',
         '+1-604-000-0001',
@@ -40,8 +35,6 @@ VALUES
     ),
     (
         'bob.participant@plantour.test',
-        NULL,
-        NULL,
         'Bob',
         'Participant',
         '+1-604-000-0002',
@@ -50,8 +43,6 @@ VALUES
     ),
     (
         'carol.tester@plantour.test',
-        NULL,
-        NULL,
         'Carol',
         'Tester',
         '+1-604-000-0003',
@@ -60,8 +51,6 @@ VALUES
     ),
     (
         'dave.tester@plantour.test',
-        NULL,
-        NULL,
         'Dave',
         'Tester',
         '+1-604-000-0004',

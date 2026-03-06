@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
 import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 import { UsersService } from '../../services/users-service';
@@ -22,7 +21,6 @@ import { SocialAuthService } from '../../services/social-auth-service';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    PasswordModule,
     RadioButton,
     FormsModule,
     AppButton
@@ -50,16 +48,13 @@ export class SignInComponent implements OnInit {
   ) {
 
     let e = "";
-    let p = "";
 
     if (this.environment.environment === 'development') {
       e = 'serguru@gmail.com';
-      p = "Binary_09"
     }
 
     this.adminForm = this.fb.group({
-      email: [e, [Validators.required, Validators.email]],
-      password: [p, [Validators.required]],
+      email: [e, [Validators.required, Validators.email]]
     });
     this.participantForm = this.fb.group({
       accessCode: ['', [Validators.required]],
@@ -91,8 +86,8 @@ export class SignInComponent implements OnInit {
 
     if (this.isAdmin) {
 
-      const { email, password } = this.currentForm.value;
-      this.usersService.loginAdmin(email, password).pipe(
+      const { email } = this.currentForm.value;
+      this.usersService.loginAdmin(email).pipe(
         catchError((error) => {
           const errorMsg = error.error?.message || 'Sign in failed. Please check your credentials and try again.';
           this.errorMessage = errorMsg;

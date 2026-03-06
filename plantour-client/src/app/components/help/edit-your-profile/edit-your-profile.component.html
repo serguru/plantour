@@ -29,9 +29,6 @@
               @if (subsection.title.includes('Setting')) {
                 <i class="pi pi-lock"></i>
               }
-              @if (subsection.title.includes('Changing Password')) {
-                <i class="pi pi-refresh"></i>
-              }
               @if (subsection.title.includes('Requirements')) {
                 <i class="pi pi-shield"></i>
               }
@@ -90,7 +87,7 @@
                   }
                 </ul>
               }
-              @else if (subsection.title.includes('Important') || subsection.title.includes('Without Password') || subsection.title.includes('Notes')) {
+              @else if (subsection.title.includes('Important') || subsection.title.includes('Notes')) {
                 <ul class="info-list">
                   @for (item of subsection.list; track $index) {
                     <li>

@@ -7,7 +7,6 @@ import { Router } from '@angular/router';
 import { switchMap } from 'rxjs';
 
 // TODO: it is necessary to add to the log user activity to proof their activity if they decided to get a refund.
-// TODO: implement forgot password functionality in the sign in
 // TODO: fix the top wording
 interface PlanFeature {
   label: string;

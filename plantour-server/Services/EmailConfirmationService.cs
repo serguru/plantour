@@ -56,8 +56,6 @@ public class EmailConfirmationService : IEmailConfirmationService
         {
             return;
         }
-        user.PasswordHash = null;
-        user.PasswordSalt = null;
         user.AccessTypeId = await _accessTypeRepository.GetActiveId();
         await _usersRepository.UpdateAsync(user);
         await _confirmationRepository.DeleteRangeAsync(x => x.UserId == userId);

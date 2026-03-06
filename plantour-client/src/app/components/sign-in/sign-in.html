@@ -84,25 +84,6 @@
         }
       </div>
 
-      <!-- Password Field -->
-      <div class="form-field">
-        <label for="password">Password <span class="required">*</span></label>
-        <p-password
-          id="password"
-          formControlName="password"
-          placeholder="Enter your password"
-          [toggleMask]="true"
-          [feedback]="false"
-          [class.p-invalid]="isFieldInvalid('password')"
-          styleClass="w-full"
-        >
-        </p-password>
-        @if (isFieldInvalid('password')) {
-        <small class="error-message">
-          {{ getFieldError('password') }}
-        </small>
-        }
-      </div>
       } @else {
       <!-- Access Code Field -->
       <div class="form-field">

@@ -24,20 +24,15 @@ export interface AccessToken {
   billing_period_end?: string;
 }
 
-
-
-
 // Request models
 export interface SignUpRequest {
   email: string;
-  password: string;
   firstName?: string;
   lastName?: string;
 }
 
 export interface SignInRequest {
   email: string;
-  password: string;
 }
 
 export interface SocialSignInRequest {
@@ -56,7 +51,6 @@ export interface SignUpParticipantRequest {
 
 export interface SignInParticipantRequest {
   accessCode: string;
-  password?: string;
 }
 
 

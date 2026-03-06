@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
 import { catchError, finalize, EMPTY } from 'rxjs';
 import { ScheduledPlanDowngradeInfoDto, UsersService, UserDto } from '../../../../services/users-service';
 import { MessagesService } from '../../../../services/messages-service';
@@ -14,7 +13,6 @@ import { PaddleService } from '../../../../services/paddle-service';
 import { firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 
-// TODO: move c hange password form to a separate component and use it in both profile and auth pages
 // TODO: add styles to custom portal link
 // TODO: check social logins section logic
 // TODO: find out how to show local prices to customers with Paddle
@@ -26,7 +24,6 @@ import { Router } from '@angular/router';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    PasswordModule,
     AppButton
   ],
   templateUrl: './profile-component.html',
@@ -34,22 +31,18 @@ import { Router } from '@angular/router';
 })
 export class ProfileComponent implements OnInit {
   componentId = 'profile';
-  hasPassword = signal(true);
   hasGoogleLinked = signal(false);
   hasFacebookLinked = signal(false);
   isGoogleBusy = signal(false);
   isFacebookBusy = signal(false);
   expandedSections = signal<Record<string, boolean>>({
     'personal-information': true,
-    'social-login': false,
-    'change-password': false,
+    'social-login': false
   });
 
   profileForm: FormGroup;
-  passwordForm: FormGroup;
   isLoadingProfile = signal(false);
   isUpdatingProfile = signal(false);
-  isUpdatingPassword = signal(false);
   isOpeningPortal = signal(false);
   isLoadingScheduledDowngrade = signal(false);
   isCancellingScheduledDowngrade = signal(false);
@@ -95,11 +88,6 @@ export class ProfileComponent implements OnInit {
       phone: ['']
     });
 
-    this.passwordForm = this.fb.group({
-      currentPassword: ['', [Validators.required]],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
-      confirmNewPassword: ['', [Validators.required]]
-    }, { validators: this.passwordMatchValidator });
   }
 
   ngOnInit(): void {
@@ -121,18 +109,7 @@ export class ProfileComponent implements OnInit {
   isSectionExpanded(sectionId: string): boolean {
     return !!this.expandedSections()[sectionId];
   }
-
-  passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-    const newPassword = control.get('newPassword');
-    const confirmNewPassword = control.get('confirmNewPassword');
-
-    if (!newPassword || !confirmNewPassword) {
-      return null;
-    }
-
-    return newPassword.value === confirmNewPassword.value ? null : { passwordMismatch: true };
-  }
-
+ 
   loadProfile(): void {
     this.isLoadingProfile.set(true);
 
@@ -147,18 +124,8 @@ export class ProfileComponent implements OnInit {
       })
     ).subscribe({
       next: (profile: UserDto) => {
-        this.hasPassword.set(profile.hasPassword);
         this.hasGoogleLinked.set(profile.hasGoogleLinked);
         this.hasFacebookLinked.set(profile.hasFacebookLinked);
-
-        const currentPasswordControl = this.passwordForm.get('currentPassword');
-        if (this.hasPassword()) {
-          currentPasswordControl?.setValidators([Validators.required]);
-        } else {
-          currentPasswordControl?.clearValidators();
-          currentPasswordControl?.setValue('');
-        }
-        currentPasswordControl?.updateValueAndValidity();
 
         this.profileForm.patchValue({
           email: profile.email,
@@ -412,46 +379,6 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  onUpdatePassword(): void {
-    if (this.passwordForm.invalid) {
-      this.passwordForm.markAllAsTouched();
-      this.messagesService.showWarning('Validation Error', 'Please fill in all required fields correctly.');
-      return;
-    }
-
-    this.isUpdatingPassword.set(true);
-
-    const { currentPassword, newPassword } = this.passwordForm.value;
-
-    const effectiveCurrentPassword = this.hasPassword() ? currentPassword : '';
-
-    this.usersService.updatePassword(effectiveCurrentPassword, newPassword).pipe(
-      catchError((error) => {
-        // Check if the error is due to incorrect current password
-        const errorMessage = error.error?.message || '';
-        const isIncorrectPassword = errorMessage.toLowerCase().includes('current password is incorrect')
-          || errorMessage.toLowerCase().includes('wrong password')
-          || error.status === 401;
-
-        if (isIncorrectPassword) {
-          this.messagesService.showWarning('Invalid Password', 'Please enter a valid current password');
-        } else {
-          const errorMsg = error.error?.message || 'Failed to update password. Please try again.';
-          this.messagesService.showError('Update Failed', errorMsg);
-        }
-        return EMPTY;
-      }),
-      finalize(() => {
-        this.isUpdatingPassword.set(false);
-      })
-    ).subscribe({
-      next: () => {
-        this.messagesService.showInfo('Password Updated', 'Your password has been successfully updated.');
-        this.passwordForm.reset();
-      }
-    });
-  }
-
   getProfileFieldError(fieldName: string): string {
     const field = this.profileForm.get(fieldName);
     if (!field || !field.touched) return '';
@@ -465,47 +392,12 @@ export class ProfileComponent implements OnInit {
     return '';
   }
 
-  getPasswordFieldError(fieldName: string): string {
-    const field = this.passwordForm.get(fieldName);
-    if (!field || !field.touched) return '';
-
-    if (field.hasError('required')) {
-      return 'This field is required';
-    }
-    if (field.hasError('minlength')) {
-      const minLength = field.getError('minlength').requiredLength;
-      return `Password must be at least ${minLength} characters`;
-    }
-    return '';
-  }
-
-  getConfirmNewPasswordError(): string {
-    const field = this.passwordForm.get('confirmNewPassword');
-    if (!field || !field.touched) return '';
-
-    if (field.hasError('required')) {
-      return 'This field is required';
-    }
-    if (this.passwordForm.hasError('passwordMismatch') && field.touched) {
-      return 'Passwords do not match';
-    }
-    return '';
-  }
-
   isProfileFieldInvalid(fieldName: string): boolean {
     const field = this.profileForm.get(fieldName);
     return !!(field && field.invalid && field.touched);
   }
 
-  isPasswordFieldInvalid(fieldName: string): boolean {
-    const field = this.passwordForm.get(fieldName);
-    return !!(field && field.invalid && field.touched);
-  }
 
-  isConfirmNewPasswordInvalid(): boolean {
-    const field = this.passwordForm.get('confirmNewPassword');
-    return !!(field && field.touched && (field.invalid || this.passwordForm.hasError('passwordMismatch')));
-  }
 
   onChoosePlanClick(): void {
     this.router.navigate(['/plans']);
@@ -515,18 +407,7 @@ export class ProfileComponent implements OnInit {
   }
 
 
-  // <p class="billing-row">
-  //     Manage your <a
-  //         href=""
-  //         (click)="onOpenCustomerPortal($event)"
-  //         [attr.aria-disabled]="isOpeningPortal()"
-  //         [attr.tabindex]="isOpeningPortal() ? -1 : null"
-  //     >{{ isOpeningPortal() ? 'billing portal (opening...)' : 'billing, plan and subscription' }}</a>
-  // </p>
-
-
-
-
+  
 }
 
 

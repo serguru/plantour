@@ -42,13 +42,13 @@ export class EditYourProfileComponent {
         {
           title: 'Participants',
           content: [
-            'Invited users who joined through an Admin\'s invitation have full access to edit their profile information. They can update personal details and, most importantly, set a password to convert their account into a full Plantour account.'
+            'Invited users who joined through an Admin\'s invitation have full access to edit their profile information. They can update personal details.'
           ]
         },
         {
           title: 'Admins',
           content: [
-            'Registered users with full accounts have complete access to all profile settings, including personal information, password management, and account preferences.'
+            'Registered users with full accounts have complete access to all profile settings, including personal information, and account preferences.'
           ]
         }
       ]
@@ -104,23 +104,9 @@ export class EditYourProfileComponent {
           ],
           list: [
             'Navigate to your profile page (click your name → Edit Profile)',
-            'In the "Password" section, click "Set Password"',
-            'Create a strong password (minimum 8 characters, including letters and numbers)',
-            'Confirm your password by entering it again',
-            'Click "Save Password"',
             'Your account is now a full Plantour account!'
           ]
         },
-        {
-          title: 'After Setting Your Password',
-          content: [
-            'Once you\'ve set a password, your account converts from Participant-only to a full account:',
-            'You can now sign in using your email and password (the same way Admins do)',
-            'You retain access to all trips you were invited to as a Participant',
-            'You can create new trips and become an Admin for those trips',
-            'Your email becomes your permanent account identifier'
-          ]
-        }
       ]
     },
     {
@@ -149,8 +135,6 @@ export class EditYourProfileComponent {
             'Navigate to your profile page before your 7-day trial expires',
             'Look for the "Convert to Full Account" section',
             'Enter your real email address (this will become your account email)',
-            'Create a password for your account',
-            'Confirm your password',
             'Click "Convert Account"',
             'Check your email for a verification link',
             'Click the verification link to activate your account'
@@ -165,7 +149,7 @@ export class EditYourProfileComponent {
             'The 10-item limit is removed',
             'The 7-day expiration no longer applies',
             'You\'ll need to choose a subscription plan (you can start with the 30-day Trial plan)',
-            'You can sign in using your new email and password'
+            'You can sign in using your new email'
           ]
         },
         {
@@ -225,58 +209,6 @@ export class EditYourProfileComponent {
       ]
     },
     {
-      id: 'password-management',
-      title: 'Password Management',
-      content: [
-        'Managing your password is crucial for account security and access control. The password options available depend on your account type.'
-      ],
-      subsections: [
-        {
-          title: 'For Participants (Setting First Password)',
-          content: [
-            'If you\'re a Participant who was invited and doesn\'t have a password yet:',
-            'Navigate to the "Password" section on your profile',
-            'Click "Set Password"',
-            'Enter a strong password (minimum 8 characters)',
-            'Confirm your password',
-            'Click "Save"',
-            'Your account is now upgraded to a full account!'
-          ]
-        },
-        {
-          title: 'For Admins and Upgraded Participants (Changing Password)',
-          content: [
-            'If you already have a password and want to change it:',
-            'Go to the "Password" section on your profile',
-            'Click "Change Password"',
-            'Enter your current password',
-            'Enter your new password',
-            'Confirm your new password',
-            'Click "Update Password"'
-          ]
-        },
-        {
-          title: 'Password Requirements',
-          content: [
-            'For security, your password must meet these requirements:'
-          ],
-          list: [
-            'Minimum 8 characters long',
-            'At least one uppercase letter',
-            'At least one lowercase letter',
-            'At least one number',
-            'Special characters recommended but not required'
-          ]
-        },
-        {
-          title: 'Forgot Password?',
-          content: [
-            'If you forget your password, use the "Forgot Password" link on the sign-in page. You\'ll receive a password reset email with instructions to create a new password.'
-          ]
-        }
-      ]
-    },
-    {
       id: 'email-changes',
       title: 'Changing Your Email Address',
       content: [
@@ -290,18 +222,9 @@ export class EditYourProfileComponent {
             'Navigate to the "Email" section on your profile',
             'Click "Change Email"',
             'Enter your new email address',
-            'Enter your password to confirm',
             'Click "Request Change"',
             'Check both your old and new email for verification links',
             'Click both verification links to complete the change'
-          ]
-        },
-        {
-          title: 'For Participants Without Password',
-          content: [
-            'Participants who haven\'t set a password yet cannot change their email directly. Instead:',
-            'Set a password first (as described in the Password Management section)',
-            'Once you have a password, you can change your email using the process above'
           ]
         },
         {
@@ -309,8 +232,7 @@ export class EditYourProfileComponent {
           content: [
             'You must verify both the old and new email addresses to complete the change.',
             'Your old email remains active until you verify the new one.',
-            'All future sign-ins and notifications will use the new email after verification.',
-            'Update your email in any saved password managers after changing it.'
+            'All future sign-ins and notifications will use the new email after verification.'
           ]
         }
       ]
@@ -322,17 +244,6 @@ export class EditYourProfileComponent {
         'Here are some helpful tips for managing your profile effectively:'
       ],
       subsections: [
-        {
-          title: 'Security Tips',
-          content: [],
-          list: [
-            'Use a unique, strong password that you don\'t use for other services',
-            'Enable two-factor authentication if available (coming soon)',
-            'Don\'t share your password with other trip participants',
-            'Update your password regularly (every 3-6 months recommended)',
-            'If you suspect unauthorized access, change your password immediately'
-          ]
-        },
         {
           title: 'Profile Completeness',
           content: [],
@@ -349,7 +260,6 @@ export class EditYourProfileComponent {
           content: [],
           list: [
             'Consider upgrading to a full account even if you don\'t plan to create trips - it gives you more control',
-            'Setting a password doesn\'t cost anything - you only pay if you create trips as an Admin',
             'After upgrading, you can still participate in others\' trips for free',
             'Your upgraded account never expires, unlike Guest accounts'
           ]

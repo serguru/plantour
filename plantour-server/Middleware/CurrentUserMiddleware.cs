@@ -43,8 +43,6 @@ public class CurrentUserMiddleware
                     currentUser.Email = user.Email;
                     currentUser.FirstName = user.FirstName;
                     currentUser.LastName = user.LastName;
-                    currentUser.PasswordHash = user.PasswordHash;
-                    currentUser.PasswordSalt = user.PasswordSalt;
                     currentUser.Phone = user.Phone;
                     currentUser.Notes = user.Notes;
                     currentUser.CreatedAt = user.CreatedAt;
