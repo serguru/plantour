@@ -241,6 +241,17 @@ export class PlansPanelComponent implements OnInit {
     if (this.isAuthenticated) {
 
       switch (this.currentPlanPeriod) {
+        case 'Starter Free':
+          this.family.monthlyButtonText = 'Upgrade to Monthly';
+          this.family.monthlyAvalable = true;
+          this.family.yearlyButtonText = 'Upgrade to Yearly';
+          this.family.yearlyAvalable = true;
+          this.expedition.monthlyButtonText = 'Upgrade to Monthly';
+          this.expedition.monthlyAvalable = true;
+          this.expedition.yearlyButtonText = 'Upgrade to Yearly';
+          this.expedition.yearlyAvalable = true;
+          break;
+        case 'Family Yearly':
         case 'Family Monthly':
           this.family.monthlyButtonText = 'Current Monthly';
           this.family.monthlyAvalable = false;

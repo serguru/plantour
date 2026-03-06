@@ -52,8 +52,6 @@ public class PaddleService : IPaddleService
         _httpclient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
     }
 
-
-
     public async Task<string?> GetActiveCustomerIdByEmailAsync(string email)
     {
         if (string.IsNullOrWhiteSpace(email))

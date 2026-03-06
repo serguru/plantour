@@ -105,7 +105,7 @@ public class AccessRulesService : IAccessRulesService
         {
             AccessRulesObject = await ProcessUser(subscription, role),
             UserObject = user,
-            //PriceName = priceName,
+            PriceName = subscription != null ? subscription.PriceName : "Starter Free",
             BillingPeriodStart = billingPeriodStart,
             BillingPeriodEnd = billingPeriodEnd
         };

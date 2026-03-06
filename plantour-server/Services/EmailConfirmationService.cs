@@ -63,6 +63,18 @@ public class EmailConfirmationService : IEmailConfirmationService
         await _confirmationRepository.DeleteRangeAsync(x => x.UserId == userId);
     }
 
+    public async Task ResetPendingAsync(Guid userId)
+    {
+        User? user = await _usersRepository.GetByIdAsync(userId);
+        if (user == null) 
+        {
+            return;
+        }
+        user.AccessTypeId = await _accessTypeRepository.GetActiveId();
+        await _usersRepository.UpdateAsync(user);
+        await _confirmationRepository.DeleteRangeAsync(x => x.UserId == userId);
+    }
+
     public async Task<bool> ConfirmEmailAsync(Guid userId, string token)
     {
         string payload;
@@ -98,25 +110,30 @@ public class EmailConfirmationService : IEmailConfirmationService
             return false;
         }
 
-        var confirmation = await _confirmationRepository.GetByUserIdAsync(userId);
-        if (confirmation == null)
-        {
-            confirmation = new UserEmailConfirmation
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                CreatedAt = DateTime.UtcNow,
-                ConfirmedAt = DateTime.UtcNow
-            };
-            await _confirmationRepository.AddAsync(confirmation);
-            return true;
-        }
+        await ResetPendingAsync(userId);
 
-        if (confirmation.ConfirmedAt == null)
-        {
-            confirmation.ConfirmedAt = DateTime.UtcNow;
-            await _confirmationRepository.UpdateAsync(confirmation);
-        }
+
+        // var confirmation = await _confirmationRepository.GetByUserIdAsync(userId);
+        // if (confirmation == null)
+        // {
+        //     // confirmation = new UserEmailConfirmation
+        //     // {
+        //     //     Id = Guid.NewGuid(),
+        //     //     UserId = userId,
+        //     //     CreatedAt = DateTime.UtcNow,
+        //     //     ConfirmedAt = DateTime.UtcNow
+        //     // };
+        //     // await _confirmationRepository.AddAsync(confirmation);
+        //     return true;
+        // }
+
+        // if (confirmation.ConfirmedAt == null)
+        // {
+
+        //     await _confirmationRepository.DeleteRangeAsync(x => x.UserId == userId);
+        //     // confirmation.ConfirmedAt = DateTime.UtcNow;
+        //     // await _confirmationRepository.UpdateAsync(confirmation);
+        // }
 
         return true;
     }
