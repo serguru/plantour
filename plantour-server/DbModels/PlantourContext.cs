@@ -21,8 +21,6 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<AiPrompt> AiPrompts { get; set; }
 
-    public virtual DbSet<AiPromptCheck> AiPromptChecks { get; set; }
-
     public virtual DbSet<AiThing> AiThings { get; set; }
 
     public virtual DbSet<ApiVisit> ApiVisits { get; set; }
@@ -138,15 +136,6 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.User).WithMany(p => p.AiPrompts).HasConstraintName("ai_prompts_user_id_fkey");
-        });
-
-        modelBuilder.Entity<AiPromptCheck>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("ai_prompt_checks_pkey");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-
-            entity.HasOne(d => d.IdNavigation).WithOne(p => p.AiPromptCheck).HasConstraintName("ai_prompt_checks_id_fkey");
         });
 
         modelBuilder.Entity<AiThing>(entity =>

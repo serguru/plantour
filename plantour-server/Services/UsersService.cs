@@ -448,8 +448,6 @@ public class UsersService(
         var result = new LandingDto()
         {
             Plans = planDtos,
-
-            GuestPlanDurationDays = (int)await _settingsRepository.GetSettingByKey("guest_plan_duration_days") + " days"
         };
         return result;
     }

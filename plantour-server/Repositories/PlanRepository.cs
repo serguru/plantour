@@ -23,7 +23,6 @@ public class PlanRepository : GenericRepository<Plan>
         public Guid PlanId { get; init; }
         public string? PaddlePriceId { get; init; }
         public required string Name { get; init; }
-        public required int PriceEnumId { get; init; }
         public required int ValueCents { get; init; }
     }
 
@@ -74,7 +73,6 @@ public class PlanRepository : GenericRepository<Plan>
                 PlanId = priceItem.PlanId,
                 PaddlePriceId = priceItem.PaddlePriceId,
                 Name = priceItem.Name,
-                PriceEnumId = priceItem.PriceEnumId,
                 ValueCents = priceItem.ValueCents,
                 Plan = plan
             };
@@ -111,7 +109,6 @@ public class PlanRepository : GenericRepository<Plan>
                         PlanId = price.PlanId,
                         PaddlePriceId = price.PaddlePriceId,
                         Name = price.Name,
-                        PriceEnumId = price.PriceEnumId,
                         ValueCents = price.ValueCents
                     }).ToList()
                 })

@@ -21,12 +21,14 @@ public class TokenService : ITokenService
     private readonly IAccessRulesService _accessRulesService;
 
     private readonly RefreshTokenRepository _refreshTokenRepository;
+    private readonly SettingsRepository _settingsRepository;
 
-    public TokenService(IOptions<JwtSettings> jwtSettings, IAccessRulesService accessRulesService, RefreshTokenRepository refreshTokenRepository)
+    public TokenService(IOptions<JwtSettings> jwtSettings, IAccessRulesService accessRulesService, RefreshTokenRepository refreshTokenRepository, SettingsRepository settingsRepository)
     {
         _jwtSettings = jwtSettings.Value;
         _accessRulesService = accessRulesService;
         _refreshTokenRepository = refreshTokenRepository;
+        _settingsRepository = settingsRepository;
     }
 
 
@@ -43,7 +45,7 @@ public class TokenService : ITokenService
         bool isTemporary = user.Temporary;
         if (isTemporary)
         {
-            expiresAtUtc = expiresAtUtc.AddDays(_jwtSettings.TemporaryUserAccessTokenExpirationDays);
+            expiresAtUtc = expiresAtUtc.AddDays((int)await _settingsRepository.GetSettingByKey("temporary_user_duration_days"));
         }
         else
         {

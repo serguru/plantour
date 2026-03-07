@@ -170,10 +170,7 @@ export class PlansPanelComponent implements OnInit {
 
   private setPlans(data: LandingDto): void {
 
-    const plans: Plan[] = [];
-
     data.plans.filter(x => !(this.isAuthenticated && x.name === 'Starter')).forEach(plan => {
-
       switch (plan.name) {
         case 'Starter':
           this.starter =

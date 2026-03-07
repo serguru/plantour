@@ -37,6 +37,7 @@
 							formControlName="email"
 							placeholder="your.email@example.com"
 							[class.p-invalid]="emailInvalid"
+							(keyup)="onEmailInput($event)"
 						/>
 						@if (emailInvalid) {
 							<small class="error-message">Please enter a valid email address</small>

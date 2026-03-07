@@ -60,9 +60,6 @@ public partial class User
     [InverseProperty("Participant")]
     public virtual ICollection<AdminsParticipant> AdminsParticipantParticipants { get; set; } = new List<AdminsParticipant>();
 
-    [InverseProperty("IdNavigation")]
-    public virtual AiPromptCheck? AiPromptCheck { get; set; }
-
     [InverseProperty("User")]
     public virtual ICollection<AiPrompt> AiPrompts { get; set; } = new List<AiPrompt>();
 

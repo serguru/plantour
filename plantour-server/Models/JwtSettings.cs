@@ -8,6 +8,5 @@ public class JwtSettings
     public int AccessTokenExpirationMinutes { get; set; } = 30;
     public int RefreshTokenExpirationDays { get; set; } = 7;
     public int SignInEmailTokenMinutes { get; set; } = 60;
-    public int TemporaryUserAccessTokenExpirationDays { get; set; } = 14;
     
 }

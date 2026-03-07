@@ -247,7 +247,6 @@ create table plantour.plans (
     created_at timestamp not null default (now() at time zone 'utc')
 );
 insert into plantour.plans (name, paddle_product_id, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
-('Guest', null, 'To get acquainted with Plantour', false, 10, 2, 2, false),
 ('Starter', null, 'For small trips and light packers', true, 10, 2, 5, false),
 ('Family', 'pro_01kjxac2mxwrnd4mxbg1mcrvzj', 'Perfect for families and small groups', true, null, 5, 20, false),
 ('Expedition', 'pro_01kjxacxntgw124n3qt7wkpz0b', 'Ideal for large groups and expeditions', true, null, null, 100, true);
@@ -257,51 +256,38 @@ create table plantour.prices (
     plan_id uuid not null references plans(id),
     paddle_price_id text null unique,
     name text not null unique,
-    price_enum_id int not null unique,
     value_cents int not null check(value_cents >= 0)
 );
 
-insert into plantour.prices (paddle_price_id,plan_id,name,price_enum_id,value_cents) values
-(
-    null,
-    (select id from plantour.plans where name = 'Guest'),
-    'Guest Free',
-    1,
-    0
-),
+insert into plantour.prices (paddle_price_id,plan_id,name,value_cents) values
 (
     null,
     (select id from plantour.plans where name = 'Starter'),
     'Starter Free',
-    2,
     0
 ),
 (
     'pri_01kjxay8cfnq6d29b7mrxxp97f',
     (select id from plantour.plans where name = 'Family'),
     'Family Monthly',
-    3,
     499
 ),
 (
     'pri_01kjxanhwzg54p8sng4z0q2xj4',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Monthly',
-    4,
     1499
 ),
 (
     'pri_01kjxazjmygtm2wfd6zz5aykrb',
     (select id from plantour.plans where name = 'Family'),
     'Family Yearly',
-    5,
     2999
 ),
 (
     'pri_01kjxaqr1pc1pjjg0xm10wr1we',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Yearly',
-    6,
     8999
 );
 
@@ -342,9 +328,6 @@ create trigger trg_prevent_email_change_for_non_temporary_users
 before update on plantour.users
 for each row
 execute function plantour.prevent_email_change_for_non_temporary_users();
-
-
-
 
 create table admins_participants (
     id uuid not null primary key default gen_random_uuid(),
@@ -712,7 +695,7 @@ create table plantour.settings (
 insert into plantour.settings (key, value, value_type)
 values 
     ('user_email_confirmation_url', 'http://localhost:4203/confirm-email', 'string'),
-    ('guest_plan_duration_days', '14', 'integer'),
+    ('temporary_user_duration_days', '14', 'integer'),
     ('email_confirmation_token_minutes', '60',  'integer'),
     ('user_token_expiration_minutes', '1440',  'integer'),
     ('checkout_session_success_url', 'profile',  'string'),

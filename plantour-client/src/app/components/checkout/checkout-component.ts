@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { AppButton } from '../button/button-component';
 import { MessagesService } from '../../services/messages-service';
 import { UsersService } from '../../services/users-service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 // TODO: make sure this component works correctly for both registered and not registered users
 
@@ -27,7 +28,7 @@ export class CheckoutComponent implements OnInit {
   private readonly paddleService = inject(PaddleService);
   private readonly messagesService = inject(MessagesService);
   private readonly usersService = inject(UsersService);
-
+  
   readonly checkoutContainerClass = 'paddle-inline-checkout-container';
   readonly emailForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -39,20 +40,24 @@ export class CheckoutComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   private isHandlingCheckoutResult = false;
+  
+  onEmailInput(ev: Event): void {
+    if (this.errorMessage) {
+      this.errorMessage = '';
+    } 
+  }
 
   ngOnInit(): void {
     this.paddleService.setCheckoutEventHandler((eventName: string) => {
       void this.onPaddleEvent(eventName);
     });
 
+    // This should never happen because the route is protected, but just in case
     this.priceId = this.route.snapshot.paramMap.get('priceId');
-
     if (!this.priceId) {
       this.errorMessage = 'Missing required query parameter: priceId';
     }
-
     this.priceName = this.route.snapshot.paramMap.get('priceName');
-
     if (!this.priceName) {
       this.errorMessage = 'Missing required query parameter: priceName';
     }
@@ -86,16 +91,7 @@ export class CheckoutComponent implements OnInit {
 
       if (hasActiveSubscription) {
         this.isLoading = false;
-
-        const result = await this.messagesService.openInfo({
-          title: 'Subscription already exists',
-          message: 'You already have an active subscription'
-        });
-
-        if (result === 'ok') {
-          void this.router.navigate(['/profile']);
-        }
-
+        this.errorMessage = "You already have an active plan. If you wish to change your plan, sign in, go to your profile and press 'Change plan'.";
         return;
       }
 
@@ -103,16 +99,7 @@ export class CheckoutComponent implements OnInit {
 
       if (isTemporary) {
         this.isLoading = false;
-
-        const result = await this.messagesService.openInfo({
-          title: 'Temporary user found',
-          message: 'Temporary user cannot have a subscription'
-        });
-
-        if (result === 'ok') {
-          void this.router.navigate(['/profile']);
-        }
-
+        this.errorMessage = "A temporary user with this email address was found. Temporary users cannot have a paid plan. Please enter a different email address.";
         return;
       }
 

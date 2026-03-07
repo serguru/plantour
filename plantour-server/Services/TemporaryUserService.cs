@@ -28,6 +28,9 @@ public class TemporaryUserService : ITemporaryUserService
     private readonly TripThingRepository _tripThingRepository;
     private readonly TripPackRepository _tripPackRepository;
     private readonly LookupsRepository _lookupsRepository;
+
+    private readonly SettingsRepository _settingsRepository;
+
     private readonly AdminsParticipantRepository _adminsParticipantRepository;
     private readonly PlantourContext _context;
     private readonly IMapper _mapper;
@@ -36,7 +39,7 @@ public class TemporaryUserService : ITemporaryUserService
 
     private readonly JwtSettings _jwtSettings;
 
-    
+
     public TemporaryUserService(
         IOptions<JwtSettings> jwtSettings,
         UsersRepository usersRepository,
@@ -52,6 +55,7 @@ public class TemporaryUserService : ITemporaryUserService
         PlantourContext context,
         IMapper mapper,
         IAccessRulesService accessRulesService,
+        SettingsRepository settingsRepository,
         AccessTypeRepository accessTypeRepository)
     {
         _jwtSettings = jwtSettings.Value;
@@ -64,6 +68,7 @@ public class TemporaryUserService : ITemporaryUserService
         _thingRepository = thingRepository;
         _tripThingRepository = tripThingRepository;
         _accessTypeRepository = accessTypeRepository;
+        _settingsRepository = settingsRepository;
         _tripPackRepository = tripPackRepository;
         _lookupsRepository = lookupsRepository;
         _adminsParticipantRepository = adminsParticipantRepository;
@@ -131,9 +136,9 @@ public class TemporaryUserService : ITemporaryUserService
             FirstName = user.FirstName,
             LastName = user.LastName,
             CurrentTripId = activeTrip.Id,
-            TemporaryUserAccessTokenExpirationDays = _jwtSettings.TemporaryUserAccessTokenExpirationDays,
-            ItemsLimit = rules.FirstOrDefault(r => r.Id == 40)?.Value ?? 0, 
-            ParticipantsLimit = rules.FirstOrDefault(r => r.Id == 50)?.Value ?? 0, 
+            TemporaryUserAccessTokenExpirationDays = (int)await _settingsRepository.GetSettingByKey("temporary_user_duration_days"),
+            ItemsLimit = rules.FirstOrDefault(r => r.Id == 40)?.Value ?? 0,
+            ParticipantsLimit = rules.FirstOrDefault(r => r.Id == 50)?.Value ?? 0,
         };
     }
 

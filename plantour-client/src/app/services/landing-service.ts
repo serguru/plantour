@@ -34,7 +34,6 @@ export interface PlanDto
 export interface LandingDto
 {
     plans: PlanDto[];
-    guestPlanDurationDays: string;
 }
 
 // TODO: the landing page title must word wrap properly
