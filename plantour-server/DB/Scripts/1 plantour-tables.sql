@@ -324,29 +324,27 @@ create table users (
     temporary bool not null default false
 );
 
-create or replace function plantour.prevent_user_email_update()
+create or replace function plantour.prevent_email_change_for_non_temporary_users()
 returns trigger
 language plpgsql
 as $$
 begin
-    if new.email is distinct from old.email then
-        raise exception 'User email cannot be changed';
+    if old.temporary = false and new.email is distinct from old.email then
+        raise exception 'Email cannot be changed for non-temporary users';
     end if;
 
     return new;
 end;
 $$;
 
-create trigger trg_prevent_user_email_update
+drop trigger if exists trg_prevent_email_change_for_non_temporary_users on users;
+create trigger trg_prevent_email_change_for_non_temporary_users
 before update on plantour.users
 for each row
-execute function plantour.prevent_user_email_update();
+execute function plantour.prevent_email_change_for_non_temporary_users();
 
-create table ai_prompt_checks (
-    id uuid primary key not null references users(id) on delete cascade,
-    start timestamp not null ,
-    count int not null check(count >= 0)
-);
+
+
 
 create table admins_participants (
     id uuid not null primary key default gen_random_uuid(),

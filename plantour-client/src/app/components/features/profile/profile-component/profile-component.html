@@ -102,6 +102,7 @@
                             formControlName="email"
                             placeholder="your.email@example.com"
                             [class.p-invalid]="isProfileFieldInvalid('email')"
+                            [readonly]="!isTemporary()"
                         />
                         @if (isProfileFieldInvalid('email')) {
                         <small class="error-message">
@@ -109,6 +110,9 @@
                         </small>
                         }
                     </div>
+                    @if(isTemporary()) {
+                        <p>To switch from the current temporary Guest account to the Starter Free plan you can update your current temporary email {{ userEmail() }} with your actual email. Your current data will not be lost.</p>
+                    }
 
                     <div class="form-field">
                         <label for="firstName">First Name</label>

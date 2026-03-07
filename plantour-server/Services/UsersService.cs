@@ -381,44 +381,46 @@ public class UsersService(
         return MapUserDto(user);
     }
 
-    public async Task<UserDto> UpdateProfileAsync(UpdateProfileRequest request)
+    public async Task<object> UpdateProfileAsync(UpdateProfileRequest request)
     {
         var user = await _usersRepository.GetByIdAsync(_currentUser.UserId);
         if (user == null)
         {
             throw new CustomException("User not found");
         }
+        if (string.IsNullOrWhiteSpace(request.Email))
+        {
+            throw new CustomException("Email cannot be empty");
+        }
+
+        bool emailChanged = !string.Equals(user.Email, request.Email, StringComparison.OrdinalIgnoreCase);
 
         // Check if email is being changed and if it already exists
-        if (!string.IsNullOrWhiteSpace(request.Email) && !string.Equals(user.Email, request.Email, StringComparison.OrdinalIgnoreCase))
+        if (emailChanged)
         {
-            var existingUser = await _usersRepository.GetByEmailAsync(request.Email);
+            if (!user.Temporary)
+            {
+                throw new CustomException("Cannot change email for non-temporary user");
+            }
+            user.Temporary = false;
+
+            var existingUser = await _usersRepository.GetByEmailAsync(request.Email!);
             if (existingUser != null)
             {
                 throw new CustomException("This email is already in use by another account");
             }
-            user.Email = request.Email;
+            user.Email = request.Email!;
         }
 
-        // Update other fields if provided
-        if (request.FirstName != null)
-        {
-            user.FirstName = request.FirstName;
-        }
-
-        if (request.LastName != null)
-        {
-            user.LastName = request.LastName;
-        }
-
-        if (request.Phone != null)
-        {
-            user.Phone = request.Phone;
-        }
+        user.FirstName = request.FirstName;
+        user.LastName = request.LastName;
+        user.Phone = request.Phone;
 
         await _usersRepository.UpdateAsync(user);
 
-        return MapUserDto(user);
+        object result = emailChanged ? new { RedirectToSignin = true } : MapUserDto(user);
+
+        return result;
     }
 
 
@@ -841,6 +843,15 @@ public class UsersService(
         return await _timeTickerRepository.CancelLatestActiveByFunctionAndIdentifierAsync(
             TickerQPlanDowngradeTask.FunctionName,
             initIdentifier);
+    }
+    public async Task<bool> IsUserTemporary(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            throw new CustomException("Email is required");
+        }
+        var user = await _usersRepository.GetByEmailAsync(email);
+        return user?.Temporary ?? false;
     }
 }
 

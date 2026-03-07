@@ -20,7 +20,7 @@ public interface IUsersService
 
     // Profile management
     Task<UserDto> GetProfileAsync();
-    Task<UserDto> UpdateProfileAsync(UpdateProfileRequest request);
+    Task<object> UpdateProfileAsync(UpdateProfileRequest request);
     Task<UserDto> LinkSocialProviderAsync(SocialSignInRequest request);
     Task<UserDto> UnlinkSocialProviderAsync(string provider);
 
@@ -31,4 +31,6 @@ public interface IUsersService
     Task<ScheduledPlanDowngradeInfoDto> GetScheduledPlanDowngradeInfoAsync();
 
     Task<bool> CancelScheduledPlanDowngradeAsync();
+    
+    Task<bool> IsUserTemporary(string email);
 }

@@ -417,8 +417,11 @@ export class UsersService {
       }
     });
   }
-
   
-
+  isUserTemporary(email: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.environment.apiUrl}/api/users/is-user-temporary`, {
+      params: { email }
+    });
+  }
 
 }

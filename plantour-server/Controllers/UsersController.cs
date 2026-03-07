@@ -120,12 +120,11 @@ public class UsersController : ControllerBase
 
         [HttpPut("profile")]
         [Authorize]
-        public async Task<ActionResult<UserDto>> UpdateProfile([FromBody] UpdateProfileRequest request)
+        public async Task<ActionResult<Object>> UpdateProfile([FromBody] UpdateProfileRequest request)
         {
                 var updatedProfile = await _usersService.UpdateProfileAsync(request);
                 return Ok(updatedProfile);
         }
-
 
         [HttpPost("profile/social/link")]
         [Authorize]
@@ -169,7 +168,7 @@ public class UsersController : ControllerBase
         }
 
         // TODO: add jobs cleaning code
-// TODO: add to log user creates and deletes entities
+        // TODO: add to log user creates and deletes entities
         [HttpPut("downgrade-plan-price/schedule")]
         [AdminOnly]
         public async Task<IActionResult> ScheduleOrRunDowngradePlanPrice([FromBody] UpdatePlanPriceRequest request)
@@ -209,4 +208,18 @@ public class UsersController : ControllerBase
                 var result = await _usersService.RefreshTokenAsync(request);
                 return Ok(result);
         }
+
+        [HttpGet("is-user-temporary")]
+        public async Task<ActionResult<bool>> IsUserTemporary([FromQuery] string email)
+        {
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                        return BadRequest("Email is required");
+                }
+
+                var isTemporary = await _usersService.IsUserTemporary(email);
+                return Ok(isTemporary);
+        }
+
+
 }

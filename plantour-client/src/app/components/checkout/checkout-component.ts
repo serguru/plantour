@@ -8,6 +8,7 @@ import { firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import { AppButton } from '../button/button-component';
 import { MessagesService } from '../../services/messages-service';
+import { UsersService } from '../../services/users-service';
 
 // TODO: make sure this component works correctly for both registered and not registered users
 
@@ -25,6 +26,7 @@ export class CheckoutComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly paddleService = inject(PaddleService);
   private readonly messagesService = inject(MessagesService);
+  private readonly usersService = inject(UsersService);
 
   readonly checkoutContainerClass = 'paddle-inline-checkout-container';
   readonly emailForm = this.fb.group({
@@ -88,6 +90,23 @@ export class CheckoutComponent implements OnInit {
         const result = await this.messagesService.openInfo({
           title: 'Subscription already exists',
           message: 'You already have an active subscription'
+        });
+
+        if (result === 'ok') {
+          void this.router.navigate(['/profile']);
+        }
+
+        return;
+      }
+
+      const isTemporary = await firstValueFrom(this.usersService.isUserTemporary(email));
+
+      if (isTemporary) {
+        this.isLoading = false;
+
+        const result = await this.messagesService.openInfo({
+          title: 'Temporary user found',
+          message: 'Temporary user cannot have a subscription'
         });
 
         if (result === 'ok') {

@@ -10,5 +10,4 @@ public class UserDto
     public string? Notes { get; set; }
     public bool HasGoogleLinked { get; set; }
     public bool HasFacebookLinked { get; set; }
-
 }

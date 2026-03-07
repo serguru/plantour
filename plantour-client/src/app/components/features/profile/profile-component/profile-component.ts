@@ -59,7 +59,9 @@ export class ProfileComponent implements OnInit {
   currentUser = this.usersService.userSignal;
 
   isAdmin = this.usersService.isAdminSignal;
-
+  
+  isTemporary = this.usersService.isTemporarySignal;
+  
   planPeriod = this.usersService.planPeriodSignal;
 
   fullName = computed(() => {
@@ -367,7 +369,13 @@ export class ProfileComponent implements OnInit {
         this.isUpdatingProfile.set(false);
       })
     ).subscribe({
-      next: (updatedProfile: UserDto) => {
+      next: (updatedProfile: any) => {
+        if (updatedProfile.redirectToSignin) {
+          this.messagesService.showInfo('Account changed', `Your account has been changed. Please sign-in with your email ${email}.`);
+          this.usersService.signOut();
+          this.router.navigate(['/sign-in']);
+          return;
+        }
         this.messagesService.showInfo('Profile Updated', 'Your profile has been successfully updated.');
         this.profileForm.patchValue({
           email: updatedProfile.email,
