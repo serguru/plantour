@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { dashboardGuard, landingExistingUserGuard, landingNewUserGuard } from './guards/landing-guard';
-import { adminOnlyGuard, adminOrParticipantGuard, checkTripIdGuard, publicGuard } from './guards/auth-guard';
+import { adminOnlyGuard, adminOrParticipantGuard, checkTripIdGuard, publicGuard, signInGuard } from './guards/auth-guard';
 import { CleanupResolver } from './helpers/resolver';
 import { TripFormComponent } from './components/trips/trip-form/trip-form-component';
 import { resolve } from 'path/win32';
@@ -40,7 +40,7 @@ export const routes: Routes = [
   // },
   {
     path: 'sign-in',
-    canActivate: [publicGuard],
+    canActivate: [signInGuard],
     loadComponent: () => import('./components/sign-in/sign-in').then(m => m.SignInComponent),
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'sign-in' }

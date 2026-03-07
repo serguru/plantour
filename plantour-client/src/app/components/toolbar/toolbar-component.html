@@ -221,7 +221,7 @@
           <span class="button-label">Privacy Policy</span>
         </a>
         <hr>
-        @if (!usersService.isAuthenticatedSignal()) {
+        @if (!usersService.isAuthenticatedSignal() || usersService.isTemporarySignal()) {
         <a
           class="pl-menu-item"
           [class.selected]="isNavigatedComponent('sign-in')"

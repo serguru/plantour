@@ -26,7 +26,7 @@
         [subsectionComponents]="getSectionComponents(section.id)"
         (toggleExpanded)="toggleSection($event)"
         (selectSubsection)="handleSelectSubsection($event)"
-        (startTestMode)="getStartedWithTest()"
+        (startTestMode)="usersService.createTemporaryUser()"
       >
       </app-help-section>
     }

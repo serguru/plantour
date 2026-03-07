@@ -12,6 +12,8 @@ using plantour_server.Repositories;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 using plantour_server.Utils;
+using plantour_server.Models;
+using Microsoft.Extensions.Options;
 
 namespace plantour_server.Services;
 
@@ -31,8 +33,12 @@ public class TemporaryUserService : ITemporaryUserService
     private readonly IMapper _mapper;
     private readonly IAccessRulesService _accessRulesService;
     private readonly AccessTypeRepository _accessTypeRepository;
+
+    private readonly JwtSettings _jwtSettings;
+
     
     public TemporaryUserService(
+        IOptions<JwtSettings> jwtSettings,
         UsersRepository usersRepository,
         ITokenService tokenService,
         TripRepository tripRepository,
@@ -48,6 +54,7 @@ public class TemporaryUserService : ITemporaryUserService
         IAccessRulesService accessRulesService,
         AccessTypeRepository accessTypeRepository)
     {
+        _jwtSettings = jwtSettings.Value;
         _usersRepository = usersRepository;
         _tokenService = tokenService;
         _tripRepository = tripRepository;
@@ -104,7 +111,6 @@ public class TemporaryUserService : ITemporaryUserService
             LastName = "Miles",
             CreatedAt = DateTime.UtcNow,
             Notes = "Automatically created temporary user",
-            //PriceEnumId = (int)PlanPrice.Guest,
             AccessTypeId = await _accessTypeRepository.GetActiveId()
         };
 
@@ -112,16 +118,23 @@ public class TemporaryUserService : ITemporaryUserService
 
         // Populate test data for the user
         Trip activeTrip = await PopulateSampleDataAsync(user);
-        var accessToken = await _tokenService.CreateAccessToken(user, UserRole.Admin, user.Id, true);
+        var accessTokenResult = await _tokenService.CreateAccessToken(user, UserRole.Admin, user.Id, true);
+
+        var rules = accessTokenResult.Rules;
+
+
 
         return new CreateTemporaryUserResponse
         {
-            AccessToken = accessToken.Token,
-            AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
+            AccessToken = accessTokenResult.Token,
+            AccessTokenExpiresAtUtc = accessTokenResult.ExpiresAtUtc,
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            CurrentTripId = activeTrip.Id
+            CurrentTripId = activeTrip.Id,
+            TemporaryUserAccessTokenExpirationDays = _jwtSettings.TemporaryUserAccessTokenExpirationDays,
+            ItemsLimit = rules.FirstOrDefault(r => r.Id == 40)?.Value ?? 0, 
+            ParticipantsLimit = rules.FirstOrDefault(r => r.Id == 50)?.Value ?? 0, 
         };
     }
 

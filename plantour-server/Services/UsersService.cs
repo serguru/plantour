@@ -842,8 +842,5 @@ public class UsersService(
             TickerQPlanDowngradeTask.FunctionName,
             initIdentifier);
     }
-
-
-
 }
 

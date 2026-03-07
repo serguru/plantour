@@ -90,7 +90,7 @@ public class TokenService : ITokenService
 
         var token = handler.CreateToken(tokenDescriptor);
 
-        return new AccessTokenResult(handler.WriteToken(token), expiresAtUtc);
+        return new AccessTokenResult(handler.WriteToken(token), expiresAtUtc, rules);
     }
 
 

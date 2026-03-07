@@ -19,6 +19,9 @@ export interface TemporaryUserResponse {
   firstName: string;
   lastName: string;
   currentTripId: string;
+  temporaryUserAccessTokenExpirationDays: number;
+  itemsLimit: number;
+  participantsLimit: number;
 }
 
 export interface UserDto {
@@ -30,6 +33,7 @@ export interface UserDto {
   notes?: string | null;
   hasGoogleLinked: boolean;
   hasFacebookLinked: boolean;
+
 }
 
 export interface TokenRequestDto {
@@ -94,6 +98,18 @@ export class UsersService {
     }
     return new Date(result);
   });
+
+  isTemporarySignal = computed<boolean>(() => {
+    const user = this._userSignal();
+    if (!user) return false;
+    const result = user['temporary'];
+    if (!result) {
+      return false;
+    }
+    return result === 'true';
+  });
+
+
 
   userRoleSignal = computed(() => {
     const user = this._userSignal();
@@ -372,6 +388,37 @@ export class UsersService {
     }
   };
 
+  createTemporaryUser = async () => {
+
+    const dialogResult = await this.messagesService.openOkCancel({
+      title: `Start Guest Access Mode`,
+      message: "You are entering Guest Mode! You can explore Plantour without creating an account. Ready to start?",
+      okLabel: 'Yes',
+      cancelLabel: 'No'
+    });
+
+    if (dialogResult !== 'ok') {
+      return;
+    }
+
+    this.registerTemporaryAdmin().subscribe({
+
+      next: (response: TemporaryUserResponse) => {
+        const path = `/trips/${response.currentTripId}/trip-things`;
+        this.router.navigate([path]);
+
+        this.messagesService.openInfo({
+          title: `Welcome to Plantour!`,
+          message: `You are now in Guest Access Mode as Robin Miles for ${response.temporaryUserAccessTokenExpirationDays} days. The app works with full features, except you are limited to ${response.itemsLimit} items and ${response.participantsLimit} participants. To get started, add items to your current trip "Weekend in Las Vegas", pack them into bags, and download a packing list. 
+          
+          If you need help, see Guest Mode Help. Good luck!
+          `
+        });
+      }
+    });
+  }
+
+  
 
 
 }

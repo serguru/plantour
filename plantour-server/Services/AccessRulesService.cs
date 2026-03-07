@@ -32,6 +32,7 @@ public class AccessRulesService : IAccessRulesService
     private async Task<AccessProcessResult> ProcessTemporaryUser(User user)
     {
         AccessProcessResult result = new();
+        result.PriceName = "Starter Free";
         var a = new AccessRules();
         var plan = await _planRepository.GetByNameAsync("Starter");
 

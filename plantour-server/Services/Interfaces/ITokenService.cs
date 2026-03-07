@@ -2,10 +2,11 @@ using PlantourApi.Models;
 using plantour_server.DbModels;
 using plantour_server.Utils;
 using System.Security.Claims;
+using plantour_server.Models;
 
 namespace plantour_server.Services;
 
-public record AccessTokenResult(string Token, DateTime ExpiresAtUtc);
+public record AccessTokenResult(string Token, DateTime ExpiresAtUtc, AccessRule[] Rules);
 
 public interface ITokenService
 {

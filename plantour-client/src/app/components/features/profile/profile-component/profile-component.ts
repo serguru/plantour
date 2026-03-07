@@ -48,7 +48,7 @@ export class ProfileComponent implements OnInit {
   isCancellingScheduledDowngrade = signal(false);
   scheduledDowngrade = signal<ScheduledPlanDowngradeInfoDto | null>(null);
 
-  private usersService = inject(UsersService);
+  public usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
   private socialAuthService = inject(SocialAuthService);
   private paddleService = inject(PaddleService);

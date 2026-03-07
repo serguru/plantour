@@ -22,6 +22,7 @@ export interface AccessToken {
   plan_period: string;
   billing_period_start?: string;
   billing_period_end?: string;
+  temporary: string;
 }
 
 export interface SignInRequest {

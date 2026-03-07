@@ -369,13 +369,6 @@ export class HelpComponent {
     this.route.paramMap.pipe(skip(1)).subscribe(params => {
       void this.applyRouteSelection(params.get('section'), params.get('subsection'));
     });
-
-    // Handle query params for guest mode
-    this.route.queryParamMap.pipe(take(1)).subscribe(params => {
-      if (params.get('start') === 'guest') {
-        this.getStartedWithTest();
-      }
-    });
   }
 
   toggleSection(sectionId: string) {
@@ -1486,43 +1479,6 @@ export class HelpComponent {
 
     const module = await import('./ai-recommendations/add-ai-items-to-trip-shared/add-ai-items-to-trip-shared.component');
     this.addAiItemsToTripSharedComponent.set(module.AddAiItemsToTripSharedComponent);
-  }
-
-  getStartedWithTest = async () => {
-
-    if (this.usersService.isAuthenticatedSignal()) {
-      this.messagesService.showInfo("Please sign out first to use Guest Access Mode");
-      return;
-    }
-
-    const dialogResult = await this.messagesService.openOkCancel({
-      title: `Start Guest Access Mode`,
-      message: "You are entering Guest Mode! You can explore Plantour for 7 days without creating an account. Ready to start?",
-      okLabel: 'Yes',
-      cancelLabel: 'No'
-    });
-
-    if (dialogResult !== 'ok') {
-      return;
-    }
-
-    // TODO: inspect temporary user creation
-    this.usersService.registerTemporaryAdmin().subscribe({
-
-      next: (response: TemporaryUserResponse) => {
-
-        const path = `/trips/${response.currentTripId}/trip-things`;
-        this.router.navigate([path]);
-
-        this.messagesService.openInfo({
-          title: `Welcome to Plantour!`,
-          message: `You are now in Guest Access Mode as Robin Miles for 7 days. The app works with full features, except you are limited to 5 items. To get started, add items to your current trip "Weekend in Las Vegas", pack them into bags, and download a packing list. 
-          
-          If you need help, see Guest Mode Help. Enjoy!
-          `
-        });
-      }
-    });
   }
 }
 
