@@ -47,6 +47,9 @@ public partial class User
     [Column("paddle_subscription_id")]
     public string? PaddleSubscriptionId { get; set; }
 
+    [Column("temporary")]
+    public bool Temporary { get; set; }
+
     [ForeignKey("AccessTypeId")]
     [InverseProperty("Users")]
     public virtual AccessType AccessType { get; set; } = null!;

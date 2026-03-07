@@ -320,7 +320,8 @@ create table users (
     notes text,
     created_at timestamp not null default (now() at time zone 'utc'),
     access_type_id uuid not null references access_types(id),
-    paddle_subscription_id text unique
+    paddle_subscription_id text unique,
+    temporary bool not null default false
 );
 
 create or replace function plantour.prevent_user_email_update()

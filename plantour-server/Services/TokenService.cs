@@ -34,12 +34,13 @@ public class TokenService : ITokenService
     // TODO: a background scheduler must clear old rferesh tokens and AI prompts from the DB
 
     // For temporary a new user is created, otherwise they are retrieved from the DB
-    public async Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid adminId, bool isTemporary = false)
+    public async Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid adminId)
     {
         var handler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
         DateTime expiresAtUtc = DateTime.UtcNow;
-
+        
+        bool isTemporary = user.Temporary;
         if (isTemporary)
         {
             expiresAtUtc = expiresAtUtc.AddDays(_jwtSettings.TemporaryUserAccessTokenExpirationDays);
@@ -61,21 +62,18 @@ public class TokenService : ITokenService
             new(PlantourClaims.Email, user.Email),
             new(PlantourClaims.FirstName, user.FirstName ?? string.Empty),
             new(PlantourClaims.LastName, user.LastName ?? string.Empty),
+            new(PlantourClaims.Phone, user.Phone ?? string.Empty),
             new(PlantourClaims.Role, role.ToString()),
             new(PlantourClaims.PlanPeriod, accessProcessResult.PriceName),
             new(PlantourClaims.BillingPeriodStart, accessProcessResult.BillingPeriodStart ?? string.Empty),
             new(PlantourClaims.BillingPeriodEnd, accessProcessResult.BillingPeriodEnd ?? string.Empty),
             new(PlantourClaims.PaddleSubscriptionId, user.PaddleSubscriptionId ?? string.Empty),
             new(PlantourClaims.AccessRules, JsonSerializer.Serialize(rules)),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(PlantourClaims.AdminId, adminId.ToString()),
+            new(PlantourClaims.Temporary, isTemporary ? "true" : "false")
         };
 
-        if (role == UserRole.Participant)
-        {
-            claims.Add(new Claim(PlantourClaims.AdminId, adminId.ToString()));
-        }
-
-        claims.Add(new Claim("temporary", isTemporary ? "true" : "false"));
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {

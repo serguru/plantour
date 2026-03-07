@@ -8,16 +8,17 @@ namespace PlantourApi.Models;
 public class CurrentUser
 {
     public Guid UserId { get; set; }
-    public Guid AdminId { get; set; }
     public UserRole? Role { get; set; }
+    public Guid AdminId { get; set; }
     public string Email { get; set; } = null!;
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public string? Phone { get; set; }
     public string? Notes { get; set; }
+    public bool Temporary { get; set; }
     public DateTime CreatedAt { get; set; }
-    public Guid AccessTypeId { get; set; }
-    public string? AccessTypeName { get; set; }
+    //public Guid AccessTypeId { get; set; }
+    //public string? AccessTypeName { get; set; }
     public string? PaddleSubscriptionId { get; set; }
     public string? BillingPeriodStart { get; set; }
     public string? BillingPeriodEnd { get; set; }
@@ -26,7 +27,8 @@ public class CurrentUser
     public bool IsAdmin => Role == UserRole.Admin;
     public bool IsParticipant => Role == UserRole.Participant;
 
-    public PlanPrice? PriceEnumId { get; set; }
+    //public PlanPrice? PriceEnumId { get; set; }
+    public string? PriceName {get; set;}
 
     public List<AccessRule> AccessRules { get; set; } = new();
 
@@ -38,24 +40,16 @@ public class CurrentUser
         }
     }   
 
-    public bool IsActive {
-        get
-        {
-            if (AccessTypeName == null) return false;
-            return AccessTypeName.Equals("Active");
-        }
-    }
-
     public void RaiseIfNotAdmin()
     {
-        if (!IsAdmin || !IsAuthenticated || !IsActive)
+        if (!IsAdmin || !IsAuthenticated)
         {
             throw new CustomException("User is not admin or the account is not active");
         }
     }   
     public void RaiseIfNotParticipant()
     {
-        if (!IsParticipant || !IsAuthenticated || !IsActive)
+        if (!IsParticipant || !IsAuthenticated)
         {
             throw new CustomException("User is not participant or the account is not active");
         }

@@ -10,7 +10,7 @@ public record AccessTokenResult(string Token, DateTime ExpiresAtUtc, AccessRule[
 
 public interface ITokenService
 {
-    Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid adminId, bool isTemporary = false);
+    Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid adminId);
     string HashToken(string token);
 
     List<KeyValuePair<string, string>> TokenToKeyValuePairs(string token);

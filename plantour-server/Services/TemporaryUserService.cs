@@ -111,18 +111,17 @@ public class TemporaryUserService : ITemporaryUserService
             LastName = "Miles",
             CreatedAt = DateTime.UtcNow,
             Notes = "Automatically created temporary user",
-            AccessTypeId = await _accessTypeRepository.GetActiveId()
+            AccessTypeId = await _accessTypeRepository.GetActiveId(),
+            Temporary = true
         };
 
         await _usersRepository.AddAsync(user);
 
         // Populate test data for the user
         Trip activeTrip = await PopulateSampleDataAsync(user);
-        var accessTokenResult = await _tokenService.CreateAccessToken(user, UserRole.Admin, user.Id, true);
+        var accessTokenResult = await _tokenService.CreateAccessToken(user, UserRole.Admin, user.Id);
 
         var rules = accessTokenResult.Rules;
-
-
 
         return new CreateTemporaryUserResponse
         {

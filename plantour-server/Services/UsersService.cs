@@ -776,7 +776,7 @@ public class UsersService(
 
         AuthResponseDto result = new()
         {
-            AccessToken = (await _tokenService.CreateAccessToken(user, userRole, adminId, isTemporary)).Token,
+            AccessToken = (await _tokenService.CreateAccessToken(user, userRole, adminId)).Token,
             RefreshToken = newRefreshToken.Token.ToString()
         };
 
