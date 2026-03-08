@@ -200,7 +200,7 @@ export class TravelerFormComponent implements OnInit {
     ).subscribe({
       next: (traveler: AdminsParticipantDto) => {
         this.localStorageService.setComponentKey('travelers', 'selectedId', traveler.id);
-        this.messagesService.showInfo('Traveler added successfully');
+        this.messagesService.showInfoTime("Participant Added", 7000, `An invitation email has been sent on your behalf to address ${traveler.email}. If necessary, you can resend this email by selecting "Send Invitation" from the menu on this form.`);
         this.router.navigate(['/travelers']);
       }
     });

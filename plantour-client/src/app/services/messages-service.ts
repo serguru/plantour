@@ -65,6 +65,15 @@ export class MessagesService {
     });
   }
 
+  showInfoTime(summary: string, time: number, detail?: string) {
+    this.messageService.add({
+      severity: 'info',
+      summary,
+      detail,
+      life: time
+    });
+  }
+
   showWarning(summary: string, detail?: string) {
     this.messageService.add({
       severity: 'warn',

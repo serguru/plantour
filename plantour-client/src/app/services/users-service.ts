@@ -249,7 +249,6 @@ export class UsersService {
       );
   }
 
-  //signin-token
 
   loginParticipant(accessCode: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/participant/signin`, { accessCode })
