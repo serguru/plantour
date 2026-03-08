@@ -14,6 +14,7 @@ import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 import { SocialAuthService } from '../../services/social-auth-service';
 import { PasswordModule } from 'primeng/password';
 import { SignInResponse } from '../../models/auth.models';
+import { getMessageFromError } from '../../helpers/utils';
 
 @Component({
   selector: 'app-sign-in',
@@ -110,7 +111,7 @@ export class SignInComponent implements OnInit {
       const { email } = this.currentForm.value;
       this.usersService.sendLoginEmailAdmin(email).pipe(
         catchError((error) => {
-          const errorMsg = 'Sending sign-in email failed';
+          const errorMsg = getMessageFromError(error, 'Sending sign-in email failed');
           this.errorMessage = errorMsg;
           return EMPTY;
         }),
@@ -130,9 +131,8 @@ export class SignInComponent implements OnInit {
 
     this.usersService.loginParticipant(accessCode).pipe(
       catchError((error) => {
-        const errorMsg = error.error?.message || 'Participant sign in failed. Please check your Access Code and try again.';
+        const errorMsg = getMessageFromError(error, 'Participant sign in failed. Please check your Access Code and try again.');
         this.errorMessage = errorMsg;
-        this.messagesService.showError('Sign In Failed', errorMsg);
         return EMPTY;
       }),
       finalize(() => {

@@ -71,6 +71,14 @@ export class UsersService {
 
   userSignal = this._userSignal.asReadonly();
 
+  tokenExpiredAtSignal = computed(() => {
+    const user = this._userSignal();
+    if (!user) return null;
+    const d = new Date(user.exp * 1000);
+    return d.toLocaleString();
+  });
+
+
   userEmail = computed(() => {
     const user = this._userSignal();
     if (!user) return null;

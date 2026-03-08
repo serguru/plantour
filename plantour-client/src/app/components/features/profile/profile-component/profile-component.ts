@@ -59,6 +59,8 @@ export class ProfileComponent implements OnInit {
 
   currentUser = this.usersService.userSignal;
 
+  expiresAt = this.usersService.tokenExpiredAtSignal;
+
   isAdmin = this.usersService.isAdminSignal;
   
   isTemporary = this.usersService.isTemporarySignal;

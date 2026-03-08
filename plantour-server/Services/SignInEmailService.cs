@@ -84,10 +84,9 @@ public class SignInEmailService : ISignInEmailService
         }
 
         string token = GenerateSignInTokenAsync(email, emailSignInTokenMinutes);
-
-        string fullUserName = "";
-
         var user = await _usersRepository.GetByEmailAsync(email);
+
+        string fullUserName;
         if (user != null)
         {
             var accessType = await _accessTypeRepository.GetByIdAsync(user.AccessTypeId);
@@ -95,9 +94,15 @@ public class SignInEmailService : ISignInEmailService
             {
                 throw new CustomException("User does not have an active access to Plantour");
             }
+            if (user.Temporary)
+            {
+                throw new CustomException("Temporary user cannot sign in");
+            }
+            
             fullUserName = Utils.Misc.GenerateFullName(user.FirstName, user.LastName);
             fullUserName = String.IsNullOrWhiteSpace(fullUserName) ? email : fullUserName;
-        } else
+        }
+        else
         {
             fullUserName = "New Plantour User";
         }

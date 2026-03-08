@@ -76,7 +76,6 @@ public class TokenService : ITokenService
             new(PlantourClaims.Temporary, isTemporary ? "true" : "false")
         };
 
-
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
