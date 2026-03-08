@@ -373,8 +373,8 @@ export class ProfileComponent implements OnInit {
         this.isUpdatingProfile.set(false);
       })
     ).subscribe({
-      next: (updatedProfile: any) => {
-        if (updatedProfile.redirectToSignin) {
+      next: (response: any) => {
+        if (response.redirectToSignin) {
           this.messagesService.showInfo('Account changed', `Your account has been changed. Please sign-in with your email ${email}.`);
           this.usersService.signOut();
           this.router.navigate(['/sign-in']);
@@ -382,10 +382,10 @@ export class ProfileComponent implements OnInit {
         }
         this.messagesService.showInfo('Profile Updated', 'Your profile has been successfully updated.');
         this.profileForm.patchValue({
-          email: updatedProfile.email,
-          firstName: updatedProfile.firstName || '',
-          lastName: updatedProfile.lastName || '',
-          phone: updatedProfile.phone || ''
+          email: response.updatedProfile.email,
+          firstName: response.updatedProfile.firstName || '',
+          lastName: response.updatedProfile.lastName || '',
+          phone: response.updatedProfile.phone || ''
         });
       }
     });
@@ -409,12 +409,13 @@ export class ProfileComponent implements OnInit {
     return !!(field && field.invalid && field.touched);
   }
 
-
-
   onChoosePlanClick(): void {
     this.router.navigate(['/plans']);
   }
   onManageBillingClick(): void {
+    if (this.isTemporary()) {
+      return;
+    }
     this.onOpenCustomerPortal();
   }
 

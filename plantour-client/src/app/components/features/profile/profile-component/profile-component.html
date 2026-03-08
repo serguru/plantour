@@ -10,70 +10,7 @@
 
     <div class="controls-wrapper">
 
-        @if (currentUser()) {
-        <div class="user-summary">
-            <div class="summary-row">
-                <h3 class="summary-label">Full name</h3>
-                <h3 class="section-title">{{ fullName() }}</h3>
-            </div>
-            <div class="summary-row">
-                <h3 class="summary-label">Email</h3>
-                <h3 class="section-title">{{ userEmail() }}</h3>
-            </div>
-            <div class="summary-row">
-                <h3 class="summary-label">Role</h3>
-                <h3 class="section-title">{{ userRole() }}</h3>
-            </div>
-            @if(isAdmin()) {
-            <div class="summary-row">
-                <h3 class="summary-label">Plan</h3>
-                <h3 class="section-title">{{ planPeriod() }}</h3>
-            </div>
-            @if(scheduledDowngrade()?.hasScheduledDowngrade) {
-            <div class="summary-row">
-                <h3 class="summary-label">Scheduled downgrade</h3>
-                <h3 class="section-title">
-                    {{ formatScheduledDowngrade(scheduledDowngrade()) }}
-                    @if (scheduledDowngrade()?.hasScheduledDowngrade) {
-                    <a
-                        class="cancel-link"
-                        href=""
-                        (click)="onCancelScheduledDowngrade($event)"
-                        [attr.aria-disabled]="isCancellingScheduledDowngrade()"
-                        [attr.tabindex]="isCancellingScheduledDowngrade() ? -1 : null"
-                    >{{ isCancellingScheduledDowngrade() ? 'Cancelling...' : 'Cancel' }}</a>
-                    }
-                </h3>
-            </div>
-            }
-            @if(usersService.isTemporarySignal()) {
-            <div class="summary-row">
-                <h3 class="summary-label">Account</h3>
-                <h3 class="section-title">temporary</h3>
-            </div>
-            }
-            }
-        </div>
-        }
-
-        @if(isAdmin()) {
-        <div class="form-actions">
-            <app-button
-                [label]="'Change Plan'"
-                [icon]="'pi pi-money-bill'"
-                [loading]="isUpdatingProfile()"
-                (click)="onChoosePlanClick()"
-            />
-            <app-button
-                [label]="'Manage Billing'"
-                [icon]="'pi pi-receipt'"
-                [loading]="isUpdatingProfile()"
-                (click)="onManageBillingClick()"
-            />
-        </div>
-        }
-
-        <section class="profile-section">
+        <!-- <section class="profile-section">
             <button
                 type="button"
                 class="section-header"
@@ -87,7 +24,7 @@
                 <i [class]="isSectionExpanded('personal-information') ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
             </button>
 
-            @if (isSectionExpanded('personal-information')) {
+            @if (isSectionExpanded('personal-information')) { -->
             <div class="section-content">
                 <form
                     [formGroup]="profileForm"
@@ -111,7 +48,9 @@
                         }
                     </div>
                     @if(isTemporary()) {
-                        <p>To switch from the current temporary Guest account to the Starter Free plan you can update your current temporary email {{ userEmail() }} with your actual email. Your current data will not be lost.</p>
+                    <p>To switch from the current temporary Guest account to the Starter Free plan you can update your
+                        current temporary email {{ userEmail() }} with your actual email. Your current data will not be
+                        lost.</p>
                     }
 
                     <div class="form-field">
@@ -176,8 +115,74 @@
                     </div>
                 </form>
             </div>
+        @if (currentUser()) {
+        <div class="user-summary">
+            <!-- <div class="summary-row">
+                <h3 class="summary-label">Full name</h3>
+                <h3 class="section-title">{{ fullName() }}</h3>
+            </div>
+            <div class="summary-row">
+                <h3 class="summary-label">Email</h3>
+                <h3 class="section-title">{{ userEmail() }}</h3>
+            </div> -->
+            <div class="summary-row">
+                <h3 class="summary-label">Role</h3>
+                <h3 class="section-title">{{ userRole() }}</h3>
+            </div>
+            @if(isAdmin()) {
+            <div class="summary-row">
+                <h3 class="summary-label">Plan</h3>
+                <h3 class="section-title">{{ planPeriod() }}</h3>
+            </div>
+            @if(scheduledDowngrade()?.hasScheduledDowngrade) {
+            <div class="summary-row">
+                <h3 class="summary-label">Scheduled downgrade</h3>
+                <h3 class="section-title">
+                    {{ formatScheduledDowngrade(scheduledDowngrade()) }}
+                    @if (scheduledDowngrade()?.hasScheduledDowngrade) {
+                    <a
+                        class="cancel-link"
+                        href=""
+                        (click)="onCancelScheduledDowngrade($event)"
+                        [attr.aria-disabled]="isCancellingScheduledDowngrade()"
+                        [attr.tabindex]="isCancellingScheduledDowngrade() ? -1 : null"
+                    >{{ isCancellingScheduledDowngrade() ? 'Cancelling...' : 'Cancel' }}</a>
+                    }
+                </h3>
+            </div>
             }
-        </section>
+            @if(usersService.isTemporarySignal()) {
+            <div class="summary-row">
+                <h3 class="summary-label">Account</h3>
+                <h3 class="section-title">temporary</h3>
+            </div>
+            }
+            }
+        </div>
+        }
+
+        @if(isAdmin()) {
+        <div class="form-actions">
+            <app-button
+                [label]="'Change Plan'"
+                [icon]="'pi pi-money-bill'"
+                [loading]="isUpdatingProfile()"
+                (click)="onChoosePlanClick()"
+            />
+            @if(!isTemporary()) {
+            <app-button
+                [label]="'Manage Billing'"
+                [icon]="'pi pi-receipt'"
+                [loading]="isUpdatingProfile()"
+                (click)="onManageBillingClick()"
+            />
+            }
+        </div>
+        }
+
+
+            <!-- }
+        </section> -->
 
         <!-- <section class="profile-section">
             <button
