@@ -220,7 +220,7 @@ public class UsersController : ControllerBase
                 var isTemporary = await _usersService.IsUserTemporary(email);
                 return Ok(isTemporary);
         }
-
+// TODO: update profile should resend access token
         [HttpPut("convert-temporary-user")]
         [AdminOnly]
         public async Task<IActionResult> ConvertTemporaryUser([FromBody] ConvertTemporaryUserRequest request)

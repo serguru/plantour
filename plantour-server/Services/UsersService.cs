@@ -480,7 +480,6 @@ public class UsersService(
 
         return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
     }
-
     private async Task<SocialIdentity> VerifyGoogleTokenAsync(string? googleIdToken)
     {
         if (string.IsNullOrWhiteSpace(_socialAuthSettings.GoogleClientId))
@@ -569,13 +568,6 @@ public class UsersService(
 
         if (linkedUser != null)
         {
-            if (string.Equals(linkedUser.AccessType?.Name, "Pending", StringComparison.OrdinalIgnoreCase))
-            {
-                linkedUser.AccessTypeId = await _accessTypeRepository.GetActiveId();
-                await _usersRepository.UpdateAsync(linkedUser);
-                //await _confirmationRepository.DeleteRangeAsync(x => x.UserId == linkedUser.Id);
-            }
-
             EnsureUserCanSignIn(linkedUser);
             return linkedUser;
         }
@@ -600,12 +592,6 @@ public class UsersService(
             if (string.IsNullOrWhiteSpace(emailUser.LastName) && !string.IsNullOrWhiteSpace(lastName))
             {
                 emailUser.LastName = lastName;
-            }
-
-            if (string.Equals(emailUser.AccessType?.Name, "Pending", StringComparison.OrdinalIgnoreCase))
-            {
-                emailUser.AccessTypeId = await _accessTypeRepository.GetActiveId();
-                //await _confirmationRepository.DeleteRangeAsync(x => x.UserId == emailUser.Id);
             }
 
             await _usersRepository.UpdateAsync(emailUser);

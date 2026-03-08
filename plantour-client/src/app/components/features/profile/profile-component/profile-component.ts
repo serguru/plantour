@@ -39,7 +39,8 @@ export class ProfileComponent implements OnInit {
     'personal-information': true,
     'social-login': false
   });
-
+  
+  profileData = signal<UserDto | null>(null);
   profileForm: FormGroup;
   isLoadingProfile = signal(false);
   isUpdatingProfile = signal(false);
@@ -65,15 +66,15 @@ export class ProfileComponent implements OnInit {
   planPeriod = this.usersService.planPeriodSignal;
 
   fullName = computed(() => {
-    const user = this.currentUser();
-    if (!user) {
+    //const user = this.currentUser();
+    if (!this.profileData()) {
       return '';
     }
 
-    const fullName = `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim();
-    return fullName || user.email || '';
+    const fullName = `${this.profileData()!.firstName ?? ''} ${this.profileData()!.lastName ?? ''}`.trim();
+    return fullName || this.profileData()!.email || '';
   });
-  userEmail = computed(() => this.currentUser()?.email ?? '');
+  userEmail = computed(() => this.profileData()?.email ?? '');
 
   userRole = computed(() => {
     const role = this.usersService.getRole();
@@ -126,6 +127,9 @@ export class ProfileComponent implements OnInit {
       })
     ).subscribe({
       next: (profile: UserDto) => {
+
+        this.profileData.set(profile);
+
         this.hasGoogleLinked.set(profile.hasGoogleLinked);
         this.hasFacebookLinked.set(profile.hasFacebookLinked);
 
@@ -208,120 +212,120 @@ export class ProfileComponent implements OnInit {
     return `To ${targetPlan} at ${executionDate}`;
   }
 
-  onConnectGoogle(): void {
-    if (!this.environment.googleClientId) {
-      this.messagesService.showWarning('Google Login', 'Google Client ID is not configured.');
-      return;
-    }
+  // onConnectGoogle(): void {
+  //   if (!this.environment.googleClientId) {
+  //     this.messagesService.showWarning('Google Login', 'Google Client ID is not configured.');
+  //     return;
+  //   }
 
-    this.isGoogleBusy.set(true);
+  //   this.isGoogleBusy.set(true);
 
-    this.socialAuthService.loadGoogleSdk()
-      .then(() => {
-        const googleSdk = (window as any).google;
+  //   this.socialAuthService.loadGoogleSdk()
+  //     .then(() => {
+  //       const googleSdk = (window as any).google;
 
-        googleSdk.accounts.id.initialize({
-          client_id: this.environment.googleClientId!,
-          use_fedcm_for_button: true,
-          callback: (response: { credential?: string }) => {
-            const idToken = response?.credential;
-            if (!idToken) {
-              this.isGoogleBusy.set(false);
-              this.messagesService.showWarning('Google Login', 'Google authentication was cancelled.');
-              return;
-            }
+  //       googleSdk.accounts.id.initialize({
+  //         client_id: this.environment.googleClientId!,
+  //         use_fedcm_for_button: true,
+  //         callback: (response: { credential?: string }) => {
+  //           const idToken = response?.credential;
+  //           if (!idToken) {
+  //             this.isGoogleBusy.set(false);
+  //             this.messagesService.showWarning('Google Login', 'Google authentication was cancelled.');
+  //             return;
+  //           }
 
-            this.usersService.linkSocialProvider('google', idToken).pipe(
-              catchError((error) => {
-                const errorMsg = error.error?.message || 'Failed to link Google account.';
-                this.messagesService.showError('Google Link Failed', errorMsg);
-                return EMPTY;
-              }),
-              finalize(() => this.isGoogleBusy.set(false))
-            ).subscribe({
-              next: (profile: UserDto) => {
-                this.hasGoogleLinked.set(profile.hasGoogleLinked);
-                this.messagesService.showInfo('Google Linked', 'Google login has been connected to your account.');
-              }
-            });
-          }
-        });
+  //           this.usersService.linkSocialProvider('google', idToken).pipe(
+  //             catchError((error) => {
+  //               const errorMsg = error.error?.message || 'Failed to link Google account.';
+  //               this.messagesService.showError('Google Link Failed', errorMsg);
+  //               return EMPTY;
+  //             }),
+  //             finalize(() => this.isGoogleBusy.set(false))
+  //           ).subscribe({
+  //             next: (profile: UserDto) => {
+  //               this.hasGoogleLinked.set(profile.hasGoogleLinked);
+  //               this.messagesService.showInfo('Google Linked', 'Google login has been connected to your account.');
+  //             }
+  //           });
+  //         }
+  //       });
 
-        googleSdk.accounts.id.prompt();
-      })
-      .catch(() => {
-        this.isGoogleBusy.set(false);
-        this.messagesService.showWarning('Google Login', 'Google SDK failed to load.');
-      });
-  }
+  //       googleSdk.accounts.id.prompt();
+  //     })
+  //     .catch(() => {
+  //       this.isGoogleBusy.set(false);
+  //       this.messagesService.showWarning('Google Login', 'Google SDK failed to load.');
+  //     });
+  // }
 
-  onResetGoogle(): void {
-    this.isGoogleBusy.set(true);
+  // onResetGoogle(): void {
+  //   this.isGoogleBusy.set(true);
 
-    this.usersService.unlinkSocialProvider('google').pipe(
-      catchError((error) => {
-        const errorMsg = error.error?.message || 'Failed to disconnect Google login.';
-        this.messagesService.showError('Google Reset Failed', errorMsg);
-        return EMPTY;
-      }),
-      finalize(() => this.isGoogleBusy.set(false))
-    ).subscribe({
-      next: (profile: UserDto) => {
-        this.hasGoogleLinked.set(profile.hasGoogleLinked);
-        this.messagesService.showInfo('Google Disconnected', 'Google login has been disconnected.');
-      }
-    });
-  }
+  //   this.usersService.unlinkSocialProvider('google').pipe(
+  //     catchError((error) => {
+  //       const errorMsg = error.error?.message || 'Failed to disconnect Google login.';
+  //       this.messagesService.showError('Google Reset Failed', errorMsg);
+  //       return EMPTY;
+  //     }),
+  //     finalize(() => this.isGoogleBusy.set(false))
+  //   ).subscribe({
+  //     next: (profile: UserDto) => {
+  //       this.hasGoogleLinked.set(profile.hasGoogleLinked);
+  //       this.messagesService.showInfo('Google Disconnected', 'Google login has been disconnected.');
+  //     }
+  //   });
+  // }
 
-  async onConnectFacebook(): Promise<void> {
-    if (!this.environment.facebookAppId) {
-      this.messagesService.showWarning('Facebook Login', 'Facebook App ID is not configured.');
-      return;
-    }
+  // async onConnectFacebook(): Promise<void> {
+  //   if (!this.environment.facebookAppId) {
+  //     this.messagesService.showWarning('Facebook Login', 'Facebook App ID is not configured.');
+  //     return;
+  //   }
 
-    this.isFacebookBusy.set(true);
+  //   this.isFacebookBusy.set(true);
 
-    try {
-      await this.socialAuthService.loadFacebookSdk(this.environment.facebookAppId);
-      const accessToken = await this.socialAuthService.loginWithFacebook();
+  //   try {
+  //     await this.socialAuthService.loadFacebookSdk(this.environment.facebookAppId);
+  //     const accessToken = await this.socialAuthService.loginWithFacebook();
 
-      this.usersService.linkSocialProvider('facebook', accessToken).pipe(
-        catchError((error) => {
-          const errorMsg = error.error?.message || 'Failed to link Facebook account.';
-          this.messagesService.showError('Facebook Link Failed', errorMsg);
-          return EMPTY;
-        }),
-        finalize(() => this.isFacebookBusy.set(false))
-      ).subscribe({
-        next: (profile: UserDto) => {
-          this.hasFacebookLinked.set(profile.hasFacebookLinked);
-          this.messagesService.showInfo('Facebook Linked', 'Facebook login has been connected to your account.');
-        }
-      });
-    } catch (error: any) {
-      this.isFacebookBusy.set(false);
-      const errorMsg = error?.message || 'Facebook authentication failed. Please try again.';
-      this.messagesService.showError('Facebook Login Failed', errorMsg);
-    }
-  }
+  //     this.usersService.linkSocialProvider('facebook', accessToken).pipe(
+  //       catchError((error) => {
+  //         const errorMsg = error.error?.message || 'Failed to link Facebook account.';
+  //         this.messagesService.showError('Facebook Link Failed', errorMsg);
+  //         return EMPTY;
+  //       }),
+  //       finalize(() => this.isFacebookBusy.set(false))
+  //     ).subscribe({
+  //       next: (profile: UserDto) => {
+  //         this.hasFacebookLinked.set(profile.hasFacebookLinked);
+  //         this.messagesService.showInfo('Facebook Linked', 'Facebook login has been connected to your account.');
+  //       }
+  //     });
+  //   } catch (error: any) {
+  //     this.isFacebookBusy.set(false);
+  //     const errorMsg = error?.message || 'Facebook authentication failed. Please try again.';
+  //     this.messagesService.showError('Facebook Login Failed', errorMsg);
+  //   }
+  // }
 
-  onResetFacebook(): void {
-    this.isFacebookBusy.set(true);
+  // onResetFacebook(): void {
+  //   this.isFacebookBusy.set(true);
 
-    this.usersService.unlinkSocialProvider('facebook').pipe(
-      catchError((error) => {
-        const errorMsg = error.error?.message || 'Failed to disconnect Facebook login.';
-        this.messagesService.showError('Facebook Reset Failed', errorMsg);
-        return EMPTY;
-      }),
-      finalize(() => this.isFacebookBusy.set(false))
-    ).subscribe({
-      next: (profile: UserDto) => {
-        this.hasFacebookLinked.set(profile.hasFacebookLinked);
-        this.messagesService.showInfo('Facebook Disconnected', 'Facebook login has been disconnected.');
-      }
-    });
-  }
+  //   this.usersService.unlinkSocialProvider('facebook').pipe(
+  //     catchError((error) => {
+  //       const errorMsg = error.error?.message || 'Failed to disconnect Facebook login.';
+  //       this.messagesService.showError('Facebook Reset Failed', errorMsg);
+  //       return EMPTY;
+  //     }),
+  //     finalize(() => this.isFacebookBusy.set(false))
+  //   ).subscribe({
+  //     next: (profile: UserDto) => {
+  //       this.hasFacebookLinked.set(profile.hasFacebookLinked);
+  //       this.messagesService.showInfo('Facebook Disconnected', 'Facebook login has been disconnected.');
+  //     }
+  //   });
+  // }
 
   async onOpenCustomerPortal(): Promise<void> {
 
