@@ -70,8 +70,19 @@ export class SignInComponent implements OnInit {
 
   ngOnInit(): void {
     const currentUrl = this.router.url; 
-    const endsWithParticipant = currentUrl.split('?')[0].endsWith('/participant');    
+
+    const parts = currentUrl.split('?');
+    const path = parts[0];
+    const endsWithParticipant = path.endsWith('/participant');    
     this.signInType = endsWithParticipant ? 'participant' : 'admin';
+
+    if (this.signInType === 'participant') {
+      const queryParams = new URLSearchParams(parts[1]);
+      const code = queryParams.get('code');
+      if (code) { 
+        this.participantForm.patchValue({ accessCode: code });
+      }
+    }
   }
 
   onEmailChange(e) {

@@ -239,13 +239,12 @@ public class UsersService(
     public async Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
-        var users = await _usersRepository.FindAsync(x => x.Email.ToLower() == request.Email.ToLower());
-        var participant = users.FirstOrDefault();
+        var  user = await _usersRepository.GetByEmailAsync(request.Email);
 
         // Ensure participant user exists or create new
-        if (participant == null)
+        if (user == null)
         {
-            participant = new User
+            user = new User
             {
                 Email = request.Email,
                 FirstName = request.FirstName,
@@ -254,17 +253,15 @@ public class UsersService(
                 Notes = $"Registered by admin {_currentUser.Email} on {DateTime.UtcNow}",
                 AccessTypeId = await _accessTypeRepository.GetActiveId()
             };
-            await _usersRepository.AddAsync(participant);
-        }
-
-        if (await _adminsParticipantRepository.AnyAsync(x => x.AdminId == _currentUser.AdminId && x.ParticipantId == participant.Id))
-        {
-            throw new CustomException("Participant with this email is already registered under your admin account");
-        }
-
-        if (participant.AccessType?.Name != "Active")
+            await _usersRepository.AddAsync(user);
+        } else if (!user.AccessType.Name.Equals("Active", StringComparison.OrdinalIgnoreCase))
         {
             throw new CustomException("Cannot sign up participant. The participant account is not active.");
+        }
+
+        if (await _adminsParticipantRepository.AnyAsync(x => x.AdminId == _currentUser.AdminId && x.ParticipantId == user.Id))
+        {
+            throw new CustomException("Participant with this email is already registered under your admin account");
         }
 
         Tuple<string, string> accessCodeResult = await _adminsParticipantService.GenerateAccessCodeAsync();
@@ -282,22 +279,20 @@ public class UsersService(
         {
             Id = Guid.NewGuid(),
             AdminId = _currentUser.AdminId,
-            ParticipantId = participant.Id,
+            ParticipantId = user.Id,
             AccessCodeHash = accessCodeHash,
             Notes = notes
         };
 
         await _adminsParticipantRepository.AddAsync(adminParticipant);
 
-        var r = await CreateAuthResponseAsync(participant, UserRole.Participant, _currentUser.AdminId, "Welcome to Plantour");
+        var r = await CreateAuthResponseAsync(user, UserRole.Participant, _currentUser.AdminId, "Welcome to Plantour");
 
         await _invitationService.SendInvitationEmailByIdAsync(adminParticipant.Id, accessCode, r.AccessToken);
 
-        //var baseUrl = _configuration["InvitationAccess:BaseUrl"];
-
         AdminsParticipantDto result = _mapper.Map<AdminsParticipantDto>(adminParticipant);
 
-        return result;
+       return result;
     }
 
     public async Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request)

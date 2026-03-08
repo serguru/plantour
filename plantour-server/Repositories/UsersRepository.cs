@@ -29,6 +29,13 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
             .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
     }
 
+    public async Task<User?> GetActiveByEmailAsync(string email)
+    {
+        return await _dbSet
+            .Include(x => x.AccessType)
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower() && u.AccessType.Name.ToLower() == "active");
+    }
+
     public async Task<User?> GetByIdWithDetailsAsync(Guid userId)
     {
         return await _dbSet

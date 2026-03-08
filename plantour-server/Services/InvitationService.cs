@@ -60,7 +60,7 @@ public class InvitationService(
             <p>You can access Plantour by clicking the link below:</p>
             <p><a href=""{accessUrl}"">Access Plantour</a></p>
             <p>or navigate to the following URL:</p>
-            <p><a href=""{accessUrl}/sign-in"">Sign In</a></p>
+            <p><a href=""{baseUrl}/sign-in/participant?code={accessCode}"">Sign In</a></p>
             <p>select 'Sign in as participant'</p>
             <p>and enter the following access code: <strong>{accessCode}</strong></p>
             <p>If you do not know {adminFullName}, please ignore this email.</p>";
