@@ -53,6 +53,11 @@ export class PlansPanelComponent implements OnInit {
   expedition!: Plan;
   plansLoaded = false;
 
+  isTemporary(): boolean {
+    const result = this.usersService.isTemporarySignal();
+    return result;
+  }
+
   isDowngrade(text: string): boolean {
     const result = text.startsWith('Downgrade');
     return result;

@@ -248,8 +248,8 @@ create table plantour.plans (
 );
 insert into plantour.plans (name, paddle_product_id, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
 ('Starter', null, 'For small trips and light packers', true, 10, 2, 5, false),
-('Family', 'pro_01kjxac2mxwrnd4mxbg1mcrvzj', 'Perfect for families and small groups', true, null, 5, 20, false),
-('Expedition', 'pro_01kjxacxntgw124n3qt7wkpz0b', 'Ideal for large groups and expeditions', true, null, null, 100, true);
+('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, null, 5, 20, false),
+('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, null, null, 100, true);
 
 create table plantour.prices (
     id uuid primary key default gen_random_uuid(),
@@ -267,25 +267,25 @@ insert into plantour.prices (paddle_price_id,plan_id,name,value_cents) values
     0
 ),
 (
-    'pri_01kjxay8cfnq6d29b7mrxxp97f',
+    'pri_01khvsx5szpnfqd97c6sdv3e2w',
     (select id from plantour.plans where name = 'Family'),
     'Family Monthly',
     499
 ),
 (
-    'pri_01kjxanhwzg54p8sng4z0q2xj4',
+    'pri_01khvsg62zpjhh6qbmc5sfmkm3',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Monthly',
     1499
 ),
 (
-    'pri_01kjxazjmygtm2wfd6zz5aykrb',
+    'pri_01khvsyg17b43cm5kf0t63zfnr',
     (select id from plantour.plans where name = 'Family'),
     'Family Yearly',
     2999
 ),
 (
-    'pri_01kjxaqr1pc1pjjg0xm10wr1we',
+    'pri_01khvspsgmrkcggdxxtksbzy88',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Yearly',
     8999

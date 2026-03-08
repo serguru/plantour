@@ -333,7 +333,7 @@ public class UsersService(
 
     // TODO: it is necessary to truncate old refresh tokens in the DB
     // The user exists in the DB
-    private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? message)
+    private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? message = null)
     {
         AccessTokenResult accessToken = await _tokenService.CreateAccessToken(user, role, adminId);
         RefreshToken refreshTokenObject = await _tokenService.GenerateRefreshToken(user.Id);
@@ -383,11 +383,8 @@ public class UsersService(
 
     public async Task<object> UpdateProfileAsync(UpdateProfileRequest request)
     {
-        var user = await _usersRepository.GetByIdAsync(_currentUser.UserId);
-        if (user == null)
-        {
-            throw new CustomException("User not found");
-        }
+        var user = await _usersRepository.GetByIdAsync(_currentUser.UserId) ?? throw new CustomException("User not found");
+        
         if (string.IsNullOrWhiteSpace(request.Email))
         {
             throw new CustomException("Email cannot be empty");
@@ -418,7 +415,11 @@ public class UsersService(
 
         await _usersRepository.UpdateAsync(user);
 
-        object result = emailChanged ? new { RedirectToSignin = true } : MapUserDto(user);
+        var result = new
+        {
+            updatedProfile = MapUserDto(user),
+            redirectToSignin = emailChanged ? true : false
+        };
 
         return result;
     }
@@ -851,5 +852,46 @@ public class UsersService(
         var user = await _usersRepository.GetByEmailAsync(email);
         return user?.Temporary ?? false;
     }
+
+    public async Task ConvertTemporaryUserAsync(string oldEmail, string newEmail)
+    {
+        if (string.IsNullOrWhiteSpace(oldEmail) || string.IsNullOrWhiteSpace(newEmail))
+        {
+            throw new CustomException("Old email and new email are required");
+        }
+        oldEmail = oldEmail.Trim();
+        newEmail = newEmail.Trim();
+
+        if (string.Equals(oldEmail, newEmail, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new CustomException("Old email and new email cannot be the same");
+        }
+        
+        var user = await _usersRepository.GetByEmailAsync(oldEmail);
+        if (user == null)
+        {
+            throw new CustomException("A temporary user with the old email not found");
+        }
+
+        if (!user.Temporary)
+        {
+            throw new CustomException("User with the old email is not temporary");
+        }
+
+        var existingUser = await _usersRepository.GetByEmailAsync(newEmail);
+        if (existingUser != null)
+        {
+            throw new CustomException("The new email is already in use by another account");
+        }
+
+        user.FirstName = null;
+        user.LastName = null;
+        user.Email = newEmail;
+        user.Temporary = false;
+        user.AccessTypeId = await _accessTypeRepository.GetActiveId();
+
+        await _usersRepository.UpdateAsync(user);
+    }
+
 }
 

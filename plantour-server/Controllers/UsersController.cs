@@ -120,10 +120,10 @@ public class UsersController : ControllerBase
 
         [HttpPut("profile")]
         [Authorize]
-        public async Task<ActionResult<Object>> UpdateProfile([FromBody] UpdateProfileRequest request)
+        public async Task<ActionResult<object>> UpdateProfile([FromBody] UpdateProfileRequest request)
         {
-                var updatedProfile = await _usersService.UpdateProfileAsync(request);
-                return Ok(updatedProfile);
+                var response = await _usersService.UpdateProfileAsync(request);
+                return Ok(response);
         }
 
         [HttpPost("profile/social/link")]
@@ -221,5 +221,12 @@ public class UsersController : ControllerBase
                 return Ok(isTemporary);
         }
 
+        [HttpPut("convert-temporary-user")]
+        [AdminOnly]
+        public async Task<IActionResult> ConvertTemporaryUser([FromBody] ConvertTemporaryUserRequest request)
+        {
+                await _usersService.ConvertTemporaryUserAsync(request.OldEmail, request.NewEmail);
+                return Ok();
+        }
 
 }

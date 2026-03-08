@@ -336,8 +336,8 @@ export class UsersService {
     return this.http.get<UserDto>(`${this.apiUrl}/api/users/profile`);
   }
 
-  updateProfile(request: { email?: string; firstName?: string; lastName?: string; phone?: string }): Observable<UserDto> {
-    return this.http.put<UserDto>(`${this.apiUrl}/api/users/profile`, request);
+  updateProfile(request: { email?: string; firstName?: string; lastName?: string; phone?: string }): Observable<AuthResponse> {
+    return this.http.put<AuthResponse>(`${this.apiUrl}/api/users/profile`, request);
   }
 
   downgradePlanPrice(oldPlanPrice: string, newPlanPrice: string): Observable<{ updated: boolean }> {
@@ -417,11 +417,17 @@ export class UsersService {
       }
     });
   }
-  
+
   isUserTemporary(email: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.environment.apiUrl}/api/users/is-user-temporary`, {
       params: { email }
     });
   }
 
+  convertTemporaryUser(oldEmail: string, newEmail: string): Observable<void> {
+    return this.http.put<void>(`${this.environment.apiUrl}/api/users/convert-temporary-user`, {
+      oldEmail,
+      newEmail
+    })
+  }
 }

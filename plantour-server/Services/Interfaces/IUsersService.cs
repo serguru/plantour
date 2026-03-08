@@ -14,10 +14,6 @@ public interface IUsersService
     Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request);
     Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request);
 
-    // Token management
-    //Task<bool> ValidateTokenAsync(string token);
-
-
     // Profile management
     Task<UserDto> GetProfileAsync();
     Task<object> UpdateProfileAsync(UpdateProfileRequest request);
@@ -33,4 +29,5 @@ public interface IUsersService
     Task<bool> CancelScheduledPlanDowngradeAsync();
     
     Task<bool> IsUserTemporary(string email);
+    Task ConvertTemporaryUserAsync(string oldEmail, string newEmail);
 }

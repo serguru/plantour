@@ -4,7 +4,7 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { PaddleService } from '../../services/paddle-service';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { firstValueFrom } from 'rxjs';
+import { catchError, EMPTY, firstValueFrom, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { AppButton } from '../button/button-component';
 import { MessagesService } from '../../services/messages-service';
@@ -28,7 +28,7 @@ export class CheckoutComponent implements OnInit {
   private readonly paddleService = inject(PaddleService);
   private readonly messagesService = inject(MessagesService);
   private readonly usersService = inject(UsersService);
-  
+
   readonly checkoutContainerClass = 'paddle-inline-checkout-container';
   readonly emailForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -40,11 +40,11 @@ export class CheckoutComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   private isHandlingCheckoutResult = false;
-  
+
   onEmailInput(ev: Event): void {
     if (this.errorMessage) {
       this.errorMessage = '';
-    } 
+    }
   }
 
   ngOnInit(): void {
@@ -82,6 +82,35 @@ export class CheckoutComponent implements OnInit {
     if (!email) {
       return;
     }
+
+    // if the temporary user convert them first
+    if (this.usersService.isTemporarySignal()) {
+      const oldEmail = this.usersService.userEmail();
+
+      if (!oldEmail) {
+        this.errorMessage = 'Missing temporary user email';
+        return;
+      }
+
+      await firstValueFrom(
+        this.usersService.convertTemporaryUser(oldEmail, email).pipe(
+          tap(() => {
+            this.usersService.signOut();
+          }),
+          catchError((error: any) => {
+            let errorMessage = 'Failed to convert temporary user. ';
+            if (error?.error?.isCustom && error?.error?.message) {
+              errorMessage += error.error.message;
+            } else if (error?.message) {
+              errorMessage += error.message;
+            }
+            this.errorMessage = errorMessage;
+            return throwError(() => new Error(errorMessage));
+          })
+        )
+      )
+    }
+
 
     this.errorMessage = '';
     this.isLoading = true;
