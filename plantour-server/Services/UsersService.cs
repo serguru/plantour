@@ -116,6 +116,37 @@ public class UsersService(
         return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
     }
 
+    public async Task SendParticipantInvitationAsync(Guid adminParticipantId)
+    {
+        _currentUser.RaiseIfNotAdmin();
+
+        var entities = await _adminsParticipantRepository.FindFullAsync(x => x.Id == adminParticipantId && x.AdminId == _currentUser.AdminId && x.Participant.AccessType!.Name == "Active" && x.Admin.AccessType!.Name == "Active");
+
+        if (!entities.Any())
+        {
+            throw new CustomException("Active admin and participant not found or access denied");
+        }
+
+        Tuple<string, string> accessCodeResult = await _adminsParticipantService.GenerateAccessCodeAsync();
+
+        string accessCode = accessCodeResult.Item1;
+        string accessCodeHash = accessCodeResult.Item2;
+
+        var ap = entities.First();
+
+        ap.AccessCodeHash = accessCodeHash;
+
+        ap.Notes = _environment.IsDevelopment()
+            ? accessCode
+            : ap.Notes;
+
+        await _adminsParticipantRepository.UpdateAsync(ap);
+
+        var r = await CreateAuthResponseAsync(ap.Participant, UserRole.Participant, _currentUser.AdminId, "Welcome to Plantour");
+
+        await _invitationService.SendInvitationEmailByIdAsync(adminParticipantId, accessCode, r.AccessToken);
+    }
+
     private void EnsureActiveUser(User user)
     {
         if (user.AccessType.Name != "Active")

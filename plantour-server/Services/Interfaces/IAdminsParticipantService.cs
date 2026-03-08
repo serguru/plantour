@@ -12,4 +12,6 @@ public interface IAdminsParticipantService
     Task DeleteAsync(Guid id);
     Task<CheckParticipantDto> CheckParticipant(string email);
     Task<Tuple<string, string>> GenerateAccessCodeAsync();
+
+    
 }

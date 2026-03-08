@@ -437,4 +437,12 @@ export class UsersService {
       newEmail
     })
   }
+
+  sendInvitationEmail(adminParticipantId: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/api/users/send-participant-invitation`, 
+      {
+        adminParticipantId: adminParticipantId
+      });
+  }
+
 }

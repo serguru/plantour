@@ -61,8 +61,6 @@ public class UsersController : ControllerBase
 
         #region Participant Endpoints
 
-        //TODO: resend participant invitation email
-
         //TODO: ask AI to add AsNoTracking where possible
 
         [HttpPost("participant/signup")]
@@ -220,7 +218,7 @@ public class UsersController : ControllerBase
                 var isTemporary = await _usersService.IsUserTemporary(email);
                 return Ok(isTemporary);
         }
-// TODO: update profile should resend access token
+        // TODO: update profile should resend access token
         [HttpPut("convert-temporary-user")]
         [AdminOnly]
         public async Task<IActionResult> ConvertTemporaryUser([FromBody] ConvertTemporaryUserRequest request)
@@ -229,4 +227,12 @@ public class UsersController : ControllerBase
                 return Ok();
         }
 
+        [HttpPost("send-participant-invitation")]
+        [AdminOnly]
+        public async Task<ActionResult> SendParticipantInvitation([FromBody] SendInvitationRequest request)
+        {
+                await _usersService.SendParticipantInvitationAsync(request.AdminParticipantId);
+                return Ok();
+        }
 }
+

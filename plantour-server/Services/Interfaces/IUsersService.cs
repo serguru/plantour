@@ -27,7 +27,9 @@ public interface IUsersService
     Task<ScheduledPlanDowngradeInfoDto> GetScheduledPlanDowngradeInfoAsync();
 
     Task<bool> CancelScheduledPlanDowngradeAsync();
-    
+
     Task<bool> IsUserTemporary(string email);
     Task ConvertTemporaryUserAsync(string oldEmail, string newEmail);
+    Task SendParticipantInvitationAsync(Guid adminParticipantId);
+
 }
