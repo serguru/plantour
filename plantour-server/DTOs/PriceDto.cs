@@ -6,8 +6,6 @@ public class PriceDto
 {
     public Guid Id { get; set; }
 
-    public Guid PlanId { get; set; }
-
     public string PaddlePriceId { get; set; } = null!;
 
     public string Name { get; set; } = null!;
@@ -15,6 +13,4 @@ public class PriceDto
     public int ValueCents { get; set; }
 
     public string? Notes { get; set; }
-
-    public PlanPrice PriceEnumId { get; set; }
 }

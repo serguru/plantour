@@ -1,9 +1,17 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { BehaviorSubject } from 'rxjs';
 
-export type DialogType = 'yes-no-cancel' | 'ok-cancel' | 'info';
+export type DialogType = 'yes-no-cancel' | 'ok-cancel' | 'ok-cancel-email' | 'info';
 export type DialogResult = 'yes' | 'no' | 'ok' | 'cancel';
+
+export interface EmailDialogResult {
+  result: DialogResult;
+  email?: string;
+}
+
+export type EmailOkHandler = (email: string) => Promise<string | null> | string | null;
+export type EmailOkErrorHandler = (error: unknown, email: string) => Promise<string | null> | string | null;
 
 export interface DialogConfig {
   title?: string;
@@ -14,9 +22,20 @@ export interface DialogConfig {
   cancelLabel?: string;
 }
 
+export interface EmailDialogConfig extends DialogConfig {
+  email?: string;
+  emailPlaceholder?: string;
+  onOkAsync?: EmailOkHandler;
+  onOkError?: EmailOkErrorHandler;
+}
+
 export interface DialogState extends DialogConfig {
   visible: boolean;
   type: DialogType;
+  email?: string;
+  emailPlaceholder?: string;
+  onOkAsync?: EmailOkHandler;
+  onOkError?: EmailOkErrorHandler;
 }
 
 // TODO: adjust messages colors and fonts 
@@ -31,7 +50,7 @@ export class MessagesService {
   private dialogStateSubject = new BehaviorSubject<DialogState | null>(null);
   dialogState$ = this.dialogStateSubject.asObservable();
 
-  private dialogResolver: ((result: DialogResult) => void) | null = null;
+  private dialogResolver: ((result: DialogResult | EmailDialogResult) => void) | null = null;
 
   constructor(private messageService: MessageService) {}
 
@@ -43,6 +62,15 @@ export class MessagesService {
       summary,
       detail,
       life: 4000
+    });
+  }
+
+  showInfoTime(summary: string, time: number, detail?: string) {
+    this.messageService.add({
+      severity: 'info',
+      summary,
+      detail,
+      life: time
     });
   }
 
@@ -80,6 +108,13 @@ export class MessagesService {
     });
   }
 
+  openOkCancelEmail(config: EmailDialogConfig): Promise<EmailDialogResult> {
+    return this.openDialog<EmailDialogResult>({
+      ...config,
+      type: 'ok-cancel-email'
+    });
+  }
+
   openInfo(config: DialogConfig): Promise<DialogResult> {
     return this.openDialog({
       ...config,
@@ -87,22 +122,25 @@ export class MessagesService {
     });
   }
 
-  private openDialog(cfg: { type: DialogType } & DialogConfig): Promise<DialogResult> {
+  private openDialog<T = DialogResult>(cfg: { type: DialogType } & DialogConfig): Promise<T> {
     // Close any existing dialog first
     this.dialogStateSubject.next({
       visible: true,
       type: cfg.type,
-      title: cfg.title ?? 'Confirmation',
+      title: cfg.title ?? 'SignIn',
       message: cfg.message ?? '',
       yesLabel: cfg.yesLabel,
       noLabel: cfg.noLabel,
       okLabel: cfg.okLabel,
       cancelLabel: cfg.cancelLabel,
-      
+      email: (cfg as EmailDialogConfig).email,
+      emailPlaceholder: (cfg as EmailDialogConfig).emailPlaceholder,
+      onOkAsync: (cfg as EmailDialogConfig).onOkAsync,
+      onOkError: (cfg as EmailDialogConfig).onOkError
     });
 
-    return new Promise<DialogResult>((resolve) => {
-      this.dialogResolver = resolve;
+    return new Promise<T>((resolve) => {
+      this.dialogResolver = (result) => resolve(result as T);
     });
   }
 
@@ -114,8 +152,21 @@ export class MessagesService {
     this.dialogStateSubject.next(null);
   }
 
+  resolveDialogWithEmail(result: DialogResult, email?: string) {
+    if (this.dialogResolver) {
+      this.dialogResolver({ result, email });
+      this.dialogResolver = null;
+    }
+    this.dialogStateSubject.next(null);
+  }
+
   cancelDialog() {
     // Called on Esc or when dialog is closed
+    if (this.dialogStateSubject.value?.type === 'ok-cancel-email') {
+      this.resolveDialogWithEmail('cancel');
+      return;
+    }
+
     this.resolveDialog('cancel');
   }
 }

@@ -11,6 +11,31 @@
 		}
 	],
 	"settings": {
-		"debug.toolBarLocation": "floating"
+		"debug.toolBarLocation": "floating",
+		"files.exclude": {
+			"**/node_modules": true,
+			"**/dist": true,
+			"**/out-tsc": true,
+			"**/.angular": true,
+			"**/bin": true,
+			"**/obj": true
+		},
+		"search.exclude": {
+			"**/node_modules": true,
+			"**/dist": true,
+			"**/out-tsc": true,
+			"**/.angular": true,
+			"**/bin": true,
+			"**/obj": true
+		},
+		"files.watcherExclude": {
+			"**/node_modules/**": true,
+			"**/dist/**": true,
+			"**/out-tsc/**": true,
+			"**/.angular/**": true,
+			"**/bin/**": true,
+			"**/obj/**": true
+		},
+		"explorer.excludeGitIgnore": true
 	}
 }

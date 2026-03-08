@@ -1,4 +1,3 @@
-// AccessCode hash helpers (same as password)
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
@@ -24,7 +23,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 namespace plantour_server.Services;
 
 
-// TODO: if a user is in pending status tried to sign in with email/password, we should check if their email is confirmed and if yes, let them in. Otherwise show them a message to confirm or resend a confirmation email.
 public class UsersService(
     IOptions<JwtSettings> jwtSettings,
     IMapper mapper,
@@ -35,8 +33,6 @@ public class UsersService(
     SettingsRepository settingsRepository,
     AccessTypeRepository accessTypeRepository,
     ITokenService tokenService,
-    IEmailConfirmationService emailConfirmationService,
-    UserEmailConfirmationRepository userEmailConfirmationRepository,
     IConfiguration configuration,
     IWebHostEnvironment environment,
     IInvitationService invitationService,
@@ -47,6 +43,7 @@ public class UsersService(
     RefreshTokenRepository refreshTokenRepository,
     TimeTickerRepository timeTickerRepository,
     IPaddleService paddleService,
+    ISignInEmailService signInEmailService,
     IOptions<SocialAuthSettings> socialAuthSettings) : IUsersService
 {
     private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
@@ -67,98 +64,14 @@ public class UsersService(
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly ITokenService _tokenService = tokenService;
-    private readonly IEmailConfirmationService _emailConfirmationService = emailConfirmationService;
-    private readonly UserEmailConfirmationRepository _userEmailConfirmationRepository = userEmailConfirmationRepository;
     private readonly IConfiguration _configuration = configuration;
     private readonly IWebHostEnvironment _environment = environment;
-
+    private readonly ISignInEmailService _signInEmailService = signInEmailService;
     #region Admin Authentication
 
-    public async Task<AuthResponse> SignUpAsync(SignUpRequest request)
+    public async Task<SignInResponse> SendSignInEmailAdminAsync(SignInRequest request)
     {
-        // Check if user already exists
-        if (await _usersRepository.GetByEmailAsync(request.Email) != null)
-        {
-            throw new CustomException("User with this email already exists");
-        }
-
-        // Create password hash
-        CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
-
-        // Create new user
-        var user = new User
-        {
-            Email = request.Email,
-            PasswordHash = passwordHash,
-            PasswordSalt = passwordSalt,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Phone = request.Phone,
-            AccessTypeId = await _accessTypeRepository.GetPendingId(),
-            PriceEnumId = (int?)PlanPrice.NoPlan
-        };
-
-        await _usersRepository.AddAsync(user);
-
-        var emailToken = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(user);
-        await _emailConfirmationService.SendConfirmationEmailAsync(user, emailToken);
-
-        return new AuthResponse
-        {
-            AccessToken = string.Empty,
-            AccessTokenExpiresAtUtc = DateTime.MinValue,
-            EmailConfirmationRequired = true,
-            StatusCode = 200,
-            Code = "EMAIL_CONFIRMATION_REQUIRED",
-            Message = "Please confirm your email address."
-        };
-    }
-
-    public async Task<AuthResponse> SignInAsync(SignInRequest request)
-    {
-        // Find user
-        var user = await _usersRepository.GetByEmailAsync(request.Email);
-
-        if (user == null || user.PasswordHash == null || user.PasswordSalt == null)
-        {
-            throw new UnauthorizedException("Wrong email or password", "NO_ACCESS");
-        }
-
-        // Verify password
-        if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
-        {
-            throw new UnauthorizedException("Wrong email or password", "NO_ACCESS");
-        }
-
-        var accessTypeName = user.AccessType?.Name;
-        if (string.Equals(accessTypeName, "Active", StringComparison.OrdinalIgnoreCase))
-        {
-            return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, null, "Welcome back to Plantour");
-        }
-
-        if (string.Equals(accessTypeName, "Pending", StringComparison.OrdinalIgnoreCase))
-        {
-            var confirmation = await _userEmailConfirmationRepository.GetByUserIdAsync(user.Id);
-
-            if (confirmation == null)
-            {
-                var token = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(user);
-                await _emailConfirmationService.SendConfirmationEmailAsync(user, token);
-                throw new ForbiddenException("Please go to the email we sent to you and click on the link to confirm your email address", "NO_ACCESS");
-            }
-
-            if (confirmation.ConfirmedAt == null)
-            {
-                throw new ForbiddenException("Please go to the email we sent to you and click on the link to confirm your email address", "NO_ACCESS");
-            }
-
-            user.AccessTypeId = await _accessTypeRepository.GetActiveId();
-            await _usersRepository.UpdateAsync(user);
-
-            return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, null, "Welcome to Plantour");
-        }
-
-        throw new ForbiddenException(GetAccessStatusMessage(accessTypeName), "NO_ACCESS");
+        return await _signInEmailService.SendSignInEmailAsync(request.Email);
     }
 
     public async Task<AuthResponse> SignInAdminSocialAsync(SocialSignInRequest request)
@@ -172,6 +85,77 @@ public class UsersService(
             _ => throw new CustomException("Unsupported social provider")
         };
     }
+    public async Task<AuthResponse> SignInAdminTokenAsync(string token)
+    {
+        string? email = _signInEmailService.GetEmailFromSignInToken(token);
+
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            throw new UnauthorizedException("Invalid or expired sign-in token", "NO_ACCESS");
+        }
+
+        User? user = await _usersRepository.GetByEmailAsync(email);
+
+        if (user == null)
+        {
+            user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = email,
+                FirstName = null,
+                LastName = null,
+                CreatedAt = DateTime.UtcNow,
+                Notes = null,
+                AccessTypeId = await _accessTypeRepository.GetActiveId()
+            };
+            await _usersRepository.AddAsync(user);
+        }
+
+        EnsureActiveUser(user);
+
+        return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
+    }
+
+    public async Task SendParticipantInvitationAsync(Guid adminParticipantId)
+    {
+        _currentUser.RaiseIfNotAdmin();
+
+        var entities = await _adminsParticipantRepository.FindFullAsync(x => x.Id == adminParticipantId && x.AdminId == _currentUser.AdminId && x.Participant.AccessType!.Name == "Active" && x.Admin.AccessType!.Name == "Active");
+
+        if (!entities.Any())
+        {
+            throw new CustomException("Active admin and participant not found or access denied");
+        }
+
+        Tuple<string, string> accessCodeResult = await _adminsParticipantService.GenerateAccessCodeAsync();
+
+        string accessCode = accessCodeResult.Item1;
+        string accessCodeHash = accessCodeResult.Item2;
+
+        var ap = entities.First();
+
+        ap.AccessCodeHash = accessCodeHash;
+
+        ap.Notes = _environment.IsDevelopment()
+            ? accessCode
+            : ap.Notes;
+
+        await _adminsParticipantRepository.UpdateAsync(ap);
+
+        var r = await CreateAuthResponseAsync(ap.Participant, UserRole.Participant, _currentUser.AdminId, "Welcome to Plantour");
+
+        await _invitationService.SendInvitationEmailByIdAsync(adminParticipantId, accessCode, r.AccessToken);
+    }
+
+    private void EnsureActiveUser(User user)
+    {
+        if (user.AccessType.Name != "Active")
+        {
+            throw new CustomException("The user is not active");
+        }
+    }
+
+
 
     // TODO: ensure social login works from a phone
     public async Task<UserDto> LinkSocialProviderAsync(SocialSignInRequest request)
@@ -250,7 +234,6 @@ public class UsersService(
             throw new CustomException("User not found");
         }
 
-        var hasPassword = user.PasswordHash != null && user.PasswordSalt != null;
 
         switch (normalizedProvider)
         {
@@ -260,10 +243,6 @@ public class UsersService(
                     return MapUserDto(user);
                 }
 
-                if (!hasPassword && string.IsNullOrWhiteSpace(user.FacebookUserId))
-                {
-                    throw new CustomException("Cannot disconnect Google login. Set a password or link Facebook first.");
-                }
 
                 user.GoogleSub = null;
                 break;
@@ -273,10 +252,6 @@ public class UsersService(
                     return MapUserDto(user);
                 }
 
-                if (!hasPassword && string.IsNullOrWhiteSpace(user.GoogleSub))
-                {
-                    throw new CustomException("Cannot disconnect Facebook login. Set a password or link Google first.");
-                }
 
                 user.FacebookUserId = null;
                 break;
@@ -295,28 +270,27 @@ public class UsersService(
     public async Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
-        var users = await _usersRepository.FindAsync(x => x.Email.ToLower() == request.Email.ToLower());
-        var participant = users.FirstOrDefault();
+        var  user = await _usersRepository.GetByEmailAsync(request.Email);
 
         // Ensure participant user exists or create new
-        if (participant == null)
+        if (user == null)
         {
-            participant = new User
+            user = new User
             {
                 Email = request.Email,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Phone = request.Phone,
-                PasswordHash = null,
-                PasswordSalt = null,
                 Notes = $"Registered by admin {_currentUser.Email} on {DateTime.UtcNow}",
-                AccessTypeId = await _accessTypeRepository.GetActiveId(),
-                PriceEnumId = (int)PlanPrice.Starter
+                AccessTypeId = await _accessTypeRepository.GetActiveId()
             };
-            await _usersRepository.AddAsync(participant);
+            await _usersRepository.AddAsync(user);
+        } else if (!user.AccessType.Name.Equals("Active", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new CustomException("Cannot sign up participant. The participant account is not active.");
         }
 
-        if (await _adminsParticipantRepository.AnyAsync(x => x.AdminId == _currentUser.AdminId && x.ParticipantId == participant.Id))
+        if (await _adminsParticipantRepository.AnyAsync(x => x.AdminId == _currentUser.AdminId && x.ParticipantId == user.Id))
         {
             throw new CustomException("Participant with this email is already registered under your admin account");
         }
@@ -336,22 +310,20 @@ public class UsersService(
         {
             Id = Guid.NewGuid(),
             AdminId = _currentUser.AdminId,
-            ParticipantId = participant.Id,
+            ParticipantId = user.Id,
             AccessCodeHash = accessCodeHash,
             Notes = notes
         };
 
         await _adminsParticipantRepository.AddAsync(adminParticipant);
 
-        var r = await CreateAuthResponseAsync(participant, UserRole.Participant, _currentUser.AdminId, null, "Welcome to Plantour");
+        var r = await CreateAuthResponseAsync(user, UserRole.Participant, _currentUser.AdminId, "Welcome to Plantour");
 
         await _invitationService.SendInvitationEmailByIdAsync(adminParticipant.Id, accessCode, r.AccessToken);
 
-        var baseUrl = _configuration["InvitationAccess:BaseUrl"];
-
         AdminsParticipantDto result = _mapper.Map<AdminsParticipantDto>(adminParticipant);
 
-        return result;
+       return result;
     }
 
     public async Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request)
@@ -377,69 +349,17 @@ public class UsersService(
             throw new ForbiddenException("The account suspended (or banned or archived or pending)", "NO_ACCESS");
         }
 
-        return await CreateAuthResponseAsync(participant, UserRole.Participant, admin.Id, null, "Welcome back to Plantour");
+        return await CreateAuthResponseAsync(participant, UserRole.Participant, admin.Id, "Welcome back to Plantour");
     }
 
     #endregion
 
-    #region Token Management
-
-
-    // public async Task<bool> ValidateTokenAsync(string token)
-    // {
-    //     try
-    //     {
-    //         var tokenHandler = new JwtSecurityTokenHandler();
-    //         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
-
-    //         tokenHandler.ValidateToken(token, new TokenValidationParameters
-    //         {
-    //             ValidateIssuerSigningKey = true,
-    //             IssuerSigningKey = new SymmetricSecurityKey(key),
-    //             ValidateIssuer = true,
-    //             ValidIssuer = _jwtSettings.Issuer,
-    //             ValidateAudience = true,
-    //             ValidAudience = _jwtSettings.Audience,
-    //             ValidateLifetime = true,
-    //             ClockSkew = TimeSpan.Zero
-    //         }, out SecurityToken validatedToken);
-
-    //         return true;
-    //     }
-    //     catch
-    //     {
-    //         return false;
-    //     }
-    // }
-
-    public async Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request, CancellationToken cancellationToken = default)
-    {
-        var user = await _usersRepository.GetByEmailAsync(request.Email);
-        if (user == null)
-        {
-            return;
-        }
-
-        if (await _emailConfirmationService.IsEmailConfirmedAsync(user.Id))
-        {
-            return;
-        }
-
-        var token = await _emailConfirmationService.GenerateEmailConfirmationTokenAsync(user);
-        await _emailConfirmationService.SendConfirmationEmailAsync(user, token, cancellationToken);
-    }
-
-    public async Task<bool> ConfirmEmailAsync(ConfirmEmailRequest request)
-    {
-        return await _emailConfirmationService.ConfirmEmailAsync(request.UserId, request.Token);
-    }
-
-    #endregion
 
     #region Token Generation
 
     // TODO: it is necessary to truncate old refresh tokens in the DB
-    private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? ipAddress, string? message)
+    // The user exists in the DB
+    private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? message = null)
     {
         AccessTokenResult accessToken = await _tokenService.CreateAccessToken(user, role, adminId);
         RefreshToken refreshTokenObject = await _tokenService.GenerateRefreshToken(user.Id);
@@ -449,29 +369,11 @@ public class UsersService(
             AccessToken = accessToken.Token,
             RefreshToken = refreshTokenObject.Token.ToString(),
             AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
-            EmailConfirmationRequired = false,
+            EmailSignInRequired = false,
             StatusCode = 200,
             Code = "ACCESS_OK",
             Message = message ?? "Welcome back to Plantour"
         };
-    }
-
-    #endregion
-
-    #region Password Helpers
-
-    private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-    {
-        using var hmac = new HMACSHA512();
-        passwordSalt = hmac.Key;
-        passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-    }
-
-    private bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
-    {
-        using var hmac = new HMACSHA512(storedSalt);
-        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-        return computedHash.SequenceEqual(storedHash);
     }
 
     #endregion
@@ -505,74 +407,49 @@ public class UsersService(
         return MapUserDto(user);
     }
 
-    public async Task<UserDto> UpdateProfileAsync(UpdateProfileRequest request)
+    public async Task<object> UpdateProfileAsync(UpdateProfileRequest request)
     {
-        var user = await _usersRepository.GetByIdAsync(_currentUser.UserId);
-        if (user == null)
+        var user = await _usersRepository.GetByIdAsync(_currentUser.UserId) ?? throw new CustomException("User not found");
+        
+        if (string.IsNullOrWhiteSpace(request.Email))
         {
-            throw new CustomException("User not found");
+            throw new CustomException("Email cannot be empty");
         }
 
+        bool emailChanged = !string.Equals(user.Email, request.Email, StringComparison.OrdinalIgnoreCase);
+
         // Check if email is being changed and if it already exists
-        if (!string.IsNullOrWhiteSpace(request.Email) && !string.Equals(user.Email, request.Email, StringComparison.OrdinalIgnoreCase))
+        if (emailChanged)
         {
-            var existingUser = await _usersRepository.GetByEmailAsync(request.Email);
+            if (!user.Temporary)
+            {
+                throw new CustomException("Cannot change email for non-temporary user");
+            }
+            user.Temporary = false;
+
+            var existingUser = await _usersRepository.GetByEmailAsync(request.Email!);
             if (existingUser != null)
             {
                 throw new CustomException("This email is already in use by another account");
             }
-            user.Email = request.Email;
+            user.Email = request.Email!;
         }
 
-        // Update other fields if provided
-        if (request.FirstName != null)
-        {
-            user.FirstName = request.FirstName;
-        }
-
-        if (request.LastName != null)
-        {
-            user.LastName = request.LastName;
-        }
-
-        if (request.Phone != null)
-        {
-            user.Phone = request.Phone;
-        }
+        user.FirstName = request.FirstName;
+        user.LastName = request.LastName;
+        user.Phone = request.Phone;
 
         await _usersRepository.UpdateAsync(user);
 
-        return MapUserDto(user);
+        var result = new
+        {
+            updatedProfile = MapUserDto(user),
+            redirectToSignin = emailChanged ? true : false
+        };
+
+        return result;
     }
 
-    public async Task UpdatePasswordAsync(UpdatePasswordRequest request)
-    {
-        var user = await _usersRepository.GetByIdAsync(_currentUser.UserId);
-        if (user == null)
-        {
-            throw new CustomException("User not found");
-        }
-
-        if (user.PasswordHash != null && user.PasswordSalt != null)
-        {
-            if (string.IsNullOrWhiteSpace(request.CurrentPassword))
-            {
-                throw new CustomException("Current password is required");
-            }
-
-            if (!VerifyPasswordHash(request.CurrentPassword, user.PasswordHash, user.PasswordSalt))
-            {
-                throw new UnauthorizedException("Current password is incorrect");
-            }
-        }
-
-        // Create new password hash
-        CreatePasswordHash(request.NewPassword, out byte[] passwordHash, out byte[] passwordSalt);
-        user.PasswordHash = passwordHash;
-        user.PasswordSalt = passwordSalt;
-
-        await _usersRepository.UpdateAsync(user);
-    }
 
     #endregion
 
@@ -598,8 +475,6 @@ public class UsersService(
         var result = new LandingDto()
         {
             Plans = planDtos,
-
-            GuestPlanDurationDays = (int)await _settingsRepository.GetSettingByKey("guest_plan_duration_days") + " days"
         };
         return result;
     }
@@ -615,7 +490,7 @@ public class UsersService(
             provider: "google",
             providerUserId: identity.ProviderUserId);
 
-        return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, null, "Welcome to Plantour");
+        return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
     }
 
     private async Task<AuthResponse> SignInWithFacebookAsync(string? facebookAccessToken)
@@ -629,9 +504,8 @@ public class UsersService(
             provider: "facebook",
             providerUserId: identity.ProviderUserId);
 
-        return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, null, "Welcome to Plantour");
+        return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
     }
-
     private async Task<SocialIdentity> VerifyGoogleTokenAsync(string? googleIdToken)
     {
         if (string.IsNullOrWhiteSpace(_socialAuthSettings.GoogleClientId))
@@ -746,11 +620,6 @@ public class UsersService(
                 emailUser.LastName = lastName;
             }
 
-            if (string.Equals(emailUser.AccessType?.Name, "Pending", StringComparison.OrdinalIgnoreCase))
-            {
-                emailUser.AccessTypeId = await _accessTypeRepository.GetActiveId();
-            }
-
             await _usersRepository.UpdateAsync(emailUser);
             EnsureUserCanSignIn(emailUser);
             return emailUser;
@@ -759,12 +628,10 @@ public class UsersService(
         var newUser = new User
         {
             Email = email,
-            PasswordHash = null,
-            PasswordSalt = null,
             FirstName = firstName,
             LastName = lastName,
             AccessTypeId = await _accessTypeRepository.GetActiveId(),
-            PriceEnumId = (int?)PlanPrice.Starter,
+            //PriceEnumId = (int?)PlanPrice.Starter,
             GoogleSub = provider == "google" ? providerUserId : null,
             FacebookUserId = provider == "facebook" ? providerUserId : null
         };
@@ -802,7 +669,6 @@ public class UsersService(
             LastName = user.LastName,
             Phone = user.Phone,
             Notes = user.Notes,
-            HasPassword = user.PasswordHash != null && user.PasswordSalt != null,
             HasGoogleLinked = !string.IsNullOrWhiteSpace(user.GoogleSub),
             HasFacebookLinked = !string.IsNullOrWhiteSpace(user.FacebookUserId)
         };
@@ -900,7 +766,7 @@ public class UsersService(
         if (user == null)
         {
             throw new CustomException("Active user not found while refreshing token", "REFRESH_TOKEN_FAILED");
-        }   
+        }
 
         var existingRefreshTokens = await _refreshTokenRepository.FindAsync(rt => rt.UserId == userId && rt.Token == Guid.Parse(request.RefreshToken));
 
@@ -923,7 +789,7 @@ public class UsersService(
 
         AuthResponseDto result = new()
         {
-            AccessToken = (await _tokenService.CreateAccessToken(user, userRole, adminId, isTemporary)).Token,
+            AccessToken = (await _tokenService.CreateAccessToken(user, userRole, adminId)).Token,
             RefreshToken = newRefreshToken.Token.ToString()
         };
 
@@ -988,6 +854,55 @@ public class UsersService(
         return await _timeTickerRepository.CancelLatestActiveByFunctionAndIdentifierAsync(
             TickerQPlanDowngradeTask.FunctionName,
             initIdentifier);
+    }
+    public async Task<bool> IsUserTemporary(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            throw new CustomException("Email is required");
+        }
+        var user = await _usersRepository.GetByEmailAsync(email);
+        return user?.Temporary ?? false;
+    }
+
+    public async Task ConvertTemporaryUserAsync(string oldEmail, string newEmail)
+    {
+        if (string.IsNullOrWhiteSpace(oldEmail) || string.IsNullOrWhiteSpace(newEmail))
+        {
+            throw new CustomException("Old email and new email are required");
+        }
+        oldEmail = oldEmail.Trim();
+        newEmail = newEmail.Trim();
+
+        if (string.Equals(oldEmail, newEmail, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new CustomException("Old email and new email cannot be the same");
+        }
+        
+        var user = await _usersRepository.GetByEmailAsync(oldEmail);
+        if (user == null)
+        {
+            throw new CustomException("A temporary user with the old email not found");
+        }
+
+        if (!user.Temporary)
+        {
+            throw new CustomException("User with the old email is not temporary");
+        }
+
+        var existingUser = await _usersRepository.GetByEmailAsync(newEmail);
+        if (existingUser != null)
+        {
+            throw new CustomException("The new email is already in use by another account");
+        }
+
+        user.FirstName = null;
+        user.LastName = null;
+        user.Email = newEmail;
+        user.Temporary = false;
+        user.AccessTypeId = await _accessTypeRepository.GetActiveId();
+
+        await _usersRepository.UpdateAsync(user);
     }
 
 }

@@ -17,6 +17,7 @@
         value="admin"
         [(ngModel)]="signInType"
         inputId="admin"
+        (click)="onRadioClick($event)"
       />
       <div for="admin">Admin</div>
     </div>
@@ -27,16 +28,20 @@
         value="participant"
         [(ngModel)]="signInType"
         inputId="participant"
+        (click)="onRadioClick($event)"
       />
       <label for="participant">Participant</label>
     </div>
   </div>
-  <div class="help-link-container">
-    <a
-      class="help-link"
-      href="/help/account/login"
-      alt="How to sign in"
-    >How to sign in</a>
+
+  <div class="instruction">
+    @if(isAdmin) {
+      <p>Use Google or Facebook to sign in as admin instantly. Alternatively, enter your email to receive a secure login link. In either case, if an account doesn't exist for that email, one will be created for you.</p>
+
+    } @else {
+      <p>To sign in as a participant, enter the access code from the invitation email sent by your administrator. Alternatively, you can sign in instantly by clicking the link provided in that email.</p>
+    }
+
   </div>
 
   <div class="controls-wrapper">
@@ -75,6 +80,7 @@
           formControlName="email"
           placeholder="your.email@example.com"
           [class.p-invalid]="isFieldInvalid('email')"
+          (input)="onEmailChange($event)"
         />
         @if (isFieldInvalid('email')) {
         <small class="error-message">
@@ -84,25 +90,6 @@
         }
       </div>
 
-      <!-- Password Field -->
-      <div class="form-field">
-        <label for="password">Password <span class="required">*</span></label>
-        <p-password
-          id="password"
-          formControlName="password"
-          placeholder="Enter your password"
-          [toggleMask]="true"
-          [feedback]="false"
-          [class.p-invalid]="isFieldInvalid('password')"
-          styleClass="w-full"
-        >
-        </p-password>
-        @if (isFieldInvalid('password')) {
-        <small class="error-message">
-          {{ getFieldError('password') }}
-        </small>
-        }
-      </div>
       } @else {
       <!-- Access Code Field -->
       <div class="form-field">
@@ -132,6 +119,12 @@
         <span>{{ errorMessage }}</span>
       </div>
       }
+      @if (successMessage) {
+      <div class="info-message">
+        <i class="pi pi-info-circle"></i>
+        <span>{{ successMessage }}</span>
+      </div>
+      }
       <!-- Form Actions -->
       <div class="form-actions">
         <app-button
@@ -139,19 +132,9 @@
           label="Sign In"
           icon="pi pi-sign-in"
           [loading]="isLoading"
-          [disabled]="isLoading || currentForm.invalid"
+          [disabled]="isLoading || currentForm.invalid || !!successMessage"
         />
       </div>
-      <div class="pale-prompt">
-        Not registered?
-        <button
-          type="button"
-          class="link-button"
-          (click)="onSignUp()"
-        >Sign Up here</button>
-      </div>
-
-
     </form>
   </div>
 </div>

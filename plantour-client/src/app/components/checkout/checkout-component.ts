@@ -4,10 +4,12 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { PaddleService } from '../../services/paddle-service';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { firstValueFrom } from 'rxjs';
+import { catchError, EMPTY, firstValueFrom, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { AppButton } from '../button/button-component';
 import { MessagesService } from '../../services/messages-service';
+import { UsersService } from '../../services/users-service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 // TODO: make sure this component works correctly for both registered and not registered users
 
@@ -25,6 +27,7 @@ export class CheckoutComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly paddleService = inject(PaddleService);
   private readonly messagesService = inject(MessagesService);
+  private readonly usersService = inject(UsersService);
 
   readonly checkoutContainerClass = 'paddle-inline-checkout-container';
   readonly emailForm = this.fb.group({
@@ -38,19 +41,23 @@ export class CheckoutComponent implements OnInit {
   errorMessage = '';
   private isHandlingCheckoutResult = false;
 
+  onEmailInput(ev: Event): void {
+    if (this.errorMessage) {
+      this.errorMessage = '';
+    }
+  }
+
   ngOnInit(): void {
     this.paddleService.setCheckoutEventHandler((eventName: string) => {
       void this.onPaddleEvent(eventName);
     });
 
+    // This should never happen because the route is protected, but just in case
     this.priceId = this.route.snapshot.paramMap.get('priceId');
-
     if (!this.priceId) {
       this.errorMessage = 'Missing required query parameter: priceId';
     }
-
     this.priceName = this.route.snapshot.paramMap.get('priceName');
-
     if (!this.priceName) {
       this.errorMessage = 'Missing required query parameter: priceName';
     }
@@ -76,6 +83,35 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
+    // if the temporary user convert them first
+    if (this.usersService.isTemporarySignal()) {
+      const oldEmail = this.usersService.userEmail();
+
+      if (!oldEmail) {
+        this.errorMessage = 'Missing temporary user email';
+        return;
+      }
+
+      await firstValueFrom(
+        this.usersService.convertTemporaryUser(oldEmail, email).pipe(
+          tap(() => {
+            this.usersService.signOut();
+          }),
+          catchError((error: any) => {
+            let errorMessage = 'Failed to convert temporary user. ';
+            if (error?.error?.isCustom && error?.error?.message) {
+              errorMessage += error.error.message;
+            } else if (error?.message) {
+              errorMessage += error.message;
+            }
+            this.errorMessage = errorMessage;
+            return throwError(() => new Error(errorMessage));
+          })
+        )
+      )
+    }
+
+
     this.errorMessage = '';
     this.isLoading = true;
 
@@ -84,16 +120,15 @@ export class CheckoutComponent implements OnInit {
 
       if (hasActiveSubscription) {
         this.isLoading = false;
+        this.errorMessage = "You already have an active plan. If you wish to change your plan, sign in, go to your profile and press 'Change plan'.";
+        return;
+      }
 
-        const result = await this.messagesService.openInfo({
-          title: 'Subscription already exists',
-          message: 'You already have an active subscription'
-        });
+      const isTemporary = await firstValueFrom(this.usersService.isUserTemporary(email));
 
-        if (result === 'ok') {
-          void this.router.navigate(['/profile']);
-        }
-
+      if (isTemporary) {
+        this.isLoading = false;
+        this.errorMessage = "A temporary user with this email address was found. Temporary users cannot have a paid plan. Please enter a different email address.";
         return;
       }
 

@@ -52,7 +52,7 @@ public class PaddleService : IPaddleService
         _httpclient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
     }
 
-    public async Task<string?> GetCustomerIdByEnmailAsync(string email)
+    public async Task<string?> GetActiveCustomerIdByEmailAsync(string email)
     {
         if (string.IsNullOrWhiteSpace(email))
         {
@@ -99,10 +99,22 @@ public class PaddleService : IPaddleService
         {
             throw new CustomException("Paddle response does not contain customer id");
         }
+
+        if (!customer.TryGetProperty("status", out var statusElement))
+        {
+            throw new CustomException("Paddle response does not contain customer status property");
+        }
+
+        string? status = statusElement.GetString();
+        if (string.IsNullOrWhiteSpace(status) || !string.Equals(status, "active", StringComparison.OrdinalIgnoreCase))
+        {
+            return null; 
+        }
+
         return customerId;
     }
 
-    public async Task<string?> GetCustomerEmailByIdAsync(PaddleCustomerEmailRequest request)
+    public async Task<string?> GetActiveCustomerEmailByIdAsync(PaddleCustomerEmailRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.CustomerId))
         {
@@ -134,12 +146,22 @@ public class PaddleService : IPaddleService
             throw new CustomException("Customer email is empty in Paddle response");
         }
 
+        if (!dataElement.TryGetProperty("status", out var statusElement))
+        {
+            throw new CustomException("Paddle response does not contain customer status property");
+        }
+
+        string? status = statusElement.GetString();
+        if (string.IsNullOrWhiteSpace(status) || !string.Equals(status, "active", StringComparison.OrdinalIgnoreCase))
+        {
+            return null; 
+        }
         return email;
     }
 
     public async Task<bool> ActiveSubscriptionExists(string email)
     {
-        string? customerId = await GetCustomerIdByEnmailAsync(email);
+        string? customerId = await GetActiveCustomerIdByEmailAsync(email);
         if (String.IsNullOrWhiteSpace(customerId))
         {
             return false;
@@ -168,7 +190,7 @@ public class PaddleService : IPaddleService
 
     public async Task<PaddleSubscription?> GetActiveSubscriptionByEmailAsync(string email)
     {
-        string? customerId = await GetCustomerIdByEnmailAsync(email);
+        string? customerId = await GetActiveCustomerIdByEmailAsync(email);
         if (String.IsNullOrWhiteSpace(customerId))
         {
             return null;
@@ -272,15 +294,15 @@ public class PaddleService : IPaddleService
         };
     }
 
-    public async Task<string?> GetSubscriptionIdAsync(PaddleSubscriptionIdRequest request)
+    public async Task<string?> GetActiveSubscriptionIdAsync(PaddleSubscriptionIdRequest request)
     {
-        string? customerId = await GetCustomerIdByEnmailAsync(request.Email);
+        string? customerId = await GetActiveCustomerIdByEmailAsync(request.Email);
         if (String.IsNullOrWhiteSpace(customerId))
         {
             return null;
         }
 
-        var response = await _httpclient.GetAsync($"subscriptions?customer_id={Uri.EscapeDataString(customerId)}&price_id={Uri.EscapeDataString(request.PriceId)}");
+        var response = await _httpclient.GetAsync($"subscriptions?customer_id={Uri.EscapeDataString(customerId)}&price_id={Uri.EscapeDataString(request.PriceId)}&status=active");
 
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
@@ -316,11 +338,11 @@ public class PaddleService : IPaddleService
             return null; // Subscription not found with the specified price ID
         }
 
-        var activeSubscriptions = subscriptions.Where(s => string.Equals(s.Status, "active", StringComparison.OrdinalIgnoreCase)).OrderByDescending(s => s.CreatedAt).ToList();
+        subscriptions = subscriptions.OrderByDescending(s => s.CreatedAt).ToList();
 
-        if (activeSubscriptions.Count > 0)
+        if (subscriptions.Count > 0)
         {
-            return activeSubscriptions.First().Id; // Return the most recently created active subscription
+            return subscriptions.First().Id; // Return the most recently created active subscription
         }
 
         var notActiveSubscriptions = subscriptions.Where(s => !string.Equals(s.Status, "active", StringComparison.OrdinalIgnoreCase)).OrderByDescending(s => s.CreatedAt).ToList();
@@ -403,7 +425,7 @@ public class PaddleService : IPaddleService
             if (!string.IsNullOrWhiteSpace(admin.PaddleSubscriptionId))
             {
                 admin.PaddleSubscriptionId = null;
-                admin.PriceEnumId = (int)PlanPrice.Starter;
+                //admin.PriceEnumId = (int)PlanPrice.Starter;
                 await _usersRepository.UpdateAsync(admin);
             }
             return null;
@@ -412,7 +434,7 @@ public class PaddleService : IPaddleService
         if (admin.PaddleSubscriptionId != subscription!.Id)
         {
             admin.PaddleSubscriptionId = subscription!.Id;
-            admin.PriceEnumId = null;
+            //admin.PriceEnumId = null;
             await _usersRepository.UpdateAsync(admin);
         }
 
@@ -431,7 +453,7 @@ public class PaddleService : IPaddleService
     // Called by admins only
     public async Task<PortalSessionResponse> CreateCustomerPortalSessionAsync()
     {
-        string? customerId = await GetCustomerIdByEnmailAsync(_currentUser.Email);
+        string? customerId = await GetActiveCustomerIdByEmailAsync(_currentUser.Email);
 
         if (string.IsNullOrWhiteSpace(customerId))
         {
@@ -695,4 +717,5 @@ public class PaddleService : IPaddleService
     {
         await ChangePlanPriceAsync(userId, oldPlanPrice, newPlanPrice, true);
     }
+
 }

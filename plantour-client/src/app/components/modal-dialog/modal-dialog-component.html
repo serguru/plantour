@@ -14,13 +14,34 @@
  
 >
   <ng-template pTemplate="header">
-    {{ state?.title || 'Confirmation' }}
+    {{ state?.title || 'SignIn' }}
   </ng-template>
 
   <div class="dialog-content">
     <p class="dialog-message">
       {{ state?.message }}
     </p>
+
+    <ng-container *ngIf="state?.type === 'ok-cancel-email'">
+      <div class="email-field">
+        <input
+          #emailInput
+          type="email"
+          class="email-input"
+          [class.email-input-invalid]="emailTouched && !isEmailValid"
+          [value]="email"
+          [placeholder]="state?.emailPlaceholder || 'name@example.com'"
+          autocomplete="email"
+          (input)="onEmailInput(emailInput.value)"
+          (blur)="onEmailBlur()"
+          (keydown.enter)="onEmailOk()"
+        />
+
+        <small *ngIf="emailTouched && !isEmailValid" class="email-error">
+          Please enter a valid email address.
+        </small>
+      </div>
+    </ng-container>
   </div>
 
   <ng-template pTemplate="footer">
@@ -79,6 +100,41 @@
       >
         {{ state?.okLabel || 'Ok' }}
       </button>
+    </ng-container>
+
+    <!-- OK / CANCEL / EMAIL -->
+    <ng-container *ngIf="state?.type === 'ok-cancel-email'">
+      <div class="email-footer-block">
+        <small *ngIf="emailSubmitError" class="email-submit-error">
+          {{ emailSubmitError }}
+        </small>
+
+        <div class="email-footer-actions">
+          <button
+            pButton
+            #cancelButton
+            type="button"
+            class="p-button-text"
+            [disabled]="emailSubmitting"
+            (click)="onEmailCancel()"
+          >
+            {{ state?.cancelLabel || 'Cancel' }}
+          </button>
+
+          <span class="footer-spacer"></span>
+
+          <button
+            #okButton
+            pButton
+            type="button"
+            class="p-button-primary"
+            [disabled]="!isEmailValid || emailSubmitting"
+            (click)="onEmailOk()"
+          >
+            {{ state?.okLabel || 'Ok' }}
+          </button>
+        </div>
+      </div>
     </ng-container>
 
     <ng-container *ngIf="state?.type === 'info'">

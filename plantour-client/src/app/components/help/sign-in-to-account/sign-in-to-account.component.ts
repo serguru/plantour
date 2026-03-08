@@ -16,7 +16,7 @@ export class SignInToAccountComponent {
       title: 'Admins (Registered Users)',
       steps: [
         'Open Plantour and click "Sign In".',
-        'Enter your email and password.',
+        'Enter your email.',
         'Click "Sign In" to access your dashboard and manage trips.'
       ]
     },
@@ -32,7 +32,6 @@ export class SignInToAccountComponent {
     tips: {
       title: 'Helpful Tips',
       items: [
-        'If you forgot your password (Admins), use the "Forgot Password" link on the sign-in screen.',
         'Participants do not need to create a Plantour account.',
         'If an invitation link expires, ask the Admin to resend it.'
       ]

@@ -247,8 +247,6 @@ create table plantour.plans (
     created_at timestamp not null default (now() at time zone 'utc')
 );
 insert into plantour.plans (name, paddle_product_id, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
-('NoPlan', null, 'For users having no plan', false, 0, 0, 0, false),
-('Guest', null, 'To get acquainted with Plantour', false, 10, 2, 2, false),
 ('Starter', null, 'For small trips and light packers', true, 10, 2, 5, false),
 ('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, null, 5, 20, false),
 ('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, null, null, 100, true);
@@ -258,58 +256,38 @@ create table plantour.prices (
     plan_id uuid not null references plans(id),
     paddle_price_id text null unique,
     name text not null unique,
-    price_enum_id int not null unique,
     value_cents int not null check(value_cents >= 0)
 );
 
-insert into plantour.prices (paddle_price_id,plan_id,name,price_enum_id,value_cents) values
-(
-    null,
-    (select id from plantour.plans where name = 'NoPlan'),
-    'No Plan Free',
-    1,
-    0
-),
-(
-    null,
-    (select id from plantour.plans where name = 'Guest'),
-    'Guest Free',
-    2,
-    0
-),
+insert into plantour.prices (paddle_price_id,plan_id,name,value_cents) values
 (
     null,
     (select id from plantour.plans where name = 'Starter'),
     'Starter Free',
-    3,
     0
 ),
 (
     'pri_01khvsx5szpnfqd97c6sdv3e2w',
     (select id from plantour.plans where name = 'Family'),
     'Family Monthly',
-    4,
     499
 ),
 (
     'pri_01khvsg62zpjhh6qbmc5sfmkm3',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Monthly',
-    5,
     1499
 ),
 (
     'pri_01khvsyg17b43cm5kf0t63zfnr',
     (select id from plantour.plans where name = 'Family'),
     'Family Yearly',
-    6,
     2999
 ),
 (
     'pri_01khvspsgmrkcggdxxtksbzy88',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Yearly',
-    7,
     8999
 );
 
@@ -320,8 +298,6 @@ insert into plantour.prices (paddle_price_id,plan_id,name,price_enum_id,value_ce
 create table users (
     id uuid not null primary key default gen_random_uuid(),
     email text not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-    password_hash bytea null,
-    password_salt bytea null,
     first_name text,
     last_name text,
     phone text,
@@ -330,33 +306,28 @@ create table users (
     notes text,
     created_at timestamp not null default (now() at time zone 'utc'),
     access_type_id uuid not null references access_types(id),
-    price_enum_id int null references plantour.prices(price_enum_id),
     paddle_subscription_id text unique,
-
-    constraint ch_users_enum_subscription check (
-        (price_enum_id is not null and price_enum_id between 1 and 3 and paddle_subscription_id is null)
-        or 
-        (price_enum_id is null and paddle_subscription_id is not null)
-    )
+    temporary bool not null default false
 );
 
-create or replace function plantour.prevent_user_email_update()
+create or replace function plantour.prevent_email_change_for_non_temporary_users()
 returns trigger
 language plpgsql
 as $$
 begin
-    if new.email is distinct from old.email then
-        raise exception 'User email cannot be changed';
+    if old.temporary = false and new.email is distinct from old.email then
+        raise exception 'Email cannot be changed for non-temporary users';
     end if;
 
     return new;
 end;
 $$;
 
-create trigger trg_prevent_user_email_update
+--drop trigger if exists trg_prevent_email_change_for_non_temporary_users on plantour.users;
+create trigger trg_prevent_email_change_for_non_temporary_users
 before update on plantour.users
 for each row
-execute function plantour.prevent_user_email_update();
+execute function plantour.prevent_email_change_for_non_temporary_users();
 
 create table ai_prompt_checks (
     id uuid primary key not null references users(id) on delete cascade,
@@ -552,17 +523,6 @@ create table trip_comments (
 );
 create index idx_trip_comments_trip_id on trip_comments(trip_id);
 
------------------------------------------------------------------------
--- USER EMAIL CONFIRMATIONS
------------------------------------------------------------------------
-create table user_email_confirmations (
-    id uuid not null primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
-    created_at timestamp not null default (now() at time zone 'utc'),
-    confirmed_at timestamp null,
-    last_sent_at timestamp null
-);
-create unique index idx_user_email_confirmations_user_id on user_email_confirmations(user_id);
 
 create table contact_submissions (
     -- identification
@@ -740,22 +700,8 @@ create table plantour.settings (
 
 insert into plantour.settings (key, value, value_type)
 values 
-    -- ('guest_plan_name', 'Guest', 'string'),
-    -- ('trial_plan_name', 'Starter', 'string'),
-    -- ('base_plan_name', 'Family', 'string'),
-    -- ('pro_plan_name', 'Expedition', 'string'),
-
-    -- ('base_monthly_price_url', 'pri_01khvsx5szpnfqd97c6sdv3e2w', 'string'),
-    -- ('base_yearly_price_url', 'pri_01khvsyg17b43cm5kf0t63zfnr', 'string'),
-    -- ('pro_monthly_price_url', 'pri_01khvsg62zpjhh6qbmc5sfmkm3', 'string'),
-    -- ('pro_yearly_price_url', 'pri_01khvspsgmrkcggdxxtksbzy88', 'string'),
-
-    -- ('base_plan_monthly_cents', '499', 'integer'),
-    -- ('base_plan_yearly_cents', '2999', 'integer'),
-    -- ('pro_plan_monthly_cents', '1499', 'integer'),
-    -- ('pro_plan_yearly_cents', '8999', 'integer'),
     ('user_email_confirmation_url', 'http://localhost:4203/confirm-email', 'string'),
-    ('guest_plan_duration_days', '14', 'integer'),
+    ('temporary_user_duration_days', '14', 'integer'),
     ('email_confirmation_token_minutes', '60',  'integer'),
     ('user_token_expiration_minutes', '1440',  'integer'),
     ('checkout_session_success_url', 'profile',  'string'),

@@ -20,6 +20,16 @@ export const publicGuard: CanActivateFn = (route, state) => {
   return false;
 };
 
+export const signInGuard: CanActivateFn = (route, state) => {
+  const usersService = inject(UsersService);
+  if (!usersService.isAuthenticatedSignal() || usersService.isTemporarySignal()) {
+    return true;
+  }
+  const router = inject(Router);
+  router.navigate(['']);
+  return false;
+};
+
 
 /**
  * Admin Guard - allows access only to authenticated admin users

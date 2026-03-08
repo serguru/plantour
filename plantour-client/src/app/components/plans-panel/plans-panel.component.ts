@@ -7,7 +7,6 @@ import { Router } from '@angular/router';
 import { switchMap } from 'rxjs';
 
 // TODO: it is necessary to add to the log user activity to proof their activity if they decided to get a refund.
-// TODO: implement forgot password functionality in the sign in
 // TODO: fix the top wording
 interface PlanFeature {
   label: string;
@@ -53,6 +52,11 @@ export class PlansPanelComponent implements OnInit {
   family!: Plan;
   expedition!: Plan;
   plansLoaded = false;
+
+  isTemporary(): boolean {
+    const result = this.usersService.isTemporarySignal();
+    return result;
+  }
 
   isDowngrade(text: string): boolean {
     const result = text.startsWith('Downgrade');
@@ -171,10 +175,7 @@ export class PlansPanelComponent implements OnInit {
 
   private setPlans(data: LandingDto): void {
 
-    const plans: Plan[] = [];
-
     data.plans.filter(x => !(this.isAuthenticated && x.name === 'Starter')).forEach(plan => {
-
       switch (plan.name) {
         case 'Starter':
           this.starter =
@@ -184,7 +185,7 @@ export class PlansPanelComponent implements OnInit {
             monthlyPrice: '0',
             monthlyPriceName: "Free",
             monthlyButtonText: 'Join Free',
-            monthlyPriceUrl: '/sign-up',
+            monthlyPriceUrl: '/sign-in',
             features: this.featuresByPlan(plan),
             monthlyAvalable: true,
             yearlyAvalable: true
@@ -241,6 +242,16 @@ export class PlansPanelComponent implements OnInit {
     if (this.isAuthenticated) {
 
       switch (this.currentPlanPeriod) {
+        case 'Starter Free':
+          this.family.monthlyButtonText = 'Upgrade to Monthly';
+          this.family.monthlyAvalable = true;
+          this.family.yearlyButtonText = 'Upgrade to Yearly';
+          this.family.yearlyAvalable = true;
+          this.expedition.monthlyButtonText = 'Upgrade to Monthly';
+          this.expedition.monthlyAvalable = true;
+          this.expedition.yearlyButtonText = 'Upgrade to Yearly';
+          this.expedition.yearlyAvalable = true;
+          break;
         case 'Family Monthly':
           this.family.monthlyButtonText = 'Current Monthly';
           this.family.monthlyAvalable = false;

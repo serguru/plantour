@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
 import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 import { UsersService } from '../../services/users-service';
@@ -13,6 +12,9 @@ import { RadioButton } from 'primeng/radiobutton';
 import { AppButton } from '../button/button-component';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 import { SocialAuthService } from '../../services/social-auth-service';
+import { PasswordModule } from 'primeng/password';
+import { SignInResponse } from '../../models/auth.models';
+import { getMessageFromError } from '../../helpers/utils';
 
 @Component({
   selector: 'app-sign-in',
@@ -22,10 +24,10 @@ import { SocialAuthService } from '../../services/social-auth-service';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    PasswordModule,
     RadioButton,
     FormsModule,
-    AppButton
+    AppButton,
+    PasswordModule
   ],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.scss',
@@ -36,6 +38,7 @@ export class SignInComponent implements OnInit {
   participantForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
   signInType: 'admin' | 'participant' = 'admin';
 
   private usersService = inject(UsersService);
@@ -48,27 +51,43 @@ export class SignInComponent implements OnInit {
   constructor(
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-
     let e = "";
-    let p = "";
-
     if (this.environment.environment === 'development') {
       e = 'serguru@gmail.com';
-      p = "Binary_09"
     }
-
     this.adminForm = this.fb.group({
-      email: [e, [Validators.required, Validators.email]],
-      password: [p, [Validators.required]],
+      email: [e, [Validators.required, Validators.email]]
     });
     this.participantForm = this.fb.group({
       accessCode: ['', [Validators.required]],
     });
   }
+
+    onRadioClick(event): void {
+      this.successMessage = '';
+      this.errorMessage = '';
+    }
+
   ngOnInit(): void {
     const currentUrl = this.router.url; 
-    const endsWithParticipant = currentUrl.split('?')[0].endsWith('/participant');    
+
+    const parts = currentUrl.split('?');
+    const path = parts[0];
+    const endsWithParticipant = path.endsWith('/participant');    
     this.signInType = endsWithParticipant ? 'participant' : 'admin';
+
+    if (this.signInType === 'participant') {
+      const queryParams = new URLSearchParams(parts[1]);
+      const code = queryParams.get('code');
+      if (code) { 
+        this.participantForm.patchValue({ accessCode: code });
+      }
+    }
+  }
+
+  onEmailChange(e) {
+    this.errorMessage = '';
+    this.successMessage = '';  
   }
 
   get isAdmin(): boolean {
@@ -80,33 +99,39 @@ export class SignInComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.successMessage = '';
+    this.errorMessage = '';
+
+
     if (this.currentForm.invalid) {
       this.currentForm.markAllAsTouched();
       this.messagesService.showWarning('Validation Error', 'Please fill in all required fields correctly.');
       return;
     }
 
+    const currentEmail = this.usersService.userEmail();
+    if (currentEmail && currentEmail.toLowerCase() == this.adminForm.get('email')!.value.toLowerCase()) {
+      this.messagesService.showWarning('Already Signed In', 'You are already signed in with this email');
+      return;
+    }
+
     this.isLoading = true;
-    this.errorMessage = '';
 
     if (this.isAdmin) {
 
-      const { email, password } = this.currentForm.value;
-      this.usersService.loginAdmin(email, password).pipe(
+      const { email } = this.currentForm.value;
+      this.usersService.sendLoginEmailAdmin(email).pipe(
         catchError((error) => {
-          const errorMsg = error.error?.message || 'Sign in failed. Please check your credentials and try again.';
+          const errorMsg = getMessageFromError(error, 'Sending sign-in email failed');
           this.errorMessage = errorMsg;
-          this.messagesService.showError('Sign In Failed', errorMsg);
           return EMPTY;
         }),
         finalize(() => {
           this.isLoading = false;
         })
       ).subscribe({
-        next: (response) => {
-          const message = response?.message || 'Welcome back to Plantour';
-          this.messagesService.showInfo('Sign In Successful', message);
-          this.router.navigate(['']);
+        next: (response: SignInResponse) => {
+          this.successMessage = `Hello ${response.fullUserName}, we've sent you an email with a link that will be valid for ${response.signInEmailTokenMinutes} minutes. Please open the email and follow the link to sign in to Plantour.`;
         }
       });
       return;
@@ -117,9 +142,8 @@ export class SignInComponent implements OnInit {
 
     this.usersService.loginParticipant(accessCode).pipe(
       catchError((error) => {
-        const errorMsg = error.error?.message || 'Participant sign in failed. Please check your Access Code and try again.';
+        const errorMsg = getMessageFromError(error, 'Participant sign in failed. Please check your Access Code and try again.');
         this.errorMessage = errorMsg;
-        this.messagesService.showError('Sign In Failed', errorMsg);
         return EMPTY;
       }),
       finalize(() => {
@@ -158,10 +182,6 @@ export class SignInComponent implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.currentForm.get(fieldName);
     return !!(field && field.invalid && field.touched);
-  }
-
-  onSignUp(): void {
-    this.router.navigate(['/sign-up']);
   }
 
   async onSignInWithFacebook(): Promise<void> {

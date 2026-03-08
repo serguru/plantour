@@ -9,6 +9,5 @@ public interface IBrevoEmailClient
         string? toName,
         string subject,
         string htmlContent,
-        string? textContent = null,
-        CancellationToken cancellationToken = default);
+        string? textContent = null);
 }

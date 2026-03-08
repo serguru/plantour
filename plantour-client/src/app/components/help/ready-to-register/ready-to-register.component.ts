@@ -21,12 +21,12 @@ export class ReadyToRegisterComponent {
         {
           number: 1,
           title: 'Click "Create Account"',
-          details: 'From anywhere in Plantour, you\'ll see a "Create Account" or "Sign Up" button. Click it to get started.'
+          details: 'TODO: fix this'
         },
         {
           number: 2,
           title: 'Enter Your Information',
-          details: 'Provide your email address, create a password, and enter your name. Make sure your email is valid—you\'ll need it for account verification and communication.'
+          details: 'Provide your email address, and enter your name. Make sure your email is valid—you\'ll need it for account verification and communication.'
         },
         {
           number: 3,
@@ -242,7 +242,7 @@ export class ReadyToRegisterComponent {
         },
         {
           q: 'Do I need to enter a payment method to start my Trial?',
-          a: 'No! Your Trial plan requires no payment information. You only need to provide an email and password to get started.'
+          a: 'No! Your Trial plan requires no payment information. You only need to provide an email to get started.'
         },
         {
           q: 'When will I be charged for a plan?',
@@ -263,10 +263,6 @@ export class ReadyToRegisterComponent {
         {
           q: 'Can I have multiple accounts?',
           a: 'You can create multiple accounts with different email addresses. However, each account is separate, and your Trial plan is tied to one email address. We recommend one account per person.'
-        },
-        {
-          q: 'What if I forget my password?',
-          a: 'Click "Forgot Password?" on the login page. We\'ll send a password reset link to your registered email. Follow the link to create a new password.'
         },
         {
           q: 'Can I have a free or discounted plan for a nonprofit organization?',

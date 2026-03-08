@@ -5,25 +5,18 @@ namespace plantour_server.Services;
 public interface IUsersService
 {
     // Admin authentication
-    Task<AuthResponse> SignUpAsync(SignUpRequest request);
-    Task<AuthResponse> SignInAsync(SignInRequest request);
+    Task<SignInResponse> SendSignInEmailAdminAsync(SignInRequest request);
     Task<AuthResponse> SignInAdminSocialAsync(SocialSignInRequest request);
+    Task<AuthResponse> SignInAdminTokenAsync(string token);
+
 
     // Participant authentication
     Task<AdminsParticipantDto> SignUpParticipantAsync(SignUpParticipantRequest request);
     Task<AuthResponse> SignInParticipantAsync(SignInParticipantRequest request);
 
-    // Token management
-    //Task<bool> ValidateTokenAsync(string token);
-
-    // Email confirmation
-    Task SendEmailConfirmationAsync(ResendEmailConfirmationRequest request, CancellationToken cancellationToken = default);
-    Task<bool> ConfirmEmailAsync(ConfirmEmailRequest request);
-
     // Profile management
     Task<UserDto> GetProfileAsync();
-    Task<UserDto> UpdateProfileAsync(UpdateProfileRequest request);
-    Task UpdatePasswordAsync(UpdatePasswordRequest request);
+    Task<object> UpdateProfileAsync(UpdateProfileRequest request);
     Task<UserDto> LinkSocialProviderAsync(SocialSignInRequest request);
     Task<UserDto> UnlinkSocialProviderAsync(string provider);
 
@@ -35,5 +28,8 @@ public interface IUsersService
 
     Task<bool> CancelScheduledPlanDowngradeAsync();
 
+    Task<bool> IsUserTemporary(string email);
+    Task ConvertTemporaryUserAsync(string oldEmail, string newEmail);
+    Task SendParticipantInvitationAsync(Guid adminParticipantId);
 
 }

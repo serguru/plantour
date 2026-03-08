@@ -221,15 +221,7 @@
           <span class="button-label">Privacy Policy</span>
         </a>
         <hr>
-        @if (!usersService.isAuthenticatedSignal()) {
-        <a
-          class="pl-menu-item"
-          [class.selected]="isNavigatedComponent('sign-up')"
-          (click)="featureClick($event, '/sign-up', popoverFeatures)"
-        >
-          <span class="pi pi-user-plus"></span>
-          <span class="button-label">Sign Up</span>
-        </a>
+        @if (!usersService.isAuthenticatedSignal() || usersService.isTemporarySignal()) {
         <a
           class="pl-menu-item"
           [class.selected]="isNavigatedComponent('sign-in')"

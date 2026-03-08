@@ -20,12 +20,6 @@ public partial class User
     [Column("email")]
     public string Email { get; set; } = null!;
 
-    [Column("password_hash")]
-    public byte[]? PasswordHash { get; set; }
-
-    [Column("password_salt")]
-    public byte[]? PasswordSalt { get; set; }
-
     [Column("first_name")]
     public string? FirstName { get; set; }
 
@@ -50,11 +44,11 @@ public partial class User
     [Column("access_type_id")]
     public Guid AccessTypeId { get; set; }
 
-    [Column("price_enum_id")]
-    public int? PriceEnumId { get; set; }
-
     [Column("paddle_subscription_id")]
     public string? PaddleSubscriptionId { get; set; }
+
+    [Column("temporary")]
+    public bool Temporary { get; set; }
 
     [ForeignKey("AccessTypeId")]
     [InverseProperty("Users")]
@@ -72,18 +66,11 @@ public partial class User
     [InverseProperty("User")]
     public virtual ICollection<AiPrompt> AiPrompts { get; set; } = new List<AiPrompt>();
 
-    [ForeignKey("PriceEnumId")]
-    [InverseProperty("Users")]
-    public virtual Price? PriceEnum { get; set; }
-
     [InverseProperty("User")]
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
     [InverseProperty("User")]
     public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
-
-    [InverseProperty("User")]
-    public virtual UserEmailConfirmation? UserEmailConfirmation { get; set; }
 
     [InverseProperty("User")]
     public virtual ICollection<UserPackage> UserPackages { get; set; } = new List<UserPackage>();

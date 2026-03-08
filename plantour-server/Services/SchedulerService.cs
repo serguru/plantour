@@ -23,7 +23,6 @@ public class SchedulerService(
     ICheckAccessService checkAccessService,
     IConfiguration configuration,
     AiPromptRepository aiPromptRepository,
-    PlantourContext context,
     ITimeTickerManager<TimeTickerEntity> timeTickerManager,
     IPaddleService _paddleService,
     ILogger<SchedulerService> logger,
@@ -48,17 +47,17 @@ public class SchedulerService(
 
     public async Task DeleteExpiredRefreshTokensAsync()
     {
-        await _refreshTokenRepository.DeleteRangeAsync(x => x.ExpiresAt < DateTime.UtcNow, CancellationToken.None);
+        await _refreshTokenRepository.DeleteRangeAsync(x => x.ExpiresAt < DateTime.UtcNow);
     }
 
     public async Task DeleteOldAIPromptsAsync()
     {
-        await _aiPromptRepository.DeleteRangeAsync(x => x.CreatedAt < DateTime.UtcNow.AddMonths(-1), CancellationToken.None);
+        await _aiPromptRepository.DeleteRangeAsync(x => x.CreatedAt < DateTime.UtcNow.AddMonths(-1));
     }
 
     public async Task DeleteOldErrorLogsAsync()
     {
-        await _logsRepository.DeleteRangeAsync(x => x.TimeStamp < DateTime.UtcNow.AddDays(-7) && x.Level != null && x.Level.ToLower() == "error", CancellationToken.None);
+        await _logsRepository.DeleteRangeAsync(x => x.TimeStamp < DateTime.UtcNow.AddDays(-7) && x.Level != null && x.Level.ToLower() == "error");
     }
 
     // TODO: explain to the users in help or policy 1 hour before payment downgrade is not possible

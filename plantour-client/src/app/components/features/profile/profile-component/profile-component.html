@@ -10,64 +10,7 @@
 
     <div class="controls-wrapper">
 
-        @if (currentUser()) {
-        <div class="user-summary">
-            <div class="summary-row">
-                <h3 class="summary-label">Full name</h3>
-                <h3 class="section-title">{{ fullName() }}</h3>
-            </div>
-            <div class="summary-row">
-                <h3 class="summary-label">Email</h3>
-                <h3 class="section-title">{{ userEmail() }}</h3>
-            </div>
-            <div class="summary-row">
-                <h3 class="summary-label">Role</h3>
-                <h3 class="section-title">{{ userRole() }}</h3>
-            </div>
-            @if(isAdmin()) {
-            <div class="summary-row">
-                <h3 class="summary-label">Plan</h3>
-                <h3 class="section-title">{{ planPeriod() }}</h3>
-            </div>
-            @if(scheduledDowngrade()?.hasScheduledDowngrade) {
-            <div class="summary-row">
-                <h3 class="summary-label">Scheduled downgrade</h3>
-                <h3 class="section-title">
-                    {{ formatScheduledDowngrade(scheduledDowngrade()) }}
-                    @if (scheduledDowngrade()?.hasScheduledDowngrade) {
-                    <a
-                        class="cancel-link"
-                        href=""
-                        (click)="onCancelScheduledDowngrade($event)"
-                        [attr.aria-disabled]="isCancellingScheduledDowngrade()"
-                        [attr.tabindex]="isCancellingScheduledDowngrade() ? -1 : null"
-                    >{{ isCancellingScheduledDowngrade() ? 'Cancelling...' : 'Cancel' }}</a>
-                    }
-                </h3>
-            </div>
-            }
-            }
-        </div>
-        }
-
-        @if(isAdmin()) {
-        <div class="form-actions">
-            <app-button
-                [label]="'Change Plan'"
-                [icon]="'pi pi-money-bill'"
-                [loading]="isUpdatingProfile()"
-                (click)="onChoosePlanClick()"
-            />
-            <app-button
-                [label]="'Manage Billing'"
-                [icon]="'pi pi-receipt'"
-                [loading]="isUpdatingProfile()"
-                (click)="onManageBillingClick()"
-            />
-        </div>
-        }
-
-        <section class="profile-section">
+        <!-- <section class="profile-section">
             <button
                 type="button"
                 class="section-header"
@@ -81,7 +24,7 @@
                 <i [class]="isSectionExpanded('personal-information') ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
             </button>
 
-            @if (isSectionExpanded('personal-information')) {
+            @if (isSectionExpanded('personal-information')) { -->
             <div class="section-content">
                 <form
                     [formGroup]="profileForm"
@@ -96,6 +39,7 @@
                             formControlName="email"
                             placeholder="your.email@example.com"
                             [class.p-invalid]="isProfileFieldInvalid('email')"
+                            [readonly]="!isTemporary()"
                         />
                         @if (isProfileFieldInvalid('email')) {
                         <small class="error-message">
@@ -103,6 +47,11 @@
                         </small>
                         }
                     </div>
+                    @if(isTemporary()) {
+                    <p>To switch from the current temporary Guest account to the Starter Free plan you can update your
+                        current temporary email {{ userEmail() }} with your actual email. Your current data will not be
+                        lost.</p>
+                    }
 
                     <div class="form-field">
                         <label for="firstName">First Name</label>
@@ -166,10 +115,76 @@
                     </div>
                 </form>
             </div>
+        @if (currentUser()) {
+        <div class="user-summary">
+            <!-- <div class="summary-row">
+                <h3 class="summary-label">Full name</h3>
+                <h3 class="section-title">{{ fullName() }}</h3>
+            </div>
+            <div class="summary-row">
+                <h3 class="summary-label">Email</h3>
+                <h3 class="section-title">{{ userEmail() }}</h3>
+            </div> -->
+            <div class="summary-row">
+                <h3 class="summary-label">Role</h3>
+                <h3 class="section-title">{{ userRole() }}</h3>
+            </div>
+            @if(isAdmin()) {
+            <div class="summary-row">
+                <h3 class="summary-label">Plan</h3>
+                <h3 class="section-title">{{ planPeriod() }}</h3>
+            </div>
+            @if(scheduledDowngrade()?.hasScheduledDowngrade) {
+            <div class="summary-row">
+                <h3 class="summary-label">Scheduled downgrade</h3>
+                <h3 class="section-title">
+                    {{ formatScheduledDowngrade(scheduledDowngrade()) }}
+                    @if (scheduledDowngrade()?.hasScheduledDowngrade) {
+                    <a
+                        class="cancel-link"
+                        href=""
+                        (click)="onCancelScheduledDowngrade($event)"
+                        [attr.aria-disabled]="isCancellingScheduledDowngrade()"
+                        [attr.tabindex]="isCancellingScheduledDowngrade() ? -1 : null"
+                    >{{ isCancellingScheduledDowngrade() ? 'Cancelling...' : 'Cancel' }}</a>
+                    }
+                </h3>
+            </div>
             }
-        </section>
+            @if(usersService.isTemporarySignal()) {
+            <div class="summary-row">
+                <h3 class="summary-label">Account</h3>
+                <h3 class="section-title">temporary until {{expiresAt()}}</h3>
+            </div>
+            }
+            }
+        </div>
+        }
 
-        <section class="profile-section">
+        @if(isAdmin()) {
+        <div class="form-actions">
+            <app-button
+                [label]="'Change Plan'"
+                [icon]="'pi pi-money-bill'"
+                [loading]="isUpdatingProfile()"
+                (click)="onChoosePlanClick()"
+            />
+            @if(!isTemporary()) {
+            <app-button
+                [label]="'Manage Billing'"
+                [icon]="'pi pi-receipt'"
+                [loading]="isUpdatingProfile()"
+                (click)="onManageBillingClick()"
+            />
+            }
+        </div>
+        }
+
+
+            <!-- }
+        </section> -->
+
+        <!-- <section class="profile-section">
             <button
                 type="button"
                 class="section-header"
@@ -228,99 +243,7 @@
                 </div>
             </div>
             }
-        </section>
+        </section> -->
 
-        <section class="profile-section">
-            <button
-                type="button"
-                class="section-header"
-                (click)="toggleSection('change-password')"
-                [attr.aria-expanded]="isSectionExpanded('change-password')"
-            >
-                <div class="section-header-content">
-                    <i class="pi pi-lock section-icon"></i>
-                    <h3 class="section-title">{{ hasPassword() ? 'Change Password' : 'Set Password' }}</h3>
-                </div>
-                <i [class]="isSectionExpanded('change-password') ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-            </button>
-
-            @if (isSectionExpanded('change-password')) {
-            <div class="section-content">
-                <form
-                    [formGroup]="passwordForm"
-                    (ngSubmit)="onUpdatePassword()"
-                >
-                    @if (hasPassword()) {
-                    <div class="form-field">
-                        <label for="currentPassword">Current Password <span class="required">*</span></label>
-                        <p-password
-                            id="currentPassword"
-                            formControlName="currentPassword"
-                            placeholder="Enter your current password"
-                            [toggleMask]="true"
-                            [feedback]="false"
-                            [class.p-invalid]="isPasswordFieldInvalid('currentPassword')"
-                            styleClass="w-full"
-                        >
-                        </p-password>
-                        @if (isPasswordFieldInvalid('currentPassword')) {
-                        <small class="error-message">
-                            {{ getPasswordFieldError('currentPassword') }}
-                        </small>
-                        }
-                    </div>
-                    }
-
-                    <div class="form-field">
-                        <label for="newPassword">New Password <span class="required">*</span></label>
-                        <p-password
-                            id="newPassword"
-                            formControlName="newPassword"
-                            placeholder="Enter your new password"
-                            [toggleMask]="true"
-                            [feedback]="false"
-                            [class.p-invalid]="isPasswordFieldInvalid('newPassword')"
-                            styleClass="w-full"
-                        >
-                        </p-password>
-                        @if (isPasswordFieldInvalid('newPassword')) {
-                        <small class="error-message">
-                            {{ getPasswordFieldError('newPassword') }}
-                        </small>
-                        }
-                    </div>
-
-                    <div class="form-field">
-                        <label for="confirmNewPassword">Confirm New Password <span class="required">*</span></label>
-                        <p-password
-                            id="confirmNewPassword"
-                            formControlName="confirmNewPassword"
-                            placeholder="Confirm your new password"
-                            [toggleMask]="true"
-                            [feedback]="false"
-                            [class.p-invalid]="isConfirmNewPasswordInvalid()"
-                            styleClass="w-full"
-                        >
-                        </p-password>
-                        @if (isConfirmNewPasswordInvalid()) {
-                        <small class="error-message">
-                            {{ getConfirmNewPasswordError() }}
-                        </small>
-                        }
-                    </div>
-
-                    <div class="form-actions">
-                        <app-button
-                            type="submit"
-                            [label]="'Update Password'"
-                            [icon]="'pi pi-lock'"
-                            [loading]="isUpdatingPassword()"
-                            [disabled]="passwordForm.invalid || isUpdatingPassword()"
-                        />
-                    </div>
-                </form>
-            </div>
-            }
-        </section>
     </div>
 </div>

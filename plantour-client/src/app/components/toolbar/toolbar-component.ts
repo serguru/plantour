@@ -10,6 +10,7 @@ import { PopoverModule } from 'primeng/popover';
 import { TripDto } from '../../services/trip-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { MessagesService } from '../../services/messages-service';
 
 @Component({
   selector: 'app-toolbar',
@@ -27,6 +28,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 export class Toolbar implements OnInit {
 
   usersService = inject(UsersService);
+  messagesService = inject(MessagesService);
   appService = inject(AppService);
   currentTripService = inject(CurrentTripService);
   currentTrip = toSignal(this.currentTripService.currentTripDto$);
@@ -87,13 +89,13 @@ export class Toolbar implements OnInit {
     return this.tripTextVisible() ? 'Hide Trip' : 'Show Trip';
   }
 
-  signOut($event, popover): void {
+  async signOut($event, popover): Promise<void> {
+    if (this.usersService.isTemporarySignal()) {
+      throw new Error('Cannot sign out a temporary user');
+    }
     this.usersService.signOut();
     this.featureClick($event, '/sign-in', popover);
   }
-
-
-  
 
   componentNavigated: any = null;
 
@@ -105,9 +107,9 @@ export class Toolbar implements OnInit {
 
 
   tripText = computed(() => {
-     return this.currentTrip() ? this.currentTrip()!.name : 'No Trip Selected';
+    return this.currentTrip() ? this.currentTrip()!.name : 'No Trip Selected';
   });
-        
+
 
   tripTextVisible = toSignal(this.currentTripService.currentTripVisible$);
 

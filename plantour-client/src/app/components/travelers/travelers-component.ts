@@ -16,6 +16,8 @@ import { Condition, Target, TargetCondition, TargetMode } from '../../services/d
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { UsersService } from '../../services/users-service';
+import { MessagesService } from '../../services/messages-service';
+
 
 @Component({
   selector: 'app-travelers-component',
@@ -37,8 +39,11 @@ export class TravelersComponent implements OnInit {
   appService = inject(AppService);
   tripService = inject(TripService);
   router = inject(Router);
+  messagesService = inject(MessagesService);
 
   componentService = inject(ComponentService);
+  selectedAdminParticipantId = toSignal(this.componentService.selectedId$, { initialValue: null });
+
   adminsParticipantService = inject(AdminsParticipantService);
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(ComponentService).dynamicQueryService;
@@ -79,8 +84,45 @@ export class TravelersComponent implements OnInit {
       }
     ];
 
+  async sendInvitationToCurrentParticipant(): Promise<void> {
+
+    const adminParticipantId = this.selectedAdminParticipantId();
+    if (!adminParticipantId) {
+      this.messagesService.showError('No participant selected');
+      return;
+    }
+
+    const dialogResult = await this.messagesService.openOkCancel({
+      title: `Send Invitation`,
+      message: "Are you sure you want to send an invitation?",
+      okLabel: 'Yes',
+      cancelLabel: 'Cancel'
+    });
+
+    if (dialogResult !== 'ok') {
+      return;
+    }
+
+    this.usersService.sendInvitationEmail(adminParticipantId).subscribe({
+      next: () => {
+        this.messagesService.showInfo('Invitation email sent successfully');
+      },
+      error: (err) => {
+        this.messagesService.showError('Failed to send invitation email');
+      }
+    });
+  }
+
   menuItems = computed<MenuConfig[]>(() => {
     return [
+      {
+        label: 'Send Invitation...',
+        icon: 'envelope',
+        action: () => {
+          this.sendInvitationToCurrentParticipant();
+        },
+        disabledIfNoSelection: true
+      },
       {
         label: 'Help',
         icon: 'question-circle',
@@ -162,11 +204,11 @@ export class TravelersComponent implements OnInit {
 
     if (!isParticipant) {
       this.conditions.push({
-          kind: 'target',
-          label: 'Trip users',
-          icon: 'compass',
-          target: null
-        },
+        kind: 'target',
+        label: 'Trip users',
+        icon: 'compass',
+        target: null
+      },
       );
     }
 

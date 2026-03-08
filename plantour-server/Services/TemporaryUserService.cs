@@ -12,6 +12,8 @@ using plantour_server.Repositories;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 using plantour_server.Utils;
+using plantour_server.Models;
+using Microsoft.Extensions.Options;
 
 namespace plantour_server.Services;
 
@@ -26,13 +28,20 @@ public class TemporaryUserService : ITemporaryUserService
     private readonly TripThingRepository _tripThingRepository;
     private readonly TripPackRepository _tripPackRepository;
     private readonly LookupsRepository _lookupsRepository;
+
+    private readonly SettingsRepository _settingsRepository;
+
     private readonly AdminsParticipantRepository _adminsParticipantRepository;
     private readonly PlantourContext _context;
     private readonly IMapper _mapper;
     private readonly IAccessRulesService _accessRulesService;
     private readonly AccessTypeRepository _accessTypeRepository;
-    
+
+    private readonly JwtSettings _jwtSettings;
+
+
     public TemporaryUserService(
+        IOptions<JwtSettings> jwtSettings,
         UsersRepository usersRepository,
         ITokenService tokenService,
         TripRepository tripRepository,
@@ -46,8 +55,10 @@ public class TemporaryUserService : ITemporaryUserService
         PlantourContext context,
         IMapper mapper,
         IAccessRulesService accessRulesService,
+        SettingsRepository settingsRepository,
         AccessTypeRepository accessTypeRepository)
     {
+        _jwtSettings = jwtSettings.Value;
         _usersRepository = usersRepository;
         _tokenService = tokenService;
         _tripRepository = tripRepository;
@@ -57,6 +68,7 @@ public class TemporaryUserService : ITemporaryUserService
         _thingRepository = thingRepository;
         _tripThingRepository = tripThingRepository;
         _accessTypeRepository = accessTypeRepository;
+        _settingsRepository = settingsRepository;
         _tripPackRepository = tripPackRepository;
         _lookupsRepository = lookupsRepository;
         _adminsParticipantRepository = adminsParticipantRepository;
@@ -102,28 +114,31 @@ public class TemporaryUserService : ITemporaryUserService
             Email = email,
             FirstName = "Robin",
             LastName = "Miles",
-            PasswordHash = null,
-            PasswordSalt = null,
             CreatedAt = DateTime.UtcNow,
             Notes = "Automatically created temporary user",
-            PriceEnumId = (int)PlanPrice.Guest,
-            AccessTypeId = await _accessTypeRepository.GetActiveId()
+            AccessTypeId = await _accessTypeRepository.GetActiveId(),
+            Temporary = true
         };
 
         await _usersRepository.AddAsync(user);
 
         // Populate test data for the user
         Trip activeTrip = await PopulateSampleDataAsync(user);
-        var accessToken = await _tokenService.CreateAccessToken(user, UserRole.Admin, user.Id, true);
+        var accessTokenResult = await _tokenService.CreateAccessToken(user, UserRole.Admin, user.Id);
+
+        var rules = accessTokenResult.Rules;
 
         return new CreateTemporaryUserResponse
         {
-            AccessToken = accessToken.Token,
-            AccessTokenExpiresAtUtc = accessToken.ExpiresAtUtc,
+            AccessToken = accessTokenResult.Token,
+            AccessTokenExpiresAtUtc = accessTokenResult.ExpiresAtUtc,
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            CurrentTripId = activeTrip.Id
+            CurrentTripId = activeTrip.Id,
+            TemporaryUserAccessTokenExpirationDays = (int)await _settingsRepository.GetSettingByKey("temporary_user_duration_days"),
+            ItemsLimit = rules.FirstOrDefault(r => r.Id == 40)?.Value ?? 0,
+            ParticipantsLimit = rules.FirstOrDefault(r => r.Id == 50)?.Value ?? 0,
         };
     }
 
@@ -338,7 +353,7 @@ public class TemporaryUserService : ITemporaryUserService
         }
 
         // Documents category - 6 items
-        var documentsItems = new[] { "Passport", "Travel Insurance", "Hotel Confirmation", "Flight Ticket", "ID Card", "Vaccination Certificate" };
+        var documentsItems = new[] { "Passport", "Travel Insurance", "Hotel SignIn", "Flight Ticket", "ID Card", "Vaccination Certificate" };
         foreach (var item in documentsItems)
         {
             things.Add(new UserThing

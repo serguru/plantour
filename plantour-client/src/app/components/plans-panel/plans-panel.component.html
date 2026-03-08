@@ -82,7 +82,7 @@
       </div>
 
       <div class="cta-row">
-        @if (isAuthenticated) {
+        @if (isAuthenticated && !isTemporary) {
         <a
           class="cta-button"
           [class.link-disabled]="!family.monthlyAvalable"
@@ -109,7 +109,7 @@
       </div>
 
       <div class="cta-row">
-        @if (isAuthenticated) {
+        @if (isAuthenticated && !isTemporary) {
         <a
           class="cta-button"
           [class.link-disabled]="!family.yearlyAvalable"

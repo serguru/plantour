@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PlansPanelComponent } from '../plans-panel/plans-panel.component';
+import { UsersService } from '../../services/users-service';
 
 interface LandingFeature {
   icon: string;
@@ -17,6 +18,8 @@ interface LandingFeature {
 })
 export class LandingNewUserComponent {
   plansPanelComponent = PlansPanelComponent;
+
+  usersService = inject(UsersService);
 
   subSlogan = 'Never forget an item again. Organize your packing with smart lists, categories, and seamless group coordination. Get AI-powered packing recommendations tailored to your destination.';
 

@@ -98,8 +98,7 @@ public class GlobalExceptionHandler : IExceptionHandler
                     requestQueryString,
                     remoteIpAddress,
                     userId,
-                    userRole,
-                    cancellationToken);
+                    userRole);
             }
 
             var response = new ApiErrorResponse
@@ -129,8 +128,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         string? requestQueryString,
         string remoteIpAddress,
         string userId,
-        string userRole,
-        CancellationToken cancellationToken)
+        string userRole)
     {
         if (string.IsNullOrWhiteSpace(_brevoSettings.ExceptionsReceiverEmail)
             || string.IsNullOrWhiteSpace(_brevoSettings.ExceptionsReceiverName))
@@ -174,8 +172,7 @@ public class GlobalExceptionHandler : IExceptionHandler
                 _brevoSettings.ExceptionsReceiverEmail,
                 _brevoSettings.ExceptionsReceiverName,
                 subject,
-                htmlBuilder.ToString(),
-                cancellationToken: cancellationToken);
+                htmlBuilder.ToString());
         }
         catch (Exception emailException)
         {

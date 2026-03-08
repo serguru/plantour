@@ -3,6 +3,7 @@ using plantour_server.DTOs;
 using plantour_server.Services;
 using plantour_server.Attributes;
 using Microsoft.AspNetCore.Authorization;
+using plantour_server.Models;
 
 namespace plantour_server.Controllers;
 
@@ -70,4 +71,5 @@ public class AdminsParticipantController : ControllerBase
         var result = await _service.CheckParticipant(email);
         return Ok(result);
     }
+
 }

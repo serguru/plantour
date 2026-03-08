@@ -9,7 +9,6 @@ namespace plantour_server.DbModels;
 [Table("prices", Schema = "plantour")]
 [Index("Name", Name = "prices_name_key", IsUnique = true)]
 [Index("PaddlePriceId", Name = "prices_paddle_price_id_key", IsUnique = true)]
-[Index("PriceEnumId", Name = "prices_price_enum_id_key", IsUnique = true)]
 public partial class Price
 {
     [Key]
@@ -25,16 +24,10 @@ public partial class Price
     [Column("name")]
     public string Name { get; set; } = null!;
 
-    [Column("price_enum_id")]
-    public int PriceEnumId { get; set; }
-
     [Column("value_cents")]
     public int ValueCents { get; set; }
 
     [ForeignKey("PlanId")]
     [InverseProperty("Prices")]
     public virtual Plan Plan { get; set; } = null!;
-
-    [InverseProperty("PriceEnum")]
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

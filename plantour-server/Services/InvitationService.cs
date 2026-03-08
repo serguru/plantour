@@ -60,7 +60,7 @@ public class InvitationService(
             <p>You can access Plantour by clicking the link below:</p>
             <p><a href=""{accessUrl}"">Access Plantour</a></p>
             <p>or navigate to the following URL:</p>
-            <p><a href=""{accessUrl}/sign-in"">Sign In</a></p>
+            <p><a href=""{baseUrl}/sign-in/participant?code={accessCode}"">Sign In</a></p>
             <p>select 'Sign in as participant'</p>
             <p>and enter the following access code: <strong>{accessCode}</strong></p>
             <p>If you do not know {adminFullName}, please ignore this email.</p>";
@@ -98,70 +98,5 @@ public class InvitationService(
         };
     }
 
-    public async Task<SendInvitationEmailResponse> SendInvitationEmailAsync(SendInvitationEmailRequest request)
-    {
-
-        _currentUser.RaiseIfNotAdmin();
-
-        if (request.ExpiresAt <= DateTime.UtcNow)
-        {
-            throw new CustomException("Invitation expires_at must be in the future");
-        }
-
-        var adminParicipant = await _adminsParticipantRepository.FindAsync(x =>
-            x.AdminId == _currentUser.UserId &&
-            x.Participant.Email.ToLower() == request.Email.ToLower()).ContinueWith(task => task.Result.FirstOrDefault());
-
-        if (adminParicipant == null)
-        {
-            throw new CustomException("The admin participant with the specified email not found");
-        }
-
-        if (adminParicipant.Participant.AccessType.Name != "Active")
-        {
-            throw new CustomException("Cannot send invitation to a participant with non-active access type");
-        }
-
-        if (request.AccessCode == null)
-        {
-            var accessCodeResult = await _adminsParticipantService.GenerateAccessCodeAsync();
-            request.AccessCode = accessCodeResult.Item1;
-        }
-
-        var sendResult = await _brevoEmailClient.SendTransactionalEmailAsync(
-            request.Email,
-            string.Join(' ', new[] { request.FirstName, request.LastName }.Where(x => !string.IsNullOrWhiteSpace(x))),
-            request.Subject,
-            request.Message,
-            request.Message);
-
-        var now = DateTime.UtcNow;
-
-        var invitation = new Invitation
-        {
-            Id = Guid.NewGuid(),
-            AdminParticipantId = adminParicipant!.Id,
-            AccessCode = request.AccessCode,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Email = request.Email,
-            Phone = request.Phone,
-            Subject = request.Subject,
-            Message = request.Message,
-            CreatedAt = now,
-            ExpiresAt = request.ExpiresAt,
-            SentAt = now,
-            Notes = request.Notes
-        };
-
-        await _invitationsRepository.AddAsync(invitation);
-
-        return new SendInvitationEmailResponse
-        {
-            InvitationId = invitation.Id,
-            SentAt = invitation.SentAt ?? now,
-            ProviderMessageId = sendResult.MessageId
-        };
-    }
 }
 

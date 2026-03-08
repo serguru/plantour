@@ -93,7 +93,6 @@ export class WelcomeToPlantourComponent {
         steps: [
           'Click the login area (usually top-right) - link#1',
           'Click "Create Account"',
-          'Enter your email and choose a password',
           'Verify your email address',
           'You\'re ready to start!'
         ],
@@ -315,10 +314,6 @@ export class WelcomeToPlantourComponent {
       heading: 'Troubleshooting: Getting Started Problems',
       faqs: [
         {
-          question: 'I created an account but forgot my password',
-          answer: 'Click "Forgot Password" on the login page. You\'ll receive an email with reset instructions.'
-        },
-        {
           question: 'I invited someone but they didn\'t receive the email',
           answer: 'Check their spam folder. Ask them to check their email filters. Resend the invitation from the Participants section.'
         },
@@ -384,7 +379,6 @@ export class WelcomeToPlantourComponent {
     quickReference: {
       heading: 'Quick Reference: What to Do When...',
       items: [
-        { need: 'Forgot password', action: 'Login page → "Forgot Password"' },
         { need: 'Add travelers', action: 'Trip → "Travelers" section' },
         { need: 'Create packing list', action: 'Trip → "Items" section' },
         { need: 'Organize into bags', action: 'Trip → "Bags" section' },

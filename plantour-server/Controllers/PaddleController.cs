@@ -32,7 +32,7 @@ public class PaddleController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> GetSubscriptionId([FromBody] PaddleSubscriptionIdRequest request)
     {
-        var subscriptionId = await _service.GetSubscriptionIdAsync(request);
+        var subscriptionId = await _service.GetActiveSubscriptionIdAsync(request);
         return Ok(subscriptionId);
     }
 

@@ -134,7 +134,7 @@ export const mapStatusToClass = (assignmentStatus: AssignmentStatus | null): str
 
 export const getThingText = (name: string, units: any | null, value: any | null): string => {
   if (isNumber(value) && units && units.trim().length > 0) {
-    const text =  `${name} ${value} ${units.trim()}`;
+    const text = `${name} ${value} ${units.trim()}`;
     return text;
   }
   return name;
@@ -147,5 +147,13 @@ export const getPackageText = (packageName: string, packageLabel: any | null): s
   return packageName;
 }
 
-
+export const getMessageFromError = (error: any, defaultMessage: string) => {
+  let result: string | null = null;
+  if (error?.error?.isCustom && error?.error?.message) {
+    result = error.error.message;
+  } else if (error?.message) {
+    result = error.message;
+  }
+  return result ?? defaultMessage;
+}
 

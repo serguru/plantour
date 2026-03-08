@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace plantour_server.DTOs;
 
-public class ResendEmailConfirmationRequest
+public class ResendEmailSignInRequest
 {
     [Required]
     [EmailAddress]

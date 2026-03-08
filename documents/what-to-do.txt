@@ -127,7 +127,7 @@ When the API changes are ready modify the plantour-client to support new API fea
 
 
 
-See SendConfirmationEmailAsync in EmailConfirmationService. Now the GlobalExceptionHandler logs exceptions to DB. Add the necessary code composing an email in a way similar to SendConfirmationEmailAsync and describing the exception and sending it to ExceptionsReceiverEmail for ExceptionsReceiverName (see BrevoSettings)
+See SendSignInEmailAsync in EmailSignInService. Now the GlobalExceptionHandler logs exceptions to DB. Add the necessary code composing an email in a way similar to SendSignInEmailAsync and describing the exception and sending it to ExceptionsReceiverEmail for ExceptionsReceiverName (see BrevoSettings)
 
 
 
