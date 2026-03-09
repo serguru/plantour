@@ -249,7 +249,7 @@ create table plantour.plans (
 insert into plantour.plans (name, paddle_product_id, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
 ('Starter', null, 'For small trips and light packers', true, 10, 2, 5, false),
 ('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, null, 5, 20, false),
-('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, null, null, 100, true);
+('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, null, 50, 100, true);
 
 create table plantour.prices (
     id uuid primary key default gen_random_uuid(),
@@ -381,8 +381,8 @@ create table trips (
     trip_status_id uuid not null references trip_status(id),
     name text not null,
     notes text,
-    start_date date,
-    end_date date,
+    start_date date not null,
+    end_date date not null,
     created_at timestamp not null default (now() at time zone 'utc'),
     constraint ch_trips_start_before_end check (
         start_date is null 
@@ -391,6 +391,44 @@ create table trips (
     )
 );
 create unique index idx_trips_user_id_name on trips(user_id, name);
+
+create or replace function plantour.prevent_overlapping_trips_for_user()
+returns trigger
+language plpgsql
+as $$
+begin
+    if tg_op = 'UPDATE' and old.user_id is distinct from new.user_id then
+        perform 1
+        from plantour.users
+        where id in (old.user_id, new.user_id)
+        order by id
+        for update;
+    else
+        perform 1
+        from plantour.users
+        where id = new.user_id
+        for update;
+    end if;
+
+    if exists (
+        select 1
+        from plantour.trips existing_trip
+        where existing_trip.user_id = new.user_id
+          and existing_trip.id is distinct from new.id
+          and new.start_date < existing_trip.end_date
+          and new.end_date > existing_trip.start_date
+    ) then
+        raise exception 'Trip dates overlap with another trip for this user';
+    end if;
+
+    return new;
+end;
+$$;
+
+create trigger trg_prevent_overlapping_trips_for_user
+before insert or update of user_id, start_date, end_date on plantour.trips
+for each row
+execute function plantour.prevent_overlapping_trips_for_user();
 
 -----------------------------------------------------------------------
 -- INVITATIONS

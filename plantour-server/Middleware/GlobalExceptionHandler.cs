@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using plantour_server.Models;
@@ -51,6 +52,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         {
             int statusCode;
             string code;
+            string? message = null;
 
             if (exception is BaseApiException baseApiException)
             {
@@ -70,6 +72,22 @@ public class GlobalExceptionHandler : IExceptionHandler
                         "Business exception (HTTP {StatusCode}): {ExceptionCode}. Request: {Method} {Path}. User: {UserId}",
                         statusCode, code, requestMethod, requestPath, userId);
                 }
+
+            }
+            else if (exception is DbUpdateException)
+            {
+                statusCode = StatusCodes.Status500InternalServerError;
+                code = "DB_ERROR";
+                var m = ((DbUpdateException)exception).InnerException?.Data?["MessageText"]?.ToString();
+
+                if (!String.IsNullOrWhiteSpace(m))
+                {
+                    message = m;
+                }
+
+                _logger.LogError(exception,
+                    "DB exception {message} (HTTP {StatusCode}): {ExceptionCode}. Request: {Method} {Path}. User: {UserId}", message,
+                    statusCode, code, requestMethod, requestPath, userId);
             }
             else
             {
@@ -91,6 +109,7 @@ public class GlobalExceptionHandler : IExceptionHandler
                 var traceId = httpContext.TraceIdentifier;
                 await TrySendExceptionEmailAsync(
                     exception,
+                    message,
                     statusCode,
                     traceId,
                     requestMethod,
@@ -104,10 +123,10 @@ public class GlobalExceptionHandler : IExceptionHandler
             var response = new ApiErrorResponse
             {
                 StatusCode = statusCode,
-                Message = exception.Message,
+                Message = String.IsNullOrWhiteSpace(message) ? exception.Message : message,
                 Code = code,
                 Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}",
-                IsCustom = exception is BaseApiException
+                IsCustom = exception is BaseApiException || exception is DbUpdateException
             };
 
             httpContext.Response.StatusCode = statusCode;
@@ -121,6 +140,7 @@ public class GlobalExceptionHandler : IExceptionHandler
 
     private async Task TrySendExceptionEmailAsync(
         Exception exception,
+        string? message,
         int statusCode,
         string traceId,
         string requestMethod,
@@ -144,6 +164,10 @@ public class GlobalExceptionHandler : IExceptionHandler
 
             var htmlBuilder = new StringBuilder();
             htmlBuilder.AppendLine("<h2>Plantour API Exception</h2>");
+            if (!String.IsNullOrWhiteSpace(message))
+            {
+                htmlBuilder.AppendLine($"<p><strong>Custom message:</strong> {Encode(message)}</p>");
+            }
             htmlBuilder.AppendLine($"<p><strong>Trace ID:</strong> {Encode(traceId)}</p>");
             htmlBuilder.AppendLine($"<p><strong>Status Code:</strong> {statusCode}</p>");
             htmlBuilder.AppendLine($"<p><strong>Request:</strong> {Encode(requestMethod)} {Encode(requestPath)}</p>");

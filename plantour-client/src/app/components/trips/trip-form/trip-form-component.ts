@@ -109,13 +109,15 @@ export class TripFormComponent implements OnInit {
     });
   }
 
+  
+
   private initForm(): void {
     this.form = this.fb.group({
       name: new FormControl('', Validators.required),
       tripStatusId: new FormControl('', []),
       notes: new FormControl('', []),
-      startDate: new FormControl<string | null>(null, []),
-      endDate: new FormControl<string | null>(null, []),
+      startDate: new FormControl<string | null>(null, Validators.required),
+      endDate: new FormControl<string | null>(null, Validators.required),
     },{ validators: dateRangeValidator });
   }
 

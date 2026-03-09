@@ -71,19 +71,27 @@
 
       } @else {
       <div class="form-field">
-        <label for="startDate">Start date</label>
+        <label for="startDate">Start date<span class="required">*</span></label>
         <p-datepicker
           id="startDate"
           formControlName="startDate"
           dateFormat="yy-mm-dd"
+          dataType="string"
           [showIcon]="true"
           styleClass="w-full"
           appendTo="body"
         ></p-datepicker>
+        @if (form.get('startDate')?.invalid && (form.get('startDate')?.touched || form.get('startDate')?.dirty)) {
+        @if (form.get('startDate')?.errors?.['required']) {
+        <small class="error-message">
+          Start date is required
+        </small>
+        }
+        }
       </div>
 
       <div class="form-field">
-        <label for="endDate">End date</label>
+        <label for="endDate">End date<span class="required">*</span></label>
         <p-datepicker
           id="endDate"
           formControlName="endDate"
@@ -92,6 +100,13 @@
           styleClass="w-full"
           appendTo="body"
         ></p-datepicker>
+        @if (form.get('endDate')?.invalid && (form.get('endDate')?.touched || form.get('endDate')?.dirty)) {
+        @if (form.get('endDate')?.errors?.['required']) {
+        <small class="error-message">
+          End date is required
+        </small>
+        }
+        }
       </div>
       }
 
