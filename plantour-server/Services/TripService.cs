@@ -11,7 +11,11 @@ namespace plantour_server.Services;
 
 public class TripService(
     TripRepository tripRepository,
+    AdminsParticipantRepository adminsParticipantRepository,
+    IAdminsParticipantService adminsParticipantService,
     ICheckAccessService checkAccessService,
+    UsersRepository usersRepository,
+    TripUserRepository tripUserRepository,
     IMapper mapper,
     HttpCurrentUser httpCurrentUser) : ITripService
 {
@@ -19,19 +23,68 @@ public class TripService(
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly IMapper _mapper = mapper;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
+    private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
+    private readonly IAdminsParticipantService _adminsParticipantService = adminsParticipantService;
+
+    private readonly TripUserRepository _tripUserRepository = tripUserRepository;
+    private readonly UsersRepository _usersRepository = usersRepository;
+
+
+
     public async Task<TripDto> AddAsync(CreateTripRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
-        if (_tripRepository.AnyAsync(x => x.Name.ToLower() == request.Name.ToLower() && x.UserId == _currentUser.UserId).Result)
+
+        var activeAdminExists = await _usersRepository.ActiveUserExistsByIdAsync(_currentUser.UserId);
+        if (!activeAdminExists)
+        {
+            throw new CustomException("Cannot create a trip for not active user");
+        }
+
+        var adminParticipants = await _adminsParticipantRepository.FindFullAsync(x => x.AdminId == _currentUser.UserId && x.ParticipantId == _currentUser.UserId);
+        var adminParticipant = adminParticipants?.FirstOrDefault();
+
+        if (adminParticipant == null)
+        {
+
+            Tuple<string, string> accessCodeResult = await _adminsParticipantService.GenerateAccessCodeAsync();
+
+            adminParticipant = new()
+            {
+                Id = Guid.NewGuid(),
+                AdminId = _currentUser.UserId,
+                ParticipantId = _currentUser.UserId,
+                Notes = "A participant created automatically and who is an admin",
+                AccessCodeHash = accessCodeResult.Item2
+            };
+
+            await _adminsParticipantRepository.AddAsync(adminParticipant);
+
+            var admin = await _usersRepository.GetActiveByIdAsync(_currentUser.UserId);
+            admin!.ParticipantCode = accessCodeResult.Item1;
+            await _usersRepository.UpdateAsync(admin);
+        }
+
+        if (await _tripRepository.AnyAsync(x => x.Name.ToLower() == request.Name.ToLower() && x.UserId == _currentUser.UserId))
         {
             throw new CustomException("A trip with the same name already exists for this user");
         }
-        var entity = _mapper.Map<Trip>(request);
-        entity.Id = Guid.NewGuid();
-        entity.UserId = _currentUser.AdminId;
-        await _tripRepository.AddAsync(entity);
 
-        TripDto tripDto = _mapper.Map<TripDto>(entity);
+        var trip = _mapper.Map<Trip>(request);
+        trip.Id = Guid.NewGuid();
+        trip.UserId = _currentUser.UserId;
+        await _tripRepository.AddAsync(trip);
+        TripDto tripDto = _mapper.Map<TripDto>(trip);
+
+        TripUser tripUser = new()
+        {
+            Id = Guid.NewGuid(),
+            TripId = trip.Id,
+            AdminParticipantId = adminParticipant.Id,
+            Notes = "A trip participant created automatically and who is an admin"
+        };
+
+        await _tripUserRepository.AddAsync(tripUser);
 
         return tripDto;
     }

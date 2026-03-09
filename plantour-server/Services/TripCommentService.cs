@@ -75,7 +75,7 @@ public class TripCommentService(
         var entity = await _tripCommentRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
         return entity != null ? MapUserData(entity) : null;
     }
-
+// TODO: a trip must have dates and they cannot overlap.
     public async Task<TripCommentDto> AddAsync(CreateTripCommentRequest request)
     {
         _currentUser.RaiseIfNotAuthenticated();

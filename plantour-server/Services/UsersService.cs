@@ -295,6 +295,14 @@ public class UsersService(
             throw new CustomException("Participant with this email is already registered under your admin account");
         }
 
+        var adminExists = await _usersRepository.ActiveUserExistsByIdAsync(_currentUser.UserId);
+
+        if (!adminExists)
+        {
+            throw new CustomException("Cannot sign up participant. Current active admin user does not exist.");
+        }
+
+
         Tuple<string, string> accessCodeResult = await _adminsParticipantService.GenerateAccessCodeAsync();
 
         string accessCode = accessCodeResult.Item1;
@@ -670,7 +678,8 @@ public class UsersService(
             Phone = user.Phone,
             Notes = user.Notes,
             HasGoogleLinked = !string.IsNullOrWhiteSpace(user.GoogleSub),
-            HasFacebookLinked = !string.IsNullOrWhiteSpace(user.FacebookUserId)
+            HasFacebookLinked = !string.IsNullOrWhiteSpace(user.FacebookUserId),
+            ParticipantCode = user.ParticipantCode
         };
     }
 

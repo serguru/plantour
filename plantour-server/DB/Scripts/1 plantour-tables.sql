@@ -307,7 +307,8 @@ create table users (
     created_at timestamp not null default (now() at time zone 'utc'),
     access_type_id uuid not null references access_types(id),
     paddle_subscription_id text unique,
-    temporary bool not null default false
+    temporary bool not null default false,
+    participant_code text null
 );
 
 create or replace function plantour.prevent_email_change_for_non_temporary_users()

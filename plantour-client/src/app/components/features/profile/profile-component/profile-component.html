@@ -25,96 +25,95 @@
             </button>
 
             @if (isSectionExpanded('personal-information')) { -->
-            <div class="section-content">
-                <form
-                    [formGroup]="profileForm"
-                    (ngSubmit)="onUpdateProfile()"
-                >
-                    <div class="form-field">
-                        <label for="email">Email <span class="required">*</span></label>
-                        <input
-                            pInputText
-                            id="email"
-                            type="email"
-                            formControlName="email"
-                            placeholder="your.email@example.com"
-                            [class.p-invalid]="isProfileFieldInvalid('email')"
-                            [readonly]="!isTemporary()"
-                        />
-                        @if (isProfileFieldInvalid('email')) {
-                        <small class="error-message">
-                            {{ getProfileFieldError('email') }}
-                        </small>
-                        }
-                    </div>
-                    @if(isTemporary()) {
-                    <p>To switch from the current temporary Guest account to the Starter Free plan you can update your
-                        current temporary email {{ userEmail() }} with your actual email. Your current data will not be
-                        lost.</p>
+        <div class="section-content">
+            <form
+                [formGroup]="profileForm"
+                (ngSubmit)="onUpdateProfile()"
+            >
+                <div class="form-field">
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input
+                        pInputText
+                        id="email"
+                        type="email"
+                        formControlName="email"
+                        placeholder="your.email@example.com"
+                        [class.p-invalid]="isProfileFieldInvalid('email')"
+                        [readonly]="!isTemporary()"
+                    />
+                    @if (isProfileFieldInvalid('email')) {
+                    <small class="error-message">
+                        {{ getProfileFieldError('email') }}
+                    </small>
                     }
+                </div>
+                @if(isTemporary()) {
+                <p>To switch from the current temporary Guest account to the Starter Free plan you can update your
+                    current temporary email {{ userEmail() }} with your actual email. Your current data will not be
+                    lost.</p>
+                }
 
-                    <div class="form-field">
-                        <label for="firstName">First Name</label>
-                        <input
-                            pInputText
-                            id="firstName"
-                            type="text"
-                            formControlName="firstName"
-                            placeholder="Enter your first name"
-                            [class.p-invalid]="isProfileFieldInvalid('firstName')"
-                        />
-                        @if (isProfileFieldInvalid('firstName')) {
-                        <small class="error-message">
-                            {{ getProfileFieldError('firstName') }}
-                        </small>
-                        }
-                    </div>
+                <div class="form-field">
+                    <label for="firstName">First Name</label>
+                    <input
+                        pInputText
+                        id="firstName"
+                        type="text"
+                        formControlName="firstName"
+                        placeholder="Enter your first name"
+                        [class.p-invalid]="isProfileFieldInvalid('firstName')"
+                    />
+                    @if (isProfileFieldInvalid('firstName')) {
+                    <small class="error-message">
+                        {{ getProfileFieldError('firstName') }}
+                    </small>
+                    }
+                </div>
 
-                    <div class="form-field">
-                        <label for="lastName">Last Name</label>
-                        <input
-                            pInputText
-                            id="lastName"
-                            type="text"
-                            formControlName="lastName"
-                            placeholder="Enter your last name"
-                            [class.p-invalid]="isProfileFieldInvalid('lastName')"
-                        />
-                        @if (isProfileFieldInvalid('lastName')) {
-                        <small class="error-message">
-                            {{ getProfileFieldError('lastName') }}
-                        </small>
-                        }
-                    </div>
+                <div class="form-field">
+                    <label for="lastName">Last Name</label>
+                    <input
+                        pInputText
+                        id="lastName"
+                        type="text"
+                        formControlName="lastName"
+                        placeholder="Enter your last name"
+                        [class.p-invalid]="isProfileFieldInvalid('lastName')"
+                    />
+                    @if (isProfileFieldInvalid('lastName')) {
+                    <small class="error-message">
+                        {{ getProfileFieldError('lastName') }}
+                    </small>
+                    }
+                </div>
 
-                    <div class="form-field">
-                        <label for="phone">Phone</label>
-                        <input
-                            pInputText
-                            id="phone"
-                            type="tel"
-                            formControlName="phone"
-                            placeholder="Enter your phone number"
-                            [class.p-invalid]="isProfileFieldInvalid('phone')"
-                        />
-                        @if (isProfileFieldInvalid('phone')) {
-                        <small class="error-message">
-                            {{ getProfileFieldError('phone') }}
-                        </small>
-                        }
-                    </div>
-
-                    <div class="form-actions">
-                        <app-button
-                            type="submit"
-                            [label]="'Update Profile'"
-                            [icon]="'pi pi-save'"
-                            [loading]="isUpdatingProfile()"
-                            [disabled]="profileForm.invalid || isUpdatingProfile()"
-                        />
-                    </div>
-                </form>
-            </div>
+                <div class="form-field">
+                    <label for="phone">Phone</label>
+                    <input
+                        pInputText
+                        id="phone"
+                        type="tel"
+                        formControlName="phone"
+                        placeholder="Enter your phone number"
+                        [class.p-invalid]="isProfileFieldInvalid('phone')"
+                    />
+                    @if (isProfileFieldInvalid('phone')) {
+                    <small class="error-message">
+                        {{ getProfileFieldError('phone') }}
+                    </small>
+                    }
+                </div>
+                <div class="form-actions">
+                    <app-button
+                        type="submit"
+                        [label]="'Update Profile'"
+                        [icon]="'pi pi-save'"
+                        [loading]="isUpdatingProfile()"
+                        [disabled]="profileForm.invalid || isUpdatingProfile()"
+                    />
+                </div>
+            </form>
+        </div>
         @if (currentUser()) {
         <div class="user-summary">
             <!-- <div class="summary-row">
@@ -134,6 +133,22 @@
                 <h3 class="summary-label">Plan</h3>
                 <h3 class="section-title">{{ planPeriod() }}</h3>
             </div>
+
+
+            @if(participantCode()) {
+            <div class="summary-row">
+                <h3 class="summary-label">Participant code</h3>
+                <div style="display: flex; gap: 0.5rem">
+                    <h3 class="section-title">{{showParticipantCode() ? participantCode() : "********"}}</h3>
+                    <span
+                        [class]="'pi pi-' + (showParticipantCode() ? 'eye-slash':'eye')"
+                        style="cursor: pointer"
+                        (click)="toggleShowParticipantCode()"
+                    ></span>
+                </div>
+            </div>
+            }
+
             @if(scheduledDowngrade()?.hasScheduledDowngrade) {
             <div class="summary-row">
                 <h3 class="summary-label">Scheduled downgrade</h3>
@@ -181,7 +196,7 @@
         }
 
 
-            <!-- }
+        <!-- }
         </section> -->
 
         <!-- <section class="profile-section">

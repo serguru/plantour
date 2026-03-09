@@ -50,6 +50,9 @@ public partial class User
     [Column("temporary")]
     public bool Temporary { get; set; }
 
+    [Column("participant_code")]
+    public string? ParticipantCode { get; set; }
+
     [ForeignKey("AccessTypeId")]
     [InverseProperty("Users")]
     public virtual AccessType AccessType { get; set; } = null!;

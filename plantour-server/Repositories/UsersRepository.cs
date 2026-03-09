@@ -10,16 +10,16 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
 
     public async Task<bool> ActiveUserExistsByIdAsync(Guid userId)
     {
-        return await _dbSet.Include(x => x.AccessType).AnyAsync(u => u.Id == userId && u.AccessType.Name.Equals("Active", StringComparison.OrdinalIgnoreCase));
+        return await _dbSet
+        .Include(x => x.AccessType)
+        .AnyAsync(u => u.Id == userId && u.AccessType != null && u.AccessType.Name.ToLower() == "active");
     }
 
     public async Task<User?> GetActiveByIdAsync(Guid id)
     {
         return await _dbSet
             .Include(x => x.AccessType)
-            // .Include(x => x.PriceEnum)
-            //     .ThenInclude(x => x != null ? x.Plan : null)
-            .FirstOrDefaultAsync(x => x.Id == id && x.AccessType.Name.ToLower() == "active");
+            .FirstOrDefaultAsync(x => x.Id == id && x.AccessType != null && x.AccessType.Name.ToLower() == "active");
     }
 
     public async Task<User?> GetByEmailAsync(string email)
@@ -31,9 +31,12 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
 
     public async Task<User?> GetActiveByEmailAsync(string email)
     {
-        return await _dbSet
-            .Include(x => x.AccessType)
-            .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower() && u.AccessType.Name.ToLower() == "active");
+        var user = await GetByEmailAsync(email);
+        if (user != null && user.AccessType != null && user.AccessType.Name.ToLower() == "active")
+        {
+            return user;
+        }
+        return null;
     }
 
     public async Task<User?> GetByIdWithDetailsAsync(Guid userId)
