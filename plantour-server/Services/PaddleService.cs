@@ -479,7 +479,7 @@ public class PaddleService : IPaddleService
             DateTime overlapEnd = end1 < end2 ? end1 : end2;
 
             StartEndDates? existingSettings = await _userSettingsRepository.GetUserEntitiesLogging(admin.Id);
-            bool updateNeeded = existingSettings != null && 
+            bool updateNeeded = existingSettings == null || 
             (
                 existingSettings.Start > overlapStart || 
                 existingSettings.End < overlapEnd

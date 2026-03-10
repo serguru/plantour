@@ -82,7 +82,7 @@
       </div>
 
       <div class="cta-row">
-        @if (isAuthenticated && !isTemporary()) {
+        @if (isAuthenticated && !isTemporary && !isStarter) {
         <a
           class="cta-button"
           [class.link-disabled]="!family.monthlyAvalable"
@@ -94,7 +94,7 @@
         <a
           class="cta-button"
           [class.link-disabled]="isCurrentPlanPrice(family.monthlyPriceName!)"
-          [href]="family.monthlyPriceUrl"
+          [href]="family.monthlyPriceUrl + starterEmailUrlPart"
         >
           {{ family.monthlyButtonText }}
         </a>
@@ -109,7 +109,7 @@
       </div>
 
       <div class="cta-row">
-        @if (isAuthenticated && !isTemporary()) {
+        @if (isAuthenticated && !isTemporary && !isStarter) {
         <a
           class="cta-button"
           [class.link-disabled]="!family.yearlyAvalable"
@@ -121,7 +121,7 @@
         <a
           class="cta-button"
           [class.link-disabled]="!family.yearlyAvalable"
-          [href]="family.yearlyPriceUrl"
+          [href]="family.yearlyPriceUrl + starterEmailUrlPart"
         >
           {{ family.yearlyButtonText }}
         </a>
@@ -171,7 +171,7 @@
       </div>
 
       <div class="cta-row">
-        @if (isAuthenticated) {
+        @if (isAuthenticated && !isTemporary && !isStarter) {
         <a
           class="cta-button outline"
           [class.link-disabled]="!expedition.monthlyAvalable"
@@ -183,7 +183,7 @@
         <a
           class="cta-button outline"
           [class.link-disabled]="isCurrentPlanPrice(expedition.monthlyPriceName!)"
-          [href]="expedition.monthlyPriceUrl"
+          [href]="expedition.monthlyPriceUrl + starterEmailUrlPart"
         >
           {{ expedition.monthlyButtonText }}
         </a>
@@ -198,7 +198,7 @@
       </div>
 
       <div class="cta-row">
-        @if (isAuthenticated) {
+        @if (isAuthenticated && !isTemporary && !isStarter) {
         <a
           class="cta-button outline"
           [class.link-disabled]="!expedition.yearlyAvalable"
@@ -210,7 +210,7 @@
         <a
           class="cta-button outline"
           [class.link-disabled]="!expedition.yearlyAvalable"
-          [href]="expedition.yearlyPriceUrl"
+          [href]="expedition.yearlyPriceUrl + starterEmailUrlPart"
         >
           {{ expedition.yearlyButtonText }}
         </a>

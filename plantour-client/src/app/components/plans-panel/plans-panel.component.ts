@@ -53,9 +53,21 @@ export class PlansPanelComponent implements OnInit {
   expedition!: Plan;
   plansLoaded = false;
 
-  isTemporary(): boolean {
+  get isTemporary(): boolean {
     const result = this.usersService.isTemporarySignal();
     return result;
+  }
+
+  get isStarter(): boolean {
+    return this.currentPlanPeriod == "Starter Free";
+  }
+
+  get starterEmailUrlPart(): string {
+      const email = this.usersService.userEmail();
+      if (!email || !this.isStarter) {
+        return '';
+      } 
+      return `?email=${encodeURIComponent(email)}`;
   }
 
   isDowngrade(text: string): boolean {
