@@ -655,7 +655,7 @@ create or replace function plantour.assign_trip_shared_things(
     p_trip_id uuid,
     p_trip_user_id uuid,
     p_ids uuid[],
-    p_deadline_at timestamp,
+    p_deadline_at timestamptz,
     p_unassign boolean
 )
 returns integer

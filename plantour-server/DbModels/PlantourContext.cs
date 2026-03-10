@@ -234,7 +234,7 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Properties).HasComment("additional structured properties as json (enrichers, context data)");
             entity.Property(e => e.TimeStamp)
                 .HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)")
-                .HasComment("timestamp when the log event was recorded");
+                .HasComment("timestamptz when the log event was recorded");
         });
 
         modelBuilder.Entity<Plan>(entity =>

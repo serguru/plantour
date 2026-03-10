@@ -20,10 +20,10 @@ public partial class RefreshToken
     [Column("token")]
     public Guid Token { get; set; }
 
-    [Column("expires_at", TypeName = "timestamp without time zone")]
+    [Column("expires_at")]
     public DateTime ExpiresAt { get; set; }
 
-    [Column("created_at", TypeName = "timestamp without time zone")]
+    [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 
     [ForeignKey("UserId")]

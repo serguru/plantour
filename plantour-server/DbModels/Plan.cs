@@ -42,7 +42,7 @@ public partial class Plan
     [Column("extended_ai_allowed")]
     public bool ExtendedAiAllowed { get; set; }
 
-    [Column("created_at", TypeName = "timestamp without time zone")]
+    [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 
     [InverseProperty("Plan")]

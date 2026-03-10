@@ -17,7 +17,7 @@ public partial class SitemapUrl
     [Column("url")]
     public string Url { get; set; } = null!;
 
-    [Column("last_modified", TypeName = "timestamp without time zone")]
+    [Column("last_modified")]
     public DateTime LastModified { get; set; }
 
     [Column("priority")]
@@ -26,6 +26,6 @@ public partial class SitemapUrl
     [Column("is_active")]
     public bool? IsActive { get; set; }
 
-    [Column("created_at", TypeName = "timestamp without time zone")]
+    [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 }

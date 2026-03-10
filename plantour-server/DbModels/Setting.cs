@@ -22,6 +22,6 @@ public partial class Setting
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [Column("updated_at", TypeName = "timestamp without time zone")]
+    [Column("updated_at")]
     public DateTime UpdatedAt { get; set; }
 }
