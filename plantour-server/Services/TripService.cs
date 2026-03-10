@@ -1,6 +1,7 @@
 using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
+using plantour_server.Models;
 using plantour_server.Repositories;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
@@ -10,6 +11,7 @@ using System.Linq;
 namespace plantour_server.Services;
 
 public class TripService(
+    ILogger<TripService> logger,
     TripRepository tripRepository,
     AdminsParticipantRepository adminsParticipantRepository,
     IAdminsParticipantService adminsParticipantService,
@@ -17,8 +19,10 @@ public class TripService(
     UsersRepository usersRepository,
     TripUserRepository tripUserRepository,
     IMapper mapper,
+    UserSettingsRepository userSettingsRepository,
     HttpCurrentUser httpCurrentUser) : ITripService
 {
+    private readonly ILogger<TripService> _logger = logger;
     private readonly TripRepository _tripRepository = tripRepository;
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly IMapper _mapper = mapper;
@@ -28,6 +32,8 @@ public class TripService(
 
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
     private readonly UsersRepository _usersRepository = usersRepository;
+
+    private readonly UserSettingsRepository _userSettingsRepository = userSettingsRepository;
 
 
 
@@ -86,6 +92,13 @@ public class TripService(
 
         await _tripUserRepository.AddAsync(tripUser);
 
+        StartEndDates? dates = await _userSettingsRepository.GetUserEntitiesLogging(_currentUser.AdminId);
+
+        DateTime now = DateTime.UtcNow;
+        if (dates != null && dates.Start <= now && now <= dates.End)
+        {
+            _logger.LogInformation("User added a new trip id = {tripId}, name = {name}, event_type: {event_type}, subtype: {subtype}", trip.Id, trip.Name, "user_log_entities", "trip_added");
+        }
         return tripDto;
     }
 
@@ -117,7 +130,22 @@ public class TripService(
             throw new CustomException("User does not have access to this trip");
         }
 
+        StartEndDates? dates = await _userSettingsRepository.GetUserEntitiesLogging(_currentUser.AdminId);
+
+        DateTime now = DateTime.UtcNow;
+        var logNeeded = dates != null && dates.Start <= now && now <= dates.End;
+        Trip? trip = null;
+        if (logNeeded)
+        {
+            trip = await _tripRepository.GetByIdAsync(id) ?? throw new CustomException("Trip not found");
+        }
+
         await _tripRepository.DeleteAsync(id);
+
+        if (logNeeded)
+        {
+            _logger.LogInformation("User deleted a trip id = {tripId}, name = {name}, event_type: {event_type}, subtype: {subtype}", trip!.Id, trip.Name, "user_log_entities", "trip_deleted");
+        }
     }
 
     private void AddStatsToTripDto(TripDto tripDto, Trip trip)

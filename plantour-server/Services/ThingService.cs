@@ -5,6 +5,8 @@ using plantour_server.Repositories;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 
+// TODO: find out how does serilog and its settings work
+
 namespace plantour_server.Services;
 
 public class ThingService(

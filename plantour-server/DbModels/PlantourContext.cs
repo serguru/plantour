@@ -89,6 +89,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<UserPackage> UserPackages { get; set; }
 
+    public virtual DbSet<UserSetting> UserSettings { get; set; }
+
     public virtual DbSet<UserThing> UserThings { get; set; }
 
     public virtual DbSet<VTemplateThingsFull> VTemplateThingsFulls { get; set; }
@@ -453,6 +455,17 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserPackages).HasConstraintName("user_packages_user_id_fkey");
+        });
+
+        modelBuilder.Entity<UserSetting>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("user_settings_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.Active).HasDefaultValue(false);
+            entity.Property(e => e.ValueType).HasDefaultValueSql("'string'::text");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserSettings).HasConstraintName("user_settings_user_id_fkey");
         });
 
         modelBuilder.Entity<UserThing>(entity =>

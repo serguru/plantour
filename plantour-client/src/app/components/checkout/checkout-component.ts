@@ -192,8 +192,8 @@ export class CheckoutComponent implements OnInit {
       });
 
       if (result === 'ok') {
-        void this.router.navigate(['/profile']);
       }
+      void this.router.navigate(['/profile']);
       return;
     }
 
@@ -205,8 +205,8 @@ export class CheckoutComponent implements OnInit {
       });
 
       if (result === 'ok') {
-        void this.router.navigate(['/profile']);
       }
+      void this.router.navigate(['/profile']);
     }
   }
 

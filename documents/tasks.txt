@@ -439,3 +439,4 @@ frontend
 
 
 
+{"Timestamp":"2026-03-10T12:25:57.5719367-07:00","Level":"Information","MessageTemplate":"User deleted a trip id = {tripId}, name = {name}, event_type: {event_type}, subtype: {subtype}","TraceId":"e0780e6e3522ba720b99971c51b62eb0","SpanId":"55f9787958c153e7","Properties":{"tripId":"e07462c9-3679-4de2-a3ee-e6f028526e3d","name":"x zxv zxvxc","event_type":"user_log_entities","subtype":"trip_deleted","SourceContext":"plantour_server.Services.TripService","ActionId":"ca6b733b-d025-4871-95e5-57202c464c27","ActionName":"plantour_server.Controllers.TripController.Delete (plantour_server)","RequestId":"0HNJURAH474O9:00000006","RequestPath":"/api/trip/e07462c9-3679-4de2-a3ee-e6f028526e3d","ConnectionId":"0HNJURAH474O9","UserRole":"Admin","UserEmail":"sechevan@gmail.com","UserId":"5489151e-5b64-4d54-906e-659547396a20","EnvironmentUserName":"DESKTOP-BKJQ975\\Sergey","MachineName":"DESKTOP-BKJQ975","ProcessId":21020}}

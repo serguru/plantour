@@ -332,6 +332,17 @@ before update on plantour.users
 for each row
 execute function plantour.prevent_email_change_for_non_temporary_users();
 
+create table plantour.user_settings (
+    id uuid not null primary key default gen_random_uuid(),
+    user_id uuid not null references plantour.users(id) on delete cascade,
+    active boolean default false,
+    key text not null,
+    value text not null,
+    value_type text not null check (value_type in ('json', 'string', 'integer', 'boolean')) default 'string',
+    notes text
+);
+create unique index idx_user_settings_user_id_key on plantour.user_settings(user_id, key);
+
 create table ai_prompt_checks (
     id uuid primary key not null references users(id) on delete cascade,
     start timestamptz not null ,
@@ -741,6 +752,7 @@ create table plantour.settings (
 
 insert into plantour.settings (key, value, value_type)
 values 
+    ('user_entities_logging_days', '16', 'integer'),
     ('user_email_confirmation_url', 'http://localhost:4203/confirm-email', 'string'),
     ('temporary_user_duration_days', '14', 'integer'),
     ('email_confirmation_token_minutes', '60',  'integer'),
