@@ -9,7 +9,7 @@ public class TripCommentRepository(PlantourContext context) : GenericRepository<
     {
         return await _dbSet
             .Include(x => x.TripUser!)
-                .ThenInclude(tu => tu.AdminParticipant!) 
+                .ThenInclude(tu => tu.AdminParticipant!)
                     .ThenInclude(ap => ap.Participant)
             .FirstOrDefaultAsync(x =>
                 x.Id == id &&
@@ -42,21 +42,27 @@ public class TripCommentRepository(PlantourContext context) : GenericRepository<
     public async Task<IEnumerable<TripComment>> GetAllAsync(Guid adminId, Guid userId, Guid tripId)
     {
         return await _dbSet
-            .Include(x => x.TripUser!)
-                .ThenInclude(tu => tu.AdminParticipant!) 
-                    .ThenInclude(ap => ap.Participant)
-            .Include(x => x.TripUser!)
-                .ThenInclude(tu => tu.AdminParticipant!) 
-                    .ThenInclude(ap => ap.Admin)
+            .Include(x => x.Trip)
+                .ThenInclude(y => y.User)
+            .Include(x => x.TripUser)
+                .ThenInclude(tu => tu != null ? tu.AdminParticipant! : null)
+                    .ThenInclude(ap => ap != null ? ap.Participant : null)
+
+            .Include(x => x.TripUser)
+                .ThenInclude(tu => tu != null ? tu.AdminParticipant! : null)
+                    .ThenInclude(ap => ap != null ? ap.Admin : null)
             .Where(x =>
                 x.Trip != null &&
                 x.Trip.Id == tripId &&
                 x.Trip.UserId == adminId &&
-                x.Trip.TripUsers.Any(tu =>
-                    tu.AdminParticipant != null &&
-                    tu.AdminParticipant.AdminId == adminId &&
-                    tu.AdminParticipant.ParticipantId == userId
+                (
+                    x.TripUser == null ||
+                    x.Trip.TripUsers.Any(tu =>
+                        tu.AdminParticipant != null &&
+                        tu.AdminParticipant.AdminId == adminId &&
+                        tu.AdminParticipant.ParticipantId == userId
                 ))
+                )
             .ToListAsync();
     }
 

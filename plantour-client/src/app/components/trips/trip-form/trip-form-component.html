@@ -67,8 +67,6 @@
           [readonly]="true"
         />
       </div>
-
-
       } @else {
       <div class="form-field">
         <label for="startDate">Start date<span class="required">*</span></label>
@@ -96,6 +94,7 @@
           id="endDate"
           formControlName="endDate"
           dateFormat="yy-mm-dd"
+          dataType="string"
           [showIcon]="true"
           styleClass="w-full"
           appendTo="body"

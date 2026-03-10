@@ -7,8 +7,6 @@ import { TextareaModule } from 'primeng/textarea';
 import { CommonModule } from '@angular/common';
 import { LookupService, TripStatusDto } from '../../../services/lookup-service';
 import { MessagesService } from '../../../services/messages-service';
-import { ButtonModule } from 'primeng/button';
-import { MessagePanel } from '../../message-panel/message-panel-component/message-panel-component';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
@@ -16,7 +14,7 @@ import { UsersService } from '../../../services/users-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
 import { ComponentService } from '../../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { capitalizeFirstLetter, formatDate } from '../../../helpers/utils';
+import { capitalizeFirstLetter } from '../../../helpers/utils';
 import { catchError, EMPTY, finalize, map } from 'rxjs';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
@@ -166,8 +164,8 @@ export class TripFormComponent implements OnInit {
       name: formValue.name?.trim(),
       tripStatusId: formValue.tripStatusId || null,
       notes: formValue.notes?.trim() || null,
-      startDate: formatDate(formValue.startDate) || null,
-      endDate: formatDate(formValue.endDate) || null
+      startDate: formValue.startDate || null,
+      endDate: formValue.endDate || null
     };
 
     this.componentService.updateLoading(true);
@@ -193,8 +191,8 @@ export class TripFormComponent implements OnInit {
       name: formValue.name?.trim(),
       tripStatusId: formValue.tripStatusId || null,
       notes: formValue.notes?.trim() || null,
-      startDate: formatDate(formValue.startDate) || null,
-      endDate: formatDate(formValue.endDate) || null
+      startDate: formValue.startDate || null,
+      endDate: formValue.endDate || null
     };
 
     this.componentService.updateLoading(true);

@@ -27,10 +27,10 @@ public partial class Trip
     public string? Notes { get; set; }
 
     [Column("start_date")]
-    public DateOnly? StartDate { get; set; }
+    public DateOnly StartDate { get; set; }
 
     [Column("end_date")]
-    public DateOnly? EndDate { get; set; }
+    public DateOnly EndDate { get; set; }
 
     [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; }

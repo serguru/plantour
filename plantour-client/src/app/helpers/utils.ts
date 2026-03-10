@@ -74,15 +74,20 @@ export const capitalizeFirstLetter = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+// export const formatDate = (date: Date | string): string => {
+//   if (!date) return '';
+//   const d = new Date(date);
+//   const year = d.getFullYear();
+//   const month = String(d.getMonth() + 1).padStart(2, '0');
+//   const day = String(d.getDate()).padStart(2, '0');
+//   return `${year}-${month}-${day}`;
+// }
 export const formatDate = (date: Date | string): string => {
   if (!date) return '';
   const d = new Date(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  const result = d.toLocaleString();
+  return result;
 }
-
 
 export const getDaysDifference = (
   date1: string | Date | null | undefined,
@@ -157,3 +162,9 @@ export const getMessageFromError = (error: any, defaultMessage: string) => {
   return result ?? defaultMessage;
 }
 
+export const getNowDaysUtc = (date: Date, days: number): string => {
+    const newDate = date.setDate(date.getDate() + days);
+    const result = new Date(newDate).toISOString();
+    return result;
+
+}

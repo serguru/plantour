@@ -374,15 +374,15 @@ public class TripSharedService(
         var tripId = request.CollectionId;
         var assigneeId = request.Id;
         var ids = request.Ids;
-        var deadlineDays = request.DeadlineDays;
+        var deadlineAt = request.DeadlineAt;
 
         _currentUser.RaiseIfNotAdmin();
-        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, assigneeId, ids, deadlineDays, false);
+        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, assigneeId, ids, deadlineAt, false);
     }
 
     public async Task<int> UnassignTripSharedThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAdmin();
-        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, Guid.Empty, ids, 0, true);
+        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, Guid.Empty, ids, null, true);
     }
 }

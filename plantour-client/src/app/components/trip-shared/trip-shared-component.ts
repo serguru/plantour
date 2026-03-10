@@ -14,7 +14,7 @@ import { Condition, DynamicQueryService, Target, TargetCondition } from '../../s
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { TripUserDto, TripUserService } from '../../services/trip-user-service';
-import { findDuplicates, formatDate, getDaysDifference, getFullName, getFutureDate } from '../../helpers/utils';
+import { findDuplicates, formatDate, getDaysDifference, getFullName, getFutureDate, getNowDaysUtc } from '../../helpers/utils';
 import { FormsModule } from '@angular/forms';
 import { InputNumber } from "primeng/inputnumber";
 import { MessagesService } from '../../services/messages-service';
@@ -419,11 +419,14 @@ export class TripSharedComponent implements OnInit {
       throw new Error('Deadline days is not set or invalid');
     }
 
+    
+    const deadlineAt = getNowDaysUtc(new Date(), this.deadlineDays());
+
     const transport = {
       collectionId: this.tripId!,
       ids: ids,
       id: targetId,
-      deadlineDays: this.deadlineDays()
+      deadlineAt: deadlineAt
     }
 
     this.tripSharedService.assign(transport).pipe(
@@ -496,11 +499,13 @@ export class TripSharedComponent implements OnInit {
   }
 
   assignOrUnassign(entity: TripSharedDto, assigneeId: string | null, reassignAllowed: boolean = true): void {
+
+    const deadlineAt = getNowDaysUtc(new Date(), this.deadlineDays());
     const transport = {
       collectionId: this.tripId!,
       ids: [entity.id],
       id: assigneeId || entity.assignedToId,
-      deadlineDays: this.deadlineDays()
+      deadlineAt: deadlineAt
     }
 
     if (!transport.id) {
