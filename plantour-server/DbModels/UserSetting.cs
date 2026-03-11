@@ -6,10 +6,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("settings", Schema = "plantour")]
-public partial class Setting
+[Table("user_settings", Schema = "plantour")]
+[Index("UserId", "Key", Name = "idx_user_settings_user_id_key", IsUnique = true)]
+public partial class UserSetting
 {
     [Key]
+    [Column("id")]
+    public Guid Id { get; set; }
+
+    [Column("user_id")]
+    public Guid UserId { get; set; }
+
+    [Column("active")]
+    public bool? Active { get; set; }
+
     [Column("key")]
     public string Key { get; set; } = null!;
 
@@ -22,6 +32,7 @@ public partial class Setting
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [Column("updated_at")]
-    public DateTime UpdatedAt { get; set; }
+    [ForeignKey("UserId")]
+    [InverseProperty("UserSettings")]
+    public virtual User User { get; set; } = null!;
 }

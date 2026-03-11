@@ -38,10 +38,10 @@ public class TripCommentService(
         }
         else
         {
-            dto.UserId = tripComment.TripUser!.AdminParticipant!.Admin!.Id;
-            dto.FirstName = tripComment.TripUser!.AdminParticipant!.Admin!.FirstName;
-            dto.LastName = tripComment.TripUser!.AdminParticipant!.Admin!.LastName;
-            dto.Email = tripComment.TripUser!.AdminParticipant!.Admin!.Email;
+            dto.UserId = tripComment.Trip.UserId;
+            dto.FirstName = tripComment.Trip.User.FirstName;
+            dto.LastName = tripComment.Trip.User.LastName;
+            dto.Email = tripComment.Trip.User.Email;
             
         }
         return dto;
@@ -90,14 +90,14 @@ public class TripCommentService(
             _currentUser.UserId,
             request.TripId);
 
-        if (tripUser == null)
-        {
-            throw new CustomException("Trip user not found");
-        }
+        // if (tripUser == null)
+        // {
+        //     throw new CustomException("Trip user not found");
+        // }
 
         var entity = _mapper.Map<TripComment>(request);
         entity.Id = Guid.NewGuid();
-        entity.TripUserId = tripUser.Id;
+        entity.TripUserId = tripUser?.Id;
         entity.PublishedAt = DateTime.UtcNow;
         await _tripCommentRepository.AddAsync(entity);
         return _mapper.Map<TripCommentDto>(entity);
@@ -112,15 +112,15 @@ public class TripCommentService(
             throw new CustomException("User does not have access to this trip");
         }
 
-        var tripUser = await _tripUserRepository.GetByTripIdAsync(
-            _currentUser.AdminId,
-            _currentUser.UserId,
-            request.TripId);
+        // var tripUser = await _tripUserRepository.GetByTripIdAsync(
+        //     _currentUser.AdminId,
+        //     _currentUser.UserId,
+        //     request.TripId);
 
-        if (tripUser == null)
-        {
-            throw new CustomException("Trip user not found");
-        }
+        // if (tripUser == null)
+        // {
+        //     throw new CustomException("Trip user not found");
+        // }
 
 
         var entity = await _tripCommentRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, request.TripId, request.Id);

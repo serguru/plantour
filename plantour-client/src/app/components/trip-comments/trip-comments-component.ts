@@ -106,6 +106,14 @@ export class TripCommentsComponent {
     this.initSavedFeatures();
 
     this.tripCommentService.getAll(this.tripId!).pipe(
+      tap(tripComments => {
+        if (!tripComments) {
+          return;
+        }
+        tripComments.forEach(x => {
+          x.publishedAt = x.publishedAt ? (new Date(x.publishedAt)).toLocaleString() : null;
+        });
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(tripComments =>
       this.componentService.updateEntities(tripComments || [])

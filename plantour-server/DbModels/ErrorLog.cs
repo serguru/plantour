@@ -12,7 +12,7 @@ public partial class ErrorLog
     [Column("id")]
     public int? Id { get; set; }
 
-    [Column("time_stamp", TypeName = "timestamp without time zone")]
+    [Column("time_stamp")]
     public DateTime? TimeStamp { get; set; }
 
     [Column("level")]

@@ -10,6 +10,7 @@ using plantour_server.Utils;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 using plantour_server.Services.TickerQ;
+using System.Globalization;
 
 namespace plantour_server.Services;
 
@@ -25,12 +26,17 @@ public class PaddleService : IPaddleService
     private readonly PlanRepository _planRepository;
     private readonly TimeTickerRepository _timeTickerRepository;
 
+    UserSettingsRepository _userSettingsRepository;
+    SettingsRepository _settingsRepository;
+
     public PaddleService(
         HttpClient httpClient,
         HttpCurrentUser httpCurrentUser,
         UsersRepository usersRepository,
         PlanRepository planRepository,
         TimeTickerRepository timeTickerRepository,
+        UserSettingsRepository userSettingsRepository,
+        SettingsRepository settingsRepository,
         IConfiguration configuration
     )
     {
@@ -38,6 +44,8 @@ public class PaddleService : IPaddleService
         _usersRepository = usersRepository;
         _timeTickerRepository = timeTickerRepository;
         _planRepository = planRepository;
+        _userSettingsRepository = userSettingsRepository;
+        _settingsRepository = settingsRepository;
 
         _baseUrl = configuration["PaddleSettings:ApiBaseUrl"] ?? throw new CustomException("PaddleSettings:ApiBaseUrl is not configured");
         _apiKey = configuration["PaddleSettings:ApiKey"] ?? throw new CustomException("PaddleSettings:ApiKey is not configured");
@@ -108,7 +116,7 @@ public class PaddleService : IPaddleService
         string? status = statusElement.GetString();
         if (string.IsNullOrWhiteSpace(status) || !string.Equals(status, "active", StringComparison.OrdinalIgnoreCase))
         {
-            return null; 
+            return null;
         }
 
         return customerId;
@@ -154,7 +162,7 @@ public class PaddleService : IPaddleService
         string? status = statusElement.GetString();
         if (string.IsNullOrWhiteSpace(status) || !string.Equals(status, "active", StringComparison.OrdinalIgnoreCase))
         {
-            return null; 
+            return null;
         }
         return email;
     }
@@ -236,6 +244,7 @@ public class PaddleService : IPaddleService
     {
         if (!json.TryGetProperty("id", out var idElement) ||
             !json.TryGetProperty("status", out var statusElement) ||
+            !json.TryGetProperty("started_at", out var startedAtElement) ||
             !json.TryGetProperty("customer_id", out var customerIdElement) ||
             !json.TryGetProperty("created_at", out var createdAtElement) ||
             !json.TryGetProperty("items", out var itemsElement) ||
@@ -249,6 +258,7 @@ public class PaddleService : IPaddleService
         string? status = statusElement.GetString();
         string? customerId = customerIdElement.GetString();
         string? createdAt = createdAtElement.GetString();
+        string? startedAt = startedAtElement.GetString();
 
         var firstItem = itemsElement[0];
         if (!firstItem.TryGetProperty("price", out var priceElement) ||
@@ -259,7 +269,7 @@ public class PaddleService : IPaddleService
         }
         string? priceId = priceIdElement.GetString();
 
-        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(status) || string.IsNullOrWhiteSpace(customerId) || string.IsNullOrWhiteSpace(createdAt) || string.IsNullOrWhiteSpace(priceId))
+        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(status) || string.IsNullOrWhiteSpace(customerId) || string.IsNullOrWhiteSpace(createdAt) || string.IsNullOrWhiteSpace(startedAt) || string.IsNullOrWhiteSpace(priceId))
         {
             throw new CustomException("Paddle subscription properties cannot be empty");
         }
@@ -290,7 +300,8 @@ public class PaddleService : IPaddleService
             CreatedAt = createdAt,
             PriceName = priceName,
             BillingPeriodStart = billingPeriodStart,
-            BillingPeriodEnd = billingPeriodEnd
+            BillingPeriodEnd = billingPeriodEnd,
+            StartedAt = startedAt
         };
     }
 
@@ -410,12 +421,27 @@ public class PaddleService : IPaddleService
             }
         }
 
+        bool emailStepNeeded = true;
         if (!string.IsNullOrWhiteSpace(admin.PaddleSubscriptionId))
         {
             subscription = await GetActiveSubscriptionByIdAsync(admin.PaddleSubscriptionId);
+            if (subscription != null)
+            {
+                var r = new PaddleCustomerEmailRequest()
+                {
+                    CustomerId = subscription.CustomerId
+                };
+
+                var email = await GetActiveCustomerEmailByIdAsync(r);
+                if (String.IsNullOrWhiteSpace(email) || !email.Equals(admin.Email, StringComparison.OrdinalIgnoreCase))
+                {
+                    subscription = null;
+                    emailStepNeeded = false;
+                }
+            }
         }
 
-        if (subscription == null)
+        if (subscription == null && emailStepNeeded)
         {
             subscription = await GetActiveSubscriptionByEmailAsync(admin.Email);
         }
@@ -438,14 +464,32 @@ public class PaddleService : IPaddleService
             await _usersRepository.UpdateAsync(admin);
         }
 
-        // string? priceName = await _planRepository.GetPriceNameByPriceIdAsync(subscription.PriceId);
+        DateTime start1 = DateTime.Parse(subscription.StartedAt, null, DateTimeStyles.AdjustToUniversal);
+        var days = (int)await _settingsRepository.GetSettingByKey("user_entities_logging_days");
+        DateTime end1 = start1.AddDays(days);
 
-        // if (string.IsNullOrWhiteSpace(priceName))
-        // {
-        //     throw new CustomException($"No price name found for PriceId: {subscription.PriceId}");
-        // }
+        DateTime start2 = DateTime.UtcNow;
+        DateTime end2 = start2.AddDays(days);
 
-        // subscription.PriceName = priceName;
+        bool isOverlapping = (start1 < end2) && (start2 < end1);
+
+        if (isOverlapping)
+        {
+            DateTime overlapStart = start1 > start2 ? start1 : start2;
+            DateTime overlapEnd = end1 < end2 ? end1 : end2;
+
+            StartEndDates? existingSettings = await _userSettingsRepository.GetUserEntitiesLogging(admin.Id);
+            bool updateNeeded = existingSettings == null || 
+            (
+                existingSettings.Start > overlapStart || 
+                existingSettings.End < overlapEnd
+            );
+
+            if (updateNeeded)
+            {
+                await _userSettingsRepository.SetUserEntitiesLogging(admin.Id, overlapStart.AddDays(-1), overlapEnd.AddDays(1));
+            }
+        }
 
         return subscription;
     }
@@ -711,6 +755,15 @@ public class PaddleService : IPaddleService
         var response = await _httpclient.PatchAsJsonAsync(url, payload);
         string errorJson = await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode();
+        if (isDowngrade)
+        {
+            return;
+        }
+        var days = (int)await _settingsRepository.GetSettingByKey("user_entities_logging_days");
+        DateTime start = DateTime.UtcNow;
+        DateTime end = start.AddDays(days);
+        await _userSettingsRepository.SetUserEntitiesLogging(userId, start, end);
+
     }
 
     public async Task DowngradePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice)

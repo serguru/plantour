@@ -23,7 +23,7 @@ public partial class TripComment
     [Column("comment")]
     public string Comment { get; set; } = null!;
 
-    [Column("published_at", TypeName = "timestamp without time zone")]
+    [Column("published_at")]
     public DateTime PublishedAt { get; set; }
 
     [ForeignKey("TripId")]

@@ -1,3 +1,5 @@
+alter database plantour set timezone to 'utc';
+
 drop schema if exists plantour cascade;
 
 create schema plantour;
@@ -244,12 +246,12 @@ create table plantour.plans (
     allowed_travelers int,
     allowed_AI_prompts int, -- per day
     extended_AI_allowed boolean not null default false,
-    created_at timestamp not null default (now() at time zone 'utc')
+    created_at timestamptz not null default (now() at time zone 'utc')
 );
 insert into plantour.plans (name, paddle_product_id, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
 ('Starter', null, 'For small trips and light packers', true, 10, 2, 5, false),
 ('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, null, 5, 20, false),
-('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, null, null, 100, true);
+('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, null, 50, 100, true);
 
 create table plantour.prices (
     id uuid primary key default gen_random_uuid(),
@@ -304,10 +306,11 @@ create table users (
     google_sub text unique,
     facebook_user_id text unique,
     notes text,
-    created_at timestamp not null default (now() at time zone 'utc'),
+    created_at timestamptz not null default (now() at time zone 'utc'),
     access_type_id uuid not null references access_types(id),
     paddle_subscription_id text unique,
-    temporary bool not null default false
+    temporary bool not null default false,
+    participant_code text null
 );
 
 create or replace function plantour.prevent_email_change_for_non_temporary_users()
@@ -329,9 +332,20 @@ before update on plantour.users
 for each row
 execute function plantour.prevent_email_change_for_non_temporary_users();
 
+create table plantour.user_settings (
+    id uuid not null primary key default gen_random_uuid(),
+    user_id uuid not null references plantour.users(id) on delete cascade,
+    active boolean default false,
+    key text not null,
+    value text not null,
+    value_type text not null check (value_type in ('json', 'string', 'integer', 'boolean')) default 'string',
+    notes text
+);
+create unique index idx_user_settings_user_id_key on plantour.user_settings(user_id, key);
+
 create table ai_prompt_checks (
     id uuid primary key not null references users(id) on delete cascade,
-    start timestamp not null ,
+    start timestamptz not null ,
     count int not null check(count >= 0)
 );
 
@@ -380,9 +394,9 @@ create table trips (
     trip_status_id uuid not null references trip_status(id),
     name text not null,
     notes text,
-    start_date date,
-    end_date date,
-    created_at timestamp not null default (now() at time zone 'utc'),
+    start_date date not null,
+    end_date date not null,
+    created_at timestamptz not null default (now() at time zone 'utc'),
     constraint ch_trips_start_before_end check (
         start_date is null 
         or end_date is null 
@@ -390,6 +404,44 @@ create table trips (
     )
 );
 create unique index idx_trips_user_id_name on trips(user_id, name);
+
+create or replace function plantour.prevent_overlapping_trips_for_user()
+returns trigger
+language plpgsql
+as $$
+begin
+    if tg_op = 'UPDATE' and old.user_id is distinct from new.user_id then
+        perform 1
+        from plantour.users
+        where id in (old.user_id, new.user_id)
+        order by id
+        for update;
+    else
+        perform 1
+        from plantour.users
+        where id = new.user_id
+        for update;
+    end if;
+
+    if exists (
+        select 1
+        from plantour.trips existing_trip
+        where existing_trip.user_id = new.user_id
+          and existing_trip.id is distinct from new.id
+          and new.start_date < existing_trip.end_date
+          and new.end_date > existing_trip.start_date
+    ) then
+        raise exception 'Trip dates overlap with another trip for this user';
+    end if;
+
+    return new;
+end;
+$$;
+
+create trigger trg_prevent_overlapping_trips_for_user
+before insert or update of user_id, start_date, end_date on plantour.trips
+for each row
+execute function plantour.prevent_overlapping_trips_for_user();
 
 -----------------------------------------------------------------------
 -- INVITATIONS
@@ -406,11 +458,11 @@ create table invitations (
     subject text not null,
     message text not null,
 
-    created_at timestamp not null default (now() at time zone 'utc'),
-    expires_at timestamp,
-    accepted_at timestamp,
-    refused_at timestamp,
-    sent_at timestamp,
+    created_at timestamptz not null default (now() at time zone 'utc'),
+    expires_at timestamptz,
+    accepted_at timestamptz,
+    refused_at timestamptz,
+    sent_at timestamptz,
     notes text,
 
     constraint ch_invitations_dates check (
@@ -485,7 +537,7 @@ create table trip_user_things (
     value decimal(10,3) check(value > 0),
     notes text,
     trip_user_package_id uuid references trip_user_packages(id) on delete set null,
-    finished_at timestamp,
+    finished_at timestamptz,
     finished text null check (finished in ('success', 'failure') or finished is null)
 );
 create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
@@ -504,8 +556,8 @@ create table trip_shared_things (
 
     assigned_to_id uuid null references trip_users(id) on delete set null,
     assigned_thing_id uuid null references trip_user_things(id) on delete set null,
-    assigned_at timestamp null,
-    assigned_deadline timestamp null,
+    assigned_at timestamptz null,
+    assigned_deadline timestamptz null,
     rejected boolean not null default false
 );
 create unique index idx_trip_shared_things_trip_id_name on trip_shared_things(trip_id, name);
@@ -519,7 +571,7 @@ create table trip_comments (
     -- admin if null
     trip_user_id uuid null references trip_users(id) on delete cascade,
     comment text not null,
-    published_at timestamp not null
+    published_at timestamptz not null
 );
 create index idx_trip_comments_trip_id on trip_comments(trip_id);
 
@@ -547,7 +599,7 @@ create table contact_submissions (
     referrer_url text,
     
     -- timestamps
-    created_at timestamp not null default (now() at time zone 'utc')
+    created_at timestamptz not null default (now() at time zone 'utc')
 );
 
 -- indexes for performance
@@ -559,7 +611,7 @@ create table ai_prompts (
     id uuid primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
     prompt text not null,
-    created_at timestamp not null default (now() at time zone 'utc')
+    created_at timestamptz not null default (now() at time zone 'utc')
 );
 create index idx_ai_prompts_prompt on ai_prompts(prompt);
 
@@ -584,7 +636,7 @@ create table plantour.logs (
     id serial primary key,
     message_template text,
     level text,
-    time_stamp timestamp not null default (now() at time zone 'utc'),
+    time_stamp timestamptz not null default (now() at time zone 'utc'),
     exception text,
     log_event text,
     properties jsonb,
@@ -616,7 +668,7 @@ comment on column plantour.logs.level
     is 'log level: verbose, debug, information, warning, error, fatal';
 
 comment on column plantour.logs.time_stamp 
-    is 'timestamp when the log event was recorded';
+    is 'timestamptz when the log event was recorded';
 
 comment on column plantour.logs.exception 
     is 'exception details if applicable';
@@ -662,7 +714,7 @@ comment on view plantour.error_logs
 
 create table if not exists plantour.api_visits (
     id uuid primary key default gen_random_uuid(),
-    created_at timestamp not null default (now() at time zone 'utc'),
+    created_at timestamptz not null default (now() at time zone 'utc'),
     method text,
     path text,
     query_string text,
@@ -695,11 +747,12 @@ create table plantour.settings (
     value text not null,
     value_type text not null check (value_type in ('string', 'integer', 'boolean')) default 'string',
     notes text,
-    updated_at timestamp not null default (now() at time zone 'utc')
+    updated_at timestamptz not null default (now() at time zone 'utc')
 );
 
 insert into plantour.settings (key, value, value_type)
 values 
+    ('user_entities_logging_days', '16', 'integer'),
     ('user_email_confirmation_url', 'http://localhost:4203/confirm-email', 'string'),
     ('temporary_user_duration_days', '14', 'integer'),
     ('email_confirmation_token_minutes', '60',  'integer'),
@@ -712,10 +765,10 @@ values
 create table plantour.sitemap_urls (
     id uuid primary key default gen_random_uuid(),
     url text not null unique,
-    last_modified timestamp not null default (now() at time zone 'utc'),
+    last_modified timestamptz not null default (now() at time zone 'utc'),
     priority int default 50, -- in xml must be from 0 to 1
     is_active boolean default true,
-    created_at timestamp not null default (now() at time zone 'utc')
+    created_at timestamptz not null default (now() at time zone 'utc')
 );
 
 
@@ -723,8 +776,8 @@ create table plantour.refresh_tokens (
     id uuid primary key,
     user_id uuid not null references users(id) on delete cascade,
     token uuid not null unique,
-    expires_at timestamp not null,
-    created_at timestamp not null default current_timestamp
+    expires_at timestamptz not null,
+    created_at timestamptz not null default current_timestamp
     
     -- a token is valid if it hasn't expired and hasn't been revoked
     constraint chk_expiration check (expires_at > created_at)

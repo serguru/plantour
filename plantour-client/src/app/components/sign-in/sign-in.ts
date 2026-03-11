@@ -73,14 +73,21 @@ export class SignInComponent implements OnInit {
 
     const parts = currentUrl.split('?');
     const path = parts[0];
-    const endsWithParticipant = path.endsWith('/participant');    
+    const endsWithParticipant = path.endsWith('/participant');  
+
     this.signInType = endsWithParticipant ? 'participant' : 'admin';
 
+    const queryParams = new URLSearchParams(parts[1]);
+
     if (this.signInType === 'participant') {
-      const queryParams = new URLSearchParams(parts[1]);
       const code = queryParams.get('code');
       if (code) { 
         this.participantForm.patchValue({ accessCode: code });
+      }
+    } else {
+      const email = queryParams.get('email');
+      if (email) { 
+        this.adminForm.patchValue({ email: email });
       }
     }
   }

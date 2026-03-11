@@ -3,7 +3,7 @@ using plantour_server.Attributes;
 using plantour_server.DTOs;
 using plantour_server.Models;
 using plantour_server.Services;
-
+// TODO: check upgrade from the starter to a paid plan
 namespace plantour_server.Controllers;
 
 [ApiController]

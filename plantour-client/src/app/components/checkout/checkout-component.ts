@@ -61,6 +61,16 @@ export class CheckoutComponent implements OnInit {
     if (!this.priceName) {
       this.errorMessage = 'Missing required query parameter: priceName';
     }
+
+    this.route.queryParamMap.subscribe(params => {
+      const email = params.get('email');
+      if (!email) {
+        return;
+      }
+      this.emailForm.setValue({
+        email: email
+      });
+    });
   }
 
   ngOnDestroy(): void {
@@ -168,17 +178,6 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
-  private getQueryParamCaseInsensitive(queryMap: ParamMap, key: string): string | null {
-    const normalizedKey = key.toLowerCase();
-    const matchedKey = queryMap.keys.find(paramKey => paramKey.toLowerCase() === normalizedKey);
-
-    if (!matchedKey) {
-      return null;
-    }
-
-    return queryMap.get(matchedKey);
-  }
-
   private async onPaddleEvent(eventName: string): Promise<void> {
     if (this.isHandlingCheckoutResult) {
       return;
@@ -188,12 +187,17 @@ export class CheckoutComponent implements OnInit {
       this.isHandlingCheckoutResult = true;
       const result = await this.messagesService.openInfo({
         title: 'Subscription created',
-        message: 'You subscribed successfully'
+        message: 'You subscribed successfully. Please sign in.'
       });
 
       if (result === 'ok') {
-        void this.router.navigate(['/profile']);
       }
+      this.usersService.signOut();
+
+      this.router.navigate(['/sign-in'], {
+        queryParams: { email: this.emailForm.get("email")!.value }
+      });
+
       return;
     }
 
@@ -205,8 +209,8 @@ export class CheckoutComponent implements OnInit {
       });
 
       if (result === 'ok') {
-        void this.router.navigate(['/profile']);
       }
+      void this.router.navigate(['/profile']);
     }
   }
 

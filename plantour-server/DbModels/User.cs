@@ -38,7 +38,7 @@ public partial class User
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [Column("created_at", TypeName = "timestamp without time zone")]
+    [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 
     [Column("access_type_id")]
@@ -49,6 +49,9 @@ public partial class User
 
     [Column("temporary")]
     public bool Temporary { get; set; }
+
+    [Column("participant_code")]
+    public string? ParticipantCode { get; set; }
 
     [ForeignKey("AccessTypeId")]
     [InverseProperty("Users")]
@@ -74,6 +77,9 @@ public partial class User
 
     [InverseProperty("User")]
     public virtual ICollection<UserPackage> UserPackages { get; set; } = new List<UserPackage>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<UserSetting> UserSettings { get; set; } = new List<UserSetting>();
 
     [InverseProperty("User")]
     public virtual ICollection<UserThing> UserThings { get; set; } = new List<UserThing>();

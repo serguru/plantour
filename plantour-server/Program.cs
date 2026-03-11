@@ -28,12 +28,14 @@ using TickerQ.DependencyInjection;
 using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
 using plantour_server.Services.TickerQ;
+using Npgsql;
 
 // TODO: add versioning using NX
 
 QuestPDF.Settings.License = LicenseType.Community;
 
 // This switch prevents Npgsql from throwing when a DateTime with Kind=Utc is written to such columns.
+// It looks like this row is necessary for TickerQ to write timestamp fields
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 static string NormalizeAspNetEnvironmentName(string? raw)
@@ -176,9 +178,20 @@ try
     var jwtConfig = jwtSettings.Get<JwtSettings>();
     var key = Encoding.UTF8.GetBytes(jwtConfig!.SecretKey);
 
+    var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+
+    // Set the timezone to UTC programmatically
+    dataSourceBuilder.ConnectionStringBuilder.Timezone = "UTC";
+
+    // 2. Build the DataSource
+    var dataSource = dataSourceBuilder.Build();
+
     // Configure PostgreSQL connection
+    // builder.Services.AddDbContext<PlantourContext>(options =>
+    //     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
     builder.Services.AddDbContext<PlantourContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+        options.UseNpgsql(dataSource));
 
     builder.Services.AddTickerQ(options =>
     {
@@ -404,6 +417,7 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptChecksRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.RefreshTokenRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TimeTickerRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.UserSettingsRepository>();
 
     builder.Services.AddScoped<HttpCurrentUser>();
 

@@ -688,7 +688,7 @@ public class DicTripRepository(PlantourContext context)
         Guid tripId,
         Guid tripUserId,
         Guid[] tripSharedThingIds,
-        int deadlineDays,
+        DateTime? deadlineAt,
         bool unassign
         )
     {
@@ -697,19 +697,21 @@ public class DicTripRepository(PlantourContext context)
             return 0;
         }
 
+        object d = deadlineAt.HasValue ? deadlineAt.Value : DBNull.Value;
+
         int updatedCount = 0;
         using (var connection = _context.Database.GetDbConnection())
         {
             await connection.OpenAsync();
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT plantour.assign_trip_shared_things(@adminId, @tripId, @tripUserId, @tripSharedThingIds, @deadlineDays, @unassign);";
+                command.CommandText = "SELECT plantour.assign_trip_shared_things(@adminId, @tripId, @tripUserId, @tripSharedThingIds, @deadlineAt, @unassign);";
 
                 command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
                 command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
                 command.Parameters.Add(new NpgsqlParameter("@tripUserId", tripUserId));
                 command.Parameters.Add(new NpgsqlParameter("@tripSharedThingIds", tripSharedThingIds));
-                command.Parameters.Add(new NpgsqlParameter("@deadlineDays", deadlineDays));
+                command.Parameters.Add(new NpgsqlParameter("@deadlineAt", d));
                 command.Parameters.Add(new NpgsqlParameter("@unassign", unassign));
                 var result = await command.ExecuteScalarAsync();
                 if (result != null && int.TryParse(result.ToString(), out int count))

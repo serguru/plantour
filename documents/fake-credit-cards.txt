@@ -14,3 +14,5 @@ Successful initially, declined on renewal
 4000 0027 6000 3184
 
 checkout.payment.initiated
+
+http://localhost:4203/sign-in?email=%5Bobject%20Object%5D

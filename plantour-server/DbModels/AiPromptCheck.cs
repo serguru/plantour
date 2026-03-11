@@ -13,7 +13,7 @@ public partial class AiPromptCheck
     [Column("id")]
     public Guid Id { get; set; }
 
-    [Column("start", TypeName = "timestamp without time zone")]
+    [Column("start")]
     public DateTime Start { get; set; }
 
     [Column("count")]

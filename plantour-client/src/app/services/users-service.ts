@@ -33,7 +33,7 @@ export interface UserDto {
   notes?: string | null;
   hasGoogleLinked: boolean;
   hasFacebookLinked: boolean;
-
+  participantCode?: string | null;
 }
 
 export interface TokenRequestDto {

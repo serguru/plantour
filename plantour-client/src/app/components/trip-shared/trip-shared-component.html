@@ -31,8 +31,7 @@
             [showButtons]="true"
         />
         @if (deadlineDays() && deadlineDays()! >= 1) {
-        <div>day{{deadlineDays() == 1 ? '' : 's'}}, </div>
-        <div>{{formatDate(featureDate())}}</div>
+        <div>day{{deadlineDays() == 1 ? '' : 's'}}</div>
         }
     </div>
     }

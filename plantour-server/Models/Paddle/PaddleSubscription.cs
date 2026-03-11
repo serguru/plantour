@@ -10,4 +10,5 @@ public class PaddleSubscription
     public required string PriceName { get; set; }
     public string? BillingPeriodStart { get; set; }
     public string? BillingPeriodEnd { get; set; }
+    public required string StartedAt { get; set; }
 }

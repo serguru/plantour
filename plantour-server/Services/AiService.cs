@@ -75,7 +75,7 @@ public class AiService : IAiService
         var dtos = _mapper.Map<IEnumerable<AiPromptDto>>(prompts);
         return dtos;
     }
-
+// TODO: test cases when the admin is not a trip participant
     private async Task CheckAccessAsync()
     {
         var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 70);

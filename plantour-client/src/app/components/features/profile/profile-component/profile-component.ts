@@ -76,6 +76,19 @@ export class ProfileComponent implements OnInit {
     const fullName = `${this.profileData()!.firstName ?? ''} ${this.profileData()!.lastName ?? ''}`.trim();
     return fullName || this.profileData()!.email || '';
   });
+
+  participantCode = computed(() => {
+    if (!this.profileData()) {
+      return '';
+    }
+    return this.profileData()?.participantCode;
+  });
+  showParticipantCode = signal(false);
+  toggleShowParticipantCode = () => {
+    this.showParticipantCode.set(!this.showParticipantCode())
+  }
+
+
   userEmail = computed(() => this.profileData()?.email ?? '');
 
   userRole = computed(() => {

@@ -35,9 +35,9 @@ public partial class Log
     public string? Level { get; set; }
 
     /// <summary>
-    /// timestamp when the log event was recorded
+    /// timestamptz when the log event was recorded
     /// </summary>
-    [Column("time_stamp", TypeName = "timestamp without time zone")]
+    [Column("time_stamp")]
     public DateTime TimeStamp { get; set; }
 
     /// <summary>
