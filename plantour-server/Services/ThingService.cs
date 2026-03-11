@@ -1,6 +1,7 @@
 using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
+using plantour_server.Models;
 using plantour_server.Repositories;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
@@ -10,16 +11,19 @@ using PlantourApi.Models;
 namespace plantour_server.Services;
 
 public class ThingService(
-    ThingRepository ThingRepository,
+    ILogger<TripService> logger,
+    ThingRepository thingRepository,
     ThingCategoryRepository thingCategoryRepository,
     IMapper mapper,
     ICheckAccessService checkAccessService,
     TripThingRepository tripThingRepository,
     TripSharedRepository tripSharedRepository,
     DicTripRepository dicTripRepository,
+    UserSettingsRepository userSettingsRepository,
     HttpCurrentUser httpCurrentUser) : IThingService
 {
-    private readonly ThingRepository _userThingRepository = ThingRepository;
+    private readonly ILogger<TripService> _logger = logger;
+    private readonly ThingRepository _thingRepository = thingRepository;
     private readonly ThingCategoryRepository _thingCategoryRepository = thingCategoryRepository;
     private readonly IMapper _mapper = mapper;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
@@ -27,11 +31,11 @@ public class ThingService(
     private readonly TripThingRepository _tripThingRepository = tripThingRepository;
     private readonly TripSharedRepository _tripSharedRepository = tripSharedRepository;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
-
+    private readonly UserSettingsRepository _userSettingsRepository = userSettingsRepository;
     public async Task<IEnumerable<ThingDto>> GetAllAsync()
     {
         _currentUser.RaiseIfNotAuthenticated();
-        var entities = await _userThingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
+        var entities = await _thingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
         return _mapper.Map<IEnumerable<ThingDto>>(entities);
     }
 
@@ -46,7 +50,7 @@ public class ThingService(
 
         var tripThings = await _tripThingRepository.GetAllAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
         var tripThingNames = new HashSet<string>(tripThings.Select(tp => tp.Name), StringComparer.OrdinalIgnoreCase);
-        var dicThings = await _userThingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
+        var dicThings = await _thingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
 
         var result = dicThings.Select(p =>
         {
@@ -69,7 +73,7 @@ public class ThingService(
 
         var tripSharedThings = await _tripSharedRepository.GetAllFullAsync(tripId);
         var tripThingNames = new HashSet<string>(tripSharedThings.Select(tp => tp.Name), StringComparer.OrdinalIgnoreCase);
-        var dicThings = await _userThingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
+        var dicThings = await _thingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
 
         var result = dicThings.Select(p =>
         {
@@ -84,7 +88,7 @@ public class ThingService(
     public async Task<ThingDto?> GetByIdAsync(Guid id)
     {
         _currentUser.RaiseIfNotAuthenticated();
-        var entity = await _userThingRepository.GetByIdAsync(_currentUser.UserId, id);
+        var entity = await _thingRepository.GetByIdAsync(_currentUser.UserId, id);
         return entity != null ? _mapper.Map<ThingDto>(entity) : null;
     }
 
@@ -92,7 +96,7 @@ public class ThingService(
     {
         _currentUser.RaiseIfNotAuthenticated();
 
-        if (await _userThingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower()))
+        if (await _thingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower()))
         {
             throw new CustomException("Item with the same name already exists");
         }
@@ -100,38 +104,63 @@ public class ThingService(
         var entity = _mapper.Map<UserThing>(request);
         entity.Id = Guid.NewGuid();
         entity.UserId = _currentUser.UserId;
-        await _userThingRepository.AddAsync(entity);
+        await _thingRepository.AddAsync(entity);
+
+        StartEndDates? dates = await _userSettingsRepository.GetUserEntitiesLogging(_currentUser.AdminId);
+        DateTime now = DateTime.UtcNow;
+        var logNeeded = dates != null && dates.Start <= now && now <= dates.End;
+        if (logNeeded)
+        {
+            _logger.LogInformation("User added an item id = {thingId}, name = {name}, event_type: {event_type}, subtype: {subtype}", entity!.Id, entity.Name, "user_log_entities", "item_added");
+        }
         return _mapper.Map<ThingDto>(entity);
     }
 
     public async Task UpdateAsync(UpdateThingRequest request)
     {
         _currentUser.RaiseIfNotAuthenticated();
-        var entity = await _userThingRepository.GetByIdAsync(_currentUser.UserId, request.Id);
+        var entity = await _thingRepository.GetByIdAsync(_currentUser.UserId, request.Id);
         if (entity == null)
         {
             throw new CustomException("Item not found or access denied");
         }
 
-        if (await _userThingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower() && x.Id != request.Id))
+        if (await _thingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Name.ToLower() == request.Name.ToLower() && x.Id != request.Id))
         {
             throw new CustomException("Another item with the same name already exists");
         }
 
         _mapper.Map(request, entity);
         entity.UserId = _currentUser.UserId;
-        await _userThingRepository.UpdateAsync(entity);
+        await _thingRepository.UpdateAsync(entity);
     }
 
     public async Task DeleteAsync(Guid id)
     {
         _currentUser.RaiseIfNotAuthenticated();
-        var exists = await _userThingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Id == id);
+        var exists = await _thingRepository.AnyAsync(x => x.UserId == _currentUser.UserId && x.Id == id);
         if (!exists)
         {
             throw new CustomException("Item not found or access denied");
         }
-        await _userThingRepository.DeleteAsync(id);
+
+        StartEndDates? dates = await _userSettingsRepository.GetUserEntitiesLogging(_currentUser.AdminId);
+
+        DateTime now = DateTime.UtcNow;
+        var logNeeded = dates != null && dates.Start <= now && now <= dates.End;
+        UserThing? thing = null;
+        if (logNeeded)
+        {
+            thing = await _thingRepository.GetByIdAsync(id) ?? throw new CustomException("Item not found");
+        }
+
+        await _thingRepository.DeleteAsync(id);
+
+        if (logNeeded)
+        {
+            _logger.LogInformation("User deleted an item id = {thingId}, name = {name}, event_type: {event_type}, subtype: {subtype}", thing!.Id, thing.Name, "user_log_entities", "item_deleted");
+        }
+
     }
 
     public async Task<IEnumerable<ThingCategoryDto>> GetAllThingCategoriesAsync()
@@ -171,7 +200,7 @@ public class ThingService(
         var s2 = _currentUser.IsAdmin ? "Please upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
 
 
-        var currentCount = await _userThingRepository.CountAsync(_currentUser.UserId);
+        var currentCount = await _thingRepository.CountAsync(_currentUser.UserId);
         if (currentCount + addQty > limit)
         {
             throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
@@ -202,7 +231,7 @@ public class ThingService(
     // {
     //     _currentUser.RaiseIfNotAuthenticated();
 
-    //     var existingThings = await _userThingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
+    //     var existingThings = await _thingRepository.FindAsync(x => x.UserId == _currentUser.UserId);
     //     var existingNames = new HashSet<string>(
     //         existingThings.Select(t => t.Name),
     //         StringComparer.OrdinalIgnoreCase);
@@ -230,7 +259,7 @@ public class ThingService(
     //         return 0;
     //     }
 
-    //     await _userThingRepository.AddRangeAsync(entities);
+    //     await _thingRepository.AddRangeAsync(entities);
     //     return entities.Count;
     // }
 
