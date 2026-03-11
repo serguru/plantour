@@ -18,3 +18,7 @@ Fetch the latest tags: git fetch --all --tags
 Go to that version: git checkout tags/v2.24.17
 
 Start your app: Run npm start and dotnet run. Your code will now be exactly as it was when that version was deployed.
+
+
+git tag v0.0.1
+git push origin v0.0.1
