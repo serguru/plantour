@@ -1,4 +1,4 @@
-import { Component, inject, PLATFORM_ID, signal, Type } from '@angular/core';
+import { Component, Inject, inject, PLATFORM_ID, signal, Type } from '@angular/core';
 import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -11,6 +11,7 @@ import { CurrentTripService } from '../../services/current-trip-service';
 import { HelpSectionComponent } from './help-section/help-section.component';
 import { HelpSection } from './help-types';
 import { SeoService } from '../../services/seo-service';
+import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 
 // TODO: add a link to Guest Mode video tutorial
 // TODO: Help documents were genertated by AI. It is necessary to read ALL the Help documents carefully and make sure the content is OK
@@ -39,7 +40,11 @@ import { SeoService } from '../../services/seo-service';
   styleUrl: './help-component.scss'
 })
 export class HelpComponent {
-  constructor() { }
+  constructor(
+        @Inject(ENVIRONMENT) public environment: EnvironmentConfig
+  ) { 
+    
+  }
 
   router = inject(Router);
 

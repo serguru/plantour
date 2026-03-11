@@ -3,5 +3,6 @@ export const environment = {
   // Put production API endpoints and feature flags here
   apiUrl: '',
   googleClientId: '',
-  facebookAppId: ''
+  facebookAppId: '',
+  version: '0.0.0'
 };
