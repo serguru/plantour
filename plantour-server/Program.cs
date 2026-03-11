@@ -30,8 +30,6 @@ using TickerQ.EntityFrameworkCore.DependencyInjection;
 using plantour_server.Services.TickerQ;
 using Npgsql;
 
-// TODO: add versioning using NX
-
 QuestPDF.Settings.License = LicenseType.Community;
 
 // This switch prevents Npgsql from throwing when a DateTime with Kind=Utc is written to such columns.
@@ -462,10 +460,6 @@ try
             await next();
         });
     }
-
-
-    // TODO: test admin token expiration    
-    //TODO: participant token expiration handling
 
     //app.UseMiddleware<ExceptionHandlingMiddleware>();
     app.UseExceptionHandler();

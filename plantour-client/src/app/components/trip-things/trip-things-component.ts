@@ -135,7 +135,6 @@ export class TripThingsComponent implements OnInit {
       tap((packs: TripPackageDto[]) => {
         this.initConditions(this.componentId, packs);
         this.initTargetLookup(packs);
-        this.initSavedFeatures();
       }),
       switchMap(_ =>
         this.componentService.target$.pipe(
@@ -153,17 +152,23 @@ export class TripThingsComponent implements OnInit {
           })
         )
       ),
+      tap((p: TripThingDto[]) => {
+        this.initSavedFeatures(p);
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(tripThings =>
       this.componentService.updateEntities(tripThings || [])
     );
   }
 
-  initSavedFeatures() {
+  initSavedFeatures(items: TripThingDto[]) {
     const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
 
-    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    let id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    if(!items || !items.find(x => x.id === id)) {
+      id = null;
+    }
     this.componentService.updateSelectedId(id);
 
     const packsVisible = this.localStorageService.getComponentKey(this.componentId, 'packsVisible');

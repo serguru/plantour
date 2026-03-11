@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MultipleIdsRequest } from '../../services/crud-service';
-import { ThingService } from '../../services/thing-service';
+import { ThingDto, ThingService } from '../../services/thing-service';
 import { TripThingService } from '../../services/trip-thing-service';
 import { ThingItemComponent } from './things-item/thing-item-component';
 import { EntitiesComponent } from '../entities/entities-component';
@@ -107,7 +107,6 @@ export class ThingsComponent {
       tap((trips: TripDto[]) => {
         this.initConditions(this.componentId, trips);
         this.initTargetLookup(trips);
-        this.initSavedFeatures();
       }),
       switchMap(_ =>
         this.componentService.target$.pipe(
@@ -122,17 +121,24 @@ export class ThingsComponent {
           }),
         )
       ),
+      tap((p: ThingDto[]) => {
+        this.initSavedFeatures(p);
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(things =>
       this.componentService.updateEntities(things || [])
     );
   }
 
-  initSavedFeatures() {
+  initSavedFeatures(items: ThingDto[]) {
     const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
 
-    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    let id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    if(!items || !items.find(x => x.id === id)) {
+      id = null;
+    }
+
     this.componentService.updateSelectedId(id);
   }
 

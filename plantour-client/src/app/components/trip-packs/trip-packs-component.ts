@@ -1,5 +1,5 @@
 import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
-import { TripPackageService } from '../../services/trip-package-service';
+import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TripPackItemComponent } from './trip-pack-item/trip-pack-item-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
@@ -10,7 +10,7 @@ import { LocalStorageService } from '../../services/local-storage-service';
 import { Condition, DynamicQueryService } from '../../services/dynamic-query-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs';
+import { switchMap, tap } from 'rxjs';
 import { DocumentsService } from '../../services/documents-service';
 
 
@@ -125,20 +125,26 @@ export class TripPacksComponent implements OnInit {
 
     this.initConditions(this.componentId);
 
-    this.initSavedFeatures();
 
     this.tripPackageService.getAll(this.tripId!).pipe(
+      tap((p: TripPackageDto[]) => {
+        this.initSavedFeatures(p);
+      }),
+
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(tripPacks =>
       this.componentService.updateEntities(tripPacks || [])
     );
   }
 
-  initSavedFeatures() {
+  initSavedFeatures(items: TripPackageDto[]) {
     const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
 
-    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    let id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    if(!items || !items.find(x => x.id === id)) {
+      id = null;
+    }
     this.componentService.updateSelectedId(id);
   }
 
