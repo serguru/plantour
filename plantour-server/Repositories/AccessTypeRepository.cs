@@ -12,7 +12,16 @@ public class AccessTypeRepository : GenericRepository<AccessType>
 
     public async Task<AccessType?> GetByName(string name)
     {
-        return await _dbSet.FirstOrDefaultAsync(x => x.Name == name);
+        return await _dbSet
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Name == name);
+    }
+
+    public override async Task<AccessType?> GetByIdAsync(Guid id)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<Guid> GetActiveId()

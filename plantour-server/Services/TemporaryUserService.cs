@@ -372,6 +372,7 @@ public class TemporaryUserService : ITemporaryUserService
     private async Task<TripStatus> GetTripStatus(string statusName)
     {
         var status = await _context.TripStatuses
+            .AsNoTracking()
             .FirstOrDefaultAsync(ts => ts.Name == statusName);
 
         if (status == null)

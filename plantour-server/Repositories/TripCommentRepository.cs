@@ -42,6 +42,7 @@ public class TripCommentRepository(PlantourContext context) : GenericRepository<
     public async Task<IEnumerable<TripComment>> GetAllAsync(Guid adminId, Guid userId, Guid tripId)
     {
         return await _dbSet
+            .AsNoTracking()
             .Include(x => x.Trip)
                 .ThenInclude(y => y.User)
             .Include(x => x.TripUser)

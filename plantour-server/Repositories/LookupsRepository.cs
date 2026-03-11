@@ -14,21 +14,32 @@ public class LookupsRepository
 
     public async Task<IEnumerable<CommunicationType>> GetAllCommunicationTypesAsync()
     {
-        return await _context.CommunicationTypes.OrderBy(x => x.Name).ToListAsync();
+        return await _context.CommunicationTypes
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<ThingCategory>> GetAllThingCategoriesAsync()
     {
-        return await _context.ThingCategories.OrderBy(x => x.Name).ToListAsync();
+        return await _context.ThingCategories
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<TripStatus>> GetAllTripStatusesAsync()
     {
-        return await _context.TripStatuses.ToListAsync();
+        return await _context.TripStatuses
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<Unit>> GetAllUnitsAsync()
     {
-        return await _context.Units.OrderBy(x => x.Name).ToListAsync();
+        return await _context.Units
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ToListAsync();
     }
 }

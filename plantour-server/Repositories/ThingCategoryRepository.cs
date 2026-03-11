@@ -10,5 +10,12 @@ public class ThingCategoryRepository : GenericRepository<ThingCategory>
     {
     }
 
+    public override async Task<IEnumerable<ThingCategory>> GetAllAsync()
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
 
 }

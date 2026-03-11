@@ -10,5 +10,12 @@ public class AgeRangeRepository : GenericRepository<AgeRange>
     {
     }
 
+    public override async Task<IEnumerable<AgeRange>> GetAllAsync()
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
 
 }

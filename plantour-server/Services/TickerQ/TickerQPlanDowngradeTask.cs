@@ -27,7 +27,9 @@ public class TickerQPlanDowngradeTask
     [TickerFunction(FunctionName)]
     public async Task RunAsync(TickerFunctionContext context, CancellationToken cancellationToken)
     {
-        var ticker = await _context.TimeTickers.FirstOrDefaultAsync(x => x.Id == context.Id, cancellationToken)
+        var ticker = await _context.TimeTickers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == context.Id, cancellationToken)
             ?? throw new InvalidOperationException($"TickerQ downgrade job '{context.Id}' not found.");
 
         if (ticker.Request == null || ticker.Request.Length == 0)

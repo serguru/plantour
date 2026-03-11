@@ -4,7 +4,6 @@ using TickerQ.Utilities.Enums;
 
 namespace plantour_server.Repositories;
 
-// TODO: add AsNoTracking where possible
 public class TimeTickerRepository(PlantourContext context) : GenericRepository<TimeTicker>(context)
 {
     public async Task<TimeTicker?> GetLatestActiveByFunctionAndIdentifierAsync(

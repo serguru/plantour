@@ -15,6 +15,7 @@ public class TripSharedRepository(PlantourContext context) : GenericRepository<T
     public async Task<IEnumerable<TripSharedThing>> GetAllFullAsync(Guid tripId)
     {
         return await _dbSet
+            .AsNoTracking()
             .Include(t => t.AssignedTo)
             .ThenInclude(t => t != null ? t.AdminParticipant.Participant : null)
             .Include(t => t.AssignedThing)
@@ -33,6 +34,7 @@ public class TripSharedRepository(PlantourContext context) : GenericRepository<T
     public async Task<IEnumerable<TripSharedThing>> GetAllFullForAssigneeAsync(Guid tripId, Guid assigneeId)
     {
         return await _dbSet
+            .AsNoTracking()
             .Include(t => t.AssignedTo)
             .ThenInclude(t => t != null ? t.AdminParticipant.Participant : null)
             .Include(t => t.AssignedThing)
