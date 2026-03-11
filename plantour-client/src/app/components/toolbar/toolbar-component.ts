@@ -91,7 +91,16 @@ export class Toolbar implements OnInit {
 
   async signOut($event, popover): Promise<void> {
     if (this.usersService.isTemporarySignal()) {
-      throw new Error('Cannot sign out a temporary user');
+      const result = await this.messagesService.openOkCancel({
+        title: `Sign Out`,
+        message: `If you sign out of your temporary account, you won't be able to return to it. To avoid losing your test data, we recommend opening your profile and entering your actual email instead ${this.usersService.userEmail()}. Do you still want to sign out?`,
+        okLabel: 'Yes',
+        cancelLabel: 'Cancel'
+      });
+
+      if (result !== 'ok') {
+        return;
+      }
     }
     this.usersService.signOut();
     this.featureClick($event, '/sign-in', popover);
