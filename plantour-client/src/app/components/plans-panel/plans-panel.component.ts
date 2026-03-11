@@ -64,7 +64,7 @@ export class PlansPanelComponent implements OnInit {
 
   get starterEmailUrlPart(): string {
       const email = this.usersService.userEmail();
-      if (!email || !this.isStarter) {
+      if (!email || !this.isStarter || this.isTemporary) {
         return '';
       } 
       return `?email=${encodeURIComponent(email)}`;

@@ -1,0 +1,46 @@
+name: Auto Version and Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  version-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necessary to see all commit history for versioning
+
+      # 1. Determine the Next Version
+      - name: Calculate Version
+        id: semver
+        uses: ietf-tools/semver-action@v1
+        with:
+          token: ${{ github.token }}
+          branch: main
+
+      # 2. Inject Version into Angular
+      - name: Stamp Angular Version
+        run: |
+          sed -i "s/0.0.0/${{ steps.semver.outputs.next }}/g" src/environments/environment.ts
+
+      # 3. Build .NET with Version Injection
+      - name: Build and Publish .NET
+        run: |
+          dotnet publish -c Release -p:Version=${{ steps.semver.outputs.next }} -o ./publish
+
+      # 4. Build Angular
+      - name: Build Angular
+        run: |
+          npm install
+          npm run build -- --configuration production
+
+      # 5. Create a GitHub Release (Optional but recommended)
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag_name: v${{ steps.semver.outputs.next }}
+          release_name: Release v${{ steps.semver.outputs.next }}

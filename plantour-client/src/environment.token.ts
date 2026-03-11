@@ -6,6 +6,7 @@ export interface EnvironmentConfig {
   environment: string;
   googleClientId?: string;
   facebookAppId?: string;
+  version: string;
 }
 
 export const ENVIRONMENT = new InjectionToken<EnvironmentConfig>('environment');

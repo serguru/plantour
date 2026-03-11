@@ -10,6 +10,7 @@
   </div>
 
   <div class="help-container">
+    <div class="version">App version {{environment.version}}</div>
     <div class="help-header">
       <h1>Welcome to Plantour Help</h1>
       <p class="help-subtitle">
@@ -18,7 +19,7 @@
     </div>
 
     <div class="help-sections">
-    @for (section of helpSections(); track section.id) {
+      @for (section of helpSections(); track section.id) {
       <app-help-section
         [section]="section"
         [expanded]="expandedSectionId() === section.id"
@@ -29,25 +30,28 @@
         (startTestMode)="usersService.createTemporaryUser()"
       >
       </app-help-section>
-    }
+      }
 
-    <div class="help-footer">
-      <p-card>
-        <ng-template pTemplate="header">
-          <div class="footer-card-header">
-            <i class="pi pi-info-circle"></i>
-            <h3>Need More Help?</h3>
-          </div>
-        </ng-template>
+      <div class="help-footer">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="footer-card-header">
+              <i class="pi pi-info-circle"></i>
+              <h3>Need More Help?</h3>
+            </div>
+          </ng-template>
 
-        <div class="footer-content">
-          <p>
-            Can't find what you're looking for? We're here to help!
-          </p>
+          <div class="footer-content">
+            <p>
+              Can't find what you're looking for? We're here to help!
+            </p>
 
-          <div class="footer-actions">
-            <a href="/contact" class="help-link">Contact Us</a>
-            <!-- <button
+            <div class="footer-actions">
+              <a
+                href="/contact"
+                class="help-link"
+              >Contact Us</a>
+              <!-- <button
               pButton
               label="Contact Support"
               icon="pi pi-envelope"
@@ -62,14 +66,14 @@
               class="p-button-outlined"
             >
             </button> -->
-          </div>
+            </div>
 
-          <!-- <p class="footer-note">
+            <!-- <p class="footer-note">
             <i class="pi pi-lightbulb"></i>
             <em>Tip: Click on any topic above to view detailed step-by-step instructions.</em>
           </p> -->
-        </div>
-      </p-card>
+          </div>
+        </p-card>
+      </div>
     </div>
   </div>
-</div>

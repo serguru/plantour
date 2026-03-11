@@ -7,7 +7,6 @@ namespace plantour_server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[AdminOrParticipant]
 public class DocumentsController : ControllerBase
 {
     private readonly IDocumentsService _service;
@@ -33,6 +32,13 @@ public class DocumentsController : ControllerBase
     {
         var pdfBytes = await _service.GeneratePackingListPdfAsync(tripId, packageId);
         return File(pdfBytes, "application/pdf", $"packing-list-{packageId}.pdf");
+    }
+
+    [HttpGet("version")]
+    public string GetAppVersion()
+    {
+        var v = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
+        return v != null ? v.ToString() : "No version found";    
     }
 
 

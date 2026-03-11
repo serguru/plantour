@@ -1,5 +1,3 @@
-alter database plantour set timezone to 'utc';
-
 drop schema if exists plantour cascade;
 
 create schema plantour;
