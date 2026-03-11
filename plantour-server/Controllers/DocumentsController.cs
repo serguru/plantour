@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using plantour_server.Attributes;
 using plantour_server.DTOs;
@@ -12,7 +13,7 @@ public class DocumentsController : ControllerBase
     private readonly IDocumentsService _service;
 
 
-// TODO: add a user to report
+    // TODO: add a user to report
     public DocumentsController(IDocumentsService service)
     {
         _service = service;
@@ -37,9 +38,7 @@ public class DocumentsController : ControllerBase
     [HttpGet("version")]
     public string GetAppVersion()
     {
-        var v = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
-        return v != null ? v.ToString() : "No version found";    
+        var v = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        return v != null ? v.ToString() : "No version found";
     }
-
-
 }
