@@ -9,8 +9,6 @@ using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Controllers;
 
-// TODO: if a temporary user signs out show them a warning message.
-
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
@@ -48,7 +46,6 @@ public class UsersController : ControllerBase
                 return Ok(result);
         }
 
-        // TODO: investigate and fix possible issues with Facebook login
         [HttpPost("admin/social/signin")]
         [AllowAnonymous]
         public async Task<ActionResult<AuthResponse>> SignInAdminSocial([FromBody] SocialSignInRequest request)
@@ -60,8 +57,6 @@ public class UsersController : ControllerBase
         #endregion
 
         #region Participant Endpoints
-
-        //TODO: ask AI to add AsNoTracking where possible
 
         [HttpPost("participant/signup")]
         [AdminOnly]
@@ -165,8 +160,6 @@ public class UsersController : ControllerBase
                 return Ok(profile);
         }
 
-        // TODO: add jobs cleaning code
-        // TODO: add to log user creates and deletes entities
         [HttpPut("downgrade-plan-price/schedule")]
         [AdminOnly]
         public async Task<IActionResult> ScheduleOrRunDowngradePlanPrice([FromBody] UpdatePlanPriceRequest request)
@@ -218,7 +211,7 @@ public class UsersController : ControllerBase
                 var isTemporary = await _usersService.IsUserTemporary(email);
                 return Ok(isTemporary);
         }
-        // TODO: update profile should resend access token
+        
         [HttpPut("convert-temporary-user")]
         [AdminOnly]
         public async Task<IActionResult> ConvertTemporaryUser([FromBody] ConvertTemporaryUserRequest request)

@@ -12,9 +12,6 @@ using PlantourApi.Models;
 
 namespace plantour_server.Services;
 
-
-// TODO: prevent users from changing their email because after that they will be not in sync with Paddle
-// TODO: add an explanation to the profile page for users about social login reset
 public class AccessRulesService : IAccessRulesService
 {
     private readonly IPaddleService _paddleService;
@@ -85,9 +82,6 @@ public class AccessRulesService : IAccessRulesService
         return a;
     }
 
-    // TODO: If a temporary user clicks sign out show them a warning first
-    // TODO: for temporary users, i.e. guests, show a banner at the top
-    // TODO: if a temporary user wants to move to a public plan they can choose that plan in the profile page and then a new account will be created
     public async Task<AccessProcessResult> ProcessAccessRulesAsync(User user,  UserRole role, Guid adminId, bool isTemporary)
     {
         if (isTemporary)

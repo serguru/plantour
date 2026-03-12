@@ -60,7 +60,6 @@ public class SchedulerService(
         await _logsRepository.DeleteRangeAsync(x => x.TimeStamp < DateTime.UtcNow.AddDays(-7) && x.Level != null && x.Level.ToLower() == "error");
     }
 
-    // TODO: explain to the users in help or policy 1 hour before payment downgrade is not possible
     public async Task ScheduleOrRunDowngradePlanPriceAsync(string oldPlanPrice, string newPlanPrice)
     {
         _currentUser.RaiseIfNotAdmin();

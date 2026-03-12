@@ -29,7 +29,7 @@ public class AiService : IAiService
     private readonly TripSharedRepository _tripSharedRepository;
 
 
-    // TODO: Explore using the Gemini streaming API 
+
     public AiService(
         HttpClient httpClient,
         IOptions<GeminiSettings> settings,
@@ -75,7 +75,7 @@ public class AiService : IAiService
         var dtos = _mapper.Map<IEnumerable<AiPromptDto>>(prompts);
         return dtos;
     }
-// TODO: test cases when the admin is not a trip participant
+
     private async Task CheckAccessAsync()
     {
         var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 70);
@@ -125,14 +125,10 @@ public class AiService : IAiService
         var s0 = $"You will be able to send more prompts after {check.Start.AddDays(1).ToLocalTime():f}.";
 
         var s1 = $"You've reached the limit of {limit} AI prompts per day. {s0}";
-        var s2 = _currentUser.IsAdmin ? "\nPlease upgrade your plan to remove this limit." : "\nPlease ask your administrator to upgrade the plan to remove this limit.";
+        var s2 = _currentUser.IsAdmin ? "\nPlease пo to your profile page and upgrade your plan to remove this limit." : "\nPlease ask your administrator to upgrade the plan to remove this limit.";
         throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
     }
-
-
-
-
-    // TODO: Prompts older than 1 month should be cleaned up from the database periodically
+    
     public async Task<IEnumerable<AiItemDto>> GetAllByPromptAsync(string prompt)
     {
         _currentUser.RaiseIfNotAuthenticated();

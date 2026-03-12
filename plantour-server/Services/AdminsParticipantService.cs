@@ -7,8 +7,6 @@ using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
-// TODO: Add logging
-// TODO: Add saving to DB all the visits to plantour website
 
 public class AdminsParticipantService(
     AdminsParticipantRepository adminsParticipantRepository,
@@ -121,7 +119,6 @@ public class AdminsParticipantService(
         return entity != null ? _mapper.Map<AdminsParticipantDto>(entity) : null;
     }
 
-    // TODO: Ensure in UI it is not possible to change AdminId or ParticipantId
     public async Task UpdateAsync(UpdateAdminsParticipantRequest request)
     {
         _currentUser.RaiseIfNotAdmin();

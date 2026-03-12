@@ -6,8 +6,6 @@ using PlantourApi.Middleware;
 
 namespace plantour_server.Controllers;
 
-// TODO: add the admin automatically when creating a trip
-
 [ApiController]
 [Route("api/[controller]")]
 public class TripSharedController(ITripSharedService service) : ControllerBase

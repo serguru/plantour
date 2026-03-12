@@ -42,8 +42,7 @@ public class UserSettingsRepository(PlantourContext context) : GenericRepository
         }
         await DeleteAsync(result.Id);
     }
-    // TODO: it is necessary to clear outdated user entities loggings
-
+    
     public async Task<StartEndDates?> GetUserEntitiesLogging(Guid userId)
     {
         var key = "entities-lLogging";

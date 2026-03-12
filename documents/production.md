@@ -1,0 +1,1 @@
+- check robots.txt and noindex tag

@@ -6,8 +6,6 @@ using PlantourApi.Middleware;
 
 namespace plantour_server.Controllers;
 
-
-// TODO: limit a select popup height in forms, add trip thing first
 [ApiController]
 [Route("api/[controller]")]
 public class TripThingController(ITripThingService service) : ControllerBase

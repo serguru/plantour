@@ -663,9 +663,6 @@ app-generic-list {
   gap: 1rem;
 }
 
-.p-select-list-container {
-  max-height: none !important;
-}
 
 .p-button-outlined.p-button-secondary {
   border-color: var(--secondary-border-color) !important;
@@ -761,3 +758,11 @@ app-generic-list {
     font-size: 1.25rem;
   }
 }
+
+// .p-select-list-container {
+//     max-height: 200px !important; /* Set your desired height */
+// }
+
+// .p-select-list-container {
+//   max-height: none !important;
+// }
