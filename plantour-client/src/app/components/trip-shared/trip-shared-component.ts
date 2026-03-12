@@ -296,7 +296,6 @@ export class TripSharedComponent implements OnInit {
         this.currentTripUserId = tripUsers.find(x => x.userId === currentUserId)?.id ?? null;
         this.lookup = this.initTargetLookup(tripUsers);
         this.initConditions(this.componentId, tripUsers, this.lookup);
-        this.initSavedFeatures();
         return this.lookup;
       }),
       switchMap(lookup =>
@@ -316,6 +315,9 @@ export class TripSharedComponent implements OnInit {
           })
         ),
       ),
+      tap((p: TripSharedDto[]) => {
+        this.initSavedFeatures(p);
+      }),
 
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(tripShareds =>
@@ -323,11 +325,14 @@ export class TripSharedComponent implements OnInit {
     );
   }
 
-  initSavedFeatures() {
+  initSavedFeatures(items: TripSharedDto[]) {
     const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
 
-    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    let id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    if(!items || !items.find(x => x.id === id)) {
+      id = null;
+    }
     this.componentService.updateSelectedId(id);
 
     const assigneesVisible = this.localStorageService.getComponentKey(this.componentId, 'assigneesVisible');

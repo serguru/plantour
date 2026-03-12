@@ -4,7 +4,6 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
-// TODO: add versioning to the app
 public class PlanRepository : GenericRepository<Plan>
 {
     private const string AllPlansCacheKey = "plans:all:v1";

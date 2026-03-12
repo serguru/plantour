@@ -10,7 +10,7 @@ import { ComponentService } from '../../services/component-service';
 import { TripSharedService } from '../../services/trip-shared-service';
 import { TripThingService } from '../../services/trip-thing-service';
 import { combineLatest, of, switchMap, tap } from 'rxjs';
-import { TemplateService } from '../../services/template-service';
+import { TemplateService, VTemplateThingsFullDto } from '../../services/template-service';
 import { ThingService } from '../../services/thing-service';
 import { UsersService } from '../../services/users-service';
 import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
@@ -156,7 +156,6 @@ export class TemplatesComponent {
       tap((trips: TripDto[]) => {
         this.initConditions(this.componentId, trips);
         this.initTargetLookup(trips);
-        this.initSavedFeatures();
       }),
       switchMap(_ =>
         this.componentService.target$.pipe(
@@ -174,17 +173,24 @@ export class TemplatesComponent {
           }),
         )
       ),
+      tap((p: VTemplateThingsFullDto[]) => {
+        this.initSavedFeatures(p);
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(things =>
       this.componentService.updateEntities(things || [])
     );
   }
 
-  initSavedFeatures() {
+  initSavedFeatures(items: VTemplateThingsFullDto[]) {
     const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
 
-    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    let id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    if(!items || !items.find(x => x.id === id)) {
+      id = null;
+    }
+
     this.componentService.updateSelectedId(id);
 
     const lowerTextVisible: boolean = this.localStorageService.getComponentKey(this.componentId, 'lowerTextVisible');

@@ -144,7 +144,6 @@ export class TravelersComponent implements OnInit {
       tap((trips: TripDto[]) => {
         this.initConditions(this.componentId, trips);
         this.initTargetLookup(trips);
-        this.initSavedFeatures();
       }),
       switchMap((_: TripDto[]) =>
         this.componentService.target$.pipe(
@@ -156,22 +155,28 @@ export class TravelersComponent implements OnInit {
           }),
         )
       ),
-      tap(() => this.componentService.updateLoading(false)),
+      tap((participants: AdminsParticipantDto[]) => {
+        this.initSavedFeatures(participants);
+        this.componentService.updateLoading(false)
+      }),
       catchError(err => {
         this.componentService.updateLoading(false)
         return throwError(() => err);
       }),
       takeUntilDestroyed(this.destroyRef),
-    ).subscribe((packages: AdminsParticipantDto[]) =>
-      this.componentService.updateEntities(packages || [])
+    ).subscribe((p: AdminsParticipantDto[]) =>
+      this.componentService.updateEntities(p || [])
     );
   }
 
-  initSavedFeatures() {
+  initSavedFeatures(participants: AdminsParticipantDto[]) {
     const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
 
-    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    let id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    if(!participants || !participants.find(x => x.id === id)) {
+      id = null;
+    }
     this.componentService.updateSelectedId(id);
   }
 
@@ -290,7 +295,6 @@ export class TravelersComponent implements OnInit {
 
   deleteTraveler(id: string): void {
     this.adminsParticipantService.delete(id).pipe(
-
       switchMap(x => {
         return this.componentService.target$.pipe(
           switchMap(target => {
@@ -301,6 +305,9 @@ export class TravelersComponent implements OnInit {
             return this.adminsParticipantService.getAll();
           })
         );
+      }),
+      tap(_ => {
+        this.currentTripService.refreshCurrentTrip();
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(travelers => {

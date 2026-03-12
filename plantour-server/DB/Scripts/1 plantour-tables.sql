@@ -213,7 +213,6 @@ insert into access_types (name) values
 ('Banned'),
 ('Archived');
 
--- TODO: Send a list of items to the AI for the expertise
 
 
 -----------------------------------------------------------------------
@@ -355,6 +354,25 @@ create table admins_participants (
     notes text
 );
 create unique index idx_admins_participants_admin_id_participant_id on admins_participants(admin_id, participant_id);
+
+create or replace function plantour.prevent_self_link_admins_participants_delete()
+returns trigger
+language plpgsql
+as $$
+begin
+    if old.admin_id = old.participant_id then
+        raise exception 'Admin as Participant cannot be deleted';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_self_link_admins_participants_delete
+before delete on plantour.admins_participants
+for each row
+execute function plantour.prevent_self_link_admins_participants_delete();
+
 
 -----------------------------------------------------------------------
 -- USER THINGS
@@ -509,7 +527,7 @@ create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, admin_
 
 -----------------------------------------------------------------------
 -- TRIP USER PACKAGES
--- TODO: Add UI for weight
+
 -----------------------------------------------------------------------
 create table trip_user_packages (
     id uuid not null primary key default gen_random_uuid(),

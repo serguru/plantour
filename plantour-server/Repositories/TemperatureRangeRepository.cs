@@ -10,5 +10,12 @@ public class TemperatureRangeRepository : GenericRepository<TemperatureRange>
     {
     }
 
+    public override async Task<IEnumerable<TemperatureRange>> GetAllAsync()
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
 
 }

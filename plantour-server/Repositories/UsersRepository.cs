@@ -42,6 +42,7 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
     public async Task<User?> GetByIdWithDetailsAsync(Guid userId)
     {
         return await _dbSet
+            .AsNoTracking()
             .Include(x => x.AccessType)
             // .Include(x => x.PriceEnum)
             //     .ThenInclude(x => x != null ? x.Plan : null)
@@ -51,6 +52,7 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
     public async Task<User?> GetByGoogleSubAsync(string googleSub)
     {
         return await _dbSet
+            .AsNoTracking()
             .Include(x => x.AccessType)
             // .Include(x => x.PriceEnum)
             //     .ThenInclude(x => x != null ? x.Plan : null)
@@ -60,6 +62,7 @@ public class UsersRepository(PlantourContext context) : GenericRepository<User>(
     public async Task<User?> GetByFacebookUserIdAsync(string facebookUserId)
     {
         return await _dbSet
+            .AsNoTracking()
             .Include(x => x.AccessType)
             // .Include(x => x.PriceEnum)
             //     .ThenInclude(x => x != null ? x.Plan : null)

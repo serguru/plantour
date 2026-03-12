@@ -31,6 +31,7 @@ public class TripPackRepository(PlantourContext context) : GenericRepository<Tri
     public async Task<IEnumerable<TripUserPackage>> GetAllAsync(Guid adminId, Guid userId, Guid tripId)
     {
         return await _dbSet
+            .AsNoTracking()
             .Where(x =>
                 x.TripUser.Trip.Id == tripId &&
                 x.TripUser.Trip.UserId == adminId &&

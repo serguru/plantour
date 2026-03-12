@@ -105,20 +105,25 @@ export class TripUsersComponent implements OnInit {
 
     this.initConditions(this.componentId);
 
-    this.initSavedFeatures();
 
     this.tripUsersService.getAll(this.tripId!).pipe(
+      tap((p: TripUserDto[]) => {
+        this.initSavedFeatures(p);
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(tripUsers =>
       this.componentService.updateEntities(tripUsers || [])
     );
   }
 
-  initSavedFeatures() {
+  initSavedFeatures(items: TripUserDto[]) {
     const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
 
-    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    let id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    if(!items || !items.find(x => x.id === id)) {
+      id = null;
+    }
     this.componentService.updateSelectedId(id);
 
     const lowerTextVisible: boolean = this.localStorageService.getComponentKey(this.componentId, 'lowerTextVisible');
@@ -142,6 +147,9 @@ export class TripUsersComponent implements OnInit {
       switchMap(_ =>
         this.tripUsersService.getAll(this.tripId!)
       ),
+      tap(_ => {
+        this.currentTripService.refreshCurrentTrip();
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((tripUsers) => {
       this.componentService.updateEntities(tripUsers);

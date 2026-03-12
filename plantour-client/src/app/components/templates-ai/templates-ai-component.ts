@@ -17,7 +17,7 @@ import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { Router } from '@angular/router';
 import { TemplatesAiItemComponent } from './templates-ai-item/templates-ai-item-component';
-import { AiPromptDto, TemplatesAiService } from '../../services/template-ai-service';
+import { AiItemDto, AiPromptDto, TemplatesAiService } from '../../services/template-ai-service';
 import { Select } from 'primeng/select';
 import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -171,7 +171,6 @@ export class TemplatesAiComponent {
         }
         this.initConditions(this.componentId, trips);
         this.initTargetLookup(trips);
-        this.initSavedFeatures();
       }),
       // switchMap to the long-lived interaction stream
       switchMap(() => combineLatest([this.componentService.target$, this.clickSubject])),
@@ -196,6 +195,10 @@ export class TemplatesAiComponent {
           )
         )
       }),
+      tap((p: AiItemDto[]) => {
+        this.initSavedFeatures(p);
+      }),
+
       // Outer finalize: Safety net for component destruction or total stream completion
       finalize(() => this.componentService.updateLoading(false)),
       takeUntilDestroyed(this.destroyRef)
@@ -207,11 +210,14 @@ export class TemplatesAiComponent {
     });
   }
 
-  initSavedFeatures() {
+  initSavedFeatures(items: AiItemDto[]) {
     const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
 
-    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    let id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
+    if(!items || !items.find(x => x.id === id)) {
+      id = null;
+    }
     this.componentService.updateSelectedId(id);
   }
 

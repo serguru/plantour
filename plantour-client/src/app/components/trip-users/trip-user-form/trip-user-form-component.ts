@@ -19,8 +19,9 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ComponentService } from '../../../services/component-service';
 import { capitalizeFirstLetter, findDuplicates, getFullName } from '../../../helpers/utils';
 import { AdminsParticipantDto, AdminsParticipantService } from '../../../services/admins-participant-service';
-import { combineLatest, finalize, map, Observable, of } from 'rxjs';
+import { combineLatest, finalize, map, Observable, of, tap } from 'rxjs';
 import { Checkbox } from 'primeng/checkbox';
+import { CurrentTripService } from '../../../services/current-trip-service';
 
 @Component({
   selector: 'app-trip-participants-form-component',
@@ -54,6 +55,7 @@ export class TripUserFormComponent implements OnInit {
   componentService = inject(ComponentService);
   lookupService = inject(LookupService);
   adminsParticipantService = inject(AdminsParticipantService);
+  currentTripService = inject(CurrentTripService);
 
   isLoading = toSignal(this.componentService.loading$);
 
@@ -234,6 +236,9 @@ export class TripUserFormComponent implements OnInit {
 
     this.componentService.updateLoading(true);
     this.service.add(request).pipe(
+      tap(_ => {
+        this.currentTripService.refreshCurrentTrip();
+      }),
       finalize(() => {
         this.componentService.updateLoading(false);
       })

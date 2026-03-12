@@ -123,11 +123,7 @@ export class TripCommentsComponent {
   initSavedFeatures() {
     const v = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(v);
-
-    const id = this.localStorageService.getComponentKey(this.componentId, 'selectedId');
-    this.componentService.updateSelectedId(id);
   }
-
 
   deleteTripComment(id: string): void {
     this.tripCommentService.delete(id, this.tripId!).pipe(

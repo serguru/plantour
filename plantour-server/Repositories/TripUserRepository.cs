@@ -9,6 +9,7 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
     public async Task<TripUser?> GetByTripIdAsync(Guid adminId, Guid userId, Guid tripId)
     {
         return await _dbSet
+            .AsNoTracking()
             .Include(x => x.AdminParticipant.Participant)
             .Include(x => x.TripUserPackages)
             .Include(x => x.TripUserThings)
@@ -63,6 +64,7 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
     public async Task<IEnumerable<TripUser>> GetAllAsync(Guid adminId, Guid tripId)
     {
         return await _dbSet
+            .AsNoTracking()
             .Include(x => x.AdminParticipant.Participant)
             .Include(x => x.TripUserPackages)
             .Include(x => x.TripUserThings)
