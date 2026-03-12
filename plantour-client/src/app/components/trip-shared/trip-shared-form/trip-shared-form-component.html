@@ -15,12 +15,16 @@
         <p-select
           appAutoFocus
           id="name"
-          formControlName="name"
           [options]="lookupTripThings$ | async"
+          optionLabel="name"
+          dataKey="name"
           [placeholder]="!isViewMode ? 'Select item name' : ''"
           styleClass="w-full"
           [editable]="true"
           [readonly]="isViewMode"
+          appendTo="body"
+          (onChange)="onChangeName($event)"
+
         ></p-select>
 
         @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
