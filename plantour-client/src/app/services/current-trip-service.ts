@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, combineLatest, distinctUntilChanged, Observable, of, switchMap } from 'rxjs';
 import { UsersService } from './users-service';
 import { TripService } from './trip-service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LocalStorageService } from './local-storage-service';
 
 @Injectable({
@@ -16,13 +16,20 @@ export class CurrentTripService {
 
     private currentTripIdSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
     currentTripId$: Observable<string | null> = this.currentTripIdSubject.asObservable();
+    
+    private refreshSubject = new BehaviorSubject<void>(undefined);
+    
     public updateCurrentTripId(tripId: string | null): void {
         this.currentTripIdSubject.next(tripId);
     }
 
-    currentTripDto$ =  this.currentTripId$.pipe(
+    public refreshCurrentTrip(): void {
+        this.refreshSubject.next();
+    }
+
+    currentTripDto$ =  combineLatest([this.currentTripId$,this.refreshSubject]).pipe(
         distinctUntilChanged(),
-        switchMap((tripId) => {
+        switchMap(([tripId]) => {
             if (!tripId || !this.usersService.isAuthenticatedSignal()) {
                 return of(null);
             }
@@ -33,10 +40,15 @@ export class CurrentTripService {
         takeUntilDestroyed()
     );
 
+    currentTripDtoSignal = toSignal(this.currentTripDto$);
+    currentTripIdSignal = toSignal(this.currentTripId$);
+
     private currentTripVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this.localStorageService.getItem('toolbar-showTripText'));
     currentTripVisible$: Observable<boolean> = this.currentTripVisibleSubject.asObservable();
+
     public updateCurrentTripVisible(visible: boolean): void {
         this.currentTripVisibleSubject.next(visible);
         this.localStorageService.setItem('toolbar-showTripText', visible);
     }
+
 }

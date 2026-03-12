@@ -295,7 +295,6 @@ export class TravelersComponent implements OnInit {
 
   deleteTraveler(id: string): void {
     this.adminsParticipantService.delete(id).pipe(
-
       switchMap(x => {
         return this.componentService.target$.pipe(
           switchMap(target => {
@@ -306,6 +305,9 @@ export class TravelersComponent implements OnInit {
             return this.adminsParticipantService.getAll();
           })
         );
+      }),
+      tap(_ => {
+        this.currentTripService.refreshCurrentTrip();
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(travelers => {

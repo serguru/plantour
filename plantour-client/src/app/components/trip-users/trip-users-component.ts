@@ -147,6 +147,9 @@ export class TripUsersComponent implements OnInit {
       switchMap(_ =>
         this.tripUsersService.getAll(this.tripId!)
       ),
+      tap(_ => {
+        this.currentTripService.refreshCurrentTrip();
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((tripUsers) => {
       this.componentService.updateEntities(tripUsers);

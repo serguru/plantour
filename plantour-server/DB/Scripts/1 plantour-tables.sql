@@ -355,6 +355,25 @@ create table admins_participants (
 );
 create unique index idx_admins_participants_admin_id_participant_id on admins_participants(admin_id, participant_id);
 
+create or replace function plantour.prevent_self_link_admins_participants_delete()
+returns trigger
+language plpgsql
+as $$
+begin
+    if old.admin_id = old.participant_id then
+        raise exception 'Admin as Participant cannot be deleted';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_self_link_admins_participants_delete
+before delete on plantour.admins_participants
+for each row
+execute function plantour.prevent_self_link_admins_participants_delete();
+
+
 -----------------------------------------------------------------------
 -- USER THINGS
 -----------------------------------------------------------------------
