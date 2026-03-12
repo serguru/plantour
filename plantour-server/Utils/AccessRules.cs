@@ -3,7 +3,6 @@ using plantour_server.Models;
 
 namespace plantour_server.Utils;
 
-// TODO: if a user exceeded a limit instead of a popup show the modal form with plans asking to upgrade
 public class AccessRules
 {
     private readonly List<AccessRule> _rules = new();

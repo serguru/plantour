@@ -13,8 +13,6 @@ import { map, Observable, of, startWith, switchMap, withLatestFrom } from 'rxjs'
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { DashboardService, DashboardTripDto, DashboardUserTripDto } from '../../../services/dashboard-service';
 
-
-// TODO: consider replacing OnInit with signal-based approach in other components as well
 @Component({
   selector: 'app-trip-summary',
   imports: [

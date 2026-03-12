@@ -13,20 +13,8 @@ import { HelpSection } from './help-types';
 import { SeoService } from '../../services/seo-service';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 
-// TODO: add a link to Guest Mode video tutorial
+
 // TODO: Help documents were genertated by AI. It is necessary to read ALL the Help documents carefully and make sure the content is OK
-// TODO: put section collapsimg button in one row with section title
-  // TODO: add ai templates to Help
-
-  // TODO: make sure all the section/subsection pages are properly SSR and indexed by SEO crawlers. This is important for users to find help content through search engines.
-
-  // TODO: add info on social login (Google + Facebook)
-
-  // TODO: start using https://pagefind.app/ and add the search functionality. This will allow to keep the content up to date without the need to deploy new versions of the app and also will allow users to search for specific topics/questions.
-
-  // TODO: explain the app does not support a dark theme
-
-  // TODO: it is necessary to read carefully all the content of the help sections and make sure it is correct and does not contain any mistakes. It is also important to make sure the content is clear and easy to understand for users.
 @Component({
   selector: 'app-help',
   standalone: true,

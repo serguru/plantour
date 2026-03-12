@@ -21,7 +21,7 @@ export class ReadyToRegisterComponent {
         {
           number: 1,
           title: 'Click "Create Account"',
-          details: 'TODO: fix this'
+          details: 'fix this'
         },
         {
           number: 2,

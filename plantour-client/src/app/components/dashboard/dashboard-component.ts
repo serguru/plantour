@@ -70,7 +70,6 @@ export class DashboardComponent implements OnInit {
   selectedTripId$ = this.selectedTripIdSubject.asObservable();
   selectedTripId = toSignal(this.selectedTripId$, { initialValue: null });
 
-  // TODO: ensure this code works without trips
   onTripChange(event: any) {
     this.selectedTripIdSubject.next(event.value);
   }

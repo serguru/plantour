@@ -2,8 +2,6 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { SeoService } from '../../../../services/seo-service';
 
-// TODO: Create a new page "Refund Policy". Explain in details the refund policy, including eligibility criteria, refund process, and contact information for support. This page should be easily accessible from the main navigation and linked in the Terms of Usage page for clarity.
-
 @Component({
   selector: 'app-terms-component',
   standalone: true,

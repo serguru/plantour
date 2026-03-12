@@ -13,9 +13,6 @@ import { PaddleService } from '../../../../services/paddle-service';
 import { firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 
-// TODO: add styles to custom portal link
-// TODO: check social logins section logic
-// TODO: find out how to show local prices to customers with Paddle
 @Component({
   selector: 'app-profile-component',
   standalone: true,

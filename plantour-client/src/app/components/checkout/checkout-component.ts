@@ -11,8 +11,6 @@ import { MessagesService } from '../../services/messages-service';
 import { UsersService } from '../../services/users-service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
-// TODO: make sure this component works correctly for both registered and not registered users
-
 @Component({
   selector: 'app-checkout-component',
   standalone: true,

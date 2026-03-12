@@ -18,5 +18,15 @@
 - create a public tickets system
 - обдумать идею задать начальные условия и получить от AI рекомендованный список путешествий
 - предостаить юзерам возможность посылать их списки вещей для поездок в публичный доступ
+- store and restore the last path
+- ask AI to inspect the code for security issues
+- find out how to show local prices to customers with Paddle
+- produce video tutorials
+- add the search to Help
+- ensure RxJs is used in right way
+- reverse the order of the messages, the most recent should be at the bottom, and the scroll should be at the bottom by default
+
+
+
 
 

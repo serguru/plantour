@@ -5,10 +5,6 @@ import { CleanupResolver } from './helpers/resolver';
 import { TripFormComponent } from './components/trips/trip-form/trip-form-component';
 import { resolve } from 'path/win32';
 
-
-// TODO: verify checkTripIdGuard use
-// TODO: app icon on mobile
-// TODO: ensure the app properly limits access to features based on user status and plan including payments, items and participants limits
 export const routes: Routes = [
   {
     path: '',
