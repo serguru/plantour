@@ -13,7 +13,6 @@ using PlantourApi.Models;
 
 namespace plantour_server.Services;
 
-// TODO: check why add traveler form does not close automatically after adding a traveler
 public class TokenService : ITokenService
 {
     private readonly JwtSettings _jwtSettings;
@@ -31,11 +30,6 @@ public class TokenService : ITokenService
         _settingsRepository = settingsRepository;
     }
 
-
-    // TODO: for ACTIVE users only!!!
-    // TODO: a background scheduler must clear old rferesh tokens and AI prompts from the DB
-
-    // For temporary a new user is created, otherwise they are retrieved from the DB
     public async Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid adminId)
     {
         var handler = new JwtSecurityTokenHandler();

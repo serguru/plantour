@@ -15,8 +15,6 @@ import { InputText } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { AppButton } from '../button/button-component';
 
-// TODO: fix the message's date and time, it should be local
-// TODO: reverse the order of the messages, the most recent should be at the bottom, and the scroll should be at the bottom by default
 
 @Component({
   selector: 'app-trip-comments',

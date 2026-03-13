@@ -4,16 +4,13 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { Select } from 'primeng/select';
+import { Select, SelectChangeEvent } from 'primeng/select';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { LookupService } from '../../../services/lookup-service';
-import { MessagePanel } from '../../message-panel/message-panel-component/message-panel-component';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
-import { Checkbox } from 'primeng/checkbox';
 import { InputNumber } from 'primeng/inputnumber';
-import { PackageService } from '../../../services/package-service';
 import { UsersService } from '../../../services/users-service';
 import { MessagesService } from '../../../services/messages-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
@@ -58,8 +55,8 @@ export class TripThingFormComponent implements OnInit {
   lookupService = inject(LookupService);
 
   isLoading = toSignal(this.componentService.loading$);
-
   lookupCategories$;
+   
   lookupTripThings$;
   lookupTripPacks$;
   lookupUnits$;
@@ -114,14 +111,28 @@ export class TripThingFormComponent implements OnInit {
         );
         return resultNames.sort((a, b) => a!.localeCompare(b!));
       })
-    );
+    )
 
     this.lookupTripThings$ = combineLatest([this.thingService.getAll(), this.service.getAll(this.tripId)]).pipe(
       map(([things, tripThings]) => {
         const thingNames = Array.from(new Set(things.map(x => x.name).filter(x => !!x)));
         const tripThingNames = Array.from(new Set(tripThings.map(x => x.name).filter(x => !!x)));
-        const resultNames = thingNames.filter(x => !tripThingNames.some(y => y.toLowerCase() === x.toLowerCase()));
-        return resultNames.sort((a, b) => a.localeCompare(b));
+        let resultNames: any = thingNames.filter(x => !tripThingNames.some(y => y.toLowerCase() === x.toLowerCase()));
+
+        const searchCategory = (name: string): string => {
+          const result: string | null = things.find(x => x.name?.toLowerCase() === name?.toLowerCase())?.category || "";
+          return result;
+        }
+
+        resultNames = resultNames.map(x => {
+          const r = {
+            name: x,
+            category: searchCategory(x)
+          }
+          return r;
+        })
+
+        return resultNames.sort((a, b) => a.name.localeCompare(b.name));
       })
     );
 
@@ -272,6 +283,19 @@ export class TripThingFormComponent implements OnInit {
   get tripThingsUrl(): string {
     const url = `/trips/${this.tripId}/trip-things`;
     return url;
+  }
+
+  onChangeName(event: SelectChangeEvent) {
+    if (event.value == null) {
+      return;
+    }
+    if (typeof event.value === "object") {
+      this.form.controls["name"].patchValue(event.value.name);
+      this.form.controls["category"].patchValue(event.value.category);
+      return;
+    } 
+
+    this.form.controls["name"].patchValue(event.value);
   }
 }
 

@@ -6,8 +6,6 @@ import { MessagesService } from '../../services/messages-service';
 import { Router } from '@angular/router';
 import { switchMap } from 'rxjs';
 
-// TODO: it is necessary to add to the log user activity to proof their activity if they decided to get a refund.
-// TODO: fix the top wording
 interface PlanFeature {
   label: string;
   value: string | boolean;

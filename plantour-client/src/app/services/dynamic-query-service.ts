@@ -144,7 +144,6 @@ export class DynamicQueryService {
       const match = text.slice(index, index + search.length);
       const after = text.slice(index + search.length);
 
-      // TODO: why empty <mark> is inserted sometimes?
       (result as any)[filter.property] =
         `${before}<mark>${match}</mark>${after}`;
     }

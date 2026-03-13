@@ -17,9 +17,14 @@
           id="name"
           formControlName="name"
           [options]="lookupTripThings$ | async"
+          optionLabel="name"
+          dataKey="name"
           placeholder="Select item name"
           styleClass="w-full"
           [editable]="true"
+          appendTo="body"
+          (onChange)="onChangeName($event)"
+          
         ></p-select>
 
         @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {

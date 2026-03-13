@@ -1,10 +1,10 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CreateTripSharedRequest, TripSharedDto, TripSharedService, UpdateTripSharedRequest } from '../../../services/trip-shared-service';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { Select } from 'primeng/select';
+import { Select, SelectChangeEvent } from 'primeng/select';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { LookupService } from '../../../services/lookup-service';
 import { combineLatest, finalize, map, Observable } from 'rxjs';
@@ -22,7 +22,6 @@ import { capitalizeFirstLetter } from '../../../helpers/utils';
 import { allTogetherValidator } from '../../../helpers/all-together-validator';
 
 
-// TODO: having spear time add 4-th memeber to categories lookup, here and in trip things
 @Component({
   selector: 'app-trip-shared-form',
   standalone: true,
@@ -35,7 +34,8 @@ import { allTogetherValidator } from '../../../helpers/all-together-validator';
     FormHeader,
     FormActions,
     Select,
-    InputNumber
+    InputNumber,
+    FormsModule
   ],
   templateUrl: './trip-shared-form-component.html',
   styleUrl: './trip-shared-form-component.scss'
@@ -132,8 +132,22 @@ export class TripSharedFormComponent implements OnInit {
       map(([things, tripThings]) => {
         const thingNames = Array.from(new Set(things.map(x => x.name).filter(x => !!x)));
         const tripThingNames = Array.from(new Set(tripThings.map(x => x.name).filter(x => !!x)));
-        const resultNames = thingNames.filter(x => !tripThingNames.some(y => y.toLowerCase() === x.toLowerCase()));
-        return resultNames.sort((a, b) => a.localeCompare(b));
+        let resultNames: any = thingNames.filter(x => !tripThingNames.some(y => y.toLowerCase() === x.toLowerCase()));
+
+        const searchCategory = (name: string): string => {
+          const result: string | null = things.find(x => x.name?.toLowerCase() === name?.toLowerCase())?.category || "";
+          return result;
+        }
+
+        resultNames = resultNames.map(x => {
+          const r = {
+            name: x,
+            category: searchCategory(x)
+          }
+          return r;
+        })
+
+        return resultNames.sort((a, b) => a.name.localeCompare(b.name));
       })
     );
 
@@ -276,5 +290,19 @@ export class TripSharedFormComponent implements OnInit {
     const url = `/trips/${this.tripId}/trip-shared`;
     return url;
   }
+
+  onChangeName(event: SelectChangeEvent) {
+    if (event.value == null) {
+      return;
+    }
+    if (typeof event.value === "object") {
+      this.form.controls["name"].patchValue(event.value.name);
+      this.form.controls["category"].patchValue(event.value.category);
+      return;
+    } 
+
+    this.form.controls["name"].patchValue(event.value);
+  }
+
 }
 

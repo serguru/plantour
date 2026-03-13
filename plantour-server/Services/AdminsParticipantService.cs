@@ -7,8 +7,6 @@ using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
-// TODO: Add logging
-// TODO: Add saving to DB all the visits to plantour website
 
 public class AdminsParticipantService(
     AdminsParticipantRepository adminsParticipantRepository,
@@ -45,8 +43,10 @@ public class AdminsParticipantService(
         _currentUser.RaiseIfNotAdmin();
 
         var adminsParticipant = (await _adminsParticipantRepository
-        .FindFullAsync(x => x.Admin.Email.ToLower() == email.ToLower() || x.Participant.Email.ToLower() == email.ToLower())).FirstOrDefault();
-        
+        .FindFullAsync(x =>
+            x.AdminId == _currentUser.UserId &&
+            x.Participant.Email.ToLower() == email.ToLower()
+        )).FirstOrDefault();
 
         if (adminsParticipant != null)
         {
@@ -77,7 +77,7 @@ public class AdminsParticipantService(
                 FoundUserId = user.Id,
                 Status = CheckParticipantStatus.UserExistsNotParticipant
             };
-        }  
+        }
 
 
         return new CheckParticipantDto
@@ -85,7 +85,7 @@ public class AdminsParticipantService(
             FoundUserId = null,
             Status = CheckParticipantStatus.NotFound
         };
-    }   
+    }
 
     public async Task<IEnumerable<AdminsParticipantDto>> GetAllForTripAsync(Guid tripId)
     {
@@ -108,7 +108,7 @@ public class AdminsParticipantService(
         }).ToList();
 
         return result;
-    }   
+    }
 
     public async Task<AdminsParticipantDto?> GetByIdAsync(Guid id)
     {
@@ -117,11 +117,10 @@ public class AdminsParticipantService(
         var entities = await _adminsParticipantRepository.FindFullAsync(x => x.Id == id && x.AdminId == _currentUser.AdminId);
 
         AdminsParticipant? entity = entities.FirstOrDefault();
-        
+
         return entity != null ? _mapper.Map<AdminsParticipantDto>(entity) : null;
     }
 
-    // TODO: Ensure in UI it is not possible to change AdminId or ParticipantId
     public async Task UpdateAsync(UpdateAdminsParticipantRequest request)
     {
         _currentUser.RaiseIfNotAdmin();
@@ -133,10 +132,10 @@ public class AdminsParticipantService(
         {
             throw new CustomException("Admin participant not found or access denied");
         }
-        
+
         _mapper.Map(request, entity);
         await _adminsParticipantRepository.UpdateAsync(entity!);
-        
+
     }
 
     public async Task DeleteAsync(Guid id)

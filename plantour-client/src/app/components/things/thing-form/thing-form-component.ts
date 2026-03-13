@@ -22,8 +22,6 @@ import { catchError, combineLatest, EMPTY, finalize, map } from 'rxjs';
 import { LookupService } from '../../../services/lookup-service';
 import { InputNumber } from 'primeng/inputnumber';
 
-
-// TODO: add together validators for value and units (both or none)
 @Component({
   selector: 'app-item-form-component',
   imports: [

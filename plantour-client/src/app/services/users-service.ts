@@ -78,6 +78,12 @@ export class UsersService {
     return d.toLocaleString();
   });
 
+  adminIsParticipantSignal = computed(() => {
+    const user = this._userSignal();
+    if (!user) return null;
+    return user.user_id && user.admin_id && user.user_id === user.admin_id;
+  });
+
 
   userEmail = computed(() => {
     const user = this._userSignal();
@@ -230,7 +236,27 @@ export class UsersService {
     this._userSignal.set(user);
   }
 
+  clearLocalStorageIfNewUser(newToken: string | null): void {
+    
+    if (!newToken) {
+      return;
+    }
+
+    const newUser = jwtDecode<AccessToken>(newToken);
+    if (!newUser) {
+      return;
+    } 
+    // TODO: test public templates 
+
+    const storedUserId = this.localStorageService.getItem('signin-userId');
+    if (storedUserId && newUser.user_id && storedUserId != newUser.user_id) {
+      this.localStorageService.clear();
+    }
+    this.localStorageService.setItem('signin-userId', newUser.user_id);
+  }
+
   public applyAuthResponse(response: any): void {
+    this.clearLocalStorageIfNewUser(response.accessToken || null);
     this.updateUser(response.accessToken || null);
     this.writeAccessToken(response.accessToken || null);
     this.writeRefreshToken(response.refreshToken || null);

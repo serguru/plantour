@@ -155,10 +155,11 @@ begin
     )
     into v_trip_user_id;
 
-    insert into plantour.trip_user_things (trip_user_id, name)
+    insert into plantour.trip_user_things (trip_user_id, name, category)
     select
         v_trip_user_id,
-        b.name
+        b.name,
+        b.category
     from plantour.user_things b
     left join plantour.trip_user_things c on 
         c.trip_user_id = v_trip_user_id and 
@@ -421,8 +422,6 @@ begin
 end;
 $$;
 --#endregion
-
-
 
 --#region insert_template_trip_shared_things
 -- insert from template_things to trip_shared_things

@@ -3,9 +3,6 @@ using plantour_server.Models;
 
 namespace plantour_server.Utils;
 
-// TODO: create a publick tickets system
-// TODO: when signing out a toast "Your session has expired. Please sign in again." appears im many instances.
-// TODO: if a user exceeded a limit instead of a popup show the modal form with plans asking to upgrade
 public class AccessRules
 {
     private readonly List<AccessRule> _rules = new();

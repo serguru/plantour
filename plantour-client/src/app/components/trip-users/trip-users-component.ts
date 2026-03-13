@@ -13,8 +13,6 @@ import { CurrentTripService } from '../../services/current-trip-service';
 import { switchMap, tap } from 'rxjs';
 import { UsersService } from '../../services/users-service';
 
-
-// TODO: make read only for participants
 @Component({
   selector: 'app-trip-participants',
   standalone: true,
@@ -90,8 +88,6 @@ export class TripUsersComponent implements OnInit {
     lowerTextVisible: this.lowerTextVisible,
   }
 
-
-  // TODO: the participant must have an ability to edit their thingsweight and packagingComplete
   ngOnInit(): void {
 
     this.componentService.updateComponentId(this.componentId);

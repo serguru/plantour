@@ -3,9 +3,6 @@ import { Inject, Injectable } from '@angular/core';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { Observable } from 'rxjs';
 
-
-// TODO: implement an idea to click on an item and buy it on Amazon
-
 export interface AiItemDto {
   id: string;
   category: string;

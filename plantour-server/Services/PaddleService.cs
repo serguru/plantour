@@ -14,7 +14,6 @@ using System.Globalization;
 
 namespace plantour_server.Services;
 
-// TODO: if a user scheduled a downgrade and then signin in they should confirm they did not want to cancel that downgrade
 public class PaddleService : IPaddleService
 {
     private readonly string _baseUrl;
@@ -691,8 +690,6 @@ public class PaddleService : IPaddleService
         }
         return products;
     }
-
-    //TODO: You can't make changes to a subscription if the next billing period is within 30 minutes, or the subscription status is past_due.
 
     public async Task UpgradePlanPriceAsync(string oldPlanPrice, string newPlanPrice)
     {

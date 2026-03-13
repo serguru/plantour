@@ -6,7 +6,7 @@ import { LocalStorageService } from './local-storage-service';
 import { isGuid } from '../helpers/utils';
 import { UsersService } from './users-service';
 import { AppService } from './app-service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 export interface EntitiesCounts {
   allTotal: number;
@@ -46,26 +46,26 @@ export class ComponentService {
     this.componentIdSubject.next(componentId);
   }
 
-//   private persistActionSubject = new Subject<{ key: string, value: any }>();
-// //  private persistAction$ = this.persistActionSubject.asObservable().pipe(takeUntil(this.destroy$));
-//   private persistAction$ = this.persistActionSubject.asObservable().pipe();
+  //   private persistActionSubject = new Subject<{ key: string, value: any }>();
+  // //  private persistAction$ = this.persistActionSubject.asObservable().pipe(takeUntil(this.destroy$));
+  //   private persistAction$ = this.persistActionSubject.asObservable().pipe();
 
-//   persistValue$ = this.persistAction$.pipe(
-//     withLatestFrom(this.componentId$),
-//     // concatMap(componentId => {
-//     //   if (!componentId) {
-//     //     return throwError(() => new Error('Cannot persist a value - no componentId'));
-//     //   }
-//     //   return of(componentId);
-//     // }),
-//     takeUntilDestroyed()
-//   ).subscribe(([action, componentId]) => {
-//     this.localStorageService.setComponentKey(
-//       componentId!,
-//       action.key,
-//       action.value
-//     );
-//   })
+  //   persistValue$ = this.persistAction$.pipe(
+  //     withLatestFrom(this.componentId$),
+  //     // concatMap(componentId => {
+  //     //   if (!componentId) {
+  //     //     return throwError(() => new Error('Cannot persist a value - no componentId'));
+  //     //   }
+  //     //   return of(componentId);
+  //     // }),
+  //     takeUntilDestroyed()
+  //   ).subscribe(([action, componentId]) => {
+  //     this.localStorageService.setComponentKey(
+  //       componentId!,
+  //       action.key,
+  //       action.value
+  //     );
+  //   })
 
   // persistValue(key: string, value: any): void {
   //   this.persistAction$.next({ key, value });
@@ -79,10 +79,22 @@ export class ComponentService {
     this.localStorageService.setComponentKey(componentId, key, value);
   }
 
+  private checkResetSelectedId(entities: any[] | null): void {
+    if (!entities || !this.selectedIdSignal()) {
+      return;
+    }
+    const idExists = entities.find(x => x?.id === !this.selectedIdSignal());
+    if (idExists) {
+      return;
+    }
+    this.updateSelectedId(null);
+  }
+
   // Raw entities as fetched from the backend
   private entitiesSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
   entities$: Observable<any[] | null> = this.entitiesSubject.asObservable().pipe(takeUntil(this.destroy$));
   updateEntities(entities: any[] | null): void {
+    this.checkResetSelectedId(entities);
     this.entitiesSubject.next(entities);
   }
 
@@ -109,6 +121,7 @@ export class ComponentService {
   saveSelectedId(selectedId: string | null): void {
     this.persistValue('selectedId', selectedId);
   }
+  public selectedIdSignal = toSignal(this.selectedId$);
 
   // Is entities actions panel visible
   private entitiesActionsVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -121,7 +134,6 @@ export class ComponentService {
   }
 
   // Is loading
-  // TODO: make word "Loading..." appears only when loading takes more than e.g. 300ms
   private loadingSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   loading$: Observable<boolean> = this.loadingSubject.asObservable();
   updateLoading(loading: boolean): void {
@@ -259,5 +271,5 @@ export class ComponentService {
     this.updateEntitiesActionsVisible(false);
     this.updateLoading(false);
     this.destroy$ = new Subject<void>();
-}
+  }
 }

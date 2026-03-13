@@ -19,7 +19,6 @@ import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { Router } from '@angular/router';
 
-// TODO: fix UI vertical scroll issues
 @Component({
   selector: 'app-template-things-component',
   imports: [
@@ -146,7 +145,6 @@ export class TemplatesComponent {
     lowerTextVisible: this.lowerTextVisible,
   }
 
-  // TODO: fix "user is not admin" for Avokado from Template things to Summer Alps...
   ngOnInit(): void {
 
     this.componentService.updateComponentId(this.componentId);

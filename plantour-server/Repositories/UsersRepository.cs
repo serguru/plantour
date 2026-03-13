@@ -4,7 +4,6 @@ using plantour_server.DbModels;
 
 namespace plantour_server.Repositories;
 
-// TODO: check if user must be active
 public class UsersRepository(PlantourContext context) : GenericRepository<User>(context)
 {
 

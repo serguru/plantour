@@ -155,9 +155,6 @@ public class UsersService(
         }
     }
 
-
-
-    // TODO: ensure social login works from a phone
     public async Task<UserDto> LinkSocialProviderAsync(SocialSignInRequest request)
     {
         var provider = request.Provider.Trim().ToLowerInvariant();
@@ -365,7 +362,6 @@ public class UsersService(
 
     #region Token Generation
 
-    // TODO: it is necessary to truncate old refresh tokens in the DB
     // The user exists in the DB
     private async Task<AuthResponse> CreateAuthResponseAsync(User user, UserRole role, Guid adminId, string? message = null)
     {

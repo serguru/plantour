@@ -118,6 +118,4 @@ public class ThingController : ControllerBase
         var deletedCount = await _service.DeleteTemplateAiUserThingsAsync(request.Ids);
         return Ok(new { deletedCount });
     }
-
-    // TODO: Admin cannot add items to a trip he is not participant of, including from AI template
 }

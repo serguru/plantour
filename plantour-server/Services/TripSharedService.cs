@@ -200,7 +200,7 @@ public class TripSharedService(
 
     public async Task ToggleAcceptAssignmentAsync(Guid tripId, Guid id)
     {
-        _currentUser.RaiseIfNotParticipant();
+        _currentUser.RaiseIfNotAuthenticated();
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
@@ -264,7 +264,7 @@ public class TripSharedService(
 
     public async Task ToggleRejectAssignmentAsync(Guid tripId, Guid id)
     {
-        _currentUser.RaiseIfNotParticipant();
+        _currentUser.RaiseIfNotAuthenticated();
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
@@ -340,7 +340,7 @@ public class TripSharedService(
 
         var s1 = $"You've reached the limit of {limit} shared items you can add to your trip.";
 
-        var s2 = _currentUser.IsAdmin ? "Please upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
+        var s2 = _currentUser.IsAdmin ? "Please пo to your profile page and upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
 
 
         var currentCount = await _tripSharedRepository.CountAsync(tripId);

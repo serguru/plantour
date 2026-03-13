@@ -144,9 +144,7 @@ export class SignInComponent implements OnInit {
       return;
     }
 
-
     const { accessCode } = this.currentForm.value;
-
     this.usersService.loginParticipant(accessCode).pipe(
       catchError((error) => {
         const errorMsg = getMessageFromError(error, 'Participant sign in failed. Please check your Access Code and try again.');

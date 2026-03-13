@@ -185,7 +185,7 @@ export class TemplatesAiComponent {
               this.addPromptToLookup(prompt)
             }
           }),
-    // TODO: check all similar calls for catchError
+    
           catchError(err => {
             this.errorHandler.handleError(err);
             return of([]);

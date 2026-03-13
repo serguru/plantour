@@ -29,21 +29,22 @@ export class TripSharedItemComponent {
 
   isAdminSignal = this.usersService.isAdminSignal;
   isParticipantSignal = this.usersService.isParticipantSignal;
+  adminIsParticipantSignal = this.usersService.adminIsParticipantSignal;
 
 
   handleAcceptedClick(event: Event) {
-    if (this.isAdminSignal()) {
-      return;
-    }
+    // if (!this.isParticipantSignal() && !this.adminIsParticipantSignal()) {
+    //   throw new Error("Only participant can accept an assigned item")
+    // }
     event.preventDefault();
     event.stopPropagation();
     this.itemMetaData.toggleAccept(this.entity);
   }
 
   handleRejectedClick(event: Event) {
-    if (this.isAdminSignal()) {
-      return;
-    }
+    // if (!this.isParticipantSignal() && !this.adminIsParticipantSignal()) {
+    //   throw new Error("Only participant can reject an assigned item")
+    // }
     event.preventDefault();
     event.stopPropagation();
     this.itemMetaData.toggleReject(this.entity);

@@ -3,7 +3,7 @@ import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { TemporaryUserResponse, UsersService } from '../../services/users-service';
+import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
 import { skip, take } from 'rxjs';
 import { LocalStorageService } from '../../services/local-storage-service';
@@ -13,20 +13,6 @@ import { HelpSection } from './help-types';
 import { SeoService } from '../../services/seo-service';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 
-// TODO: add a link to Guest Mode video tutorial
-// TODO: Help documents were genertated by AI. It is necessary to read ALL the Help documents carefully and make sure the content is OK
-// TODO: put section collapsimg button in one row with section title
-  // TODO: add ai templates to Help
-
-  // TODO: make sure all the section/subsection pages are properly SSR and indexed by SEO crawlers. This is important for users to find help content through search engines.
-
-  // TODO: add info on social login (Google + Facebook)
-
-  // TODO: start using https://pagefind.app/ and add the search functionality. This will allow to keep the content up to date without the need to deploy new versions of the app and also will allow users to search for specific topics/questions.
-
-  // TODO: explain the app does not support a dark theme
-
-  // TODO: it is necessary to read carefully all the content of the help sections and make sure it is correct and does not contain any mistakes. It is also important to make sure the content is clear and easy to understand for users.
 @Component({
   selector: 'app-help',
   standalone: true,
@@ -41,15 +27,14 @@ import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 })
 export class HelpComponent {
   constructor(
-        @Inject(ENVIRONMENT) public environment: EnvironmentConfig
-  ) { 
-    
+    @Inject(ENVIRONMENT) public environment: EnvironmentConfig
+  ) {
+
   }
 
   router = inject(Router);
 
   route = inject(ActivatedRoute);
-
   document = inject(DOCUMENT);
 
   platformId = inject(PLATFORM_ID);
@@ -131,232 +116,10 @@ export class HelpComponent {
   addAiItemsToTripOwnComponent = signal<Type<unknown> | null>(null);
   addAiItemsToTripSharedComponent = signal<Type<unknown> | null>(null);
 
-  helpSections = signal<HelpSection[]>([
-    {
-      id: 'get-started',
-      title: 'Get Started - No Registration Required',
-      icon: 'pi pi-star',
-      description: 'Try Plantour immediately with test data. Learn the basics without creating an account.',
-      subsections: [
-        { id: 'welcome', title: 'Welcome to Plantour' },
-        { id: 'test-mode', title: 'Using Test Mode' },
-        { id: 'create-account', title: 'Ready to Create Your Account?' }
-      ]
-    },
-    {
-      id: 'overview',
-      title: 'Plantour Overview',
-      icon: 'pi pi-info-circle',
-      description: 'Understand what Plantour is and how it helps you organize trips.',
-      subsections: [
-        //{ id: 'what-is-plantour', title: 'What is Plantour?' },
-        { id: 'key-features', title: 'Key Features' },
-        { id: 'who-is-it-for', title: 'Who is Plantour For?' },
-        { id: 'admins-and-participants', title: 'Admins and Participants' },
-        { id: 'basic-workflow', title: 'Basic Workflow' }
-      ]
-    },
-    {
-      id: 'account',
-      title: 'Account Management',
-      icon: 'pi pi-user',
-      description: 'Create and manage your account, profile, and preferences.',
-      subsections: [
-        { id: 'login', title: 'Sign In to Your Account' },
-        { id: 'profile', title: 'Edit Your Profile' }
-      ]
-    },
-    {
-      id: 'landing-dashboard',
-      title: 'Landing & Dashboard',
-      icon: 'pi pi-home',
-      description: 'Understand the first screens: Landing page and Dashboard trip summaries.',
-      subsections: [
-        { id: 'landing-explained', title: 'Landing explained' },
-        { id: 'dashboard-overview', title: 'Dashboard overview' },
-        { id: 'trip-user-info', title: 'Trip user info' },
-        { id: 'trip-all-users-info', title: 'Trip all users info' }
-      ]
-    },
-    {
-      id: 'travelers',
-      title: 'Travelers Module',
-      icon: 'pi pi-users',
-      description: 'Manage people who participate in your trips.',
-      subsections: [
-        { id: 'travelers-intro', title: 'Understanding Travelers' },
-        { id: 'add-traveler', title: 'Add a Traveler' },
-        { id: 'edit-traveler', title: 'Edit Traveler Information' },
-        { id: 'delete-traveler', title: 'Delete a Traveler' },
-        { id: 'filter-travelers', title: 'Filter and Sort Travelers' }
-      ]
-    },
-    {
-      id: 'things',
-      title: 'Items Module',
-      icon: 'pi pi-shopping-bag',
-      description: 'Create and manage packing items.',
-      subsections: [
-        { id: 'things-intro', title: 'Understanding Items' },
-        { id: 'add-item', title: 'Add an Item' },
-        { id: 'edit-item', title: 'Edit Item Details' },
-        { id: 'delete-item', title: 'Delete an Item' },
-        { id: 'item-categories', title: 'Using Categories' },
-        { id: 'filter-things', title: 'Filter and Sort Items' }
-      ]
-    },
-    {
-      id: 'ai-recommendations',
-      title: 'AI Item Recommendations',
-      icon: 'pi pi-sparkles',
-      description: 'Use AI to get personalized packing suggestions for your trip.',
-      subsections: [
-        { id: 'ask-ai', title: 'Ask AI for Item Recommendations' },
-        { id: 'add-to-dictionary', title: 'Add AI Items to Your Dictionary' },
-        { id: 'add-to-trip-own', title: 'Add AI Items to Trip Own Items' },
-        { id: 'add-to-trip-shared', title: 'Add AI Items to Trip Shared Items' }
-      ]
-    },
-    {
-      id: 'packs',
-      title: 'Bags Module',
-      icon: 'pi pi-briefcase',
-      description: 'Organize luggage and packages.',
-      subsections: [
-        { id: 'packs-intro', title: 'Understanding Bags' },
-        { id: 'add-bag', title: 'Add a Bag' },
-        { id: 'edit-bag', title: 'Edit Bag Details' },
-        { id: 'delete-bag', title: 'Delete a Bag' },
-        { id: 'filter-packs', title: 'Filter and Sort Bags' }
-      ]
-    },
-    {
-      id: 'trips',
-      title: 'Trips Module',
-      icon: 'pi pi-map',
-      description: 'Create and manage your trips.',
-      subsections: [
-        { id: 'trips-intro', title: 'Understanding Trips' },
-        { id: 'create-trip', title: 'Create a New Trip' },
-        { id: 'edit-trip', title: 'Edit Trip Details' },
-        { id: 'delete-trip', title: 'Delete a Trip' },
-        { id: 'trip-status', title: 'Trip Status Workflow' },
-        { id: 'filter-trips', title: 'Filter and Sort Trips' },
-        { id: 'select-current-trip', title: 'Select Current Trip' }
-      ]
-    },
-    {
-      id: 'trip-participants',
-      title: 'Trip Participants',
-      icon: 'pi pi-users',
-      description: 'Add and manage people in your trip.',
-      subsections: [
-        { id: 'participants-intro', title: 'Understanding Trip Participants' },
-        { id: 'add-participant', title: 'Add Participant to Trip' },
-        { id: 'remove-participant', title: 'Remove Participant from Trip' },
-        { id: 'participant-permissions', title: 'Participant Permissions' }
-      ]
-    },
-    {
-      id: 'trip-packs',
-      title: 'Trip Bags',
-      icon: 'pi pi-briefcase',
-      description: 'Assign luggage to trip participants.',
-      subsections: [
-        { id: 'trip-packs-intro', title: 'Understanding Trip Bags' },
-        { id: 'add-bag-to-trip', title: 'Add Bag to Trip' },
-        { id: 'edit-trip-bag', title: 'Edit Trip Bag' },
-        { id: 'remove-bag-from-trip', title: 'Remove Bag from Trip' }
-      ]
-    },
-    {
-      id: 'shared-things',
-      title: 'Shared Items',
-      icon: 'pi pi-share-alt',
-      description: 'Share items between trip participants.',
-      subsections: [
-        { id: 'shared-intro', title: 'Understanding Shared Items' },
-        { id: 'create-shared-item', title: 'Create a Shared Item' },
-        { id: 'edit-shared-item', title: 'Edit Shared Item' },
-        { id: 'delete-shared-item', title: 'Delete Shared Item' },
-        { id: 'assign-shared-item', title: 'Assign Shared Item' },
-        { id: 'unassign-shared-item', title: 'Unassign Shared Item' },
-        { id: 'accept-shared-item', title: 'Accept Shared Item' },
-        { id: 'reject-shared-item', title: 'Reject Shared Item' },
-        { id: 'finish-shared-item', title: 'Finish Shared Item' },
-      ]
-    },
-    {
-      id: 'trip-comments',
-      title: 'Trip Comments',
-      icon: 'pi pi-comments',
-      description: 'Collaborate with notes and comments.',
-      subsections: [
-        { id: 'comments-intro', title: 'Understanding Comments' },
-        { id: 'add-comment', title: 'Add a Comment' }
-      ]
-    },
-    {
-      id: 'filtering-sorting',
-      title: 'Filtering and Sorting',
-      icon: 'pi pi-filter',
-      description: 'Find items quickly with filters and sorting.',
-      subsections: [
-        { id: 'filters-intro', title: 'Using Filters' },
-        { id: 'sort-items', title: 'Sort Items' },
-        { id: 'search', title: 'Search for Items' },
-        { id: 'clear-filters', title: 'Clear Filters' }
-      ]
-    },
-    {
-      id: 'templates',
-      title: 'Templates',
-      icon: 'pi pi-clone',
-      description: 'Use item templates to speed up item list creation.',
-      subsections: [
-        { id: 'templates-intro', title: 'Understanding Templates' },
-        { id: 'item-templates', title: 'Item Templates' },
-        { id: 'public-templates', title: 'Public Templates' }
-      ]
-    },
-    // {
-    //   id: 'tips',
-    //   title: 'Tips & Best Practices',
-    //   icon: 'pi pi-lightbulb',
-    //   description: 'Get the most from Plantour.',
-    //   subsections: [
-    //     { id: 'planning-tips', title: 'Trip Planning Tips', linkId: 'link#67' },
-    //     { id: 'packing-strategies', title: 'Packing Strategies', linkId: 'link#68' },
-    //     { id: 'organization-tips', title: 'Organization Tips', linkId: 'link#69' },
-    //     { id: 'team-coordination', title: 'Team Coordination', linkId: 'link#70' }
-    //   ]
-    // },
-    // {
-    //   id: 'troubleshooting',
-    //   title: 'Troubleshooting',
-    //   icon: 'pi pi-wrench',
-    //   description: 'Common issues and solutions.',
-    //   subsections: [
-    //     { id: 'common-problems', title: 'Common Problems', linkId: 'link#71' },
-    //     { id: 'error-messages', title: 'Error Messages Explained', linkId: 'link#72' },
-    //     { id: 'cant-delete', title: 'Why Can\'t I Delete This?', linkId: 'link#73' },
-    //     { id: 'missing-items', title: 'Items Not Showing Up', linkId: 'link#74' }
-    //   ]
-    // },
-    {
-      id: 'faq',
-      title: 'FAQ',
-      icon: 'pi pi-question-circle',
-      description: 'Frequently asked questions.',
-      subsections: [
-        { id: 'faq-general', title: 'General Questions' },
-        { id: 'faq-account', title: 'Plans Questions' },
-        { id: 'faq-trips', title: 'Trip Questions' },
-        { id: 'faq-packing', title: 'Packing Questions' },
-        { id: 'faq-collaboration', title: 'Collaboration Questions' }
-      ]
-    }
-  ]);
+
+
+
+  helpSections = signal<HelpSection[]>([]);
 
   expandedSectionId = signal<string | null>(null);
   selectedSubsection = signal<{ sectionId: string; subsectionId: string } | null>(null);
@@ -364,6 +127,241 @@ export class HelpComponent {
   expandedSubSectionId = signal<string | null>(null);
 
   async ngOnInit(): Promise<void> {
+
+    const sections = [
+      {
+        id: 'overview',
+        title: 'Plantour Overview',
+        icon: 'pi pi-info-circle',
+        description: 'Understand what Plantour is and how it helps you organize trips.',
+        subsections: [
+          //{ id: 'what-is-plantour', title: 'What is Plantour?' },
+          { id: 'key-features', title: 'Key Features' },
+          { id: 'who-is-it-for', title: 'Who is Plantour For?' },
+          { id: 'admins-and-participants', title: 'Admins and Participants' },
+          { id: 'basic-workflow', title: 'Basic Workflow' }
+        ]
+      },
+      {
+        id: 'account',
+        title: 'Account Management',
+        icon: 'pi pi-user',
+        description: 'Create and manage your account, profile, and preferences.',
+        subsections: [
+          { id: 'login', title: 'Sign In to Your Account' },
+          { id: 'profile', title: 'Edit Your Profile' }
+        ]
+      },
+      {
+        id: 'landing-dashboard',
+        title: 'Landing & Dashboard',
+        icon: 'pi pi-home',
+        description: 'Understand the first screens: Landing page and Dashboard trip summaries.',
+        subsections: [
+          { id: 'landing-explained', title: 'Landing explained' },
+          { id: 'dashboard-overview', title: 'Dashboard overview' },
+          { id: 'trip-user-info', title: 'Trip user info' },
+          { id: 'trip-all-users-info', title: 'Trip all users info' }
+        ]
+      },
+      {
+        id: 'travelers',
+        title: 'Travelers Module',
+        icon: 'pi pi-users',
+        description: 'Manage people who participate in your trips.',
+        subsections: [
+          { id: 'travelers-intro', title: 'Understanding Travelers' },
+          { id: 'add-traveler', title: 'Add a Traveler' },
+          { id: 'edit-traveler', title: 'Edit Traveler Information' },
+          { id: 'delete-traveler', title: 'Delete a Traveler' },
+          { id: 'filter-travelers', title: 'Filter and Sort Travelers' }
+        ]
+      },
+      {
+        id: 'things',
+        title: 'Items Module',
+        icon: 'pi pi-shopping-bag',
+        description: 'Create and manage packing items.',
+        subsections: [
+          { id: 'things-intro', title: 'Understanding Items' },
+          { id: 'add-item', title: 'Add an Item' },
+          { id: 'edit-item', title: 'Edit Item Details' },
+          { id: 'delete-item', title: 'Delete an Item' },
+          { id: 'item-categories', title: 'Using Categories' },
+          { id: 'filter-things', title: 'Filter and Sort Items' }
+        ]
+      },
+      {
+        id: 'ai-recommendations',
+        title: 'AI Item Recommendations',
+        icon: 'pi pi-sparkles',
+        description: 'Use AI to get personalized packing suggestions for your trip.',
+        subsections: [
+          { id: 'ask-ai', title: 'Ask AI for Item Recommendations' },
+          { id: 'add-to-dictionary', title: 'Add AI Items to Your Dictionary' },
+          { id: 'add-to-trip-own', title: 'Add AI Items to Trip Own Items' },
+          { id: 'add-to-trip-shared', title: 'Add AI Items to Trip Shared Items' }
+        ]
+      },
+      {
+        id: 'packs',
+        title: 'Bags Module',
+        icon: 'pi pi-briefcase',
+        description: 'Organize luggage and packages.',
+        subsections: [
+          { id: 'packs-intro', title: 'Understanding Bags' },
+          { id: 'add-bag', title: 'Add a Bag' },
+          { id: 'edit-bag', title: 'Edit Bag Details' },
+          { id: 'delete-bag', title: 'Delete a Bag' },
+          { id: 'filter-packs', title: 'Filter and Sort Bags' }
+        ]
+      },
+      {
+        id: 'trips',
+        title: 'Trips Module',
+        icon: 'pi pi-map',
+        description: 'Create and manage your trips.',
+        subsections: [
+          { id: 'trips-intro', title: 'Understanding Trips' },
+          { id: 'create-trip', title: 'Create a New Trip' },
+          { id: 'edit-trip', title: 'Edit Trip Details' },
+          { id: 'delete-trip', title: 'Delete a Trip' },
+          { id: 'trip-status', title: 'Trip Status Workflow' },
+          { id: 'filter-trips', title: 'Filter and Sort Trips' },
+          { id: 'select-current-trip', title: 'Select Current Trip' }
+        ]
+      },
+      {
+        id: 'trip-participants',
+        title: 'Trip Participants',
+        icon: 'pi pi-users',
+        description: 'Add and manage people in your trip.',
+        subsections: [
+          { id: 'participants-intro', title: 'Understanding Trip Participants' },
+          { id: 'add-participant', title: 'Add Participant to Trip' },
+          { id: 'remove-participant', title: 'Remove Participant from Trip' },
+          { id: 'participant-permissions', title: 'Participant Permissions' }
+        ]
+      },
+      {
+        id: 'trip-packs',
+        title: 'Trip Bags',
+        icon: 'pi pi-briefcase',
+        description: 'Assign luggage to trip participants.',
+        subsections: [
+          { id: 'trip-packs-intro', title: 'Understanding Trip Bags' },
+          { id: 'add-bag-to-trip', title: 'Add Bag to Trip' },
+          { id: 'edit-trip-bag', title: 'Edit Trip Bag' },
+          { id: 'remove-bag-from-trip', title: 'Remove Bag from Trip' }
+        ]
+      },
+      {
+        id: 'shared-things',
+        title: 'Shared Items',
+        icon: 'pi pi-share-alt',
+        description: 'Share items between trip participants.',
+        subsections: [
+          { id: 'shared-intro', title: 'Understanding Shared Items' },
+          { id: 'create-shared-item', title: 'Create a Shared Item' },
+          { id: 'edit-shared-item', title: 'Edit Shared Item' },
+          { id: 'delete-shared-item', title: 'Delete Shared Item' },
+          { id: 'assign-shared-item', title: 'Assign Shared Item' },
+          { id: 'unassign-shared-item', title: 'Unassign Shared Item' },
+          { id: 'accept-shared-item', title: 'Accept Shared Item' },
+          { id: 'reject-shared-item', title: 'Reject Shared Item' },
+          { id: 'finish-shared-item', title: 'Finish Shared Item' },
+        ]
+      },
+      {
+        id: 'trip-comments',
+        title: 'Trip Comments',
+        icon: 'pi pi-comments',
+        description: 'Collaborate with notes and comments.',
+        subsections: [
+          { id: 'comments-intro', title: 'Understanding Comments' },
+          { id: 'add-comment', title: 'Add a Comment' }
+        ]
+      },
+      {
+        id: 'filtering-sorting',
+        title: 'Filtering and Sorting',
+        icon: 'pi pi-filter',
+        description: 'Find items quickly with filters and sorting.',
+        subsections: [
+          { id: 'filters-intro', title: 'Using Filters' },
+          { id: 'sort-items', title: 'Sort Items' },
+          { id: 'search', title: 'Search for Items' },
+          { id: 'clear-filters', title: 'Clear Filters' }
+        ]
+      },
+      {
+        id: 'templates',
+        title: 'Templates',
+        icon: 'pi pi-clone',
+        description: 'Use item templates to speed up item list creation.',
+        subsections: [
+          { id: 'templates-intro', title: 'Understanding Templates' },
+          { id: 'item-templates', title: 'Item Templates' },
+          { id: 'public-templates', title: 'Public Templates' }
+        ]
+      },
+      // {
+      //   id: 'tips',
+      //   title: 'Tips & Best Practices',
+      //   icon: 'pi pi-lightbulb',
+      //   description: 'Get the most from Plantour.',
+      //   subsections: [
+      //     { id: 'planning-tips', title: 'Trip Planning Tips', linkId: 'link#67' },
+      //     { id: 'packing-strategies', title: 'Packing Strategies', linkId: 'link#68' },
+      //     { id: 'organization-tips', title: 'Organization Tips', linkId: 'link#69' },
+      //     { id: 'team-coordination', title: 'Team Coordination', linkId: 'link#70' }
+      //   ]
+      // },
+      // {
+      //   id: 'troubleshooting',
+      //   title: 'Troubleshooting',
+      //   icon: 'pi pi-wrench',
+      //   description: 'Common issues and solutions.',
+      //   subsections: [
+      //     { id: 'common-problems', title: 'Common Problems', linkId: 'link#71' },
+      //     { id: 'error-messages', title: 'Error Messages Explained', linkId: 'link#72' },
+      //     { id: 'cant-delete', title: 'Why Can\'t I Delete This?', linkId: 'link#73' },
+      //     { id: 'missing-items', title: 'Items Not Showing Up', linkId: 'link#74' }
+      //   ]
+      // },
+      {
+        id: 'faq',
+        title: 'FAQ',
+        icon: 'pi pi-question-circle',
+        description: 'Frequently asked questions.',
+        subsections: [
+          { id: 'faq-general', title: 'General Questions' },
+          { id: 'faq-account', title: 'Plans Questions' },
+          { id: 'faq-trips', title: 'Trip Questions' },
+          { id: 'faq-packing', title: 'Packing Questions' },
+          { id: 'faq-collaboration', title: 'Collaboration Questions' }
+        ]
+      }
+    ];
+
+    if (!this.usersService.isAuthenticatedSignal()) {
+      sections.unshift(
+        {
+          id: 'get-started',
+          title: 'Get Started - No Registration Required',
+          icon: 'pi pi-star',
+          description: 'Try Plantour immediately with test data. Learn the basics without creating an account.',
+          subsections: [
+            { id: 'welcome', title: 'Welcome to Plantour' },
+            { id: 'test-mode', title: 'Using Test Mode' },
+            { id: 'create-account', title: 'Ready to Create Your Account?' }
+          ]
+        }
+      )
+    };
+
+    this.helpSections.set(sections);
+
     // Apply initial route selection early (important for SSR).
     await this.applyRouteSelection(
       this.route.snapshot.paramMap.get('section'),
@@ -399,14 +397,14 @@ export class HelpComponent {
 
   handleSelectSubsection(selection: { sectionId: string; subsectionId: string }) {
     this.expandedSectionId.set(selection.sectionId);
-    
+
     // If subsectionId is empty, it means we're collapsing
     if (!selection.subsectionId) {
       this.selectedSubsection.set(null);
       void this.router.navigate(['/help']);
       return;
     }
-    
+
     this.selectedSubsection.set(selection);
 
     // Update URL for shareability/crawlability; actual loading + SEO happens via route handler.

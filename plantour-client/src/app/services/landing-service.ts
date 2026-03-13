@@ -36,8 +36,6 @@ export interface LandingDto
     plans: PlanDto[];
 }
 
-// TODO: the landing page title must word wrap properly
-
 @Injectable({
   providedIn: 'root',
 })
