@@ -20,7 +20,9 @@ public class TripUserDto
 
     public int TotalPacks { get; set; }
     public int TotalThings { get; set; }
+    public int TotalTodos { get; set; }
     public int TotalSharedThings { get; set; }
+    public int TotalSharedTodos { get; set; }
     public bool PackagingComplete { get; set; }
 
     public decimal? NopackWeightValue { get; set; }

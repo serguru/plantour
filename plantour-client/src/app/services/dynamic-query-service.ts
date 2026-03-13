@@ -10,7 +10,9 @@ export enum TargetMode {
   TripShared = 2,
   DicThings = 3,
   Packing = 4,
-  Assigning = 5
+  Assigning = 5,
+  TripTodos = 6,
+  TripSharedTodos = 7
 }
 
 export type TargetOption = {

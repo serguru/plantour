@@ -1,0 +1,66 @@
+<div class="page-container">
+  <app-form-header
+    [title]="title"
+    icon="check-square"
+    [menuItems]="menuItems()"
+  ></app-form-header>
+
+  <div class="controls-wrapper">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="form-field">
+        <label for="name">Name<span class="required">*</span></label>
+        <input
+          appAutoFocus
+          pInputText
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Enter todo name"
+        />
+        @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
+          @if (form.get('name')?.errors?.['required']) {
+            <small class="error-message">Name is required</small>
+          }
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="category">Category</label>
+        <p-select
+          id="category"
+          formControlName="category"
+          [options]="lookupValues$ | async"
+          placeholder="Select category (optional)"
+          [showClear]="true"
+          styleClass="w-full"
+          [editable]="true"
+        ></p-select>
+      </div>
+
+      <div class="form-field">
+        <label for="notes">Notes</label>
+        <textarea
+          pTextarea
+          id="notes"
+          formControlName="notes"
+          rows="5"
+          placeholder="Enter notes (optional)"
+        ></textarea>
+      </div>
+
+      <app-form-actions
+        [onCancel]="onCancel.bind(this)"
+        cancelLabel="To todos"
+        cancelIcon="chevron-left"
+        [cancelDisabled]="false"
+        [onSubmit]="onSubmit.bind(this)"
+        submitLabel="Submit"
+        submitIcon="save"
+        [submitDisabled]="isLoading() || form.invalid"
+      ></app-form-actions>
+    </form>
+  </div>
+</div>

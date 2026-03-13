@@ -154,6 +154,7 @@ public class TripService(
         tripDto.TotalPacks = trip.TripUsers.SelectMany(tu => tu.TripUserPackages).Count();
         tripDto.TotalParticipants = trip.TripUsers.Count;
         tripDto.TotalSharedThings = trip.TripUsers.SelectMany(tu => tu.TripSharedThings).Count();
+        tripDto.TotalSharedTodos = trip.TripSharedTodos.Count;
     }
 
     public async Task<TripDto?> GetByIdWithStatsAsync(Guid id)

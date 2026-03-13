@@ -83,4 +83,7 @@ public partial class User
 
     [InverseProperty("User")]
     public virtual ICollection<UserThing> UserThings { get; set; } = new List<UserThing>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<UserTodo> UserTodos { get; set; } = new List<UserTodo>();
 }

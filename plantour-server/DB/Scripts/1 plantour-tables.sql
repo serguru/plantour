@@ -89,6 +89,22 @@ insert into thing_categories (name) values
 ('Toiletries'),
 ('Travel Essentials');
 
+create table todo_categories (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique,
+    notes text
+);
+insert into todo_categories (name) values
+('Accommodation'),
+('Booking'),
+('Communication'),
+('Documents'),
+('Finance'),
+('Health & Safety'),
+('Preparation'),
+('Shopping'),
+('Transportation');
+
 -----------------------------------------------------------------------
 -- ACTIVITIES
 -----------------------------------------------------------------------
@@ -390,6 +406,18 @@ create table user_things (
 create unique index idx_user_things_user_id_name on user_things(user_id, name);
 
 -----------------------------------------------------------------------
+-- USER TODOS
+-----------------------------------------------------------------------
+create table user_todos (
+    id uuid not null primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    category text,
+    name text not null,
+    notes text
+);
+create unique index idx_user_todos_user_id_name on user_todos(user_id, name);
+
+-----------------------------------------------------------------------
 -- USER PACKAGES
 -----------------------------------------------------------------------
 create table user_packages (
@@ -559,6 +587,20 @@ create table trip_user_things (
 create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(trip_user_id, name);
 
 -----------------------------------------------------------------------
+-- TRIP USER TODOS
+-----------------------------------------------------------------------
+create table trip_user_todos (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_user_id uuid not null references trip_users(id) on delete cascade,
+    category text,
+    name text not null,
+    notes text,
+    finished_at timestamptz,
+    finished text null check (finished in ('success', 'failure') or finished is null)
+);
+create unique index idx_trip_user_todos_trip_user_id_name on trip_user_todos(trip_user_id, name);
+
+-----------------------------------------------------------------------
 -- TRIP SHARED THINGS
 -----------------------------------------------------------------------
 create table trip_shared_things (
@@ -577,6 +619,24 @@ create table trip_shared_things (
     rejected boolean not null default false
 );
 create unique index idx_trip_shared_things_trip_id_name on trip_shared_things(trip_id, name);
+
+-----------------------------------------------------------------------
+-- TRIP SHARED TODOS
+-----------------------------------------------------------------------
+create table trip_shared_todos (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_id uuid not null references trips(id) on delete cascade,
+    category text,
+    name text not null,
+    notes text,
+
+    assigned_to_id uuid null references trip_users(id) on delete set null,
+    assigned_todo_id uuid null references trip_user_todos(id) on delete set null,
+    assigned_at timestamptz null,
+    assigned_deadline timestamptz null,
+    rejected boolean not null default false
+);
+create unique index idx_trip_shared_todos_trip_id_name on trip_shared_todos(trip_id, name);
 
 -----------------------------------------------------------------------
 -- TRIP COMMENTS

@@ -23,5 +23,6 @@ public class TripDto
     public int TotalParticipants { get; set; }
     public int TotalPacks { get; set; }
     public int TotalSharedThings { get; set; }
+    public int TotalSharedTodos { get; set; }
     
 }

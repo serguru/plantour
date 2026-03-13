@@ -24,12 +24,12 @@ export class UnderstandingSharedItemsComponent {
     {
       icon: 'pi pi-share-alt',
       title: 'Admin Creates Shared Items',
-      description: 'Trip admins can create items that are shared with all participants in the trip.'
+      description: 'Trip admins can create collaborative items inside the current trip.'
     },
     {
       icon: 'pi pi-user-check',
-      title: 'Assign to Participants',
-      description: 'Assign shared items to specific participants with responsibility for packing them.'
+      title: 'Assign to One Participant',
+      description: 'Each shared item can be assigned to one participant at a time, with clear packing responsibility.'
     },
     {
       icon: 'pi pi-thumbs-up',
@@ -64,9 +64,9 @@ export class UnderstandingSharedItemsComponent {
 
   workflow: string[] = [
     'Admin creates a shared item and describes what needs to be packed',
-    'Admin assigns the shared item to specific participants',
+    'Admin assigns the shared item to one participant',
     'Participant receives the assignment and can accept or reject it',
-    'If accepted, participant packs the item and marks it as finished',
+    'If accepted, the participant gets a linked trip item and marks it as finished with success or failure',
     'If failed during packing, participant can mark it as incomplete',
     'Admin can see the status of all shared items and their assignments'
   ];
@@ -77,6 +77,6 @@ export class UnderstandingSharedItemsComponent {
     'Participants can accept, reject, or finish shared items assigned to them',
     'Finishing an item means marking it as successfully packed or failed',
     'Shared items are separate from regular items - they are specifically for collaboration',
-    'Multiple participants can be assigned the same shared item'
+    'A shared item has one assignee at a time, but admins can reassign it when needed'
   ];
 }

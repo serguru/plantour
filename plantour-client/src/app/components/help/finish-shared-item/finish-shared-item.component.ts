@@ -32,32 +32,26 @@ export class FinishSharedItemComponent {
     },
     {
       number: 2,
-      title: 'Navigate to Accepted Items',
-      description: 'Go to your assigned shared items to find the one you just packed.',
+      title: 'Open Your Trip Items',
+      description: 'Go to your personal Trip Items list and find the accepted assignment there.',
       icon: 'pi pi-list'
     },
     {
       number: 3,
-      title: 'Mark as Finished',
-      description: 'Click the "Finish" or "Complete" button next to the item.',
+      title: 'Choose Success or Failure',
+      description: 'Use the finish status controls on the linked trip item to record the real result.',
       icon: 'pi pi-pencil'
     },
     {
       number: 4,
-      title: 'Select Finish Status',
-      description: 'Choose whether you successfully packed the item or encountered an issue.',
+      title: 'Pick the Correct Result',
+      description: 'Choose success when the item is packed and ready, or failure when the assignment could not be completed.',
       icon: 'pi pi-check-circle'
     },
     {
       number: 5,
-      title: 'Add Optional Notes',
-      description: 'Include any relevant information about the packed item or issues encountered.',
-      icon: 'pi pi-comment'
-    },
-    {
-      number: 6,
       title: 'Confirm Finish',
-      description: 'Submit the finish status. The admin will see that you have completed the packing.',
+      description: 'The status is updated immediately and the admin can see the completion result in shared-item tracking.',
       icon: 'pi pi-check'
     }
   ];
@@ -96,9 +90,7 @@ export class FinishSharedItemComponent {
   tips: string[] = [
     'Wait until you have actually packed the item before marking it finished',
     'Be honest about the status - success or issue',
-    'Include relevant notes to help the admin understand any problems',
     'If an issue occurred, contact the admin to discuss alternatives',
-    'Take a photo or note details if the item will need to be verified at the trip',
     'Finishing the item notifies other team members and the admin'
   ];
 

@@ -155,6 +155,70 @@ public class DicTripRepository(PlantourContext context)
         return deletedCount;
     }
 
+    public async Task<int> InsertTripUserTodosAsync(
+        Guid adminId,
+        Guid participantId,
+        Guid tripId,
+        Guid[] todoIds)
+    {
+        if (todoIds.Length == 0)
+        {
+            return 0;
+        }
+
+        int insertedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.insert_trip_user_todos(@adminId, @participantId, @tripId, @todoIds);";
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@participantId", participantId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@todoIds", todoIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    insertedCount = count;
+                }
+            }
+        }
+        return insertedCount;
+    }
+
+    public async Task<int> DeleteTripUserTodosAsync(
+        Guid adminId,
+        Guid participantId,
+        Guid tripId,
+        Guid[] todoIds)
+    {
+        if (todoIds.Length == 0)
+        {
+            return 0;
+        }
+
+        int deletedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.delete_trip_user_todos(@adminId, @participantId, @tripId, @todoIds);";
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@participantId", participantId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@todoIds", todoIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    deletedCount = count;
+                }
+            }
+        }
+        return deletedCount;
+    }
+
     public async Task<int> InsertTripUsersAsync(
         Guid adminId,
         Guid tripId,
@@ -303,6 +367,66 @@ public class DicTripRepository(PlantourContext context)
                 command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
                 command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
                 command.Parameters.Add(new NpgsqlParameter("@thingIds", thingIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    deletedCount = count;
+                }
+            }
+        }
+        return deletedCount;
+    }
+
+    public async Task<int> InsertTripSharedTodosAsync(
+        Guid adminId,
+        Guid tripId,
+        Guid[] todoIds)
+    {
+        if (todoIds.Length == 0)
+        {
+            return 0;
+        }
+
+        int insertedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.insert_trip_shared_todos(@adminId, @tripId, @todoIds);";
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@todoIds", todoIds));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    insertedCount = count;
+                }
+            }
+        }
+        return insertedCount;
+    }
+
+    public async Task<int> DeleteTripSharedTodosAsync(
+        Guid adminId,
+        Guid tripId,
+        Guid[] todoIds)
+    {
+        if (todoIds.Length == 0)
+        {
+            return 0;
+        }
+
+        int deletedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.delete_trip_shared_todos(@adminId, @tripId, @todoIds);";
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@todoIds", todoIds));
                 var result = await command.ExecuteScalarAsync();
                 if (result != null && int.TryParse(result.ToString(), out int count))
                 {
@@ -711,6 +835,46 @@ public class DicTripRepository(PlantourContext context)
                 command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
                 command.Parameters.Add(new NpgsqlParameter("@tripUserId", tripUserId));
                 command.Parameters.Add(new NpgsqlParameter("@tripSharedThingIds", tripSharedThingIds));
+                command.Parameters.Add(new NpgsqlParameter("@deadlineAt", d));
+                command.Parameters.Add(new NpgsqlParameter("@unassign", unassign));
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    updatedCount = count;
+                }
+            }
+        }
+        return updatedCount;
+    }
+
+    public async Task<int> AssignTripSharedTodosAsync(
+        Guid adminId,
+        Guid tripId,
+        Guid tripUserId,
+        Guid[] tripSharedTodoIds,
+        DateTime? deadlineAt,
+        bool unassign
+        )
+    {
+        if (tripSharedTodoIds.Length == 0)
+        {
+            return 0;
+        }
+
+        object d = deadlineAt.HasValue ? deadlineAt.Value : DBNull.Value;
+
+        int updatedCount = 0;
+        using (var connection = _context.Database.GetDbConnection())
+        {
+            await connection.OpenAsync();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT plantour.assign_trip_shared_todos(@adminId, @tripId, @tripUserId, @tripSharedTodoIds, @deadlineAt, @unassign);";
+
+                command.Parameters.Add(new NpgsqlParameter("@adminId", adminId));
+                command.Parameters.Add(new NpgsqlParameter("@tripId", tripId));
+                command.Parameters.Add(new NpgsqlParameter("@tripUserId", tripUserId));
+                command.Parameters.Add(new NpgsqlParameter("@tripSharedTodoIds", tripSharedTodoIds));
                 command.Parameters.Add(new NpgsqlParameter("@deadlineAt", d));
                 command.Parameters.Add(new NpgsqlParameter("@unassign", unassign));
                 var result = await command.ExecuteScalarAsync();

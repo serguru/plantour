@@ -356,13 +356,16 @@ try
     builder.Services.AddScoped<IUsersService, UsersService>();
     builder.Services.AddScoped<IPackageService, PackService>();
     builder.Services.AddScoped<IThingService, ThingService>();
+    builder.Services.AddScoped<ITodoService, TodoService>();
     builder.Services.AddScoped<ITripService, TripService>();
     builder.Services.AddScoped<ITripUserService, TripUserService>();
     builder.Services.AddScoped<ITripThingService, TripThingService>();
+    builder.Services.AddScoped<ITripTodoService, TripTodoService>();
     builder.Services.AddScoped<ITripPackageService, TripPackageService>();
     builder.Services.AddScoped<ILookupsService, LookupsService>();
     builder.Services.AddScoped<IAdminsParticipantService, AdminsParticipantService>();
     builder.Services.AddScoped<ITripSharedService, TripSharedService>();
+    builder.Services.AddScoped<ITripSharedTodoService, TripSharedTodoService>();
     builder.Services.AddScoped<ICheckAccessService, CheckAccessService>();
     builder.Services.AddScoped<ITemplateService, TemplateService>();
     builder.Services.AddScoped<ITripCommentService, TripCommentService>();
@@ -385,7 +388,9 @@ try
     // Register repositories
     builder.Services.AddScoped<plantour_server.Repositories.PackRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.ThingRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.TodoRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.TodoCategoryRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.CommunicationTypeRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.UnitRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripStatusRepository>();
@@ -398,6 +403,7 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripUserRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripThingRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.TripTodoRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripPackRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.LookupsRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository>();
@@ -405,6 +411,7 @@ try
     builder.Services.AddScoped<plantour_server.Repositories.InvitationsRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.DicTripRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripSharedRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.TripSharedTodoRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();

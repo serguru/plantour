@@ -23,7 +23,9 @@ export interface TripUserDto {
   fullName?: string | null;
   totalPacks?: number;
   totalThings?: number;
+  totalTodos?: number;
   totalSharedThings?: number;
+  totalSharedTodos?: number;
 }
 
 export interface CreateTripUserRequest {

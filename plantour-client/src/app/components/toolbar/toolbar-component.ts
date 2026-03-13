@@ -51,6 +51,12 @@ export class Toolbar implements OnInit {
     this.router.navigate(["things"]);
   }
 
+  onTodosClick($event, popover) {
+    $event.preventDefault();
+    popover.hide();
+    this.router.navigate(["todos"]);
+  }
+
   onPacksClick($event, popover) {
     $event.preventDefault();
     popover.hide();
@@ -185,6 +191,19 @@ export class Toolbar implements OnInit {
     this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-things`]);
   }
 
+  onTripTodosClick($event, popover): void {
+    if (this.disableParticipantOnlyFeatures()) {
+      return;
+    }
+    $event.preventDefault();
+    popover.hide();
+
+    if (!this.currentTrip()) {
+      return;
+    }
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-todos`]);
+  }
+
   onTripPacksClick($event, popover): void {
     if (this.disableParticipantOnlyFeatures()) {
       return;
@@ -206,6 +225,16 @@ export class Toolbar implements OnInit {
       return;
     }
     this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-shared`]);
+  }
+
+  onTripSharedTodosClick($event, popover): void {
+    $event.preventDefault();
+    popover.hide();
+
+    if (!this.currentTrip()) {
+      return;
+    }
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-shared-todos`]);
   }
 
   onTripCommentsClick($event, popover): void {

@@ -215,6 +215,89 @@ end;
 $$;
 --#endregion
 
+--#region insert_trip_user_todos
+create or replace function plantour.insert_trip_user_todos(
+    p_admin_id uuid,
+    p_participant_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_trip_user_id uuid;
+    v_inserted_count integer;
+begin
+
+    select plantour.get_trip_user_id(
+        p_admin_id,
+        p_participant_id,
+        p_trip_id
+    )
+    into v_trip_user_id;
+
+    insert into plantour.trip_user_todos (trip_user_id, name, category, notes)
+    select
+        v_trip_user_id,
+        b.name,
+        b.category,
+        b.notes
+    from plantour.user_todos b
+    left join plantour.trip_user_todos c on 
+        c.trip_user_id = v_trip_user_id and 
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        b.id = any (p_ids)
+        and b.user_id = p_participant_id
+        and c.id is null;
+
+    get diagnostics v_inserted_count = row_count;
+
+    return v_inserted_count;
+end;
+$$;
+--#endregion
+
+--#region delete_trip_user_todos
+create or replace function plantour.delete_trip_user_todos(
+    p_admin_id uuid,
+    p_participant_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_trip_user_id uuid;
+    v_deleted_count integer;
+begin
+
+    select plantour.get_trip_user_id(
+        p_admin_id,
+        p_participant_id,
+        p_trip_id
+    )
+    into v_trip_user_id;
+
+    delete from plantour.trip_user_todos a
+    using plantour.user_todos b
+    join plantour.trip_user_todos c on 
+        c.trip_user_id = v_trip_user_id and 
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        a.id = c.id and
+        b.id = any (p_ids)
+        and b.user_id = p_participant_id;
+
+    get diagnostics v_deleted_count = row_count;
+
+    return v_deleted_count;
+end;
+$$;
+--#endregion
+
 --#region  insert_trip_users
 create or replace function plantour.insert_trip_users(
     p_admin_id uuid,
@@ -413,6 +496,69 @@ begin
         lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
     where
         a.id = c.id 
+        and b.id = any (p_ids)
+        and b.user_id = p_admin_id;
+
+    get diagnostics v_deleted_count = row_count;
+
+    return v_deleted_count;
+end;
+$$;
+--#endregion
+
+--#region insert_trip_shared_todos
+create or replace function plantour.insert_trip_shared_todos(
+    p_admin_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_inserted_count integer;
+begin
+    insert into plantour.trip_shared_todos (trip_id, category, name, notes)
+    select
+        p_trip_id,
+        b.category,
+        b.name,
+        b.notes
+    from plantour.user_todos b
+    left join plantour.trip_shared_todos c on 
+        c.trip_id = p_trip_id and 
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        b.id = any (p_ids)
+        and b.user_id = p_admin_id
+        and c.id is null;
+
+    get diagnostics v_inserted_count = row_count;
+
+    return v_inserted_count;
+end;
+$$;
+--#endregion
+
+--#region delete_trip_shared_todos
+create or replace function plantour.delete_trip_shared_todos(
+    p_admin_id uuid,
+    p_trip_id uuid,
+    p_ids uuid[]
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_deleted_count integer;
+begin
+    delete from plantour.trip_shared_todos a
+    using plantour.user_todos b
+    join plantour.trip_shared_todos c on 
+        c.trip_id = p_trip_id and 
+        lower(c.name collate "und-x-icu") = lower(b.name collate "und-x-icu")
+    where
+        a.id = c.id
         and b.id = any (p_ids)
         and b.user_id = p_admin_id;
 
@@ -693,6 +839,67 @@ begin
         set 
             assigned_to_id = p_trip_user_id,
             assigned_thing_id = null,
+            assigned_at = now(),
+            assigned_deadline = p_deadline_at,
+            rejected = false
+        where
+            trip_id = p_trip_id and
+            id = any (p_ids);
+
+    end if;
+
+
+    get diagnostics v_updated_count = row_count;
+
+    return v_updated_count;
+end;
+$$;
+--#endregion
+
+--#region assign_trip_shared_todos
+create or replace function plantour.assign_trip_shared_todos(
+    p_admin_id uuid,
+    p_trip_id uuid,
+    p_trip_user_id uuid,
+    p_ids uuid[],
+    p_deadline_at timestamptz,
+    p_unassign boolean
+)
+returns integer
+language plpgsql
+as $$
+declare
+    v_updated_count integer;
+begin
+    perform plantour.get_trip_id(p_admin_id, p_trip_id);
+
+    if (p_unassign) then
+        update plantour.trip_shared_todos
+        set 
+            assigned_to_id = null,
+            assigned_todo_id = null,
+            assigned_at = null,
+            assigned_deadline = null,
+            rejected = false
+        where
+            trip_id = p_trip_id and
+            id = any (p_ids);
+
+    else
+
+        if not exists (
+            select null from plantour.trip_users 
+            where 
+                id = p_trip_user_id and trip_id = p_trip_id
+        ) then
+            raise exception
+                'Wrong trip user id';
+        end if;
+
+        update plantour.trip_shared_todos
+        set 
+            assigned_to_id = p_trip_user_id,
+            assigned_todo_id = null,
             assigned_at = now(),
             assigned_deadline = p_deadline_at,
             rejected = false

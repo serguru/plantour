@@ -90,7 +90,9 @@ public class TripUserService(
         {
             dto.TotalPacks = entities.ElementAt(index).TripUserPackages?.Count ?? 0;
             dto.TotalThings = entities.ElementAt(index).TripUserThings?.Count ?? 0;
+            dto.TotalTodos = entities.ElementAt(index).TripUserTodos?.Count ?? 0;
             dto.TotalSharedThings = entities.ElementAt(index).TripSharedThings?.Count ?? 0;
+            dto.TotalSharedTodos = entities.ElementAt(index).TripSharedTodos?.Count ?? 0;
             return dto;
         });
 
@@ -114,7 +116,9 @@ public class TripUserService(
         TripUserDto dto = _mapper.Map<TripUserDto>(entity);
         dto.TotalPacks = entity.TripUserPackages?.Count ?? 0;
         dto.TotalThings = entity.TripUserThings?.Count ?? 0;
+        dto.TotalTodos = entity.TripUserTodos?.Count ?? 0;
         dto.TotalSharedThings = entity.TripSharedThings?.Count ?? 0;
+        dto.TotalSharedTodos = entity.TripSharedTodos?.Count ?? 0;
         return dto;
     }
 
@@ -135,7 +139,9 @@ public class TripUserService(
         TripUserDto dto = _mapper.Map<TripUserDto>(entity);
         dto.TotalPacks = entity.TripUserPackages?.Count ?? 0;
         dto.TotalThings = entity.TripUserThings?.Count ?? 0;
+        dto.TotalTodos = entity.TripUserTodos?.Count ?? 0;
         dto.TotalSharedThings = entity.TripSharedThings?.Count ?? 0;
+        dto.TotalSharedTodos = entity.TripSharedTodos?.Count ?? 0;
         return dto;
     }
 

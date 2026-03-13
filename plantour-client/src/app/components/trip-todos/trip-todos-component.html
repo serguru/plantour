@@ -1,0 +1,16 @@
+<div class="page-container">
+    <app-entities-header
+        entityIcon="pi pi-check-square"
+        title="Trip todos"
+        [delete]="deleteTripTodo.bind(this)"
+        entityName="todo"
+        addUrl="add"
+        editUrl="edit/:id"
+        [menuItems]="menuItems()"
+    ></app-entities-header>
+
+    <app-entities
+        [itemComponent]="tripTodoItemComponent"
+        [itemMetaData]="itemMetaData"
+    ></app-entities>
+</div>

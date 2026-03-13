@@ -17,6 +17,12 @@ export interface ThingCategoryDto {
   notes?: string | null;
 }
 
+export interface TodoCategoryDto {
+  id: string;
+  name: string;
+  notes?: string | null;
+}
+
 export interface TripStatusDto {
   id: string;
   name: string;
@@ -30,6 +36,7 @@ export interface UnitDto {
 export interface LookupsResponse {
   communicationTypes: CommunicationTypeDto[];
   thingCategories: ThingCategoryDto[];
+  todoCategories: TodoCategoryDto[];
   tripStatuses: TripStatusDto[];
   units: UnitDto[];
 }
@@ -98,6 +105,20 @@ export class LookupService {
     });
   }
   tripStatuses$ = this.getTripStatuses();
+
+  getTodoCategories(): Observable<TodoCategoryDto[]> {
+    return new Observable((observer) => {
+      this.loadLookupsIfNeeded().subscribe({
+        next: (lookups) => {
+          observer.next(lookups.todoCategories);
+          observer.complete();
+        },
+        error: (err) => observer.error(err),
+      });
+    });
+  }
+
+  todoCategories$ = this.getTodoCategories();
 
   getUnits(): Observable<UnitDto[]> {
     return new Observable((observer) => {

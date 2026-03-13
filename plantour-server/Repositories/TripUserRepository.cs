@@ -13,7 +13,9 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
             .Include(x => x.AdminParticipant.Participant)
             .Include(x => x.TripUserPackages)
             .Include(x => x.TripUserThings)
+            .Include(x => x.TripUserTodos)
             .Include(x => x.TripSharedThings)
+            .Include(x => x.TripSharedTodos)
             .FirstOrDefaultAsync(x =>
                 x.TripId == tripId &&
                 x.Trip.UserId == adminId &&
@@ -28,7 +30,9 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
             .Include(x => x.AdminParticipant.Participant)
             .Include(x => x.TripUserPackages)
             .Include(x => x.TripUserThings)
+            .Include(x => x.TripUserTodos)
             .Include(x => x.TripSharedThings)
+            .Include(x => x.TripSharedTodos)
             .FirstOrDefaultAsync(x =>
             x.Id == id &&
             x.AdminParticipant.AdminId == adminId &&
@@ -43,7 +47,9 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
             .Include(x => x.AdminParticipant.Participant)
             .Include(x => x.TripUserPackages)
             .Include(x => x.TripUserThings)
+            .Include(x => x.TripUserTodos)
             .Include(x => x.TripSharedThings)
+            .Include(x => x.TripSharedTodos)
             .FirstOrDefaultAsync(x =>
             x.Id == id &&
             x.AdminParticipant.AdminId == adminId &&
@@ -68,7 +74,9 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
             .Include(x => x.AdminParticipant.Participant)
             .Include(x => x.TripUserPackages)
             .Include(x => x.TripUserThings)
+            .Include(x => x.TripUserTodos)
             .Include(x => x.TripSharedThings)
+            .Include(x => x.TripSharedTodos)
             .Where(x => x.TripId == tripId && x.AdminParticipant.AdminId == adminId)
             .ToListAsync();
     }
