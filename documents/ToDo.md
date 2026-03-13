@@ -27,6 +27,10 @@
 - reverse the order of the messages, the most recent should be at the bottom, and the scroll should be at the bottom by default
 - add a link to shared item from trip item
 - add 4-th memeber to categories lookup
+- Add a method to create a new trip from the existing one 
+- make a trip and its data read only if completed
+- implement an idea to click on an item and buy it on Amazon
+
 
 
 

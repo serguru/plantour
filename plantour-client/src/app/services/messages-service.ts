@@ -38,7 +38,6 @@ export interface DialogState extends DialogConfig {
   onOkError?: EmailOkErrorHandler;
 }
 
-// TODO: adjust messages colors and fonts 
 @Injectable({
   providedIn: 'root'
 })

@@ -168,13 +168,13 @@ export const routes: Routes = [
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'trips' }
   },
-  // {
-  //   path: 'trips/trip/:tripId',
-  //   canActivate: [adminOrParticipantGuard],
-  //   loadComponent: () => import('./components/trips/trips-component').then(m => m.TripsComponent),
-  //   resolve: { cleanup: CleanupResolver },
-  //   data: { componentId: 'trips' }
-  // },
+  {
+    path: 'trips/trip/:tripId',
+    canActivate: [adminOrParticipantGuard],
+    loadComponent: () => import('./components/trips/trips-component').then(m => m.TripsComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'trips' }
+  },
   {
     path: 'trips/add',
     canActivate: [adminOnlyGuard],

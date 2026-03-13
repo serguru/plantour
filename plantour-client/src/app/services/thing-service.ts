@@ -71,8 +71,6 @@ export class ThingService {
     return this.http.put<void>(`${this.apiUrl}`, request);
   }
 
-  // TODO: why does it call for latest prompts when navigated to other component?
-
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
