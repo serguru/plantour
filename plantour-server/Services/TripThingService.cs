@@ -219,7 +219,7 @@ public class TripThingService(
 
     public async Task ToggleFinishedTripThingsAsync(Guid tripId, Guid id, string? finished)
     {
-        _currentUser.RaiseIfNotParticipant();
+        _currentUser.RaiseIfNotAuthenticated();
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {

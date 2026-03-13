@@ -85,7 +85,6 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
         return Ok(dtos);
     }
 
-
     [HttpGet("{tripId}/{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult<TripSharedDto>> GetById(Guid tripId, Guid id)
@@ -95,7 +94,7 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
     }
 
     [HttpPost]
-    [AdminOrParticipant]
+    [AdminOnly]
     public async Task<ActionResult<TripSharedDto>> Add([FromBody] CreateTripSharedRequest request)
     {
         var dto = await _service.AddAsync(request);
@@ -103,7 +102,7 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
     }
 
     [HttpPut]
-    [AdminOrParticipant]
+    [AdminOnly]
     public async Task<ActionResult> Update([FromBody] UpdateTripSharedRequest request)
     {
         await _service.UpdateAsync(request);
@@ -111,7 +110,7 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
     }
 
     [HttpDelete("{tripId}/{id}")]
-    [AdminOrParticipant]
+    [AdminOnly]
     public async Task<ActionResult> Delete(Guid tripId, Guid id)
     {
         await _service.DeleteAsync(tripId, id);       
