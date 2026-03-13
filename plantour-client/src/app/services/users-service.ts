@@ -246,6 +246,7 @@ export class UsersService {
     if (!newUser) {
       return;
     } 
+    // TODO: test public templates 
 
     const storedUserId = this.localStorageService.getItem('signin-userId');
     if (storedUserId && newUser.user_id && storedUserId != newUser.user_id) {
@@ -253,10 +254,6 @@ export class UsersService {
     }
     this.localStorageService.setItem('signin-userId', newUser.user_id);
   }
-
-
-  // TODO: fix link to trip from the dashboard
-  
 
   public applyAuthResponse(response: any): void {
     this.clearLocalStorageIfNewUser(response.accessToken || null);
