@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CreateTripSharedRequest, TripSharedDto, TripSharedService, UpdateTripSharedRequest } from '../../../services/trip-shared-service';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
@@ -22,7 +22,6 @@ import { capitalizeFirstLetter } from '../../../helpers/utils';
 import { allTogetherValidator } from '../../../helpers/all-together-validator';
 
 
-// TODO: having spear time add 4-th memeber to categories lookup, here and in trip things
 @Component({
   selector: 'app-trip-shared-form',
   standalone: true,
@@ -35,7 +34,8 @@ import { allTogetherValidator } from '../../../helpers/all-together-validator';
     FormHeader,
     FormActions,
     Select,
-    InputNumber
+    InputNumber,
+    FormsModule
   ],
   templateUrl: './trip-shared-form-component.html',
   styleUrl: './trip-shared-form-component.scss'
@@ -301,7 +301,7 @@ export class TripSharedFormComponent implements OnInit {
       return;
     } 
 
-    this.form.controls["name"].patchValue(event.value.name);
+    this.form.controls["name"].patchValue(event.value);
   }
 
 }

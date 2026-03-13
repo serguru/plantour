@@ -16,7 +16,6 @@ import { map, switchMap, tap } from 'rxjs';
 import { AssignmentStatus } from '../../helpers/enums';
 import { formatDate, getDaysDifference } from '../../helpers/utils';
 
-// TODO: fix access to view, delete  or edit if no initial rows
 // TODO: do not show shared info for not shared things and hide show shared menг if no shared things
 // TODO: categories lookup?
 @Component({

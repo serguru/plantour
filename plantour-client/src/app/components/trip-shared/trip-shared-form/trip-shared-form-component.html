@@ -15,6 +15,7 @@
         <p-select
           appAutoFocus
           id="name"
+          formControlName="name"
           [options]="lookupTripThings$ | async"
           optionLabel="name"
           dataKey="name"

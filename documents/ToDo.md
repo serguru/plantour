@@ -25,6 +25,9 @@
 - add the search to Help
 - ensure RxJs is used in right way
 - reverse the order of the messages, the most recent should be at the bottom, and the scroll should be at the bottom by default
+- add a link to shared item from trip item
+- add 4-th memeber to categories lookup
+
 
 
 

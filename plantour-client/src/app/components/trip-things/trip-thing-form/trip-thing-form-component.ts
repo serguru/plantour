@@ -295,7 +295,7 @@ export class TripThingFormComponent implements OnInit {
       return;
     } 
 
-    this.form.controls["name"].patchValue(event.value.name);
+    this.form.controls["name"].patchValue(event.value);
   }
 }
 
