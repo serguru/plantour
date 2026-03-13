@@ -1,6 +1,11 @@
-<div class="pack-row">
+<!-- <div class="pack-row">
     <span
         class="pack-name"
         [innerHTML]="entity.name | packText : entity.label"
     ></span>
-</div>
+</div> -->
+<amazon-link
+    class="ic-2-item ellipsis-text"
+    [item]="entity.name | packText : entity.label"
+    [linkText]="entity.name | packText : entity.label"
+></amazon-link>

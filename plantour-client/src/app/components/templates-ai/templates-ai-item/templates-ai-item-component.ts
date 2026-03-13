@@ -2,10 +2,12 @@ import { Component, Input } from '@angular/core';
 import { ThingDto } from '../../../services/thing-service';
 import { VTemplateThingsFullDto } from '../../../services/template-service';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
+import { AmazonLinkComponent } from '../../amazon-link/amazon-link-component';
 
 @Component({
   selector: 'app-templates-ai-item',
   imports: [
+    AmazonLinkComponent
   ],
   templateUrl: './templates-ai-item-component.html',
   styleUrl: './templates-ai-item-component.scss',

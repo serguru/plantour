@@ -94,8 +94,10 @@ export class ComponentService {
   private entitiesSubject: BehaviorSubject<any[] | null> = new BehaviorSubject<any[] | null>(null);
   entities$: Observable<any[] | null> = this.entitiesSubject.asObservable().pipe(takeUntil(this.destroy$));
   updateEntities(entities: any[] | null): void {
-    this.checkResetSelectedId(entities);
-    this.entitiesSubject.next(entities);
+    // This cloning is necessary for ngComponentOutlet to process changes properly
+    const nextEntities = entities?.map(entity => entity && typeof entity === 'object' ? { ...entity } : entity) ?? null;
+    this.checkResetSelectedId(nextEntities);
+    this.entitiesSubject.next(nextEntities);
   }
 
   // Current conditions: filtering, sorting, lookups and targets for packing or assigning

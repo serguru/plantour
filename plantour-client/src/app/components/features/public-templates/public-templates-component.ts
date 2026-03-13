@@ -17,6 +17,8 @@ import { REQUEST } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { EntitiesHeader, MenuConfig } from '../../entities/entities-header-component/entities-header-component';
 import { SeoService } from '../../../services/seo-service';
+import { AmazonLinkComponent } from '../../amazon-link/amazon-link-component';
+import { UsersService } from '../../../services/users-service';
 
 type FilterKey = 'search' | 'activity' | 'age' | 'temperature' | 'category';
 
@@ -43,7 +45,7 @@ interface TemplateGroup {
 @Component({
   selector: 'app-public-templates',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, Select, InputTextModule, ButtonModule, EntitiesHeader],
+  imports: [CommonModule, RouterModule, FormsModule, Select, InputTextModule, ButtonModule, EntitiesHeader, AmazonLinkComponent],
   templateUrl: './public-templates-component.html',
   styleUrl: './public-templates-component.scss'
 })
@@ -55,6 +57,7 @@ export class PublicTemplatesComponent implements OnInit {
   private document = inject(DOCUMENT);
   private sanitizer = inject(DomSanitizer);
   private request = inject(REQUEST, { optional: true });
+  usersService = inject(UsersService)
 
   isLoading = signal(true);
   templates = signal<PublicTemplateThingDto[]>([]);
@@ -246,7 +249,7 @@ export class PublicTemplatesComponent implements OnInit {
   }
 
   goToGuestAccess(): void {
-    this.router.navigate(['/help'], { queryParams: { start: 'guest' } });
+    this.usersService.createTemporaryUser()
   }
 
   getLookupOptions() {
@@ -336,6 +339,19 @@ export class PublicTemplatesComponent implements OnInit {
     const regex = new RegExp(`(${safeQuery})`, 'ig');
     const highlighted = escaped.replace(regex, '<mark>$1</mark>');
     return this.sanitizer.bypassSecurityTrustHtml(highlighted);
+  }
+
+  highlightTextU(value: string): string {
+    const query = this.searchText().trim();
+    const escaped = this.escapeHtml(value);
+    if (!query) {
+      return escaped;
+    }
+
+    const safeQuery = this.escapeRegExp(query);
+    const regex = new RegExp(`(${safeQuery})`, 'ig');
+    const highlighted = escaped.replace(regex, '<mark>$1</mark>');
+    return highlighted;
   }
 
   private escapeHtml(value: string): string {

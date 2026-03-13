@@ -1,0 +1,11 @@
+<a
+	class="amazon-link"
+	[attr.href]="amazonSearchUrl()"
+	[attr.aria-label]="ariaLabel()"
+	[class.is-disabled]="!amazonSearchUrl()"
+	target="_blank"
+	rel="noopener sponsored nofollow"
+    [innerHtml]="resolvedLinkText()"
+>
+</a>
+

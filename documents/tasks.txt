@@ -445,7 +445,7 @@ I need this features:
 
 Can GitHub provide this?
 
-
+Explore src\app\components\amazon-link\amazon-link-component.ts. Find and explore the official Anazon documentation on how my web app can earn comissions for my customers visits to Amazon pages. Add the necessary code to the amazon-link-component.ts to make it working as a link to the search amamzon page by the item name passed as a query param.
 
 
 

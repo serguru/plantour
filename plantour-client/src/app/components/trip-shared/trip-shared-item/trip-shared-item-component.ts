@@ -9,6 +9,7 @@ import { mapStatusToClass } from '../../../helpers/utils';
 import { UsersService } from '../../../services/users-service';
 import { AssignmentStatus } from '../../../helpers/enums';
 import { ThingTextPipe } from '../../../pipes/thing-text.pipe';
+import { AmazonLinkComponent } from '../../amazon-link/amazon-link-component';
 
 @Component({
   selector: 'app-trip-shared-item-component',
@@ -16,7 +17,8 @@ import { ThingTextPipe } from '../../../pipes/thing-text.pipe';
     Select,
     FormsModule,
     Checkbox,
-    ThingTextPipe
+    ThingTextPipe,
+    AmazonLinkComponent
   ],
   templateUrl: './trip-shared-item-component.html',
   styleUrl: './trip-shared-item-component.scss',
