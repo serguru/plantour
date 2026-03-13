@@ -131,10 +131,16 @@ export class DynamicQueryService {
 
     for (const filter of filters) {
       const value = item[filter.property];
-      if (value == null) continue;
+      if (!value) {
+        continue;
+      }
+        
 
       const text = String(value);
       const search = filter.filterText;
+      if (search == null || search == undefined || search == "") {
+        continue;
+      }
       const index = text.toLowerCase()
         .indexOf(search.toLowerCase());
 

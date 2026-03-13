@@ -10,6 +10,7 @@ import { mapStatusToClass } from '../../../helpers/utils';
 import { Checkbox } from 'primeng/checkbox';
 import { CheckboxChangeEvent } from 'primeng/checkbox';
 import { ThingTextPipe } from '../../../pipes/thing-text.pipe';
+import { AmazonLinkComponent } from '../../amazon-link/amazon-link-component';
 
 @Component({
   selector: 'app-trip-thing-item-component',
@@ -17,7 +18,8 @@ import { ThingTextPipe } from '../../../pipes/thing-text.pipe';
     Select,
     FormsModule,
     Checkbox,
-    ThingTextPipe
+    ThingTextPipe,
+    AmazonLinkComponent
   ],
   templateUrl: './trip-thing-item-component.html',
   styleUrl: './trip-thing-item-component.scss',

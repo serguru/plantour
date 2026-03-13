@@ -1,7 +1,14 @@
-<span
+<amazon-link
     class="ic-2-item ellipsis-text"
-    [innerHTML]="entity.name | thingText : entity.units : entity.value"
-></span>
+    [item]="entity.name | thingText : entity.units : entity.value"
+    [linkText]="entity.name | thingText : entity.units : entity.value"
+></amazon-link>
 @if(entity.category) {
-<span class="ic-2-item ic-2-right ellipsis-text" ><div class="category">{{entity.category}}</div></span>
+<span class="ic-2-item ic-2-right ellipsis-text">
+    <div class="category"> <amazon-link
+            class="ic-2-item ellipsis-text"
+            [item]="entity.category"
+            [linkText]="entity.category"
+        ></amazon-link></div>
+</span>
 }

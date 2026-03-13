@@ -86,7 +86,14 @@
           role="button"
         >
           <div class="row-main">
-            <h3 [innerHTML]="highlightText(group.templateName)"></h3>
+            <!-- <h3 [innerHTML]="highlightText(group.templateName)"></h3> -->
+            <h3>
+              <amazon-link
+                class="ic-2-item ellipsis-text"
+                [item]="group.templateName"
+                [linkText]="highlightTextU(group.templateName)"
+              ></amazon-link>
+            </h3>
             <div class="row-meta">
               <span
                 class="activity"
@@ -101,7 +108,15 @@
             </div>
             <div class="row-tags">
               @for (tag of group.categories; track tag) {
-              <span class="tag">{{ tag }}</span>
+              <!-- <span class="tag">{{ tag }}</span> -->
+
+              <amazon-link
+                class="tag"
+                [item]="tag"
+                [linkText]="tag"
+              ></amazon-link>
+
+
               }
             </div>
           </div>
@@ -113,7 +128,7 @@
         }
       </div>
     </section>
-
+    @if (!usersService.isAuthenticatedSignal()) {
     <section class="cta-section">
       <div class="cta-inline">
         <div>
@@ -128,5 +143,6 @@
         </div>
       </div>
     </section>
+    }
   </div>
 </div>

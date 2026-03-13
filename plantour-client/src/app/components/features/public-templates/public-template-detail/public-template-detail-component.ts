@@ -8,6 +8,8 @@ import { catchError, of, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
+import { AmazonLinkComponent } from '../../../amazon-link/amazon-link-component';
+import { UsersService } from '../../../../services/users-service';
 
 type DetailFilterKey = 'search' | 'category';
 
@@ -20,7 +22,7 @@ interface DetailFilterOption {
 @Component({
   selector: 'app-public-template-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, Select, InputTextModule],
+  imports: [CommonModule, RouterModule, FormsModule, Select, InputTextModule, AmazonLinkComponent],
   templateUrl: './public-template-detail-component.html',
   styleUrl: './public-template-detail-component.scss'
 })
@@ -32,6 +34,7 @@ export class PublicTemplateDetailComponent implements OnInit {
   private document = inject(DOCUMENT);
   private sanitizer = inject(DomSanitizer);
   private request = inject(REQUEST, { optional: true });
+  usersService = inject(UsersService);
 
   isLoading = signal(true);
   templateId = signal<string>('');
@@ -204,6 +207,10 @@ export class PublicTemplateDetailComponent implements OnInit {
     this.injectJsonLd(data, 'public-template-detail-jsonld');
   }
 
+  goToGuestAccess(): void {
+    this.usersService.createTemporaryUser()
+  }
+
   private normalize(value?: string | null): string {
     return (value ?? '').trim().toLowerCase();
   }
@@ -219,6 +226,19 @@ export class PublicTemplateDetailComponent implements OnInit {
     const regex = new RegExp(`(${safeQuery})`, 'ig');
     const highlighted = escaped.replace(regex, '<mark>$1</mark>');
     return this.sanitizer.bypassSecurityTrustHtml(highlighted);
+  }
+
+  highlightTextU(value: string): string {
+    const query = this.searchText().trim();
+    const escaped = this.escapeHtml(value);
+    if (!query) {
+      return escaped;
+    }
+
+    const safeQuery = this.escapeRegExp(query);
+    const regex = new RegExp(`(${safeQuery})`, 'ig');
+    const highlighted = escaped.replace(regex, '<mark>$1</mark>');
+    return highlighted;
   }
 
   private escapeHtml(value: string): string {

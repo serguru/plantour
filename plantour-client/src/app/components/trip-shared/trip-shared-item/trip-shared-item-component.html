@@ -1,8 +1,16 @@
 <div class="container">
-    <div
+    <!-- <div
         class="ic-2-item"
         [innerHTML]="entity.name | thingText : entity.units : entity.value"
-    ></div>
+    ></div> -->
+
+    <amazon-link
+        class="ic-2-item ellipsis-text"
+        [item]="entity.name | thingText : entity.units : entity.value"
+        [linkText]="entity.name | thingText : entity.units : entity.value"
+    ></amazon-link>
+
+
     <div class="ic-2-item ic-2-right">
 
         @if(!targetCondition() && itemMetaData?.assigneesVisible() && isAdminSignal()) {
@@ -21,9 +29,17 @@
         >
         </p-select>
         } @else if(entity.category){
-        <span class="ic-2-item ic-2-right ellipsis-text">
+        <!-- <span class="ic-2-item ic-2-right ellipsis-text">
             <div class="category">{{entity.category}}</div>
+        </span> -->
+        <span class="ic-2-item ic-2-right ellipsis-text">
+            <div class="category"> <amazon-link
+                    class="ic-2-item ellipsis-text"
+                    [item]="entity.category"
+                    [linkText]="entity.category"
+                ></amazon-link></div>
         </span>
+
         }
     </div>
 

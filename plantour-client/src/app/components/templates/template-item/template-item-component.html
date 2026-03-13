@@ -1,11 +1,27 @@
-<span
+<!-- <span
   class="ic-2-item ellipsis-text"
   [innerHTML]="entity.name"
-></span>
+></span> -->
+
+<amazon-link
+    class="ic-2-item ellipsis-text"
+    [item]="entity.name"
+    [linkText]="entity.name"
+></amazon-link>
+
+
 @if(entity.category) {
-<span class="ic-2-item ic-2-right ellipsis-text">
+<!-- <span class="ic-2-item ic-2-right ellipsis-text">
   <div class="category">{{entity.category}}</div>
+</span> -->
+<span class="ic-2-item ic-2-right ellipsis-text">
+    <div class="category"> <amazon-link
+            class="ic-2-item ellipsis-text"
+            [item]="entity.category"
+            [linkText]="entity.category"
+        ></amazon-link></div>
 </span>
+
 }
 @if (lowerText.length && itemMetaData!.lowerTextVisible()) {
 <div class="smaller-text">{{lowerText}}</div>

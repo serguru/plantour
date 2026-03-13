@@ -163,8 +163,15 @@ export const getMessageFromError = (error: any, defaultMessage: string) => {
 }
 
 export const getNowDaysUtc = (date: Date, days: number): string => {
-    const newDate = date.setDate(date.getDate() + days);
-    const result = new Date(newDate).toISOString();
-    return result;
+  const newDate = date.setDate(date.getDate() + days);
+  const result = new Date(newDate).toISOString();
+  return result;
 
+}
+
+export const removeMark = (s: string): string => {
+  if (!s) {
+    return s;
+  }
+  return s.replaceAll("<mark>", "").replaceAll("</mark>", "");
 }
