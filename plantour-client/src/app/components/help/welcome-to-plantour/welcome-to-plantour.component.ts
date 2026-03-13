@@ -20,7 +20,7 @@ export class WelcomeToPlantourComponent {
         'Organize travelers - Add family and friends to your trip',
         'Pack smarter - Create packing lists and track what\'s packed',
         'Collaborate easily - Share your trip with travel companions',
-        'Stay on track - Use notes and to-dos during your trip'
+        'Communicate - exchange travel-related messages'
       ]
     },
 
@@ -31,7 +31,7 @@ export class WelcomeToPlantourComponent {
         {
           icon: '📋',
           title: 'All-in-One Trip Organization',
-          description: 'Keep all trip information in one place. Stop juggling spreadsheets, notes, and emails. Find anything instantly with search'
+          description: 'Keep all trip information in one place. Stop juggling spreadsheets, notes, and emails. Find anything instantly with filtering and searching.'
         },
         {
           icon: '👥',
@@ -41,22 +41,22 @@ export class WelcomeToPlantourComponent {
         {
           icon: '🧳',
           title: 'Smart Packing Lists',
-          description: 'Never forget anything important. Organize items by category. Track who packed what. Print labels for luggage'
+          description: 'Never forget anything important. Organize items by category. Track who packed what. Print packing lists for luggage.'
         },
         {
           icon: '💡',
           title: 'Simplified Planning',
-          description: 'Create new trips from scratch or use templates. Copy successful trips from your past travels. Plan step-by-step without feeling overwhelmed'
+          description: 'Create new trips from scratch or use templates. Plan step-by-step without feeling overwhelmed.'
         },
         {
           icon: '📱',
           title: 'Works Anywhere',
-          description: 'Use on your computer at home. Access on your phone during travel. Works online and offline (offline features available in mobile apps)'
+          description: 'Use on your computer at home. Access on your phone during travel.'
         },
         {
           icon: '🆓',
           title: 'Try Before You Commit',
-          description: 'Use Guest Mode for 7 days free - no registration needed. Explore all features with sample data. Create your account when you\'re ready'
+          description: 'Use Guest Mode for 14 days free - no registration needed. Explore all features with sample data. Create your account when you\'re ready.'
         }
       ]
     },
@@ -71,7 +71,7 @@ export class WelcomeToPlantourComponent {
           'Look for the "Get Started" section in the Help menu',
           'Click on "Start Test Mode" button',
           'You\'ll be logged in as a test user with sample trip data',
-          'Explore features for 7 days',
+          'Explore features for 14 days',
           'Upgrade to a full account anytime'
         ],
         whatYouWillSee: {
@@ -80,8 +80,8 @@ export class WelcomeToPlantourComponent {
             'Sample trip: "Weekend in Las Vegas"',
             'Pre-loaded travelers with different roles',
             'Packing items to explore',
-            'A bag to organize items into',
-            'Full access to all features (limited to 5 items max)'
+            'Bags to organize items into',
+            'Full access to all features (limited to 10 items and 2 participants max)'
           ]
         },
         proTip: 'Use the test data to understand how items organize into bags, and how participants collaborate.'
@@ -91,15 +91,13 @@ export class WelcomeToPlantourComponent {
         title: 'Option 2: Create Your Account Now',
         description: 'Ready to start planning your real trip?',
         steps: [
-          'Click the login area (usually top-right) - link#1',
-          'Click "Create Account"',
-          'Verify your email address',
-          'You\'re ready to start!'
+          'Navigate to your profile',
+          'Enter your real email, your test data will stay',
+          'Or sign in with Google or Facebook, your test data will be lost'
         ],
         whatHappensNext: {
           title: 'What Happens Next:',
           items: [
-            'You\'ll see your dashboard with no trips yet',
             'Click "Create New Trip" to start your first trip',
             'Add trip details, travelers, and items',
             'Start organizing!'
@@ -119,31 +117,30 @@ export class WelcomeToPlantourComponent {
           items: [
             'Trip name and dates',
             'Participants (family, friends, colleagues)',
-            'Packing lists and items',
-            'Bags and luggage',
-            'Notes and comments',
-            'Expenses and budgets',
-            'To-do lists'
+            'Items',
+            'Bags',
+            'Notes'
           ]
         },
         howToCreate: {
           title: 'How to create:',
           items: [
-            'From your dashboard, click "Create New Trip"',
+            'On the toolbar select "Trip" -> "Trips", then ckick "+"',
             'Give it a name (example: "Summer Vacation 2025")',
+            'Set status',
             'Set start and end dates',
-            'Add a description (optional)',
-            'Click "Create"'
+            'Add notes (optional)',
+            'Click "Submit"'
           ]
         }
       },
-
+// TODO proceed
       step2: {
         title: 'Step 2: Add Travelers',
         subtitle: '"Travelers" are the people involved in your trip.',
         whyAdd: {
           title: 'Why add travelers:',
-          items: [
+          items: [ 
             'Track who needs to pack what',
             'Assign responsibilities',
             'Share the trip for collaboration',
