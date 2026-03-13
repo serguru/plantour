@@ -453,4 +453,8 @@ Explore src\app\components\amazon-link\amazon-link-component.ts. Find and explor
 
 plantourclientqaonrendercom
 
+Canada
 plantourclien-20
+
+Central
+plantourcli07-20

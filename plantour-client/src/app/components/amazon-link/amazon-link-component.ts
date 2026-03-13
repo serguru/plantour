@@ -11,8 +11,8 @@ import { ThingDto } from '../../services/thing-service';
 })
 export class AmazonLinkComponent {
   item = input<string | null>(null);
-  associateTag = input('plantourclien-20');
-  marketplace = input('ca');
+  associateTag = input('plantourcli07-20');
+  marketplace = input('com');
   linkText = input<any>('Search on Amazon');
 
   query = computed(() => {

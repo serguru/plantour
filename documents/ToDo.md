@@ -30,6 +30,7 @@
 - Add a method to create a new trip from the existing one 
 - make a trip and its data read only if completed
 - implement an idea to click on an item and buy it on Amazon
+- Please add a bank account and select the payment method as direct deposit for Netherlands, Sweden and  Poland to receive local earnings.
 
 
 
