@@ -200,7 +200,7 @@ public class TripSharedService(
 
     public async Task ToggleAcceptAssignmentAsync(Guid tripId, Guid id)
     {
-        _currentUser.RaiseIfNotParticipant();
+        _currentUser.RaiseIfNotAuthenticated();
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
@@ -264,7 +264,7 @@ public class TripSharedService(
 
     public async Task ToggleRejectAssignmentAsync(Guid tripId, Guid id)
     {
-        _currentUser.RaiseIfNotParticipant();
+        _currentUser.RaiseIfNotAuthenticated();
 
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {

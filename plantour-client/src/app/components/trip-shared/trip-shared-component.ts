@@ -22,8 +22,8 @@ import { UsersService } from '../../services/users-service';
 import { AssignmentStatus } from '../../helpers/enums';
 
 
-// TODO: fix category show/hide and location
 // TODO: add a link to shared item from trip item
+// TODO: accepted and rejecyed do not work
 @Component({
   selector: 'app-trip-shared',
   standalone: true,

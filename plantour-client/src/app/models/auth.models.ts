@@ -16,6 +16,7 @@ export interface AccessToken {
   iss: string;
   jti: string;
   user_id?: string;
+  admin_id?: string;
   nbf: number;
   access_rules?: AccessRule[] | null;
   role: 'Admin' | 'Participant';
@@ -84,12 +85,9 @@ export interface ParticipantAuthResponse {
   role: string;
 }
 
-
 export interface ValidateTokenResponse {
   isValid: boolean;
 }
-
-
 
 // Current user model
 export interface CurrentUser {

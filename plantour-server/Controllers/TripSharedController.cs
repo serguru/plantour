@@ -135,7 +135,7 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
     }
 
     [HttpPut("toggle-accept-trip-shared-things")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult> ToggleAcceptAssignmentAsync([FromBody] IdTripIdRequest request)
     {
         await _service.ToggleAcceptAssignmentAsync(request.TripId, request.Id);
@@ -143,7 +143,7 @@ public class TripSharedController(ITripSharedService service) : ControllerBase
     }
 
     [HttpPut("toggle-reject-trip-shared-things")]
-    [ParticipantOnly]
+    [AdminOrParticipant]
     public async Task<ActionResult> ToggleRejectAssignmentAsync([FromBody] IdTripIdRequest request)
     {
         await _service.ToggleRejectAssignmentAsync(request.TripId, request.Id);

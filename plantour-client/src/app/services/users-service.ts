@@ -78,6 +78,12 @@ export class UsersService {
     return d.toLocaleString();
   });
 
+  adminIsParticipantSignal = computed(() => {
+    const user = this._userSignal();
+    if (!user) return null;
+    return user.user_id && user.admin_id && user.user_id === user.admin_id;
+  });
+
 
   userEmail = computed(() => {
     const user = this._userSignal();
