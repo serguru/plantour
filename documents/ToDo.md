@@ -31,7 +31,7 @@
 - make a trip and its data read only if completed
 - implement an idea to click on an item and buy it on Amazon
 - Please add a bank account and select the payment method as direct deposit for Netherlands, Sweden and  Poland to receive local earnings.
-
+- what are PackPoint или Wanderlog?
 
 
 
