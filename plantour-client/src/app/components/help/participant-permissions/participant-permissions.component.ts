@@ -26,8 +26,8 @@ export class ParticipantPermissionsComponent {
 
   overviewPoints: string[] = [
     'Permissions are usually tied to roles such as Admin or Participant.',
-    'Admins manage trip settings, participants, and assignments.',
-    'Participants typically view trip details and update their own packing items.',
+    'Admins manage trip settings, participants, shared assignments, and deadlines.',
+    'Participants view trip details and can work with their own trip items, trip todos, and accepted assignments.',
     'Permissions can be updated at any time by a trip admin.'
   ];
 
@@ -35,14 +35,14 @@ export class ParticipantPermissionsComponent {
     {
       role: 'Trip Admin',
       canView: [
-        'All trip details, participants, items, bags, and comments',
-        'All packing progress and assignments'
+        'All trip details, participants, items, todos, bags, and comments',
+        'All packing progress, shared-item assignments, and shared-todo assignments'
       ],
       canEdit: [
         'Trip details (dates, name, status)',
         'Participant list and roles',
-        'Item and bag assignments',
-        'Shared items and comments'
+        'Item, todo, and bag assignments',
+        'Shared items, shared todos, and comments'
       ],
       cannot: [
         'No major restrictions (full access)'
@@ -52,16 +52,19 @@ export class ParticipantPermissionsComponent {
       role: 'Participant',
       canView: [
         'Trip overview and packing lists',
-        'Items assigned to them',
-        'Bags they are responsible for'
+        'Items and todos assigned to them',
+        'Bags they are responsible for',
+        'Shared item and shared todo statuses relevant to them'
       ],
       canEdit: [
-        'Packing status for their assigned items',
-        'Notes or comments they created (if enabled)'
+        'Packing status for accepted shared-item assignments',
+        'Acceptance, rejection, and finish status for their shared assignments',
+        'Their own trip items, trip todos, and comments allowed by the trip workflow'
       ],
       cannot: [
         'Change trip dates or status',
-        'Add/remove participants (unless explicitly granted)',
+        'Add/remove participants',
+        'Create or assign shared todos or shared items',
         'Delete the trip'
       ]
     }
@@ -82,7 +85,7 @@ export class ParticipantPermissionsComponent {
     },
     {
       scenario: 'Shared items planning',
-      recommendation: 'Allow Participants to comment and update status, but keep assignment control with Admins.'
+      recommendation: 'Let participants accept, reject, and finish their assignments, but keep creation and assignment control with Admins.'
     }
   ];
 
@@ -101,15 +104,15 @@ export class ParticipantPermissionsComponent {
     },
     {
       title: 'Use Comments for Coordination',
-      description: 'Let participants use comments for questions and updates, while keeping structural edits for admins.'
+      description: 'Let participants use comments and assignment status updates for coordination, while keeping structural edits and assignment decisions with admins.'
     }
   ];
 
   tips: string[] = [
     'Permissions can be adjusted anytime by an admin.',
     'Use Admin role sparingly to protect trip data.',
-    'Participants should still be able to update their own packing status.',
-    'If someone needs to add items or bags, consider temporarily promoting them.',
+    'Participants should still be able to update their own assignment status and their own trip lists.',
+    'If someone needs to manage shared assignments, make sure an admin handles that work.',
     'Keep roles clear to avoid confusion about responsibilities.'
   ];
 }

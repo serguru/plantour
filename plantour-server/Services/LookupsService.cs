@@ -34,6 +34,7 @@ public class LookupsService : ILookupsService
             {
                 var communicationTypes = await _lookupsRepository.GetAllCommunicationTypesAsync();
                 var thingCategories = await _lookupsRepository.GetAllThingCategoriesAsync();
+                var todoCategories = await _lookupsRepository.GetAllTodoCategoriesAsync();
 
                 var tripStatusesRaw = await _lookupsRepository.GetAllTripStatusesAsync();
 
@@ -55,6 +56,7 @@ public class LookupsService : ILookupsService
                 {
                     CommunicationTypes = _mapper.Map<IEnumerable<CommunicationTypeDto>>(communicationTypes),
                     ThingCategories = _mapper.Map<IEnumerable<ThingCategoryDto>>(thingCategories),
+                    TodoCategories = _mapper.Map<IEnumerable<TodoCategoryDto>>(todoCategories),
                     TripStatuses = _mapper.Map<IEnumerable<TripStatusDto>>(tripStatuses),
                     Units = _mapper.Map<IEnumerable<UnitDto>>(units)
                 };

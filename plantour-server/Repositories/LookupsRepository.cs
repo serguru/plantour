@@ -28,6 +28,14 @@ public class LookupsRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<TodoCategory>> GetAllTodoCategoriesAsync()
+    {
+        return await _context.TodoCategories
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<TripStatus>> GetAllTripStatusesAsync()
     {
         return await _context.TripStatuses

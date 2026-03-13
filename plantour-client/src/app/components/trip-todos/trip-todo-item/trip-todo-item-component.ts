@@ -1,0 +1,39 @@
+import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Checkbox, CheckboxChangeEvent } from 'primeng/checkbox';
+import { mapStatusToClass } from '../../../helpers/utils';
+import { AmazonLinkComponent } from '../../amazon-link/amazon-link-component';
+import { TripTodoDto } from '../../../services/trip-todo-service';
+
+@Component({
+  selector: 'app-trip-todo-item-component',
+  imports: [Checkbox, FormsModule, AmazonLinkComponent],
+  templateUrl: './trip-todo-item-component.html',
+  styleUrl: './trip-todo-item-component.scss',
+})
+export class TripTodoItemComponent {
+  @Input() entity: TripTodoDto = {} as TripTodoDto;
+  @Input() itemMetaData: any | null = null;
+
+  get assigned() {
+    return !!this.entity.tripSharedTodoId;
+  }
+
+  get statusToClassMap() {
+    return mapStatusToClass(this.entity.assignmentStatus || null);
+  }
+
+  handleFinishedSuccessClick(event: CheckboxChangeEvent) {
+    event.originalEvent!.preventDefault();
+    event.originalEvent!.stopPropagation();
+    this.entity.finished = event.checked ? 'success' : null;
+    this.itemMetaData.toggleFinished(this.entity);
+  }
+
+  handleFinishedFailureClick(event: CheckboxChangeEvent) {
+    event.originalEvent!.preventDefault();
+    event.originalEvent!.stopPropagation();
+    this.entity.finished = event.checked ? 'failure' : null;
+    this.itemMetaData.toggleFinished(this.entity);
+  }
+}

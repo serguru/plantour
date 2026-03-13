@@ -1,0 +1,20 @@
+<div class="page-container">
+    <app-entities-header
+        entityIcon="pi pi-check-square"
+        title="Todos"
+        [delete]="deleteTodo.bind(this)"
+        entityName="todo"
+        addUrl="add"
+        editUrl="edit/:id"
+        [menuItems]="menuItems()"
+    ></app-entities-header>
+
+    <app-entities-actions
+        [onAddTargetClick]="onAddTargetClick.bind(this)"
+        [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"
+    ></app-entities-actions>
+    <app-entities
+        [itemComponent]="todoItemComponent"
+        [targetEntityClick]="targetEntityClick.bind(this)"
+    ></app-entities>
+</div>

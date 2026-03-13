@@ -18,7 +18,7 @@ export class WelcomeToPlantourComponent {
       items: [
         'Plan your trip - Create a trip and add basic information',
         'Organize travelers - Add family and friends to your trip',
-        'Pack smarter - Create packing lists and track what\'s packed',
+        'Plan smarter - Create packing lists and track what\'s packed',
         'Collaborate easily - Share your trip with travel companions',
         'Communicate - exchange travel-related messages'
       ]

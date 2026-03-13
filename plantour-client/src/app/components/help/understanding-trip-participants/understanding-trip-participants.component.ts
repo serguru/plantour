@@ -34,7 +34,7 @@ export class UnderstandingTripParticipantsComponent {
       details: [
         'Participants are tied to one trip and do not automatically appear in other trips',
         'You can add participants whether or not they are already listed as Travelers in your account',
-        'Participants can be assigned items and bags for packing responsibilities'
+        'Participants can be assigned shared items, shared todos, and bags for trip responsibilities'
       ],
       highlight: 'Think of participants as the roster for one trip.'
     },
@@ -44,6 +44,7 @@ export class UnderstandingTripParticipantsComponent {
       description: 'Participants help you delegate packing tasks, track who is responsible for what, and keep group trips organized.',
       details: [
         'Assign items to specific people (e.g., "John packs the charger")',
+        'Assign action-based work such as confirmations or reminders through shared trip todos',
         'Assign bags to owners (e.g., "Maria\'s carry-on")',
         'See packing progress by participant',
         'Keep group planning transparent and organized'
@@ -66,8 +67,10 @@ export class UnderstandingTripParticipantsComponent {
       description: 'Participants can be assigned tasks and items to keep packing collaborative and clear.',
       details: [
         'Items can be assigned to a participant for packing',
+        'Shared todos can be assigned to one participant at a time for action tracking',
+        'Participants can manage their own trip items and trip todos when they are part of the trip',
         'Bags can be assigned to a participant for ownership',
-        'Some systems let you set permissions (Admin vs Participant roles)'
+        'Admins keep control of participant lists and shared-assignment decisions'
       ]
     },
     {
@@ -89,7 +92,7 @@ export class UnderstandingTripParticipantsComponent {
       responsibilities: [
         'Create and edit trip details',
         'Add or remove participants',
-        'Assign items and bags',
+        'Assign shared items, shared todos, and bags',
         'Manage permissions and statuses'
       ]
     },
@@ -98,14 +101,16 @@ export class UnderstandingTripParticipantsComponent {
       description: 'Can view trip details and manage their own assigned items (depending on permissions).',
       responsibilities: [
         'View trip details and packing lists',
-        'Update packing status for assigned items',
-        'Collaborate on shared lists (if allowed)'
+        'Update packing status for accepted shared items',
+        'Accept or reject assigned shared items and shared todos',
+        'Complete accepted shared assignments and manage their own trip lists'
       ]
     }
   ];
 
   commonUseCases: string[] = [
     'Family trip: Assign each family member their own packing list',
+    'Family trip: Assign one participant to complete booking or document reminders through shared todos',
     'Business trip with colleagues: Track who is responsible for shared items',
     'Group adventure: Assign bags to owners and items to packers',
     'Couples trip: Split responsibilities between partners for faster packing'
@@ -115,6 +120,7 @@ export class UnderstandingTripParticipantsComponent {
     'Add participants early to keep planning organized.',
     'Use consistent names (e.g., full names) to avoid confusion on large trips.',
     'Assign bags to participants to keep ownership clear.',
+    'Use shared todos when the responsibility is an action, not a packable object.',
     'Review participant list before departure to ensure it\'s accurate.',
     'If a participant is no longer joining, remove them to prevent confusion.'
   ];

@@ -22,12 +22,19 @@ export interface DashboardUserTripDto {
     id: string;
     packs: number;
     items: number;
+    todos: number;
     sharedTotal: number;
     sharedAssigned: number;
     sharedPending: number;
     sharedOverdue: number;
     sharedSuccess: number;
     sharedFailure: number;
+    sharedTodosTotal: number;
+    sharedTodosAssigned: number;
+    sharedTodosPending: number;
+    sharedTodosOverdue: number;
+    sharedTodosSuccess: number;
+    sharedTodosFailure: number;
     weightStr: string;
 }
 
@@ -36,6 +43,7 @@ export interface DashboardAllUsersTripDto
 {
     id: string;
     participants: number;
+    todos: number;
     packs: number;
     sharedAssigned: number;
     sharedTotal: number;
@@ -43,6 +51,12 @@ export interface DashboardAllUsersTripDto
     sharedOverdue: number;
     sharedSuccess: number;
     sharedFailure: number;
+    sharedTodosAssigned: number;
+    sharedTodosTotal: number;
+    sharedTodosPending: number;
+    sharedTodosOverdue: number;
+    sharedTodosSuccess: number;
+    sharedTodosFailure: number;
     weightStr: string;
     packingProgress: number;
 }

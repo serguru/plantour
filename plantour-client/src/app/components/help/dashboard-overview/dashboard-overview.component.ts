@@ -27,8 +27,8 @@ export class DashboardOverviewComponent {
       title: 'Dashboard sections',
       paragraphs: [
         'Trip info: general trip header information (name, status, dates).',
-        'User Trip info: your personal summary for the selected trip.',
-        'All Users Trip info: team-wide summary for the selected trip.'
+        'User Trip info: your personal summary for the selected trip, including item and todo counts.',
+        'All Users Trip info: team-wide summary for the selected trip, including shared-item and shared-todo status.'
       ],
       list: [
         'Click a section to expand/collapse it.',

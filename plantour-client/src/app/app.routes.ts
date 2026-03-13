@@ -113,6 +113,27 @@ export const routes: Routes = [
     data: { mode: 'edit', componentId: 'thing-form' }
   },
   {
+    path: 'todos',
+    canActivate: [adminOrParticipantGuard],
+    loadComponent: () => import('./components/todos/todos-component').then(m => m.TodosComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'todos' }
+  },
+  {
+    path: 'todos/add',
+    canActivate: [adminOrParticipantGuard],
+    loadComponent: () => import('./components/todos/todo-form/todo-form-component').then(m => m.TodoFormComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { mode: 'add', componentId: 'todo-form' }
+  },
+  {
+    path: 'todos/edit/:id',
+    canActivate: [adminOrParticipantGuard],
+    loadComponent: () => import('./components/todos/todo-form/todo-form-component').then(m => m.TodoFormComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { mode: 'edit', componentId: 'todo-form' }
+  },
+  {
     path: 'travelers',
     canActivate: [adminOrParticipantGuard],
     loadComponent: () => import('./components/travelers/travelers-component').then(m => m.TravelersComponent),
@@ -267,6 +288,27 @@ export const routes: Routes = [
     data: { mode: 'edit', componentId: 'trip-thing-form' }
   },
   {
+    path: 'trips/:tripId/trip-todos',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-todos/trip-todos-component').then(m => m.TripTodosComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'trip-todos' }
+  },
+  {
+    path: 'trips/:tripId/trip-todos/add',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-todos/trip-todo-form/trip-todo-form-component').then(m => m.TripTodoFormComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { mode: 'add', componentId: 'trip-todo-form' }
+  },
+  {
+    path: 'trips/:tripId/trip-todos/edit/:id',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-todos/trip-todo-form/trip-todo-form-component').then(m => m.TripTodoFormComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { mode: 'edit', componentId: 'trip-todo-form' }
+  },
+  {
     path: 'trips/:tripId/trip-shared',
     canActivate: [checkTripIdGuard, adminOrParticipantGuard],
     loadComponent: () => import('./components/trip-shared/trip-shared-component').then(m => m.TripSharedComponent),
@@ -293,6 +335,34 @@ export const routes: Routes = [
     loadComponent: () => import('./components/trip-shared/trip-shared-form/trip-shared-form-component').then(m => m.TripSharedFormComponent),
     resolve: {cleanup: CleanupResolver},
     data: { mode: 'view', componentId: 'trip-shared-form' }
+  },
+  {
+    path: 'trips/:tripId/trip-shared-todos',
+    canActivate: [checkTripIdGuard, adminOrParticipantGuard],
+    loadComponent: () => import('./components/trip-shared-todos/trip-shared-todos-component').then(m => m.TripSharedTodosComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'trip-shared-todos' }
+  },
+  {
+    path: 'trips/:tripId/trip-shared-todos/add',
+    canActivate: [checkTripIdGuard, adminOnlyGuard],
+    loadComponent: () => import('./components/trip-shared-todos/trip-shared-todo-form/trip-shared-todo-form-component').then(m => m.TripSharedTodoFormComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { mode: 'add', componentId: 'trip-shared-todo-form' }
+  },
+  {
+    path: 'trips/:tripId/trip-shared-todos/edit/:id',
+    canActivate: [checkTripIdGuard, adminOnlyGuard],
+    loadComponent: () => import('./components/trip-shared-todos/trip-shared-todo-form/trip-shared-todo-form-component').then(m => m.TripSharedTodoFormComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { mode: 'edit', componentId: 'trip-shared-todo-form' }
+  },
+  {
+    path: 'trips/:tripId/trip-shared-todos/view/:id',
+    canActivate: [checkTripIdGuard, adminOrParticipantGuard],
+    loadComponent: () => import('./components/trip-shared-todos/trip-shared-todo-form/trip-shared-todo-form-component').then(m => m.TripSharedTodoFormComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { mode: 'view', componentId: 'trip-shared-todo-form' }
   },
   {
     path: 'trips/:tripId/trip-comments',

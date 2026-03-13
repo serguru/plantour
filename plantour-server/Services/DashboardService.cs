@@ -104,12 +104,19 @@ public class DashboardService(
         {
             dto.Packs = tripUser.TripUserPackages.Count;
             dto.Items = tripUser.TripUserThings.Count;
+            dto.Todos = tripUser.TripUserTodos.Count;
             dto.SharedTotal = trip.TripSharedThings.Count();
             dto.SharedAssigned = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id);
             dto.SharedPending = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedThing?.Finished == null);
             dto.SharedOverdue = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedThing?.Finished != "success" && x.AssignedDeadline != null && x.AssignedDeadline < DateTime.UtcNow);
             dto.SharedSuccess = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedThing?.Finished == "success");
             dto.SharedFailure = trip.TripSharedThings.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedThing?.Finished == "failure");
+            dto.SharedTodosTotal = trip.TripSharedTodos.Count();
+            dto.SharedTodosAssigned = trip.TripSharedTodos.Count(x => x.AssignedToId == tripUser!.Id);
+            dto.SharedTodosPending = trip.TripSharedTodos.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedTodo?.Finished == null);
+            dto.SharedTodosOverdue = trip.TripSharedTodos.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedTodo?.Finished != "success" && x.AssignedDeadline != null && x.AssignedDeadline < DateTime.UtcNow);
+            dto.SharedTodosSuccess = trip.TripSharedTodos.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedTodo?.Finished == "success");
+            dto.SharedTodosFailure = trip.TripSharedTodos.Count(x => x.AssignedToId == tripUser!.Id && x.AssignedTodo?.Finished == "failure");
 
             List<Weight> packWeights = new List<Weight>();
 
@@ -195,6 +202,13 @@ public class DashboardService(
         dto.SharedSuccess = trip.TripSharedThings.Count(x => x.AssignedToId != null && x.AssignedThing?.Finished == "success");
 
         dto.SharedFailure = trip.TripSharedThings.Count(x => x.AssignedToId != null && x.AssignedThing?.Finished == "failure");
+
+        dto.SharedTodosTotal = trip.TripSharedTodos.Count();
+        dto.SharedTodosAssigned = trip.TripSharedTodos.Count(x => x.AssignedToId != null);
+        dto.SharedTodosPending = trip.TripSharedTodos.Count(x => x.AssignedToId != null && x.AssignedTodo?.Finished == null);
+        dto.SharedTodosOverdue = trip.TripSharedTodos.Count(x => x.AssignedToId != null && x.AssignedTodo?.Finished != "success" && x.AssignedDeadline != null && x.AssignedDeadline < DateTime.UtcNow);
+        dto.SharedTodosSuccess = trip.TripSharedTodos.Count(x => x.AssignedToId != null && x.AssignedTodo?.Finished == "success");
+        dto.SharedTodosFailure = trip.TripSharedTodos.Count(x => x.AssignedToId != null && x.AssignedTodo?.Finished == "failure");
 
         List<Weight> packWeights = new List<Weight>();
 

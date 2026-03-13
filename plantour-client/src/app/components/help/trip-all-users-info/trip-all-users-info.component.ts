@@ -12,7 +12,7 @@ export class TripAllUsersInfoComponent {
   mainHeading = 'Trip all users info';
 
   intro =
-    'This Dashboard section shows a team-wide summary for the selected trip, including overall packing progress and shared items status.';
+    'This Dashboard section shows a team-wide summary for the selected trip, including overall packing progress plus shared item and shared todo status.';
 
   sections = [
     {
@@ -20,6 +20,7 @@ export class TripAllUsersInfoComponent {
       paragraphs: [
         'Participants: how many users are participating in this trip.',
         'Packs: how many packs (bags) exist across all users for this trip.',
+        'Todos: how many trip todos exist across the trip summary.',
         'Weight: shows up when the trip has weight information.'
       ]
     },
@@ -37,6 +38,16 @@ export class TripAllUsersInfoComponent {
       ],
       list: [
         'If Pending or Overdue is high, review Shared Items and reassign or confirm responsibilities.'
+      ]
+    },
+    {
+      title: 'Shared Todos status',
+      paragraphs: [
+        'Total / Assigned / Pending / Overdue: a quick health check for collaborative reminders and actions.',
+        'Success / Failure: aggregated completion outcomes for shared trip todos.'
+      ],
+      list: [
+        'If Pending or Overdue is high, review Shared Trip Todos and rebalance responsibilities.'
       ]
     }
   ];

@@ -13,6 +13,8 @@ public class DocumentsService : IDocumentsService
     private readonly ITripUserService _tripUserService;
     private readonly ITripPackageService _tripPackageService;
     private readonly ITripThingService _tripThingService;
+    private readonly ITripTodoService _tripTodoService;
+    private readonly ITripSharedTodoService _tripSharedTodoService;
     private readonly CurrentUser _currentUser;
 
     private readonly ICheckAccessService _checkAccessService;
@@ -24,6 +26,8 @@ public class DocumentsService : IDocumentsService
         ITripUserService tripUserService,
         ITripPackageService tripPackageService,
         ITripThingService tripThingService,
+        ITripTodoService tripTodoService,
+        ITripSharedTodoService tripSharedTodoService,
         HttpCurrentUser httpCurrentUser,
         ICheckAccessService checkAccessService)
     {
@@ -31,6 +35,8 @@ public class DocumentsService : IDocumentsService
         _tripUserService = tripUserService;
         _tripPackageService = tripPackageService;
         _tripThingService = tripThingService;
+        _tripTodoService = tripTodoService;
+        _tripSharedTodoService = tripSharedTodoService;
         _currentUser = httpCurrentUser.CurrentUser;
         _checkAccessService = checkAccessService;
     }
@@ -53,6 +59,8 @@ public class DocumentsService : IDocumentsService
         var packages = (await _tripPackageService.GetAllAsync(tripId)).ToList();
 
         var allThings = (await _tripThingService.GetAllAsync(tripId)).ToList();
+        var allTodos = (await _tripTodoService.GetAllAsync(tripId)).ToList();
+        var sharedTodos = (await _tripSharedTodoService.GetAllFullAsync(tripId)).ToList();
 
         var document = Document.Create(container =>
         {
@@ -96,6 +104,11 @@ public class DocumentsService : IDocumentsService
                         if (packages.Any())
                         {
                             RenderPackagesWithThings(column, packages, allThings);
+                        }
+
+                        if (allTodos.Any() || sharedTodos.Any())
+                        {
+                            RenderTodos(column, allTodos, sharedTodos);
                         }
                     });
 
@@ -153,8 +166,10 @@ public class DocumentsService : IDocumentsService
             {
                 AddInfoRow(table, "Your Bags:", currentParticipant.TotalPacks.ToString());
                 AddInfoRow(table, "Your Items:", currentParticipant.TotalThings.ToString());
+                AddInfoRow(table, "Your Todos:", currentParticipant.TotalTodos.ToString());
             }
             AddInfoRow(table, "Shared Items:", trip.TotalSharedThings.ToString());
+            AddInfoRow(table, "Shared Todos:", trip.TotalSharedTodos.ToString());
 
             if (!string.IsNullOrWhiteSpace(trip.Notes))
             {
@@ -359,6 +374,94 @@ public class DocumentsService : IDocumentsService
                                 text.Span(thing.Units);
                             }
                         });
+                }
+            });
+        }
+    }
+
+    private void RenderTodos(ColumnDescriptor column, List<TripTodoDto> todos, List<TripSharedTodoDto> sharedTodos)
+    {
+        column.Item().PaddingTop(10)
+            .Text("Todos")
+            .SemiBold()
+            .FontSize(16)
+            .FontColor(primaryColor);
+
+        if (todos.Any())
+        {
+            List<(string Category, string Name, string? Status, string? Notes)> todoRows = todos.Select(t => (
+                Category: t.Category ?? "Uncategorized",
+                Name: t.Name,
+                Status: t.Finished,
+                Notes: t.Notes)).ToList();
+
+            column.Item().PaddingTop(5).Column(todoColumn =>
+            {
+                todoColumn.Item().Text("Your Todos").SemiBold().FontSize(13);
+                RenderTodoRows(todoColumn, todoRows);
+            });
+        }
+
+        if (sharedTodos.Any())
+        {
+            List<(string Category, string Name, string? Status, string? Notes)> sharedTodoRows = sharedTodos.Select(t =>
+            {
+                var assignedTo = string.Join(" ", new[] { t.AssigneeFirstName, t.AssigneeLastName }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim();
+                if (string.IsNullOrWhiteSpace(assignedTo))
+                {
+                    assignedTo = t.AssigneeEmail ?? "Unassigned";
+                }
+
+                string? notes = t.IsTargeted ? $"Assigned to {assignedTo}" : "Not assigned";
+                return (
+                    Category: t.Category ?? "Uncategorized",
+                    Name: t.Name,
+                    Status: t.AssigneeFinished,
+                    Notes: (string?)notes);
+            }).ToList();
+
+            column.Item().PaddingTop(10).Column(todoColumn =>
+            {
+                todoColumn.Item().Text("Shared Todos").SemiBold().FontSize(13);
+                RenderTodoRows(todoColumn, sharedTodoRows);
+            });
+        }
+    }
+
+    private void RenderTodoRows(ColumnDescriptor column, List<(string Category, string Name, string? Status, string? Notes)> todos)
+    {
+        var todosByCategory = todos
+            .GroupBy(t => t.Category)
+            .OrderBy(g => g.Key);
+
+        foreach (var categoryGroup in todosByCategory)
+        {
+            column.Item().PaddingTop(5)
+                .Text(categoryGroup.Key)
+                .SemiBold()
+                .FontSize(11)
+                .FontColor(primaryColor);
+
+            column.Item().PaddingLeft(10).PaddingTop(3).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn();
+                    columns.ConstantColumn(110);
+                });
+
+                foreach (var todo in categoryGroup.OrderBy(t => t.Name))
+                {
+                    table.Cell().PaddingVertical(2).Text(text =>
+                    {
+                        text.Span(todo.Name);
+                        if (!string.IsNullOrWhiteSpace(todo.Notes))
+                        {
+                            text.Span($" ({todo.Notes})").FontColor(Colors.Grey.Darken1);
+                        }
+                    });
+
+                    table.Cell().PaddingVertical(2).AlignRight().Text(todo.Status ?? "pending");
                 }
             });
         }

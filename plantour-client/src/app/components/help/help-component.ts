@@ -70,6 +70,9 @@ export class HelpComponent {
   addItemComponent = signal<Type<unknown> | null>(null);
   editItemComponent = signal<Type<unknown> | null>(null);
   deleteItemComponent = signal<Type<unknown> | null>(null);
+  understandingTodosComponent = signal<Type<unknown> | null>(null);
+  understandingTripTodosComponent = signal<Type<unknown> | null>(null);
+  understandingSharedTodosComponent = signal<Type<unknown> | null>(null);
   usingCategoriesComponent = signal<Type<unknown> | null>(null);
   filterSortItemsComponent = signal<Type<unknown> | null>(null);
   understandingBagsComponent = signal<Type<unknown> | null>(null);
@@ -189,6 +192,17 @@ export class HelpComponent {
           { id: 'delete-item', title: 'Delete an Item' },
           { id: 'item-categories', title: 'Using Categories' },
           { id: 'filter-things', title: 'Filter and Sort Items' }
+        ]
+      },
+      {
+        id: 'todos',
+        title: 'ToDos',
+        icon: 'pi pi-check-square',
+        description: 'Understand reusable todos, trip todos, and shared trip todo workflows.',
+        subsections: [
+          { id: 'todos-intro', title: 'Understanding Todos' },
+          { id: 'trip-todos-intro', title: 'Understanding Trip Todos' },
+          { id: 'shared-todos-intro', title: 'Understanding Shared Trip Todos' }
         ]
       },
       {
@@ -444,7 +458,7 @@ export class HelpComponent {
     const canonicalUrl = this.toAbsoluteUrl('/help');
     const title = 'Help & Documentation | Plantour';
     const description =
-      'Plantour Help Center: step-by-step guides for trips, packing lists, travelers, bags, shared items, templates, and collaboration.';
+      'Plantour Help Center: step-by-step guides for trips, packing lists, todos, travelers, bags, shared items, templates, and collaboration.';
 
     this.seoService.setSeo({
       title,
@@ -600,6 +614,12 @@ export class HelpComponent {
           'item-categories': this.usingCategoriesComponent(),
           'filter-things': this.filterSortItemsComponent()
         };
+      case 'todos':
+        return {
+          'todos-intro': this.understandingTodosComponent(),
+          'trip-todos-intro': this.understandingTripTodosComponent(),
+          'shared-todos-intro': this.understandingSharedTodosComponent()
+        };
       case 'ai-recommendations':
         return {
           'ask-ai': this.askAiForItemsComponent(),
@@ -747,6 +767,15 @@ export class HelpComponent {
     }
     if (sectionId === 'things' && subsectionId === 'filter-things') {
       return this.loadFilterSortItemsComponent();
+    }
+    if (sectionId === 'todos' && subsectionId === 'todos-intro') {
+      return this.loadUnderstandingTodosComponent();
+    }
+    if (sectionId === 'todos' && subsectionId === 'trip-todos-intro') {
+      return this.loadUnderstandingTripTodosComponent();
+    }
+    if (sectionId === 'todos' && subsectionId === 'shared-todos-intro') {
+      return this.loadUnderstandingSharedTodosComponent();
     }
     if (sectionId === 'ai-recommendations' && subsectionId === 'ask-ai') {
       return this.loadAskAiForItemsComponent();
@@ -1077,6 +1106,33 @@ export class HelpComponent {
 
     const module = await import('./delete-item/delete-item.component');
     this.deleteItemComponent.set(module.DeleteItemComponent);
+  }
+
+  private async loadUnderstandingTodosComponent() {
+    if (this.understandingTodosComponent()) {
+      return;
+    }
+
+    const module = await import('./understanding-todos/understanding-todos.component');
+    this.understandingTodosComponent.set(module.UnderstandingTodosComponent);
+  }
+
+  private async loadUnderstandingTripTodosComponent() {
+    if (this.understandingTripTodosComponent()) {
+      return;
+    }
+
+    const module = await import('./understanding-trip-todos/understanding-trip-todos.component');
+    this.understandingTripTodosComponent.set(module.UnderstandingTripTodosComponent);
+  }
+
+  private async loadUnderstandingSharedTodosComponent() {
+    if (this.understandingSharedTodosComponent()) {
+      return;
+    }
+
+    const module = await import('./understanding-shared-todos/understanding-shared-todos.component');
+    this.understandingSharedTodosComponent.set(module.UnderstandingSharedTodosComponent);
   }
 
   private async loadUsingCategoriesComponent() {

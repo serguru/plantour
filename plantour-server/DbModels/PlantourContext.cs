@@ -67,6 +67,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<TimeTicker> TimeTickers { get; set; }
 
+    public virtual DbSet<TodoCategory> TodoCategories { get; set; }
+
     public virtual DbSet<TransactionType> TransactionTypes { get; set; }
 
     public virtual DbSet<Trip> Trips { get; set; }
@@ -75,6 +77,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<TripSharedThing> TripSharedThings { get; set; }
 
+    public virtual DbSet<TripSharedTodo> TripSharedTodos { get; set; }
+
     public virtual DbSet<TripStatus> TripStatuses { get; set; }
 
     public virtual DbSet<TripUser> TripUsers { get; set; }
@@ -82,6 +86,8 @@ public partial class PlantourContext : DbContext
     public virtual DbSet<TripUserPackage> TripUserPackages { get; set; }
 
     public virtual DbSet<TripUserThing> TripUserThings { get; set; }
+
+    public virtual DbSet<TripUserTodo> TripUserTodos { get; set; }
 
     public virtual DbSet<Unit> Units { get; set; }
 
@@ -92,6 +98,8 @@ public partial class PlantourContext : DbContext
     public virtual DbSet<UserSetting> UserSettings { get; set; }
 
     public virtual DbSet<UserThing> UserThings { get; set; }
+
+    public virtual DbSet<UserTodo> UserTodos { get; set; }
 
     public virtual DbSet<VTemplateThingsFull> VTemplateThingsFulls { get; set; }
 
@@ -338,6 +346,13 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
         });
 
+        modelBuilder.Entity<TodoCategory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("todo_categories_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
         modelBuilder.Entity<TransactionType>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("transaction_types_pkey");
@@ -389,6 +404,23 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Trip).WithMany(p => p.TripSharedThings).HasConstraintName("trip_shared_things_trip_id_fkey");
         });
 
+        modelBuilder.Entity<TripSharedTodo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("trip_shared_todos_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.AssignedTo).WithMany(p => p.TripSharedTodos)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("trip_shared_todos_assigned_to_id_fkey");
+
+            entity.HasOne(d => d.AssignedTodo).WithMany(p => p.TripSharedTodos)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("trip_shared_todos_assigned_todo_id_fkey");
+
+            entity.HasOne(d => d.Trip).WithMany(p => p.TripSharedTodos).HasConstraintName("trip_shared_todos_trip_id_fkey");
+        });
+
         modelBuilder.Entity<TripStatus>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("trip_status_pkey");
@@ -427,6 +459,15 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.TripUserPackage).WithMany(p => p.TripUserThings)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("trip_user_things_trip_user_package_id_fkey");
+        });
+
+        modelBuilder.Entity<TripUserTodo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("trip_user_todos_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserTodos).HasConstraintName("trip_user_todos_trip_user_id_fkey");
         });
 
         modelBuilder.Entity<Unit>(entity =>
@@ -475,6 +516,15 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserThings).HasConstraintName("user_things_user_id_fkey");
+        });
+
+        modelBuilder.Entity<UserTodo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("user_todos_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserTodos).HasConstraintName("user_todos_user_id_fkey");
         });
 
         modelBuilder.Entity<VTemplateThingsFull>(entity =>

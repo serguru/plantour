@@ -1,0 +1,50 @@
+<div class="help-content">
+  <h3>Understanding Todos</h3>
+
+  <p class="intro">
+    Todos are reusable action reminders. Use them for tasks like booking confirmations, paperwork, charging devices,
+    or anything that should be done before or during a trip but is not itself a packable item.
+  </p>
+
+  <div class="section">
+    <h4><i class="pi pi-info-circle"></i> What Are Dictionary Todos?</h4>
+    <p>
+      Dictionary todos are your reusable master list. They work like dictionary items: you maintain them once,
+      then copy the relevant ones into trips when needed.
+    </p>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-star"></i> Key Features</h4>
+    <div class="features-grid">
+      @for (feature of features; track feature.title) {
+        <div class="feature-card">
+          <i [class]="feature.icon"></i>
+          <h5>{{ feature.title }}</h5>
+          <p>{{ feature.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-sitemap"></i> Typical Workflow</h4>
+    <div class="workflow-list">
+      @for (step of workflow; track $index) {
+        <div class="workflow-step">
+          <span class="step-number">{{ $index + 1 }}</span>
+          <p>{{ step }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="section">
+    <h4><i class="pi pi-lightbulb"></i> Key Points to Remember</h4>
+    <ul class="key-points">
+      @for (point of keyPoints; track $index) {
+        <li>{{ point }}</li>
+      }
+    </ul>
+  </div>
+</div>

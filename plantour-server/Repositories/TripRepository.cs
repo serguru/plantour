@@ -19,11 +19,18 @@ public class TripRepository(PlantourContext context) : GenericRepository<Trip>(c
                     .ThenInclude(x => x.TripUserThings)
             .Include(x => x.TripUsers)
                     .ThenInclude(x => x.TripUserThings)
+                .Include(x => x.TripUsers)
+                    .ThenInclude(x => x.TripUserTodos)
             .Include(x => x.TripSharedThings)
                     .ThenInclude(x => x.AssignedTo)
                         .ThenInclude(x => x != null ? x.AdminParticipant : null)
             .Include(x => x.TripSharedThings)
                     .ThenInclude(x => x.AssignedThing)
+                .Include(x => x.TripSharedTodos)
+                    .ThenInclude(x => x.AssignedTo)
+                    .ThenInclude(x => x != null ? x.AdminParticipant : null)
+                .Include(x => x.TripSharedTodos)
+                    .ThenInclude(x => x.AssignedTodo)
             .Where
             (t =>
                 t.UserId == currentUser.AdminId &&
@@ -52,11 +59,18 @@ public class TripRepository(PlantourContext context) : GenericRepository<Trip>(c
                     .ThenInclude(x => x.TripUserThings)
             .Include(x => x.TripUsers)
                     .ThenInclude(x => x.TripUserThings)
+                .Include(x => x.TripUsers)
+                    .ThenInclude(x => x.TripUserTodos)
             .Include(x => x.TripSharedThings)
                     .ThenInclude(x => x.AssignedTo)
                         .ThenInclude(x => x != null ? x.AdminParticipant : null)
             .Include(x => x.TripSharedThings)
                     .ThenInclude(x => x.AssignedThing)
+                .Include(x => x.TripSharedTodos)
+                    .ThenInclude(x => x.AssignedTo)
+                    .ThenInclude(x => x != null ? x.AdminParticipant : null)
+                .Include(x => x.TripSharedTodos)
+                    .ThenInclude(x => x.AssignedTodo)
 
             .FirstOrDefaultAsync(t =>
                 t.Id == id &&

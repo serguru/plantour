@@ -1,0 +1,71 @@
+<div class="page-container">
+  <app-form-header
+    [title]="title"
+    icon="check-square"
+    [menuItems]="menuItems()"
+  ></app-form-header>
+
+  <div class="controls-wrapper">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="form-field">
+        <label for="name">Name<span class="required">*</span></label>
+        <p-select
+          appAutoFocus
+          id="name"
+          formControlName="name"
+          [options]="lookupTripTodos$ | async"
+          optionLabel="name"
+          dataKey="name"
+          placeholder="Select todo name"
+          styleClass="w-full"
+          [editable]="true"
+          appendTo="body"
+          (onChange)="onChangeName($event)"
+        ></p-select>
+
+        @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
+          @if (form.get('name')?.errors?.['required']) {
+            <small class="error-message">Name is required</small>
+          }
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="category">Category</label>
+        <p-select
+          id="category"
+          formControlName="category"
+          [options]="lookupCategories$ | async"
+          placeholder="Select category"
+          styleClass="w-full"
+          [editable]="true"
+        ></p-select>
+      </div>
+
+      <div class="form-field">
+        <label for="notes">Notes</label>
+        <textarea
+          pTextarea
+          id="notes"
+          formControlName="notes"
+          rows="5"
+          placeholder="Enter notes (optional)"
+        ></textarea>
+      </div>
+
+      <app-form-actions
+        [onCancel]="onCancel.bind(this)"
+        cancelLabel="To trips"
+        cancelIcon="chevron-left"
+        [cancelDisabled]="false"
+        [onSubmit]="onSubmit.bind(this)"
+        submitLabel="Submit"
+        submitIcon="save"
+        [submitDisabled]="isLoading() || form.invalid"
+      ></app-form-actions>
+    </form>
+  </div>
+</div>

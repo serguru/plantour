@@ -1,0 +1,27 @@
+<div class="help-content">
+  <h3>Understanding Trip Todos</h3>
+
+  <p class="intro">
+    {{ intro }}
+  </p>
+
+  @for (section of sections; track section.title) {
+  <div class="section">
+    <h4><i class="pi pi-check-circle"></i> {{ section.title }}</h4>
+    <p>{{ section.description }}</p>
+    <ul class="key-points">
+      @for (point of section.points; track $index) {
+      <li>{{ point }}</li>
+      }
+    </ul>
+  </div>
+  }
+
+  <div class="info-box">
+    <i class="pi pi-info-circle"></i>
+    <div>
+      <strong>Important:</strong> Trip todos are separate from trip items. Use trip items for things that will be packed,
+      and trip todos for actions, confirmations, reminders, or planning steps.
+    </div>
+  </div>
+</div>

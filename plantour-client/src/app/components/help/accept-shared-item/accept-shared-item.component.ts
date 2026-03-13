@@ -25,13 +25,13 @@ export class AcceptSharedItemComponent {
     {
       number: 1,
       title: 'Check Assignments',
-      description: 'Navigate to your shared items or pending assignments to see what items are assigned to you.',
+      description: 'Open the Shared Items page for the current trip and review the items assigned to you.',
       icon: 'pi pi-bell'
     },
     {
       number: 2,
       title: 'Review Item Details',
-      description: 'Read the item name, description, and any special packing instructions provided by the admin.',
+      description: 'Read the item name, category, notes, and deadline information before you decide.',
       icon: 'pi pi-eye'
     },
     {
@@ -49,7 +49,7 @@ export class AcceptSharedItemComponent {
     {
       number: 5,
       title: 'Confirm Acceptance',
-      description: 'You are now responsible for packing this item. The trip admin will see your acceptance.',
+      description: 'You are now responsible for packing this item. The assignment becomes linked to your personal trip item list and the trip admin will see your acceptance.',
       icon: 'pi pi-check'
     }
   ];
@@ -75,7 +75,7 @@ export class AcceptSharedItemComponent {
 
   tips: string[] = [
     'Only accept if you are confident you can pack the item before the trip',
-    'Communicate with other participants if multiple people are assigned the same item',
+    'If you cannot handle the assignment, reject it so the admin can reassign it quickly',
     'If circumstances change, you can discuss with the trip admin about reassignment',
     'Accepting is a commitment to your trip teammates',
     'Once accepted, you can mark the item as finished when you pack it',
@@ -87,6 +87,6 @@ export class AcceptSharedItemComponent {
     'Do you understand what the item is and what is required?',
     'Are there any special handling or preparation needs?',
     'Will you have access to this item at the right time?',
-    'Is this item being shared with other participants?'
+    'Do you have enough time before the deadline?'
   ];
 }

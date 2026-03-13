@@ -57,6 +57,14 @@
           </a>
           <a
             class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('todos')"
+            (click)="onTodosClick($event, popoverDic)"
+          >
+            <span class="pi pi-check-square"></span>
+            <span class="button-label">Todos</span>
+          </a>
+          <a
+            class="pl-menu-item"
             [class.selected]="isNavigatedComponent('packs')"
             (click)="onPacksClick($event, popoverDic)"
           >
@@ -124,6 +132,15 @@
           </a>
           <a
             class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-todos')"
+            (click)="onTripTodosClick($event, popoverTrip)"
+            [class.disabled]="disableParticipantOnlyFeatures()"
+          >
+            <span class="pi pi-check-square"></span>
+            <span class="button-label">Todos</span>
+          </a>
+          <a
+            class="pl-menu-item"
             [class.selected]="isNavigatedComponent('trip-packs')"
             (click)="onTripPacksClick($event, popoverTrip)"
             [class.disabled]="disableParticipantOnlyFeatures()"
@@ -139,6 +156,15 @@
           >
             <span class="pi pi-link"></span>
             <span class="button-label">Shared</span>
+          </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-shared-todos')"
+            (click)="onTripSharedTodosClick($event, popoverTrip)"
+            [class.disabled]="!isCurrentTrip()"
+          >
+            <span class="pi pi-list-check"></span>
+            <span class="button-label">Shared todos</span>
           </a>
           <a
             class="pl-menu-item"

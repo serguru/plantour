@@ -23,6 +23,7 @@ export interface TripDto {
    currentUserIncluded: boolean;
 
    totalSharedThings: number;
+  totalSharedTodos: number;
 //   daysLeft: number;
 //   daysLeftText: string | null;
 //   totalSharedThingsDone: number;

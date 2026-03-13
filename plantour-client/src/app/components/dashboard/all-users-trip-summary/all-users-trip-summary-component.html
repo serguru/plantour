@@ -11,6 +11,10 @@
         <div class="stat-value">{{ tripData.packs }}</div>
         <div class="stat-label">Packs</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ tripData.todos }}</div>
+        <div class="stat-label">Todos</div>
+      </div>
       @if(tripData.weightStr) {
         <div class="stat-card weight">
           <div class="stat-value">{{ tripData.weightStr }}</div>
@@ -59,6 +63,36 @@
         </div>
         <div class="shared-stat failure">
           <div class="shared-value">{{ tripData.sharedFailure }}</div>
+          <div class="shared-label">Failure</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="shared-section">
+      <h3 class="section-title">Shared Todos</h3>
+      <div class="shared-stats-row">
+        <div class="shared-stat assigned">
+          <div class="shared-value">{{ tripData.sharedTodosTotal }}</div>
+          <div class="shared-label">Total</div>
+        </div>
+        <div class="shared-stat assigned">
+          <div class="shared-value">{{ tripData.sharedTodosAssigned }}</div>
+          <div class="shared-label">Assigned</div>
+        </div>
+        <div class="shared-stat pending">
+          <div class="shared-value">{{ tripData.sharedTodosPending }}</div>
+          <div class="shared-label">Pending</div>
+        </div>
+        <div class="shared-stat overdue" [class.overdue-active]="tripData.sharedTodosOverdue > 0">
+          <div class="shared-value">{{ tripData.sharedTodosOverdue }}</div>
+          <div class="shared-label">Overdue</div>
+        </div>
+        <div class="shared-stat success">
+          <div class="shared-value">{{ tripData.sharedTodosSuccess }}</div>
+          <div class="shared-label">Success</div>
+        </div>
+        <div class="shared-stat failure">
+          <div class="shared-value">{{ tripData.sharedTodosFailure }}</div>
           <div class="shared-label">Failure</div>
         </div>
       </div>

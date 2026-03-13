@@ -1,0 +1,47 @@
+<div class="container">
+    <amazon-link
+        class="ic-2-item ellipsis-text"
+        [item]="entity.name"
+        [linkText]="entity.name"
+    ></amazon-link>
+
+    @if(entity.category) {
+    <span class="ic-2-item ic-2-right ellipsis-text">
+        <div class="category">
+            <amazon-link
+                class="ic-2-item ellipsis-text"
+                [item]="entity.category"
+                [linkText]="entity.category"
+            ></amazon-link>
+        </div>
+    </span>
+    }
+</div>
+@if (entity.assignmentStatusText && itemMetaData?.assignmentsVisible()) {
+  @if(assigned) {
+  <div class="checkboxes-wrapper">
+      <div class="checkbox-container">
+          <p-checkbox
+              [ngModel]="entity.finished === 'success'"
+              [binary]="true"
+              inputId="success"
+              (onChange)="handleFinishedSuccessClick($event)"
+          ></p-checkbox>
+          <label for="success">Finished success</label>
+      </div>
+      <div class="checkbox-container">
+          <p-checkbox
+              [ngModel]="entity.finished === 'failure'"
+              [binary]="true"
+              inputId="failure"
+              (onChange)="handleFinishedFailureClick($event)"
+          ></p-checkbox>
+          <label for="failure">Finished failure</label>
+      </div>
+  </div>
+  }
+  <div
+      class="smaller-text"
+      [class]="statusToClassMap"
+  >{{entity.assignmentStatusText}}</div>
+}

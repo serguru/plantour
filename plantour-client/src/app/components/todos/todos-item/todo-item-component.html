@@ -1,0 +1,16 @@
+<amazon-link
+    class="ic-2-item ellipsis-text"
+    [item]="entity.name"
+    [linkText]="entity.name"
+></amazon-link>
+@if(entity.category) {
+<span class="ic-2-item ic-2-right ellipsis-text">
+    <div class="category">
+        <amazon-link
+            class="ic-2-item ellipsis-text"
+            [item]="entity.category"
+            [linkText]="entity.category"
+        ></amazon-link>
+    </div>
+</span>
+}

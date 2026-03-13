@@ -18,7 +18,7 @@ export class LandingExplainedComponent {
     {
       title: 'What you see on the Landing page',
       paragraphs: [
-        'A short headline (“Pack smart. Travel better.”) and a short description of Plantour.',
+        'A short headline (“Plan smart. Travel better.”) and a short description of Plantour.',
         'A “Why Plantour?” block with feature cards (Planning, Organization, Sharing, Packing, AI, Templates).',
         'A “Try” card that highlights no-registration usage with prefilled test data.',
         'A pricing grid where each plan lists limits and included features.'
