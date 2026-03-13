@@ -25,7 +25,12 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
-        preset: Aura
+        preset: Aura,
+            options: {
+                // This forces the "light" version by default
+                darkModeSelector: '.force-dark-only-if-this-class-exists', 
+                cssLayer: false
+            }
       }
     }),
     MessageService,

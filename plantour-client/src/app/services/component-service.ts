@@ -134,7 +134,6 @@ export class ComponentService {
   }
 
   // Is loading
-  // TODO: make word "Loading..." appears only when loading takes more than e.g. 300ms
   private loadingSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   loading$: Observable<boolean> = this.loadingSubject.asObservable();
   updateLoading(loading: boolean): void {
