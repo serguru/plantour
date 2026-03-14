@@ -79,6 +79,144 @@ public class EmailService(IBrevoEmailClient brevoEmailClient) : IEmailService
             $"If you do not recognize {request.AdminName}, ignore this email."));
     }
 
+    public Task<EmailDispatchResult> SendContactSubmissionNotificationEmailAsync(ContactSubmissionNotificationEmailRequest request)
+    {
+        var recipientName = GetDisplayName(request.RecipientName, request.RecipientEmail);
+        var facts = new List<EmailFact>
+        {
+            new("From", $"{request.FullName} <{request.Email}>"),
+            new("Submitted", FormatUtc(request.SubmittedAt))
+        };
+
+        if (!string.IsNullOrWhiteSpace(request.SubjectCategory))
+        {
+            facts.Add(new EmailFact("Category", request.SubjectCategory));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+        {
+            facts.Add(new EmailFact("Phone", request.PhoneNumber));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.IpAddress))
+        {
+            facts.Add(new EmailFact("IP address", request.IpAddress));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.ReferrerUrl))
+        {
+            facts.Add(new EmailFact("Referrer", request.ReferrerUrl));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.UserAgent))
+        {
+            facts.Add(new EmailFact("User agent", request.UserAgent));
+        }
+
+        var categoryLabel = string.IsNullOrWhiteSpace(request.SubjectCategory)
+            ? "General"
+            : request.SubjectCategory.Trim();
+
+        var additionalHtml = BuildMessagePanelHtml("Message", request.MessageBody);
+        var additionalText = BuildLabeledSectionText("Message", request.MessageBody);
+
+        var model = new EmailTemplateModel(
+            request.RecipientEmail,
+            recipientName,
+            $"Plantour contact submission: {categoryLabel}",
+            "Contact submission",
+            "A new contact message was submitted",
+            recipientName,
+            new[]
+            {
+                "A user submitted a new message through the Plantour contact form.",
+                "Review the submission details below and reply directly to the sender if needed."
+            },
+            facts,
+            Array.Empty<string>(),
+            null,
+            Array.Empty<EmailCallToAction>(),
+            "This notification was sent automatically from Plantour.");
+
+        return SendAsync(model, additionalHtml, additionalText);
+    }
+
+    public Task<EmailDispatchResult> SendUserCreatedNotificationEmailAsync(UserCreatedNotificationEmailRequest request)
+    {
+        var recipientName = GetDisplayName(request.RecipientName, request.RecipientEmail);
+        var facts = new List<EmailFact>
+        {
+            new("User ID", request.UserId.ToString()),
+            new("Email", request.Email),
+            new("Created", FormatUtc(request.CreatedAt)),
+            new("Temporary", request.Temporary ? "Yes" : "No")
+        };
+
+        var fullName = BuildFullName(request.FirstName, request.LastName);
+        if (!string.IsNullOrWhiteSpace(fullName))
+        {
+            facts.Add(new EmailFact("Name", fullName));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Phone))
+        {
+            facts.Add(new EmailFact("Phone", request.Phone));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.AccessTypeName))
+        {
+            facts.Add(new EmailFact("Access type", request.AccessTypeName));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.ParticipantCode))
+        {
+            facts.Add(new EmailFact("Participant code", request.ParticipantCode));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.PaddleSubscriptionId))
+        {
+            facts.Add(new EmailFact("Paddle subscription", request.PaddleSubscriptionId));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.GoogleSub))
+        {
+            facts.Add(new EmailFact("Google sign-in", "Linked"));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.FacebookUserId))
+        {
+            facts.Add(new EmailFact("Facebook sign-in", "Linked"));
+        }
+
+        var additionalHtml = string.IsNullOrWhiteSpace(request.Notes)
+            ? string.Empty
+            : BuildMessagePanelHtml("Notes", request.Notes);
+
+        var additionalText = string.IsNullOrWhiteSpace(request.Notes)
+            ? null
+            : BuildLabeledSectionText("Notes", request.Notes);
+
+        var model = new EmailTemplateModel(
+            request.RecipientEmail,
+            recipientName,
+            $"Plantour user created: {request.Email}",
+            "User created",
+            "A new user record was created",
+            recipientName,
+            new[]
+            {
+                "A new row was added to the Plantour users table by the application.",
+                "Review the user details below if you need to audit or follow up on this account."
+            },
+            facts,
+            Array.Empty<string>(),
+            null,
+            Array.Empty<EmailCallToAction>(),
+            "This notification was sent automatically from Plantour.");
+
+        return SendAsync(model, additionalHtml, additionalText);
+    }
+
     public Task<EmailDispatchResult> SendTripParticipantInvitationEmailAsync(TripParticipantInvitationEmailRequest request)
     {
         var recipientName = GetDisplayName(request.RecipientName, request.RecipientEmail);
@@ -471,6 +609,14 @@ public class EmailService(IBrevoEmailClient brevoEmailClient) : IEmailService
         return builder.ToString().Trim();
     }
 
+    private static string BuildLabeledSectionText(string label, string content)
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine($"{label}:");
+        builder.AppendLine(content);
+        return builder.ToString().Trim();
+    }
+
     private static string BuildMessagePanelHtml(string title, string content)
     {
         return string.Concat(
@@ -500,6 +646,12 @@ public class EmailService(IBrevoEmailClient brevoEmailClient) : IEmailService
         }
 
         return char.ToUpperInvariant(value[0]) + value[1..];
+    }
+
+    private static string? BuildFullName(string? firstName, string? lastName)
+    {
+        var fullName = string.Join(" ", new[] { firstName?.Trim(), lastName?.Trim() }.Where(value => !string.IsNullOrWhiteSpace(value)));
+        return string.IsNullOrWhiteSpace(fullName) ? null : fullName;
     }
 
     private static string Encode(string? value)

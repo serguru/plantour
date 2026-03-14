@@ -6,6 +6,10 @@ public interface IEmailService
 
     Task<EmailDispatchResult> SendInvitationEmailAsync(InvitationEmailRequest request);
 
+    Task<EmailDispatchResult> SendContactSubmissionNotificationEmailAsync(ContactSubmissionNotificationEmailRequest request);
+
+    Task<EmailDispatchResult> SendUserCreatedNotificationEmailAsync(UserCreatedNotificationEmailRequest request);
+
     Task<EmailDispatchResult> SendTripParticipantInvitationEmailAsync(TripParticipantInvitationEmailRequest request);
 
     Task<EmailDispatchResult> SendParticipantAssignmentChangesEmailAsync(ParticipantAssignmentChangesEmailRequest request);
@@ -28,6 +32,36 @@ public record InvitationEmailRequest(
     string AccessUrl,
     string SignInUrl,
     string AccessCode);
+
+public record ContactSubmissionNotificationEmailRequest(
+    string RecipientEmail,
+    string RecipientName,
+    string FullName,
+    string Email,
+    string? PhoneNumber,
+    string? SubjectCategory,
+    string MessageBody,
+    DateTime SubmittedAt,
+    string? IpAddress,
+    string? UserAgent,
+    string? ReferrerUrl);
+
+public record UserCreatedNotificationEmailRequest(
+    string RecipientEmail,
+    string RecipientName,
+    Guid UserId,
+    string Email,
+    string? FirstName,
+    string? LastName,
+    string? Phone,
+    bool Temporary,
+    string? AccessTypeName,
+    DateTime CreatedAt,
+    string? Notes,
+    string? GoogleSub,
+    string? FacebookUserId,
+    string? ParticipantCode,
+    string? PaddleSubscriptionId);
 
 public record TripParticipantInvitationEmailRequest(
     string RecipientEmail,
