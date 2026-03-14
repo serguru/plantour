@@ -2,6 +2,8 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using plantour_server.Services.Interfaces;
+using plantour_server.Utils;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 
@@ -14,7 +16,9 @@ public class TripSharedService(
     HttpCurrentUser httpCurrentUser,
     DicTripRepository dicTripRepository,
     TripUserRepository tripUserRepository,
-    TripThingRepository tripThingRepository
+    TripThingRepository tripThingRepository,
+    UsersRepository usersRepository,
+    ISharedAssignmentNotificationService sharedAssignmentNotificationService
     ) : ITripSharedService
 {
     private readonly TripSharedRepository _tripSharedRepository = tripSharedRepository;
@@ -23,8 +27,9 @@ public class TripSharedService(
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
-    //private readonly ThingRepository _thingRepository = thingRepository;
     private readonly TripThingRepository _tripThingRepository = tripThingRepository;
+    private readonly UsersRepository _usersRepository = usersRepository;
+    private readonly ISharedAssignmentNotificationService _sharedAssignmentNotificationService = sharedAssignmentNotificationService;
 
     public async Task<IEnumerable<TripSharedDto>> GetAllFullAsync(Guid tripId)
     {
@@ -225,7 +230,9 @@ public class TripSharedService(
             throw new CustomException("AssignedTo trip user not found");
         }
 
-        if (entity.AssignedThingId == null) // accept
+        var shouldNotifyAccepted = entity.AssignedThingId == null;
+
+        if (shouldNotifyAccepted) // accept
         {
             var thing = await _tripThingRepository.FindAsync(x => x.TripUserId == assignedToTripUser.Id && x.Name.ToLower() == entity.Name.ToLower()).ContinueWith(t => t.Result.FirstOrDefault());
             if (thing == null)
@@ -246,11 +253,12 @@ public class TripSharedService(
         }
         else // deaccept
         {
+            var assignedThingId = entity.AssignedThingId ?? throw new CustomException("Assigned thing not found");
             var thing = await _tripThingRepository.GetByIdAsync(
                 _currentUser.AdminId,
                 _currentUser.UserId,
                 entity.TripId,
-                entity.AssignedThingId.Value);
+                assignedThingId);
 
             if (thing != null)
             {
@@ -260,6 +268,11 @@ public class TripSharedService(
             entity.AssignedThingId = null;
         }
         await _tripSharedRepository.UpdateAsync(entity);
+
+        if (shouldNotifyAccepted)
+        {
+            await NotifyAdminAboutParticipantActionAsync(entity, "shared item", "trip-shared", "accepted");
+        }
     }
 
     public async Task ToggleRejectAssignmentAsync(Guid tripId, Guid id)
@@ -289,6 +302,8 @@ public class TripSharedService(
             throw new CustomException("AssignedTo trip user not found");
         }
 
+        var shouldNotifyRejected = !entity.Rejected;
+
         if (entity.Rejected) // unreject
         {
             entity.Rejected = false;
@@ -316,6 +331,11 @@ public class TripSharedService(
         }
 
         await _tripSharedRepository.UpdateAsync(entity);
+
+        if (shouldNotifyRejected)
+        {
+            await NotifyAdminAboutParticipantActionAsync(entity, "shared item", "trip-shared", "refused");
+        }
     }
 
 
@@ -377,12 +397,131 @@ public class TripSharedService(
         var deadlineAt = request.DeadlineAt;
 
         _currentUser.RaiseIfNotAdmin();
-        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, assigneeId, ids, deadlineAt, false);
+        var before = await _tripSharedRepository.GetByIdsFullAsync(tripId, ids);
+        var result = await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, assigneeId, ids, deadlineAt, false);
+        var after = await _tripSharedRepository.GetByIdsFullAsync(tripId, ids);
+        await NotifyParticipantAssignmentChangesAsync(before, after, "shared items", "trip-shared");
+        return result;
     }
 
     public async Task<int> UnassignTripSharedThingsAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAdmin();
-        return await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, Guid.Empty, ids, null, true);
+        var before = await _tripSharedRepository.GetByIdsFullAsync(tripId, ids);
+        var result = await _dicTripRepository.AssignTripSharedThingsAsync(_currentUser.AdminId, tripId, Guid.Empty, ids, null, true);
+        var after = await _tripSharedRepository.GetByIdsFullAsync(tripId, ids);
+        await NotifyParticipantAssignmentChangesAsync(before, after, "shared items", "trip-shared");
+        return result;
+    }
+
+    private async Task NotifyParticipantAssignmentChangesAsync(
+        List<TripSharedThing> before,
+        List<TripSharedThing> after,
+        string entityLabel,
+        string entityRoute)
+    {
+        var admin = await _usersRepository.GetActiveByIdAsync(_currentUser.AdminId);
+        if (admin == null)
+        {
+            return;
+        }
+
+        var tripName = after.FirstOrDefault()?.Trip?.Name ?? before.FirstOrDefault()?.Trip?.Name;
+        var tripId = after.FirstOrDefault()?.TripId ?? before.FirstOrDefault()?.TripId;
+
+        if (string.IsNullOrWhiteSpace(tripName) || tripId == null)
+        {
+            return;
+        }
+
+        var grouped = new Dictionary<(string Email, string Name, string Action, DateTime? DeadlineAt), List<string>>();
+
+        foreach (var afterEntity in after)
+        {
+            var beforeEntity = before.FirstOrDefault(x => x.Id == afterEntity.Id);
+
+            if (beforeEntity?.AssignedToId != afterEntity.AssignedToId)
+            {
+                if (beforeEntity?.AssignedTo?.AdminParticipant?.Participant != null)
+                {
+                    AddParticipantAssignmentChange(
+                        grouped,
+                        beforeEntity.AssignedTo.AdminParticipant.Participant,
+                        "Unassigned",
+                        null,
+                        beforeEntity.Name);
+                }
+
+                if (afterEntity.AssignedTo?.AdminParticipant?.Participant != null)
+                {
+                    AddParticipantAssignmentChange(
+                        grouped,
+                        afterEntity.AssignedTo.AdminParticipant.Participant,
+                        "Assigned",
+                        afterEntity.AssignedDeadline,
+                        afterEntity.Name);
+                }
+            }
+        }
+
+        var changes = grouped.Select(x => new ParticipantAssignmentEmailChange(
+            x.Key.Email,
+            x.Key.Name,
+            x.Key.Action,
+            x.Value,
+            x.Key.DeadlineAt)).ToList();
+
+        await _sharedAssignmentNotificationService.NotifyParticipantAssignmentChangesAsync(
+            admin,
+            tripName,
+            tripId.Value,
+            entityLabel,
+            entityRoute,
+            changes);
+    }
+
+    private static void AddParticipantAssignmentChange(
+        Dictionary<(string Email, string Name, string Action, DateTime? DeadlineAt), List<string>> grouped,
+        User participant,
+        string actionLabel,
+        DateTime? deadlineAt,
+        string entityName)
+    {
+        var name = Misc.GenerateFullName(participant.FirstName, participant.LastName);
+        name = string.IsNullOrWhiteSpace(name) ? participant.Email : name;
+        var key = (participant.Email, name, actionLabel, deadlineAt);
+
+        if (!grouped.TryGetValue(key, out var names))
+        {
+            names = [];
+            grouped[key] = names;
+        }
+
+        names.Add(entityName);
+    }
+
+    private async Task NotifyAdminAboutParticipantActionAsync(
+        TripSharedThing entity,
+        string entityLabel,
+        string entityRoute,
+        string actionLabel)
+    {
+        var admin = await _usersRepository.GetActiveByIdAsync(_currentUser.AdminId);
+        var participant = await _usersRepository.GetActiveByIdAsync(_currentUser.UserId);
+
+        if (admin == null || participant == null)
+        {
+            return;
+        }
+
+        await _sharedAssignmentNotificationService.NotifyAdminParticipantActionAsync(
+            admin,
+            participant,
+            entity.Trip.Name,
+            entity.TripId,
+            entityLabel,
+            entity.Name,
+            entityRoute,
+            actionLabel);
     }
 }

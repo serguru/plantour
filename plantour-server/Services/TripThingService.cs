@@ -2,6 +2,7 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using plantour_server.Services.Interfaces;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 
@@ -15,7 +16,9 @@ public class TripThingService(
     ThingRepository ThingRepository,
     TemplateRepository templateRepository,
     IMapper mapper,
-    HttpCurrentUser httpCurrentUser) : ITripThingService
+    HttpCurrentUser httpCurrentUser,
+    UsersRepository usersRepository,
+    ISharedAssignmentNotificationService sharedAssignmentNotificationService) : ITripThingService
 {
     private readonly TripThingRepository _tripUserThingRepository = TripThingRepository;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
@@ -25,6 +28,8 @@ public class TripThingService(
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
+    private readonly UsersRepository _usersRepository = usersRepository;
+    private readonly ISharedAssignmentNotificationService _sharedAssignmentNotificationService = sharedAssignmentNotificationService;
 
     private async Task CheckAccessAsync(Guid tripId, int addQty)
     {
@@ -226,13 +231,36 @@ public class TripThingService(
             throw new CustomException("User does not have access to this trip");
         }
 
-        var entity = await _tripUserThingRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
+        var entity = await _tripUserThingRepository.GetByIdWithSharedDetailsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
         if (entity == null)
         {
             throw new CustomException("Trip thing not found or access denied");
         }   
         entity.Finished = finished;
         await  _tripUserThingRepository.UpdateAsync(entity);
+
+        if (finished == "success" || finished == "failure")
+        {
+            var sharedThing = entity.TripSharedThings.FirstOrDefault();
+            if (sharedThing != null)
+            {
+                var admin = await _usersRepository.GetActiveByIdAsync(_currentUser.AdminId);
+                var participant = await _usersRepository.GetActiveByIdAsync(_currentUser.UserId);
+
+                if (admin != null && participant != null)
+                {
+                    await _sharedAssignmentNotificationService.NotifyAdminParticipantActionAsync(
+                        admin,
+                        participant,
+                        entity.TripUser.Trip.Name,
+                        tripId,
+                        "shared item",
+                        entity.Name,
+                        "trip-shared",
+                        finished == "success" ? "finished successfully" : "finished with failure");
+                }
+            }
+        }
     }
 
 }
