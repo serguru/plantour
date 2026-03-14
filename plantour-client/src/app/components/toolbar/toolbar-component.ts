@@ -118,15 +118,17 @@ export class Toolbar implements OnInit {
     private router: Router
   ) { }
 
-
-
-
   tripText = computed(() => {
     return this.currentTrip() ? this.currentTrip()!.name : 'No Trip Selected';
   });
 
 
-  tripTextVisible = toSignal(this.currentTripService.currentTripVisible$);
+  tripTextVisibleSignal = toSignal(this.currentTripService.currentTripVisible$);
+
+  tripTextVisible(): boolean {
+    const result = !!this.tripTextVisibleSignal() && this.usersService.isAuthenticatedSignal();
+    return result;
+  }
 
   setTripTextVisible(visible: boolean): void {
     this.currentTripService.updateCurrentTripVisible(visible);
