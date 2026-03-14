@@ -52,6 +52,10 @@ export class FaqGeneralComponent {
       answer: 'Yes. You can request account deletion through account settings. All your data (travelers, items, bags, trips) will be permanently deleted. Guest Access accounts are automatically deleted after 7 days.'
     },
     {
+      question: 'Does Plantour integrate with Amazon?',
+      answer: 'Plantour participates in the Amazon Associates Program. Some items, categories, and bags in the app are shown as Amazon search links, and clicking one opens the corresponding Amazon search results page. If you visit Amazon through one of our links and buy something there, we may earn a small commission at no extra cost to you. We would appreciate it if you start your Amazon shopping through Plantour\'s links when they are helpful.'
+    },
+    {
       question: 'How do I get help if I have issues?',
       answer: 'You can access comprehensive help documentation within the app (Help section), explore this FAQ, or contact support through the app. The Help section provides step-by-step guides for all features.'
     },

@@ -134,7 +134,7 @@ export class WelcomeToPlantourComponent {
           ]
         }
       },
-// TODO proceed
+
       step2: {
         title: 'Step 2: Add Travelers',
         subtitle: '"Travelers" are the people involved in your trip.',
