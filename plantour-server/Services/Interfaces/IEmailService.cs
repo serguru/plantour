@@ -6,6 +6,8 @@ public interface IEmailService
 
     Task<EmailDispatchResult> SendInvitationEmailAsync(InvitationEmailRequest request);
 
+    Task<EmailDispatchResult> SendTripParticipantInvitationEmailAsync(TripParticipantInvitationEmailRequest request);
+
     Task<EmailDispatchResult> SendParticipantAssignmentChangesEmailAsync(ParticipantAssignmentChangesEmailRequest request);
 
     Task<EmailDispatchResult> SendAdminParticipantActionEmailAsync(AdminParticipantActionEmailRequest request);
@@ -26,6 +28,13 @@ public record InvitationEmailRequest(
     string AccessUrl,
     string SignInUrl,
     string AccessCode);
+
+public record TripParticipantInvitationEmailRequest(
+    string RecipientEmail,
+    string RecipientName,
+    string AdminName,
+    string TripName,
+    string TripUrl);
 
 public record ParticipantAssignmentChangesEmailRequest(
     string RecipientEmail,

@@ -79,6 +79,33 @@ public class EmailService(IBrevoEmailClient brevoEmailClient) : IEmailService
             $"If you do not recognize {request.AdminName}, ignore this email."));
     }
 
+    public Task<EmailDispatchResult> SendTripParticipantInvitationEmailAsync(TripParticipantInvitationEmailRequest request)
+    {
+        var recipientName = GetDisplayName(request.RecipientName, request.RecipientEmail);
+
+        return SendAsync(new EmailTemplateModel(
+            request.RecipientEmail,
+            recipientName,
+            $"Plantour: You were added to {request.TripName}",
+            "Trip invitation",
+            "You’ve been added to a Plantour trip",
+            recipientName,
+            new[]
+            {
+                $"{request.AdminName} added you to the trip {request.TripName}.",
+                "Open Plantour from the button below to review the trip and your current responsibilities."
+            },
+            new[]
+            {
+                new EmailFact("Trip", request.TripName),
+                new EmailFact("Added by", request.AdminName)
+            },
+            Array.Empty<string>(),
+            new EmailCallToAction("Open trip in Plantour", request.TripUrl),
+            Array.Empty<EmailCallToAction>(),
+            "This notification was sent automatically because you were added to a Plantour trip."));
+    }
+
     public Task<EmailDispatchResult> SendParticipantAssignmentChangesEmailAsync(ParticipantAssignmentChangesEmailRequest request)
     {
         var recipientName = GetDisplayName(request.RecipientName, request.RecipientEmail);
