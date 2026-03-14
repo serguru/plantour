@@ -9,6 +9,7 @@ using plantour_server.DbModels;
 using plantour_server.Models;
 using plantour_server.Repositories;
 using plantour_server.Utils;
+using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
@@ -21,13 +22,16 @@ public class TokenService : ITokenService
 
     private readonly RefreshTokenRepository _refreshTokenRepository;
     private readonly SettingsRepository _settingsRepository;
+    private readonly UsersRepository _usersReposotory;
+    
 
-    public TokenService(IOptions<JwtSettings> jwtSettings, IAccessRulesService accessRulesService, RefreshTokenRepository refreshTokenRepository, SettingsRepository settingsRepository)
+    public TokenService(IOptions<JwtSettings> jwtSettings, IAccessRulesService accessRulesService, RefreshTokenRepository refreshTokenRepository, SettingsRepository settingsRepository, UsersRepository usersReposotory)
     {
         _jwtSettings = jwtSettings.Value;
         _accessRulesService = accessRulesService;
         _refreshTokenRepository = refreshTokenRepository;
         _settingsRepository = settingsRepository;
+        _usersReposotory = usersReposotory;
     }
 
     public async Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid adminId)
@@ -52,6 +56,21 @@ public class TokenService : ITokenService
 
         var rules = accessProcessResult.AccessRulesObject.GetAllRules();
 
+        string adminFullName = "";
+        string adminEmail = "";
+
+        if (role == UserRole.Participant)
+        {
+            var admin = await _usersReposotory.GetActiveByIdAsync(adminId);
+            if (admin == null)
+            {
+                throw new CustomException("Active admin not found while refreshing a token for the paticipant");
+            }
+            adminFullName = Misc.GenerateFullName(admin.FirstName, admin.LastName);
+            adminEmail = admin.Email;
+        }
+       
+
         var claims = new List<Claim>
         {
             new(PlantourClaims.UserId, user.Id.ToString()),
@@ -67,6 +86,8 @@ public class TokenService : ITokenService
             new(PlantourClaims.AccessRules, JsonSerializer.Serialize(rules)),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(PlantourClaims.AdminId, adminId.ToString()),
+            new(PlantourClaims.AdminFullName, adminFullName),
+            new(PlantourClaims.AdminEmail, adminEmail),
             new(PlantourClaims.Temporary, isTemporary ? "true" : "false")
         };
 

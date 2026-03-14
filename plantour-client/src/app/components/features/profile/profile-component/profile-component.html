@@ -9,22 +9,6 @@
     </div>
 
     <div class="controls-wrapper">
-
-        <!-- <section class="profile-section">
-            <button
-                type="button"
-                class="section-header"
-                (click)="toggleSection('personal-information')"
-                [attr.aria-expanded]="isSectionExpanded('personal-information')"
-            >
-                <div class="section-header-content">
-                    <i class="pi pi-id-card section-icon"></i>
-                    <h3 class="section-title">Personal Information</h3>
-                </div>
-                <i [class]="isSectionExpanded('personal-information') ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-            </button>
-
-            @if (isSectionExpanded('personal-information')) { -->
         <div class="section-content">
             <form
                 [formGroup]="profileForm"
@@ -51,7 +35,10 @@
 
                 <div class="info-message">
                     <i class="pi pi-info-circle"></i>
-                    <span>To switch from the current temporary Guest account to the Starter Free plan you can update your current temporary email {{ userEmail() }} with your real email. Your current data will not be lost. To create a new account from scratch, first sign out and then sign in using your real email address.</span>
+                    <span>To switch from the current temporary Guest account to the Starter Free plan you can update
+                        your current temporary email {{ userEmail() }} with your real email. Your current data will not
+                        be lost. To create a new account from scratch, first sign out and then sign in using your real
+                        email address.</span>
                 </div>
                 }
 
@@ -118,62 +105,63 @@
         </div>
         @if (currentUser()) {
         <div class="user-summary">
-            <!-- <div class="summary-row">
-                <h3 class="summary-label">Full name</h3>
-                <h3 class="section-title">{{ fullName() }}</h3>
-            </div>
-            <div class="summary-row">
-                <h3 class="summary-label">Email</h3>
-                <h3 class="section-title">{{ userEmail() }}</h3>
-            </div> -->
             <div class="summary-row">
                 <h3 class="summary-label">Role</h3>
                 <h3 class="section-title">{{ userRole() }}</h3>
             </div>
             @if(isAdmin()) {
-            <div class="summary-row">
-                <h3 class="summary-label">Plan</h3>
-                <h3 class="section-title">{{ planPeriod() }}</h3>
-            </div>
-
-
-            @if(participantCode()) {
-            <div class="summary-row">
-                <h3 class="summary-label">Participant code</h3>
-                <div style="display: flex; gap: 0.5rem">
-                    <h3 class="section-title">{{showParticipantCode() ? participantCode() : "********"}}</h3>
-                    <span
-                        [class]="'pi pi-' + (showParticipantCode() ? 'eye-slash':'eye')"
-                        style="cursor: pointer"
-                        (click)="toggleShowParticipantCode()"
-                    ></span>
+                <div class="summary-row">
+                    <h3 class="summary-label">Plan</h3>
+                    <h3 class="section-title">{{ planPeriod() }}</h3>
                 </div>
-            </div>
-            }
+                @if(participantCode()) {
+                <div class="summary-row">
+                    <h3 class="summary-label">Participant code</h3>
+                    <div style="display: flex; gap: 0.5rem">
+                        <h3 class="section-title">{{showParticipantCode() ? participantCode() : "********"}}</h3>
+                        <span
+                            [class]="'pi pi-' + (showParticipantCode() ? 'eye-slash':'eye')"
+                            style="cursor: pointer"
+                            (click)="toggleShowParticipantCode()"
+                        ></span>
 
-            @if(scheduledDowngrade()?.hasScheduledDowngrade) {
+                    </div>
+                </div>
+                } 
+
+                @if(scheduledDowngrade()?.hasScheduledDowngrade) {
+                <div class="summary-row">
+                    <h3 class="summary-label">Scheduled downgrade</h3>
+                    <h3 class="section-title">
+                        {{ formatScheduledDowngrade(scheduledDowngrade()) }}
+                        @if (scheduledDowngrade()?.hasScheduledDowngrade) {
+                        <a
+                            class="cancel-link"
+                            href=""
+                            (click)="onCancelScheduledDowngrade($event)"
+                            [attr.aria-disabled]="isCancellingScheduledDowngrade()"
+                            [attr.tabindex]="isCancellingScheduledDowngrade() ? -1 : null"
+                        >{{ isCancellingScheduledDowngrade() ? 'Cancelling...' : 'Cancel' }}</a>
+                        }
+                    </h3>
+                </div>
+                }
+                @if(usersService.isTemporarySignal()) {
+                <div class="summary-row">
+                    <h3 class="summary-label">Account</h3>
+                    <h3 class="section-title">temporary until {{expiresAt()}}</h3>
+                </div>
+                }
+            } @else {
             <div class="summary-row">
-                <h3 class="summary-label">Scheduled downgrade</h3>
-                <h3 class="section-title">
-                    {{ formatScheduledDowngrade(scheduledDowngrade()) }}
-                    @if (scheduledDowngrade()?.hasScheduledDowngrade) {
-                    <a
-                        class="cancel-link"
-                        href=""
-                        (click)="onCancelScheduledDowngrade($event)"
-                        [attr.aria-disabled]="isCancellingScheduledDowngrade()"
-                        [attr.tabindex]="isCancellingScheduledDowngrade() ? -1 : null"
-                    >{{ isCancellingScheduledDowngrade() ? 'Cancelling...' : 'Cancel' }}</a>
-                    }
-                </h3>
+                <h3 class="summary-label">Admin</h3>
+                <h3 class="section-title">{{ currentUser()?.admin_full_name }}</h3>
             </div>
-            }
-            @if(usersService.isTemporarySignal()) {
             <div class="summary-row">
-                <h3 class="summary-label">Account</h3>
-                <h3 class="section-title">temporary until {{expiresAt()}}</h3>
+                <h3 class="summary-label">Admin email</h3>
+                <h3 class="section-title"><a class="ic-2-item ic-2-right ellipsis-text" [href]="'mailto:'+currentUser()?.admin_email">{{currentUser()?.admin_email}}</a></h3>
             </div>
-            }
+
             }
         </div>
         }
@@ -196,71 +184,5 @@
             }
         </div>
         }
-
-
-        <!-- }
-        </section> -->
-
-        <!-- <section class="profile-section">
-            <button
-                type="button"
-                class="section-header"
-                (click)="toggleSection('social-login')"
-                [attr.aria-expanded]="isSectionExpanded('social-login')"
-            >
-                <div class="section-header-content">
-                    <i class="pi pi-share-alt section-icon"></i>
-                    <h3 class="section-title">Social Login</h3>
-                </div>
-                <i [class]="isSectionExpanded('social-login') ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-            </button>
-
-            @if (isSectionExpanded('social-login')) {
-            <div class="section-content">
-                <div class="pale-prompt">Google login: {{ hasGoogleLinked() ? 'Connected' : 'Not connected' }}</div>
-                <div class="form-actions">
-                    @if (hasGoogleLinked()) {
-                    <app-button
-                        type="button"
-                        [label]="'Reset Google'"
-                        [icon]="'pi pi-refresh'"
-                        [disabled]="isGoogleBusy()"
-                        (click)="onResetGoogle()"
-                    />
-                    } @else {
-                    <app-button
-                        type="button"
-                        [label]="'Connect Google'"
-                        [icon]="'pi pi-google'"
-                        [disabled]="isGoogleBusy()"
-                        (click)="onConnectGoogle()"
-                    />
-                    }
-                </div>
-
-                <div class="pale-prompt">Facebook login: {{ hasFacebookLinked() ? 'Connected' : 'Not connected' }}</div>
-                <div class="form-actions">
-                    @if (hasFacebookLinked()) {
-                    <app-button
-                        type="button"
-                        [label]="'Reset Facebook'"
-                        [icon]="'pi pi-refresh'"
-                        [disabled]="isFacebookBusy()"
-                        (click)="onResetFacebook()"
-                    />
-                    } @else {
-                    <app-button
-                        type="button"
-                        [label]="'Connect Facebook'"
-                        [icon]="'pi pi-facebook'"
-                        [disabled]="isFacebookBusy()"
-                        (click)="onConnectFacebook()"
-                    />
-                    }
-                </div>
-            </div>
-            }
-        </section> -->
-
     </div>
 </div>
