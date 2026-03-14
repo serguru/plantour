@@ -979,6 +979,9 @@ values
     ('user_token_expiration_minutes', '1440',  'integer'),
     ('checkout_session_success_url', 'profile',  'string'),
     ('checkout_session_cancel_url', 'profile',  'string'),
+    ('admin_email', 'admin@plantour.app',  'string'),
+    ('support_email', 'support@plantour.app',  'string'),
+    ('send_email_user_created', 'true',  'boolean'),
     ('plantour_app_origin', 'http://localhost:4203',  'string');
     
     
