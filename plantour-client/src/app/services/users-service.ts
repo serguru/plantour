@@ -246,7 +246,6 @@ export class UsersService {
     if (!newUser) {
       return;
     } 
-    // TODO: test public templates 
 
     const storedUserId = this.localStorageService.getItem('signin-userId');
     if (storedUserId && newUser.user_id && storedUserId != newUser.user_id) {

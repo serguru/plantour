@@ -24,5 +24,13 @@ RUN dotnet publish "./plantour-server.csproj" -c $BUILD_CONFIGURATION -o /app/pu
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
+
+# added 3 lines as AI suggested to be able to use tunnel access  to production while in maintenance
+RUN apt-get update && apt-get install -y openssh-server
+RUN mkdir /var/run/sshd
+RUN usermod --unlock root
+# ------------------------------
+
+
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "plantour_server.dll"]

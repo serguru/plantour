@@ -461,3 +461,5 @@ plantourcli07-20
 
 
 Explore the project. Pay attention on trip_user_things and trip_shared_things DB tables. These tables contain data on personal and shared items to be taken to a trip. Can you estimate this: are you capable to explore the entire project, API and client, understand how personal items and shared items processed and used by customers and then add to the project full ToDo functionality, including SQL, API, frontend, help? Similar to items there should be ToDo dictionaries, personal trip ToDos and shared trip ToDos. The admin, similar to items, should be able to assign a ToDo to a person and see if it is done. And an assignee should be able to accept or reject the assignment, as well as finish the assignment as "success" or "failure". ToDo Data should be added to the Dashboard.  Do no code changes for  now, just estimate if you can do that.
+
+

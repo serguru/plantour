@@ -1,11 +1,73 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using plantour_server.DbModels;
+using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Repositories;
 
-public class UsersRepository(PlantourContext context) : GenericRepository<User>(context)
+public class UsersRepository(
+    PlantourContext context,
+    SettingsRepository settingsRepository,
+    IEmailService emailService,
+    ILogger<UsersRepository> logger) : GenericRepository<User>(context)
 {
+    private readonly SettingsRepository _settingsRepository = settingsRepository;
+    private readonly IEmailService _emailService = emailService;
+    private readonly ILogger<UsersRepository> _logger = logger;
+
+    public override async Task<User> AddAsync(User entity)
+    {
+        var createdUser = await base.AddAsync(entity);
+
+        try
+        {
+            var sendEmail = await _settingsRepository.GetSettingByKey("send_email_user_created") as bool?;
+            if (sendEmail != true)
+            {
+                return createdUser;
+            }
+
+            var adminEmail = await _settingsRepository.GetSettingByKey("admin_email") as string;
+            if (string.IsNullOrWhiteSpace(adminEmail))
+            {
+                _logger.LogWarning("Admin email setting is missing or empty; skipping new user notification for {UserId}", createdUser.Id);
+                return createdUser;
+            }
+
+            var accessTypeName = await _context.AccessTypes
+                .AsNoTracking()
+                .Where(x => x.Id == createdUser.AccessTypeId)
+                .Select(x => x.Name)
+                .FirstOrDefaultAsync();
+
+            var createdAt = createdUser.CreatedAt == default ? DateTime.UtcNow : createdUser.CreatedAt;
+
+            await _emailService.SendUserCreatedNotificationEmailAsync(new UserCreatedNotificationEmailRequest(
+                adminEmail,
+                adminEmail,
+                createdUser.Id,
+                createdUser.Email,
+                createdUser.FirstName,
+                createdUser.LastName,
+                createdUser.Phone,
+                createdUser.Temporary,
+                accessTypeName,
+                createdAt,
+                createdUser.Notes,
+                createdUser.GoogleSub,
+                createdUser.FacebookUserId,
+                createdUser.ParticipantCode,
+                createdUser.PaddleSubscriptionId));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send admin notification for newly created user {UserId}", createdUser.Id);
+        }
+
+        return createdUser;
+    }
+
 
     public async Task<bool> ActiveUserExistsByIdAsync(Guid userId)
     {

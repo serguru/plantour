@@ -28,22 +28,22 @@ export class LandingNewUserComponent {
     {
       icon: 'list',
       title: 'Planning',
-      description: 'Create trips with clear structure, item lists, and participants, all in one place. Nothing important is missed before you go.'
+      description: 'Build structured trips: item lists, todos, and participants - all in one place. Nothing important will be missed before the trip.'
     },
     {
       icon: 'building-columns',
       title: 'Organization',
-      description: 'Keep travelers, items, and bags neatly structured and easy to manage. Everything has its place and is always up to date.'
+      description: 'Keep travelers, items, todos, and bags neatly structured and easy to manage. Everything has its place and is always up to date.'
     },
     {
       icon: 'share-alt',
       title: 'Sharing',
-      description: 'Create shared packing lists for groups and families. Coordinate who brings what and avoid duplicates or missing items.'
+      description: 'Create shared item lists and todo lists for groups and families. Coordinate who brings what and who does what.'
     },
     {
       icon: 'shopping-bag',
       title: 'Packing',
-      description: 'Build smart packing lists and track what is packed and what is missing. Use the unique Plantour "do many by one click" feature to pack faster.'
+      description: 'Build packing lists and track what is packed and what is missing. Download and print packing lists as PDF files.'
     },
     {
       icon: 'sun',
