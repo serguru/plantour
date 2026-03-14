@@ -370,6 +370,7 @@ try
     builder.Services.AddScoped<ITemplateService, TemplateService>();
     builder.Services.AddScoped<ITripCommentService, TripCommentService>();
     builder.Services.AddScoped<IDocumentsService, DocumentsService>();
+    builder.Services.AddScoped<IEmailService, EmailService>();
     builder.Services.AddScoped<IInvitationService, InvitationService>();
     builder.Services.AddScoped<IPublicTemplatesService, PublicTemplatesService>();
     builder.Services.AddScoped<ITemporaryUserService, TemporaryUserService>();

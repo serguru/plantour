@@ -9,23 +9,21 @@ using plantour_server.Services.Interfaces;
 using PlantourApi.Middleware;
 using Serilog;
 using Serilog.Context;
-using System.Net;
 using System.Net.Mime;
-using System.Text;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<GlobalExceptionHandler> _logger;
-    private readonly IBrevoEmailClient _emailClient;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly BrevoSettings _brevoSettings;
 
     public GlobalExceptionHandler(
         ILogger<GlobalExceptionHandler> logger,
-        IBrevoEmailClient emailClient,
+        IServiceScopeFactory serviceScopeFactory,
         IOptions<BrevoSettings> brevoSettings)
     {
         _logger = logger;
-        _emailClient = emailClient;
+        _serviceScopeFactory = serviceScopeFactory;
         _brevoSettings = brevoSettings.Value;
     }
 
@@ -158,45 +156,26 @@ public class GlobalExceptionHandler : IExceptionHandler
 
         try
         {
-            string Encode(string? value) => WebUtility.HtmlEncode(value ?? string.Empty);
+            using var scope = _serviceScopeFactory.CreateScope();
+            var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
-            var subject = $"Plantour API exception ({statusCode})";
-
-            var htmlBuilder = new StringBuilder();
-            htmlBuilder.AppendLine("<h2>Plantour API Exception</h2>");
-            if (!String.IsNullOrWhiteSpace(message))
-            {
-                htmlBuilder.AppendLine($"<p><strong>Custom message:</strong> {Encode(message)}</p>");
-            }
-            htmlBuilder.AppendLine($"<p><strong>Trace ID:</strong> {Encode(traceId)}</p>");
-            htmlBuilder.AppendLine($"<p><strong>Status Code:</strong> {statusCode}</p>");
-            htmlBuilder.AppendLine($"<p><strong>Request:</strong> {Encode(requestMethod)} {Encode(requestPath)}</p>");
-            if (!string.IsNullOrWhiteSpace(requestQueryString))
-            {
-                htmlBuilder.AppendLine($"<p><strong>Query:</strong> {Encode(requestQueryString)}</p>");
-            }
-            htmlBuilder.AppendLine($"<p><strong>Remote IP:</strong> {Encode(remoteIpAddress)}</p>");
-            htmlBuilder.AppendLine($"<p><strong>User:</strong> {Encode(userId)} ({Encode(userRole)})</p>");
-            htmlBuilder.AppendLine($"<p><strong>Exception Type:</strong> {Encode(exception.GetType().FullName)}</p>");
-            htmlBuilder.AppendLine($"<p><strong>Message:</strong> {Encode(exception.Message)}</p>");
-
-            if (exception.InnerException != null)
-            {
-                htmlBuilder.AppendLine($"<p><strong>Inner Exception:</strong> {Encode(exception.InnerException.GetType().FullName)}</p>");
-                htmlBuilder.AppendLine($"<p><strong>Inner Message:</strong> {Encode(exception.InnerException.Message)}</p>");
-            }
-
-            if (!string.IsNullOrWhiteSpace(exception.StackTrace))
-            {
-                htmlBuilder.AppendLine("<p><strong>Stack Trace:</strong></p>");
-                htmlBuilder.AppendLine($"<pre>{Encode(exception.StackTrace)}</pre>");
-            }
-
-            await _emailClient.SendTransactionalEmailAsync(
+            await emailService.SendExceptionAlertEmailAsync(new ExceptionAlertEmailRequest(
                 _brevoSettings.ExceptionsReceiverEmail,
                 _brevoSettings.ExceptionsReceiverName,
-                subject,
-                htmlBuilder.ToString());
+                statusCode,
+                traceId,
+                requestMethod,
+                requestPath,
+                requestQueryString,
+                remoteIpAddress,
+                userId,
+                userRole,
+                exception.GetType().FullName ?? exception.GetType().Name,
+                exception.Message,
+                message,
+                exception.InnerException?.GetType().FullName,
+                exception.InnerException?.Message,
+                exception.StackTrace));
         }
         catch (Exception emailException)
         {

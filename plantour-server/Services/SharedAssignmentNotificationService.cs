@@ -7,11 +7,11 @@ using plantour_server.Utils;
 namespace plantour_server.Services;
 
 public class SharedAssignmentNotificationService(
-    IBrevoEmailClient brevoEmailClient,
+    IEmailService emailService,
     SettingsRepository settingsRepository,
     ILogger<SharedAssignmentNotificationService> logger) : ISharedAssignmentNotificationService
 {
-    private readonly IBrevoEmailClient _brevoEmailClient = brevoEmailClient;
+    private readonly IEmailService _emailService = emailService;
     private readonly SettingsRepository _settingsRepository = settingsRepository;
     private readonly ILogger<SharedAssignmentNotificationService> _logger = logger;
 
@@ -39,29 +39,19 @@ public class SharedAssignmentNotificationService(
         {
             try
             {
-                var subject = $"Plantour: {entityLabel} {change.ActionLabel} for {tripName}";
                 var pageUrl = $"{baseUrl}/trips/{tripId}/{entityRoute}";
-                var listItems = string.Join(string.Empty, change.EntityNames.Select(name => $"<li>{System.Net.WebUtility.HtmlEncode(name)}</li>"));
                 var greetingName = string.IsNullOrWhiteSpace(change.RecipientName) ? change.RecipientEmail : change.RecipientName;
-                var deadlineText = change.DeadlineAt.HasValue
-                    ? $"<p>Deadline: <strong>{change.DeadlineAt.Value:yyyy-MM-dd HH:mm} UTC</strong></p>"
-                    : string.Empty;
 
-                var html = $@"
-                    <p>Hello {System.Net.WebUtility.HtmlEncode(greetingName)},</p>
-                    <p>{System.Net.WebUtility.HtmlEncode(adminName)} {change.ActionLabel.ToLowerInvariant()} the following {entityLabel} for the trip <strong>{System.Net.WebUtility.HtmlEncode(tripName)}</strong>:</p>
-                    <ul>{listItems}</ul>
-                    {deadlineText}
-                    <p><a href=""{pageUrl}"">Open {entityLabel} in Plantour</a></p>";
-
-                var text = $"Hello {greetingName},\n\n{adminName} {change.ActionLabel.ToLowerInvariant()} the following {entityLabel} for the trip {tripName}:\n - {string.Join("\n - ", change.EntityNames)}\n{(change.DeadlineAt.HasValue ? $"Deadline: {change.DeadlineAt.Value:yyyy-MM-dd HH:mm} UTC\n" : string.Empty)}\nOpen in Plantour: {pageUrl}";
-
-                await _brevoEmailClient.SendTransactionalEmailAsync(
+                await _emailService.SendParticipantAssignmentChangesEmailAsync(new ParticipantAssignmentChangesEmailRequest(
                     change.RecipientEmail,
                     greetingName,
-                    subject,
-                    html,
-                    text);
+                    adminName,
+                    tripName,
+                    entityLabel,
+                    change.ActionLabel,
+                    change.EntityNames,
+                    change.DeadlineAt,
+                    pageUrl));
             }
             catch (Exception ex)
             {
@@ -91,21 +81,16 @@ public class SharedAssignmentNotificationService(
             var adminName = GetDisplayName(admin.FirstName, admin.LastName, admin.Email);
             var participantName = GetDisplayName(participant.FirstName, participant.LastName, participant.Email);
             var pageUrl = $"{baseUrl}/trips/{tripId}/{entityRoute}";
-            var subject = $"Plantour: {participantName} {actionLabel.ToLowerInvariant()} a {entityLabel}";
 
-            var html = $@"
-                <p>Hello {System.Net.WebUtility.HtmlEncode(adminName)},</p>
-                <p>{System.Net.WebUtility.HtmlEncode(participantName)} {actionLabel.ToLowerInvariant()} the {entityLabel} <strong>{System.Net.WebUtility.HtmlEncode(entityName)}</strong> in trip <strong>{System.Net.WebUtility.HtmlEncode(tripName)}</strong>.</p>
-                <p><a href=""{pageUrl}"">Open {entityLabel} in Plantour</a></p>";
-
-            var text = $"Hello {adminName},\n\n{participantName} {actionLabel.ToLowerInvariant()} the {entityLabel} '{entityName}' in trip {tripName}.\n\nOpen in Plantour: {pageUrl}";
-
-            await _brevoEmailClient.SendTransactionalEmailAsync(
+            await _emailService.SendAdminParticipantActionEmailAsync(new AdminParticipantActionEmailRequest(
                 admin.Email,
                 adminName,
-                subject,
-                html,
-                text);
+                participantName,
+                tripName,
+                entityLabel,
+                entityName,
+                actionLabel,
+                pageUrl));
         }
         catch (Exception ex)
         {
