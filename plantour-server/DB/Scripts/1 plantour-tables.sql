@@ -638,6 +638,86 @@ create table trip_shared_todos (
 );
 create unique index idx_trip_shared_todos_trip_id_name on trip_shared_todos(trip_id, name);
 
+create or replace function plantour.prevent_delete_accepted_trip_shared_thing()
+returns trigger
+language plpgsql
+as $$
+begin
+    if old.assigned_thing_id is not null then
+        raise exception 'accepted shared thing cannot be deleted while assigned; unassign it first';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_accepted_trip_shared_thing
+before delete on plantour.trip_shared_things
+for each row
+execute function plantour.prevent_delete_accepted_trip_shared_thing();
+
+create or replace function plantour.prevent_delete_referenced_trip_user_thing()
+returns trigger
+language plpgsql
+as $$
+begin
+    if exists (
+        select 1
+        from plantour.trip_shared_things shared_thing
+        where shared_thing.assigned_thing_id = old.id
+    ) then
+        raise exception 'trip user thing cannot be deleted while referenced by a shared thing; unassign it first';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_referenced_trip_user_thing
+before delete on plantour.trip_user_things
+for each row
+execute function plantour.prevent_delete_referenced_trip_user_thing();
+
+create or replace function plantour.prevent_delete_accepted_trip_shared_todo()
+returns trigger
+language plpgsql
+as $$
+begin
+    if old.assigned_todo_id is not null then
+        raise exception 'accepted shared todo cannot be deleted while assigned; unassign it first';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_accepted_trip_shared_todo
+before delete on plantour.trip_shared_todos
+for each row
+execute function plantour.prevent_delete_accepted_trip_shared_todo();
+
+create or replace function plantour.prevent_delete_referenced_trip_user_todo()
+returns trigger
+language plpgsql
+as $$
+begin
+    if exists (
+        select 1
+        from plantour.trip_shared_todos shared_todo
+        where shared_todo.assigned_todo_id = old.id
+    ) then
+        raise exception 'trip user todo cannot be deleted while referenced by a shared todo; unassign it first';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_referenced_trip_user_todo
+before delete on plantour.trip_user_todos
+for each row
+execute function plantour.prevent_delete_referenced_trip_user_todo();
+
 -----------------------------------------------------------------------
 -- TRIP COMMENTS
 -----------------------------------------------------------------------
