@@ -10,20 +10,14 @@ namespace plantour_server.Services;
 public class InvitationService(
     InvitationsRepository invitationsRepository,
     AdminsParticipantRepository adminsParticipantRepository,
-    ICheckAccessService checkAccessService,
-    IBrevoEmailClient brevoEmailClient,
-    IAdminsParticipantService adminsParticipantService,
-    IConfiguration configuration,
+    IEmailService emailService,
     HttpCurrentUser httpCurrentUser,
     SettingsRepository settingsRepository
     ) : IInvitationService
 {
     private readonly InvitationsRepository _invitationsRepository = invitationsRepository;
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
-    private readonly ICheckAccessService _checkAccessService = checkAccessService;
-    private readonly IConfiguration _configuration = configuration;
-    private readonly IBrevoEmailClient _brevoEmailClient = brevoEmailClient;
-    private readonly IAdminsParticipantService _adminsParticipantService = adminsParticipantService;
+    private readonly IEmailService _emailService = emailService;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly SettingsRepository _settingsRepository = settingsRepository;
 
@@ -51,27 +45,15 @@ public class InvitationService(
 
         var adminFullName = string.Join(' ', new[] { adminParticipant.Admin.FirstName, adminParticipant.Admin.LastName }.Where(x => !string.IsNullOrWhiteSpace(x)));
 
-        var subject = "Your Plantour invitation";
+        var signInUrl = $"{baseUrl}/sign-in/participant?code={Uri.EscapeDataString(accessCode)}";
 
-        var html = $@"
-            <p>Hello {participantFullName},</p>
-            <p>Welcome to Plantour!</p>
-            <p>You've been invited to join Plantour by {adminFullName}.</p>
-            <p>You can access Plantour by clicking the link below:</p>
-            <p><a href=""{accessUrl}"">Access Plantour</a></p>
-            <p>or navigate to the following URL:</p>
-            <p><a href=""{baseUrl}/sign-in/participant?code={accessCode}"">Sign In</a></p>
-            <p>select 'Sign in as participant'</p>
-            <p>and enter the following access code: <strong>{accessCode}</strong></p>
-            <p>If you do not know {adminFullName}, please ignore this email.</p>";
-
-
-        var sendResult = await _brevoEmailClient.SendTransactionalEmailAsync(
+        var emailResult = await _emailService.SendInvitationEmailAsync(new InvitationEmailRequest(
             adminParticipant.Participant.Email,
-            string.Join(' ', new[] { adminParticipant.Participant.FirstName, adminParticipant.Participant.LastName }.Where(x => !string.IsNullOrWhiteSpace(x))),
-            subject,
-            html,
-            html);
+            participantFullName,
+            adminFullName,
+            accessUrl,
+            signInUrl,
+            accessCode));
 
         var now = DateTime.UtcNow;
 
@@ -84,8 +66,8 @@ public class InvitationService(
             LastName = adminParticipant.Participant.LastName,
             Email = adminParticipant.Participant.Email,
             Phone = adminParticipant.Participant.Phone,
-            Subject = subject,
-            Message = html
+            Subject = emailResult.Subject,
+            Message = emailResult.HtmlContent
         };
 
         await _invitationsRepository.AddAsync(invitation);
@@ -94,7 +76,7 @@ public class InvitationService(
         {
             InvitationId = invitation.Id,
             SentAt = invitation.SentAt ?? now,
-            ProviderMessageId = sendResult.MessageId
+            ProviderMessageId = emailResult.ProviderMessageId
         };
     }
 

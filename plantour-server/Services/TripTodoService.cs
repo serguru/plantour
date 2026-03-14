@@ -2,6 +2,7 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using plantour_server.Services.Interfaces;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 
@@ -13,7 +14,9 @@ public class TripTodoService(
     ICheckAccessService checkAccessService,
     TripUserRepository tripUserRepository,
     IMapper mapper,
-    HttpCurrentUser httpCurrentUser) : ITripTodoService
+    HttpCurrentUser httpCurrentUser,
+    UsersRepository usersRepository,
+    ISharedAssignmentNotificationService sharedAssignmentNotificationService) : ITripTodoService
 {
     private readonly TripTodoRepository _tripUserTodoRepository = tripTodoRepository;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
@@ -21,6 +24,8 @@ public class TripTodoService(
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
+    private readonly UsersRepository _usersRepository = usersRepository;
+    private readonly ISharedAssignmentNotificationService _sharedAssignmentNotificationService = sharedAssignmentNotificationService;
 
     public async Task<int> InsertTripUserTodosAsync(Guid tripId, Guid[] ids)
     {
@@ -149,12 +154,35 @@ public class TripTodoService(
             throw new CustomException("User does not have access to this trip");
         }
 
-        var entity = await _tripUserTodoRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
+        var entity = await _tripUserTodoRepository.GetByIdWithSharedDetailsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
         if (entity == null)
         {
             throw new CustomException("Trip todo not found or access denied");
         }
         entity.Finished = finished;
         await _tripUserTodoRepository.UpdateAsync(entity);
+
+        if (finished == "success" || finished == "failure")
+        {
+            var sharedTodo = entity.TripSharedTodos.FirstOrDefault();
+            if (sharedTodo != null)
+            {
+                var admin = await _usersRepository.GetActiveByIdAsync(_currentUser.AdminId);
+                var participant = await _usersRepository.GetActiveByIdAsync(_currentUser.UserId);
+
+                if (admin != null && participant != null)
+                {
+                    await _sharedAssignmentNotificationService.NotifyAdminParticipantActionAsync(
+                        admin,
+                        participant,
+                        entity.TripUser.Trip.Name,
+                        tripId,
+                        "shared todo",
+                        entity.Name,
+                        "trip-shared-todos",
+                        finished == "success" ? "finished successfully" : "finished with failure");
+                }
+            }
+        }
     }
 }

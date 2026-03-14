@@ -22,6 +22,22 @@ public class TripThingRepository(PlantourContext context) : GenericRepository<Tr
                 x.TripUser.AdminParticipant.ParticipantId == userId);
     }
 
+    public async Task<TripUserThing?> GetByIdWithSharedDetailsAsync(Guid adminId, Guid userId, Guid tripId, Guid id)
+    {
+        return await _dbSet
+            .Include(x => x.TripUser)
+            .ThenInclude(x => x.Trip)
+            .Include(x => x.TripSharedThings)
+            .ThenInclude(x => x.AssignedTo)
+            .ThenInclude(x => x != null ? x.AdminParticipant.Participant : null)
+            .FirstOrDefaultAsync(x =>
+                x.Id == id &&
+                x.TripUser.Trip.Id == tripId &&
+                x.TripUser.Trip.UserId == adminId &&
+                x.TripUser.AdminParticipant.AdminId == adminId &&
+                x.TripUser.AdminParticipant.ParticipantId == userId);
+    }
+
     public async Task<bool> AnyByIdAsync(Guid adminId, Guid userId, Guid tripId, Guid id)
     {
         return await _dbSet

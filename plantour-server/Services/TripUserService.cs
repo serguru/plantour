@@ -2,6 +2,8 @@ using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using plantour_server.Services.Interfaces;
+using plantour_server.Utils;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 
@@ -12,14 +14,22 @@ public class TripUserService(
     ICheckAccessService checkAccessService,
     DicTripRepository dicTripRepository,
     AdminsParticipantRepository adminsParticipantRepository,
+    TripRepository tripRepository,
     IMapper mapper,
-    HttpCurrentUser httpCurrentUser) : ITripUserService
+    HttpCurrentUser httpCurrentUser,
+    IEmailService emailService,
+    SettingsRepository settingsRepository,
+    ILogger<TripUserService> logger) : ITripUserService
 {
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
     private readonly IMapper _mapper = mapper;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
+    private readonly TripRepository _tripRepository = tripRepository;
+    private readonly IEmailService _emailService = emailService;
+    private readonly SettingsRepository _settingsRepository = settingsRepository;
+    private readonly ILogger<TripUserService> _logger = logger;
 
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 
@@ -58,7 +68,14 @@ public class TripUserService(
         }
 
         await CheckAccessAsync(tripId, ids.Length);
-        return await _dicTripRepository.InsertTripUsersAsync(_currentUser.AdminId, tripId, ids);
+        var insertedCount = await _dicTripRepository.InsertTripUsersAsync(_currentUser.AdminId, tripId, ids);
+
+        if (insertedCount > 0)
+        {
+            await NotifyTripParticipantAddedAsync(tripId, ids);
+        }
+
+        return insertedCount;
     }
 
     public async Task<int> DeleteTripUsersAsync(Guid tripId, Guid[] ids)
@@ -172,6 +189,7 @@ public class TripUserService(
         var entity = _mapper.Map<TripUser>(request);
         entity.Id = Guid.NewGuid();
         await _tripUserRepository.AddAsync(entity);
+        await NotifyTripParticipantAddedAsync(request.TripId, new[] { request.AdminParticipantId });
         return _mapper.Map<TripUserDto>(entity);
     }
 
@@ -209,5 +227,70 @@ public class TripUserService(
         }
 
         await _tripUserRepository.DeleteAsync(id);
+    }
+
+    private async Task NotifyTripParticipantAddedAsync(Guid tripId, IReadOnlyCollection<Guid> adminParticipantIds)
+    {
+        if (adminParticipantIds.Count == 0)
+        {
+            return;
+        }
+
+        var trip = await _tripRepository.GetByIdAsync(tripId);
+        if (trip == null || trip.UserId != _currentUser.AdminId)
+        {
+            return;
+        }
+
+        var baseUrlValue = await _settingsRepository.GetSettingByKey("plantour_app_origin");
+        var baseUrl = baseUrlValue?.ToString()?.TrimEnd('/');
+
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            return;
+        }
+
+        var adminName = GetDisplayName(_currentUser.FirstName, _currentUser.LastName, _currentUser.Email);
+        var participants = await _adminsParticipantRepository.FindFullBothActiveAsync(x =>
+            x.AdminId == _currentUser.AdminId &&
+            adminParticipantIds.Contains(x.Id));
+
+        foreach (var participant in participants)
+        {
+            var recipientEmail = participant.Participant.Email;
+            if (string.IsNullOrWhiteSpace(recipientEmail))
+            {
+                continue;
+            }
+
+            try
+            {
+                var recipientName = GetDisplayName(
+                    participant.Participant.FirstName,
+                    participant.Participant.LastName,
+                    recipientEmail);
+
+                await _emailService.SendTripParticipantInvitationEmailAsync(new TripParticipantInvitationEmailRequest(
+                    recipientEmail,
+                    recipientName,
+                    adminName,
+                    trip.Name,
+                    $"{baseUrl}/trips/{trip.Id}"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Failed to send trip participant invitation email for trip {TripId} and adminParticipant {AdminParticipantId}",
+                    tripId,
+                    participant.Id);
+            }
+        }
+    }
+
+    private static string GetDisplayName(string? firstName, string? lastName, string email)
+    {
+        var fullName = Misc.GenerateFullName(firstName, lastName);
+        return string.IsNullOrWhiteSpace(fullName) ? email : fullName;
     }
 }

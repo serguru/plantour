@@ -389,6 +389,40 @@ before delete on plantour.admins_participants
 for each row
 execute function plantour.prevent_self_link_admins_participants_delete();
 
+create or replace function plantour.prevent_delete_admin_participant_assignments()
+returns trigger
+language plpgsql
+as $$
+begin
+    if exists (
+        select 1
+        from plantour.trip_users trip_user
+        where trip_user.admin_participant_id = old.id
+          and (
+              exists (
+                  select 1
+                  from plantour.trip_shared_things shared_thing
+                  where shared_thing.assigned_to_id = trip_user.id
+              )
+              or exists (
+                  select 1
+                  from plantour.trip_shared_todos shared_todo
+                  where shared_todo.assigned_to_id = trip_user.id
+              )
+          )
+    ) then
+        raise exception 'admins_participants row cannot be deleted while the participant has assigned shared things or shared todos';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_admin_participant_assignments
+before delete on plantour.admins_participants
+for each row
+execute function plantour.prevent_delete_admin_participant_assignments();
+
 
 -----------------------------------------------------------------------
 -- USER THINGS
@@ -553,6 +587,36 @@ create table trip_users (
 );
 create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, admin_participant_id);
 
+create or replace function plantour.prevent_delete_trip_user_with_assigned_shared_entities()
+returns trigger
+language plpgsql
+as $$
+begin
+    if exists (
+        select 1
+        from plantour.trip_shared_things shared_thing
+        where shared_thing.assigned_to_id = old.id
+    ) then
+        raise exception 'trip user cannot be deleted while assigned shared things exist';
+    end if;
+
+    if exists (
+        select 1
+        from plantour.trip_shared_todos shared_todo
+        where shared_todo.assigned_to_id = old.id
+    ) then
+        raise exception 'trip user cannot be deleted while assigned shared todos exist';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_trip_user_with_assigned_shared_entities
+before delete on plantour.trip_users
+for each row
+execute function plantour.prevent_delete_trip_user_with_assigned_shared_entities();
+
 -----------------------------------------------------------------------
 -- TRIP USER PACKAGES
 
@@ -637,6 +701,86 @@ create table trip_shared_todos (
     rejected boolean not null default false
 );
 create unique index idx_trip_shared_todos_trip_id_name on trip_shared_todos(trip_id, name);
+
+create or replace function plantour.prevent_delete_accepted_trip_shared_thing()
+returns trigger
+language plpgsql
+as $$
+begin
+    if old.assigned_thing_id is not null then
+        raise exception 'accepted shared thing cannot be deleted while assigned; unassign it first';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_accepted_trip_shared_thing
+before delete on plantour.trip_shared_things
+for each row
+execute function plantour.prevent_delete_accepted_trip_shared_thing();
+
+create or replace function plantour.prevent_delete_referenced_trip_user_thing()
+returns trigger
+language plpgsql
+as $$
+begin
+    if exists (
+        select 1
+        from plantour.trip_shared_things shared_thing
+        where shared_thing.assigned_thing_id = old.id
+    ) then
+        raise exception 'trip user thing cannot be deleted while referenced by a shared thing; unassign it first';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_referenced_trip_user_thing
+before delete on plantour.trip_user_things
+for each row
+execute function plantour.prevent_delete_referenced_trip_user_thing();
+
+create or replace function plantour.prevent_delete_accepted_trip_shared_todo()
+returns trigger
+language plpgsql
+as $$
+begin
+    if old.assigned_todo_id is not null then
+        raise exception 'accepted shared todo cannot be deleted while assigned; unassign it first';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_accepted_trip_shared_todo
+before delete on plantour.trip_shared_todos
+for each row
+execute function plantour.prevent_delete_accepted_trip_shared_todo();
+
+create or replace function plantour.prevent_delete_referenced_trip_user_todo()
+returns trigger
+language plpgsql
+as $$
+begin
+    if exists (
+        select 1
+        from plantour.trip_shared_todos shared_todo
+        where shared_todo.assigned_todo_id = old.id
+    ) then
+        raise exception 'trip user todo cannot be deleted while referenced by a shared todo; unassign it first';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_referenced_trip_user_todo
+before delete on plantour.trip_user_todos
+for each row
+execute function plantour.prevent_delete_referenced_trip_user_todo();
 
 -----------------------------------------------------------------------
 -- TRIP COMMENTS

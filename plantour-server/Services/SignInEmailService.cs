@@ -16,7 +16,7 @@ public class SignInEmailService : ISignInEmailService
 {
     private readonly ITimeLimitedDataProtector _protector;
     private readonly JwtSettings _jwtSettings;
-    private readonly IBrevoEmailClient _emailClient;
+    private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
 
     private readonly UsersRepository _usersRepository;
@@ -25,14 +25,14 @@ public class SignInEmailService : ISignInEmailService
     public SignInEmailService(
         IDataProtectionProvider dataProtectionProvider,
         IOptions<JwtSettings> jwtSettings,
-        IBrevoEmailClient emailClient,
+        IEmailService emailService,
         UsersRepository usersRepository,
         AccessTypeRepository accessTypeRepository,
         IConfiguration configuration)
     {
         _protector = dataProtectionProvider.CreateProtector("Plantour.SignInEmail").ToTimeLimitedDataProtector();
         _jwtSettings = jwtSettings.Value;
-        _emailClient = emailClient;
+        _emailService = emailService;
         _configuration = configuration;
         _usersRepository = usersRepository;
         _accessTypeRepository = accessTypeRepository;
@@ -115,21 +115,13 @@ public class SignInEmailService : ISignInEmailService
 
         var signInUrl = $"{baseUrl}?token={Uri.EscapeDataString(token)}";
 
-        string greeting = $"<p>Hello {fullUserName},</p>";
-
-        var subject = "Sign in to Plantour";
-        var html = greeting + $@"
-            <p>Welcome to Plantour!</p>
-            <p>Please sign in to Plantour by clicking the link below:</p>
-            <p><a href=""{signInUrl}"">Sign in</a></p>";
-
         try
         {
-            await _emailClient.SendTransactionalEmailAsync(
+            await _emailService.SendSignInEmailAsync(new SignInEmailRequest(
                 email,
                 fullUserName,
-                subject,
-                html);
+                signInUrl,
+                emailSignInTokenMinutes));
         }
         catch (Exception ex)
         {

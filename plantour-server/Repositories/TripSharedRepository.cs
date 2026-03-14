@@ -18,8 +18,31 @@ public class TripSharedRepository(PlantourContext context) : GenericRepository<T
             .AsNoTracking()
             .Include(t => t.AssignedTo)
             .ThenInclude(t => t != null ? t.AdminParticipant.Participant : null)
+            .Include(t => t.AssignedTo)
+            .ThenInclude(t => t != null ? t.AdminParticipant.Admin : null)
             .Include(t => t.AssignedThing)
+            .Include(t => t.Trip)
             .Where(t => t.TripId == tripId)    
+            .ToListAsync();
+    }
+
+    public async Task<List<TripSharedThing>> GetByIdsFullAsync(Guid tripId, IEnumerable<Guid> ids)
+    {
+        var idsList = ids.Distinct().ToList();
+        if (idsList.Count == 0)
+        {
+            return [];
+        }
+
+        return await _dbSet
+            .AsNoTracking()
+            .Include(t => t.AssignedTo)
+            .ThenInclude(t => t != null ? t.AdminParticipant.Participant : null)
+            .Include(t => t.AssignedTo)
+            .ThenInclude(t => t != null ? t.AdminParticipant.Admin : null)
+            .Include(t => t.AssignedThing)
+            .Include(t => t.Trip)
+            .Where(t => t.TripId == tripId && idsList.Contains(t.Id))
             .ToListAsync();
     }
 
@@ -35,7 +58,10 @@ public class TripSharedRepository(PlantourContext context) : GenericRepository<T
             .AsNoTracking()
             .Include(t => t.AssignedTo)
             .ThenInclude(t => t != null ? t.AdminParticipant.Participant : null)
+            .Include(t => t.AssignedTo)
+            .ThenInclude(t => t != null ? t.AdminParticipant.Admin : null)
             .Include(t => t.AssignedThing)
+            .Include(t => t.Trip)
             .Where(t => t.TripId == tripId && (!t.AssignedToId.HasValue || t.AssignedToId == assigneeId))    
             .ToListAsync();
     }
@@ -45,7 +71,10 @@ public class TripSharedRepository(PlantourContext context) : GenericRepository<T
         return await _dbSet
             .Include(t => t.AssignedTo)
             .ThenInclude(t => t != null ? t.AdminParticipant.Participant : null)
+            .Include(t => t.AssignedTo)
+            .ThenInclude(t => t != null ? t.AdminParticipant.Admin : null)
             .Include(t => t.AssignedThing)
+            .Include(t => t.Trip)
             .FirstOrDefaultAsync(t => t.TripId == tripId && t.Id == id);
     }
 

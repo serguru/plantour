@@ -370,11 +370,13 @@ try
     builder.Services.AddScoped<ITemplateService, TemplateService>();
     builder.Services.AddScoped<ITripCommentService, TripCommentService>();
     builder.Services.AddScoped<IDocumentsService, DocumentsService>();
+    builder.Services.AddScoped<IEmailService, EmailService>();
     builder.Services.AddScoped<IInvitationService, InvitationService>();
     builder.Services.AddScoped<IPublicTemplatesService, PublicTemplatesService>();
     builder.Services.AddScoped<ITemporaryUserService, TemporaryUserService>();
     builder.Services.AddScoped<ITokenService, TokenService>();
     builder.Services.AddScoped<ISignInEmailService, SignInEmailService>();
+    builder.Services.AddScoped<ISharedAssignmentNotificationService, SharedAssignmentNotificationService>();
     builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
     builder.Services.AddScoped<IPaddleService, PaddleService>();
