@@ -24,6 +24,8 @@ export interface AccessToken {
   billing_period_start?: string;
   billing_period_end?: string;
   temporary: string;
+  admin_full_name?: string;
+  admin_email?: string;
 }
 
 export interface SignInRequest {

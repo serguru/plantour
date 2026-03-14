@@ -16,6 +16,8 @@ public static class PlantourClaims
     public const string BillingPeriodEnd = "billing_period_end";
 
     public const string AdminId = "admin_id";
+    public const string AdminFullName = "admin_full_name";
+    public const string AdminEmail = "admin_email";
     public const string AccessRules = "access_rules";
     public const string Subject = JwtRegisteredClaimNames.Sub;
     public const string Issuer = JwtRegisteredClaimNames.Iss;

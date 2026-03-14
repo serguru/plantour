@@ -64,6 +64,8 @@ export class ProfileComponent implements OnInit {
   
   planPeriod = this.usersService.planPeriodSignal;
 
+  
+
   fullName = computed(() => {
     //const user = this.currentUser();
     if (!this.profileData()) {
