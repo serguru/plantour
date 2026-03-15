@@ -39,7 +39,7 @@ public class DashboardService(
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         if (trip.StartDate >= today)
         {
-            daysLeft = trip.StartDate.DayNumber - today.DayNumber;
+            daysLeft = trip.StartDate.DayNumber - today.DayNumber + 1;
             daysLeftText = daysLeft switch
             {
                 > 1 => $"{daysLeft} days left to start",
@@ -50,13 +50,13 @@ public class DashboardService(
         }
         else if (trip.EndDate >= today)
         {
-            daysLeft = trip.EndDate.DayNumber - today.DayNumber;
+            daysLeft = trip.EndDate.DayNumber - today.DayNumber + 1;
             daysLeftText = daysLeft switch
             {
                 > 1 => $"{daysLeft} days left to end",
                 1 => "1 day left to end",
                 0 => "End today!",
-                _ => ""
+            _ => ""
             };
         }
 
