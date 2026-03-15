@@ -1,1 +1,5 @@
-/* Todo item styles inherit shared entity item layout */
+:host {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}

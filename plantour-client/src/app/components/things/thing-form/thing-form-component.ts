@@ -5,22 +5,21 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { UsersService } from '../../../services/users-service';
-import { CheckboxModule } from 'primeng/checkbox';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { ButtonModule } from 'primeng/button';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
-import { MessagePanel } from '../../message-panel/message-panel-component/message-panel-component';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { MessagesService } from '../../../services/messages-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
 import { ComponentService } from '../../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
-import { catchError, combineLatest, EMPTY, finalize, map } from 'rxjs';
+import { catchError, combineLatest, finalize, map } from 'rxjs';
 import { LookupService } from '../../../services/lookup-service';
 import { InputNumber } from 'primeng/inputnumber';
+import { allTogetherValidator } from '../../../helpers/all-together-validator';
 
 @Component({
   selector: 'app-item-form-component',
@@ -123,7 +122,8 @@ export class ThingFormComponent implements OnInit {
       notes: [''],
       units: [''],
       value: [null],
-    });
+    }, { validators: allTogetherValidator(['value', 'units']) }
+  );
   }
 
 

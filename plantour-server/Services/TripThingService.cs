@@ -45,7 +45,7 @@ public class TripThingService(
 
         var s1 = $"You've reached the limit of {limit} shared items you can add to your trip.";
 
-        var s2 = _currentUser.IsAdmin ? "Please пo to your profile page and upgrade your plan to remove this limit." : "Please ask your admin to upgrade the plan to remove this limit.";
+        var s2 = _currentUser.IsAdmin ? "Please go to your profile page and upgrade your plan to remove this limit." : "Please ask your admin to upgrade the plan to remove this limit.";
 
 
         var currentCount = await _tripUserThingRepository.CountAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
