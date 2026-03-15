@@ -125,7 +125,7 @@ public class AiService : IAiService
         var s0 = $"You will be able to send more prompts after {check.Start.AddDays(1).ToLocalTime():f}.";
 
         var s1 = $"You've reached the limit of {limit} AI prompts per day. {s0}";
-        var s2 = _currentUser.IsAdmin ? "\nPlease пo to your profile page and upgrade your plan to remove this limit." : "\nPlease ask your administrator to upgrade the plan to remove this limit.";
+        var s2 = _currentUser.IsAdmin ? "\nPlease go to your profile page and upgrade your plan to remove this limit." : "\nPlease ask your administrator to upgrade the plan to remove this limit.";
         throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
     }
     

@@ -70,6 +70,12 @@
         ></p-select>
       </div>
 
+      @if (form.hasError('allTogether') && form.touched) {
+      <small class="error-message">
+        Value and Unit must be either both filled in or both empty
+      </small>
+      }
+
       <div class="form-field">
         <label for="notes">Notes</label>
         <textarea

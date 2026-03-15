@@ -969,21 +969,6 @@ create table plantour.settings (
     notes text,
     updated_at timestamptz not null default (now() at time zone 'utc')
 );
-
-insert into plantour.settings (key, value, value_type)
-values 
-    ('user_entities_logging_days', '16', 'integer'),
-    ('user_email_confirmation_url', 'http://localhost:4203/confirm-email', 'string'),
-    ('temporary_user_duration_days', '14', 'integer'),
-    ('email_confirmation_token_minutes', '60',  'integer'),
-    ('user_token_expiration_minutes', '1440',  'integer'),
-    ('checkout_session_success_url', 'profile',  'string'),
-    ('checkout_session_cancel_url', 'profile',  'string'),
-    ('admin_email', 'admin@plantour.app',  'string'),
-    ('support_email', 'support@plantour.app',  'string'),
-    ('send_email_user_created', 'true',  'boolean'),
-    ('plantour_app_origin', 'http://localhost:4203',  'string');
-    
     
 create table plantour.sitemap_urls (
     id uuid primary key default gen_random_uuid(),
@@ -993,7 +978,6 @@ create table plantour.sitemap_urls (
     is_active boolean default true,
     created_at timestamptz not null default (now() at time zone 'utc')
 );
-
 
 create table plantour.refresh_tokens (
     id uuid primary key,

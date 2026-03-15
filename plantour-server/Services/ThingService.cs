@@ -195,7 +195,7 @@ public class ThingService(
 
         var s1 = $"You've reached the limit of {limit} items you can add to your trip.";
 
-        var s2 = _currentUser.IsAdmin ? "Please пo to your profile page and upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
+        var s2 = _currentUser.IsAdmin ? "Please go to your profile page and upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
 
 
         var currentCount = await _thingRepository.CountAsync(_currentUser.UserId);
