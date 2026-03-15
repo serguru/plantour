@@ -1,7 +1,13 @@
+// :host {
+//     display: flex;
+//     align-items: center;
+//     flex-wrap: wrap;
+// }
+
 :host {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .container {
