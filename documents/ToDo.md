@@ -33,6 +33,8 @@
 - Please add a bank account and select the payment method as direct deposit for Netherlands, Sweden and  Poland to receive local earnings.
 - what are PackPoint или Wanderlog?
 - send email to a participant when assigned or unassigned items or todos
+- explain to users how they can see yet unpacked trip items - add empty bag
+
 
 
 
