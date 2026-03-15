@@ -77,6 +77,8 @@ public class TripThingRepository(PlantourContext context) : GenericRepository<Tr
     {
         return await _dbSet
             .AsNoTracking()
+            .Include(x => x.TripUserPackage)
+            .Include(x => x.TripSharedThings)
             .Where(x =>
                 x.TripUser.Trip.Id == tripId &&
                 x.TripUser.Trip.UserId == adminId &&
