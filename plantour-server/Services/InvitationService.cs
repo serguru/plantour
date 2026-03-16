@@ -45,7 +45,7 @@ public class InvitationService(
 
         var adminFullName = string.Join(' ', new[] { adminParticipant.Admin.FirstName, adminParticipant.Admin.LastName }.Where(x => !string.IsNullOrWhiteSpace(x)));
 
-        var signInUrl = $"{baseUrl}/sign-in/participant?code={Uri.EscapeDataString(accessCode)}";
+        var signInUrl = $"{baseUrl}/sign-in/participant";
 
         var emailResult = await _emailService.SendInvitationEmailAsync(new InvitationEmailRequest(
             adminParticipant.Participant.Email,
