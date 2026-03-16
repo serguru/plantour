@@ -79,12 +79,7 @@ export class SignInComponent implements OnInit {
 
     const queryParams = new URLSearchParams(parts[1]);
 
-    if (this.signInType === 'participant') {
-      const code = queryParams.get('code');
-      if (code) { 
-        this.participantForm.patchValue({ accessCode: code });
-      }
-    } else {
+    if (this.signInType === 'admin') {
       const email = queryParams.get('email');
       if (email) { 
         this.adminForm.patchValue({ email: email });
