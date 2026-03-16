@@ -22,7 +22,7 @@ public class InvitationService(
     private readonly SettingsRepository _settingsRepository = settingsRepository;
 
 
-    public async Task<SendInvitationEmailResponse> SendInvitationEmailByIdAsync(Guid adminParticipantId, string accessCode, string accessToken)
+    public async Task<SendInvitationEmailResponse> SendInvitationEmailByIdAsync(Guid adminParticipantId, string accessCode, AuthResponse authResponse)
     {
         var baseUrl = _settingsRepository.GetSettingByKey("plantour_app_origin").Result.ToString() ?? throw new CustomException("Plantour app origin is not configured");
         
@@ -39,7 +39,7 @@ public class InvitationService(
             throw new CustomException("Cannot send invitation to a participant with non-active access type");
         }
 
-        var accessUrl = $"{baseUrl}/dashboard?accessToken={Uri.EscapeDataString(accessToken)}";
+        var accessUrl = $"{baseUrl}/dashboard?accessToken={Uri.EscapeDataString(authResponse.AccessToken)}&refreshToken={authResponse.RefreshToken}";
 
         var participantFullName = string.Join(' ', new[] { adminParticipant.Participant.FirstName, adminParticipant.Participant.LastName }.Where(x => !string.IsNullOrWhiteSpace(x)));
 
