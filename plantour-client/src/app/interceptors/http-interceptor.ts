@@ -6,13 +6,13 @@ import { UsersService } from '../services/users-service';
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<any>(null);
 
-function addTokenHeader(request: HttpRequest<any>, token: string) {
+const addTokenHeader = (request: HttpRequest<any>, token: string) => {
     return request.clone({
         headers: request.headers.set('Authorization', `Bearer ${token}`)
     });
 }
 
-function handle401Error(request: HttpRequest<any>, next: HttpHandlerFn, usersService: UsersService) {
+const handle401Error = (request: HttpRequest<any>, next: HttpHandlerFn, usersService: UsersService) => {
     if (!isRefreshing) {
         isRefreshing = true;
         refreshTokenSubject.next(null);

@@ -144,7 +144,7 @@ public class UsersService(
 
         var r = await CreateAuthResponseAsync(ap.Participant, UserRole.Participant, _currentUser.AdminId, "Welcome to Plantour");
 
-        await _invitationService.SendInvitationEmailByIdAsync(adminParticipantId, accessCode, r.AccessToken);
+        await _invitationService.SendInvitationEmailByIdAsync(adminParticipantId, accessCode, r);
     }
 
     private void EnsureActiveUser(User user)
@@ -322,9 +322,9 @@ public class UsersService(
 
         await _adminsParticipantRepository.AddAsync(adminParticipant);
 
-        var r = await CreateAuthResponseAsync(user, UserRole.Participant, _currentUser.AdminId, "Welcome to Plantour");
+        var authResponse = await CreateAuthResponseAsync(user, UserRole.Participant, _currentUser.AdminId, "Welcome to Plantour");
 
-        await _invitationService.SendInvitationEmailByIdAsync(adminParticipant.Id, accessCode, r.AccessToken);
+        await _invitationService.SendInvitationEmailByIdAsync(adminParticipant.Id, accessCode, authResponse);
 
         AdminsParticipantDto result = _mapper.Map<AdminsParticipantDto>(adminParticipant);
 
