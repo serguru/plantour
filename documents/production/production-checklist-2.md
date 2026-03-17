@@ -67,7 +67,8 @@ Frontend configuration:
 1. Set `clientUrl` to `https://plantour.app`.
 2. Set `apiUrl` to `https://api.plantour.app`.
 3. Set production Google, Facebook, and Turnstile public values if used.
-4. Keep sensitive runtime values out of source control.
+4. Add temporary `noindex` protection for the Render hostname while prelaunch testing is in progress.
+5. Keep sensitive runtime values out of source control.
 
 Provider configuration to prepare:
 
@@ -80,6 +81,16 @@ Provider configuration to prepare:
 7. Any production callback URLs
 
 Stop here if required production values are not ready.
+
+Temporary prelaunch SEO protection for the frontend Render hostname:
+
+1. In `plantour-client/src/server.ts`, add `res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');` right after the line `const angularAppEngine = new AngularNodeAppEngine();` by inserting an `app.use(...)` middleware before the `// 1. Serve static files` section.
+
+2. In `plantour-client/src/index.html`, add `<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">` right after the line `<title>Plantour - Plan Smart, Travel Better</title>`.
+
+3. If you want an extra temporary block, in `plantour-client/public/production/robots.txt` replace the lines starting at `User-agent: GPTBot` with only `User-agent: *` and `Disallow: /`, but do not rely on this as the main protection.
+
+4. Before public launch, remove the `X-Robots-Tag` middleware from `plantour-client/src/server.ts`, remove the `<meta name="robots" ...>` line from `plantour-client/src/index.html`, and restore the normal `plantour-client/public/production/robots.txt` content.
 
 ## 5. Configure Render Environment Variables
 
@@ -207,15 +218,18 @@ This is the standard private-access pattern. A tunnel is optional, not the main 
 
 Before public launch, verify all of these on the real production domain.
 
-1. `https://plantour.app/robots.txt` returns `200`.
-2. `https://plantour.app/sitemap.xml` returns `200`.
-3. The public homepage returns `200`.
-4. Main public pages return `200`.
-5. `https://api.plantour.app` is reachable for the frontend.
-6. Frontend and backend health endpoints return `200`.
-7. Required webhooks are not blocked.
-8. OAuth callback URLs use the correct production hostnames.
-9. Private admin URLs are not open to the public.
+1. Remove temporary `X-Robots-Tag: noindex, nofollow` headers from the public production hostname.
+2. Remove temporary `<meta name="robots" content="noindex, nofollow">` from public HTML.
+3. Remove any temporary `robots.txt` block such as `User-agent: *` and `Disallow: /`.
+4. `https://plantour.app/robots.txt` returns `200`.
+5. `https://plantour.app/sitemap.xml` returns `200`.
+6. The public homepage returns `200`.
+7. Main public pages return `200`.
+8. `https://api.plantour.app` is reachable for the frontend.
+9. Frontend and backend health endpoints return `200`.
+10. Required webhooks are not blocked.
+11. OAuth callback URLs use the correct production hostnames.
+12. Private admin URLs are not open to the public.
 
 The lowest SEO-risk move is to make the site public only when it already works.
 
@@ -262,3 +276,6 @@ This version is simpler because:
 6. It keeps the lowest SEO-risk strategy: do not expose the public domain until the actual app works.
 
 This is the simpler production launch checklist for Plantour on Render and Cloudflare.
+
+
+March 26 at 4:15PM 2 floor SaintPault CT scan

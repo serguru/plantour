@@ -229,7 +229,7 @@ public class UsersController : ControllerBase
                 var isTemporary = await _usersService.IsUserTemporary(email);
                 return Ok(isTemporary);
         }
-        
+
         [HttpPut("convert-temporary-user")]
         [AdminOnly]
         public async Task<IActionResult> ConvertTemporaryUser([FromBody] ConvertTemporaryUserRequest request)
@@ -244,6 +244,13 @@ public class UsersController : ControllerBase
         {
                 await _usersService.SendParticipantInvitationAsync(request.AdminParticipantId);
                 return Ok();
+        }
+
+        [HttpGet("health-check")]
+        [AllowAnonymous]
+        public IActionResult Get()
+        {
+                return Ok(new { status = "ok" });
         }
 }
 
