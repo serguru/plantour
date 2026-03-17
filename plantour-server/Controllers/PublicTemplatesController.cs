@@ -6,7 +6,7 @@ using plantour_server.Services.Interfaces;
 namespace plantour_server.Controllers;
 
 [ApiController]
-[Route("api/public")]
+[Route("public")]
 public class PublicTemplatesController(IPublicTemplatesService service) : ControllerBase
 {
     private readonly IPublicTemplatesService _service = service;

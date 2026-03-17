@@ -37,7 +37,7 @@ export class TripCommentService {
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    this.apiUrl = `${environment.apiUrl}/api/TripComment`;
+    this.apiUrl = `${environment.api.baseUrl}/TripComment`;
   }
 
   getAll(tripId: string): Observable<TripCommentDto[]> {

@@ -35,7 +35,7 @@ export class TemplatesAiService {
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
 
-    this.apiUrl = `${environment.apiUrl}/api/templateai`;
+    this.apiUrl = `${environment.api.baseUrl}/templateai`;
   }
   // Returns the latest AI prompts used
   getLatestPrompts(): Observable<AiPromptDto[]> {

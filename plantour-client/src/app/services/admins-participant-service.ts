@@ -49,7 +49,7 @@ export class AdminsParticipantService {
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
 
-    this.apiUrl = `${environment.apiUrl}/api/AdminsParticipant`;
+    this.apiUrl = `${environment.api.baseUrl}/AdminsParticipant`;
   }
 
   private setFullNames = (users: AdminsParticipantDto[]) => {

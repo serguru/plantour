@@ -64,7 +64,7 @@ export class TripSharedService {
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
 
-    this.apiUrl = `${environment.apiUrl}/api/TripShared`;
+    this.apiUrl = `${environment.api.baseUrl}/TripShared`;
   }
 
   addFromDic(data: MultipleIdsRequest): Observable<number> {

@@ -1,7 +1,9 @@
 import { InjectionToken } from '@angular/core';
 
 export interface EnvironmentConfig {
-  apiUrl: string;
+  api: {
+    baseUrl: string;
+  };
   clientUrl: string;
   environment: string;
   googleClientId?: string;

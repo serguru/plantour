@@ -6,7 +6,7 @@ using plantour_server.Services;
 namespace plantour_server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class TodoController(ITodoService service) : ControllerBase
 {
     private readonly ITodoService _service = service;

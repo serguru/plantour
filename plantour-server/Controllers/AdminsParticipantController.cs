@@ -8,7 +8,7 @@ using plantour_server.Models;
 namespace plantour_server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 
 public class AdminsParticipantController : ControllerBase
 {

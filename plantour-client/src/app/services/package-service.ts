@@ -32,7 +32,7 @@ export class PackageService {
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
    
-    this.apiUrl = `${environment.apiUrl}/api/package`;
+    this.apiUrl = `${environment.api.baseUrl}/package`;
   }
 
   getAll(): Observable<PackageDto[]> {

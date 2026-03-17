@@ -11,7 +11,7 @@ using plantour_server.Services.Interfaces;
 namespace plantour_server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class UsersController : ControllerBase
 {
         private readonly IUsersService _usersService;

@@ -73,7 +73,7 @@ export class DashboardService {
         @Inject(ENVIRONMENT) private environment: EnvironmentConfig
     ) {
 
-        this.apiUrl = `${environment.apiUrl}/api/dashboard`;
+        this.apiUrl = `${environment.api.baseUrl}/dashboard`;
     }
 
     getDashboardTripDto(tripId: string): Observable<DashboardTripDto> {

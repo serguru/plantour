@@ -52,7 +52,7 @@ export class LookupService {
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    this.apiUrl = `${environment.apiUrl}/api/lookups`;
+    this.apiUrl = `${environment.api.baseUrl}/lookups`;
   }
 
   private loadLookupsIfNeeded(): Observable<LookupsResponse> {
