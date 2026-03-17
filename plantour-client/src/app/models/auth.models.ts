@@ -30,12 +30,14 @@ export interface AccessToken {
 
 export interface SignInRequest {
   email: string;
+  botProtectionToken?: string;
 }
 
 export interface SocialSignInRequest {
   provider: 'google' | 'facebook';
   googleIdToken?: string;
   facebookAccessToken?: string;
+  botProtectionToken?: string;
 }
 
 export interface SignUpParticipantRequest {
@@ -48,6 +50,7 @@ export interface SignUpParticipantRequest {
 
 export interface SignInParticipantRequest {
   accessCode: string;
+  botProtectionToken?: string;
 }
 
 

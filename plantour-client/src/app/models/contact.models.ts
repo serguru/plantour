@@ -4,6 +4,8 @@ export interface ContactSubmissionRequest {
   phoneNumber?: string;
   subjectCategory?: string;
   messageBody: string;
+  website?: string;
+  botProtectionToken?: string;
 }
 
 export interface ContactSubmissionDto {

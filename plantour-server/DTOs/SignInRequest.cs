@@ -8,4 +8,6 @@ public class SignInRequest
     [EmailAddress]
     public string Email { get; set; } = null!;
 
+    public string? BotProtectionToken { get; set; }
+
 }

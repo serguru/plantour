@@ -23,4 +23,9 @@ public class ContactSubmissionRequest
     [Required(ErrorMessage = "Message is required")]
     [StringLength(5000, MinimumLength = 10, ErrorMessage = "Message must be between 10 and 5000 characters")]
     public string MessageBody { get; set; } = null!;
+
+    [StringLength(255, ErrorMessage = "Website must not exceed 255 characters")]
+    public string? Website { get; set; }
+
+    public string? BotProtectionToken { get; set; }
 }

@@ -12,6 +12,7 @@ import { RadioButton } from 'primeng/radiobutton';
 import { AppButton } from '../button/button-component';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 import { SocialAuthService } from '../../services/social-auth-service';
+import { BotProtectionService } from '../../services/bot-protection-service';
 import { PasswordModule } from 'primeng/password';
 import { SignInResponse } from '../../models/auth.models';
 import { getMessageFromError } from '../../helpers/utils';
@@ -44,6 +45,7 @@ export class SignInComponent implements OnInit {
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
   private socialAuthService = inject(SocialAuthService);
+  private botProtectionService = inject(BotProtectionService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private location = inject(Location);
@@ -100,7 +102,7 @@ export class SignInComponent implements OnInit {
     return this.isAdmin ? this.adminForm : this.participantForm;
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     this.successMessage = '';
     this.errorMessage = '';
 
@@ -120,9 +122,18 @@ export class SignInComponent implements OnInit {
     this.isLoading = true;
 
     if (this.isAdmin) {
+      let botProtectionToken: string | null = null;
+
+      try {
+        botProtectionToken = await this.botProtectionService.getToken('admin_signin_email');
+      } catch (error: any) {
+        this.isLoading = false;
+        this.errorMessage = error?.message || 'Human verification failed. Please try again.';
+        return;
+      }
 
       const { email } = this.currentForm.value;
-      this.usersService.sendLoginEmailAdmin(email).pipe(
+      this.usersService.sendLoginEmailAdmin(email, botProtectionToken).pipe(
         catchError((error) => {
           const errorMsg = getMessageFromError(error, 'Sending sign-in email failed');
           this.errorMessage = errorMsg;
@@ -139,8 +150,18 @@ export class SignInComponent implements OnInit {
       return;
     }
 
+    let botProtectionToken: string | null = null;
+
+    try {
+      botProtectionToken = await this.botProtectionService.getToken('participant_signin');
+    } catch (error: any) {
+      this.isLoading = false;
+      this.errorMessage = error?.message || 'Human verification failed. Please try again.';
+      return;
+    }
+
     const { accessCode } = this.currentForm.value;
-    this.usersService.loginParticipant(accessCode).pipe(
+    this.usersService.loginParticipant(accessCode, botProtectionToken).pipe(
       catchError((error) => {
         const errorMsg = getMessageFromError(error, 'Participant sign in failed. Please check your Access Code and try again.');
         this.errorMessage = errorMsg;
@@ -196,7 +217,7 @@ export class SignInComponent implements OnInit {
     try {
       await this.socialAuthService.loadFacebookSdk(this.environment.facebookAppId);
       const accessToken = await this.socialAuthService.loginWithFacebook();
-      this.signInWithSocial('facebook', accessToken);
+      await this.signInWithSocial('facebook', accessToken);
     } catch (error: any) {
       this.isLoading = false;
       const errorMsg = error?.message || 'Facebook sign in failed. Please try again.';
@@ -229,7 +250,7 @@ export class SignInComponent implements OnInit {
             return;
           }
 
-          this.signInWithSocial('google', idToken);
+          void this.signInWithSocial('google', idToken);
         }
       });
 
@@ -240,8 +261,20 @@ export class SignInComponent implements OnInit {
     }
   }
 
-  private signInWithSocial(provider: 'google' | 'facebook', token: string): void {
-    this.usersService.socialSignIn(provider, token).pipe(
+  private async signInWithSocial(provider: 'google' | 'facebook', token: string): Promise<void> {
+    let botProtectionToken: string | null = null;
+
+    try {
+      botProtectionToken = await this.botProtectionService.getToken(`${provider}_social_signin`);
+    } catch (error: any) {
+      this.isLoading = false;
+      const errorMsg = error?.message || 'Human verification failed. Please try again.';
+      this.errorMessage = errorMsg;
+      this.messagesService.showError('Sign In Failed', errorMsg);
+      return;
+    }
+
+    this.usersService.socialSignIn(provider, token, botProtectionToken).pipe(
       catchError((error) => {
         const errorMsg = error.error?.message || 'Social sign in failed. Please try again.';
         this.errorMessage = errorMsg;

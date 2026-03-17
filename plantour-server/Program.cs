@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -29,6 +30,7 @@ using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
 using plantour_server.Services.TickerQ;
 using Npgsql;
+using System.Threading.RateLimiting;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -52,6 +54,23 @@ static string NormalizeAspNetEnvironmentName(string? raw)
         "prod" => Environments.Production,
         _ => raw.Trim()
     };
+}
+
+static string GetRateLimitPartitionKey(HttpContext context)
+{
+    var cfConnectingIp = context.Request.Headers["CF-Connecting-IP"].FirstOrDefault();
+    if (!string.IsNullOrWhiteSpace(cfConnectingIp))
+    {
+        return cfConnectingIp;
+    }
+
+    var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+    if (!string.IsNullOrWhiteSpace(forwardedFor))
+    {
+        return forwardedFor.Split(',')[0].Trim();
+    }
+
+    return context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 }
 
 var rawEnvironmentName =
@@ -166,6 +185,9 @@ try
 
     // Configure Social auth settings
     builder.Services.Configure<SocialAuthSettings>(builder.Configuration.GetSection("SocialAuthSettings"));
+
+    // Configure Turnstile settings
+    builder.Services.Configure<TurnstileSettings>(builder.Configuration.GetSection("Turnstile"));
 
     // Configure Brevo settings
     builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("BrevoSettings"));
@@ -352,6 +374,115 @@ try
     // Register AutoMapper
     builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        options.OnRejected = async (context, cancellationToken) =>
+        {
+            await ErrorResponse.WriteErrorResponse(
+                context.HttpContext,
+                StatusCodes.Status429TooManyRequests,
+                "TOO_MANY_REQUESTS",
+                "Too many requests. Please try again later.");
+        };
+
+        options.AddPolicy("admin-signin-email", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: GetRateLimitPartitionKey(httpContext),
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromMinutes(10),
+                    QueueLimit = 0,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                }));
+
+        options.AddPolicy("admin-signin-token", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: GetRateLimitPartitionKey(httpContext),
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 12,
+                    Window = TimeSpan.FromMinutes(10),
+                    QueueLimit = 0,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                }));
+
+        options.AddPolicy("admin-social-signin", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: GetRateLimitPartitionKey(httpContext),
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 8,
+                    Window = TimeSpan.FromMinutes(10),
+                    QueueLimit = 0,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                }));
+
+        options.AddPolicy("participant-signin", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: GetRateLimitPartitionKey(httpContext),
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 10,
+                    Window = TimeSpan.FromMinutes(10),
+                    QueueLimit = 0,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                }));
+
+        options.AddPolicy("temporary-user-create", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: GetRateLimitPartitionKey(httpContext),
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 3,
+                    Window = TimeSpan.FromHours(1),
+                    QueueLimit = 0,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                }));
+
+        options.AddPolicy("contact-submit", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: GetRateLimitPartitionKey(httpContext),
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromMinutes(10),
+                    QueueLimit = 0,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                }));
+
+        options.AddPolicy("refresh-token", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: GetRateLimitPartitionKey(httpContext),
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 30,
+                    Window = TimeSpan.FromMinutes(5),
+                    QueueLimit = 0,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                }));
+
+        options.AddPolicy("is-user-temporary", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: GetRateLimitPartitionKey(httpContext),
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 20,
+                    Window = TimeSpan.FromMinutes(5),
+                    QueueLimit = 0,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                }));
+    });
+
     // Register services
     builder.Services.AddScoped<IUsersService, UsersService>();
     builder.Services.AddScoped<IPackageService, PackService>();
@@ -383,6 +514,7 @@ try
     builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
     builder.Services.AddScoped<ISchedulerService, SchedulerService>();
     builder.Services.AddScoped<AccessCodeGenerator>();
+    builder.Services.AddHttpClient<IBotProtectionService, BotProtectionService>();
 
     builder.Services.AddHttpClient<IBrevoEmailClient, BrevoEmailClient>();
     builder.Services.AddHttpClient<IAiService, AiService>();
@@ -487,6 +619,7 @@ try
 
     app.UseCors("AllowOrigins");
 
+    app.UseRateLimiter();
     app.UseAuthentication();
     app.UseMiddleware<CurrentUserMiddleware>();
     app.UseMiddleware<ApiVisitLoggingMiddleware>();

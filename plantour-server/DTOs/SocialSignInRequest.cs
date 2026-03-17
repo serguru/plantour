@@ -11,6 +11,8 @@ public class SocialSignInRequest
     public string? GoogleIdToken { get; set; }
 
     public string? FacebookAccessToken { get; set; }
+
+    public string? BotProtectionToken { get; set; }
 }
 
 

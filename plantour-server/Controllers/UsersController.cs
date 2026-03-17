@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using plantour_server.Attributes;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
@@ -18,28 +19,33 @@ public class UsersController : ControllerBase
         private readonly IPaddleService _paddleService;
         private readonly IContactSubmissionService _contactSubmissionService;
         private readonly ISchedulerService _schedulerService;
+        private readonly IBotProtectionService _botProtectionService;
 
-        public UsersController(IUsersService usersService, ITemporaryUserService temporaryUserService, IPaddleService paddleService, IContactSubmissionService contactSubmissionService, ISchedulerService schedulerService)
+        public UsersController(IUsersService usersService, ITemporaryUserService temporaryUserService, IPaddleService paddleService, IContactSubmissionService contactSubmissionService, ISchedulerService schedulerService, IBotProtectionService botProtectionService)
         {
                 _usersService = usersService;
                 _temporaryUserService = temporaryUserService;
                 _paddleService = paddleService;
                 _contactSubmissionService = contactSubmissionService;
                 _schedulerService = schedulerService;
+                _botProtectionService = botProtectionService;
         }
 
         #region Admin Endpoints
 
         [HttpPost("admin/send-signin-email")]
         [AllowAnonymous]
+        [EnableRateLimiting("admin-signin-email")]
         public async Task<ActionResult<SignInResponse>> SendSignInEmailAdmin([FromBody] SignInRequest request)
         {
+                await _botProtectionService.EnsureHumanVerifiedAsync(request.BotProtectionToken, "admin_signin_email", HttpContext.Connection.RemoteIpAddress?.ToString());
                 var response = await _usersService.SendSignInEmailAdminAsync(request);
                 return Ok(response);
         }
 
         [HttpPost("admin/signin-token")]
         [AllowAnonymous]
+        [EnableRateLimiting("admin-signin-token")]
         public async Task<ActionResult<AuthResponse>> SignInAdminToken([FromBody] SignInRequestToken request)
         {
                 AuthResponse result = await _usersService.SignInAdminTokenAsync(request.Token);
@@ -48,8 +54,10 @@ public class UsersController : ControllerBase
 
         [HttpPost("admin/social/signin")]
         [AllowAnonymous]
+        [EnableRateLimiting("admin-social-signin")]
         public async Task<ActionResult<AuthResponse>> SignInAdminSocial([FromBody] SocialSignInRequest request)
         {
+                await _botProtectionService.EnsureHumanVerifiedAsync(request.BotProtectionToken, "admin_social_signin", HttpContext.Connection.RemoteIpAddress?.ToString());
                 var response = await _usersService.SignInAdminSocialAsync(request);
                 return Ok(response);
         }
@@ -68,8 +76,10 @@ public class UsersController : ControllerBase
 
         [HttpPost("participant/signin")]
         [AllowAnonymous]
+        [EnableRateLimiting("participant-signin")]
         public async Task<ActionResult<AuthResponse>> SignInParticipant([FromBody] SignInParticipantRequest request)
         {
+                await _botProtectionService.EnsureHumanVerifiedAsync(request.BotProtectionToken, "participant_signin", HttpContext.Connection.RemoteIpAddress?.ToString());
                 var response = await _usersService.SignInParticipantAsync(request);
                 return Ok(response);
         }
@@ -80,8 +90,10 @@ public class UsersController : ControllerBase
 
         [HttpPost("create-temporary-user")]
         [AllowAnonymous]
-        public async Task<ActionResult<CreateTemporaryUserResponse>> CreateTemporaryUser()
+        [EnableRateLimiting("temporary-user-create")]
+        public async Task<ActionResult<CreateTemporaryUserResponse>> CreateTemporaryUser([FromBody] CreateTemporaryUserRequest request)
         {
+                await _botProtectionService.EnsureHumanVerifiedAsync(request.BotProtectionToken, "temporary_user_create", HttpContext.Connection.RemoteIpAddress?.ToString());
                 var response = await _temporaryUserService.CreateTemporaryUserAsync();
                 return Ok(response);
         }
@@ -141,11 +153,15 @@ public class UsersController : ControllerBase
 
         [HttpPost("contact/submit")]
         [AllowAnonymous]
+        [EnableRateLimiting("contact-submit")]
         public async Task<ActionResult<ContactSubmissionDto>> SubmitContact([FromBody] ContactSubmissionRequest request)
         {
                 var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
                 var userAgent = Request.Headers["User-Agent"].ToString();
                 var referrerUrl = Request.Headers["Referer"].ToString();
+
+                _botProtectionService.EnsureHoneypotIsEmpty(request.Website, nameof(request.Website));
+                await _botProtectionService.EnsureHumanVerifiedAsync(request.BotProtectionToken, "contact_submit", ipAddress);
 
                 var result = await _contactSubmissionService.SubmitContactAsync(request, ipAddress, userAgent, referrerUrl);
                 return Ok(result);
@@ -194,6 +210,7 @@ public class UsersController : ControllerBase
 
         [HttpPost("refresh-token")]
         [AllowAnonymous]
+        [EnableRateLimiting("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] TokenRequestDto request)
         {
                 var result = await _usersService.RefreshTokenAsync(request);
@@ -201,6 +218,7 @@ public class UsersController : ControllerBase
         }
 
         [HttpGet("is-user-temporary")]
+        [EnableRateLimiting("is-user-temporary")]
         public async Task<ActionResult<bool>> IsUserTemporary([FromQuery] string email)
         {
                 if (string.IsNullOrWhiteSpace(email))
