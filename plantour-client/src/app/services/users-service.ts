@@ -6,6 +6,7 @@ import { AccessRule, AccessToken, AuthResponse, SignInResponse, SignUpParticipan
 import { ContactSubmissionRequest, ContactSubmissionDto } from '../models/contact.models';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { AppService } from './app-service';
+import { BotProtectionService } from './bot-protection-service';
 import { LocalStorageService } from './local-storage-service';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -56,6 +57,7 @@ export interface ScheduledPlanDowngradeInfoDto {
 export class UsersService {
   private apiUrl: string;
   appService = inject(AppService);
+  botProtectionService = inject(BotProtectionService);
   localStorageService = inject(LocalStorageService);
 
 
@@ -261,8 +263,8 @@ export class UsersService {
     this.writeRefreshToken(response.refreshToken || null);
   }
 
-  sendLoginEmailAdmin(email: string): Observable<SignInResponse> {
-    return this.http.post<SignInResponse>(`${this.apiUrl}/api/users/admin/send-signin-email`, { email });
+  sendLoginEmailAdmin(email: string, botProtectionToken?: string | null): Observable<SignInResponse> {
+    return this.http.post<SignInResponse>(`${this.apiUrl}/api/users/admin/send-signin-email`, { email, botProtectionToken });
   }
 
   loginAdminByToken(token: string): Observable<AuthResponse> {
@@ -275,8 +277,8 @@ export class UsersService {
   }
 
 
-  loginParticipant(accessCode: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/participant/signin`, { accessCode })
+  loginParticipant(accessCode: string, botProtectionToken?: string | null): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/participant/signin`, { accessCode, botProtectionToken })
       .pipe(
         tap((r: AuthResponse) => {
           this.applyAuthResponse(r);
@@ -284,10 +286,10 @@ export class UsersService {
       );
   }
 
-  socialSignIn(provider: 'google' | 'facebook', token: string): Observable<AuthResponse> {
+  socialSignIn(provider: 'google' | 'facebook', token: string, botProtectionToken?: string | null): Observable<AuthResponse> {
     const payload = provider === 'google'
-      ? { provider, googleIdToken: token }
-      : { provider, facebookAccessToken: token };
+      ? { provider, googleIdToken: token, botProtectionToken }
+      : { provider, facebookAccessToken: token, botProtectionToken };
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/social/signin`, payload)
       .pipe(
@@ -313,8 +315,8 @@ export class UsersService {
     return this.http.post<any>(`${this.apiUrl}/api/users/participant/signup`, data);
   }
 
-  registerTemporaryAdmin(): Observable<TemporaryUserResponse> {
-    return this.http.post<TemporaryUserResponse>(`${this.apiUrl}/api/users/create-temporary-user`, {})
+  registerTemporaryAdmin(botProtectionToken?: string | null): Observable<TemporaryUserResponse> {
+    return this.http.post<TemporaryUserResponse>(`${this.apiUrl}/api/users/create-temporary-user`, { botProtectionToken })
       .pipe(
         tap((r: TemporaryUserResponse) => {
 
@@ -433,7 +435,16 @@ export class UsersService {
       return;
     }
 
-    this.registerTemporaryAdmin().subscribe({
+    let botProtectionToken: string | null = null;
+
+    try {
+      botProtectionToken = await this.botProtectionService.getToken('temporary_user_create');
+    } catch (error: any) {
+      this.messagesService.showError('Guest Access Unavailable', error?.message || 'Human verification failed. Please try again.');
+      return;
+    }
+
+    this.registerTemporaryAdmin(botProtectionToken).subscribe({
 
       next: (response: TemporaryUserResponse) => {
         const path = `/trips/${response.currentTripId}/trip-things`;
@@ -446,6 +457,10 @@ export class UsersService {
           If you need help, see Guest Mode Help. Good luck!
           `
         });
+      },
+      error: (error) => {
+        const message = error?.error?.message || 'Guest access could not be started. Please try again.';
+        this.messagesService.showError('Guest Access Unavailable', message);
       }
     });
   }

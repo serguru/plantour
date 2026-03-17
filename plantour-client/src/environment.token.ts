@@ -6,6 +6,7 @@ export interface EnvironmentConfig {
   environment: string;
   googleClientId?: string;
   facebookAppId?: string;
+  turnstileSiteKey?: string;
   version: string;
 }
 

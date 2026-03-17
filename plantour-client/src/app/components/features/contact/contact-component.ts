@@ -11,6 +11,7 @@ import { MessagesService } from '../../../services/messages-service';
 import { AppButton } from '../../button/button-component';
 import { ContactSubmissionRequest } from '../../../models/contact.models';
 import { SeoService } from '../../../services/seo-service';
+import { BotProtectionService } from '../../../services/bot-protection-service';
 
 @Component({
   selector: 'app-contact-component',
@@ -47,6 +48,7 @@ export class ContactComponent {
   private router = inject(Router);
   private location = inject(Location);
   private seoService = inject(SeoService);
+  private botProtectionService = inject(BotProtectionService);
   private document = inject(DOCUMENT);
 
   constructor() {
@@ -55,7 +57,8 @@ export class ContactComponent {
       email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
       phoneNumber: ['', [Validators.maxLength(20)]],
       subjectCategory: [''],
-      messageBody: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(5000)]]
+      messageBody: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(5000)]],
+      website: ['']
     });
 
     this.setSeo();
@@ -127,7 +130,7 @@ export class ContactComponent {
     };
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.contactForm.invalid) {
       this.contactForm.markAllAsTouched();
       this.messagesService.showWarning('Validation Error', 'Please fill in all required fields correctly.');
@@ -137,7 +140,22 @@ export class ContactComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const request: ContactSubmissionRequest = this.contactForm.value;
+    let botProtectionToken: string | null = null;
+
+    try {
+      botProtectionToken = await this.botProtectionService.getToken('contact_submit');
+    } catch (error: any) {
+      this.isLoading = false;
+      const errorMsg = error?.message || 'Human verification failed. Please try again.';
+      this.errorMessage = errorMsg;
+      this.messagesService.showError('Submission Failed', errorMsg);
+      return;
+    }
+
+    const request: ContactSubmissionRequest = {
+      ...this.contactForm.getRawValue(),
+      botProtectionToken,
+    };
 
     this.usersService.submitContact(request).pipe(
       catchError((error) => {
@@ -152,7 +170,14 @@ export class ContactComponent {
     ).subscribe({
       next: () => {
         this.messagesService.showInfo('Message sent', 'We have received your message and will get back to you soon.');
-        this.contactForm.reset();
+        this.contactForm.reset({
+          fullName: '',
+          email: '',
+          phoneNumber: '',
+          subjectCategory: '',
+          messageBody: '',
+          website: ''
+        });
       }
     });
   }
