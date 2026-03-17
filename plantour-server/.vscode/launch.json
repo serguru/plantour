@@ -17,7 +17,7 @@
             "serverReadyAction": {
                 "action": "openExternally",
                 "pattern": ".*",
-                "uriFormat": "http://localhost:5217/weatherforecast"
+                "uriFormat": "http://localhost:5217/users/health-check"
             },
             "logging": {
                 "moduleLoad": false

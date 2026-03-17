@@ -1,6 +1,6 @@
 @plantour_server_HostAddress = http://localhost:5217
 
-GET {{plantour_server_HostAddress}}/weatherforecast/
+GET {{plantour_server_HostAddress}}/users/health-check/
 Accept: application/json
 
 ###

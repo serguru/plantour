@@ -3,7 +3,7 @@
     "http": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "WeatherForecast",
+      "launchUrl": "users/health-check",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "dev",
         "ASPNETCORE_URLS": "http://0.0.0.0:5217"
@@ -14,7 +14,7 @@
     "https": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "WeatherForecast",
+      "launchUrl": "users/health-check",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "dev",
         "ASPNETCORE_URLS": "http://0.0.0.0:5217;https://localhost:7095"
