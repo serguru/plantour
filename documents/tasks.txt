@@ -470,3 +470,40 @@ http://localhost:4203/dashboard?accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
 
 
 I need a step by step DETAILED plan how to start plantour in the production for the first time in maintenance mode and how to temporary stop it for mantenance later and then switch back to public. Both scenarios should allow me a number of days, up to 7 days, without hurting my SEO indexes. The public should see a page "Sorry, under maintenance, back soon".  I need a way how being under maintenance access the normally working production app, i.e. backend, frontend and DB to test a lot of things like GitHub, DB, Brevo, Paddle, Claudflare, own domain name, app smoke test etc. What should I do for this?
+
+
+Estimate the idea of starting Plantour in production:
+
+1) Buy 3 Render services: for backend .Net API (Docker), for frontend Angular app (Node) and for PostgreSQL DB. Backend and frontend will have their Render based urls.
+
+2) Put backend and frontend services under the maintenance mode using Render UI. The public user will see the maintenance page. Frontend will return 503. Api will return 503.
+
+3) Make sure I can access the website through a tunnel connection and work with the frontend and backend normally.
+
+4) Prepare appsettings.Production.json adding actual configurations for DB connection strings, Paddle, Brevo, Google etc.
+
+5) Upload appsettings.Production.json to Render
+
+6) Apply DB scripts to create the plantour schema and pre fill the necessary data 
+
+7) Deploy production backend and frontend via GitHub actions
+
+8) Test the app through the tunnel connection 
+
+9) If encounter a problem which requires long time to be resolved just stop both backend and frontend services (the plantour.app still not activated)
+
+10) Replace the "___.onrender.com" urls with plantour.app and plantour.app/api. Make sure the maintenance mode still in effect.
+
+11) Configure Claudflare to work with plantour.app. Using domain provider Namecheap website UI to adjust DNS to work properly with Claudflare and Render pointing to plantour.app
+
+12) Test the app through the tunnel connection
+
+13) If encounter a problem which requires long time to be resolved just stop backend and frontend services (or better keep it trying to fix a problem as soon as possible?)
+
+14) If everything is ok switch maintenence to the regular mode
+
+
+
+
+
+

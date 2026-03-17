@@ -69,12 +69,12 @@ export class CreateSharedItemComponent {
     {
       name: 'Quantity',
       description: 'How many of this item are needed?',
-      required: true
+      required: false
     },
     {
       name: 'Assigned Participants',
-      description: 'Who is responsible for packing this item? At least one participant must be assigned.',
-      required: true
+      description: 'Who is responsible for packing this item?',
+      required: false
     }
   ];
 
