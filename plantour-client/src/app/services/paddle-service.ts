@@ -52,13 +52,13 @@ export class PaddleService {
   }
 
   activeSubscriptionExists(email: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.environment.apiUrl}/api/paddle/active-subscription-exists`, {
+    return this.http.get<boolean>(`${this.environment.api.baseUrl}/paddle/active-subscription-exists`, {
       params: { email }
     });
   }
 
   createCustomerPortalSession(): Observable<{ url: string }> {
-    return this.http.post<{ url: string }>(`${this.environment.apiUrl}/api/paddle/customer-portal-session`, {});
+    return this.http.post<{ url: string }>(`${this.environment.api.baseUrl}/paddle/customer-portal-session`, {});
   }
 
   async closeCheckout(): Promise<void> {

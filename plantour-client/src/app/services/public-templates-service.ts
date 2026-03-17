@@ -53,7 +53,7 @@ export class PublicTemplatesService {
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    this.apiUrl = `${environment.apiUrl}/api/public`;
+    this.apiUrl = `${environment.api.baseUrl}/public`;
   }
 
   getTemplateThings(): Observable<PublicTemplateThingDto[]> {

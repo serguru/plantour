@@ -62,7 +62,7 @@ export class TripService {
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    this.apiUrl = `${environment.apiUrl}/api/trip`;
+    this.apiUrl = `${environment.api.baseUrl}/trip`;
   }
 
   getAll(): Observable<TripDto[]> {

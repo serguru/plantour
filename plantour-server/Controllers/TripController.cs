@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace plantour_server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class TripController : ControllerBase
 {
     private readonly ITripService _service;

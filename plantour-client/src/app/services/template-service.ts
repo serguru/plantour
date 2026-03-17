@@ -34,7 +34,7 @@ export class TemplateService {
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
 
-    this.apiUrl = `${environment.apiUrl}/api/template`;
+    this.apiUrl = `${environment.api.baseUrl}/template`;
   }
 
   getAll(): Observable<VTemplateThingsFullDto[]> {

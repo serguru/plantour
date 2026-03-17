@@ -51,7 +51,7 @@ export class TripSharedTodoService {
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    this.apiUrl = `${environment.apiUrl}/api/TripSharedTodo`;
+    this.apiUrl = `${environment.api.baseUrl}/TripSharedTodo`;
   }
 
   addFromDic(data: MultipleIdsRequest): Observable<number> {

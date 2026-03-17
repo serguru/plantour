@@ -34,7 +34,7 @@ export class TodoService {
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    this.apiUrl = `${environment.apiUrl}/api/todo`;
+    this.apiUrl = `${environment.api.baseUrl}/todo`;
   }
 
   getAll(): Observable<TodoDto[]> {

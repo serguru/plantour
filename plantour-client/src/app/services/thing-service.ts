@@ -43,7 +43,7 @@ export class ThingService {
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
    
-    this.apiUrl = `${environment.apiUrl}/api/thing`;
+    this.apiUrl = `${environment.api.baseUrl}/thing`;
   }
 
   getAll(): Observable<ThingDto[]> {

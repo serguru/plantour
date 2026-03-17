@@ -13,7 +13,7 @@ export class DocumentsService {
   constructor(private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    this.apiUrl = `${environment.apiUrl}/api/documents`;
+    this.apiUrl = `${environment.api.baseUrl}/documents`;
   }
 
   getTripReportPdf(tripId: string): Observable<Blob> {

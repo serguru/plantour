@@ -45,7 +45,7 @@ export class TripPackageService {
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    this.apiUrl = `${environment.apiUrl}/api/TripPackage`;
+    this.apiUrl = `${environment.api.baseUrl}/TripPackage`;
   }
 
   addFromDic(data: MultipleIdsRequest): Observable<number> {

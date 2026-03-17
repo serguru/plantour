@@ -7,7 +7,7 @@ using plantour_server.Services;
 namespace plantour_server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class DocumentsController : ControllerBase
 {
     private readonly IDocumentsService _service;

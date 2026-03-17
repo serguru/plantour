@@ -176,7 +176,7 @@ export class UsersService {
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    this.apiUrl = environment.apiUrl;
+    this.apiUrl = environment.api.baseUrl;
   }
 
   private getUserFromLocalStorage(): AccessToken | null {
@@ -264,11 +264,11 @@ export class UsersService {
   }
 
   sendLoginEmailAdmin(email: string, botProtectionToken?: string | null): Observable<SignInResponse> {
-    return this.http.post<SignInResponse>(`${this.apiUrl}/api/users/admin/send-signin-email`, { email, botProtectionToken });
+    return this.http.post<SignInResponse>(`${this.apiUrl}/users/admin/send-signin-email`, { email, botProtectionToken });
   }
 
   loginAdminByToken(token: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/signin-token`, { token })
+    return this.http.post<AuthResponse>(`${this.apiUrl}/users/admin/signin-token`, { token })
       .pipe(
         tap((r: AuthResponse) => {
           this.applyAuthResponse(r);
@@ -278,7 +278,7 @@ export class UsersService {
 
 
   loginParticipant(accessCode: string, botProtectionToken?: string | null): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/participant/signin`, { accessCode, botProtectionToken })
+    return this.http.post<AuthResponse>(`${this.apiUrl}/users/participant/signin`, { accessCode, botProtectionToken })
       .pipe(
         tap((r: AuthResponse) => {
           this.applyAuthResponse(r);
@@ -291,7 +291,7 @@ export class UsersService {
       ? { provider, googleIdToken: token, botProtectionToken }
       : { provider, facebookAccessToken: token, botProtectionToken };
 
-    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/admin/social/signin`, payload)
+    return this.http.post<AuthResponse>(`${this.apiUrl}/users/admin/social/signin`, payload)
       .pipe(
         tap((r: AuthResponse) => {
           this.applyAuthResponse(r);
@@ -304,19 +304,19 @@ export class UsersService {
       ? { provider, googleIdToken: token }
       : { provider, facebookAccessToken: token };
 
-    return this.http.post<UserDto>(`${this.apiUrl}/api/users/profile/social/link`, payload);
+    return this.http.post<UserDto>(`${this.apiUrl}/users/profile/social/link`, payload);
   }
 
   unlinkSocialProvider(provider: 'google' | 'facebook'): Observable<UserDto> {
-    return this.http.delete<UserDto>(`${this.apiUrl}/api/users/profile/social/${provider}`);
+    return this.http.delete<UserDto>(`${this.apiUrl}/users/profile/social/${provider}`);
   }
 
   registerParticipant(data: SignUpParticipantRequest): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/api/users/participant/signup`, data);
+    return this.http.post<any>(`${this.apiUrl}/users/participant/signup`, data);
   }
 
   registerTemporaryAdmin(botProtectionToken?: string | null): Observable<TemporaryUserResponse> {
-    return this.http.post<TemporaryUserResponse>(`${this.apiUrl}/api/users/create-temporary-user`, { botProtectionToken })
+    return this.http.post<TemporaryUserResponse>(`${this.apiUrl}/users/create-temporary-user`, { botProtectionToken })
       .pipe(
         tap((r: TemporaryUserResponse) => {
 
@@ -337,15 +337,15 @@ export class UsersService {
   }
 
   resendSignIn(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/api/users/admin/resend-confirmation`, { email });
+    return this.http.post(`${this.apiUrl}/users/admin/resend-confirmation`, { email });
   }
 
   confirmEmail(userId: string, token: string): Observable<{ confirmed: boolean }> {
-    return this.http.post<{ confirmed: boolean }>(`${this.apiUrl}/api/users/admin/confirm-email`, { userId, token });
+    return this.http.post<{ confirmed: boolean }>(`${this.apiUrl}/users/admin/confirm-email`, { userId, token });
   }
 
   submitContact(request: ContactSubmissionRequest): Observable<ContactSubmissionDto> {
-    return this.http.post<ContactSubmissionDto>(`${this.apiUrl}/api/users/contact/submit`, request);
+    return this.http.post<ContactSubmissionDto>(`${this.apiUrl}/users/contact/submit`, request);
   }
 
   currentUserOk$ = (type?: 'admin' | 'participant'): Observable<boolean> => {
@@ -367,30 +367,30 @@ export class UsersService {
   }
 
   getProfile(): Observable<UserDto> {
-    return this.http.get<UserDto>(`${this.apiUrl}/api/users/profile`);
+    return this.http.get<UserDto>(`${this.apiUrl}/users/profile`);
   }
 
   updateProfile(request: { email?: string; firstName?: string; lastName?: string; phone?: string }): Observable<AuthResponse> {
-    return this.http.put<AuthResponse>(`${this.apiUrl}/api/users/profile`, request);
+    return this.http.put<AuthResponse>(`${this.apiUrl}/users/profile`, request);
   }
 
   downgradePlanPrice(oldPlanPrice: string, newPlanPrice: string): Observable<{ updated: boolean }> {
-    return this.http.put<{ updated: boolean }>(`${this.apiUrl}/api/users/downgrade-plan-price/schedule`, {
+    return this.http.put<{ updated: boolean }>(`${this.apiUrl}/users/downgrade-plan-price/schedule`, {
       oldPlanPrice,
       newPlanPrice
     });
   }
 
   getScheduledDowngrade(): Observable<ScheduledPlanDowngradeInfoDto> {
-    return this.http.get<ScheduledPlanDowngradeInfoDto>(`${this.apiUrl}/api/users/downgrade-plan-price/scheduled`);
+    return this.http.get<ScheduledPlanDowngradeInfoDto>(`${this.apiUrl}/users/downgrade-plan-price/scheduled`);
   }
 
   cancelScheduledDowngrade(): Observable<{ cancelled: boolean }> {
-    return this.http.delete<{ cancelled: boolean }>(`${this.apiUrl}/api/users/downgrade-plan-price/scheduled`);
+    return this.http.delete<{ cancelled: boolean }>(`${this.apiUrl}/users/downgrade-plan-price/scheduled`);
   }
 
   upgradePlanPrice(oldPlanPrice: string, newPlanPrice: string): Observable<{ updated: boolean }> {
-    return this.http.put<{ updated: boolean }>(`${this.apiUrl}/api/users/upgrade-plan-price`, {
+    return this.http.put<{ updated: boolean }>(`${this.apiUrl}/users/upgrade-plan-price`, {
       oldPlanPrice,
       newPlanPrice
     });
@@ -401,7 +401,7 @@ export class UsersService {
       accessToken: this.accessToken,
       refreshToken: this.refreshToken
     };
-    return this.http.post<AuthResponse>(`${this.apiUrl}/api/users/refresh-token`, payload).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/users/refresh-token`, payload).pipe(
       tap(res => {
         this.applyAuthResponse(res);
       })
@@ -466,20 +466,20 @@ export class UsersService {
   }
 
   isUserTemporary(email: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.environment.apiUrl}/api/users/is-user-temporary`, {
+    return this.http.get<boolean>(`${this.environment.api.baseUrl}/users/is-user-temporary`, {
       params: { email }
     });
   }
 
   convertTemporaryUser(oldEmail: string, newEmail: string): Observable<void> {
-    return this.http.put<void>(`${this.environment.apiUrl}/api/users/convert-temporary-user`, {
+    return this.http.put<void>(`${this.environment.api.baseUrl}/users/convert-temporary-user`, {
       oldEmail,
       newEmail
     })
   }
 
   sendInvitationEmail(adminParticipantId: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/api/users/send-participant-invitation`, 
+    return this.http.post<void>(`${this.apiUrl}/users/send-participant-invitation`, 
       {
         adminParticipantId: adminParticipantId
       });

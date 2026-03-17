@@ -6,7 +6,7 @@ using plantour_server.Services;
 namespace plantour_server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class PackageController : ControllerBase
 {
     private readonly IPackageService _service;

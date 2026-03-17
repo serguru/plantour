@@ -7,7 +7,7 @@ using PlantourApi.Middleware;
 namespace plantour_server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class TripTodoController(ITripTodoService service) : ControllerBase
 {
     private readonly ITripTodoService _service = service;

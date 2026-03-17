@@ -45,12 +45,12 @@ export class LandingService {
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
-    this.apiUrl = environment.apiUrl;
+    this.apiUrl = environment.api.baseUrl;
   }
   private apiUrl: string;
 
   getLandingData(): Observable<LandingDto> {
-    return this.http.get<LandingDto>(`${this.apiUrl}/api/users/landing`);
+    return this.http.get<LandingDto>(`${this.apiUrl}/users/landing`);
   }
   
   

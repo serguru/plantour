@@ -6,7 +6,7 @@ using plantour_server.Services;
 namespace plantour_server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class LookupsController : ControllerBase
 {
     private readonly ILookupsService _service;
