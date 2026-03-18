@@ -174,7 +174,7 @@ export class SignInComponent implements OnInit {
       next: (response) => {
         const message = response?.message || 'Welcome back to Plantour';
         this.messagesService.showInfo('Sign In Successful', message);
-        this.router.navigate(['']);
+        this.router.navigate(['/dashboard']);
       }
     });
   }
@@ -288,7 +288,7 @@ export class SignInComponent implements OnInit {
       next: (response) => {
         const message = response?.message || 'Welcome to Plantour';
         this.messagesService.showInfo('Sign In Successful', message);
-        this.router.navigate(['']);
+        this.router.navigate(['/dashboard']);
       }
     });
   }

@@ -1,22 +1,22 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 import { UsersService } from '../services/users-service';
 
 
 /**
- * Landing Guard for New Users - allows access only to non-authenticated users
+ * Landing Guard for the public root page.
+ * Authenticated users are redirected to the dedicated dashboard route.
  */
-export const landingNewUserGuard: CanMatchFn = () => {
+export const landingRedirectGuard: CanActivateFn = (route) => {
   const usersService = inject(UsersService);
-  return !usersService.isAuthenticatedSignal();
-};
+  if (!usersService.isAuthenticatedSignal()) {
+    return true;
+  }
 
-/**
- * Landing Guard for Registered Users - allows access only to authenticated users
- */
-export const landingExistingUserGuard: CanMatchFn = (route, segments) => {
-  const usersService = inject(UsersService);
-  return usersService.isAuthenticatedSignal();
+  const router = inject(Router);
+  return router.createUrlTree(['/dashboard'], {
+    queryParams: route.queryParams,
+  });
 };
 
 export const dashboardGuard: CanActivateFn = (route, segments) => {
@@ -39,7 +39,12 @@ export const dashboardGuard: CanActivateFn = (route, segments) => {
     usersService.applyAuthResponse(r);
     return true;;
   }
-  return usersService.isAuthenticatedSignal();
+  const isAuthenticated = usersService.isAuthenticatedSignal();
+  if (isAuthenticated) {
+    return true;
+  }
+  router.navigate(['/']);
+  return false;
 };
 
 

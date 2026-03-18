@@ -459,23 +459,21 @@ public class UsersService(
 
     public async Task<LandingDto> GetLandingAsync()
     {
-        // TODO: revert back after 429 resolved
-        // var paddleProducts = await _paddleService.GetActiveProductsAsync();
-        // if (paddleProducts == null || !paddleProducts.Any())
-        // {
-        //     throw new CustomException("No active Paddle products found");
-        // }
+        var paddleProducts = await _paddleService.GetActiveProductsAsync();
+        if (paddleProducts == null || !paddleProducts.Any())
+        {
+            throw new CustomException("No active Paddle products found");
+        }
 
         var plans = await _planRepository.GetAll();
         plans = plans.Where(p => p.Public!.Value).ToList();
         var planDtos = _mapper.Map<List<PlanDto>>(plans);
 
-        // TODO: revert back after 429 resolved
-        // paddleProducts.ToList().ForEach(pp =>
-        // {
-        //     var plan = planDtos.FirstOrDefault(p => p.PaddleProductId == pp.Id) ?? throw new CustomException($"No plan found for Paddle product Id {pp.Id}");
-        //     _mapper.Map(pp, plan);
-        // });
+        paddleProducts.ToList().ForEach(pp =>
+        {
+            var plan = planDtos.FirstOrDefault(p => p.PaddleProductId == pp.Id) ?? throw new CustomException($"No plan found for Paddle product Id {pp.Id}");
+            _mapper.Map(pp, plan);
+        });
 
         var result = new LandingDto()
         {
