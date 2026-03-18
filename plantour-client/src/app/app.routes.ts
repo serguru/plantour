@@ -2,8 +2,6 @@ import { Routes } from '@angular/router';
 import { dashboardGuard, landingRedirectGuard } from './guards/landing-guard';
 import { adminOnlyGuard, adminOrParticipantGuard, checkTripIdGuard, publicGuard, signInGuard } from './guards/auth-guard';
 import { CleanupResolver } from './helpers/resolver';
-import { TripFormComponent } from './components/trips/trip-form/trip-form-component';
-import { resolve } from 'path/win32';
 
 export const routes: Routes = [
   {

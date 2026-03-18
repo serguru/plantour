@@ -1,4 +1,4 @@
-import { Component, Inject, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Inject, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,12 +6,19 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
+import {
+  FacebookLoginProvider,
+  GoogleLoginProvider,
+  GoogleSigninButtonDirective,
+  SocialAuthService,
+  SocialUser,
+} from '@abacritt/angularx-social-login';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
 import { RadioButton } from 'primeng/radiobutton';
 import { AppButton } from '../button/button-component';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
-import { SocialAuthService } from '../../services/social-auth-service';
 import { BotProtectionService } from '../../services/bot-protection-service';
 import { PasswordModule } from 'primeng/password';
 import { SignInResponse } from '../../models/auth.models';
@@ -28,12 +35,16 @@ import { getMessageFromError } from '../../helpers/utils';
     RadioButton,
     FormsModule,
     AppButton,
-    PasswordModule
+    PasswordModule,
+    GoogleSigninButtonDirective,
   ],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.scss',
 })
 export class SignInComponent implements OnInit {
+  @ViewChild('googleSignInButtonHost', { read: ElementRef })
+  private googleSignInButtonHost?: ElementRef<HTMLElement>;
+
   componentId = 'sign-in';
   adminForm: FormGroup;
   participantForm: FormGroup;
@@ -41,6 +52,9 @@ export class SignInComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   signInType: 'admin' | 'participant' = 'admin';
+  hasGoogleLogin = false;
+  hasFacebookLogin = false;
+  private pendingGoogleLogin = false;
 
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
@@ -49,10 +63,14 @@ export class SignInComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private location = inject(Location);
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
   ) {
+    this.hasGoogleLogin = !!this.environment.googleClientId;
+    this.hasFacebookLogin = !!this.environment.facebookAppId;
+
     let e = "";
     if (this.environment.environment === 'development') {
       e = 'serguru@gmail.com';
@@ -87,6 +105,17 @@ export class SignInComponent implements OnInit {
         this.adminForm.patchValue({ email: email });
       }
     }
+
+    this.socialAuthService.authState
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((user) => {
+        if (!user || !this.pendingGoogleLogin || user.provider !== GoogleLoginProvider.PROVIDER_ID) {
+          return;
+        }
+
+        this.pendingGoogleLogin = false;
+        void this.completeSocialSignInFromUser('google', user, 'Google');
+      });
   }
 
   onEmailChange(e) {
@@ -206,18 +235,21 @@ export class SignInComponent implements OnInit {
   }
 
   async onSignInWithFacebook(): Promise<void> {
-    if (!this.environment.facebookAppId) {
+    if (!this.hasFacebookLogin) {
       this.messagesService.showWarning('Facebook Login', 'Facebook App ID is not configured.');
       return;
     }
 
     this.isLoading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     try {
-      await this.socialAuthService.loadFacebookSdk(this.environment.facebookAppId);
-      const accessToken = await this.socialAuthService.loginWithFacebook();
-      await this.signInWithSocial('facebook', accessToken);
+      const user = await this.socialAuthService.signIn(FacebookLoginProvider.PROVIDER_ID, {
+        scope: 'email,public_profile',
+      });
+
+      await this.completeSocialSignInFromUser('facebook', user, 'Facebook');
     } catch (error: any) {
       this.isLoading = false;
       const errorMsg = error?.message || 'Facebook sign in failed. Please try again.';
@@ -226,38 +258,66 @@ export class SignInComponent implements OnInit {
     }
   }
 
-  async onSignInWithGoogle(): Promise<void> {
-    if (!this.environment.googleClientId) {
+  onGoogleSignInClick(): void {
+    if (!this.hasGoogleLogin) {
       this.messagesService.showWarning('Google Login', 'Google Client ID is not configured.');
       return;
     }
 
-    this.isLoading = true;
+    if (this.isLoading) {
+      return;
+    }
+
     this.errorMessage = '';
+    this.successMessage = '';
+    this.pendingGoogleLogin = true;
+
+    if (!this.triggerHiddenGoogleButton()) {
+      this.pendingGoogleLogin = false;
+      this.messagesService.showWarning('Google Login', 'Google sign in is not ready yet. Please try again.');
+    }
+  }
+
+  private triggerHiddenGoogleButton(): boolean {
+    const host = this.googleSignInButtonHost?.nativeElement;
+    if (!host) {
+      return false;
+    }
+
+    const target = host.querySelector('div[role="button"]') as HTMLElement | null
+      ?? host.firstElementChild as HTMLElement | null;
+
+    if (!target) {
+      return false;
+    }
+
+    target.click();
+    return true;
+  }
+
+  private async completeSocialSignInFromUser(
+    provider: 'google' | 'facebook',
+    user: SocialUser,
+    providerName: string
+  ): Promise<void> {
+    const token = provider === 'google' ? user.idToken : user.authToken;
+
+    if (!token) {
+      this.isLoading = false;
+      this.errorMessage = `${providerName} authentication token was not returned.`;
+      this.messagesService.showError('Sign In Failed', this.errorMessage);
+      return;
+    }
+
+    this.isLoading = true;
 
     try {
-      await this.socialAuthService.loadGoogleSdk();
-      const googleSdk = (window as any).google;
-
-      googleSdk.accounts.id.initialize({
-        client_id: this.environment.googleClientId,
-        use_fedcm_for_button: true,
-        callback: (response: { credential?: string }) => {
-          const idToken = response?.credential;
-          if (!idToken) {
-            this.isLoading = false;
-            this.messagesService.showWarning('Google Login', 'Google authentication was cancelled.');
-            return;
-          }
-
-          void this.signInWithSocial('google', idToken);
-        }
-      });
-
-      googleSdk.accounts.id.prompt();
-    } catch {
+      await this.signInWithSocial(provider, token);
+    } catch (error: any) {
       this.isLoading = false;
-      this.messagesService.showWarning('Google Login', 'Google SDK failed to load.');
+      const errorMsg = error?.message || `${providerName} sign in failed. Please try again.`;
+      this.errorMessage = errorMsg;
+      this.messagesService.showError('Sign In Failed', errorMsg);
     }
   }
 
