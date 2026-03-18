@@ -17,25 +17,20 @@
     display: inline-flex;
 }
 
-.google-button-host {
+.google-button-overlay {
     position: absolute;
     top: 0;
-    left: -9999px;
+    left: 0;
     width: 200px;
     height: 40px;
-    overflow: hidden;
+    opacity: 0.01;
+    z-index: 1;
 }
 
-.google-button-trigger {
-    position: absolute;
-    inset: 0;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-}
-
-.google-button-trigger:disabled {
-    cursor: not-allowed;
+.google-button-overlay :deep(div),
+.google-button-overlay :deep(iframe) {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .instruction {
