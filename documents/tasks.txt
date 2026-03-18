@@ -508,3 +508,17 @@ There are 3 configurations now in the backend and frontend: dev, qa and prod. Ad
 
 After creation go to server.ts and for all the environments except "prod" add code from production-checklist-2.md line 87. 
 
+You did not catch the pred-prod role in the first production deployment process.
+I need this
+- create 3 paid Render services
+- deploy pred-prod to those services
+- test actual production DB and actual connections to Paddle, Brevo etc (SEO is under limits set by pred-prod)
+- once ready set Cloudflare to protect plantour.app from  paublic access
+- connect plantour.app to the existing paid services (no public access still!)
+- deploy production version from GitHub - no more SEO limits
+- test production with plantour.app
+- open the production via Claudflare for public and SEO
+
+Any objections? If not rewrite 
+
+
