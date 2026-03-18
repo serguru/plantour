@@ -95,10 +95,7 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "index": {
-                "input": "src/index.qa.html",
-                "output": "index.html"
-              },
+              "index": "src/index.html",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -117,11 +114,31 @@
                 }
               ]
             },
+            "pred-prod": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "index": "src/index.html",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.pred-prod.ts"
+                }
+              ],
+              "assets": [
+                "src/assets",
+                {
+                  "glob": "**/*",
+                  "input": "public/common"
+                },
+                {
+                  "glob": "robots.txt",
+                  "input": "public/pred-prod"
+                }
+              ]
+            },
             "development": {
-              "index": {
-                "input": "src/index.qa.html",
-                "output": "index.html"
-              },
+              "index": "src/index.html",
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
@@ -148,6 +165,9 @@
             },
             "qa": {
               "buildTarget": "plantour-app:build:qa"
+            },
+            "pred-prod": {
+              "buildTarget": "plantour-app:build:pred-prod"
             },
             "development": {
               "buildTarget": "plantour-app:build:development"

@@ -21,6 +21,7 @@ import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { Router } from '@angular/router';
 import { FormHeader } from '../form/form-header/form-header';
+import { CurrentTripService } from '../../services/current-trip-service';
 
 @Component({
   selector: 'app-dashboard',
@@ -63,6 +64,7 @@ export class DashboardComponent implements OnInit {
   );
 
   tripService = inject(TripService);
+  currentTripService = inject(CurrentTripService);
 
   trips: TripDto[] = [];
 
@@ -72,6 +74,7 @@ export class DashboardComponent implements OnInit {
 
   onTripChange(event: any) {
     this.selectedTripIdSubject.next(event.value);
+    this.currentTripService.updateCurrentTripId(event.value);
   }
 
   items = [
@@ -101,8 +104,6 @@ export class DashboardComponent implements OnInit {
     }
   ];
 
-  //expandedItemId: string | null = null;
-
   toggleItem(item: any) {
     item.expanded = !item.expanded;
     if (!item.expanded) {
@@ -111,15 +112,22 @@ export class DashboardComponent implements OnInit {
 
   }
 
-//  currentTripService = inject(CurrentTripService);
-
-//  data: DashboardTripDto | null = null;
   ngOnInit(): void {
     this.tripService.getAll().subscribe(trips => {
       this.trips = trips?.sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1)) || [];
-      if (this.trips.length > 0) {
-        this.selectedTripIdSubject.next(this.trips[0].id);
+      if (this.trips.length == 0) {
+        return;
       }
+      const currentTripId = this.currentTripService.currentTripIdSignal();
+      if (currentTripId) {
+        const trip = trips.find(x => x.id == currentTripId);
+        if (trip) {
+          this.selectedTripIdSubject.next(trip.id);
+          return;
+        }
+      }
+      this.selectedTripIdSubject.next(this.trips[0].id);
+      this.currentTripService.updateCurrentTripId(this.trips[0].id)
     });
   }
 
