@@ -16,7 +16,7 @@ export const publicGuard: CanActivateFn = (route, state) => {
     return true;
   }
   const router = inject(Router);
-  router.navigate(['']);
+  router.navigate(['/dashboard']);
   return false;
 };
 
@@ -26,7 +26,7 @@ export const signInGuard: CanActivateFn = (route, state) => {
     return true;
   }
   const router = inject(Router);
-  router.navigate(['']);
+  router.navigate(['/dashboard']);
   return false;
 };
 

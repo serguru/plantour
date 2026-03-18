@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { dashboardGuard, landingExistingUserGuard, landingNewUserGuard } from './guards/landing-guard';
+import { dashboardGuard, landingRedirectGuard } from './guards/landing-guard';
 import { adminOnlyGuard, adminOrParticipantGuard, checkTripIdGuard, publicGuard, signInGuard } from './guards/auth-guard';
 import { CleanupResolver } from './helpers/resolver';
 import { TripFormComponent } from './components/trips/trip-form/trip-form-component';
@@ -8,17 +8,10 @@ import { resolve } from 'path/win32';
 export const routes: Routes = [
   {
     path: '',
-    canMatch: [landingNewUserGuard],
+    canActivate: [landingRedirectGuard],
     loadComponent: () => import('./components/landing-new-user/landing-new-user.component').then(m => m.LandingNewUserComponent),
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'landing-new' }
-  },
-  {
-    path: '',
-    canMatch: [landingExistingUserGuard],
-    loadComponent: () => import('./components/dashboard/dashboard-component').then(m => m.DashboardComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'dashboard' }
   },
   {
     path: 'dashboard',
@@ -27,13 +20,6 @@ export const routes: Routes = [
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'dashboard' }
   },
-  // {
-  //   path: '',
-  //   canMatch: [landingRegisteredUserGuard],
-  //   loadComponent: () => import('./components/landing-registered-user/landing-registered-user.component').then(m => m.LandingRegisteredUserComponent),
-  //   resolve: { cleanup: CleanupResolver },
-  //   data: { componentId: 'landing-registered' }
-  // },
   {
     path: 'sign-in',
     canActivate: [signInGuard],

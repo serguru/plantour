@@ -160,7 +160,7 @@ export class Toolbar implements OnInit {
 
   onDashboardClick($event): void {
     $event.preventDefault();
-    this.router.navigate(['/']);
+    this.router.navigate(['/dashboard']);
   }
 
   onTripsClick($event, popover): void {
