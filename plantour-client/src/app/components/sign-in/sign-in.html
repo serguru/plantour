@@ -60,19 +60,27 @@
 
     @if (isAdmin) {
     <div class="buttons">
-      <app-button
-        label="Google"
-        [icon]="'pi pi-google'"
-        [disabled]="isLoading"
-        (click)="onSignInWithGoogle()"
-      />
+      @if (hasGoogleLogin) {
+      <asl-google-signin-button
+        type="standard"
+        size="large"
+        text="continue_with"
+        shape="rectangular"
+        theme="outline"
+        logo_alignment="left"
+        [width]="300"
+        (click)="onGoogleSignInClick()"
+      ></asl-google-signin-button>
+      }
 
+      @if (hasFacebookLogin) {
       <app-button
         label="Facebook"
         [icon]="'pi pi-facebook'"
         [disabled]="isLoading"
         (click)="onSignInWithFacebook()"
       />
+      }
 
     </div>
     }

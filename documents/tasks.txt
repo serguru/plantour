@@ -522,3 +522,10 @@ I need this
 Any objections? If not rewrite 
 
 
+JSSDK Option is Not Toggled
+Please toggle the "Login with Javascript SDK" Option to Yes in developers.facebook.com to use the JSSDK for Login.
+
+Explore code serving social logins. For Google it just hangs from time to time, not showing any messages. And a Google popup is too small. Is there any option to have it larger? For Facebook it sometimes shows a message like "SDK not added" and sometimes just works. Read the official Google and Facebook documentation. Implement social logins 100% following their requirements. Before implementing try to find the recommended way how to implement it in the Angular based app.
+
+Explore the existing code serving social logins, specifically sign-in.ts. Explore the official @abacritt/angularx-social-login documentation. This package is already installed. Add the necessary config into app.config.ts for Google and Facebook. Do not implement log in for other providers. Replace the existing social logins related code with the new code based on the @abacritt/angularx-social-login. Put the info what was done and how to use it into angularx-social.md .
+
