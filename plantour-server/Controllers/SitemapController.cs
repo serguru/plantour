@@ -20,7 +20,7 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
     {
         if (!environment.IsProduction())
         {
-            return Content("Sitemap content is filled for production only", "text/plain", Encoding.UTF8);
+            return NotFound();
         }
 
         var urls = await context.SitemapUrls

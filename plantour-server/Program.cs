@@ -50,6 +50,9 @@ static string NormalizeAspNetEnvironmentName(string? raw)
         "dev" => Environments.Development,
         "development" => Environments.Development,
         "qa" => "QA",
+        "pred-prod" => "Pred-Prod",
+        "predprod" => "Pred-Prod",
+        "preprod" => "Pred-Prod",
         "production" => Environments.Production,
         "prod" => Environments.Production,
         _ => raw.Trim()

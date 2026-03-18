@@ -504,6 +504,7 @@ Estimate the idea of starting Plantour in production:
 
 
 
+There are 3 configurations now in the backend and frontend: dev, qa and prod. Add one more configuration and call it "pred-prod". For now mirror it from the prod. 
 
-
+After creation go to server.ts and for all the environments except "prod" add code from production-checklist-2.md line 87. 
 

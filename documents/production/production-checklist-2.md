@@ -34,10 +34,8 @@ Use this hostname model.
 
 Notes:
 
-1. This is simpler than routing `plantour.app/api` to a separate backend origin.
-2. Plantour's frontend already supports a separate `apiUrl` through environment configuration.
-3. `admin.plantour.app` can point to the same frontend service and be protected by Cloudflare Access.
-4. If you later insist on `plantour.app/api`, you will need extra Cloudflare routing rules or Workers.
+There are 4 environments: dev, qa, pred-prod and production. Make sure for "production" and the rest the code correctly works with "X-Robots-Tag" in server.ts as well as properly deals with robots.txt and "Sitemap: https://plantour.app/sitemap.xml"
+
 
 ## 3. Prepare Render Services
 
@@ -81,16 +79,6 @@ Provider configuration to prepare:
 7. Any production callback URLs
 
 Stop here if required production values are not ready.
-
-Temporary prelaunch SEO protection for the frontend Render hostname:
-
-1. In `plantour-client/src/server.ts`, add `res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');` right after the line `const angularAppEngine = new AngularNodeAppEngine();` by inserting an `app.use(...)` middleware before the `// 1. Serve static files` section.
-
-2. In `plantour-client/src/index.html`, add `<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">` right after the line `<title>Plantour - Plan Smart, Travel Better</title>`.
-
-3. If you want an extra temporary block, in `plantour-client/public/production/robots.txt` replace the lines starting at `User-agent: GPTBot` with only `User-agent: *` and `Disallow: /`, but do not rely on this as the main protection.
-
-4. Before public launch, remove the `X-Robots-Tag` middleware from `plantour-client/src/server.ts`, remove the `<meta name="robots" ...>` line from `plantour-client/src/index.html`, and restore the normal `plantour-client/public/production/robots.txt` content.
 
 ## 5. Configure Render Environment Variables
 
