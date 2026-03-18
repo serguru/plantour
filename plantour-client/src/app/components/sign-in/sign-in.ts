@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, Inject, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, Inject, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -42,9 +42,6 @@ import { getMessageFromError } from '../../helpers/utils';
   styleUrl: './sign-in.scss',
 })
 export class SignInComponent implements OnInit {
-  @ViewChild('googleSignInButtonHost', { read: ElementRef })
-  private googleSignInButtonHost?: ElementRef<HTMLElement>;
-
   componentId = 'sign-in';
   adminForm: FormGroup;
   participantForm: FormGroup;
@@ -54,7 +51,6 @@ export class SignInComponent implements OnInit {
   signInType: 'admin' | 'participant' = 'admin';
   hasGoogleLogin = false;
   hasFacebookLogin = false;
-  private pendingGoogleLogin = false;
 
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
@@ -109,11 +105,10 @@ export class SignInComponent implements OnInit {
     this.socialAuthService.authState
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => {
-        if (!user || !this.pendingGoogleLogin || user.provider !== GoogleLoginProvider.PROVIDER_ID) {
+        if (!user || user.provider !== GoogleLoginProvider.PROVIDER_ID) {
           return;
         }
 
-        this.pendingGoogleLogin = false;
         void this.completeSocialSignInFromUser('google', user, 'Google');
       });
   }
@@ -252,47 +247,26 @@ export class SignInComponent implements OnInit {
       await this.completeSocialSignInFromUser('facebook', user, 'Facebook');
     } catch (error: any) {
       this.isLoading = false;
-      const errorMsg = error?.message || 'Facebook sign in failed. Please try again.';
+      const errorMsg = this.getFacebookLoginErrorMessage(error);
       this.errorMessage = errorMsg;
       this.messagesService.showError('Sign In Failed', errorMsg);
     }
   }
 
-  onGoogleSignInClick(): void {
-    if (!this.hasGoogleLogin) {
-      this.messagesService.showWarning('Google Login', 'Google Client ID is not configured.');
-      return;
+  private getFacebookLoginErrorMessage(error: any): string {
+    const rawMessage = typeof error === 'string'
+      ? error
+      : error?.message || '';
+
+    if (rawMessage.includes('JSSDK Option is Not Toggled')) {
+      return 'Facebook Login is not fully configured for this site. In Meta for Developers enable Login with the JavaScript SDK and add the QA domain to Allowed Domains for the JavaScript SDK.';
     }
 
-    if (this.isLoading) {
-      return;
+    if (rawMessage.includes('Given URL is not allowed by the Application configuration')) {
+      return 'Facebook Login is not configured for this site URL. Add the QA site URL and domain in the Meta Facebook Login settings.';
     }
 
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.pendingGoogleLogin = true;
-
-    if (!this.triggerHiddenGoogleButton()) {
-      this.pendingGoogleLogin = false;
-      this.messagesService.showWarning('Google Login', 'Google sign in is not ready yet. Please try again.');
-    }
-  }
-
-  private triggerHiddenGoogleButton(): boolean {
-    const host = this.googleSignInButtonHost?.nativeElement;
-    if (!host) {
-      return false;
-    }
-
-    const target = host.querySelector('div[role="button"]') as HTMLElement | null
-      ?? host.firstElementChild as HTMLElement | null;
-
-    if (!target) {
-      return false;
-    }
-
-    target.click();
-    return true;
+    return rawMessage || 'Facebook sign in failed. Please try again.';
   }
 
   private async completeSocialSignInFromUser(

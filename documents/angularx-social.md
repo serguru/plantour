@@ -97,9 +97,12 @@ Official references used:
 3. Add the Facebook Login product if it is not already added.
 4. In Facebook Login settings, enable Login with JavaScript SDK.
 5. Add your site domains to Allowed Domains for the JavaScript SDK.
-6. Use HTTPS for non-local environments.
-7. Put the App ID into the Plantour frontend environment as facebookAppId.
-8. Keep the App Secret on the backend only.
+6. Add the corresponding site URLs to the Facebook Login settings where Meta requires URLs for your environment.
+7. Use HTTPS for non-local environments.
+8. For Plantour QA, ensure the QA origin is explicitly configured:
+  - https://plantour-client-qa.onrender.com
+9. Put the App ID into the Plantour frontend environment as facebookAppId.
+10. Keep the App Secret on the backend only.
 
 Official references used:
 
@@ -112,6 +115,7 @@ Official references used:
 - Google popup sizing is controlled by Google Identity Services. Plantour can control the rendered button width, but not the size of the Google authentication popup window itself.
 - Facebook still uses a custom Plantour button, but the authentication flow now goes through the package provider instead of direct SDK calls in sign-in.ts.
 - The backend contract was not changed by this client refactor.
+- If Facebook works in local development but fails in QA with JSSDK Option is Not Toggled, the usual cause is Meta app configuration for the QA origin, not Plantour code. Check the JavaScript SDK toggle and the allowed QA domain settings in Meta for Developers.
 
 ## User-visible result
 
