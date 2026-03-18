@@ -7,6 +7,7 @@ import { debounceTime, filter, fromEvent, Subject, takeUntil } from 'rxjs';
 import { Toolbar } from './components/toolbar/toolbar-component';
 import { ComponentService } from './services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class AppComponent implements OnInit {
   router = inject(Router);
+  environmentName = environment.environment;
+  showNonProductionBanner = this.environmentName !== 'production';
 
   ngOnInit(): void {
   }
