@@ -61,16 +61,34 @@
     @if (isAdmin) {
     <div class="buttons">
       @if (hasGoogleLogin) {
-      <asl-google-signin-button
-        type="standard"
-        size="large"
-        text="continue_with"
-        shape="rectangular"
-        theme="outline"
-        logo_alignment="left"
-        [width]="300"
-        (click)="onGoogleSignInClick()"
-      ></asl-google-signin-button>
+      <div class="google-button-wrapper">
+        <app-button
+          label="Google"
+          [icon]="'pi pi-google'"
+          [disabled]="isLoading"
+        />
+
+        <div class="google-button-host">
+          <asl-google-signin-button
+            #googleSignInButtonHost
+            type="standard"
+            size="large"
+            text="continue_with"
+            shape="rectangular"
+            theme="outline"
+            logo_alignment="left"
+            [width]="200"
+          ></asl-google-signin-button>
+        </div>
+
+        <button
+          type="button"
+          class="google-button-trigger"
+          [disabled]="isLoading"
+          (click)="onGoogleSignInClick()"
+          aria-label="Sign in with Google"
+        ></button>
+      </div>
       }
 
       @if (hasFacebookLogin) {

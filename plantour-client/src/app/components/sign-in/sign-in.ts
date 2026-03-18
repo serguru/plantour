@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Inject, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Inject, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -42,6 +42,9 @@ import { getMessageFromError } from '../../helpers/utils';
   styleUrl: './sign-in.scss',
 })
 export class SignInComponent implements OnInit {
+  @ViewChild('googleSignInButtonHost', { read: ElementRef })
+  private googleSignInButtonHost?: ElementRef<HTMLElement>;
+
   componentId = 'sign-in';
   adminForm: FormGroup;
   participantForm: FormGroup;
@@ -268,6 +271,28 @@ export class SignInComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
     this.pendingGoogleLogin = true;
+
+    if (!this.triggerHiddenGoogleButton()) {
+      this.pendingGoogleLogin = false;
+      this.messagesService.showWarning('Google Login', 'Google sign in is not ready yet. Please try again.');
+    }
+  }
+
+  private triggerHiddenGoogleButton(): boolean {
+    const host = this.googleSignInButtonHost?.nativeElement;
+    if (!host) {
+      return false;
+    }
+
+    const target = host.querySelector('div[role="button"]') as HTMLElement | null
+      ?? host.firstElementChild as HTMLElement | null;
+
+    if (!target) {
+      return false;
+    }
+
+    target.click();
+    return true;
   }
 
   private async completeSocialSignInFromUser(

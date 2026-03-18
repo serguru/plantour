@@ -12,6 +12,32 @@
     margin-bottom: 1rem;
 }
 
+.google-button-wrapper {
+    position: relative;
+    display: inline-flex;
+}
+
+.google-button-host {
+    position: absolute;
+    top: 0;
+    left: -9999px;
+    width: 200px;
+    height: 40px;
+    overflow: hidden;
+}
+
+.google-button-trigger {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.google-button-trigger:disabled {
+    cursor: not-allowed;
+}
+
 .instruction {
     padding: 1rem;
 }
