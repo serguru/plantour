@@ -1,30 +1,37 @@
 <div class="help-shell">
-  <header class="help-hero">
+  <header class="help-hero" [class.help-hero--collapsed]="!headerPanelExpanded()">
     <div class="help-hero__top">
       <div class="help-hero__copy">
-        <p class="help-kicker">Plantour Help</p>
+        @if (headerPanelExpanded()) {
+          <p class="help-kicker">Plantour Help</p>
+        }
         <h1 [innerHTML]="highlightText(currentPage().title)"></h1>
-        <p class="help-summary" [innerHTML]="highlightText(currentPage().summary)"></p>
+        @if (headerPanelExpanded()) {
+          <p class="help-summary" [innerHTML]="highlightText(currentPage().summary)"></p>
+        }
       </div>
 
-      <button type="button" class="help-hero__toggle" (click)="toggleSearchPanel()">
-        <span class="pi" [class.pi-search]="!searchPanelVisible()" [class.pi-eye-slash]="searchPanelVisible()"></span>
-        <span>{{ searchPanelVisible() ? 'Hide search' : 'Show search' }}</span>
-      </button>
-    </div>
-
-    <div class="help-hero__actions">
-      @if (!usersService.isAuthenticatedSignal()) {
-        <div class="help-hero__guest-cta">
-          <button type="button" class="help-hero__guest-button" (click)="startTemporaryUser()">
-            Try packing your items for the trip
+      <div class="help-hero__controls">
+        @if (headerPanelExpanded()) {
+          <button type="button" class="help-hero__toggle" (click)="toggleSearchPanel()">
+            <span class="pi" [class.pi-search]="!searchPanelVisible()" [class.pi-eye-slash]="searchPanelVisible()"></span>
+            <span>{{ searchPanelVisible() ? 'Hide search' : 'Show search' }}</span>
           </button>
-          <div class="help-hero__guest-notes">
-            <span>No registration required</span>
-            <span>Prefilled test data is ready</span>
-          </div>
-        </div>
-      }
+        }
+
+        <button
+          type="button"
+          class="help-hero__collapse"
+          (click)="toggleHeaderPanel()"
+          [attr.aria-label]="headerPanelExpanded() ? 'Collapse help header' : 'Expand help header'"
+        >
+          <span
+            class="pi"
+            [class.pi-chevron-down]="!headerPanelExpanded()"
+            [class.pi-chevron-up]="headerPanelExpanded()"
+          ></span>
+        </button>
+      </div>
     </div>
 
   </header>
@@ -79,6 +86,20 @@
           }
         </div>
       }
+    </section>
+  }
+
+  @if (!usersService.isAuthenticatedSignal()) {
+    <section class="help-guest-panel" aria-label="Guest access">
+      <div class="help-hero__guest-cta">
+        <button type="button" class="help-hero__guest-button" (click)="startTemporaryUser()">
+          Try packing your items for the trip
+        </button>
+        <div class="help-hero__guest-notes">
+          <span>No registration required</span>
+          <span>Prefilled test data is ready</span>
+        </div>
+      </div>
     </section>
   }
 

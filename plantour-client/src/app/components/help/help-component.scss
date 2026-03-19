@@ -19,10 +19,24 @@
 }
 
 .help-hero__top {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 1rem;
-  align-items: flex-start;
+  align-items: start;
+}
+
+.help-hero__copy {
+  min-width: 0;
+}
+
+.help-hero__controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  max-width: 100%;
+  justify-self: end;
 }
 
 .help-hero__toggle {
@@ -37,11 +51,42 @@
   cursor: pointer;
   font-family: var(--font-button);
   font-size: 0.86rem;
+  max-width: 100%;
 }
 
-.help-hero__actions {
-  display: grid;
-  gap: 0.9rem;
+.help-hero__collapse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid rgba(36, 91, 100, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #3a6268;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.help-hero__toggle:hover,
+.help-hero__collapse:hover {
+  border-color: rgba(77, 184, 196, 0.42);
+  background: #fbfeff;
+}
+
+.help-hero--collapsed {
+  gap: 0;
+  padding-top: 0.95rem;
+  padding-bottom: 0.95rem;
+}
+
+.help-hero--collapsed .help-hero__top {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.help-hero--collapsed .help-hero__copy h1 {
+  margin-bottom: 0;
 }
 
 .help-hero__shortcut,
@@ -49,6 +94,10 @@
   border-radius: 18px;
   border: 1px solid rgba(36, 91, 100, 0.12);
   background: rgba(255, 255, 255, 0.9);
+}
+
+.help-guest-panel {
+  margin-top: 1rem;
 }
 
 .help-hero__shortcut {
@@ -119,7 +168,7 @@
 
 .help-hero h1 {
   font-family: var(--font-heading);
-  font-size: clamp(1.55rem, 3vw, 2.25rem);
+  font-size: clamp(1.085rem, 2.1vw, 1.575rem);
   line-height: 1.12;
   margin-bottom: 0.65rem;
   color: #285158;
@@ -444,7 +493,18 @@
   }
 
   .help-hero__top {
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .help-hero__controls {
+    width: 100%;
+    justify-content: flex-end;
+    justify-self: stretch;
+  }
+
+  .help-hero--collapsed .help-hero__top {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
   }
 
   .help-hero__guest-cta {

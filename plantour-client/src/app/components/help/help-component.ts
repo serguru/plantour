@@ -10,6 +10,9 @@ import { HELP_HOME_PAGE_ID, HELP_PAGES } from './help-content';
 import { HelpBlock, HelpBreadcrumb, HelpPage } from './help.models';
 import { HelpSearchService } from './help-search.service';
 
+const HELP_SEARCH_PANEL_VISIBLE_STORAGE_KEY = 'plantour.help.searchPanelVisible';
+const HELP_HEADER_PANEL_EXPANDED_STORAGE_KEY = 'plantour.help.headerPanelExpanded';
+
 @Component({
   selector: 'app-help',
   standalone: true,
@@ -31,7 +34,8 @@ export class HelpComponent {
   private readonly currentPath = signal<string[]>([]);
 
   readonly searchQuery = signal('');
-  readonly searchPanelVisible = signal(true);
+  readonly searchPanelVisible = signal(false);
+  readonly headerPanelExpanded = signal(false);
   readonly highlightFoundOccurrences = signal(true);
   readonly firstStepsPageId = 'tasks/first-steps';
   readonly showGuestCta = signal(false);
@@ -81,14 +85,13 @@ export class HelpComponent {
 
   constructor() {
     //this.usersService.syncUserFromStorage();
+    this.syncCurrentPathFromUrl();
+
     afterNextRender(() => {
+      this.restoreSearchPanelVisibility();
+      this.restoreHeaderPanelExpanded();
       this.syncGuestCtaVisibility();
     });
-
-    const initialWidth = this.document?.defaultView?.innerWidth ?? 1280;
-    this.searchPanelVisible.set(initialWidth > 768);
-
-    this.syncCurrentPathFromUrl();
 
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd)
@@ -151,12 +154,16 @@ export class HelpComponent {
     this.searchQuery.set(query);
 
     if (query.trim().length > 0) {
-      this.searchPanelVisible.set(true);
+      this.setSearchPanelVisible(true);
     }
   }
 
   toggleSearchPanel(): void {
-    this.searchPanelVisible.set(!this.searchPanelVisible());
+    this.setSearchPanelVisible(!this.searchPanelVisible());
+  }
+
+  toggleHeaderPanel(): void {
+    this.setHeaderPanelExpanded(!this.headerPanelExpanded());
   }
 
   highlightText(text: string | undefined): string {
@@ -185,6 +192,16 @@ export class HelpComponent {
     this.showGuestCta.set(!hasActiveToken);
   }
 
+  private setSearchPanelVisible(isVisible: boolean): void {
+    this.searchPanelVisible.set(isVisible);
+    this.storeBoolean(HELP_SEARCH_PANEL_VISIBLE_STORAGE_KEY, isVisible);
+  }
+
+  private setHeaderPanelExpanded(isExpanded: boolean): void {
+    this.headerPanelExpanded.set(isExpanded);
+    this.storeBoolean(HELP_HEADER_PANEL_EXPANDED_STORAGE_KEY, isExpanded);
+  }
+
   async openSearchResult(pageId: string): Promise<void> {
     const page = this.pageMap.get(pageId);
     if (!page) {
@@ -207,6 +224,59 @@ export class HelpComponent {
     const withoutLeadingSlash = cleanUrl.startsWith('/') ? cleanUrl.slice(1) : cleanUrl;
     const segments = withoutLeadingSlash.split('/').filter((segment) => segment.length > 0);
     this.currentPath.set(segments[0] === 'help' ? segments.slice(1) : []);
+  }
+
+  private restoreSearchPanelVisibility(): void {
+    const storedValue = this.readStoredBoolean(HELP_SEARCH_PANEL_VISIBLE_STORAGE_KEY);
+    if (storedValue !== null) {
+      this.searchPanelVisible.set(storedValue);
+    }
+  }
+
+  private restoreHeaderPanelExpanded(): void {
+    const storedValue = this.readStoredBoolean(HELP_HEADER_PANEL_EXPANDED_STORAGE_KEY);
+    if (storedValue !== null) {
+      this.headerPanelExpanded.set(storedValue);
+    }
+  }
+
+  private storeBoolean(storageKey: string, value: boolean): void {
+    const storage = this.getLocalStorage();
+    if (!storage) {
+      return;
+    }
+
+    try {
+      storage.setItem(storageKey, JSON.stringify(value));
+    } catch {
+      // Ignore storage failures and keep the in-memory state.
+    }
+  }
+
+  private readStoredBoolean(storageKey: string): boolean | null {
+    const storage = this.getLocalStorage();
+    if (!storage) {
+      return null;
+    }
+
+    try {
+      const value = storage.getItem(storageKey);
+      if (value === null) {
+        return null;
+      }
+
+      return JSON.parse(value) === true;
+    } catch {
+      return null;
+    }
+  }
+
+  private getLocalStorage(): Storage | null {
+    try {
+      return this.document?.defaultView?.localStorage ?? null;
+    } catch {
+      return null;
+    }
   }
 
   private buildAbsoluteUrl(path: string): string {

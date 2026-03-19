@@ -810,11 +810,11 @@ function buildVerySimpleFirstStepsPage(): Partial<HelpPage> {
       {
         kind: 'steps',
         id: 'simple-first-steps-sequence',
-        title: 'Trip to PDF in five simple steps',
+        title: 'Five simple steps',
         steps: [
           {
             title: 'Open Trip, then Trips, and choose the trip you will work on',
-            body: 'Use the toolbar button named Trip with the compass icon. Choose Trips and open the trip you want to test. If you are in guest access, Weekend in Las Vegas is the easiest starting point. Or, create a new trip by clicking the "+" button and adding a trip name and dates.'
+            body: 'Use the toolbar button labeled "Trip" with a compass icon. Select "Trips" and click the trip you want to test. If you work as a temporary guest user, click "Las Vegas Weekend." Or create a new trip by clicking the "+" button and adding a trip name and dates. The selected trip should be highlighted.'
           },
           {
             title: 'Open Trip, then Items, then click + to add one item',
@@ -825,12 +825,12 @@ function buildVerySimpleFirstStepsPage(): Partial<HelpPage> {
             body: 'If a bag already exists, open it. In guest access you should already see Backpack and Daypack. If needed, add a new bag before continuing.'
           },
           {
-            title: 'Pack the item into a bag and check the packing status',
-            body: 'Move or assign the item into the bag, then verify the packing state changes the way you expect. This is the moment where the list becomes a packing workflow instead of just text.'
+            title: 'Pack the item in a bag',
+            body: 'Open "Trip," then "Items". Select the item you want to pack. A drop-down list of bags will appear on the right. If you do not see it, click the three-dot button in the form header on the right and select "Show Bags". A drop-down list of bags should appear. Select a bag.'
           },
           {
             title: 'Download the PDF packing list',
-            body: 'Stay in the trip Bags area and use the download action for the packing list PDF. That gives you a real end result from the same short walkthrough.'
+            body: 'Open "Trip", then "Bags". Select a bag. Click the three-dot button in the form header on the right. Select "Download packing list PDF" and confirm download. You can now print the downloaded packing list and place it in your bag for use during the trip.'
           }
         ]
       },
