@@ -1,0 +1,170 @@
+<div class="help-shell">
+  <header class="help-hero">
+    <div class="help-hero__copy">
+      <p class="help-kicker">Plantour Help</p>
+      <h1>{{ currentPage().title }}</h1>
+      <p class="help-summary">{{ currentPage().summary }}</p>
+    </div>
+
+    <div class="help-search-panel">
+      <label class="help-search-label" for="help-search">Search Help</label>
+      <div class="help-search-box">
+        <i class="pi pi-search"></i>
+        <input
+          id="help-search"
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Try: guest access, packing list, shared item"
+        />
+        @if (hasSearchQuery()) {
+          <button type="button" class="help-search-clear" (click)="clearSearch()" aria-label="Clear search">
+            <i class="pi pi-times"></i>
+          </button>
+        }
+      </div>
+
+      @if (hasSearchQuery()) {
+        <div class="help-search-results" aria-live="polite">
+          @if (searchResults().length > 0) {
+            @for (result of searchResults(); track result.page.id) {
+              <button type="button" class="help-search-result" (click)="openSearchResult(result.page.id)">
+                <span class="help-search-result__title">{{ result.page.title }}</span>
+                <span class="help-search-result__crumbs">{{ result.breadcrumbText }}</span>
+                <span class="help-search-result__summary">{{ result.page.summary }}</span>
+              </button>
+            }
+          } @else {
+            <div class="help-search-empty">
+              No help pages match that search yet.
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </header>
+
+  <nav class="help-breadcrumbs" aria-label="Breadcrumb">
+    @for (breadcrumb of breadcrumbs(); track breadcrumb.pageId; let last = $last) {
+      @if (!last) {
+        <a [routerLink]="breadcrumb.url">{{ breadcrumb.label }}</a>
+        <span class="help-breadcrumbs__separator">/</span>
+      } @else {
+        <span class="help-breadcrumbs__current">{{ breadcrumb.label }}</span>
+      }
+    }
+  </nav>
+
+  <div class="help-layout">
+    <aside class="help-sidebar">
+      <a class="help-back-link" [routerLink]="backLink()">
+        <i class="pi pi-arrow-left"></i>
+        <span>{{ backLabel() }}</span>
+      </a>
+
+      @if (sectionLinks().length > 0) {
+        <section class="help-nav-card">
+          <h2>On this page</h2>
+          <nav>
+            @for (section of sectionLinks(); track section.id) {
+              <a [href]="'#' + section.id">{{ section.title }}</a>
+            }
+          </nav>
+        </section>
+      }
+
+      @if (childPages().length > 0) {
+        <section class="help-nav-card">
+          <h2>Pages in this section</h2>
+          <nav>
+            @for (page of childPages(); track page.id) {
+              <a [routerLink]="pageUrl(page)">{{ page.title }}</a>
+            }
+          </nav>
+        </section>
+      }
+
+      @if (relatedPages().length > 0) {
+        <section class="help-nav-card">
+          <h2>Related pages</h2>
+          <nav>
+            @for (page of relatedPages(); track page.id) {
+              <a [routerLink]="pageUrl(page)">{{ page.title }}</a>
+            }
+          </nav>
+        </section>
+      }
+    </aside>
+
+    <article class="help-page">
+      @for (block of currentPage().blocks; track trackByBlockId($index, block)) {
+        <section class="help-block" [attr.id]="blockAnchor(block)">
+          @switch (block.kind) {
+            @case ('paragraphs') {
+              @if (block.title) {
+                <h2>{{ block.title }}</h2>
+              }
+              @for (paragraph of block.paragraphs; track paragraph) {
+                <p>{{ paragraph }}</p>
+              }
+            }
+
+            @case ('steps') {
+              <h2>{{ block.title }}</h2>
+              @if (block.intro) {
+                <p class="help-block-intro">{{ block.intro }}</p>
+              }
+              <ol class="help-step-list">
+                @for (step of block.steps; track step.title) {
+                  <li>
+                    <h3>{{ step.title }}</h3>
+                    <p>{{ step.body }}</p>
+                  </li>
+                }
+              </ol>
+            }
+
+            @case ('cards') {
+              <h2>{{ block.title }}</h2>
+              @if (block.intro) {
+                <p class="help-block-intro">{{ block.intro }}</p>
+              }
+              <div class="help-card-grid">
+                @for (card of block.cards; track card.title) {
+                  <div class="help-card">
+                    <h3>{{ card.title }}</h3>
+                    <p>{{ card.body }}</p>
+                    @if (card.link) {
+                      <a [routerLink]="pageUrlById(card.link.pageId)">
+                        {{ card.link.label ?? 'Open page' }}
+                      </a>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            @case ('list') {
+              <h2>{{ block.title }}</h2>
+              @if (block.intro) {
+                <p class="help-block-intro">{{ block.intro }}</p>
+              }
+              <ul class="help-bullet-list">
+                @for (item of block.items; track item.text) {
+                  <li>{{ item.text }}</li>
+                }
+              </ul>
+            }
+
+            @case ('callout') {
+              <div class="help-callout" [class.help-callout--tip]="block.tone === 'tip'">
+                <h2>{{ block.title }}</h2>
+                <p>{{ block.body }}</p>
+              </div>
+            }
+          }
+        </section>
+      }
+    </article>
+  </div>
+</div>

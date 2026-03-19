@@ -546,16 +546,25 @@ Find rerfrences to the help sections throughout the code and remove them.
 After this cleaning the entire project
 
 
-The general requirements to the new help system
+Now let's implement a new help system.
+The general requirements to the new help system are as following:
 
-- has search on help content
-- accessible without authentication
+- Written in a style that, on the one hand, will help the user understand their questions, but on the other, won't be dry, technical. It should be user-friendly, and the user should feel cared for. Avoid technical terms like "Database" or "Protocol."
+
+- It's important to assume the user has absolutely no experience using computer programs. Any problem should first be briefly explained, followed by detailed step-by-step instructions on how to achieve the desired result.
+
+- Each page has its own url and can be naviageted by that url from the browser
+- Has search on help content (no custom solution, use FlexSearch library)
+- Has table of contents and hierrarchy of detail pages, for example: /help/items/add-edit or /help/shared/items/how-to-accept
+- Help pages must have links to the detail pages and also the back button
+- Any page must be small enough to avoid expandable/collapsible sections.
+- Accessible without authentication
 - SSR, 100% SEO friendly
-- each section has its own url and can be naviageted by that url from the browser
-- the look and fill muST be consistent for all help pages and folllow the entire project design principles
-- the certain peaces of UI must have a way for the user to get the context related help. For example "Add item" form must have a menu item "Help" opening the corresponding help setcion 
+- The look and fill must be consistent for all help pages and folllow the entire project design principles
+- The certain peaces of UI must have a way for the user to get the context related help. For example "Add item" form must have a menu item "Help" opening the corresponding help page.
+- Only one path must be included into app.routes.ts - help
+
+Now create a list of pages/subpages/subsubpages/... you are going to create and put it into help-content.md file. Do not forget that Plantour supports temporary users, admins and participants. And it has publically accessible item templates to attract customers. Do no chnages for now, just fill help-content.md
 
 
 
-
-What must be included into

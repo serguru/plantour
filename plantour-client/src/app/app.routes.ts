@@ -5,6 +5,23 @@ import { CleanupResolver } from './helpers/resolver';
 
 export const routes: Routes = [
   {
+    path: 'help',
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
+        resolve: { cleanup: CleanupResolver },
+        data: { componentId: 'help' }
+      },
+      {
+        path: '**',
+        loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
+        resolve: { cleanup: CleanupResolver },
+        data: { componentId: 'help' }
+      }
+    ]
+  },
+  {
     path: '',
     canActivate: [landingRedirectGuard],
     loadComponent: () => import('./components/landing-new-user/landing-new-user.component').then(m => m.LandingNewUserComponent),
