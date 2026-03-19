@@ -100,18 +100,7 @@ export class TemplatesAiComponent {
     ];
 
 
-  menuItems = computed<MenuConfig[]>(() => {
-    return [
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/ai-recommendations/ask-ai']);
-        }
-      }
-    ];
-  }
-  );
+  menuItems = computed<MenuConfig[]>(() => []);
 
   selectedPrompt: string | null = null;
   prompts: string[] | null = null;

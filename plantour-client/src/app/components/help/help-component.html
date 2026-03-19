@@ -1,39 +1,200 @@
-<div class="page-container">
+<div class="help-shell">
+  <header class="help-hero" [class.help-hero--collapsed]="!heroExpanded()">
+    <div class="help-hero__top">
+      <div class="help-hero__copy">
+        <p class="help-kicker">Plantour Help</p>
+        <h1>{{ currentPage().title }}</h1>
+        @if (heroExpanded()) {
+          <p class="help-summary">{{ currentPage().summary }}</p>
+        }
+      </div>
 
-  <div class="page-header">
-    <div class="page-left">
-      <i class="pi pi-question-circle"></i>
-      <h2>Help & Documentation</h2>
-    </div>
-    <div class="page-content">
-    </div>
-  </div>
-
-  <div class="help-container">
-    <div class="version">App version {{environment.version}}</div>
-    <div class="help-header">
-      <h1>Welcome to Plantour Help</h1>
-      <p class="help-subtitle">
-        Find everything you need to plan, organize, and execute your trips with confidence.
-      </p>
+      <button type="button" class="help-hero__toggle" (click)="toggleHeroExpanded()">
+        <span class="pi" [class.pi-chevron-down]="!heroExpanded()" [class.pi-chevron-up]="heroExpanded()"></span>
+        <span>{{ heroExpanded() ? 'Hide page tools' : 'Show page tools' }}</span>
+      </button>
     </div>
 
-    <div class="help-sections">
-      @for (section of helpSections(); track section.id) {
-      <app-help-section
-        [section]="section"
-        [expanded]="expandedSectionId() === section.id"
-        [selectedSubsectionId]="selectedSubsectionIdFor(section.id)"
-        [subsectionComponents]="getSectionComponents(section.id)"
-        (toggleExpanded)="toggleSection($event)"
-        (selectSubsection)="handleSelectSubsection($event)"
-        (startTestMode)="usersService.createTemporaryUser()"
-      >
-      </app-help-section>
+    <div class="help-hero__actions">
+      @if (!isFirstStepsPage()) {
+        <a class="help-hero__shortcut" [routerLink]="firstStepsUrl()">
+          <span class="help-hero__shortcut-label">Very simple first steps</span>
+          <span class="help-hero__shortcut-path">Trip -> Items -> Bags -> Packing -> PDF packing list</span>
+        </a>
       }
 
-      <h3>
-        Can't find what you're looking for? Ask as a question <a href="/contact">here</a>.
-      </h3>
+      @if (!usersService.isAuthenticatedSignal()) {
+        <div class="help-hero__guest-cta">
+          <button type="button" class="help-hero__guest-button" (click)="startTemporaryUser()">
+            Try packing your items for the trip
+          </button>
+          <div class="help-hero__guest-notes">
+            <span>No registration required</span>
+            <span>Prefilled test data is ready</span>
+          </div>
+        </div>
+      }
     </div>
+
+    @if (heroExpanded()) {
+      <div class="help-search-panel">
+        <label class="help-search-label" for="help-search">Search Help</label>
+        <div class="help-search-box">
+          <i class="pi pi-search"></i>
+          <input
+            id="help-search"
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            placeholder="Try: guest access, packing list, shared item"
+          />
+          @if (hasSearchQuery()) {
+            <button type="button" class="help-search-clear" (click)="clearSearch()" aria-label="Clear search">
+              <i class="pi pi-times"></i>
+            </button>
+          }
+        </div>
+
+        @if (hasSearchQuery()) {
+          <div class="help-search-results" aria-live="polite">
+            @if (searchResults().length > 0) {
+              @for (result of searchResults(); track result.page.id) {
+                <button
+                  type="button"
+                  class="help-search-result"
+                  (click)="openSearchResult(result.page.id)"
+                  [attr.aria-label]="result.page.title"
+                >
+                  <span class="help-search-result__title" [innerHTML]="result.titleHtml"></span>
+                  <span class="help-search-result__crumbs" [innerHTML]="result.breadcrumbHtml"></span>
+                  <span class="help-search-result__summary" [innerHTML]="result.summaryHtml"></span>
+                </button>
+              }
+            }
+          </div>
+        }
+      </div>
+    }
+  </header>
+
+  <nav class="help-breadcrumbs" aria-label="Breadcrumb">
+    @for (breadcrumb of breadcrumbs(); track breadcrumb.pageId; let last = $last) {
+      @if (!last) {
+        <a [routerLink]="breadcrumb.url">{{ breadcrumb.label }}</a>
+        <span class="help-breadcrumbs__separator">/</span>
+      } @else {
+        <span class="help-breadcrumbs__current">{{ breadcrumb.label }}</span>
+      }
+    }
+  </nav>
+
+  <div class="help-layout">
+    <aside class="help-sidebar">
+      @if (showBackLink()) {
+        <a class="help-back-link" [routerLink]="backLink()">
+          <i class="pi pi-arrow-left"></i>
+          <span>{{ backLabel() }}</span>
+        </a>
+      }
+
+      @if (childPages().length > 0) {
+        <details class="help-nav-card" open>
+          <summary>Pages in this section</summary>
+          <nav>
+            @for (page of childPages(); track page.id) {
+              <a [routerLink]="pageUrl(page)">{{ page.title }}</a>
+            }
+          </nav>
+        </details>
+      }
+
+      @if (relatedPages().length > 0) {
+        <details class="help-nav-card" open>
+          <summary>Related pages</summary>
+          <nav>
+            @for (page of relatedPages(); track page.id) {
+              <a [routerLink]="pageUrl(page)">{{ page.title }}</a>
+            }
+          </nav>
+        </details>
+      }
+    </aside>
+
+    <article class="help-page">
+      @for (block of currentPage().blocks; track trackByBlockId($index, block)) {
+        <section class="help-block" [attr.id]="blockAnchor(block)">
+          @switch (block.kind) {
+            @case ('paragraphs') {
+              @if (block.title) {
+                <h2>{{ block.title }}</h2>
+              }
+              @for (paragraph of block.paragraphs; track paragraph) {
+                <p>{{ paragraph }}</p>
+              }
+            }
+
+            @case ('steps') {
+              <h2>{{ block.title }}</h2>
+              @if (block.intro) {
+                <p class="help-block-intro">{{ block.intro }}</p>
+              }
+              <ol class="help-step-list">
+                @for (step of block.steps; track step.title) {
+                  <li>
+                    <h3>{{ step.title }}</h3>
+                    <p>{{ step.body }}</p>
+                  </li>
+                }
+              </ol>
+            }
+
+            @case ('cards') {
+              <h2>{{ block.title }}</h2>
+              @if (block.intro) {
+                <p class="help-block-intro">{{ block.intro }}</p>
+              }
+              <div class="help-card-grid">
+                @for (card of block.cards; track card.title) {
+                  <div class="help-card">
+                    <h3>{{ card.title }}</h3>
+                    <p>{{ card.body }}</p>
+                    @if (card.link) {
+                      <a [routerLink]="pageUrlById(card.link.pageId)">
+                        {{ card.link.label ?? 'Open page' }}
+                      </a>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            @case ('list') {
+              <h2>{{ block.title }}</h2>
+              @if (block.intro) {
+                <p class="help-block-intro">{{ block.intro }}</p>
+              }
+              <ul class="help-bullet-list">
+                @for (item of block.items; track item.text) {
+                  <li>
+                    @if (item.pageId) {
+                      <a [routerLink]="pageUrlById(item.pageId)">{{ item.text }}</a>
+                    } @else {
+                      <span>{{ item.text }}</span>
+                    }
+                  </li>
+                }
+              </ul>
+            }
+
+            @case ('callout') {
+              <div class="help-callout" [class.help-callout--tip]="block.tone === 'tip'">
+                <h2>{{ block.title }}</h2>
+                <p>{{ block.body }}</p>
+              </div>
+            }
+          }
+        </section>
+      }
+    </article>
   </div>
+</div>

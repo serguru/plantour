@@ -62,18 +62,7 @@ export class TravelerFormComponent implements OnInit {
     return `${capitalizeFirstLetter(this.mode)} Traveler`;
   }
 
-  menuItems = computed<MenuConfig[]>(() => [
-    {
-      label: 'Help',
-      icon: 'question-circle',
-      action: () => {
-        const url = this.isAddMode
-          ? '/help/travelers/add-traveler'
-          : '/help/travelers/edit-traveler';
-        window.open(url, '_blank');
-      }
-    }
-  ]);
+  menuItems = computed<MenuConfig[]>(() => []);
 
   get isReadOnlyMode(): boolean {
     return this.mode === 'view';

@@ -5,6 +5,23 @@ import { CleanupResolver } from './helpers/resolver';
 
 export const routes: Routes = [
   {
+    path: 'help',
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
+        resolve: { cleanup: CleanupResolver },
+        data: { componentId: 'help' }
+      },
+      {
+        path: '**',
+        loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
+        resolve: { cleanup: CleanupResolver },
+        data: { componentId: 'help' }
+      }
+    ]
+  },
+  {
     path: '',
     canActivate: [landingRedirectGuard],
     loadComponent: () => import('./components/landing-new-user/landing-new-user.component').then(m => m.LandingNewUserComponent),
@@ -38,18 +55,6 @@ export const routes: Routes = [
     loadComponent: () => import('./components/signin-token/signin-token').then(m => m.SigninTokenComponent),
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'signin-token' }
-  },
-  {
-    path: 'help',
-    loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'help' }
-  },
-  {
-    path: 'help/:section/:subsection',
-    loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'help' }
   },
   {
     path: 'packing-list-generator',

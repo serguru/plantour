@@ -63,15 +63,7 @@ export class TripTodoFormComponent implements OnInit {
     return `${capitalizeFirstLetter(this.mode)} Trip Todo`;
   }
 
-  menuItems = computed<MenuConfig[]>(() => [
-    {
-      label: 'Help',
-      icon: 'question-circle',
-      action: () => {
-        this.router.navigate(['/help/todos/trip-todos-intro']);
-      },
-    },
-  ]);
+  menuItems = computed<MenuConfig[]>(() => []);
 
   ngOnInit(): void {
     this.tripId = this.route.snapshot.params['tripId'];

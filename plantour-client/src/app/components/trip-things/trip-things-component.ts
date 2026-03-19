@@ -68,13 +68,6 @@ export class TripThingsComponent implements OnInit {
             this.packsVisible.set(!this.packsVisible());
             this.localStorageService.setComponentKey(this.componentId, 'packsVisible', this.packsVisible());
           }
-        },
-        {
-          label: 'Help',
-          icon: 'question-circle',
-          action: () => {
-            this.router.navigate(['/help/shared-things/shared-intro']);
-          }
         }
       ];
     return result;

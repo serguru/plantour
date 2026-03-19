@@ -122,13 +122,6 @@ export class TravelersComponent implements OnInit {
           this.sendInvitationToCurrentParticipant();
         },
         disabledIfNoSelection: true
-      },
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/travelers/travelers-intro']);
-        }
       }
     ];
   }

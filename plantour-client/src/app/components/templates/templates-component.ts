@@ -129,13 +129,6 @@ export class TemplatesComponent {
           this.lowerTextVisible.set(!this.lowerTextVisible());
           this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
         }
-      },
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/templates/templates-intro']);
-        }
       }
     ];
   }

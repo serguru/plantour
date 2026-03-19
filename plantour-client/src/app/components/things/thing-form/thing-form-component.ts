@@ -93,16 +93,7 @@ export class ThingFormComponent implements OnInit {
     return `${capitalizeFirstLetter(this.mode)} Item`;
   }
 
-  menuItems = computed<MenuConfig[]>(() => [
-    {
-      label: 'Help',
-      icon: 'question-circle',
-      action: () => {
-        const helpUrl = this.isAddMode ? '/help/things/add-item' : '/help/things/edit-item';
-        this.router.navigate([helpUrl]);
-      }
-    }
-  ]);
+  menuItems = computed<MenuConfig[]>(() => []);
 
   ngOnInit(): void {
 

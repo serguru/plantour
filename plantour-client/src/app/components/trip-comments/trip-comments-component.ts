@@ -64,18 +64,7 @@ export class TripCommentsComponent {
       }
     ];
 
-  menuItems = computed<MenuConfig[]>(() => {
-    return [
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/trip-comments/comments-intro']);
-        }
-      }
-    ];
-  }
-  );
+  menuItems = computed<MenuConfig[]>(() => []);
 
   initConditions(componentId: string | null): void {
     if (!componentId) {

@@ -85,18 +85,7 @@ export class TripSharedFormComponent implements OnInit {
     return this.mode === 'view';
   }
 
-  menuItems = computed<MenuConfig[]>(() => [
-    {
-      label: 'Help',
-      icon: 'question-circle',
-      action: () => {
-        const url = this.isAddMode
-          ? '/help/shared-things/create-shared-item'
-          : '/help/shared-things/edit-shared-item';
-        window.open(url, '_blank');
-      }
-    }
-  ]);
+  menuItems = computed<MenuConfig[]>(() => []);
 
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Trip Shared Item`;

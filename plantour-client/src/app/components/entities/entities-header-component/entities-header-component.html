@@ -62,7 +62,7 @@
         }
 
 
-        @if(menuItems().length) {
+        @if(getResolvedMenuItems().length) {
         <button
             class="pl-button"
             [disabled]="false"
@@ -74,7 +74,7 @@
             #popover
             styleClass="no-arrow"
         >
-            @for(menu of menuItems(); track menu.icon) {
+          @for(menu of getResolvedMenuItems(); track menu.label) {
             <div
                 class="pl-menu-item"
                 [class.disabled]="menu.disabledIfNoSelection && !selectedId()"

@@ -70,15 +70,7 @@ export class TodoFormComponent implements OnInit {
     return `${capitalizeFirstLetter(this.mode)} Todo`;
   }
 
-  menuItems = computed<MenuConfig[]>(() => [
-    {
-      label: 'Help',
-      icon: 'question-circle',
-      action: () => {
-        this.router.navigate(['/help/todos/todos-intro']);
-      },
-    },
-  ]);
+  menuItems = computed<MenuConfig[]>(() => []);
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];

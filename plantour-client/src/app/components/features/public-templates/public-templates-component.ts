@@ -71,17 +71,7 @@ export class PublicTemplatesComponent implements OnInit {
   selectedTemperatureRange = signal<string | null>(null);
   selectedCategory = signal<string | null>(null);
 
-  menuItems = computed<MenuConfig[]>(() => {
-    return [
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/packing-list-generator/public-templates-intro']);
-        }
-      }
-    ];
-  });
+  menuItems = computed<MenuConfig[]>(() => []);
 
   filterOptions: FilterOption[] = [
     { key: 'search', label: 'Search', icon: 'search' },

@@ -74,18 +74,7 @@ export class TripThingFormComponent implements OnInit {
     return `${capitalizeFirstLetter(this.mode)} Trip Item`;
   }
 
-  menuItems = computed<MenuConfig[]>(() => [
-    {
-      label: 'Help',
-      icon: 'question-circle',
-      action: () => {
-        const url = this.isAddMode
-          ? '/help/shared-things/create-shared-item'
-          : '/help/shared-things/edit-shared-item';
-        window.open(url, '_blank');
-      }
-    }
-  ]);
+  menuItems = computed<MenuConfig[]>(() => []);
 
   ngOnInit(): void {
 

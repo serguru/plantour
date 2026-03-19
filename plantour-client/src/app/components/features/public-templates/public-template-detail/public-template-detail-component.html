@@ -25,12 +25,6 @@
     @if (!usersService.isAuthenticatedSignal()) {
 
     <div class="header-actions">
-      <!-- <a
-        class="btn primary"
-        routerLink="/help"
-        [queryParams]="{ start: 'guest' }"
-      >Try no account needed</a> -->
-
           <button
             class="btn primary"
             (click)="goToGuestAccess()"
@@ -165,12 +159,6 @@
         <p>Guest Access Mode lets you build real packing lists right away.</p>
       </div>
       <div class="cta-actions">
-        <!-- <a
-          class="btn primary"
-          routerLink="/help"
-          [queryParams]="{ start: 'guest' }"
-        >Try no account needed</a> -->
-
           <button
             class="btn primary"
             (click)="goToGuestAccess()"
