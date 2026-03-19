@@ -353,7 +353,7 @@ const HELP_PAGE_SPECS: HelpPageSpec[] = [
 
   overview(['tasks'], 'Task-based guides overview', []),
   task(['tasks', 'create-your-first-trip'], 'Create your first trip', ['tasks']),
-  task(['tasks', 'very-simple-first-steps'], 'Very simple first steps', ['tasks'], ['trip', 'items', 'bags', 'packing', 'pdf packing list', 'first steps']),
+  task(['tasks', 'first-steps'], 'Simple first steps', ['tasks'], ['trip', 'items', 'bags', 'packing', 'pdf packing list', 'first steps']),
   task(['tasks', 'add-people-to-a-trip'], 'Add people to a trip', ['tasks']),
   task(['tasks', 'build-a-packing-list'], 'Build a packing list', ['tasks']),
   task(['tasks', 'build-a-todo-list'], 'Build a to-do list', ['tasks']),
@@ -569,7 +569,7 @@ function buildGuestAccessOverviewPage(): Partial<HelpPage> {
         items: [
           { text: 'An active trip named Weekend in Las Vegas so the visitor can test current-trip actions immediately.' },
           { text: 'A past trip named Week in Europe so the visitor can compare a finished trip with an active one.' },
-          { text: 'Ready-made bags labeled Bag 1 and Bag 2 and sample items such as Passport, Cash, Hotel Reservation, Sunscreen, and Phone Charger.' }
+          { text: 'Ready-made bags Backpack and Daypack and sample items such as Passport, Cash, Hotel Reservation, Sunscreen, and Phone Charger.' }
         ]
       }
     ]
@@ -665,7 +665,7 @@ function buildStartGuestAccessDemoTripPage(): Partial<HelpPage> {
         items: [
           { text: 'A current active trip named Weekend in Las Vegas.' },
           { text: 'A past example trip named Week in Europe for comparison.' },
-          { text: 'Sample bags labeled Bag 1 and Bag 2.' },
+          { text: 'Sample bags Backpack and Daypack.' },
           { text: 'Example items such as Passport, Cash, Hotel Reservation, Sunscreen, and Phone Charger.' }
         ]
       },
@@ -755,7 +755,7 @@ function buildTemporaryUsersFirstFiveMinutesPage(): Partial<HelpPage> {
             body: 'This is the fastest route to a real success. Add one simple item, save it, and make sure it appears in the list with the other trip items.'
           },
           {
-            title: 'Open Trip, then Bags, and inspect Bag 1 and Bag 2',
+            title: 'Open Trip, then Bags, and inspect Backpack and Daypack',
             body: 'This shows how Plantour connects items with packing containers. Even without editing anything yet, the visitor can understand that packing is more than a flat checklist.'
           },
           {
@@ -811,7 +811,7 @@ function buildVerySimpleFirstStepsPage(): Partial<HelpPage> {
         steps: [
           {
             title: 'Open Trip, then Trips, and choose the trip you will work on',
-            body: 'Use the toolbar button named Trip with the compass icon. Choose Trips and open the trip you want to test. If you are in guest access, Weekend in Las Vegas is the easiest starting point.'
+            body: 'Use the toolbar button named Trip with the compass icon. Choose Trips and open the trip you want to test. If you are in guest access, Weekend in Las Vegas is the easiest starting point. Or, create a new trip by clicking the "+" button and adding a trip name and dates.'
           },
           {
             title: 'Open Trip, then Items, then click + to add one item',
@@ -819,7 +819,7 @@ function buildVerySimpleFirstStepsPage(): Partial<HelpPage> {
           },
           {
             title: 'Open Trip, then Bags, and make sure you have a bag to use',
-            body: 'If a bag already exists, open it. In guest access you should already see Bag 1 and Bag 2. If needed, add a new bag before continuing.'
+            body: 'If a bag already exists, open it. In guest access you should already see Backpack and Daypack. If needed, add a new bag before continuing.'
           },
           {
             title: 'Pack the item into a bag and check the packing status',
@@ -878,7 +878,7 @@ function getCustomPage(spec: HelpPageSpec): Partial<HelpPage> | null {
       return buildTemporaryUsersOverviewPage();
     case 'temporary-users/first-five-minutes':
       return buildTemporaryUsersFirstFiveMinutesPage();
-    case 'tasks/very-simple-first-steps':
+    case 'tasks/first-steps':
       return buildVerySimpleFirstStepsPage();
     default:
       return null;

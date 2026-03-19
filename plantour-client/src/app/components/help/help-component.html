@@ -16,13 +16,6 @@
     </div>
 
     <div class="help-hero__actions">
-      @if (!isFirstStepsPage()) {
-        <a class="help-hero__shortcut" [routerLink]="firstStepsUrl()">
-          <span class="help-hero__shortcut-label">Very simple first steps</span>
-          <span class="help-hero__shortcut-path">Trip -> Items -> Bags -> Packing -> PDF packing list</span>
-        </a>
-      }
-
       @if (!usersService.isAuthenticatedSignal()) {
         <div class="help-hero__guest-cta">
           <button type="button" class="help-hero__guest-button" (click)="startTemporaryUser()">

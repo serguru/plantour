@@ -240,7 +240,6 @@ public class TemporaryUserService : ITemporaryUserService
                 Id = Guid.NewGuid(),
                 TripUserId = tripUser.Id,
                 Name = packages[i].Name,
-                Label = $"Bag {i + 1}",
                 Notes = "Completed packing",
                 PackingListIncluded = true
             };
@@ -283,7 +282,6 @@ public class TemporaryUserService : ITemporaryUserService
                 Id = Guid.NewGuid(),
                 TripUserId = tripUser.Id,
                 Name = packages[i].Name,
-                Label = $"Bag {i + 1}",
                 Notes = "Packing in progress",
                 PackingListIncluded = false
             };

@@ -32,7 +32,7 @@ export class HelpComponent {
 
   readonly searchQuery = signal('');
   readonly heroExpanded = signal(true);
-  readonly firstStepsPageId = 'tasks/very-simple-first-steps';
+  readonly firstStepsPageId = 'tasks/first-steps';
   readonly showGuestCta = signal(false);
 
   readonly currentPage = computed(() => {

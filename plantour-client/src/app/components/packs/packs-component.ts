@@ -14,6 +14,7 @@ import { TripDto, TripService } from '../../services/trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
+import { UsersService } from '../../services/users-service';
 
 @Component({
   selector: 'app-packs',
@@ -38,6 +39,7 @@ export class PacksComponent implements OnInit {
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(ComponentService).dynamicQueryService;
   tripPackageService = inject(TripPackageService);
+  usersService = inject(UsersService);
 
   targetCondition = toSignal(this.componentService.targetCondition$);
   target = toSignal(this.componentService.target$);
