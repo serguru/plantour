@@ -1,47 +1,80 @@
 <div class="help-shell">
-  <header class="help-hero">
-    <div class="help-hero__copy">
-      <p class="help-kicker">Plantour Help</p>
-      <h1>{{ currentPage().title }}</h1>
-      <p class="help-summary">{{ currentPage().summary }}</p>
-    </div>
-
-    <div class="help-search-panel">
-      <label class="help-search-label" for="help-search">Search Help</label>
-      <div class="help-search-box">
-        <i class="pi pi-search"></i>
-        <input
-          id="help-search"
-          type="text"
-          [ngModel]="searchQuery()"
-          (ngModelChange)="searchQuery.set($event)"
-          placeholder="Try: guest access, packing list, shared item"
-        />
-        @if (hasSearchQuery()) {
-          <button type="button" class="help-search-clear" (click)="clearSearch()" aria-label="Clear search">
-            <i class="pi pi-times"></i>
-          </button>
+  <header class="help-hero" [class.help-hero--collapsed]="!heroExpanded()">
+    <div class="help-hero__top">
+      <div class="help-hero__copy">
+        <p class="help-kicker">Plantour Help</p>
+        <h1>{{ currentPage().title }}</h1>
+        @if (heroExpanded()) {
+          <p class="help-summary">{{ currentPage().summary }}</p>
         }
       </div>
 
-      @if (hasSearchQuery()) {
-        <div class="help-search-results" aria-live="polite">
-          @if (searchResults().length > 0) {
-            @for (result of searchResults(); track result.page.id) {
-              <button type="button" class="help-search-result" (click)="openSearchResult(result.page.id)">
-                <span class="help-search-result__title">{{ result.page.title }}</span>
-                <span class="help-search-result__crumbs">{{ result.breadcrumbText }}</span>
-                <span class="help-search-result__summary">{{ result.page.summary }}</span>
-              </button>
-            }
-          } @else {
-            <div class="help-search-empty">
-              No help pages match that search yet.
-            </div>
-          }
+      <button type="button" class="help-hero__toggle" (click)="toggleHeroExpanded()">
+        <span class="pi" [class.pi-chevron-down]="!heroExpanded()" [class.pi-chevron-up]="heroExpanded()"></span>
+        <span>{{ heroExpanded() ? 'Hide page tools' : 'Show page tools' }}</span>
+      </button>
+    </div>
+
+    <div class="help-hero__actions">
+      @if (!isFirstStepsPage()) {
+        <a class="help-hero__shortcut" [routerLink]="firstStepsUrl()">
+          <span class="help-hero__shortcut-label">Very simple first steps</span>
+          <span class="help-hero__shortcut-path">Trip -> Items -> Bags -> Packing -> PDF packing list</span>
+        </a>
+      }
+
+      @if (!usersService.isAuthenticatedSignal()) {
+        <div class="help-hero__guest-cta">
+          <button type="button" class="help-hero__guest-button" (click)="startTemporaryUser()">
+            Try packing your items for the trip
+          </button>
+          <div class="help-hero__guest-notes">
+            <span>No registration required</span>
+            <span>Prefilled test data is ready</span>
+          </div>
         </div>
       }
     </div>
+
+    @if (heroExpanded()) {
+      <div class="help-search-panel">
+        <label class="help-search-label" for="help-search">Search Help</label>
+        <div class="help-search-box">
+          <i class="pi pi-search"></i>
+          <input
+            id="help-search"
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            placeholder="Try: guest access, packing list, shared item"
+          />
+          @if (hasSearchQuery()) {
+            <button type="button" class="help-search-clear" (click)="clearSearch()" aria-label="Clear search">
+              <i class="pi pi-times"></i>
+            </button>
+          }
+        </div>
+
+        @if (hasSearchQuery()) {
+          <div class="help-search-results" aria-live="polite">
+            @if (searchResults().length > 0) {
+              @for (result of searchResults(); track result.page.id) {
+                <button
+                  type="button"
+                  class="help-search-result"
+                  (click)="openSearchResult(result.page.id)"
+                  [attr.aria-label]="result.page.title"
+                >
+                  <span class="help-search-result__title" [innerHTML]="result.titleHtml"></span>
+                  <span class="help-search-result__crumbs" [innerHTML]="result.breadcrumbHtml"></span>
+                  <span class="help-search-result__summary" [innerHTML]="result.summaryHtml"></span>
+                </button>
+              }
+            }
+          </div>
+        }
+      </div>
+    }
   </header>
 
   <nav class="help-breadcrumbs" aria-label="Breadcrumb">
@@ -57,42 +90,33 @@
 
   <div class="help-layout">
     <aside class="help-sidebar">
-      <a class="help-back-link" [routerLink]="backLink()">
-        <i class="pi pi-arrow-left"></i>
-        <span>{{ backLabel() }}</span>
-      </a>
-
-      @if (sectionLinks().length > 0) {
-        <section class="help-nav-card">
-          <h2>On this page</h2>
-          <nav>
-            @for (section of sectionLinks(); track section.id) {
-              <a [href]="'#' + section.id">{{ section.title }}</a>
-            }
-          </nav>
-        </section>
+      @if (showBackLink()) {
+        <a class="help-back-link" [routerLink]="backLink()">
+          <i class="pi pi-arrow-left"></i>
+          <span>{{ backLabel() }}</span>
+        </a>
       }
 
       @if (childPages().length > 0) {
-        <section class="help-nav-card">
-          <h2>Pages in this section</h2>
+        <details class="help-nav-card" open>
+          <summary>Pages in this section</summary>
           <nav>
             @for (page of childPages(); track page.id) {
               <a [routerLink]="pageUrl(page)">{{ page.title }}</a>
             }
           </nav>
-        </section>
+        </details>
       }
 
       @if (relatedPages().length > 0) {
-        <section class="help-nav-card">
-          <h2>Related pages</h2>
+        <details class="help-nav-card" open>
+          <summary>Related pages</summary>
           <nav>
             @for (page of relatedPages(); track page.id) {
               <a [routerLink]="pageUrl(page)">{{ page.title }}</a>
             }
           </nav>
-        </section>
+        </details>
       }
     </aside>
 
@@ -151,7 +175,13 @@
               }
               <ul class="help-bullet-list">
                 @for (item of block.items; track item.text) {
-                  <li>{{ item.text }}</li>
+                  <li>
+                    @if (item.pageId) {
+                      <a [routerLink]="pageUrlById(item.pageId)">{{ item.text }}</a>
+                    } @else {
+                      <span>{{ item.text }}</span>
+                    }
+                  </li>
                 }
               </ul>
             }

@@ -17,6 +17,7 @@ export interface HelpCard {
 
 export interface HelpListItem {
   text: string;
+  pageId?: string;
 }
 
 export type HelpBlock =
@@ -76,4 +77,7 @@ export interface HelpBreadcrumb {
 export interface HelpSearchResult {
   page: HelpPage;
   breadcrumbText: string;
+  titleHtml: string;
+  breadcrumbHtml: string;
+  summaryHtml: string;
 }

@@ -1,10 +1,11 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { afterNextRender, Component, computed, effect, inject, signal } from '@angular/core';
 import { REQUEST } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
 import { SeoService } from '../../services/seo-service';
+import { UsersService } from '../../services/users-service';
 import { HELP_HOME_PAGE_ID, HELP_PAGES } from './help-content';
 import { HelpBlock, HelpBreadcrumb, HelpPage } from './help.models';
 import { HelpSearchService } from './help-search.service';
@@ -22,6 +23,7 @@ export class HelpComponent {
   private readonly router = inject(Router);
   private readonly seoService = inject(SeoService);
   private readonly helpSearchService = inject(HelpSearchService);
+  readonly usersService = inject(UsersService);
   private readonly document = inject(DOCUMENT);
   private readonly request = inject(REQUEST, { optional: true });
 
@@ -29,6 +31,9 @@ export class HelpComponent {
   private readonly currentPath = signal<string[]>([]);
 
   readonly searchQuery = signal('');
+  readonly heroExpanded = signal(true);
+  readonly firstStepsPageId = 'tasks/very-simple-first-steps';
+  readonly showGuestCta = signal(false);
 
   readonly currentPage = computed(() => {
     const joinedPath = this.currentPath().join('/');
@@ -54,14 +59,10 @@ export class HelpComponent {
 
   readonly childPages = computed(() => HELP_PAGES.filter((page) => page.parentId === this.currentPage().id));
 
-  readonly sectionLinks = computed(() =>
-    this.currentPage().blocks
-      .filter((block) => !!block.title)
-      .map((block) => ({
-        id: block.id,
-        title: block.title!
-      }))
-  );
+  readonly showBackLink = computed(() => {
+    const currentPageUrl = this.pageUrl(this.currentPage());
+    return this.backLink() !== currentPageUrl;
+  });
 
   readonly relatedPages = computed(() =>
     (this.currentPage().relatedPageIds ?? [])
@@ -72,13 +73,25 @@ export class HelpComponent {
   readonly searchResults = computed(() => this.helpSearchService.search(this.searchQuery()));
 
   readonly hasSearchQuery = computed(() => this.searchQuery().trim().length > 0);
+  readonly firstStepsUrl = computed(() => this.pageUrlById(this.firstStepsPageId));
+  readonly isFirstStepsPage = computed(() => this.currentPage().id === this.firstStepsPageId);
 
   constructor() {
+    //this.usersService.syncUserFromStorage();
+    afterNextRender(() => {
+      this.syncGuestCtaVisibility();
+    });
+
+    const initialWidth = this.document?.defaultView?.innerWidth ?? 1280;
+    this.heroExpanded.set(initialWidth > 768);
+
     this.syncCurrentPathFromUrl();
 
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd)
     ).subscribe(() => {
+//      this.usersService.syncUserFromStorage();
+      this.syncGuestCtaVisibility();
       this.syncCurrentPathFromUrl();
     });
 
@@ -91,6 +104,12 @@ export class HelpComponent {
         ogType: 'article',
         jsonLd: this.buildJsonLd(page)
       });
+    });
+
+    effect(() => {
+      if (this.searchQuery().trim().length > 0) {
+        this.heroExpanded.set(true);
+      }
     });
   }
 
@@ -129,6 +148,20 @@ export class HelpComponent {
 
   clearSearch(): void {
     this.searchQuery.set('');
+  }
+
+  toggleHeroExpanded(): void {
+    this.heroExpanded.set(!this.heroExpanded());
+  }
+
+  startTemporaryUser(): void {
+    this.usersService.createTemporaryUser();
+  }
+
+  private syncGuestCtaVisibility(): void {
+    const accessToken = this.usersService.accessToken;
+    const hasActiveToken = !!accessToken && !this.usersService.isJwtExpired(accessToken);
+    this.showGuestCta.set(!hasActiveToken);
   }
 
   async openSearchResult(pageId: string): Promise<void> {

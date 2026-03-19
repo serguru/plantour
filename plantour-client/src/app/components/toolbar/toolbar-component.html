@@ -208,6 +208,14 @@
         }
         <a
           class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('help')"
+          (click)="featureClick($event, '/help', popoverFeatures)"
+        >
+          <span class="pi pi-question-circle"></span>
+          <span class="button-label">Help</span>
+        </a>
+        <a
+          class="pl-menu-item"
           [class.selected]="isNavigatedComponent('contact')"
           (click)="featureClick($event, '/contact', popoverFeatures)"
         >

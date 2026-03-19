@@ -7,7 +7,7 @@
         <h2 class="ellipsis-text">{{ title() }}</h2>
     </div>
     <div class="page-right">
-        @if(menuItems().length) {
+        @if(resolvedMenuItems().length) {
             <button
                 class="pl-button"
                 type="button"
@@ -19,7 +19,7 @@
                 #popover
                 styleClass="no-arrow"
             >
-                @for(item of menuItems(); track item.icon) {
+                @for(item of resolvedMenuItems(); track item.label) {
                     <div
                         class="pl-menu-item"
                         (click)="item.action(); popover.hide()"

@@ -1,6 +1,5 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 
-const landingPageRenderMode = RenderMode.Client;
 
 export const serverRoutes: ServerRoute[] = [
   {
@@ -17,7 +16,7 @@ export const serverRoutes: ServerRoute[] = [
   },
   {
     path: '',
-    renderMode: landingPageRenderMode
+    renderMode: RenderMode.Server
   },
   {
     path: '**',

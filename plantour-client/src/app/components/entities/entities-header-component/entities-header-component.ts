@@ -4,6 +4,7 @@ import { ComponentService } from '../../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MessagesService } from '../../../services/messages-service';
 import { Popover } from 'primeng/popover';
+import { HelpContextService } from '../../help/help-context.service';
 
 export interface MenuConfig {
   label: string;
@@ -21,6 +22,8 @@ export interface MenuConfig {
   styleUrl: './entities-header-component.scss',
 })
 export class EntitiesHeader implements OnInit {
+  private readonly helpContextService = inject(HelpContextService);
+
   @Input() entityIcon: string | null = null;
   @Input() title: string | null = null;
   @Input() addUrl: string | Function | null = null;
@@ -30,6 +33,7 @@ export class EntitiesHeader implements OnInit {
   @Input() entityName: string = '';
 
   menuItems = input<MenuConfig[]>([]);
+  helpPageId = input<string | null>(null);
 
   deleteMessage = input<string>('');
   
@@ -139,6 +143,24 @@ export class EntitiesHeader implements OnInit {
     }
     item.action();
     popover.hide();
+  }
+
+  getResolvedMenuItems(): MenuConfig[] {
+    const items = [...this.menuItems()];
+    const pageId = this.helpContextService.resolvePageId(this.router.url, this.helpPageId());
+    const helpUrl = this.helpContextService.getPageUrl(pageId);
+
+    if (helpUrl) {
+      items.push({
+        label: 'Help',
+        icon: 'question-circle',
+        action: () => {
+          void this.router.navigateByUrl(helpUrl);
+        }
+      });
+    }
+
+    return items;
   }
 
 }
