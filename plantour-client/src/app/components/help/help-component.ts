@@ -31,7 +31,8 @@ export class HelpComponent {
   private readonly currentPath = signal<string[]>([]);
 
   readonly searchQuery = signal('');
-  readonly heroExpanded = signal(true);
+  readonly searchPanelVisible = signal(true);
+  readonly highlightFoundOccurrences = signal(true);
   readonly firstStepsPageId = 'tasks/first-steps';
   readonly showGuestCta = signal(false);
 
@@ -70,9 +71,11 @@ export class HelpComponent {
       .filter((page): page is HelpPage => !!page)
   );
 
-  readonly searchResults = computed(() => this.helpSearchService.search(this.searchQuery()));
-
   readonly hasSearchQuery = computed(() => this.searchQuery().trim().length > 0);
+  readonly shouldHighlightMatches = computed(() => this.highlightFoundOccurrences() && this.hasSearchQuery());
+  readonly searchResults = computed(() =>
+    this.helpSearchService.search(this.searchQuery(), this.shouldHighlightMatches())
+  );
   readonly firstStepsUrl = computed(() => this.pageUrlById(this.firstStepsPageId));
   readonly isFirstStepsPage = computed(() => this.currentPage().id === this.firstStepsPageId);
 
@@ -83,7 +86,7 @@ export class HelpComponent {
     });
 
     const initialWidth = this.document?.defaultView?.innerWidth ?? 1280;
-    this.heroExpanded.set(initialWidth > 768);
+    this.searchPanelVisible.set(initialWidth > 768);
 
     this.syncCurrentPathFromUrl();
 
@@ -104,12 +107,6 @@ export class HelpComponent {
         ogType: 'article',
         jsonLd: this.buildJsonLd(page)
       });
-    });
-
-    effect(() => {
-      if (this.searchQuery().trim().length > 0) {
-        this.heroExpanded.set(true);
-      }
     });
   }
 
@@ -150,8 +147,32 @@ export class HelpComponent {
     this.searchQuery.set('');
   }
 
-  toggleHeroExpanded(): void {
-    this.heroExpanded.set(!this.heroExpanded());
+  updateSearchQuery(query: string): void {
+    this.searchQuery.set(query);
+
+    if (query.trim().length > 0) {
+      this.searchPanelVisible.set(true);
+    }
+  }
+
+  toggleSearchPanel(): void {
+    this.searchPanelVisible.set(!this.searchPanelVisible());
+  }
+
+  highlightText(text: string | undefined): string {
+    const safeText = text ?? '';
+    const escapedText = this.escapeHtml(safeText);
+
+    if (!this.shouldHighlightMatches()) {
+      return escapedText;
+    }
+
+    const escapedQuery = this.escapeRegExp(this.searchQuery().trim());
+    if (!escapedQuery) {
+      return escapedText;
+    }
+
+    return escapedText.replace(new RegExp(`(${escapedQuery})`, 'gi'), '<mark>$1</mark>');
   }
 
   startTemporaryUser(): void {
@@ -165,7 +186,6 @@ export class HelpComponent {
   }
 
   async openSearchResult(pageId: string): Promise<void> {
-    this.searchQuery.set('');
     const page = this.pageMap.get(pageId);
     if (!page) {
       return;
@@ -217,5 +237,18 @@ export class HelpComponent {
         item: this.buildAbsoluteUrl(breadcrumb.url)
       }))
     };
+  }
+
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  private escapeRegExp(text: string): string {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 }

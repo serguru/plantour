@@ -1,17 +1,15 @@
 <div class="help-shell">
-  <header class="help-hero" [class.help-hero--collapsed]="!heroExpanded()">
+  <header class="help-hero">
     <div class="help-hero__top">
       <div class="help-hero__copy">
         <p class="help-kicker">Plantour Help</p>
-        <h1>{{ currentPage().title }}</h1>
-        @if (heroExpanded()) {
-          <p class="help-summary">{{ currentPage().summary }}</p>
-        }
+        <h1 [innerHTML]="highlightText(currentPage().title)"></h1>
+        <p class="help-summary" [innerHTML]="highlightText(currentPage().summary)"></p>
       </div>
 
-      <button type="button" class="help-hero__toggle" (click)="toggleHeroExpanded()">
-        <span class="pi" [class.pi-chevron-down]="!heroExpanded()" [class.pi-chevron-up]="heroExpanded()"></span>
-        <span>{{ heroExpanded() ? 'Hide page tools' : 'Show page tools' }}</span>
+      <button type="button" class="help-hero__toggle" (click)="toggleSearchPanel()">
+        <span class="pi" [class.pi-search]="!searchPanelVisible()" [class.pi-eye-slash]="searchPanelVisible()"></span>
+        <span>{{ searchPanelVisible() ? 'Hide search' : 'Show search' }}</span>
       </button>
     </div>
 
@@ -29,46 +27,60 @@
       }
     </div>
 
-    @if (heroExpanded()) {
-      <div class="help-search-panel">
-        <label class="help-search-label" for="help-search">Search Help</label>
-        <div class="help-search-box">
-          <i class="pi pi-search"></i>
-          <input
-            id="help-search"
-            type="text"
-            [ngModel]="searchQuery()"
-            (ngModelChange)="searchQuery.set($event)"
-            placeholder="Try: guest access, packing list, shared item"
-          />
-          @if (hasSearchQuery()) {
-            <button type="button" class="help-search-clear" (click)="clearSearch()" aria-label="Clear search">
-              <i class="pi pi-times"></i>
-            </button>
-          }
-        </div>
+  </header>
 
+  @if (searchPanelVisible()) {
+    <section class="help-search-panel" aria-label="Help search">
+      <div class="help-search-panel__header">
+        <label class="help-search-label" for="help-search">Search Help</label>
+        <label class="help-search-checkbox">
+          <input
+            type="checkbox"
+            [ngModel]="highlightFoundOccurrences()"
+            (ngModelChange)="highlightFoundOccurrences.set(!!$event)"
+          />
+          <span>Highlight found occurences</span>
+        </label>
+      </div>
+
+      <div class="help-search-box">
+        <i class="pi pi-search"></i>
+        <input
+          id="help-search"
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="updateSearchQuery($event)"
+          placeholder="Try: guest access, packing list, shared item"
+        />
         @if (hasSearchQuery()) {
-          <div class="help-search-results" aria-live="polite">
-            @if (searchResults().length > 0) {
-              @for (result of searchResults(); track result.page.id) {
-                <button
-                  type="button"
-                  class="help-search-result"
-                  (click)="openSearchResult(result.page.id)"
-                  [attr.aria-label]="result.page.title"
-                >
-                  <span class="help-search-result__title" [innerHTML]="result.titleHtml"></span>
-                  <span class="help-search-result__crumbs" [innerHTML]="result.breadcrumbHtml"></span>
-                  <span class="help-search-result__summary" [innerHTML]="result.summaryHtml"></span>
-                </button>
-              }
-            }
-          </div>
+          <button type="button" class="help-search-clear" (click)="clearSearch()" aria-label="Clear search">
+            <i class="pi pi-times"></i>
+          </button>
         }
       </div>
-    }
-  </header>
+
+      @if (hasSearchQuery()) {
+        <div class="help-search-results" aria-live="polite">
+          @if (searchResults().length > 0) {
+            @for (result of searchResults(); track result.page.id) {
+              <button
+                type="button"
+                class="help-search-result"
+                (click)="openSearchResult(result.page.id)"
+                [attr.aria-label]="result.page.title"
+              >
+                <span class="help-search-result__title" [innerHTML]="result.titleHtml"></span>
+                <span class="help-search-result__crumbs" [innerHTML]="result.breadcrumbHtml"></span>
+                <span class="help-search-result__summary" [innerHTML]="result.summaryHtml"></span>
+              </button>
+            }
+          } @else {
+            <span class="help-search-empty">No help pages match your search yet.</span>
+          }
+        </div>
+      }
+    </section>
+  }
 
   <nav class="help-breadcrumbs" aria-label="Breadcrumb">
     @for (breadcrumb of breadcrumbs(); track breadcrumb.pageId; let last = $last) {
@@ -119,42 +131,40 @@
           @switch (block.kind) {
             @case ('paragraphs') {
               @if (block.title) {
-                <h2>{{ block.title }}</h2>
+                <h2 [innerHTML]="highlightText(block.title)"></h2>
               }
               @for (paragraph of block.paragraphs; track paragraph) {
-                <p>{{ paragraph }}</p>
+                <p [innerHTML]="highlightText(paragraph)"></p>
               }
             }
 
             @case ('steps') {
-              <h2>{{ block.title }}</h2>
+              <h2 [innerHTML]="highlightText(block.title)"></h2>
               @if (block.intro) {
-                <p class="help-block-intro">{{ block.intro }}</p>
+                <p class="help-block-intro" [innerHTML]="highlightText(block.intro)"></p>
               }
               <ol class="help-step-list">
                 @for (step of block.steps; track step.title) {
                   <li>
-                    <h3>{{ step.title }}</h3>
-                    <p>{{ step.body }}</p>
+                    <h3 [innerHTML]="highlightText(step.title)"></h3>
+                    <p [innerHTML]="highlightText(step.body)"></p>
                   </li>
                 }
               </ol>
             }
 
             @case ('cards') {
-              <h2>{{ block.title }}</h2>
+              <h2 [innerHTML]="highlightText(block.title)"></h2>
               @if (block.intro) {
-                <p class="help-block-intro">{{ block.intro }}</p>
+                <p class="help-block-intro" [innerHTML]="highlightText(block.intro)"></p>
               }
               <div class="help-card-grid">
                 @for (card of block.cards; track card.title) {
                   <div class="help-card">
-                    <h3>{{ card.title }}</h3>
-                    <p>{{ card.body }}</p>
+                    <h3 [innerHTML]="highlightText(card.title)"></h3>
+                    <p [innerHTML]="highlightText(card.body)"></p>
                     @if (card.link) {
-                      <a [routerLink]="pageUrlById(card.link.pageId)">
-                        {{ card.link.label ?? 'Open page' }}
-                      </a>
+                      <a [routerLink]="pageUrlById(card.link.pageId)" [innerHTML]="highlightText(card.link.label ?? 'Open page')"></a>
                     }
                   </div>
                 }
@@ -162,17 +172,17 @@
             }
 
             @case ('list') {
-              <h2>{{ block.title }}</h2>
+              <h2 [innerHTML]="highlightText(block.title)"></h2>
               @if (block.intro) {
-                <p class="help-block-intro">{{ block.intro }}</p>
+                <p class="help-block-intro" [innerHTML]="highlightText(block.intro)"></p>
               }
               <ul class="help-bullet-list">
                 @for (item of block.items; track item.text) {
                   <li>
                     @if (item.pageId) {
-                      <a [routerLink]="pageUrlById(item.pageId)">{{ item.text }}</a>
+                      <a [routerLink]="pageUrlById(item.pageId)" [innerHTML]="highlightText(item.text)"></a>
                     } @else {
-                      <span>{{ item.text }}</span>
+                      <span [innerHTML]="highlightText(item.text)"></span>
                     }
                   </li>
                 }
@@ -181,8 +191,8 @@
 
             @case ('callout') {
               <div class="help-callout" [class.help-callout--tip]="block.tone === 'tip'">
-                <h2>{{ block.title }}</h2>
-                <p>{{ block.body }}</p>
+                <h2 [innerHTML]="highlightText(block.title)"></h2>
+                <p [innerHTML]="highlightText(block.body)"></p>
               </div>
             }
           }

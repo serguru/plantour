@@ -23,7 +23,7 @@ export class HelpSearchService {
     }
   }
 
-  search(query: string): HelpSearchResult[] {
+  search(query: string, highlightMatches = true): HelpSearchResult[] {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) {
       return [];
@@ -34,7 +34,7 @@ export class HelpSearchService {
     return ids
       .map((id) => this.pageById.get(id))
       .filter((page): page is HelpPage => !!page)
-      .map((page) => this.buildSearchResult(page, trimmedQuery))
+      .map((page) => this.buildSearchResult(page, trimmedQuery, highlightMatches))
       .filter((result): result is HelpSearchResult => !!result);
   }
 
@@ -82,7 +82,7 @@ export class HelpSearchService {
     return labels.join(' / ');
   }
 
-  private buildSearchResult(page: HelpPage, query: string): HelpSearchResult | null {
+  private buildSearchResult(page: HelpPage, query: string, highlightMatches: boolean): HelpSearchResult | null {
     const breadcrumbText = this.buildBreadcrumbText(page);
     const haystack = [
       page.title,
@@ -101,9 +101,9 @@ export class HelpSearchService {
     return {
       page,
       breadcrumbText,
-      titleHtml: this.highlightText(page.title, query),
-      breadcrumbHtml: this.highlightText(breadcrumbText, query),
-      summaryHtml: this.highlightText(summarySource, query)
+      titleHtml: this.formatText(page.title, query, highlightMatches),
+      breadcrumbHtml: this.formatText(breadcrumbText, query, highlightMatches),
+      summaryHtml: this.formatText(summarySource, query, highlightMatches)
     };
   }
 
@@ -141,8 +141,12 @@ export class HelpSearchService {
     return `${prefix}${text.slice(start, end).trim()}${suffix}`;
   }
 
-  private highlightText(text: string, query: string): string {
+  private formatText(text: string, query: string, highlightMatches: boolean): string {
     const escapedText = this.escapeHtml(text);
+    if (!highlightMatches) {
+      return escapedText;
+    }
+
     const escapedQuery = this.escapeRegExp(query);
     if (!escapedQuery) {
       return escapedText;
