@@ -5,7 +5,7 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
-import { skip, take } from 'rxjs';
+import { skip } from 'rxjs';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { HelpSectionComponent } from './help-section/help-section.component';
@@ -13,6 +13,7 @@ import { HelpSection } from './help-types';
 import { SeoService } from '../../services/seo-service';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 
+// TODO: read the entire help and make sure it corresponds to the real app features
 @Component({
   selector: 'app-help',
   standalone: true,

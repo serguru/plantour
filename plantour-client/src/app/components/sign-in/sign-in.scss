@@ -15,13 +15,19 @@
 .google-button-wrapper {
     position: relative;
     display: inline-flex;
+    width: 200px;
+    flex: 0 0 200px;
+}
+
+.google-button-wrapper :deep(.app-button) {
+    width: 100%;
 }
 
 .google-button-overlay {
     position: absolute;
     top: 0;
     left: 0;
-    width: 200px;
+    width: 100%;
     height: 40px;
     opacity: 0.01;
     z-index: 1;

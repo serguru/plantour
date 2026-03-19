@@ -26,11 +26,6 @@ export class LandingNewUserComponent {
 
   featureList: LandingFeature[] = [
     {
-      icon: 'list',
-      title: 'Planning',
-      description: 'Build structured trips: item lists, todos, and participants - all in one place. Nothing important will be missed before the trip.'
-    },
-    {
       icon: 'building-columns',
       title: 'Organization',
       description: 'Keep travelers, items, todos, and bags neatly structured and easy to manage. Everything has its place and is always up to date.'
@@ -47,13 +42,18 @@ export class LandingNewUserComponent {
     },
     {
       icon: 'sun',
-      title: 'AI',
+      title: 'Artificial Intelligence',
       description: 'Get intelligent AI suggestions based on your trip destination and weather. Pack faster and avoid forgetting essentials.'
     },
     {
       icon: 'clone',
       title: 'Templates',
       description: 'Reuse proven packing setups for future journeys. Start in seconds instead of planning from scratch.'
+    },
+    {
+      icon: 'bars',
+      title: 'Coming soon',
+      description: 'In the near future route planning, expense tracking, travel notes and activities will be implemented'
     }
   ];
 

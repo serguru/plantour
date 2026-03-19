@@ -247,10 +247,34 @@ export class SignInComponent implements OnInit {
       await this.completeSocialSignInFromUser('facebook', user, 'Facebook');
     } catch (error: any) {
       this.isLoading = false;
+
+      if (this.isFacebookLoginCancelled(error)) {
+        return;
+      }
+
       const errorMsg = this.getFacebookLoginErrorMessage(error);
       this.errorMessage = errorMsg;
       this.messagesService.showError('Sign In Failed', errorMsg);
     }
+  }
+
+  private isFacebookLoginCancelled(error: any): boolean {
+    const rawMessage = typeof error === 'string'
+      ? error
+      : error?.message || '';
+
+    if (!rawMessage) {
+      return false;
+    }
+
+    const normalizedMessage = rawMessage.toLowerCase();
+
+    return normalizedMessage.includes('cancel')
+      || normalizedMessage.includes('cancell')
+      || normalizedMessage.includes('popup_closed_by_user')
+      || normalizedMessage.includes('closed by user')
+      || normalizedMessage.includes('user closed')
+      || normalizedMessage.includes('closed before completing');
   }
 
   private getFacebookLoginErrorMessage(error: any): string {
