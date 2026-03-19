@@ -46,13 +46,6 @@ export class TripTodosComponent implements OnInit {
         this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
       },
     },
-    {
-      label: 'Help',
-      icon: 'question-circle',
-      action: () => {
-        this.router.navigate(['/help/todos/trip-todos-intro']);
-      },
-    },
   ]);
 
   conditions: Condition[] = [

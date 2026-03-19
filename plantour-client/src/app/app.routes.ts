@@ -40,18 +40,6 @@ export const routes: Routes = [
     data: { componentId: 'signin-token' }
   },
   {
-    path: 'help',
-    loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'help' }
-  },
-  {
-    path: 'help/:section/:subsection',
-    loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'help' }
-  },
-  {
     path: 'packing-list-generator',
     redirectTo: 'packing-list-generator/templates',
     pathMatch: 'full'

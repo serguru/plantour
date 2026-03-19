@@ -55,16 +55,7 @@ export class PackFormComponent implements OnInit {
     return `${capitalizeFirstLetter(this.mode)} Bag`;
   }
 
-  menuItems = computed<MenuConfig[]>(() => [
-    {
-      label: 'Help',
-      icon: 'question-circle',
-      action: () => {
-        const helpUrl = this.isAddMode ? '/help/packs/add-bag' : '/help/packs/edit-bag';
-        this.router.navigate([helpUrl]);
-      }
-    }
-  ]);
+  menuItems = computed<MenuConfig[]>(() => []);
 
   ngOnInit(): void {
     this.mode = this.route.snapshot.data['mode'];

@@ -86,13 +86,6 @@ export class TripPacksComponent implements OnInit {
             window.URL.revokeObjectURL(url);
           });
         }
-      },
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/trip-packs/trip-packs-intro']);
-        }
       }
     ];
   }

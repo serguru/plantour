@@ -72,19 +72,7 @@ export class TripFormComponent implements OnInit {
     return this.mode === 'view';
   }
 
-  menuItems = computed<MenuConfig[]>(() => {
-    return [
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          const helpUrl = this.isAddMode ? '/help/trips/create-trip' : '/help/trips/edit-trip';
-          this.router.navigate([helpUrl]);
-        }
-      }
-    ];
-  }
-  );
+  menuItems = computed<MenuConfig[]>(() => []);
 
   ngOnInit(): void {
 

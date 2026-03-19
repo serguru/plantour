@@ -110,13 +110,6 @@ export class TripsComponent implements OnInit {
             window.URL.revokeObjectURL(url);
           });
         }
-      },
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/trips/trips-intro']);
-        }
       }
     ];
   }

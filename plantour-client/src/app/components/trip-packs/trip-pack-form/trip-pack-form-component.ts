@@ -73,18 +73,7 @@ export class TripPackFormComponent implements OnInit {
     return `${capitalizeFirstLetter(this.mode)} Trip Bag`;
   }
 
-  menuItems = computed<MenuConfig[]>(() => [
-    {
-      label: 'Help',
-      icon: 'question-circle',
-      action: () => {
-        const url = this.isAddMode
-          ? '/help/trip-packs/add-bag-to-trip'
-          : '/help/trip-packs/edit-trip-bag';
-        window.open(url, '_blank');
-      }
-    }
-  ]);
+  menuItems = computed<MenuConfig[]>(() => []);
 
   ngOnInit(): void {
 

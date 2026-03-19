@@ -76,18 +76,7 @@ export class PacksComponent implements OnInit {
       }
     ];
 
-  menuItems = computed<MenuConfig[]>(() => {
-    return [
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/packs/packs-intro']);
-        }
-      }
-    ];
-  }
-  );
+  menuItems = computed<MenuConfig[]>(() => []);
 
   ngOnInit(): void {
 

@@ -112,13 +112,6 @@ export class TripSharedComponent implements OnInit {
             this.assignmentsVisible.set(!this.assignmentsVisible());
             this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
           }
-        },
-        {
-          label: 'Help',
-          icon: 'question-circle',
-          action: () => {
-            this.router.navigate(['/help/shared-things/shared-intro']);
-          }
         }
       ];
 
