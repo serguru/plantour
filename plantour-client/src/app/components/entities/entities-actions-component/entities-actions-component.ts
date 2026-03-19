@@ -10,7 +10,6 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 
-
 @Component({
   selector: 'app-entities-actions',
   imports: [
@@ -97,36 +96,10 @@ export class EntitiesActionsComponent implements OnInit {
     return this.counts().processedTargeted === 0 || !this.target();
   });
 
-
-  //modeOptions: ModeOption[] = [];
-  //selectedMode = model<ModeOption | null>(null);
-
-
-  // isSelectedModeTarget = computed(() => {
-  //   const selectedMode = this.selectedMode();
-  //   return selectedMode ? selectedMode.property === 'target' : false;
-  // });
-
-  // isOptionTarget(option: ModeOption): boolean {
-  //   return option.property === 'target';
-  // }
-
   updateConditions(): void {
     this.componentService.updateConditions(this.conditions);
     this.componentService.persistValue('conditions', this.conditions);
   }
-
-  // onOptionChange($event) {
-  //   this.selectedMode.set($event.value);
-
-  //   this.modeOptions.forEach(option => {
-  //     option.condition.isSelected =
-  //       $event.value.condition === option.condition;
-  //   });
-
-
-  //   this.updateConditions();
-  // }
 
   setSelectedCondition(condition: Condition): void {
     this.conditions.forEach(c => {
@@ -139,57 +112,6 @@ export class EntitiesActionsComponent implements OnInit {
     this.dynamicQueryService.resetConditions(this.conditions);
     this.updateConditions();
   }
-
-  // private buildModeOptions(): ModeOption[] {
-
-  //   if (!this.conditions.length) {
-  //     return [];
-  //   }
-
-  //   const options: ModeOption[] = [];
-
-  //   this.conditions
-  //     .filter(x => x.kind === 'filter' && x.comparisonType === 'exact')
-  //     .sort((a, b) => (a as FilterCondition).label!.localeCompare((b as FilterCondition).label!))
-  //     .forEach(c => {
-  //       options.push({
-  //         type: 'lookup',
-  //         label: (c as FilterCondition).label!,
-  //         property: c.property,
-  //         icon: `pi pi-${(c as FilterCondition).icon || 'tag'}`,
-  //         condition: c
-  //       });
-  //     });
-
-
-  //   const filterCondition = this.conditions.find(x => x.kind === 'filter' && x.comparisonType === 'contains');
-  //   if (filterCondition) {
-  //     options.push({
-  //       type: 'filter',
-  //       label: 'Filter',
-  //       icon: 'pi pi-filter',
-  //       condition: filterCondition
-  //     });
-  //   }
-
-
-  //   const sortCondition = this.conditions.find(x => x.kind === 'sort');
-  //   if (sortCondition) {
-  //     options.push({
-  //       type: 'sort',
-  //       label: 'Sort',
-  //       icon: 'pi pi-sort-alt',
-  //       condition: sortCondition
-  //     });
-  //   }
-
-  //   if (!this.selectedMode() && options.length) {
-  //     const option = options.find(o => o.condition.isSelected) || options[0];
-  //     this.selectedMode.set(option);
-  //   }
-
-  //   return options;
-  // }
 
   // Get lookup options for the selected condition 
   getLookupOptions() {
@@ -275,17 +197,6 @@ export class EntitiesActionsComponent implements OnInit {
 
 
   onFilterChange($event: Event): void {
-    // if (!this.conditions.length) {
-    //   return;
-    // }
-    // const condition = this.conditions
-    //   .find(x => x.kind === 'filter' &&
-    //     x.comparisonType === 'contains') as FilterCondition;
-
-    // condition.filterText = ($event.target as HTMLInputElement).value;
-
-    // this.updateConditions();
-
     const condition = this.selectedCondition();
     const property = condition && condition.kind === 'filter' && condition.comparisonType === 'contains'
       ? (condition as FilterCondition).property
@@ -313,16 +224,6 @@ export class EntitiesActionsComponent implements OnInit {
   }
 
   onSortChange(sortType: SortDirection): void {
-    // if (!this.conditions.length) {
-    //   return;
-    // }
-    // const condition = this.conditions
-    //   .find(x => x.kind === 'sort') as SortCondition;
-    // condition.direction = sortType;
-
-    // this.updateConditions();
-
-
     const condition = this.selectedCondition();
     const property = condition && condition.kind === 'sort'
       ? (condition as SortCondition).property
