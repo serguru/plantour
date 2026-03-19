@@ -14,8 +14,15 @@ const browserDistFolder = resolve(serverDistFolder, '../browser');
 const app = express();
 const angularAppEngine = new AngularNodeAppEngine();
 
+function isAuthPage(path: string): boolean {
+  const normalizedPath = (path || '/').replace(/\/+$/, '') || '/';
+  return normalizedPath === '/sign-in'
+    || normalizedPath.startsWith('/sign-in/')
+    || normalizedPath === '/signin-token';
+}
+
 app.use((req, res, next) => {
-  if (environment.environment !== 'production') {
+  if (environment.environment !== 'production' || isAuthPage(req.path)) {
     res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
   }
 

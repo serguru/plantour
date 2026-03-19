@@ -1,5 +1,5 @@
 import { Component, DestroyRef, Inject, inject, OnInit } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { CommonModule, DOCUMENT, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -23,6 +23,7 @@ import { BotProtectionService } from '../../services/bot-protection-service';
 import { PasswordModule } from 'primeng/password';
 import { SignInResponse } from '../../models/auth.models';
 import { getMessageFromError } from '../../helpers/utils';
+import { SeoService } from '../../services/seo-service';
 
 @Component({
   selector: 'app-sign-in',
@@ -60,6 +61,8 @@ export class SignInComponent implements OnInit {
   private router = inject(Router);
   private location = inject(Location);
   private destroyRef = inject(DestroyRef);
+  private seoService = inject(SeoService);
+  private document = inject(DOCUMENT);
 
   constructor(
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
@@ -79,10 +82,11 @@ export class SignInComponent implements OnInit {
     });
   }
 
-    onRadioClick(event): void {
-      this.successMessage = '';
-      this.errorMessage = '';
-    }
+  onRadioClick(_: Event): void {
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.applySeo();
+  }
 
   ngOnInit(): void {
     const currentUrl = this.router.url; 
@@ -92,6 +96,7 @@ export class SignInComponent implements OnInit {
     const endsWithParticipant = path.endsWith('/participant');  
 
     this.signInType = endsWithParticipant ? 'participant' : 'admin';
+    this.applySeo();
 
     const queryParams = new URLSearchParams(parts[1]);
 
@@ -116,6 +121,31 @@ export class SignInComponent implements OnInit {
   onEmailChange(e) {
     this.errorMessage = '';
     this.successMessage = '';  
+  }
+
+  private applySeo(): void {
+    const isParticipant = this.signInType === 'participant';
+    const title = isParticipant ? 'Participant Sign In | Plantour' : 'Sign In | Plantour';
+    const description = isParticipant
+      ? 'Join your Plantour trip workspace as a participant and collaborate on packing and travel tasks.'
+      : 'Sign in to Plantour to manage trips, packing lists, travelers, and shared travel planning.';
+
+    this.seoService.setSeo({
+      title,
+      description,
+      canonicalUrl: this.toAbsoluteUrl(this.router.url.split('?')[0] || '/sign-in'),
+      ogType: 'website',
+      robots: 'noindex, nofollow, noarchive, nosnippet',
+      jsonLd: null,
+    });
+  }
+
+  private toAbsoluteUrl(path: string): string {
+    try {
+      return new URL(path, this.document.baseURI).toString();
+    } catch {
+      return path;
+    }
   }
 
   get isAdmin(): boolean {

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +15,23 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
 {
     private const string SitemapNamespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
 
+    private static readonly Regex HelpSpecPattern = new(
+        @"^\s*(?:overview|task|trouble|role)\(\[(?<path>[^\]]*)\]",
+        RegexOptions.Compiled);
+
+    private static readonly Regex HelpSegmentPattern = new(
+        @"'(?<segment>[^']+)'",
+        RegexOptions.Compiled);
+
+    private static readonly SitemapEntry[] StaticEntries =
+    [
+        new("/", 1.0m),
+        new("/packing-list-generator/templates", 0.9m),
+        new("/contact", 0.6m),
+        new("/privacy", 0.3m),
+        new("/terms", 0.3m)
+    ];
+
     [AllowAnonymous]
     [HttpGet("/sitemap.xml")]
     public async Task<IActionResult> GetSitemap()
@@ -23,13 +41,9 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
             return NotFound();
         }
 
-        var urls = await context.SitemapUrls
-            .AsNoTracking()
-            .Where(x => (x.IsActive ?? false) && !string.IsNullOrWhiteSpace(x.Url))
-            .OrderBy(x => x.Url)
-            .ToListAsync();
+        var urls = await GetSitemapEntriesAsync();
 
-        var requestBase = new Uri($"{Request.Scheme}://{Request.Host}");
+        var requestBase = GetRequestBaseUri();
 
         var settings = new XmlWriterSettings
         {
@@ -55,21 +69,22 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
 
                 await writer.WriteElementStringAsync(null, "loc", SitemapNamespace, loc);
 
-                // Use date-only format to avoid timezone ambiguity for "timestamp without time zone".
-                await writer.WriteElementStringAsync(
-                    null,
-                    "lastmod",
-                    SitemapNamespace,
-                    entry.LastModified.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+                if (entry.LastModified is not null)
+                {
+                    await writer.WriteElementStringAsync(
+                        null,
+                        "lastmod",
+                        SitemapNamespace,
+                        entry.LastModified.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+                }
 
                 if (entry.Priority is not null)
                 {
-                    var normalized = Math.Clamp(entry.Priority.Value, 0, 100) / 100.0;
                     await writer.WriteElementStringAsync(
                         null,
                         "priority",
                         SitemapNamespace,
-                        normalized.ToString("0.0", CultureInfo.InvariantCulture));
+                        Math.Clamp(entry.Priority.Value, 0m, 1m).ToString("0.0", CultureInfo.InvariantCulture));
                 }
 
                 await writer.WriteEndElementAsync(); // url
@@ -84,6 +99,98 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
         return File(xmlBytes, "application/xml; charset=utf-8");
     }
 
+    private async Task<List<SitemapEntry>> GetSitemapEntriesAsync()
+    {
+        var helpEntries = await GetHelpSitemapEntriesAsync();
+
+        var publicTemplateEntries = await context.VTemplateThingsFulls
+            .AsNoTracking()
+            .Where(x => x.TemplateId != null && !string.IsNullOrWhiteSpace(x.TemplateName))
+            .GroupBy(x => new { TemplateId = x.TemplateId!.Value, TemplateName = x.TemplateName! })
+            .Select(group => new SitemapEntry(
+                $"/packing-list-generator/templates/{Slugify(group.Key.TemplateName)}~{group.Key.TemplateId}",
+                0.7m,
+                null))
+            .ToListAsync();
+
+        return StaticEntries
+            .Concat(helpEntries)
+            .Concat(publicTemplateEntries)
+            .GroupBy(entry => entry.Url, StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First())
+            .OrderBy(entry => entry.Url, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private async Task<List<SitemapEntry>> GetHelpSitemapEntriesAsync()
+    {
+        var helpContentPath = ResolveHelpContentPath();
+        if (helpContentPath is null)
+        {
+            return [new("/help", 0.8m)];
+        }
+
+        var lines = await System.IO.File.ReadAllLinesAsync(helpContentPath);
+        var lastModified = System.IO.File.GetLastWriteTimeUtc(helpContentPath);
+        var entries = new List<SitemapEntry> { new("/help", 0.8m, lastModified) };
+
+        foreach (var line in lines)
+        {
+            var pathMatch = HelpSpecPattern.Match(line);
+            if (!pathMatch.Success)
+            {
+                continue;
+            }
+
+            var pathPart = pathMatch.Groups["path"].Value;
+            var segments = HelpSegmentPattern.Matches(pathPart)
+                .Select(match => match.Groups["segment"].Value)
+                .Where(segment => !string.IsNullOrWhiteSpace(segment))
+                .ToArray();
+
+            if (segments.Length == 0)
+            {
+                continue;
+            }
+
+            entries.Add(new($"/help/{string.Join('/', segments)}", 0.5m, lastModified));
+        }
+
+        return entries;
+    }
+
+    private string? ResolveHelpContentPath()
+    {
+        var workspacePath = Path.GetFullPath(Path.Combine(
+            environment.ContentRootPath,
+            "..",
+            "plantour-client",
+            "src",
+            "app",
+            "components",
+            "help",
+            "help-content.ts"));
+
+        return System.IO.File.Exists(workspacePath) ? workspacePath : null;
+    }
+
+    private Uri GetRequestBaseUri()
+    {
+        var scheme = Request.Headers["X-Forwarded-Proto"].FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(scheme))
+        {
+            scheme = Request.Scheme;
+        }
+
+        var host = Request.Headers["X-Forwarded-Host"].FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(host))
+        {
+            host = Request.Host.Value;
+        }
+
+        return new Uri($"{scheme}://{host}");
+    }
+
     private static string ToAbsoluteUrl(Uri requestBase, string url)
     {
         if (Uri.TryCreate(url, UriKind.Absolute, out var absolute))
@@ -94,4 +201,38 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
         var relative = url.StartsWith('/') ? url : "/" + url;
         return new Uri(requestBase, relative).ToString();
     }
+
+    private static string Slugify(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        var builder = new StringBuilder(value.Length);
+        var previousWasSeparator = false;
+
+        foreach (var ch in value.ToLowerInvariant())
+        {
+            if ((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9'))
+            {
+                builder.Append(ch);
+                previousWasSeparator = false;
+                continue;
+            }
+
+            if (previousWasSeparator || builder.Length == 0)
+            {
+                continue;
+            }
+
+            builder.Append('-');
+            previousWasSeparator = true;
+        }
+
+        var slug = builder.ToString().Trim('-');
+        return slug.Length <= 60 ? slug : slug[..60].TrimEnd('-');
+    }
+
+    private sealed record SitemapEntry(string Url, decimal? Priority, DateTime? LastModified = null);
 }

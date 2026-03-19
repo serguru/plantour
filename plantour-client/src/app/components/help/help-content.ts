@@ -174,7 +174,9 @@ const HELP_PAGE_SPECS: HelpPageSpec[] = [
   task(['public', 'packing-list-generator', 'template-details'], 'Open a template and read its item list', ['public', 'packing-list-generator']),
   task(['public', 'packing-list-generator', 'how-to-start-from-a-public-template'], 'Use a public template to begin planning', ['public', 'packing-list-generator']),
   overview(['public', 'guest-access'], 'Try Plantour with guest access', ['public']),
+
   task(['public', 'guest-access', 'start-guest-access-and-open-the-las-vegas-demo-trip'], 'Start guest access and open the Las Vegas demo trip', ['public', 'guest-access'], ['Try packing your items for the trip', 'Weekend in Las Vegas', 'Las Vegas', 'temporary account', 'demo trip']),
+  
   task(['public', 'guest-access', 'what-guest-access-includes'], 'What guest access includes', ['public', 'guest-access']),
   task(['public', 'guest-access', 'limits-of-guest-access'], 'Limits of guest access', ['public', 'guest-access']),
 
@@ -353,7 +355,9 @@ const HELP_PAGE_SPECS: HelpPageSpec[] = [
 
   overview(['tasks'], 'Task-based guides overview', []),
   task(['tasks', 'create-your-first-trip'], 'Create your first trip', ['tasks']),
-  task(['tasks', 'very-simple-first-steps'], 'Very simple first steps', ['tasks'], ['trip', 'items', 'bags', 'packing', 'pdf packing list', 'first steps']),
+
+  task(['tasks', 'first-steps'], 'Simple first steps', ['tasks'], ['trip', 'items', 'bags', 'packing', 'pdf packing list', 'first steps']),
+  
   task(['tasks', 'add-people-to-a-trip'], 'Add people to a trip', ['tasks']),
   task(['tasks', 'build-a-packing-list'], 'Build a packing list', ['tasks']),
   task(['tasks', 'build-a-todo-list'], 'Build a to-do list', ['tasks']),
@@ -436,7 +440,7 @@ function buildChooseHowToStartPage(): Partial<HelpPage> {
         kind: 'paragraphs',
         id: 'choose-start-intro',
         paragraphs: [
-          'If conversion matters, the first minute matters even more. Plantour should feel easy before it feels deep. This page helps a new visitor choose the shortest path to a useful first success.',
+          'If you want to get started quickly, the first minute matters most. This page helps you choose the shortest path to a useful first result.',
           'You do not need to commit right away. You can browse public templates, try guest access with ready-made demo data, or create a regular account if you already know you want to keep your work.'
         ]
       },
@@ -448,7 +452,7 @@ function buildChooseHowToStartPage(): Partial<HelpPage> {
         cards: [
           {
             title: 'Try the Las Vegas demo trip first',
-            body: 'Use the landing-page button labeled Try packing your items for the trip. Plantour creates a temporary account and opens seeded data so you can test the real workflow immediately.',
+            body: 'Use the landing page button labeled Try packing your items for the trip. Plantour creates a temporary account and opens ready-made sample data so you can try the real workflow immediately.',
             link: { pageId: 'public/guest-access/start-guest-access-and-open-the-las-vegas-demo-trip' }
           },
           {
@@ -469,8 +473,8 @@ function buildChooseHowToStartPage(): Partial<HelpPage> {
         title: 'A practical decision rule',
         steps: [
           {
-            title: 'Choose guest access if you want the fastest proof',
-            body: 'Guest access is best when the goal is to feel the product quickly. It gives you a temporary account and a ready-made active trip called Weekend in Las Vegas so you can test real actions immediately.'
+            title: 'Choose guest access if you want the fastest start',
+            body: 'Guest access is best when you want to try Plantour quickly. It gives you a temporary account and a ready-made active trip called Weekend in Las Vegas so you can test real actions immediately.'
           },
           {
             title: 'Choose public templates if you want ideas first',
@@ -495,8 +499,8 @@ function buildPublicOverviewPage(): Partial<HelpPage> {
         kind: 'paragraphs',
         id: 'public-overview-intro',
         paragraphs: [
-          'The public side of Plantour has one job: help a new visitor reach a useful first impression fast. That means showing real value before asking for commitment.',
-          'There are two high-conversion entry paths here. One is public templates for browsing. The other is guest access for hands-on testing with ready-made sample trips.'
+          'The public side of Plantour helps you explore the app before signing in with a regular account.',
+          'There are two quick ways to begin here. One is public templates for browsing. The other is guest access for hands-on testing with ready-made sample trips.'
         ]
       },
       {
@@ -520,8 +524,8 @@ function buildPublicOverviewPage(): Partial<HelpPage> {
         kind: 'callout',
         id: 'public-overview-callout',
         tone: 'tip',
-        title: 'Conversion improves when the first success is real',
-        body: 'A visitor should be able to do one meaningful action quickly, such as opening the Weekend in Las Vegas trip and adding a first item. That is more convincing than reading long explanations.'
+        title: 'Start with one real action',
+        body: 'Try one meaningful action quickly, such as opening the Weekend in Las Vegas trip and adding a first item. That is usually more helpful than reading long explanations.'
       }
     ]
   };
@@ -529,15 +533,15 @@ function buildPublicOverviewPage(): Partial<HelpPage> {
 
 function buildGuestAccessOverviewPage(): Partial<HelpPage> {
   return {
-    summary: 'Guest access is the fastest path from curiosity to a real in-app success, with a temporary account and seeded demo trips.',
+    summary: 'Guest access is the fastest way to try Plantour with a temporary account and ready-made demo trips.',
     relatedPageIds: ['choose-how-to-start', 'temporary-users', 'public/guest-access/start-guest-access-and-open-the-las-vegas-demo-trip'],
     blocks: [
       {
         kind: 'paragraphs',
         id: 'guest-access-intro',
         paragraphs: [
-          'Guest access should remove hesitation. Instead of asking a public visitor to set everything up from scratch, Plantour can place them into a temporary account with sample trips and sample items already prepared.',
-          'That makes the next step obvious: open the seeded trip, try one action, and decide whether Plantour feels useful.'
+          'Guest access lets you try Plantour without setting everything up from scratch first.',
+          'You start in a temporary account with sample trips and sample items already prepared, so the next step is simple: open a trip and try one action.'
         ]
       },
       {
@@ -547,17 +551,17 @@ function buildGuestAccessOverviewPage(): Partial<HelpPage> {
         cards: [
           {
             title: 'Start guest access and open the demo trip',
-            body: 'Follow the exact public-to-demo path using the landing-page CTA and the seeded Weekend in Las Vegas trip.',
+            body: 'Follow the exact path from the landing page button to the ready-made Weekend in Las Vegas trip.',
             link: { pageId: 'public/guest-access/start-guest-access-and-open-the-las-vegas-demo-trip' }
           },
           {
             title: 'First five minutes as a temporary user',
-            body: 'Use a short guided checklist after the account opens so the visitor reaches one or two small wins quickly.',
+            body: 'Use a short guided checklist after the account opens so you can complete one or two useful actions quickly.',
             link: { pageId: 'temporary-users/first-five-minutes' }
           },
           {
             title: 'Keep your data later',
-            body: 'When the visitor is ready to stay, move the temporary account toward a regular account without losing the work they created.',
+            body: 'When you are ready to stay, move from the temporary account to a regular account without losing the work you created.',
             link: { pageId: 'access/temporary-user/how-to-keep-your-data' }
           }
         ]
@@ -567,9 +571,9 @@ function buildGuestAccessOverviewPage(): Partial<HelpPage> {
         id: 'guest-access-seeded-data',
         title: 'What the temporary account already includes',
         items: [
-          { text: 'An active trip named Weekend in Las Vegas so the visitor can test current-trip actions immediately.' },
-          { text: 'A past trip named Week in Europe so the visitor can compare a finished trip with an active one.' },
-          { text: 'Ready-made bags labeled Bag 1 and Bag 2 and sample items such as Passport, Cash, Hotel Reservation, Sunscreen, and Phone Charger.' }
+          { text: 'An active trip named Weekend in Las Vegas so you can test current-trip actions immediately.' },
+          { text: 'A past trip named Week in Europe so you can compare a finished trip with an active one.' },
+          { text: 'Ready-made bags Backpack and Daypack and sample items such as Passport, Cash, Hotel Reservation, Sunscreen, and Phone Charger.' }
         ]
       }
     ]
@@ -585,8 +589,8 @@ function buildPublicTemplatesDecisionPage(): Partial<HelpPage> {
         kind: 'paragraphs',
         id: 'public-templates-decision-intro',
         paragraphs: [
-          'Public templates and guest access serve different jobs. Templates answer Is the content useful? Guest access answers Does the workflow feel easy and real?',
-          'Both paths matter for conversion, but they should not be confused. This page helps a visitor choose the right next click.'
+          'Public templates and guest access help in different ways. Templates help you review packing ideas. Guest access lets you try the app workflow with a real sample trip.',
+          'This page helps you choose the right next step.'
         ]
       },
       {
@@ -604,7 +608,7 @@ function buildPublicTemplatesDecisionPage(): Partial<HelpPage> {
           },
           {
             title: 'Use a regular account only when you are ready to keep your work',
-            body: 'If you already trust the value and want saved data, sharing, or a long-term setup, create an account instead of spending too long in trial mode.'
+            body: 'If you want saved data, sharing, or long-term use, create an account instead of staying in guest access.'
           }
         ]
       }
@@ -614,16 +618,16 @@ function buildPublicTemplatesDecisionPage(): Partial<HelpPage> {
 
 function buildStartGuestAccessDemoTripPage(): Partial<HelpPage> {
   return {
-    summary: 'Use the landing-page guest CTA, open Weekend in Las Vegas, then add an item through Trip to Items so a new visitor reaches a real success fast.',
-    description: 'Highly specific first-step guidance for public visitors: start guest access, open the seeded Las Vegas trip, and add a first trip item.',
+    summary: 'Use the landing page button, open Weekend in Las Vegas, then add an item through Trip to Items so you can complete your first task quickly.',
+    description: 'Specific first-step guidance for public users: start guest access, open the ready-made Las Vegas trip, and add a first trip item.',
     relatedPageIds: ['choose-how-to-start', 'public/guest-access', 'temporary-users/first-five-minutes'],
     blocks: [
       {
         kind: 'paragraphs',
         id: 'guest-demo-intro',
         paragraphs: [
-          'This is the most important conversion path for a public visitor who wants to feel Plantour quickly. The goal is not to explain every feature. The goal is to produce one small, convincing success in the real app.',
-          'The fastest success path is: start guest access, open the seeded Weekend in Las Vegas trip, then add a first item to that trip.'
+          'This is the fastest path for a public user who wants to try Plantour quickly. The goal is not to explain every feature. The goal is to help you complete one real task in the app.',
+          'The fastest path is: start guest access, open the ready-made Weekend in Las Vegas trip, then add a first item to that trip.'
         ]
       },
       {
@@ -633,7 +637,7 @@ function buildStartGuestAccessDemoTripPage(): Partial<HelpPage> {
         steps: [
           {
             title: 'Start from the public landing page',
-            body: 'On the landing page, click the button labeled Try packing your items for the trip. This is the public CTA that starts guest access without asking for a normal account first.'
+            body: 'On the landing page, click the button labeled Try packing your items for the trip. This starts guest access without asking for a regular account first.'
           },
           {
             title: 'Let Plantour create the temporary account',
@@ -645,7 +649,7 @@ function buildStartGuestAccessDemoTripPage(): Partial<HelpPage> {
           },
           {
             title: 'Open Weekend in Las Vegas',
-            body: 'In the trips list, select Weekend in Las Vegas. This is the seeded active trip intended for a first walkthrough and live testing.'
+            body: 'In the trips list, select Weekend in Las Vegas. This ready-made active trip is the easiest place for a first walkthrough.'
           },
           {
             title: 'Go to Trip, then Items',
@@ -653,19 +657,19 @@ function buildStartGuestAccessDemoTripPage(): Partial<HelpPage> {
           },
           {
             title: 'Click the plus button and add one simple item',
-            body: 'Click + and create one easy test item, such as Sunglasses, Toothbrush, or Wallet. Save it, then confirm it appears in the trip items list. That is the first real success moment.'
+            body: 'Click + and create one easy test item, such as Sunglasses, Toothbrush, or Wallet. Save it, then confirm it appears in the trip items list.'
           }
         ]
       },
       {
         kind: 'list',
         id: 'guest-demo-what-you-see',
-        title: 'What the visitor should already see',
-        intro: 'The seeded account is designed to remove blank-screen friction.',
+        title: 'What you should already see',
+        intro: 'The temporary account includes sample data so you can start right away.',
         items: [
           { text: 'A current active trip named Weekend in Las Vegas.' },
           { text: 'A past example trip named Week in Europe for comparison.' },
-          { text: 'Sample bags labeled Bag 1 and Bag 2.' },
+          { text: 'Sample bags Backpack and Daypack.' },
           { text: 'Example items such as Passport, Cash, Hotel Reservation, Sunscreen, and Phone Charger.' }
         ]
       },
@@ -673,8 +677,8 @@ function buildStartGuestAccessDemoTripPage(): Partial<HelpPage> {
         kind: 'callout',
         id: 'guest-demo-tip',
         tone: 'tip',
-        title: 'Do not ask the visitor to do too much first',
-        body: 'For the first session, one added item is enough. After that, suggest Bags, Todos, or public templates only if the visitor wants to keep exploring.'
+        title: 'Start with one small action',
+        body: 'For the first session, adding one item is enough. After that, you can explore Bags, Todos, or public templates if you want to continue.'
       }
     ]
   };
@@ -689,8 +693,8 @@ function buildTemporaryUsersOverviewPage(): Partial<HelpPage> {
         kind: 'paragraphs',
         id: 'temporary-overview-intro',
         paragraphs: [
-          'Temporary access is not only a fallback sign-in method. It is a conversion tool. The experience should help a new user understand Plantour without forcing early commitment.',
-          'That means the temporary account should feel alive from the first screen, with ready-made trips, ready-made items, and one obvious next action.'
+          'Temporary access lets you explore Plantour before deciding whether to create a regular account.',
+          'The temporary account includes ready-made trips, ready-made items, and a clear first action so you can start using the app immediately.'
         ]
       },
       {
@@ -700,12 +704,12 @@ function buildTemporaryUsersOverviewPage(): Partial<HelpPage> {
         cards: [
           {
             title: 'Your first five minutes',
-            body: 'Follow a short sequence that proves the app is useful before asking the user to learn more.',
+            body: 'Follow a short sequence that helps you learn the app through a few simple actions.',
             link: { pageId: 'temporary-users/first-five-minutes' }
           },
           {
             title: 'Start from the public landing page',
-            body: 'See the exact CTA and seeded trip that make the first session feel easy and guided.',
+            body: 'See the exact landing page button and ready-made trip that make the first session easy to follow.',
             link: { pageId: 'public/guest-access/start-guest-access-and-open-the-las-vegas-demo-trip' }
           },
           {
@@ -721,16 +725,16 @@ function buildTemporaryUsersOverviewPage(): Partial<HelpPage> {
 
 function buildTemporaryUsersFirstFiveMinutesPage(): Partial<HelpPage> {
   return {
-    summary: 'A high-conversion checklist for the first five minutes: confirm the temporary account, open Weekend in Las Vegas, add one item, then inspect bags and the finished Europe sample.',
-    description: 'Specific first-session instructions for temporary users, using the seeded demo account and exact menu labels from Plantour.',
+    summary: 'A quick checklist for the first five minutes: confirm the temporary account, open Weekend in Las Vegas, add one item, then inspect bags and the finished Europe sample.',
+    description: 'Specific first-session instructions for temporary users, using the ready-made demo account and exact menu labels from Plantour.',
     relatedPageIds: ['temporary-users', 'public/guest-access/start-guest-access-and-open-the-las-vegas-demo-trip', 'trip-items/how-to-add-an-item-directly-to-a-trip'],
     blocks: [
       {
         kind: 'paragraphs',
         id: 'temporary-first-five-intro',
         paragraphs: [
-          'A new temporary user should not have to invent the first task. The product should give them a guided path to one or two visible wins.',
-          'This page is the best short walkthrough for that first session. It uses the exact seeded data in the temporary account so every step matches what the user sees on screen.'
+          'A new temporary user should not have to guess what to do first. This page gives you a guided path through one or two simple actions.',
+          'This short walkthrough uses the exact sample data in the temporary account so every step matches what you see on screen.'
         ]
       },
       {
@@ -740,7 +744,7 @@ function buildTemporaryUsersFirstFiveMinutesPage(): Partial<HelpPage> {
         steps: [
           {
             title: 'Notice that you are already inside a temporary account',
-            body: 'Plantour creates a temporary identity for you automatically. The generated email can look like Robin.Miles followed by numbers. That is normal for demo access.'
+            body: 'Plantour signs you in to a temporary account automatically. The generated email can look like Robin.Miles followed by numbers. That is normal for guest access.'
           },
           {
             title: 'Open Trip with the compass icon, then choose Trips',
@@ -752,15 +756,15 @@ function buildTemporaryUsersFirstFiveMinutesPage(): Partial<HelpPage> {
           },
           {
             title: 'Open Trip, then Items, then click +',
-            body: 'This is the fastest route to a real success. Add one simple item, save it, and make sure it appears in the list with the other trip items.'
+            body: 'This is the fastest route to a useful first action. Add one simple item, save it, and make sure it appears in the list with the other trip items.'
           },
           {
-            title: 'Open Trip, then Bags, and inspect Bag 1 and Bag 2',
-            body: 'This shows how Plantour connects items with packing containers. Even without editing anything yet, the visitor can understand that packing is more than a flat checklist.'
+            title: 'Open Trip, then Bags, and inspect Backpack and Daypack',
+            body: 'This shows how Plantour connects items with bags. Even without editing anything yet, you can see that packing is more than a flat checklist.'
           },
           {
             title: 'Go back to Trips and open Week in Europe',
-            body: 'This past trip helps the visitor compare an already-finished example with the active Las Vegas trip. It proves that Plantour can show both planning in progress and finished results.'
+            body: 'This past trip helps you compare an already-finished example with the active Las Vegas trip. It shows how Plantour can display both planning in progress and finished results.'
           }
         ]
       },
@@ -776,12 +780,12 @@ function buildTemporaryUsersFirstFiveMinutesPage(): Partial<HelpPage> {
           },
           {
             title: 'See what guest access includes',
-            body: 'Review the value of the temporary account and which parts of Plantour can already be tested.',
+            body: 'Review what the temporary account includes and which parts of Plantour you can already test.',
             link: { pageId: 'public/guest-access/what-guest-access-includes' }
           },
           {
             title: 'Keep your work later',
-            body: 'When the visitor is convinced, move toward a regular account without losing the trial work they created.',
+            body: 'When you are ready, move toward a regular account without losing the work you created.',
             link: { pageId: 'access/temporary-user/how-to-keep-your-data' }
           }
         ]
@@ -800,8 +804,7 @@ function buildVerySimpleFirstStepsPage(): Partial<HelpPage> {
         kind: 'paragraphs',
         id: 'simple-first-steps-intro',
         paragraphs: [
-          'This is the shortest useful walkthrough in Plantour. It is designed for the first session, when the user only needs one clear path and one clear result.',
-          'Follow this exact sequence: Trip, then Items, then Bags, then packing progress, then the PDF packing list. Do not try to learn the full app first.'
+          'This is the shortest useful walkthrough in Plantour. It is designed for the first session, when the user only needs one clear path and one clear result. Follow this exact sequence: Trip, then Items, then Bags, then packing, then the PDF packing list. Do not try to learn the full app first.'
         ]
       },
       {
@@ -811,7 +814,7 @@ function buildVerySimpleFirstStepsPage(): Partial<HelpPage> {
         steps: [
           {
             title: 'Open Trip, then Trips, and choose the trip you will work on',
-            body: 'Use the toolbar button named Trip with the compass icon. Choose Trips and open the trip you want to test. If you are in guest access, Weekend in Las Vegas is the easiest starting point.'
+            body: 'Use the toolbar button named Trip with the compass icon. Choose Trips and open the trip you want to test. If you are in guest access, Weekend in Las Vegas is the easiest starting point. Or, create a new trip by clicking the "+" button and adding a trip name and dates.'
           },
           {
             title: 'Open Trip, then Items, then click + to add one item',
@@ -819,7 +822,7 @@ function buildVerySimpleFirstStepsPage(): Partial<HelpPage> {
           },
           {
             title: 'Open Trip, then Bags, and make sure you have a bag to use',
-            body: 'If a bag already exists, open it. In guest access you should already see Bag 1 and Bag 2. If needed, add a new bag before continuing.'
+            body: 'If a bag already exists, open it. In guest access you should already see Backpack and Daypack. If needed, add a new bag before continuing.'
           },
           {
             title: 'Pack the item into a bag and check the packing status',
@@ -878,7 +881,7 @@ function getCustomPage(spec: HelpPageSpec): Partial<HelpPage> | null {
       return buildTemporaryUsersOverviewPage();
     case 'temporary-users/first-five-minutes':
       return buildTemporaryUsersFirstFiveMinutesPage();
-    case 'tasks/very-simple-first-steps':
+    case 'tasks/first-steps':
       return buildVerySimpleFirstStepsPage();
     default:
       return null;

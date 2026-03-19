@@ -15,6 +15,7 @@ import { Condition, DynamicQueryService, Target, TargetCondition, TargetMode } f
 import { map, switchMap, tap } from 'rxjs';
 import { AssignmentStatus } from '../../helpers/enums';
 import { formatDate, getDaysDifference } from '../../helpers/utils';
+import { UsersService } from '../../services/users-service';
 
 @Component({
   selector: 'app-trip-things',
@@ -35,6 +36,7 @@ export class TripThingsComponent implements OnInit {
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(DynamicQueryService);
   tripPackageService = inject(TripPackageService);
+  usersService = inject(UsersService);
   targetCondition = toSignal(this.componentService.targetCondition$);
   target = toSignal(this.componentService.target$);
   targetedIds = toSignal(this.componentService.targetedIds$);
