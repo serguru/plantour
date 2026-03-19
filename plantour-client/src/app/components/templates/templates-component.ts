@@ -184,7 +184,7 @@ export class TemplatesComponent {
 
     this.componentService.updateSelectedId(id);
 
-    const lowerTextVisible: boolean = this.localStorageService.getComponentKey(this.componentId, 'lowerTextVisible');
+    const lowerTextVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'lowerTextVisible', true);
     this.lowerTextVisible.set(lowerTextVisible);
   }
 

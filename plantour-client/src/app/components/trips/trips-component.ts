@@ -184,7 +184,7 @@ export class TripsComponent implements OnInit {
     this.componentService.updateConditions(initialConditions);
     this.componentService.persistValue('conditions', initialConditions);
 
-    const lowerTextVisible: boolean = this.localStorageService.getComponentKey(this.componentId, 'lowerTextVisible');
+    const lowerTextVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'lowerTextVisible', true);
     this.lowerTextVisible.set(lowerTextVisible);
 
   }
