@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { AmazonLinkComponent } from '../../../amazon-link/amazon-link-component';
+import { SeoService } from '../../../../services/seo-service';
 import { UsersService } from '../../../../services/users-service';
 
 type DetailFilterKey = 'search' | 'category';
@@ -34,6 +35,7 @@ export class PublicTemplateDetailComponent implements OnInit {
   private document = inject(DOCUMENT);
   private sanitizer = inject(DomSanitizer);
   private request = inject(REQUEST, { optional: true });
+  private seoService = inject(SeoService);
   usersService = inject(UsersService);
 
   isLoading = signal(true);
@@ -170,19 +172,16 @@ export class PublicTemplateDetailComponent implements OnInit {
   private setSeoMeta(): void {
     const title = `${this.templateName()} Packing Template | Plantour`;
     const description = `Detailed packing checklist for ${this.templateName()} with ${this.activityName()} activity and conditions. Explore recommended items, categories, and notes.`;
-
-    this.titleService.setTitle(title);
-    this.metaService.updateTag({ name: 'description', content: description });
-    this.metaService.updateTag({ property: 'og:title', content: title });
-    this.metaService.updateTag({ property: 'og:description', content: description });
-    this.metaService.updateTag({ property: 'og:type', content: 'article' });
-    this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
-    this.metaService.updateTag({ name: 'twitter:title', content: title });
-    this.metaService.updateTag({ name: 'twitter:description', content: description });
-    this.metaService.updateTag({ name: 'robots', content: 'index,follow' });
-
     const canonicalUrl = this.buildAbsoluteUrl(`/packing-list-generator/templates/${this.slugify(this.templateName())}~${this.templateId()}`);
-    this.setCanonicalLink(canonicalUrl);
+
+    this.seoService.setSeo({
+      title,
+      description,
+      canonicalUrl,
+      ogType: 'article',
+      robots: 'index,follow',
+      jsonLd: null,
+    });
   }
 
   private setNotFoundMeta(): void {
