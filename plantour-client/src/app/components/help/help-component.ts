@@ -7,8 +7,8 @@ import { filter } from 'rxjs';
 import { EntitiesHeader, HeaderButtonConfig } from '../entities/entities-header-component/entities-header-component';
 import { SeoService } from '../../services/seo-service';
 import { HELP_FAQ_SECTIONS, HELP_FUTURE_PAGES_PAGE_ID, HELP_HOME_PAGE_ID,  HELP_PAGES } from './help-content';
-import { HelpPage } from './help.models';
-import { HelpSearchService } from './help-search.service';
+import { HelpPage } from '../../services/help-service';
+import { HelpSearchService } from '../../services/help-search-service';
 
 const HELP_SEARCH_PANEL_VISIBLE_STORAGE_KEY = 'plantour.help.searchPanelVisible';
 
@@ -16,117 +16,7 @@ const HELP_SEARCH_PANEL_VISIBLE_STORAGE_KEY = 'plantour.help.searchPanelVisible'
   selector: 'app-help',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, EntitiesHeader],
-  template: `
-    <div class="page-container">
-        <app-entities-header
-          entityIcon="pi pi-question-circle"
-          title="Help"
-          [headerButtons]="headerButtons()"
-          [showHelpAction]="false"
-          [useEntitiesActions]="false"
-        ></app-entities-header>
-      <div class="help-shell">
-
-        @if (searchPanelVisible()) {
-          <section class="help-search-panel" aria-label="Help search">
-            <div class="help-search-panel__header">
-              <label class="help-search-label" for="help-search">Search</label>
-              <label class="help-search-checkbox">
-                <input
-                  type="checkbox"
-                  [ngModel]="highlightFoundOccurrences()"
-                  (ngModelChange)="highlightFoundOccurrences.set(!!$event)"
-                />
-                <span>Highlight found occurences</span>
-              </label>
-            </div>
-
-            <div class="help-search-box">
-              <i class="pi pi-search"></i>
-              <input
-                id="help-search"
-                type="text"
-                [ngModel]="searchQuery()"
-                (ngModelChange)="updateSearchQuery($event)"
-                placeholder="Try: guest access, packing list, shared item"
-              />
-              @if (hasSearchQuery()) {
-                <button type="button" class="help-search-clear" (click)="clearSearch()" aria-label="Clear search">
-                  <i class="pi pi-times"></i>
-                </button>
-              }
-            </div>
-
-            @if (hasSearchQuery()) {
-              <div class="help-search-results" aria-live="polite">
-                @if (searchResults().length > 0) {
-                  @for (result of searchResults(); track result.page.id) {
-                    <button
-                      type="button"
-                      class="help-search-result"
-                      (click)="openSearchResult(result.page.id)"
-                      [attr.aria-label]="result.page.title"
-                    >
-                      <span class="help-search-result__title" [innerHTML]="result.titleHtml"></span>
-                      <span class="help-search-result__crumbs" [innerHTML]="result.breadcrumbHtml"></span>
-                      <span class="help-search-result__summary" [innerHTML]="result.summaryHtml"></span>
-                    </button>
-                  }
-                } @else {
-                  <span class="help-search-empty">No help pages match your search yet.</span>
-                }
-              </div>
-            }
-          </section>
-        }
-
-        <section class="help-faq-page">
-          <article class="help-page-content">
-            @for (block of currentPage().blocks; track $index) {
-              <section class="help-block" [attr.id]="block.id">
-                @if (block.kind === 'paragraphs') {
-                  @if (block.title) {
-                    <h2 [innerHTML]="highlightText(block.title)"></h2>
-                  }
-                  @for (paragraph of block.paragraphs; track paragraph) {
-                    <p [innerHTML]="highlightText(paragraph)"></p>
-                  }
-                }
-              </section>
-            }
-          </article>
-
-          <div class="help-faq-directory">
-            @for (section of faqSections; track section.id; let isFirst = $first) {
-              <details
-                class="help-faq-section"
-                [open]="isSectionExpanded(section.id, isFirst)"
-                (toggle)="onSectionToggle(section.id, $event)"
-              >
-                <summary>
-                  <div class="help-faq-section__heading">
-                    <span class="help-faq-section__title">{{ section.title }}</span>
-                    <span class="help-faq-section__summary">{{ section.summary }}</span>
-                  </div>
-                  <span class="help-faq-section__arrow" aria-hidden="true"></span>
-                </summary>
-
-                <ol class="help-faq-question-list">
-                  @for (question of section.questions; track question.pageId) {
-                    <li>
-                      <a [routerLink]="pageUrlById(question.pageId)" class="help-faq-question-link">
-                        {{ question.question }}
-                      </a>
-                    </li>
-                  }
-                </ol>
-              </details>
-            }
-          </div>
-        </section>
-      </div>
-    </div>
-  `,
+  templateUrl: './help-component.html',
   styleUrl: './help-component.scss'
 })
 export class HelpComponent {

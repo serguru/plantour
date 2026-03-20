@@ -3,11 +3,11 @@ import { Component, effect, inject, signal, Type } from '@angular/core';
 import { REQUEST } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
-import { SeoService } from '../../services/seo-service';
-import { HELP_FAQ_SECTIONS, HELP_FUTURE_PAGES_PAGE_ID, HelpFaqSection, HELP_PAGES } from './help-content';
-import { HelpPage } from './help.models';
-import { HelpGetStartedGuestAccessAnswerComponent } from './answers/get-started/help-get-started-guest-access-answer.component';
-import { HelpGetStartedFirstStepsAnswerComponent } from './answers/get-started/help-get-started-first-steps-answer.component';
+import { SeoService } from '../../../services/seo-service';
+import { HELP_FAQ_SECTIONS, HELP_FUTURE_PAGES_PAGE_ID, HelpFaqSection, HELP_PAGES } from '../help-content';
+import { HelpGetStartedGuestAccessAnswerComponent } from './get-started/help-get-started-guest-access-answer.component';
+import { HelpGetStartedFirstStepsAnswerComponent } from './get-started/help-get-started-first-steps-answer.component';
+import { HelpPage } from '../../../services/help-service';
 
 const GUEST_ACCESS_ANSWER_PATH = 'get-started/no-account';
 const FIRST_STEPS_ANSWER_PATH = 'get-started/first-steps';
@@ -16,43 +16,8 @@ const FIRST_STEPS_ANSWER_PATH = 'get-started/first-steps';
   selector: 'app-help-answer',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  template: `
-    <div class="help-shell">
-      <section class="help-answer-page">
-        <div class="help-answer-toolbar">
-          <a class="help-back-link" [routerLink]="pageUrlById(faqPageId)">
-            Back to {{ currentSection()?.title }}
-          </a>
-        </div>
-
-        <article class="help-page-content help-page-content--answer">
-          <h1 class="help-answer-title">{{ currentPage().title }}</h1>
-        </article>
-
-        @if (answerComponent(); as component) {
-          <ng-container *ngComponentOutlet="component"></ng-container>
-        } @else {
-          <article class="help-page-content help-page-content--answer">
-            @for (block of currentPage().blocks; track $index) {
-              <section class="no-component-text" [attr.id]="block.id">
-                @if (block.kind === 'paragraphs') {
-                  @if (block.title) {
-                    <h2>{{ block.title }}</h2>
-                  }
-                  <ul>
-                  @for (paragraph of block.paragraphs; track paragraph) {
-                    <li>{{ paragraph }}</li>
-                  }
-                </ul>
-                }
-              </section>
-            }
-          </article>
-        }
-      </section>
-    </div>
-  `,
-  styleUrl: './help-component.scss'
+  templateUrl: './help-answer-component.html',
+  styleUrl: '../help-component.scss'
 })
 export class HelpAnswerComponent {
   componentId = 'help';

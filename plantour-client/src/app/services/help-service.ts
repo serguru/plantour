@@ -1,3 +1,6 @@
+import { Injectable } from '@angular/core';
+import { HELP_FUTURE_PAGES_PAGE_ID } from '../components/help/help-content';
+
 export interface HelpLink {
   pageId: string;
   label?: string;
@@ -80,4 +83,15 @@ export interface HelpSearchResult {
   titleHtml: string;
   breadcrumbHtml: string;
   summaryHtml: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class HelpService {
+  resolvePageId(_currentUrl: string, explicitPageId?: string | null): string | null {
+    return explicitPageId ?? HELP_FUTURE_PAGES_PAGE_ID;
+  }
+
+  getPageUrl(_pageId: string | null): string | null {
+    return '/help';
+  }
 }

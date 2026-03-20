@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Index } from 'flexsearch';
-import { HELP_PAGES } from './help-content';
-import { HelpBlock, HelpPage, HelpSearchResult } from './help.models';
+import { HELP_PAGES } from '../components/help/help-content';
+import { HelpBlock, HelpPage, HelpSearchResult } from './help-service';
 
 const SEARCH_RESULT_LIMIT = 8;
 

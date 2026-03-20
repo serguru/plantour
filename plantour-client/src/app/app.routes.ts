@@ -20,7 +20,7 @@ export const routes: Routes = [
       },
       {
         path: ':sectionId/:questionSlug',
-        loadComponent: () => import('./components/help/help-answer-component').then(m => m.HelpAnswerComponent),
+        loadComponent: () => import('./components/help/answers/help-answer-component').then(m => m.HelpAnswerComponent),
         resolve: { cleanup: CleanupResolver },
         data: { componentId: 'help' }
       },

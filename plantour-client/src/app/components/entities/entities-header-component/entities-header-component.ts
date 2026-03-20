@@ -4,7 +4,7 @@ import { ComponentService } from '../../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MessagesService } from '../../../services/messages-service';
 import { Popover } from 'primeng/popover';
-import { HelpContextService } from '../../help/help-context.service';
+import { HelpService } from '../../../services/help-service';
 
 export interface MenuConfig {
   label: string;
@@ -29,7 +29,7 @@ export interface HeaderButtonConfig {
   styleUrl: './entities-header-component.scss',
 })
 export class EntitiesHeader implements OnInit {
-  private readonly helpContextService = inject(HelpContextService);
+  private readonly helpContextService = inject(HelpService);
 
   @Input() entityIcon: string | null = null;
   @Input() title: string | null = null;
