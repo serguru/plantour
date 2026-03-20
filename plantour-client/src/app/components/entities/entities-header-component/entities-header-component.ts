@@ -13,6 +13,13 @@ export interface MenuConfig {
   disabledIfNoSelection?: boolean;
 }
 
+export interface HeaderButtonConfig {
+  label: string;
+  icon?: string;
+  action: () => void;
+  disabled?: boolean;
+}
+
 @Component({
   selector: 'app-entities-header',
   imports: [
@@ -32,8 +39,10 @@ export class EntitiesHeader implements OnInit {
   @Input() delete: ((id: string) => void) | null = null;
   @Input() entityName: string = '';
 
+  headerButtons = input<HeaderButtonConfig[]>([]);
   menuItems = input<MenuConfig[]>([]);
   helpPageId = input<string | null>(null);
+  showHelpAction = input<boolean>(true);
 
   deleteMessage = input<string>('');
   
@@ -148,7 +157,7 @@ export class EntitiesHeader implements OnInit {
   getResolvedMenuItems(): MenuConfig[] {
     const items = [...this.menuItems()];
     const pageId = this.helpContextService.resolvePageId(this.router.url, this.helpPageId());
-    const helpUrl = this.helpContextService.getPageUrl(pageId);
+    const helpUrl = this.showHelpAction() ? this.helpContextService.getPageUrl(pageId) : null;
 
     if (helpUrl) {
       items.push({

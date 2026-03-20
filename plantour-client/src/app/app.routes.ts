@@ -14,10 +14,19 @@ export const routes: Routes = [
         data: { componentId: 'help' }
       },
       {
-        path: '**',
-        loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
+        path: 'pages',
+        redirectTo: '',
+        pathMatch: 'full'
+      },
+      {
+        path: ':sectionId/:questionSlug',
+        loadComponent: () => import('./components/help/help-answer-component').then(m => m.HelpAnswerComponent),
         resolve: { cleanup: CleanupResolver },
         data: { componentId: 'help' }
+      },
+      {
+        path: '**',
+        redirectTo: ''
       }
     ]
   },

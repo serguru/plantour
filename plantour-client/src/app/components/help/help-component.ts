@@ -4,29 +4,136 @@ import { REQUEST } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
+import { EntitiesHeader, HeaderButtonConfig } from '../entities/entities-header-component/entities-header-component';
 import { SeoService } from '../../services/seo-service';
-import { UsersService } from '../../services/users-service';
-import { HELP_HOME_PAGE_ID, HELP_PAGES } from './help-content';
-import { HelpBlock, HelpBreadcrumb, HelpPage } from './help.models';
+import { HELP_FAQ_SECTIONS, HELP_FUTURE_PAGES_PAGE_ID, HELP_HOME_PAGE_ID, HelpFaqSection, HELP_PAGES } from './help-content';
+import { HelpPage } from './help.models';
 import { HelpSearchService } from './help-search.service';
 
 const HELP_SEARCH_PANEL_VISIBLE_STORAGE_KEY = 'plantour.help.searchPanelVisible';
-const HELP_HEADER_PANEL_EXPANDED_STORAGE_KEY = 'plantour.help.headerPanelExpanded';
 
 @Component({
   selector: 'app-help',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './help-component.html',
+  imports: [CommonModule, FormsModule, RouterLink, EntitiesHeader],
+  template: `
+    <div class="help-shell">
+      <app-entities-header
+        entityIcon="pi pi-question-circle"
+        title="Help"
+        [headerButtons]="headerButtons()"
+        [showHelpAction]="false"
+        [useEntitiesActions]="false"
+      ></app-entities-header>
+
+      @if (searchPanelVisible()) {
+        <section class="help-search-panel" aria-label="Help search">
+          <div class="help-search-panel__header">
+            <label class="help-search-label" for="help-search">Search</label>
+            <label class="help-search-checkbox">
+              <input
+                type="checkbox"
+                [ngModel]="highlightFoundOccurrences()"
+                (ngModelChange)="highlightFoundOccurrences.set(!!$event)"
+              />
+              <span>Highlight found occurences</span>
+            </label>
+          </div>
+
+          <div class="help-search-box">
+            <i class="pi pi-search"></i>
+            <input
+              id="help-search"
+              type="text"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="updateSearchQuery($event)"
+              placeholder="Try: guest access, packing list, shared item"
+            />
+            @if (hasSearchQuery()) {
+              <button type="button" class="help-search-clear" (click)="clearSearch()" aria-label="Clear search">
+                <i class="pi pi-times"></i>
+              </button>
+            }
+          </div>
+
+          @if (hasSearchQuery()) {
+            <div class="help-search-results" aria-live="polite">
+              @if (searchResults().length > 0) {
+                @for (result of searchResults(); track result.page.id) {
+                  <button
+                    type="button"
+                    class="help-search-result"
+                    (click)="openSearchResult(result.page.id)"
+                    [attr.aria-label]="result.page.title"
+                  >
+                    <span class="help-search-result__title" [innerHTML]="result.titleHtml"></span>
+                    <span class="help-search-result__crumbs" [innerHTML]="result.breadcrumbHtml"></span>
+                    <span class="help-search-result__summary" [innerHTML]="result.summaryHtml"></span>
+                  </button>
+                }
+              } @else {
+                <span class="help-search-empty">No help pages match your search yet.</span>
+              }
+            </div>
+          }
+        </section>
+      }
+
+      <section class="help-faq-page">
+        <article class="help-page-content">
+          @for (block of currentPage().blocks; track $index) {
+            <section class="help-block" [attr.id]="block.id">
+              @if (block.kind === 'paragraphs') {
+                @if (block.title) {
+                  <h2 [innerHTML]="highlightText(block.title)"></h2>
+                }
+                @for (paragraph of block.paragraphs; track paragraph) {
+                  <p [innerHTML]="highlightText(paragraph)"></p>
+                }
+              }
+            </section>
+          }
+        </article>
+
+        <div class="help-faq-directory">
+          @for (section of faqSections; track section.id; let isFirst = $first) {
+            <details
+              class="help-faq-section"
+              [open]="isSectionExpanded(section.id, isFirst)"
+              (toggle)="onSectionToggle(section.id, $event)"
+            >
+              <summary>
+                <div class="help-faq-section__heading">
+                  <span class="help-faq-section__title">{{ section.title }}</span>
+                  <span class="help-faq-section__summary">{{ section.summary }}</span>
+                </div>
+                <span class="help-faq-section__arrow" aria-hidden="true"></span>
+              </summary>
+
+              <ol class="help-faq-question-list">
+                @for (question of section.questions; track question.pageId) {
+                  <li>
+                    <a [routerLink]="pageUrlById(question.pageId)" class="help-faq-question-link">
+                      {{ question.question }}
+                    </a>
+                  </li>
+                }
+              </ol>
+            </details>
+          }
+        </div>
+      </section>
+    </div>
+  `,
   styleUrl: './help-component.scss'
 })
 export class HelpComponent {
   componentId = 'help';
+  readonly faqSections = HELP_FAQ_SECTIONS;
 
   private readonly router = inject(Router);
   private readonly seoService = inject(SeoService);
   private readonly helpSearchService = inject(HelpSearchService);
-  readonly usersService = inject(UsersService);
   private readonly document = inject(DOCUMENT);
   private readonly request = inject(REQUEST, { optional: true });
 
@@ -35,70 +142,44 @@ export class HelpComponent {
 
   readonly searchQuery = signal('');
   readonly searchPanelVisible = signal(false);
-  readonly headerPanelExpanded = signal(false);
   readonly highlightFoundOccurrences = signal(true);
-  readonly firstStepsPageId = 'tasks/first-steps';
-  readonly showGuestCta = signal(false);
-
-  readonly currentPage = computed(() => {
-    const joinedPath = this.currentPath().join('/');
-    const page = HELP_PAGES.find((item) => item.path.join('/') === joinedPath);
-    return page ?? this.pageMap.get(HELP_HOME_PAGE_ID) ?? HELP_PAGES[0];
-  });
-
-  readonly breadcrumbs = computed<HelpBreadcrumb[]>(() => {
-    const trail: HelpBreadcrumb[] = [];
-    let page: HelpPage | undefined = this.currentPage();
-
-    while (page) {
-      trail.unshift({
-        label: page.title,
-        url: this.pageUrl(page),
-        pageId: page.id
-      });
-      page = page.parentId ? this.pageMap.get(page.parentId) : undefined;
+  readonly expandedSections = signal<Record<string, boolean>>(this.createExpandedSectionsState());
+  readonly headerButtons = computed<HeaderButtonConfig[]>(() => [
+    {
+      label: this.searchPanelVisible() ? 'Hide search' : 'Show search',
+      icon: this.searchPanelVisible() ? 'eye-slash' : 'search',
+      action: () => this.toggleSearchPanel()
+    },
+    {
+      label: 'Expand all',
+      icon: 'angle-double-down',
+      action: () => this.expandAllSections()
+    },
+    {
+      label: 'Collapse all',
+      icon: 'angle-double-up',
+      action: () => this.collapseAllSections()
     }
-
-    return trail;
-  });
-
-  readonly childPages = computed(() => HELP_PAGES.filter((page) => page.parentId === this.currentPage().id));
-
-  readonly showBackLink = computed(() => {
-    const currentPageUrl = this.pageUrl(this.currentPage());
-    return this.backLink() !== currentPageUrl;
-  });
-
-  readonly relatedPages = computed(() =>
-    (this.currentPage().relatedPageIds ?? [])
-      .map((pageId) => this.pageMap.get(pageId))
-      .filter((page): page is HelpPage => !!page)
-  );
+  ]);
 
   readonly hasSearchQuery = computed(() => this.searchQuery().trim().length > 0);
   readonly shouldHighlightMatches = computed(() => this.highlightFoundOccurrences() && this.hasSearchQuery());
   readonly searchResults = computed(() =>
     this.helpSearchService.search(this.searchQuery(), this.shouldHighlightMatches())
   );
-  readonly firstStepsUrl = computed(() => this.pageUrlById(this.firstStepsPageId));
-  readonly isFirstStepsPage = computed(() => this.currentPage().id === this.firstStepsPageId);
 
   constructor() {
-    //this.usersService.syncUserFromStorage();
     this.syncCurrentPathFromUrl();
 
     afterNextRender(() => {
       this.restoreSearchPanelVisibility();
-      this.restoreHeaderPanelExpanded();
-      this.syncGuestCtaVisibility();
     });
 
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd)
     ).subscribe(() => {
-//      this.usersService.syncUserFromStorage();
-      this.syncGuestCtaVisibility();
       this.syncCurrentPathFromUrl();
+      this.expandedSections.set(this.createExpandedSectionsState());
     });
 
     effect(() => {
@@ -122,28 +203,31 @@ export class HelpComponent {
     return page ? this.pageUrl(page) : '/help';
   }
 
-  blockAnchor(block: HelpBlock): string {
-    return block.id;
+  currentPage(): HelpPage {
+    const joinedPath = this.currentPath().join('/');
+    const page = HELP_PAGES.find((item) => item.path.join('/') === joinedPath);
+    return page ?? this.pageMap.get(HELP_HOME_PAGE_ID) ?? HELP_PAGES[0];
   }
 
-  backLink(): string {
-    const page = this.currentPage();
-    if (!page.parentId) {
-      return '/help';
+  isSectionExpanded(sectionId: string, isFirst: boolean): boolean {
+    const explicitState = this.expandedSections()[sectionId];
+    if (explicitState !== undefined) {
+      return explicitState;
     }
 
-    const parent = this.pageMap.get(page.parentId);
-    return parent ? this.pageUrl(parent) : '/help';
+    return isFirst || this.currentPage().id === HELP_FUTURE_PAGES_PAGE_ID || sectionId === this.getSectionIdFromPath();
   }
 
-  backLabel(): string {
-    const page = this.currentPage();
-    if (!page.parentId) {
-      return 'Back to Help';
+  onSectionToggle(sectionId: string, event: Event): void {
+    const details = event.target as HTMLDetailsElement | null;
+    if (!details) {
+      return;
     }
 
-    const parent = this.pageMap.get(page.parentId);
-    return parent ? `Back to ${parent.title}` : 'Back to Help';
+    this.expandedSections.update((current) => ({
+      ...current,
+      [sectionId]: details.open
+    }));
   }
 
   clearSearch(): void {
@@ -162,10 +246,6 @@ export class HelpComponent {
     this.setSearchPanelVisible(!this.searchPanelVisible());
   }
 
-  toggleHeaderPanel(): void {
-    this.setHeaderPanelExpanded(!this.headerPanelExpanded());
-  }
-
   highlightText(text: string | undefined): string {
     const safeText = text ?? '';
     const escapedText = this.escapeHtml(safeText);
@@ -181,27 +261,6 @@ export class HelpComponent {
 
     return escapedText.replace(new RegExp(`(${escapedQuery})`, 'gi'), '<mark>$1</mark>');
   }
-
-  startTemporaryUser(): void {
-    this.usersService.createTemporaryUser();
-  }
-
-  private syncGuestCtaVisibility(): void {
-    const accessToken = this.usersService.accessToken;
-    const hasActiveToken = !!accessToken && !this.usersService.isJwtExpired(accessToken);
-    this.showGuestCta.set(!hasActiveToken);
-  }
-
-  private setSearchPanelVisible(isVisible: boolean): void {
-    this.searchPanelVisible.set(isVisible);
-    this.storeBoolean(HELP_SEARCH_PANEL_VISIBLE_STORAGE_KEY, isVisible);
-  }
-
-  private setHeaderPanelExpanded(isExpanded: boolean): void {
-    this.headerPanelExpanded.set(isExpanded);
-    this.storeBoolean(HELP_HEADER_PANEL_EXPANDED_STORAGE_KEY, isExpanded);
-  }
-
   async openSearchResult(pageId: string): Promise<void> {
     const page = this.pageMap.get(pageId);
     if (!page) {
@@ -211,14 +270,6 @@ export class HelpComponent {
     await this.router.navigateByUrl(this.pageUrl(page));
   }
 
-  trackByPageId(_: number, page: HelpPage): string {
-    return page.id;
-  }
-
-  trackByBlockId(_: number, block: HelpBlock): string {
-    return block.id;
-  }
-
   private syncCurrentPathFromUrl(): void {
     const cleanUrl = this.router.url.split('?')[0].split('#')[0];
     const withoutLeadingSlash = cleanUrl.startsWith('/') ? cleanUrl.slice(1) : cleanUrl;
@@ -226,17 +277,43 @@ export class HelpComponent {
     this.currentPath.set(segments[0] === 'help' ? segments.slice(1) : []);
   }
 
+  private getSectionIdFromPath(): string | null {
+    const currentPath = this.currentPath();
+    return currentPath.length >= 2 ? currentPath[0] ?? null : null;
+  }
+
+  private createExpandedSectionsState(): Record<string, boolean> {
+    const activeSectionId = this.getSectionIdFromPath();
+
+    return Object.fromEntries(
+      this.faqSections.map((section, index) => [
+        section.id,
+        activeSectionId ? section.id === activeSectionId : index === 0 || this.currentPage().id === HELP_FUTURE_PAGES_PAGE_ID
+      ])
+    );
+  }
+
+  private expandAllSections(): void {
+    this.expandedSections.set(
+      Object.fromEntries(this.faqSections.map((section) => [section.id, true]))
+    );
+  }
+
+  private collapseAllSections(): void {
+    this.expandedSections.set(
+      Object.fromEntries(this.faqSections.map((section) => [section.id, false]))
+    );
+  }
+
+  private setSearchPanelVisible(isVisible: boolean): void {
+    this.searchPanelVisible.set(isVisible);
+    this.storeBoolean(HELP_SEARCH_PANEL_VISIBLE_STORAGE_KEY, isVisible);
+  }
+
   private restoreSearchPanelVisibility(): void {
     const storedValue = this.readStoredBoolean(HELP_SEARCH_PANEL_VISIBLE_STORAGE_KEY);
     if (storedValue !== null) {
       this.searchPanelVisible.set(storedValue);
-    }
-  }
-
-  private restoreHeaderPanelExpanded(): void {
-    const storedValue = this.readStoredBoolean(HELP_HEADER_PANEL_EXPANDED_STORAGE_KEY);
-    if (storedValue !== null) {
-      this.headerPanelExpanded.set(storedValue);
     }
   }
 
@@ -299,13 +376,10 @@ export class HelpComponent {
   private buildJsonLd(page: HelpPage): Record<string, unknown> {
     return {
       '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: this.breadcrumbs().map((breadcrumb, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        name: breadcrumb.label,
-        item: this.buildAbsoluteUrl(breadcrumb.url)
-      }))
+      '@type': 'TechArticle',
+      headline: page.title,
+      description: page.description,
+      url: this.buildAbsoluteUrl(this.pageUrl(page))
     };
   }
 
