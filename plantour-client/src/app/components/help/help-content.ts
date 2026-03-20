@@ -68,11 +68,11 @@ const FAQ_SECTION_SOURCES: HelpFaqSectionSource[] = [
         slug: 'will-plantour-provide-prefilled-test-data',
         question: 'What are my first steps with Plantour?',
         answer: [
-          'Yes. The temporary-user flow opens ready demo content.',
-          'You can review trips, items, bags, and other data without manual setup.',
-          'That helps you test real screens immediately.'
+          'Temporary users start with some prefilled demo data, and you can also create trips, bags, and items yourself.',
+          'Open Trips, choose a trip, open Items, create or open an item, then open Bags and create or open a bag.',
+          'Pack the item into the bag, download a packing list, print it, put it into the bag, and use it during the trip.'
         ],
-        keywords: ['prefilled data', 'demo data', 'sample data', 'test data']
+        keywords: ['prefilled data', 'demo data', 'sample data', 'test data', 'first steps', 'packing list']
       },
       {
         slug: 'where-should-i-start-in-the-demo',

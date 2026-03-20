@@ -155,7 +155,9 @@ router-outlet {
 }
 
 @media (min-width: 769px) {
-  .outlet-container:has(form), .outlet-container:has(.form-container) {
+
+  .outlet-container:has(form),
+  .outlet-container:has(.form-container) {
     margin: 0 auto;
     max-width: 700px;
     width: 100%;
@@ -557,8 +559,8 @@ p-panel.list-actions-panel {
 
 
 .pl-menu-item.disabled {
-    color: rgb(202, 202, 202);
-    cursor: default;
+  color: rgb(202, 202, 202);
+  cursor: default;
 }
 
 .no-arrow.p-popover:before,
@@ -726,8 +728,8 @@ app-generic-list {
 }
 
 .p-progressbar-value {
-    margin: 0;
-    background: var(--primary-color) !important;
+  margin: 0;
+  background: var(--primary-color) !important;
 }
 
 .help-link {
@@ -768,3 +770,19 @@ app-generic-list {
 // .p-select-list-container {
 //   max-height: none !important;
 // }
+
+
+.help-list-caption {
+  padding-bottom: 1rem;
+}
+
+.help-list-item {
+    margin-left: 1rem;
+    li {
+      padding-bottom: 0.5rem;
+    }
+}
+
+.help-section {
+  margin-bottom: 1rem;
+}

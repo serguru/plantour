@@ -7,8 +7,10 @@ import { SeoService } from '../../services/seo-service';
 import { HELP_FAQ_SECTIONS, HELP_FUTURE_PAGES_PAGE_ID, HelpFaqSection, HELP_PAGES } from './help-content';
 import { HelpPage } from './help.models';
 import { HelpGetStartedGuestAccessAnswerComponent } from './answers/get-started/help-get-started-guest-access-answer.component';
+import { HelpGetStartedFirstStepsAnswerComponent } from './answers/get-started/help-get-started-first-steps-answer.component';
 
 const GUEST_ACCESS_ANSWER_PATH = 'get-started/can-i-get-started-without-account-creation';
+const FIRST_STEPS_ANSWER_PATH = 'get-started/will-plantour-provide-prefilled-test-data';
 
 @Component({
   selector: 'app-help-answer',
@@ -103,9 +105,17 @@ export class HelpAnswerComponent {
   }
 
   answerComponent(): Type<unknown> | null {
-    return this.currentPath().join('/') === GUEST_ACCESS_ANSWER_PATH
-      ? HelpGetStartedGuestAccessAnswerComponent
-      : null;
+    const currentPath = this.currentPath().join('/');
+
+    if (currentPath === GUEST_ACCESS_ANSWER_PATH) {
+      return HelpGetStartedGuestAccessAnswerComponent;
+    }
+
+    if (currentPath === FIRST_STEPS_ANSWER_PATH) {
+      return HelpGetStartedFirstStepsAnswerComponent;
+    }
+
+    return null;
   }
 
   private syncCurrentPathFromUrl(): void {
