@@ -1,8 +1,14 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
 
 .help-shell {
-  height: 100%;
-  overflow: auto;
-  padding: 1.5rem;
+  // height: 100%;
+  // overflow: auto;
+  padding: 1rem;
   background:
     radial-gradient(circle at top right, rgba(77, 184, 196, 0.14), transparent 24%),
     linear-gradient(180deg, #f6fbfc 0%, #ffffff 22%, #ffffff 100%);
@@ -546,3 +552,25 @@
   }
 }
 
+
+.help-list-caption {
+  padding-bottom: 1rem;
+}
+
+.help-list-item {
+    margin-left: 1rem;
+    li {
+      padding-bottom: 0.5rem;
+    }
+}
+
+.help-section {
+  margin-bottom: 1rem;
+}
+
+.no-component-text {
+  p {
+    padding-block: 0.2rem;
+  }
+
+}

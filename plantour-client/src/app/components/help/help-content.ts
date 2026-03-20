@@ -52,134 +52,144 @@ const FAQ_SECTION_SOURCES: HelpFaqSectionSource[] = [
   {
     id: 'get-started',
     title: 'Get started',
-    summary: 'Short answers for your first minutes in Plantour.',
+    summary: 'Help at your first steps',
     questions: [
       {
-        slug: 'can-i-get-started-without-account-creation',
-        question: 'Can I get started without the account creation?',
+        slug: 'no-account',
+        question: 'Can I try Plantour without the account creation?',
         answer: [
-          'Yes. Use the Start temporary account button.',
-          'It creates a temporary user and opens Plantour with demo data.',
-          'You can explore the flow before making a regular account.'
         ],
         keywords: ['temporary user', 'guest', 'demo', 'no account']
       },
       {
-        slug: 'will-plantour-provide-prefilled-test-data',
+        slug: 'first-steps',
         question: 'What are my first steps with Plantour?',
         answer: [
-          'Temporary users start with some prefilled demo data, and you can also create trips, bags, and items yourself.',
-          'Open Trips, choose a trip, open Items, create or open an item, then open Bags and create or open a bag.',
-          'Pack the item into the bag, download a packing list, print it, put it into the bag, and use it during the trip.'
         ],
         keywords: ['prefilled data', 'demo data', 'sample data', 'test data', 'first steps', 'packing list']
       },
       {
-        slug: 'where-should-i-start-in-the-demo',
-        question: 'Where should I start in the demo?',
+        slug: 'switch-account',
+        question: 'How can I switch my account from temporary to regular?',
         answer: [
-          'Start with one trip and one simple action.',
-          'Open a trip, review the travelers and items, then add or pack one thing.',
-          'That is the fastest way to understand the workflow.'
+          'If you wish to keep your test data naviagate to your profile and enter your real email',
+          'If you wish to start a new regular free account from scratch sign out from your temporary account and then go to sign in',
+          'If you wish to start with a paid plan sign out from your temporary account, click the toolbar "Dashboard" button and then select a paid plan'
         ],
         keywords: ['first step', 'demo', 'start', 'workflow']
-      },
-      {
-        slug: 'do-i-need-to-install-anything',
-        question: 'Do I need to install anything?',
-        answer: [
-          'No. Plantour runs in the browser.',
-          'Open the app and start using the available pages.',
-          'A normal account is only needed when you want to keep your own data.'
-        ],
-        keywords: ['install', 'browser', 'account', 'setup']
       }
     ]
-  },
-  {
-    id: 'plantour-features',
-    title: 'Plantour features',
-    summary: 'What Plantour can do and which flows it supports.',
+  }, {
+    id: 'why-plantour',
+    title: 'Why Plantour',
+    summary: 'The values ​​the customer receives from Plantur',
     questions: [
       {
-        slug: 'how-can-plantour-help-me',
-        question: 'How can Plantour help me?',
+        slug: 'need-to-use',
+        question: 'Why do I need to use Plantour',
         answer: [
-          'Plantour helps you plan trips and organize packing work.',
-          'You can manage travelers, items, bags, todos, templates, and shared work in one place.',
-          'The goal is fewer forgotten things and less travel chaos.'
+          'Centralizing trip information',
+          'Preventing forgotten items',
+          'Save time by reusing item templates',
+          'AI trip items recommendations',
+          'Group coordination',
+          'Tracking items by bag',
+          'Shared responsibility for items and todos',
+          'Trip related email notifications',
+          'Trip comments',
+          'Lower travel stress'
         ],
-        keywords: ['features', 'benefits', 'planning', 'packing']
+        keywords: ['trip', 'items', 'AI', 'comment', 'shared', 'group']
       },
       {
-        slug: 'does-plantour-allow-me-to-create-trips',
-        question: 'Does Plantour allow me to create trips?',
+        slug: 'entities',
+        question: 'What are the main entities that Plniur operates with?',
         answer: [
-          'Yes. Trips are one of the main Plantour features.',
-          'A trip can contain participants, items, todos, bags, comments, and shared tasks.',
-          'That keeps all trip planning in one structure.'
+          'Trip',
+          'Traveler',
+          'Bag',
+          'Item',
+          'Todo',
+          'Shared item',
+          'Shared todo',
+          'Admin',
+          'Participant',
+          'Packing list',
+          'Trip report',
+          'Dictionary',
+          'Dashboard',
+          'Account',
+          'Plan'
         ],
-        keywords: ['create trip', 'trip planning', 'trip']
+        keywords: ['prefilled data', 'demo data', 'sample data', 'test data', 'first steps', 'packing list']
       },
       {
-        slug: 'does-plantour-support-traveler-groups',
-        question: 'Does Plantour support traveler groups?',
+        slug: 'workflow',
+        question: "What are Plantour's core workflows?",
         answer: [
-          'Plantour supports multiple travelers inside one trip.',
-          'You can organize who joins the trip and who is responsible for specific work.',
-          'That is useful for family, friends, and shared travel planning.'
+          'Create a trip -> Add friends -> Send them invitations by email',
+          'Search item templates -> Add items and bags to a trip -> Pack items -> Print packing lists',
+          'Ask AI for item recommendations -> Include selected items into a trip',
+          'Create a list of shared items and todos -> Assign them to trip participants -> Monitor packing of items and completion of todos',
+          'Send a trip comment -> Get answers from the trip participants',
+
         ],
-        keywords: ['traveler groups', 'travelers', 'participants', 'family']
-      },
-      {
-        slug: 'can-plantour-suggest-what-to-pack',
-        question: 'Can Plantour suggest what to pack?',
-        answer: [
-          'Yes. Plantour supports AI-based help and reusable templates.',
-          'You can start from known packing ideas instead of building every list from zero.',
-          'That speeds up planning and reduces missed items.'
-        ],
-        keywords: ['ai', 'suggestions', 'templates', 'packing ideas']
+        keywords: ['workflow', 'assignment', 'shared item', 'shared todo']
       }
     ]
-  },
-  {
-    id: 'packing-and-sharing',
-    title: 'Packing and sharing',
-    summary: 'How Plantour supports bags, assignments, and teamwork.',
+  }, {
+    id: 'instructions',
+    title: 'How do I ...',
+    summary: 'Step-by-step instructions on how to use Plantur features',
     questions: [
       {
-        slug: 'can-i-pack-items-into-bags',
-        question: 'Can I pack items into bags?',
+        slug: 'dictionary-entities',
+        question: '... add, update or delete dictionary entities',
         answer: [
-          'Yes. Plantour supports bags and packed items.',
-          'You can see what is still unpacked and what is already placed into a bag.',
-          'That gives you a clearer packing result before departure.'
+          'Dictionary entities are travelers, items, todos and bags which are not associated with a trip. They cab be accessed by the menu items ubnder the toolbar button Dictionary with the "copy" icon.',
+          'Any dictionary entity can be added, updated or deleted without afffecting any trip data',
+          'Dictionary items can be added from the templates and AI recommendations',
+          'To add an entity go to the entities list, click Add plus button, fill a form and click Submit',
+          'To update an entity go to the entities list, select the entity, click Update pencil button, fill a form and click Submit',
+          'To delete and entity select it in the list, click Delete button trash can and confirm deletion'
         ],
-        keywords: ['bags', 'packing', 'packed items']
+        keywords: ['trip', 'items', 'AI', 'comment', 'shared', 'group']
       },
       {
-        slug: 'can-i-share-packing-work-with-other-people',
-        question: 'Can I share packing work with other people?',
+        slug: 'entities',
+        question: 'What are the main entities that Plniur operates with?',
         answer: [
-          'Yes. Plantour supports shared items and shared todos.',
-          'That helps split work across trip participants instead of keeping everything on one person.',
-          'Everyone can see the latest plan in the same trip.'
+          'Trip',
+          'Traveler',
+          'Bag',
+          'Item',
+          'Todo',
+          'Shared item',
+          'Shared todo',
+          'Admin',
+          'Participant',
+          'Packing list',
+          'Trip report'
         ],
-        keywords: ['share', 'shared items', 'shared todos', 'participants']
+        keywords: ['prefilled data', 'demo data', 'sample data', 'test data', 'first steps', 'packing list']
       },
       {
-        slug: 'can-i-track-what-is-still-missing',
-        question: 'Can I track what is still missing?',
+        slug: 'workflow',
+        question: "What are Plantour's core workflows?",
         answer: [
-          'Yes. Plantour helps you compare planned items with packed items and open tasks.',
-          'You can review the current state before the trip starts.',
-          'That makes last-minute checks easier.'
+          'Create a trip -> Add friends -> Send them invitations by email',
+          'Search item templates -> Add items and bags to a trip -> Pack items -> Print packing lists',
+          'Ask AI for item recommendations -> Include selected items into a trip',
+          'Create a list of shared items and todos -> Assign them to trip participants -> Monitor packing of items and completion of todos',
+          'Send a trip comment -> Get answers from the trip participants',
+
         ],
-        keywords: ['missing items', 'tracking', 'status', 'checklist']
+        keywords: ['workflow', 'assignment', 'shared item', 'shared todo']
       }
     ]
   }
+
+
 ];
 
 export const HELP_FAQ_SECTIONS: HelpFaqSection[] = FAQ_SECTION_SOURCES.map((section) => ({

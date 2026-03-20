@@ -9,8 +9,8 @@ import { HelpPage } from './help.models';
 import { HelpGetStartedGuestAccessAnswerComponent } from './answers/get-started/help-get-started-guest-access-answer.component';
 import { HelpGetStartedFirstStepsAnswerComponent } from './answers/get-started/help-get-started-first-steps-answer.component';
 
-const GUEST_ACCESS_ANSWER_PATH = 'get-started/can-i-get-started-without-account-creation';
-const FIRST_STEPS_ANSWER_PATH = 'get-started/will-plantour-provide-prefilled-test-data';
+const GUEST_ACCESS_ANSWER_PATH = 'get-started/no-account';
+const FIRST_STEPS_ANSWER_PATH = 'get-started/first-steps';
 
 @Component({
   selector: 'app-help-answer',
@@ -34,14 +34,16 @@ const FIRST_STEPS_ANSWER_PATH = 'get-started/will-plantour-provide-prefilled-tes
         } @else {
           <article class="help-page-content help-page-content--answer">
             @for (block of currentPage().blocks; track $index) {
-              <section class="help-block" [attr.id]="block.id">
+              <section class="no-component-text" [attr.id]="block.id">
                 @if (block.kind === 'paragraphs') {
                   @if (block.title) {
                     <h2>{{ block.title }}</h2>
                   }
+                  <ul>
                   @for (paragraph of block.paragraphs; track paragraph) {
-                    <p>{{ paragraph }}</p>
+                    <li>{{ paragraph }}</li>
                   }
+                </ul>
                 }
               </section>
             }
