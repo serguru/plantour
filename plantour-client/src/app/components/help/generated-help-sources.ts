@@ -8,7 +8,9 @@ import getStartedHowCanISwitchMyAccountFromTemporaryToRegularJsonQuestion from '
 import featuresWhatAreTheMainEntitiesThatPlniurOperatesWithJsonQuestion from './sections/features/What are the main entities that Plniur operates with.json';
 import featuresWhatIsToolbarJsonQuestion from './sections/features/What is toolbar.json';
 import featuresHowDoIAddUpdateOrDeleteEntitiesJsonQuestion from './sections/features/How do I add update or delete entities.json';
-import featuresWhatIsDictionaryJsonQuestion from './sections/features/What is dictionary.json';
+import featuresWhatAreDictionariesJsonQuestion from './sections/features/What are dictionaries.json';
+import featuresWhatAreItemTemplatesJsonQuestion from './sections/features/What are item templates.json';
+import featuresHowToAskAIForItemRecommendationsJsonQuestion from './sections/features/How to ask AI for item recommendations.json';
 import workflowsHowDoIAddItemsToATripJsonQuestion from './sections/workflows/How do I add items to a trip.json';
 
 export const GENERATED_SECTION_MANIFEST_ENTRIES: [string, unknown][] = [
@@ -25,6 +27,8 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['features/What are the main entities that Plniur operates with.json', featuresWhatAreTheMainEntitiesThatPlniurOperatesWithJsonQuestion],
   ['features/What is toolbar.json', featuresWhatIsToolbarJsonQuestion],
   ['features/How do I add update or delete entities.json', featuresHowDoIAddUpdateOrDeleteEntitiesJsonQuestion],
-  ['features/What is dictionary.json', featuresWhatIsDictionaryJsonQuestion],
+  ['features/What are dictionaries.json', featuresWhatAreDictionariesJsonQuestion],
+  ['features/What are item templates.json', featuresWhatAreItemTemplatesJsonQuestion],
+  ['features/How to ask AI for item recommendations.json', featuresHowToAskAIForItemRecommendationsJsonQuestion],
   ['workflows/How do I add items to a trip.json', workflowsHowDoIAddItemsToATripJsonQuestion]
 ];

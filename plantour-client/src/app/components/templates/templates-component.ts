@@ -68,7 +68,7 @@ export class TemplatesComponent {
       },
       {
         kind: 'target',
-        label: 'Trip or dic things',
+        label: 'Trip or items dic',
         icon: 'compass',
         target: null
       }, {
