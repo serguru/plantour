@@ -1,16 +1,5 @@
-import getStartedFirstStepsQuestion from './sections/get-started/What are my first steps with Plantour.json';
-import getStartedNoAccountQuestion from './sections/get-started/Can I try Plantour without the account creation.json';
-import getStartedSectionManifest from './sections/get-started/section.json';
-import getStartedSwitchAccountQuestion from './sections/get-started/How can I switch my account from temporary to regular.json';
-import plantourFeaturesManageEntitiesQuestion from './sections/plantour-features/How do I add update or delete entities.json';
-import plantourFeaturesSectionManifest from './sections/plantour-features/section.json';
+import { GENERATED_QUESTION_SOURCE_ENTRIES, GENERATED_SECTION_MANIFEST_ENTRIES } from './generated-help-sources';
 import sectionFolderOrder from './sections/sections-order.json';
-import whyPlantourDictionaryQuestion from './sections/why-plantour/What is dictionary.json';
-import whyPlantourEntitiesQuestion from './sections/why-plantour/What are the main entities that Plniur operates with.json';
-import whyPlantourNeedToUseQuestion from './sections/why-plantour/Why do I need to use Plantour.json';
-import whyPlantourSectionManifest from './sections/why-plantour/section.json';
-import whyPlantourWorkflowQuestion from './sections/why-plantour/What are Plantour\'s core workflows.json';
-
 export const HELP_HOME_PAGE_ID = 'help';
 
 export type HelpPageKind = 'home' | 'section' | 'answer' | 'search';
@@ -282,6 +271,37 @@ function createAnswerPageId(sectionId: string, slug: string): string {
   return `${HELP_HOME_PAGE_ID}/${sectionId}/${slug}`;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function asHelpQuestionSource(modulePath: string, value: unknown): HelpQuestionSource {
+  if (
+    isRecord(value) &&
+    typeof value['slug'] === 'string' &&
+    typeof value['question'] === 'string' &&
+    'answer' in value
+  ) {
+    return value as unknown as HelpQuestionSource;
+  }
+
+  throw new Error(`Invalid help question source at ${modulePath}`);
+}
+
+function asHelpSectionManifest(modulePath: string, value: unknown): HelpSectionManifest {
+  if (
+    isRecord(value) &&
+    typeof value['id'] === 'string' &&
+    typeof value['title'] === 'string' &&
+    typeof value['summary'] === 'string' &&
+    Array.isArray(value['questions'])
+  ) {
+    return value as unknown as HelpSectionManifest;
+  }
+
+  throw new Error(`Invalid help section manifest at ${modulePath}`);
+}
+
 function formatHelpPath(path: string[]): string {
   return path.length === 0 ? '/help' : `/help/${path.join('/')}`;
 }
@@ -318,22 +338,13 @@ function firstAnswerLine(answer: HelpAnswerSource): string | null {
   return null;
 }
 
-const QUESTION_SOURCE_BY_FILE = new Map<string, HelpQuestionSource>([
-  ['get-started/Can I try Plantour without the account creation.json', getStartedNoAccountQuestion as HelpQuestionSource],
-  ['get-started/What are my first steps with Plantour.json', getStartedFirstStepsQuestion as HelpQuestionSource],
-  ['get-started/How can I switch my account from temporary to regular.json', getStartedSwitchAccountQuestion as HelpQuestionSource],
-  ['why-plantour/Why do I need to use Plantour.json', whyPlantourNeedToUseQuestion as HelpQuestionSource],
-  ['why-plantour/What is dictionary.json', whyPlantourDictionaryQuestion as HelpQuestionSource],
-  ['why-plantour/What are the main entities that Plniur operates with.json', whyPlantourEntitiesQuestion as HelpQuestionSource],
-  ['why-plantour/What are Plantour\'s core workflows.json', whyPlantourWorkflowQuestion as HelpQuestionSource],
-  ['plantour-features/How do I add update or delete entities.json', plantourFeaturesManageEntitiesQuestion as HelpQuestionSource]
-]);
+const QUESTION_SOURCE_BY_FILE = new Map<string, HelpQuestionSource>(
+  GENERATED_QUESTION_SOURCE_ENTRIES.map(([fileName, value]) => [fileName, asHelpQuestionSource(fileName, value)])
+);
 
-const SECTION_MANIFEST_BY_FOLDER = new Map<string, HelpSectionManifest>([
-  ['get-started', getStartedSectionManifest as HelpSectionManifest],
-  ['why-plantour', whyPlantourSectionManifest as HelpSectionManifest],
-  ['plantour-features', plantourFeaturesSectionManifest as HelpSectionManifest]
-]);
+const SECTION_MANIFEST_BY_FOLDER = new Map<string, HelpSectionManifest>(
+  GENERATED_SECTION_MANIFEST_ENTRIES.map(([folderName, value]) => [folderName, asHelpSectionManifest(`${folderName}/section.json`, value)])
+);
 
 function getQuestionSource(folderName: string, fileName: string): HelpQuestionSource {
   const source = QUESTION_SOURCE_BY_FILE.get(`${folderName}/${fileName}`);

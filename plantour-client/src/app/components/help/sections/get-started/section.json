@@ -3,6 +3,7 @@
   "title": "Get started",
   "summary": "Help at your first steps",
   "questions": [
+     "Why do I need to use Plantour.json",
     "Can I try Plantour without the account creation.json",
     "What are my first steps with Plantour.json",
     "How can I switch my account from temporary to regular.json"
