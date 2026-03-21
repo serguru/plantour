@@ -1,0 +1,9 @@
+{
+  "id": "features",
+  "title": "Plantour UI features",
+  "summary": "How to use Plantour UI",
+  "questions": [
+    "How do I add update or delete entities.json"
+
+  ]
+}

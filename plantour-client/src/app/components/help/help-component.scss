@@ -65,6 +65,7 @@
   font-family: var(--font-button);
   font-size: 0.92rem;
   cursor: pointer;
+  margin-bottom: 1rem;
 }
 
 .help-hero__guest-button:hover {
@@ -339,6 +340,44 @@
   gap: 0.55rem;
 }
 
+.help-list-answer__content {
+  margin: 0;
+  color: #35575c;
+  line-height: 1.75;
+}
+
+.help-list-answer__content> :first-child {
+  margin-top: 0;
+}
+
+.help-list-answer__content> :last-child {
+  margin-bottom: 0;
+}
+
+.help-list-answer__content ul,
+.help-list-answer__content ol,
+.help-list-answer__content dl {
+  margin: 0;
+  padding-left: 1.4rem;
+  display: grid;
+  gap: 0.55rem;
+  color: #17383d;
+  line-height: 1.6;
+}
+
+.help-list-answer__content dl {
+  padding-left: 0;
+}
+
+.help-list-answer__content dt {
+  font-weight: 600;
+  color: #244e55;
+}
+
+.help-list-answer__content dd {
+  margin: 0 0 0.35rem 1.4rem;
+}
+
 .help-list-answer__caption,
 .help-list-caption {
   margin: 0;
@@ -430,7 +469,7 @@
   color: #55767b;
 }
 
-.help-block + .help-block {
+.help-block+.help-block {
   margin-top: 1.8rem;
 }
 
@@ -573,10 +612,11 @@
 }
 
 .help-list-item {
-    margin-left: 1rem;
-    li {
-      padding-bottom: 0.5rem;
-    }
+  margin-left: 1rem;
+
+  li {
+    padding-bottom: 0.5rem;
+  }
 }
 
 .help-section {
@@ -588,4 +628,9 @@
     padding-block: 0.2rem;
   }
 
+}
+
+p {
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
 }

@@ -104,8 +104,7 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
     {
         var requestBase = GetRequestBaseUri();
 
-        var lines = environment.IsProduction()
-            ?
+        List<string> lines = environment.IsProduction() ?
             [
                 "User-agent: *",
                 "Allow: /",
@@ -113,7 +112,7 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
                 "Disallow: /sign-in/participant",
                 "Disallow: /signin-token",
                 "Disallow: /search",
-                $"Sitemap: {ToAbsoluteUrl(requestBase, "/sitemap.xml")}" 
+                $"Sitemap: {ToAbsoluteUrl(requestBase, "/sitemap.xml")}"
             ]
             :
             [

@@ -15,6 +15,7 @@ import {
   getHelpQuestionByPageId
 } from '../help-content';
 import { HelpListAnswerComponent } from './list-answer-component';
+import { HelpParagraphAnswerComponent } from './paragraph-answer-component';
 import { HelpGetStartedGuestAccessAnswerComponent } from './get-started/help-get-started-guest-access-answer.component';
 
 interface HelpAnswerRenderSpec {
@@ -102,6 +103,15 @@ export class HelpAnswerComponent {
       return null;
     }
 
+    if (question.answer.kind === 'paragraph') {
+      return {
+        component: HelpParagraphAnswerComponent,
+        inputs: {
+          sections: question.answer.sections
+        }
+      };
+    }
+
     return {
       component: HelpListAnswerComponent,
       inputs: {
@@ -134,7 +144,7 @@ export class HelpAnswerComponent {
   private buildJsonLd(page: HelpPage, question: HelpQuestionDefinition | null): Record<string, unknown> {
     const canonicalUrl = this.buildAbsoluteUrl(this.pageUrl(page.id));
     const homeUrl = this.buildAbsoluteUrl(getHelpPageUrl(HELP_HOME_PAGE_ID));
-    const answerText = question?.answer.kind === 'list'
+    const answerText = question && question.answer.kind !== 'component'
       ? getHelpAnswerPlainText(question.answer)
       : page.description;
 

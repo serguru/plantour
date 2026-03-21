@@ -1,0 +1,19 @@
+{
+  "slug": "dictionary",
+  "question": "What is dictionary?",
+  "answer": {
+    "kind": "paragraph",
+    "sections": [
+      {
+        "beforeHtml": "In Plantour, the dictionary is the place where you keep a list of reusable entities that is not tied to one specific trip. It includes travelers, items, bags, and todos, so you can copy them into trips instead of creating them from scratch each time. After <a href='/sign-in'>signing in</a> you can manage these dictionaries here:",
+        "paragraphs": [
+          "<a href=\"/travelers\">Travelers</a>",
+          "<a href=\"/items\">Items</a>",
+          "<a href=\"/packs\">Bags</a>",
+          "<a href=\"/todos\">Todos</a>"
+        ],
+        "afterHtml": "You can navigate to a certain dictionary by clicking on toolbar`s \"Dictionary\" button with \"copy\" icon and then select a corresponding menu item. If you do not see that button <a href='/sign-in'>sign in</a>."
+      }
+    ]
+  }
+}

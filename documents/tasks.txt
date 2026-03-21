@@ -594,3 +594,16 @@ Redesign the help system. The requirements are:
 6) Make actual answers pages use ngComponentOutlet to be inserted into help-answer component. Answers pages being reused components are the only help content source.
 7) Design the reused ListAnswer.Component with predesigned HTML list collection. Provide a way how to create answers as list collection for different questions.
 8) There should be support for an original XyzAnswer.Component. 
+
+
+{
+  title: 'Steps',
+  beforeHtml: 'Use these steps before you leave for the airport.',
+  listStyle: 'ordered',
+  items: [
+    'Open the <strong>Trip</strong> menu.',
+    'Select <strong>Bags</strong>.',
+    'Download the packing list PDF.'
+  ],
+  afterHtml: 'After downloading, print the PDF and place it inside the bag.'
+}

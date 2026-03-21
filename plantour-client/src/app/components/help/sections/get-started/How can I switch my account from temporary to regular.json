@@ -1,0 +1,18 @@
+{
+  "slug": "switch-account",
+  "question": "How can I switch my account from temporary to regular?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ul",
+        "items": [
+          "If you wish to keep your test data navigate to your profile and enter your real email.",
+          "If you wish to start a new regular free account from scratch sign out from your temporary account, go to sign in and enter your real email or sign in with Google or Facebook.",
+          "If you want to start with a paid plan, go to your profile and click \"Change plan\" button. Your test data will be saved.",
+          "To start with a paid plan from scratch, sign out and click the \"Dashboard\" button on the toolbar. This will open the main page. Scroll down, select a paid plan, and click the corresponding button."
+        ]
+      }
+    ]
+  }
+}
