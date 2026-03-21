@@ -1,0 +1,8 @@
+{
+  "id": "workflows",
+  "title": "Workflows",
+  "summary": "What to do to achieve a certain result",
+  "questions": [
+    "How do I add items to a trip.json"
+  ]
+}

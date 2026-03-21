@@ -1,0 +1,12 @@
+{
+  "id": "features",
+  "title": "Features",
+  "summary": "UI and functional features described",
+  "questions": [
+    "What are the main entities that Plniur operates with.json",
+    "What is toolbar.json",
+    "How do I add update or delete entities.json",
+    "What is dictionary.json"
+    
+  ]
+}
