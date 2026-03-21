@@ -1,14 +1,19 @@
 <div class="help-shell">
   <section class="help-answer-page">
-    <article class="help-page-card help-page-card--answer">
-      <div class="help-answer-toolbar">
-        <a class="help-back-link" [routerLink]="homeUrl()">
-          Back to Help
+    <article class="help-page-card--answer">
+      <div class="help-answer-heading">
+        <a
+          class="pl-button help-answer-back-button"
+          [routerLink]="homeUrl()"
+          [fragment]="backLinkFragment()"
+          [attr.title]="backLinkLabel()"
+          [attr.aria-label]="backLinkLabel()"
+        >
+          <span class="pi pi-chevron-left" aria-hidden="true"></span>
         </a>
-      </div>
 
-      <h1 class="help-answer-title">{{ currentPage().title }}</h1>
-      <p class="help-page-summary">{{ currentPage().summary }}</p>
+        <h1 class="help-answer-title">{{ displayTitle() }}</h1>
+      </div>
 
       @if (answerSpec(); as spec) {
         <ng-container *ngComponentOutlet="spec.component; inputs: spec.inputs"></ng-container>

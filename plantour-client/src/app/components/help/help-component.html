@@ -8,9 +8,10 @@
     ></app-entities-header>
 
     <div class="help-shell">
-        <section class="help-section-stack">
+        <section class="help-section-stack"> 
             @for (section of visibleSections(); track section.id; let isFirst = $first) {
                 <details
+                    [attr.id]="section.id"
                     class="help-page-card help-section-card help-faq-section"
                     [open]="isSectionExpanded(section.id, isFirst)"
                     (toggle)="onSectionToggle(section.id, $event)"
@@ -34,6 +35,6 @@
                     </ol>
                 </details>
             }
-        </section>
+         </section>
     </div>
 </div>

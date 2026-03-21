@@ -7,9 +7,6 @@
 
 .help-shell {
   padding: 1rem;
-  background:
-    radial-gradient(circle at top right, rgba(77, 184, 196, 0.14), transparent 24%),
-    linear-gradient(180deg, #f6fbfc 0%, #ffffff 22%, #ffffff 100%);
   display: grid;
   gap: 1rem;
 }
@@ -113,7 +110,6 @@
   border-radius: 22px;
   background: white;
   border: 1px solid rgba(36, 91, 100, 0.12);
-  box-shadow: 0 16px 38px rgba(31, 61, 67, 0.06);
 }
 
 .help-page-card--hero,
@@ -327,19 +323,6 @@
   gap: 1rem;
 }
 
-.help-answer-toolbar {
-  margin-bottom: 0.75rem;
-}
-
-.help-back-link {
-  color: var(--primary-color);
-  text-decoration: none;
-}
-
-.help-back-link:hover {
-  text-decoration: underline;
-}
-
 .help-answer-title {
   margin: 0;
   color: #17383d;
@@ -417,19 +400,21 @@
   transform: rotate(225deg);
 }
 
-.help-answer-toolbar {
+.help-answer-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   margin-top: 0.25rem;
 }
 
-.help-back-link {
-  display: inline;
-  padding: 0;
-  border: none;
-  background: transparent;
-  box-shadow: none;
+.help-answer-back-button {
+  flex: 0 0 auto;
   color: var(--primary-color);
-  text-decoration: underline;
-  font-weight: 500;
+  text-decoration: none;
+}
+
+.help-answer-back-button:not(:disabled):hover {
+  text-decoration: none;
 }
 
 .help-page-content {
@@ -438,11 +423,11 @@
 
 .help-answer-title {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
   font-family: var(--font-heading);
-  font-size: clamp(1.35rem, 2.5vw, 2rem);
-  line-height: 1.2;
-  color: #17383d;
+  font-size: clamp(1.1rem, 2vw, 1.55rem);
+  line-height: 1.28;
+  color: #55767b;
 }
 
 .help-block + .help-block {

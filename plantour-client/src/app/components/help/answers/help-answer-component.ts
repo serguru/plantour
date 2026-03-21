@@ -9,6 +9,7 @@ import {
   HELP_HOME_PAGE_ID,
   HelpQuestionDefinition,
   findHelpPageByPath,
+  getHelpSection,
   getHelpPageUrl,
   getHelpQuestionByPageId
 } from '../help-content';
@@ -38,6 +39,7 @@ export class HelpAnswerComponent {
   private readonly currentPath = signal<string[]>([]);
   readonly currentPage = computed<HelpPage>(() => findHelpPageByPath(this.currentPath()) ?? findHelpPageByPath([])!);
   readonly currentQuestion = computed<HelpQuestionDefinition | null>(() => getHelpQuestionByPageId(this.currentPage().id));
+  readonly currentSection = computed(() => getHelpSection(this.currentQuestion()?.sectionId ?? this.currentPage().sectionId ?? null));
   readonly answerSpec = computed(() => this.buildAnswerSpec(this.currentQuestion()));
 
   constructor() {
@@ -71,6 +73,19 @@ export class HelpAnswerComponent {
 
   homeUrl(): string {
     return getHelpPageUrl(HELP_HOME_PAGE_ID);
+  }
+
+  displayTitle(): string {
+    return this.currentPage().title.replace(/\?+$/, '').trimEnd();
+  }
+
+  backLinkLabel(): string {
+    const sectionTitle = this.currentSection()?.title;
+    return sectionTitle ? `Back to ${sectionTitle}` : 'Back to Help';
+  }
+
+  backLinkFragment(): string | undefined {
+    return this.currentSection()?.id;
   }
 
   private buildAnswerSpec(question: HelpQuestionDefinition | null): HelpAnswerRenderSpec | null {

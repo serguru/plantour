@@ -32,6 +32,7 @@ export class HelpComponent {
   readonly currentPage = computed<HelpPage>(() => findHelpPageByPath([])!);
   readonly visibleSections = computed(() => this.sections);
   readonly expandedSections = signal<Record<string, boolean>>({});
+  readonly currentFragment = signal<string | null>(null);
   readonly allVisibleSectionsExpanded = computed(() =>
     this.visibleSections().every((section, index) => this.isSectionExpanded(section.id, index === 0))
   );
@@ -54,11 +55,13 @@ export class HelpComponent {
   ]);
 
   constructor() {
+    this.syncCurrentFragmentFromUrl();
     this.expandedSections.set(this.createExpandedSectionsState());
 
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd)
     ).subscribe(() => {
+      this.syncCurrentFragmentFromUrl();
       this.expandedSections.set(this.createExpandedSectionsState());
     });
 
@@ -116,12 +119,18 @@ export class HelpComponent {
   }
 
   private createExpandedSectionsState(): Record<string, boolean> {
+    const currentFragment = this.currentFragment();
+
     return Object.fromEntries(
       this.visibleSections().map((section, index) => [
         section.id,
-        index === 0
+        currentFragment ? section.id === currentFragment : index === 0
       ])
     );
+  }
+
+  private syncCurrentFragmentFromUrl(): void {
+    this.currentFragment.set(this.router.parseUrl(this.router.url).fragment ?? null);
   }
 
   private buildAbsoluteUrl(path: string): string {

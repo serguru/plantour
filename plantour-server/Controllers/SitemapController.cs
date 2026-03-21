@@ -14,13 +14,12 @@ namespace plantour_server.Controllers;
 public class SitemapController(PlantourContext context, IWebHostEnvironment environment) : ControllerBase
 {
     private const string SitemapNamespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
-
-    private static readonly Regex HelpSpecPattern = new(
-        @"^\s*(?:overview|task|trouble|role)\(\[(?<path>[^\]]*)\]",
+    private static readonly Regex HelpSectionIdPattern = new(
+        @"^\s*id:\s*'(?<id>[^']+)'\s*,?\s*$",
         RegexOptions.Compiled);
 
-    private static readonly Regex HelpSegmentPattern = new(
-        @"'(?<segment>[^']+)'",
+    private static readonly Regex HelpQuestionSlugPattern = new(
+        @"^\s*slug:\s*'(?<slug>[^']+)'\s*,?\s*$",
         RegexOptions.Compiled);
 
     private static readonly SitemapEntry[] StaticEntries =
@@ -99,6 +98,33 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
         return File(xmlBytes, "application/xml; charset=utf-8");
     }
 
+    [AllowAnonymous]
+    [HttpGet("/robots.txt")]
+    public IActionResult GetRobots()
+    {
+        var requestBase = GetRequestBaseUri();
+
+        var lines = environment.IsProduction()
+            ?
+            [
+                "User-agent: *",
+                "Allow: /",
+                "Disallow: /sign-in",
+                "Disallow: /sign-in/participant",
+                "Disallow: /signin-token",
+                "Disallow: /search",
+                $"Sitemap: {ToAbsoluteUrl(requestBase, "/sitemap.xml")}" 
+            ]
+            :
+            [
+                "User-agent: *",
+                "Disallow: /"
+            ];
+
+        var payload = string.Join('\n', lines) + '\n';
+        return Content(payload, "text/plain; charset=utf-8");
+    }
+
     private async Task<List<SitemapEntry>> GetSitemapEntriesAsync()
     {
         var helpEntries = await GetHelpSitemapEntriesAsync();
@@ -133,27 +159,46 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
         var lines = await System.IO.File.ReadAllLinesAsync(helpContentPath);
         var lastModified = System.IO.File.GetLastWriteTimeUtc(helpContentPath);
         var entries = new List<SitemapEntry> { new("/help", 0.8m, lastModified) };
+        var isInsideSectionSources = false;
+        string? currentSectionId = null;
 
         foreach (var line in lines)
         {
-            var pathMatch = HelpSpecPattern.Match(line);
-            if (!pathMatch.Success)
+            if (!isInsideSectionSources)
+            {
+                if (line.Contains("const SECTION_SOURCES"))
+                {
+                    isInsideSectionSources = true;
+                }
+
+                continue;
+            }
+
+            if (line.Contains("export const HELP_SECTIONS"))
+            {
+                break;
+            }
+
+            var sectionMatch = HelpSectionIdPattern.Match(line);
+            if (sectionMatch.Success)
+            {
+                currentSectionId = sectionMatch.Groups["id"].Value;
+                continue;
+            }
+
+            var slugMatch = HelpQuestionSlugPattern.Match(line);
+            if (!slugMatch.Success || string.IsNullOrWhiteSpace(currentSectionId))
             {
                 continue;
             }
 
-            var pathPart = pathMatch.Groups["path"].Value;
-            var segments = HelpSegmentPattern.Matches(pathPart)
-                .Select(match => match.Groups["segment"].Value)
-                .Where(segment => !string.IsNullOrWhiteSpace(segment))
-                .ToArray();
-
-            if (segments.Length == 0)
+            var slug = slugMatch.Groups["slug"].Value;
+            if (string.IsNullOrWhiteSpace(slug))
             {
                 continue;
             }
 
-            entries.Add(new($"/help/{string.Join('/', segments)}", 0.5m, lastModified));
+            entries.Add(new($"/help/{currentSectionId}/{slug}", 0.5m, lastModified));
         }
 
         return entries;

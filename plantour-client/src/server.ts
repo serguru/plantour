@@ -33,7 +33,7 @@ function isAuthPage(path: string): boolean {
 
 function isSearchPage(path: string): boolean {
   const normalizedPath = (path || '/').replace(/\/+$/, '') || '/';
-  return normalizedPath === '/search' || normalizedPath === '/help/search';
+  return normalizedPath === '/search';
 }
 
 function resolveBaseUrl(req?: express.Request): string {
@@ -100,7 +100,7 @@ function buildSitemapEntries(baseUrl: string): SitemapEntry[] {
   const helpEntries = HELP_SITEMAP_PAGES.map((page) => ({
     url: `${baseUrl}${getHelpPageUrl(page)}`,
     changefreq: page.kind === 'answer' ? 'monthly' : 'weekly',
-    priority: page.kind === 'home' ? 0.9 : page.kind === 'section' ? 0.8 : 0.7,
+    priority: page.kind === 'home' ? 0.9 : 0.7,
     lastmod,
   } satisfies SitemapEntry));
 
@@ -144,6 +144,28 @@ app.get('/sitemap.xml', (req, res) => {
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=3600');
   res.status(200).send(xml);
+});
+
+app.get('/robots.txt', (req, res) => {
+  const baseUrl = resolveBaseUrl(req);
+  const lines = environment.environment === 'production'
+    ? [
+        'User-agent: *',
+        'Allow: /',
+        'Disallow: /sign-in',
+        'Disallow: /sign-in/participant',
+        'Disallow: /signin-token',
+        'Disallow: /search',
+        `Sitemap: ${baseUrl}/sitemap.xml`,
+      ]
+    : [
+        'User-agent: *',
+        'Disallow: /',
+      ];
+
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.status(200).send(`${lines.join('\n')}\n`);
 });
 
 // 3. Handle Angular Rendering
