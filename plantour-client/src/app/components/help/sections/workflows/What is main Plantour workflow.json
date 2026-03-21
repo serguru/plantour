@@ -1,0 +1,28 @@
+{
+  "slug": "main-plantour-workflow",
+  "question": "What is main Plantour workflow?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "beforeHtml": "The main Plantour workflow starts with an Admin creating the trip and ends with that trip being completed and treated as archived. The shared idea is simple: the Admin organizes the trip and shared responsibilities, while each Participant takes ownership of their own preparation and of the shared work assigned to them.",
+        "listTag": "ol",
+        "items": [
+          "The Admin creates a trip, sets the name, dates, notes, and current status, and is automatically added to that trip as a participant too.",
+          "The Admin adds Participants to the trip. Plantour then gives those people access to the same trip and can send invitation or access emails.",
+          "The Admin and each Participant prepare their own personal trip lists by adding personal items, personal todos, and bags for packing.",
+          "The Admin creates shared items and shared todos for group responsibilities such as common gear, documents, or tasks that should belong to the trip as a whole.",
+          "The Admin can speed up planning by copying suggestions from templates or by asking AI to generate items for the trip. Personal trip items can be filled this way for both Admins and Participants, while shared trip planning is managed by the Admin.",
+          "The Admin assigns shared items and shared todos to specific Participants. For example, the Admin assigns a shared item, and the Participant takes that item into their own trip list by accepting the assignment.",
+          "The Participant reacts to assignments. They can accept the assignment, reject it, or later complete it with success or failure. Plantour sends email notifications about new assignments and about important participant actions back to the Admin.",
+          "If something changes, the Admin reassigns or unassigns shared work. This resets the previous assignment state so another Participant can take responsibility for it.",
+          "Each Participant continues preparing for the trip by packing personal and accepted shared items into bags, finishing personal todos, and finishing assigned shared todos. Plantour can also generate and download packing lists as PDF files for trip bags, so people can keep printable packing checklists for the trip.",
+          "The Admin watches preparation progress in the Dashboard, where Plantour shows counts of participants, bags, shared work, pending work, overdue work, successes, failures, and overall packing progress.",
+          "During preparation and during the trip itself, the Admin and Participants exchange messages in trip comments so everyone can coordinate in one place.",
+          "When the trip is underway, Plantour is still used for the current trip: people keep checking items, bags, shared responsibilities, progress, and messages.",
+          "At the end, the Admin marks the trip as completed. Plantour can generate and download a trip report as a PDF file, giving the Admin a printable summary of the trip and its related data. In the current implementation, the completed state acts as the practical end of the workflow and the archived-like state for the trip."
+        ]
+      }
+    ]
+  }
+}
