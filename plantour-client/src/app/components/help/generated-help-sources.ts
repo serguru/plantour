@@ -15,6 +15,7 @@ import featuresWhatAreItemTemplatesJsonQuestion from './sections/features/What a
 import featuresHowToAskAIForItemRecommendationsJsonQuestion from './sections/features/How to ask AI for item recommendations.json';
 import workflowsWhatIsMainPlantourWorkflowJsonQuestion from './sections/workflows/What is main Plantour workflow.json';
 import workflowsHowDoIInviteTravelersJsonQuestion from './sections/workflows/How do I invite travelers.json';
+import workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion from './sections/workflows/How do I work with my items dictionary.json';
 
 export const GENERATED_SECTION_MANIFEST_ENTRIES: [string, unknown][] = [
   ['get-started', getStartedSectionManifest],
@@ -36,5 +37,6 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['features/What are item templates.json', featuresWhatAreItemTemplatesJsonQuestion],
   ['features/How to ask AI for item recommendations.json', featuresHowToAskAIForItemRecommendationsJsonQuestion],
   ['workflows/What is main Plantour workflow.json', workflowsWhatIsMainPlantourWorkflowJsonQuestion],
-  ['workflows/How do I invite travelers.json', workflowsHowDoIInviteTravelersJsonQuestion]
+  ['workflows/How do I invite travelers.json', workflowsHowDoIInviteTravelersJsonQuestion],
+  ['workflows/How do I work with my items dictionary.json', workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion]
 ];

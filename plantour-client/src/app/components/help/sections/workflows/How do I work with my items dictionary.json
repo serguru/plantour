@@ -1,0 +1,82 @@
+{
+  "slug": "work-with-my-items-dictionary",
+  "question": "How do I work with my items dictionary?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Add items directly",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you already know the exact item you want to save in your <a href='/items'>Items</a> dictionary.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Items</strong>.",
+          "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Item</strong> form opens.",
+          "Enter the item name. Add category, notes, units, and value if you want to keep extra details in the dictionary.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the item in your <a href='/items'>Items</a> dictionary and returns you to the list.",
+          "Make sure the new item is visible in the list. If needed, use the name filter to find it faster."
+        ],
+        "afterHtml": "This is the best option when you only need to add one or a few specific items and you do not need template or AI suggestions."
+      },
+      {
+        "title": "Add items from Template items",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to start from ready-made packing ideas grouped by template, activity, temperature range, age, or category.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Template items</strong>.",
+          "Open the actions bar in the page header and choose the target option.",
+          "Set the target to <strong>Items Dictionary</strong>.",
+          "Narrow the list to the template items you want. For example, filter by Template, Activity, Temperature Range, Age, Category, or Name.",
+          "If you want a refresher on these bulk-selection tools, read the help question <a href='/help/features/filter-sort-target-entities'>How do I filter, sort and target entities?</a>. The same target, filter, and sort approach is used here.",
+          "Review the visible template items. Plantour marks which ones are already in your dictionary and which ones are not yet copied.",
+          "To add one item, click the add button on that item row. To add many visible items at once, use the page-level plus button for the currently shown list.",
+          "Plantour copies the selected template items into your <a href='/items'>Items</a> dictionary."
+        ],
+        "afterHtml": "Filtering first is useful because the bulk add button works with the currently shown list, not with every template item in the system."
+      },
+      {
+        "title": "Add items from AI prompts",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want Plantour to generate item suggestions from your trip description and then save the useful ones into your dictionary.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>AI prompts</strong>.",
+          "Click in the prompt box. Type your own request or choose one of the recent prompts from the dropdown list.",
+          "Describe the trip clearly, such as destination, weather, activities, trip length, or traveler age.",
+          "Click <strong>Ask AI</strong>.",
+          "When the recommended items appear, open the target option and set it to <strong>Items Dictionary</strong>.",
+          "If you want to narrow or batch the results, use filtering and sorting before copying. For the exact workflow of target, filter, and sort tools, see the help question <a href='/help/features/filter-sort-target-entities'>How do I filter, sort and target entities?</a>.",
+          "To add one recommendation, click the add button on that item row. To add many visible recommendations at once, use the page-level plus button for the current filtered list.",
+          "Plantour copies the selected AI recommendations into your <a href='/items'>Items</a> dictionary."
+        ],
+        "afterHtml": "AI prompts are useful when you are not sure what to pack yet. After the items are in your dictionary, you can reuse them later in trips just like any other saved item."
+      },
+      {
+        "title": "Update an existing dictionary item",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to change the saved name, category, notes, units, or value of an item in your <a href='/items'>Items</a> dictionary.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Items</strong>.",
+          "Select the item you want to change so it is highlighted.",
+          "Click the <strong>Update</strong> button with the pencil icon. The <strong>Edit Item</strong> form opens.",
+          "Change the fields you want to update.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the updated dictionary item and returns you to the list."
+        ],
+        "afterHtml": "Updating an item in your dictionary does not change trip items that were already copied into trips earlier. Those trip items keep their own trip data."
+      },
+      {
+        "title": "Delete an item from the dictionary",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you no longer want an item to stay in your reusable dictionary.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Items</strong>.",
+          "Select the item you want to remove so it is highlighted.",
+          "Click the <strong>Delete</strong> button with the trash icon.",
+          "Confirm the deletion.",
+          "Plantour removes the item from your <a href='/items'>Items</a> dictionary."
+        ],
+        "afterHtml": "Deleting an item from your dictionary does not remove trip items that were already copied into trips. Existing trip items stay in those trips until you change or delete them there."
+      }
+    ]
+  }
+}
