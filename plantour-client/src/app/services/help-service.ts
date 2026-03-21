@@ -1,81 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HELP_FUTURE_PAGES_PAGE_ID } from '../components/help/help-content';
+import { HELP_HOME_PAGE_ID, HELP_PAGE_MAP, findHelpPageByPath, getHelpPageUrl } from '../components/help/help-content';
+import type { HelpBreadcrumb, HelpPage } from '../components/help/help-content';
 
-export interface HelpLink {
-  pageId: string;
-  label?: string;
-  description?: string;
-}
-
-export interface HelpStep {
-  title: string;
-  body: string;
-}
-
-export interface HelpCard {
-  title: string;
-  body: string;
-  link?: HelpLink;
-}
-
-export interface HelpListItem {
-  text: string;
-  pageId?: string;
-}
-
-export type HelpBlock =
-  | {
-      kind: 'paragraphs';
-      id: string;
-      title?: string;
-      paragraphs: string[];
-    }
-  | {
-      kind: 'steps';
-      id: string;
-      title: string;
-      intro?: string;
-      steps: HelpStep[];
-    }
-  | {
-      kind: 'cards';
-      id: string;
-      title: string;
-      intro?: string;
-      cards: HelpCard[];
-    }
-  | {
-      kind: 'list';
-      id: string;
-      title: string;
-      intro?: string;
-      items: HelpListItem[];
-    }
-  | {
-      kind: 'callout';
-      id: string;
-      tone: 'info' | 'tip';
-      title: string;
-      body: string;
-    };
-
-export interface HelpPage {
-  id: string;
-  path: string[];
-  title: string;
-  summary: string;
-  description: string;
-  parentId?: string;
-  keywords: string[];
-  relatedPageIds?: string[];
-  blocks: HelpBlock[];
-}
-
-export interface HelpBreadcrumb {
-  label: string;
-  url: string;
-  pageId: string;
-}
+export type { HelpBreadcrumb, HelpPage } from '../components/help/help-content';
 
 export interface HelpSearchResult {
   page: HelpPage;
@@ -87,11 +14,22 @@ export interface HelpSearchResult {
 
 @Injectable({ providedIn: 'root' })
 export class HelpService {
-  resolvePageId(_currentUrl: string, explicitPageId?: string | null): string | null {
-    return explicitPageId ?? HELP_FUTURE_PAGES_PAGE_ID;
+  resolvePageId(currentUrl: string, explicitPageId?: string | null): string | null {
+    if (explicitPageId && HELP_PAGE_MAP.has(explicitPageId)) {
+      return explicitPageId;
+    }
+
+    const cleanUrl = currentUrl.split('?')[0].split('#')[0];
+    const segments = cleanUrl
+      .split('/')
+      .filter((segment) => segment.length > 0);
+    const helpPath = segments[0] === 'help' ? segments.slice(1) : [];
+    const page = findHelpPageByPath(helpPath);
+
+    return page?.id ?? HELP_HOME_PAGE_ID;
   }
 
-  getPageUrl(_pageId: string | null): string | null {
-    return '/help';
+  getPageUrl(pageId: string | null): string | null {
+    return getHelpPageUrl(pageId ?? HELP_HOME_PAGE_ID);
   }
 }

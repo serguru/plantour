@@ -7,12 +7,22 @@ import express from 'express';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { environment } from './environments/environment';
+import { HELP_SITEMAP_PAGES, getHelpPageUrl } from './app/components/help/help-content';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 
 const app = express();
 const angularAppEngine = new AngularNodeAppEngine();
+
+type SitemapChangeFrequency = 'daily' | 'weekly' | 'monthly' | 'yearly';
+
+interface SitemapEntry {
+  url: string;
+  changefreq: SitemapChangeFrequency;
+  priority: number;
+  lastmod: string;
+}
 
 function isAuthPage(path: string): boolean {
   const normalizedPath = (path || '/').replace(/\/+$/, '') || '/';
@@ -21,8 +31,90 @@ function isAuthPage(path: string): boolean {
     || normalizedPath === '/signin-token';
 }
 
+function isHelpSearchPage(path: string): boolean {
+  const normalizedPath = (path || '/').replace(/\/+$/, '') || '/';
+  return normalizedPath === '/help/search';
+}
+
+function resolveBaseUrl(req?: express.Request): string {
+  const forwardedProtoHeader = req?.headers['x-forwarded-proto'];
+  const forwardedHostHeader = req?.headers['x-forwarded-host'];
+  const forwardedProto = Array.isArray(forwardedProtoHeader) ? forwardedProtoHeader[0] : forwardedProtoHeader;
+  const forwardedHost = Array.isArray(forwardedHostHeader) ? forwardedHostHeader[0] : forwardedHostHeader;
+
+  if (forwardedProto && forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+
+  if (req?.protocol && req.get('host')) {
+    return `${req.protocol}://${req.get('host')}`;
+  }
+
+  return environment.clientUrl.replace(/\/+$/, '');
+}
+
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function buildSitemapEntries(baseUrl: string): SitemapEntry[] {
+  const lastmod = new Date().toISOString().split('T')[0];
+  const staticEntries: SitemapEntry[] = [
+    {
+      url: `${baseUrl}/`,
+      changefreq: 'weekly',
+      priority: 1,
+      lastmod,
+    },
+    {
+      url: `${baseUrl}/contact`,
+      changefreq: 'yearly',
+      priority: 0.4,
+      lastmod,
+    },
+    {
+      url: `${baseUrl}/privacy`,
+      changefreq: 'yearly',
+      priority: 0.3,
+      lastmod,
+    },
+    {
+      url: `${baseUrl}/terms`,
+      changefreq: 'yearly',
+      priority: 0.3,
+      lastmod,
+    },
+    {
+      url: `${baseUrl}/packing-list-generator/templates`,
+      changefreq: 'weekly',
+      priority: 0.7,
+      lastmod,
+    }
+  ];
+
+  const helpEntries = HELP_SITEMAP_PAGES.map((page) => ({
+    url: `${baseUrl}${getHelpPageUrl(page)}`,
+    changefreq: page.kind === 'answer' ? 'monthly' : 'weekly',
+    priority: page.kind === 'home' ? 0.9 : page.kind === 'section' ? 0.8 : 0.7,
+    lastmod,
+  } satisfies SitemapEntry));
+
+  return [...staticEntries, ...helpEntries];
+}
+
+function buildSitemapXml(entries: SitemapEntry[]): string {
+  const urlset = entries.map((entry) => `  <url>\n    <loc>${escapeXml(entry.url)}</loc>\n    <lastmod>${entry.lastmod}</lastmod>\n    <changefreq>${entry.changefreq}</changefreq>\n    <priority>${entry.priority.toFixed(1)}</priority>\n  </url>`).join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlset}\n</urlset>`;
+}
+
 app.use((req, res, next) => {
-  if (environment.environment !== 'production' || isAuthPage(req.path)) {
+  if (environment.environment !== 'production' || isAuthPage(req.path) || isHelpSearchPage(req.path)) {
     res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
   }
 
@@ -43,6 +135,15 @@ app.use(
 // If this works, Render will pass the port scan instantly.
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
+});
+
+app.get('/sitemap.xml', (req, res) => {
+  const baseUrl = resolveBaseUrl(req);
+  const xml = buildSitemapXml(buildSitemapEntries(baseUrl));
+
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.status(200).send(xml);
 });
 
 // 3. Handle Angular Rendering

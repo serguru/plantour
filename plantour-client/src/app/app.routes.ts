@@ -14,13 +14,20 @@ export const routes: Routes = [
         data: { componentId: 'help' }
       },
       {
-        path: 'pages',
-        redirectTo: '',
-        pathMatch: 'full'
+        path: 'search',
+        loadComponent: () => import('./components/help/help-search-results-component').then(m => m.HelpSearchResultsComponent),
+        resolve: { cleanup: CleanupResolver },
+        data: { componentId: 'help' }
       },
       {
         path: ':sectionId/:questionSlug',
         loadComponent: () => import('./components/help/answers/help-answer-component').then(m => m.HelpAnswerComponent),
+        resolve: { cleanup: CleanupResolver },
+        data: { componentId: 'help' }
+      },
+      {
+        path: ':sectionId',
+        loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
         resolve: { cleanup: CleanupResolver },
         data: { componentId: 'help' }
       },

@@ -1,16 +1,26 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, effect, inject, signal, Type } from '@angular/core';
+import { Component, computed, effect, inject, signal, Type } from '@angular/core';
 import { REQUEST } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
 import { SeoService } from '../../../services/seo-service';
-import { HELP_FAQ_SECTIONS, HELP_FUTURE_PAGES_PAGE_ID, HelpFaqSection, HELP_PAGES } from '../help-content';
-import { HelpGetStartedGuestAccessAnswerComponent } from './get-started/help-get-started-guest-access-answer.component';
-import { HelpGetStartedFirstStepsAnswerComponent } from './get-started/help-get-started-first-steps-answer.component';
 import { HelpPage } from '../../../services/help-service';
+import {
+  HELP_HOME_PAGE_ID,
+  HelpQuestionDefinition,
+  findHelpPageByPath,
+  getHelpBreadcrumbs,
+  getHelpPageUrl,
+  getHelpQuestionByPageId,
+  getHelpSection
+} from '../help-content';
+import { HelpListAnswerComponent } from './list-answer-component';
+import { HelpGetStartedGuestAccessAnswerComponent } from './get-started/help-get-started-guest-access-answer.component';
 
-const GUEST_ACCESS_ANSWER_PATH = 'get-started/no-account';
-const FIRST_STEPS_ANSWER_PATH = 'get-started/first-steps';
+interface HelpAnswerRenderSpec {
+  component: Type<unknown>;
+  inputs?: Record<string, unknown>;
+}
 
 @Component({
   selector: 'app-help-answer',
@@ -21,7 +31,6 @@ const FIRST_STEPS_ANSWER_PATH = 'get-started/first-steps';
 })
 export class HelpAnswerComponent {
   componentId = 'help';
-  readonly faqPageId = HELP_FUTURE_PAGES_PAGE_ID;
 
   private readonly router = inject(Router);
   private readonly seoService = inject(SeoService);
@@ -29,6 +38,11 @@ export class HelpAnswerComponent {
   private readonly request = inject(REQUEST, { optional: true });
 
   private readonly currentPath = signal<string[]>([]);
+  readonly currentPage = computed<HelpPage>(() => findHelpPageByPath(this.currentPath()) ?? findHelpPageByPath([])!);
+  readonly currentQuestion = computed<HelpQuestionDefinition | null>(() => getHelpQuestionByPageId(this.currentPage().id));
+  readonly currentSection = computed(() => getHelpSection(this.currentQuestion()?.sectionId));
+  readonly breadcrumbs = computed(() => getHelpBreadcrumbs(this.currentPage().id));
+  readonly answerSpec = computed(() => this.buildAnswerSpec(this.currentQuestion()));
 
   constructor() {
     this.syncCurrentPathFromUrl();
@@ -44,45 +58,45 @@ export class HelpAnswerComponent {
       this.seoService.setSeo({
         title: `${page.title} | Plantour Help`,
         description: page.description,
-        canonicalUrl: this.buildAbsoluteUrl(this.pageUrl(page)),
+        canonicalUrl: this.buildAbsoluteUrl(this.pageUrl(page.id)),
         ogType: 'article',
-        jsonLd: this.buildJsonLd(page)
+        jsonLd: this.buildJsonLd(page, this.currentQuestion())
       });
     });
   }
 
-  pageUrl(page: HelpPage): string {
-    return page.path.length === 0 ? '/help' : `/help/${page.path.join('/')}`;
-  }
-
   pageUrlById(pageId: string): string {
-    const page = HELP_PAGES.find((item) => item.id === pageId);
-    return page ? this.pageUrl(page) : '/help';
+    return getHelpPageUrl(pageId);
   }
 
-  currentPage(): HelpPage {
-    const joinedPath = this.currentPath().join('/');
-    const page = HELP_PAGES.find((item) => item.path.join('/') === joinedPath);
-    return page ?? HELP_PAGES[0];
+  pageUrl(pageId: string): string {
+    return getHelpPageUrl(pageId);
   }
 
-  currentSection(): HelpFaqSection | null {
-    const pageId = this.currentPage().id;
-    return HELP_FAQ_SECTIONS.find((section) => section.questions.some((question) => question.pageId === pageId)) ?? null;
+  sectionUrl(): string {
+    const currentSection = this.currentSection();
+    return currentSection ? getHelpPageUrl(currentSection.pageId) : getHelpPageUrl(HELP_HOME_PAGE_ID);
   }
 
-  answerComponent(): Type<unknown> | null {
-    const currentPath = this.currentPath().join('/');
-
-    if (currentPath === GUEST_ACCESS_ANSWER_PATH) {
-      return HelpGetStartedGuestAccessAnswerComponent;
+  private buildAnswerSpec(question: HelpQuestionDefinition | null): HelpAnswerRenderSpec | null {
+    if (!question) {
+      return null;
     }
 
-    if (currentPath === FIRST_STEPS_ANSWER_PATH) {
-      return HelpGetStartedFirstStepsAnswerComponent;
+    if (question.answer.kind === 'component') {
+      if (question.answer.componentKey === 'get-started-guest-access') {
+        return { component: HelpGetStartedGuestAccessAnswerComponent };
+      }
+
+      return null;
     }
 
-    return null;
+    return {
+      component: HelpListAnswerComponent,
+      inputs: {
+        sections: question.answer.sections
+      }
+    };
   }
 
   private syncCurrentPathFromUrl(): void {
@@ -93,29 +107,65 @@ export class HelpAnswerComponent {
   }
 
   private buildAbsoluteUrl(path: string): string {
-    if (this.request?.url) {
-      const protocol = this.request.headers?.get('x-forwarded-proto') ?? undefined;
-      const host = this.request.headers?.get('x-forwarded-host') ?? this.request.headers?.get('host') ?? undefined;
-
-      if (protocol && host) {
-        return `${protocol}://${host}${path}`;
-      }
+    const protocol = this.request?.headers?.get('x-forwarded-proto') ?? undefined;
+    const host = this.request?.headers?.get('x-forwarded-host') ?? this.request?.headers?.get('host') ?? undefined;
+    if (protocol && host) {
+      return `${protocol}://${host}${path}`;
     }
 
-    if (typeof this.document?.location?.origin === 'string' && this.document.location.origin) {
-      return `${this.document.location.origin}${path}`;
+    try {
+      return new URL(path, this.document.baseURI).toString();
+    } catch {
+      return path;
     }
-
-    return path;
   }
 
-  private buildJsonLd(page: HelpPage): Record<string, unknown> {
+  private buildJsonLd(page: HelpPage, question: HelpQuestionDefinition | null): Record<string, unknown> {
+    const canonicalUrl = this.buildAbsoluteUrl(this.pageUrl(page.id));
+    const homeUrl = this.buildAbsoluteUrl(getHelpPageUrl(HELP_HOME_PAGE_ID));
+    const answerText = question?.answer.kind === 'list'
+      ? question.answer.sections.flatMap((section) => section.items).join(' ')
+      : page.description;
+
     return {
       '@context': 'https://schema.org',
-      '@type': 'TechArticle',
-      headline: page.title,
-      description: page.description,
-      url: this.buildAbsoluteUrl(this.pageUrl(page))
+      '@graph': [
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: this.breadcrumbs().map((breadcrumb, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: breadcrumb.label,
+            item: this.buildAbsoluteUrl(breadcrumb.url)
+          }))
+        },
+        {
+          '@type': 'FAQPage',
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: page.title,
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: answerText || page.description
+              }
+            }
+          ]
+        },
+        {
+          '@type': 'WebPage',
+          '@id': canonicalUrl,
+          url: canonicalUrl,
+          name: page.title,
+          description: page.description,
+          isPartOf: {
+            '@type': 'WebSite',
+            '@id': homeUrl,
+            url: homeUrl,
+            name: 'Plantour'
+          }
+        }
+      ]
     };
   }
 }

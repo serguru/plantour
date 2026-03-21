@@ -1,40 +1,31 @@
 <div class="help-shell">
   <section class="help-answer-page">
-    <div class="help-answer-toolbar">
-      <a
-        class="help-back-link"
-        [routerLink]="pageUrlById(faqPageId)"
-      >
-        Back to {{ currentSection()?.title }}
-      </a>
-    </div>
+    <nav class="help-breadcrumbs" aria-label="Breadcrumb">
+      @for (breadcrumb of breadcrumbs(); track breadcrumb.pageId; let isLast = $last) {
+        @if (!isLast) {
+          <a [routerLink]="breadcrumb.url">{{ breadcrumb.label }}</a>
+          <span>/</span>
+        } @else {
+          <span class="help-breadcrumbs__current">{{ breadcrumb.label }}</span>
+        }
+      }
+    </nav>
 
-    <article class="help-page-content help-page-content--answer">
+    <article class="help-page-card help-page-card--answer">
+      <div class="help-answer-toolbar">
+        <a class="help-back-link" [routerLink]="sectionUrl()">
+          Back to {{ currentSection()?.title ?? 'Plantour Help' }}
+        </a>
+      </div>
+
       <h1 class="help-answer-title">{{ currentPage().title }}</h1>
-    </article>
+      <p class="help-page-summary">{{ currentPage().summary }}</p>
 
-    @if (answerComponent(); as component) {
-    <ng-container *ngComponentOutlet="component"></ng-container>
-    } @else {
-    <article class="help-page-content help-page-content--answer">
-      @for (block of currentPage().blocks; track $index) {
-      <section
-        class="no-component-text"
-        [attr.id]="block.id"
-      >
-        @if (block.kind === 'paragraphs') {
-        @if (block.title) {
-        <h2>{{ block.title }}</h2>
-        }
-        <ul>
-          @for (paragraph of block.paragraphs; track paragraph) {
-          <li>{{ paragraph }}</li>
-          }
-        </ul>
-        }
-      </section>
+      @if (answerSpec(); as spec) {
+        <ng-container *ngComponentOutlet="spec.component; inputs: spec.inputs"></ng-container>
+      } @else {
+        <p class="help-empty-state">No answer component is configured for this page.</p>
       }
     </article>
-    }
   </section>
 </div>

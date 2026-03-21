@@ -1,0 +1,70 @@
+<div class="page-container">
+  <app-entities-header
+    entityIcon="pi pi-question-circle"
+    title="Help Search"
+    [showHelpAction]="false"
+    [useEntitiesActions]="false"
+  ></app-entities-header>
+
+  <div class="help-shell">
+    <nav class="help-breadcrumbs" aria-label="Breadcrumb">
+      @for (breadcrumb of breadcrumbs(); track breadcrumb.pageId; let isLast = $last) {
+        @if (!isLast) {
+          <a [routerLink]="breadcrumb.url">{{ breadcrumb.label }}</a>
+          <span>/</span>
+        } @else {
+          <span class="help-breadcrumbs__current">{{ breadcrumb.label }}</span>
+        }
+      }
+    </nav>
+
+    <section class="help-page-card help-page-card--hero">
+      <div class="help-page-intro">
+        <span class="help-page-kicker">Dedicated search page</span>
+        <h1>Search Plantour Help</h1>
+        <p class="help-page-summary">Search results are rendered on their own SSR page and can open section pages or answer pages directly.</p>
+      </div>
+
+      <form class="help-search-form" (submit)="submitSearch($event)">
+        <label class="help-search-label" for="help-search-page-query">Search help</label>
+        <div class="help-search-box">
+          <i class="pi pi-search"></i>
+          <input
+            id="help-search-page-query"
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            name="helpSearchQuery"
+            placeholder="Try: guest access, packing list, shared item"
+          />
+          <button type="submit" class="help-search-submit">Search</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="help-page-card help-page-card--results">
+      @if (searchQuery()) {
+        <div class="help-results-summary">
+          <h2>Results</h2>
+          <p>{{ searchResults().length }} page(s) matched "{{ searchQuery() }}".</p>
+        </div>
+
+        @if (searchResults().length > 0) {
+          <div class="help-search-results-grid">
+            @for (result of searchResults(); track result.page.id) {
+              <a class="help-search-result-card" [routerLink]="pageUrl(result.page.id)">
+                <span class="help-search-result__title" [innerHTML]="result.titleHtml"></span>
+                <span class="help-search-result__crumbs" [innerHTML]="result.breadcrumbHtml"></span>
+                <span class="help-search-result__summary" [innerHTML]="result.summaryHtml"></span>
+              </a>
+            }
+          </div>
+        } @else {
+          <p class="help-empty-state">No help pages match your search yet.</p>
+        }
+      } @else {
+        <p class="help-empty-state">Enter a question, feature, or workflow to search the Plantour help pages.</p>
+      }
+    </section>
+  </div>
+</div>

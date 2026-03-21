@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Index } from 'flexsearch';
-import { HELP_PAGES } from '../components/help/help-content';
-import { HelpBlock, HelpPage, HelpSearchResult } from './help-service';
+import { HELP_PAGES, HELP_PAGE_MAP, getHelpBreadcrumbs } from '../components/help/help-content';
+import { HelpPage, HelpSearchResult } from './help-service';
 
 const SEARCH_RESULT_LIMIT = 8;
 
@@ -12,11 +12,11 @@ export class HelpSearchService {
     resolution: 9
   });
 
-  private readonly pageById = new Map<string, HelpPage>(HELP_PAGES.map((page) => [page.id, page]));
+  private readonly pageById = HELP_PAGE_MAP;
   private readonly pageSearchText = new Map<string, string>();
 
   constructor() {
-    for (const page of HELP_PAGES) {
+    for (const page of HELP_PAGES.filter((candidate) => candidate.searchable)) {
       const indexText = this.buildIndexText(page);
       this.pageSearchText.set(page.id, indexText);
       this.index.add(page.id, indexText);
@@ -39,47 +39,20 @@ export class HelpSearchService {
   }
 
   private buildIndexText(page: HelpPage): string {
-    const blockText = page.blocks.map((block) => this.stringifyBlock(block)).join(' ');
     return [
       page.title,
       page.title,
       page.summary,
       page.description,
       page.keywords.join(' '),
-      blockText
+      page.searchText
     ].join(' ');
   }
 
-  private stringifyBlock(block: HelpBlock): string {
-    if (block.kind === 'paragraphs') {
-      return [block.title ?? '', ...block.paragraphs].join(' ');
-    }
-
-    if (block.kind === 'steps') {
-      return [block.title, block.intro ?? '', ...block.steps.flatMap((step) => [step.title, step.body])].join(' ');
-    }
-
-    if (block.kind === 'cards') {
-      return [block.title, block.intro ?? '', ...block.cards.flatMap((card) => [card.title, card.body])].join(' ');
-    }
-
-    if (block.kind === 'list') {
-      return [block.title, block.intro ?? '', ...block.items.map((item) => item.text)].join(' ');
-    }
-
-    return [block.title, block.body].join(' ');
-  }
-
   private buildBreadcrumbText(page: HelpPage): string {
-    const labels: string[] = [];
-    let current: HelpPage | undefined = page;
-
-    while (current) {
-      labels.unshift(current.title);
-      current = current.parentId ? this.pageById.get(current.parentId) : undefined;
-    }
-
-    return labels.join(' / ');
+    return getHelpBreadcrumbs(page.id)
+      .map((breadcrumb) => breadcrumb.label)
+      .join(' / ');
   }
 
   private buildSearchResult(page: HelpPage, query: string, highlightMatches: boolean): HelpSearchResult | null {
@@ -111,7 +84,7 @@ export class HelpSearchService {
     const candidates = [
       page.summary,
       page.description,
-      ...page.blocks.map((block) => this.stringifyBlock(block))
+      page.searchText
     ];
 
     const matchSource = candidates.find((candidate) => this.containsLiteralMatch(candidate, query));

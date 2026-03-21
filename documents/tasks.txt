@@ -584,3 +584,13 @@ Use user friendly language. Avoid technical words. If you have any questions ask
 
 
 
+Redesign the help system. The requirements are:
+
+1) 100% help paqges are SSR 
+2) Ensure help pages implement all the possible things to make them 100% SEO friendly
+3) Remove currently used to store content pages like those from /get-started subfolder and help-content.
+4) Make sure the help structure allows to dynamically build a sitemap.xml 100% as SEO required
+5) Make sure the search results are shown on the separate page, same as answers to questions
+6) Make actual answers pages use ngComponentOutlet to be inserted into help-answer component. Answers pages being reused components are the only help content source.
+7) Design the reused ListAnswer.Component with predesigned HTML list collection. Provide a way how to create answers as list collection for different questions.
+8) There should be support for an original XyzAnswer.Component. 
