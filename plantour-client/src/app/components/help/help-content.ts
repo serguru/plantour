@@ -1,5 +1,4 @@
 export const HELP_HOME_PAGE_ID = 'help';
-export const HELP_SEARCH_PAGE_ID = 'help/search';
 
 export type HelpPageKind = 'home' | 'section' | 'answer' | 'search';
 export type HelpListStyle = 'ordered' | 'unordered';
@@ -119,10 +118,6 @@ function flattenAnswerText(answer: HelpAnswerSource): string {
     .flatMap((section) => [section.title ?? '', ...section.items])
     .filter((value) => value.length > 0)
     .join(' ');
-}
-
-function createSectionPageId(sectionId: string): string {
-  return `${HELP_HOME_PAGE_ID}/${sectionId}`;
 }
 
 function createAnswerPageId(sectionId: string, slug: string): string {
@@ -335,11 +330,9 @@ const SECTION_SOURCES: HelpSectionSource[] = [
 ];
 
 export const HELP_SECTIONS: HelpSectionDefinition[] = SECTION_SOURCES.map((section) => {
-  const sectionPageId = createSectionPageId(section.id);
-
   return {
     id: section.id,
-    pageId: sectionPageId,
+    pageId: HELP_HOME_PAGE_ID,
     title: section.title,
     summary: section.summary,
     description: section.summary,
@@ -352,7 +345,7 @@ export const HELP_SECTIONS: HelpSectionDefinition[] = SECTION_SOURCES.map((secti
 
       return {
         pageId,
-        sectionPageId,
+        sectionPageId: HELP_HOME_PAGE_ID,
         sectionId: section.id,
         slug: question.slug,
         question: question.question,
@@ -372,45 +365,14 @@ const HELP_HOME_PAGE: HelpPage = {
   kind: 'home',
   path: [],
   title: 'Plantour Help',
-  summary: 'Browse Plantour help sections, open dedicated answer pages, and search answers on a separate SSR page.',
-  description: 'Plantour help center with server-rendered section pages, question pages, and a dedicated help search page.',
+  summary: 'Browse Plantour help questions and open dedicated answer pages.',
+  description: 'Plantour help center with grouped questions on the main page and dedicated answer pages.',
   keywords: [...SHARED_KEYWORDS, 'questions', 'answers'],
   searchable: true,
   allowIndexing: true,
   includeInSitemap: true,
   searchText: 'Plantour help questions answers sections'
 };
-
-const HELP_SEARCH_PAGE: HelpPage = {
-  id: HELP_SEARCH_PAGE_ID,
-  kind: 'search',
-  path: ['search'],
-  title: 'Search Plantour Help',
-  summary: 'Search Plantour help questions and answers on a dedicated results page.',
-  description: 'Use the Plantour help search page to find matching help sections and answer pages.',
-  keywords: [...SHARED_KEYWORDS, 'search'],
-  parentId: HELP_HOME_PAGE_ID,
-  searchable: false,
-  allowIndexing: false,
-  includeInSitemap: false,
-  searchText: ''
-};
-
-const HELP_SECTION_PAGES: HelpPage[] = HELP_SECTIONS.map((section) => ({
-  id: section.pageId,
-  kind: 'section',
-  path: [section.id],
-  title: section.title,
-  summary: section.summary,
-  description: section.description,
-  keywords: section.keywords,
-  parentId: HELP_HOME_PAGE_ID,
-  sectionId: section.id,
-  searchable: true,
-  allowIndexing: true,
-  includeInSitemap: true,
-  searchText: [section.title, section.summary, ...section.questions.map((question) => question.question)].join(' ')
-}));
 
 const HELP_ANSWER_PAGES: HelpPage[] = HELP_SECTIONS.flatMap((section) =>
   section.questions.map((question) => ({
@@ -421,7 +383,7 @@ const HELP_ANSWER_PAGES: HelpPage[] = HELP_SECTIONS.flatMap((section) =>
     summary: question.summary,
     description: question.description,
     keywords: question.keywords,
-    parentId: section.pageId,
+    parentId: HELP_HOME_PAGE_ID,
     sectionId: section.id,
     questionSlug: question.slug,
     searchable: true,
@@ -433,8 +395,6 @@ const HELP_ANSWER_PAGES: HelpPage[] = HELP_SECTIONS.flatMap((section) =>
 
 export const HELP_PAGES: HelpPage[] = [
   HELP_HOME_PAGE,
-  HELP_SEARCH_PAGE,
-  ...HELP_SECTION_PAGES,
   ...HELP_ANSWER_PAGES
 ];
 
@@ -484,10 +444,6 @@ export function getHelpPageUrl(pageOrId: HelpPage | string | null | undefined): 
   }
 
   return page.path.length === 0 ? '/help' : `/help/${page.path.join('/')}`;
-}
-
-export function getHelpSectionPageId(sectionId: string): string {
-  return createSectionPageId(sectionId);
 }
 
 export function findHelpPageByPath(path: string[]): HelpPage | null {

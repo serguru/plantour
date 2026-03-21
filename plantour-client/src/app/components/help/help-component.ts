@@ -1,7 +1,6 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { REQUEST } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
 import { EntitiesHeader, HeaderButtonConfig } from '../entities/entities-header-component/entities-header-component';
@@ -10,19 +9,14 @@ import {
   HELP_HOME_PAGE_ID,
   HELP_SECTIONS,
   HelpPage,
-  HelpSectionDefinition,
   findHelpPageByPath,
-  getHelpBreadcrumbs,
-  getHelpPageUrl,
-  getHelpSection
+  getHelpPageUrl
 } from './help-content';
-
-const HELP_SEARCH_PANEL_VISIBLE_STORAGE_KEY = 'plantour.help.searchPanelVisible';
 
 @Component({
   selector: 'app-help',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, EntitiesHeader],
+  imports: [CommonModule, RouterLink, EntitiesHeader],
   templateUrl: './help-component.html',
   styleUrl: './help-component.scss'
 })
@@ -35,59 +29,36 @@ export class HelpComponent {
   private readonly document = inject(DOCUMENT);
   private readonly request = inject(REQUEST, { optional: true });
 
-  private readonly currentPath = signal<string[]>([]);
-
-  readonly searchQuery = signal('');
-  readonly searchPanelVisible = signal(false);
-  readonly currentPage = computed<HelpPage>(() => findHelpPageByPath(this.currentPath()) ?? findHelpPageByPath([])!);
-  readonly currentSection = computed<HelpSectionDefinition | null>(() => getHelpSection(this.currentPage().sectionId));
-  readonly breadcrumbs = computed(() => getHelpBreadcrumbs(this.currentPage().id));
-  readonly visibleSections = computed(() => this.currentSection() ? [this.currentSection()!] : this.sections);
+  readonly currentPage = computed<HelpPage>(() => findHelpPageByPath([])!);
+  readonly visibleSections = computed(() => this.sections);
   readonly expandedSections = signal<Record<string, boolean>>({});
-  readonly relatedSections = computed(() => {
-    const currentSection = this.currentSection();
-    if (!currentSection) {
-      return [];
-    }
-
-    return this.sections.filter((section) => section.id !== currentSection.id);
-  });
+  readonly allVisibleSectionsExpanded = computed(() =>
+    this.visibleSections().every((section, index) => this.isSectionExpanded(section.id, index === 0))
+  );
+  readonly allVisibleSectionsCollapsed = computed(() =>
+    this.visibleSections().every((section, index) => !this.isSectionExpanded(section.id, index === 0))
+  );
   readonly headerButtons = computed<HeaderButtonConfig[]>(() => [
-    {
-      label: this.searchPanelVisible() ? 'Hide search' : 'Show search',
-      icon: this.searchPanelVisible() ? 'eye-slash' : 'search',
-      action: () => this.toggleSearchPanel()
-    },
     {
       label: 'Expand all',
       icon: 'angle-double-down',
-      action: () => this.expandAllSections()
+      action: () => this.expandAllSections(),
+      disabled: this.allVisibleSectionsExpanded()
     },
     {
       label: 'Collapse all',
       icon: 'angle-double-up',
-      action: () => this.collapseAllSections()
-    },
-    ...(this.currentSection()
-      ? [{
-          label: 'All sections',
-          icon: 'list',
-          action: () => {
-            void this.router.navigateByUrl(getHelpPageUrl(HELP_HOME_PAGE_ID));
-          }
-        }]
-      : [])
+      action: () => this.collapseAllSections(),
+      disabled: this.allVisibleSectionsCollapsed()
+    }
   ]);
 
   constructor() {
-    this.syncCurrentPathFromUrl();
     this.expandedSections.set(this.createExpandedSectionsState());
-    this.restoreSearchPanelVisibility();
 
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd)
     ).subscribe(() => {
-      this.syncCurrentPathFromUrl();
       this.expandedSections.set(this.createExpandedSectionsState());
     });
 
@@ -109,21 +80,6 @@ export class HelpComponent {
 
   pageUrl(pageId: string): string {
     return getHelpPageUrl(pageId);
-  }
-
-  sectionUrl(sectionId: string): string {
-    return getHelpPageUrl(`${HELP_HOME_PAGE_ID}/${sectionId}`);
-  }
-
-  async runSearch(): Promise<void> {
-    const query = this.searchQuery().trim();
-    await this.router.navigate(['/help/search'], {
-      queryParams: query ? { q: query } : {}
-    });
-  }
-
-  toggleSearchPanel(): void {
-    this.setSearchPanelVisible(!this.searchPanelVisible());
   }
 
   expandAllSections(): void {
@@ -159,73 +115,13 @@ export class HelpComponent {
     }));
   }
 
-  private syncCurrentPathFromUrl(): void {
-    const cleanUrl = this.router.url.split('?')[0].split('#')[0];
-    const withoutLeadingSlash = cleanUrl.startsWith('/') ? cleanUrl.slice(1) : cleanUrl;
-    const segments = withoutLeadingSlash.split('/').filter((segment) => segment.length > 0);
-    this.currentPath.set(segments[0] === 'help' ? segments.slice(1) : []);
-  }
-
   private createExpandedSectionsState(): Record<string, boolean> {
-    const currentSection = this.currentSection();
-
     return Object.fromEntries(
       this.visibleSections().map((section, index) => [
         section.id,
-        currentSection ? section.id === currentSection.id : index === 0
+        index === 0
       ])
     );
-  }
-
-  private setSearchPanelVisible(isVisible: boolean): void {
-    this.searchPanelVisible.set(isVisible);
-    this.storeBoolean(HELP_SEARCH_PANEL_VISIBLE_STORAGE_KEY, isVisible);
-  }
-
-  private restoreSearchPanelVisibility(): void {
-    const storedValue = this.readStoredBoolean(HELP_SEARCH_PANEL_VISIBLE_STORAGE_KEY);
-    if (storedValue !== null) {
-      this.searchPanelVisible.set(storedValue);
-    }
-  }
-
-  private storeBoolean(storageKey: string, value: boolean): void {
-    const storage = this.getLocalStorage();
-    if (!storage) {
-      return;
-    }
-
-    try {
-      storage.setItem(storageKey, JSON.stringify(value));
-    } catch {
-      // Ignore storage failures and keep the in-memory state.
-    }
-  }
-
-  private readStoredBoolean(storageKey: string): boolean | null {
-    const storage = this.getLocalStorage();
-    if (!storage) {
-      return null;
-    }
-
-    try {
-      const value = storage.getItem(storageKey);
-      if (value === null) {
-        return null;
-      }
-
-      return JSON.parse(value) === true;
-    } catch {
-      return null;
-    }
-  }
-
-  private getLocalStorage(): Storage | null {
-    try {
-      return this.document?.defaultView?.localStorage ?? null;
-    } catch {
-      return null;
-    }
   }
 
   private buildAbsoluteUrl(path: string): string {
@@ -245,20 +141,11 @@ export class HelpComponent {
   private buildJsonLd(page: HelpPage): Record<string, unknown> {
     const canonicalUrl = this.buildAbsoluteUrl(this.pageUrl(page.id));
     const homeUrl = this.buildAbsoluteUrl(getHelpPageUrl(HELP_HOME_PAGE_ID));
-    const currentSection = this.currentSection();
+    const questions = this.sections.flatMap((section) => section.questions);
 
     return {
       '@context': 'https://schema.org',
       '@graph': [
-        {
-          '@type': 'BreadcrumbList',
-          itemListElement: this.breadcrumbs().map((breadcrumb, index) => ({
-            '@type': 'ListItem',
-            position: index + 1,
-            name: breadcrumb.label,
-            item: this.buildAbsoluteUrl(breadcrumb.url)
-          }))
-        },
         {
           '@type': 'CollectionPage',
           '@id': canonicalUrl,
@@ -273,12 +160,12 @@ export class HelpComponent {
           },
           mainEntity: {
             '@type': 'ItemList',
-            itemListElement: (currentSection ? currentSection.questions : this.sections)
-              .map((item, index) => ({
+            itemListElement: questions
+              .map((question, index) => ({
                 '@type': 'ListItem',
                 position: index + 1,
-                name: 'question' in item ? item.question : item.title,
-                url: this.buildAbsoluteUrl('question' in item ? this.pageUrlById(item.pageId) : this.sectionUrl(item.id))
+                name: question.question,
+                url: this.buildAbsoluteUrl(this.pageUrlById(question.pageId))
               }))
           }
         }

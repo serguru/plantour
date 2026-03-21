@@ -3,6 +3,10 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
   {
+    path: 'search',
+    renderMode: RenderMode.Server
+  },
+  {
     path: 'contact',
     renderMode: RenderMode.Server
   },

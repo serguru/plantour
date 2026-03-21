@@ -31,9 +31,9 @@ function isAuthPage(path: string): boolean {
     || normalizedPath === '/signin-token';
 }
 
-function isHelpSearchPage(path: string): boolean {
+function isSearchPage(path: string): boolean {
   const normalizedPath = (path || '/').replace(/\/+$/, '') || '/';
-  return normalizedPath === '/help/search';
+  return normalizedPath === '/search' || normalizedPath === '/help/search';
 }
 
 function resolveBaseUrl(req?: express.Request): string {
@@ -114,7 +114,7 @@ function buildSitemapXml(entries: SitemapEntry[]): string {
 }
 
 app.use((req, res, next) => {
-  if (environment.environment !== 'production' || isAuthPage(req.path) || isHelpSearchPage(req.path)) {
+  if (environment.environment !== 'production' || isAuthPage(req.path) || isSearchPage(req.path)) {
     res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
   }
 

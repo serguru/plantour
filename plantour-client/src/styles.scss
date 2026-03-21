@@ -492,9 +492,10 @@ p-panel.list-actions-panel {
 
 .pl-button:disabled {
   color: rgb(202, 202, 202);
+  cursor: default;
 }
 
-.pl-button:hover {
+.pl-button:not(:disabled):hover {
   background-color: white;
   border-radius: 2rem;
   color: var(--primary-text-color);

@@ -82,146 +82,6 @@
   text-align: right;
 }
 
-.help-search-panel {
-  display: grid;
-  gap: 0.9rem;
-  margin-top: 1rem;
-  padding: 0;
-  background: transparent;
-  border: 0;
-}
-
-.help-search-panel__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
-.help-search-label {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-label);
-  font-size: 0.84rem;
-  font-weight: 600;
-  margin-bottom: 0;
-  color: #41676d;
-}
-
-.help-search-checkbox {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #41676d;
-  font-size: 0.9rem;
-}
-
-.help-search-checkbox input {
-  width: 1rem;
-  height: 1rem;
-  accent-color: #1c6670;
-}
-
-.help-search-box {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.68rem 0.8rem;
-  border-radius: 16px;
-  background: white;
-  border: 1px solid rgba(36, 91, 100, 0.12);
-}
-
-.help-search-box i {
-  color: var(--primary-color);
-}
-
-.help-search-box input {
-  border: none;
-  outline: none;
-  font-size: 1rem;
-  color: var(--primary-text-color);
-  background: transparent;
-}
-
-.help-search-submit {
-  border: none;
-  border-radius: 999px;
-  background: #1c6670;
-  color: white;
-  padding: 0.65rem 1rem;
-  cursor: pointer;
-  font-family: var(--font-button);
-}
-
-.help-search-submit:hover {
-  background: #16545c;
-}
-
-.help-search-clear {
-  background: transparent;
-  border: none;
-  color: #54787e;
-  cursor: pointer;
-}
-
-.help-search-results {
-  margin-top: 0.9rem;
-  display: grid;
-  gap: 0.65rem;
-}
-
-.help-search-result,
-.help-search-empty {
-  width: 100%;
-  text-align: left;
-  border-radius: 16px;
-  border: 1px solid rgba(36, 91, 100, 0.12);
-  background: white;
-  padding: 0.95rem;
-}
-
-.help-search-result {
-  cursor: pointer;
-}
-
-.help-search-result:hover {
-  border-color: rgba(77, 184, 196, 0.42);
-  background: #fbfeff;
-}
-
-.help-search-result__title {
-  display: block;
-  font-weight: 700;
-  color: #14373b;
-  margin-bottom: 0.25rem;
-}
-
-.help-search-result__crumbs,
-.help-search-result__summary,
-.help-search-empty {
-  display: block;
-  color: #56747a;
-  line-height: 1.5;
-  font-size: 0.93rem;
-}
-
-.help-search-result__crumbs {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--primary-color);
-  margin-bottom: 0.35rem;
-}
-
-.help-search-result mark {
-  padding: 0 0.15rem;
-  border-radius: 0.25rem;
-  background: rgba(255, 213, 79, 0.55);
-  color: inherit;
-}
-
 .help-breadcrumbs {
   display: flex;
   flex-wrap: wrap;
@@ -259,8 +119,7 @@
 .help-page-card--hero,
 .help-page-card--answer,
 .help-page-card--results,
-.help-section-card,
-.help-search-card {
+.help-section-card {
   padding: 1.2rem;
 }
 
@@ -283,19 +142,9 @@
   margin: 0;
 }
 
-.help-search-form {
-  display: grid;
-  gap: 0.55rem;
-}
-
 .help-section-stack {
   display: grid;
   gap: 1rem;
-}
-
-.help-search-card {
-  display: grid;
-  gap: 0.6rem;
 }
 
 .help-section-card__header {
@@ -396,14 +245,12 @@
   gap: 0.8rem;
 }
 
-.help-related-grid,
-.help-search-results-grid {
+.help-related-grid {
   display: grid;
   gap: 0.8rem;
 }
 
-.help-related-card,
-.help-search-result-card {
+.help-related-card {
   display: grid;
   gap: 0.3rem;
   padding: 1rem;
@@ -414,8 +261,7 @@
   box-shadow: 0 10px 26px rgba(31, 61, 67, 0.05);
 }
 
-.help-related-card:hover,
-.help-search-result-card:hover {
+.help-related-card:hover {
   border-color: rgba(77, 184, 196, 0.42);
   background: #fbfeff;
 }
@@ -536,7 +382,6 @@
     display: block;
   }
 
-  .help-search-results-grid,
   .help-related-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -545,15 +390,6 @@
 @media (max-width: 640px) {
   .help-shell {
     padding: 0.75rem;
-  }
-
-  .help-search-box {
-    grid-template-columns: auto 1fr;
-  }
-
-  .help-search-submit {
-    grid-column: 1 / -1;
-    width: 100%;
   }
 }
 
@@ -724,11 +560,6 @@
 
   .help-hero__guest-notes {
     text-align: left;
-  }
-
-  .help-search-panel__header {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .help-page,

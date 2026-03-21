@@ -9,10 +9,8 @@ import {
   HELP_HOME_PAGE_ID,
   HelpQuestionDefinition,
   findHelpPageByPath,
-  getHelpBreadcrumbs,
   getHelpPageUrl,
-  getHelpQuestionByPageId,
-  getHelpSection
+  getHelpQuestionByPageId
 } from '../help-content';
 import { HelpListAnswerComponent } from './list-answer-component';
 import { HelpGetStartedGuestAccessAnswerComponent } from './get-started/help-get-started-guest-access-answer.component';
@@ -40,8 +38,6 @@ export class HelpAnswerComponent {
   private readonly currentPath = signal<string[]>([]);
   readonly currentPage = computed<HelpPage>(() => findHelpPageByPath(this.currentPath()) ?? findHelpPageByPath([])!);
   readonly currentQuestion = computed<HelpQuestionDefinition | null>(() => getHelpQuestionByPageId(this.currentPage().id));
-  readonly currentSection = computed(() => getHelpSection(this.currentQuestion()?.sectionId));
-  readonly breadcrumbs = computed(() => getHelpBreadcrumbs(this.currentPage().id));
   readonly answerSpec = computed(() => this.buildAnswerSpec(this.currentQuestion()));
 
   constructor() {
@@ -73,9 +69,8 @@ export class HelpAnswerComponent {
     return getHelpPageUrl(pageId);
   }
 
-  sectionUrl(): string {
-    const currentSection = this.currentSection();
-    return currentSection ? getHelpPageUrl(currentSection.pageId) : getHelpPageUrl(HELP_HOME_PAGE_ID);
+  homeUrl(): string {
+    return getHelpPageUrl(HELP_HOME_PAGE_ID);
   }
 
   private buildAnswerSpec(question: HelpQuestionDefinition | null): HelpAnswerRenderSpec | null {
@@ -130,15 +125,6 @@ export class HelpAnswerComponent {
     return {
       '@context': 'https://schema.org',
       '@graph': [
-        {
-          '@type': 'BreadcrumbList',
-          itemListElement: this.breadcrumbs().map((breadcrumb, index) => ({
-            '@type': 'ListItem',
-            position: index + 1,
-            name: breadcrumb.label,
-            item: this.buildAbsoluteUrl(breadcrumb.url)
-          }))
-        },
         {
           '@type': 'FAQPage',
           mainEntity: [

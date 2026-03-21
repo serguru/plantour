@@ -1,20 +1,9 @@
 <div class="help-shell">
   <section class="help-answer-page">
-    <nav class="help-breadcrumbs" aria-label="Breadcrumb">
-      @for (breadcrumb of breadcrumbs(); track breadcrumb.pageId; let isLast = $last) {
-        @if (!isLast) {
-          <a [routerLink]="breadcrumb.url">{{ breadcrumb.label }}</a>
-          <span>/</span>
-        } @else {
-          <span class="help-breadcrumbs__current">{{ breadcrumb.label }}</span>
-        }
-      }
-    </nav>
-
     <article class="help-page-card help-page-card--answer">
       <div class="help-answer-toolbar">
-        <a class="help-back-link" [routerLink]="sectionUrl()">
-          Back to {{ currentSection()?.title ?? 'Plantour Help' }}
+        <a class="help-back-link" [routerLink]="homeUrl()">
+          Back to Help
         </a>
       </div>
 

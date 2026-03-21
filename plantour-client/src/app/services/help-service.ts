@@ -4,14 +4,6 @@ import type { HelpBreadcrumb, HelpPage } from '../components/help/help-content';
 
 export type { HelpBreadcrumb, HelpPage } from '../components/help/help-content';
 
-export interface HelpSearchResult {
-  page: HelpPage;
-  breadcrumbText: string;
-  titleHtml: string;
-  breadcrumbHtml: string;
-  summaryHtml: string;
-}
-
 @Injectable({ providedIn: 'root' })
 export class HelpService {
   resolvePageId(currentUrl: string, explicitPageId?: string | null): string | null {

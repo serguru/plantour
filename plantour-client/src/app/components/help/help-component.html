@@ -8,38 +8,6 @@
     ></app-entities-header>
 
     <div class="help-shell">
-        @if (breadcrumbs().length > 1) {
-            <nav class="help-breadcrumbs" aria-label="Breadcrumb">
-                @for (breadcrumb of breadcrumbs(); track breadcrumb.pageId; let isLast = $last) {
-                    @if (!isLast) {
-                        <a [routerLink]="breadcrumb.url">{{ breadcrumb.label }}</a>
-                        <span>/</span>
-                    } @else {
-                        <span class="help-breadcrumbs__current">{{ breadcrumb.label }}</span>
-                    }
-                }
-            </nav>
-        }
-        @if (searchPanelVisible()) {
-            <section class="help-page-card help-search-card">
-                <div class="help-search-form">
-                    <label class="help-search-label" for="help-search-query">Search help</label>
-                    <div class="help-search-box">
-                        <i class="pi pi-search"></i>
-                        <input
-                            id="help-search-query"
-                            type="text"
-                            [ngModel]="searchQuery()"
-                            (ngModelChange)="searchQuery.set($event)"
-                            name="helpSearchQuery"
-                            placeholder="Try: guest access, packing list, shared item"
-                        />
-                        <button type="button" class="help-search-submit" (click)="runSearch()">Search</button>
-                    </div>
-                </div>
-            </section>
-        }
-
         <section class="help-section-stack">
             @for (section of visibleSections(); track section.id; let isFirst = $first) {
                 <details
@@ -49,7 +17,7 @@
                 >
                     <summary>
                         <div class="help-faq-section__heading">
-                            <a class="help-section-card__title" [routerLink]="sectionUrl(section.id)" (click)="$event.stopPropagation()">{{ section.title }}</a>
+                            <span class="help-section-card__title">{{ section.title }}</span>
                             <p class="help-faq-section__summary">{{ section.summary }}</p>
                         </div>
                         <span class="help-faq-section__arrow" aria-hidden="true"></span>
@@ -60,7 +28,6 @@
                             <li>
                                 <a class="help-question-card" [routerLink]="pageUrlById(question.pageId)">
                                     <span class="help-question-card__title">{{ question.question }}</span>
-                                    <span class="help-question-card__summary">{{ question.summary }}</span>
                                 </a>
                             </li>
                         }
@@ -68,19 +35,5 @@
                 </details>
             }
         </section>
-
-        @if (relatedSections().length > 0) {
-            <section class="help-related-sections">
-                <h2>Other help sections</h2>
-                <div class="help-related-grid">
-                    @for (section of relatedSections(); track section.id) {
-                        <a class="help-related-card" [routerLink]="sectionUrl(section.id)">
-                            <span class="help-related-card__title">{{ section.title }}</span>
-                            <span class="help-related-card__summary">{{ section.summary }}</span>
-                        </a>
-                    }
-                </div>
-            </section>
-        }
     </div>
 </div>
