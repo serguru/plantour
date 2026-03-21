@@ -6,6 +6,7 @@
     "sections": [
       {
         "listTag": "ul",
+        "beforeHtml": "You have different options depending on which plan you choose and whether you want to save temporary test data. If you are a public user go to the <a href=\"/\">main page<a> and choose a plan.",
         "items": [
           "To start with a regular paid plan (recommended), go to your <a href='/profile'>profile</a> and click \"Change plan\" button. Select a plan, and click the corresponding button. Your test data will be saved.",
 

@@ -3,7 +3,8 @@
   "title": "Features",
   "summary": "UI and functional features described",
   "questions": [
-    "What are the main entities that Plniur operates with.json",
+    "What are the main entities that Plantour operates with.json",
+    "How do I filter, sort and target entities.json",
     "What is toolbar.json",
     "How do I add update or delete entities.json",
     "What are dictionaries.json",

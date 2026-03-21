@@ -8,7 +8,7 @@
         "listTag": "ol",
         "beforeHtml": "To add a new entity",
         "items": [
-          "Open the entities list",
+          "Open the entities list. For example, to open a list of items click on the toolbar \"Dictionaries'\" button with \"copy\" icon and select \"Items\".",
           "Click the Add button with the \"+\" icon",
           "The form appears",
           "Fill the form's fields",

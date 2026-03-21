@@ -5,13 +5,14 @@ import getStartedHowCanPlanturHelpMeSolveMyProblemsJsonQuestion from './sections
 import getStartedCanITryPlantourWithoutTheAccountCreationJsonQuestion from './sections/get-started/Can I try Plantour without the account creation.json';
 import getStartedWhatAreMyFirstStepsWithPlantourJsonQuestion from './sections/get-started/What are my first steps with Plantour.json';
 import getStartedHowCanISwitchMyAccountFromTemporaryToRegularJsonQuestion from './sections/get-started/How can I switch my account from temporary to regular.json';
-import featuresWhatAreTheMainEntitiesThatPlniurOperatesWithJsonQuestion from './sections/features/What are the main entities that Plniur operates with.json';
+import featuresWhatAreTheMainEntitiesThatPlantourOperatesWithJsonQuestion from './sections/features/What are the main entities that Plantour operates with.json';
+import featuresHowDoIFilterSortAndTargetEntitiesJsonQuestion from './sections/features/How do I filter, sort and target entities.json';
 import featuresWhatIsToolbarJsonQuestion from './sections/features/What is toolbar.json';
 import featuresHowDoIAddUpdateOrDeleteEntitiesJsonQuestion from './sections/features/How do I add update or delete entities.json';
 import featuresWhatAreDictionariesJsonQuestion from './sections/features/What are dictionaries.json';
 import featuresWhatAreItemTemplatesJsonQuestion from './sections/features/What are item templates.json';
 import featuresHowToAskAIForItemRecommendationsJsonQuestion from './sections/features/How to ask AI for item recommendations.json';
-import workflowsHowDoIAddItemsToATripJsonQuestion from './sections/workflows/How do I add items to a trip.json';
+import workflowsHowDoIInviteTravelersJsonQuestion from './sections/workflows/How do I invite travelers.json';
 
 export const GENERATED_SECTION_MANIFEST_ENTRIES: [string, unknown][] = [
   ['get-started', getStartedSectionManifest],
@@ -24,11 +25,12 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['get-started/Can I try Plantour without the account creation.json', getStartedCanITryPlantourWithoutTheAccountCreationJsonQuestion],
   ['get-started/What are my first steps with Plantour.json', getStartedWhatAreMyFirstStepsWithPlantourJsonQuestion],
   ['get-started/How can I switch my account from temporary to regular.json', getStartedHowCanISwitchMyAccountFromTemporaryToRegularJsonQuestion],
-  ['features/What are the main entities that Plniur operates with.json', featuresWhatAreTheMainEntitiesThatPlniurOperatesWithJsonQuestion],
+  ['features/What are the main entities that Plantour operates with.json', featuresWhatAreTheMainEntitiesThatPlantourOperatesWithJsonQuestion],
+  ['features/How do I filter, sort and target entities.json', featuresHowDoIFilterSortAndTargetEntitiesJsonQuestion],
   ['features/What is toolbar.json', featuresWhatIsToolbarJsonQuestion],
   ['features/How do I add update or delete entities.json', featuresHowDoIAddUpdateOrDeleteEntitiesJsonQuestion],
   ['features/What are dictionaries.json', featuresWhatAreDictionariesJsonQuestion],
   ['features/What are item templates.json', featuresWhatAreItemTemplatesJsonQuestion],
   ['features/How to ask AI for item recommendations.json', featuresHowToAskAIForItemRecommendationsJsonQuestion],
-  ['workflows/How do I add items to a trip.json', workflowsHowDoIAddItemsToATripJsonQuestion]
+  ['workflows/How do I invite travelers.json', workflowsHowDoIInviteTravelersJsonQuestion]
 ];
