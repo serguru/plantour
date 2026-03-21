@@ -109,15 +109,36 @@ function unorderedListAnswer(items: string[]): HelpAnswerSource {
   };
 }
 
-function flattenAnswerText(answer: HelpAnswerSource): string {
+export function stripHelpHtml(value: string): string {
+  return value
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<\/p>/gi, ' ')
+    .replace(/<li>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export function getHelpAnswerPlainText(answer: HelpAnswerSource): string {
   if (answer.kind === 'component') {
     return '';
   }
 
   return answer.sections
     .flatMap((section) => [section.title ?? '', ...section.items])
+    .map((value) => stripHelpHtml(value))
     .filter((value) => value.length > 0)
     .join(' ');
+}
+
+function flattenAnswerText(answer: HelpAnswerSource): string {
+  return getHelpAnswerPlainText(answer);
 }
 
 function createAnswerPageId(sectionId: string, slug: string): string {
@@ -130,7 +151,10 @@ function firstAnswerLine(answer: HelpAnswerSource): string | null {
   }
 
   for (const section of answer.sections) {
-    const firstItem = section.items.find((item) => item.trim().length > 0);
+    const firstItem = section.items
+      .map((item) => stripHelpHtml(item))
+      .find((item) => item.length > 0);
+
     if (firstItem) {
       return firstItem;
     }
@@ -246,23 +270,39 @@ const SECTION_SOURCES: HelpSectionSource[] = [
         slug: 'entities',
         question: 'What are the main entities that Plniur operates with?',
         answer: unorderedListAnswer([
-          'Trip is a journey or excursion to a specific destination. Can be created by the Admin. Cannot be created by the Participant',
-          "Traveler is a person invited by the Admin. The person has to be a Traveler to have access to the Admin's trips",
-          'Bag is a container, used for holding or carrying items',
-          'Item is any specific piece of gear, clothing, or personal essential packed to meet a particular need or handle a specific situation during your travels',
-          'Todo is a task or action that needs to be completed',
-          "Shared item is an item intended for shared use by trip participants. It may be included in the shared item list and assigned to a participant for preparation and travel.",
-          'Shared todo is a trip task intended for the group rather than just one person. It can be assigned to a participant so the admin can track who is responsible for completing it.',
-          'Admin is the main owner and organizer of a trip. The admin can create trips, invite people, manage trip data, and assign shared items or shared todos.',
-          "Participant is a user who joins an Admin's trip. Participants can work with the trip they were invited to, but they do not have the same creation and management rights as the Admin.",
-          'Packing list is the list of items packed into a specific trip bag. Plantour can generate and download it as a PDF so it can be printed or used during travel.',
-          'Trip report is a downloadable summary of a trip and its related trip data. It gives the user a printable or shareable snapshot of the trip in one document.',
-          'Dictionary is the area for reusable personal data that is not tied to one specific trip. It contains entities such as travelers, items, todos, bags, template items, and AI prompts that can later be reused in trips.',
-          'Dashboard is the main overview page of Plantour. It serves as a starting point for navigation and can also lead users to public pages such as plan selection.',
-          'Account is the user identity and profile in Plantour. It stores personal access information and connects the user to trips, permissions, and subscription state.',
-          'Plan is the subscription level for a Plantour account. It defines billing status and the commercial level of service the user has selected.'
+          '<a href="/trips">Trip</a> is a journey or excursion to a specific destination. Can be created by the Admin. Cannot be created by the Participant.',
+
+          '<strong>Admin</strong> is the main owner and organizer of a trip. The admin can create trips, invite people, and assign shared items or shared todos.',
+
+          '<a href="/travelers">Traveler</a> is a person invited by the Admin. The person has to be a Traveler to have access to the Admin`s trips as a Participant.',
+
+          '<strong>Participant</strong> is a Traveler included into a trip.',
+
+          '<a href="/packs">Bag</a> is a container, used for holding or carrying items.',
+
+          '<strong>Trip bag</strong> is a Bag, included into a trip.',
+
+          '<a href="/items">Item</a> is any specific piece of gear, clothing, or personal essential packed to meet a particular need or handle a specific situation during the trip.',
+
+          '<a href="/todos">Todo</a> is a task or action that needs to be completed.',
+
+          '<a href="/">Shared item</a> is an item intended for shared use by trip participants. It is included in the trip`s shared item list and assigned to a participant for preparation and travel.',
+
+          '<a href="/">Shared todo</a> is a trip related task included into a trip`s shared todo list. It can be assigned to a participant so the admin can track who is responsible for completing it.',
+
+
+          '<strong>Packing list</strong> is the list of items packed into a specific trip bag. Plantour can generate and download it as a PDF so it can be printed or used during travel.',
+
+          '<strong>Trip report</strong> is a downloadable summary of a trip and its related trip data. It gives the user a printable snapshot of the trip in one document.',
+
+          '<strong>Dictionary</strong> is a list of reusable personal entities that are not tied to a specific trip. There are dictionaries for travelers, items, todos and bags, that can be copied to trips.',
+
+          '<strong>Dashboard</strong> is the main overview page of Plantour. It serves as a starting point for navigation and can also lead users to public pages such as plan selection. The Dashboard for registered users allows to select a trip and see the trip summary data, The Dashboard for public users shows the general Plantour information and allows to choose a plan',
+
+          '<a href="/profile">Account</a> is the user identity and profile in Plantour. It stores personal access information and connects the user to trips, permissions, and subscription state.',
+          '<a href="/profile">Plan</a> is the subscription level for a Plantour account. It defines billing status and the commercial level of service the user has selected.'
         ]),
-        keywords: ['prefilled data', 'demo data', 'sample data', 'test data', 'first steps', 'packing list']
+        keywords: ['trip', 'admin', 'participant', 'account', 'item', 'bag']
       },
       {
         slug: 'workflow',

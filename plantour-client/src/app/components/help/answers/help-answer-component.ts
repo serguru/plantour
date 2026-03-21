@@ -9,6 +9,7 @@ import {
   HELP_HOME_PAGE_ID,
   HelpQuestionDefinition,
   findHelpPageByPath,
+  getHelpAnswerPlainText,
   getHelpSection,
   getHelpPageUrl,
   getHelpQuestionByPageId
@@ -134,7 +135,7 @@ export class HelpAnswerComponent {
     const canonicalUrl = this.buildAbsoluteUrl(this.pageUrl(page.id));
     const homeUrl = this.buildAbsoluteUrl(getHelpPageUrl(HELP_HOME_PAGE_ID));
     const answerText = question?.answer.kind === 'list'
-      ? question.answer.sections.flatMap((section) => section.items).join(' ')
+      ? getHelpAnswerPlainText(question.answer)
       : page.description;
 
     return {

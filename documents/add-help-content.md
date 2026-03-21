@@ -16,6 +16,8 @@ When adding or updating Help components in the Angular client, keep templates an
 
 Use this when the answer is static text, bullet points, or step-by-step instructions.
 
+List-answer strings may include basic HTML markup when you need richer formatting without creating a custom answer component. The list renderer supports Angular's sanitized `innerHTML`, so markup such as `<strong>`, `<em>`, `<a>`, `<code>`, `<br>`, and similar safe HTML can be used inside section titles and answer items.
+
 Steps:
 
 1. Open `plantour-client/src/app/components/help/help-content.ts`.
@@ -27,7 +29,8 @@ Steps:
 7. Add useful `keywords`.
 8. Set `answer.kind` to `'list'`.
 9. Add one or more answer `sections` with `listStyle` and `items`.
-10. Save and verify the new page under `/help/{sectionId}/{questionSlug}`.
+10. If needed, include safe HTML inside `title` or `items` strings for formatting.
+11. Save and verify the new page under `/help/{sectionId}/{questionSlug}`.
 
 ### 2. Add a new section with one or more list answers
 
@@ -66,3 +69,4 @@ Steps:
 - You do not need to add a new Angular route for each answer page.
 - Help answer page URLs are generated through the existing `/help/:sectionId/:questionSlug` route.
 - The source of truth for Help sections and questions is `help-content.ts`.
+- HTML used inside list-answer strings is rendered on the page but converted back to plain text for summaries, descriptions, search text, and FAQ metadata.
