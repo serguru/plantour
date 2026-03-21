@@ -211,9 +211,10 @@ const SECTION_SOURCES: HelpSectionSource[] = [
         slug: 'switch-account',
         question: 'How can I switch my account from temporary to regular?',
         answer: unorderedListAnswer([
-          'If you wish to keep your test data naviagate to your profile and enter your real email',
-          'If you wish to start a new regular free account from scratch sign out from your temporary account, go to sign in and enter your real email or sign in with Google or Facebook',
-          'If you wish to start with a paid plan go to your profile and click the "Change plan" button'
+          'If you wish to keep your test data navigate to your profile and enter your real email.',
+          'If you wish to start a new regular free account from scratch sign out from your temporary account, go to sign in and enter your real email or sign in with Google or Facebook.',
+          'If you want to start with a paid plan, go to your profile and click "Change plan" button. Your test data will be saved.',
+          'To start with a paid plan from scratch, sign out and click the "Dashboard" button on the toolbar. This will open the main page. Scroll down, select a paid plan, and click the corresponding button.'
         ]),
         keywords: ['first step', 'demo', 'start', 'workflow']
       }
@@ -251,15 +252,15 @@ const SECTION_SOURCES: HelpSectionSource[] = [
           'Item is any specific piece of gear, clothing, or personal essential packed to meet a particular need or handle a specific situation during your travels',
           'Todo is a task or action that needs to be completed',
           "Shared item is an item intended for shared use by trip participants. It may be included in the shared item list and assigned to a participant for preparation and travel.",
-          'Shared todo',
-          'Admin',
-          'Participant',
-          'Packing list',
-          'Trip report',
-          'Dictionary',
-          'Dashboard',
-          'Account',
-          'Plan'
+          'Shared todo is a trip task intended for the group rather than just one person. It can be assigned to a participant so the admin can track who is responsible for completing it.',
+          'Admin is the main owner and organizer of a trip. The admin can create trips, invite people, manage trip data, and assign shared items or shared todos.',
+          "Participant is a user who joins an Admin's trip. Participants can work with the trip they were invited to, but they do not have the same creation and management rights as the Admin.",
+          'Packing list is the list of items packed into a specific trip bag. Plantour can generate and download it as a PDF so it can be printed or used during travel.',
+          'Trip report is a downloadable summary of a trip and its related trip data. It gives the user a printable or shareable snapshot of the trip in one document.',
+          'Dictionary is the area for reusable personal data that is not tied to one specific trip. It contains entities such as travelers, items, todos, bags, template items, and AI prompts that can later be reused in trips.',
+          'Dashboard is the main overview page of Plantour. It serves as a starting point for navigation and can also lead users to public pages such as plan selection.',
+          'Account is the user identity and profile in Plantour. It stores personal access information and connects the user to trips, permissions, and subscription state.',
+          'Plan is the subscription level for a Plantour account. It defines billing status and the commercial level of service the user has selected.'
         ]),
         keywords: ['prefilled data', 'demo data', 'sample data', 'test data', 'first steps', 'packing list']
       },
@@ -305,11 +306,15 @@ const SECTION_SOURCES: HelpSectionSource[] = [
           'Item',
           'Todo',
           'Shared item',
-          'Shared todo',
-          'Admin',
-          'Participant',
-          'Packing list',
-          'Trip report'
+          'Shared todo is a trip task intended for the group rather than just one person. It can be assigned to a participant so the admin can track who is responsible for completing it.',
+          'Admin is the main owner and organizer of a trip. The admin can create trips, invite people, manage trip data, and assign shared items or shared todos.',
+          "Participant is a user who joins an Admin's trip. Participants can work with the trip they were invited to, but they do not have the same creation and management rights as the Admin.",
+          'Packing list is the list of items packed into a specific trip bag. Plantour can generate and download it as a PDF so it can be printed or used during travel.',
+          'Trip report is a downloadable summary of a trip and its related trip data. It gives the user a printable or shareable snapshot of the trip in one document.',
+          'Dictionary is the area for reusable personal data that is not tied to one specific trip. It contains entities such as travelers, items, todos, bags, template items, and AI prompts that can later be reused in trips.',
+          'Dashboard is the main overview page of Plantour. It serves as a starting point for navigation and can also lead users to public pages such as plan selection.',
+          'Account is the user identity and profile in Plantour. It stores personal access information and connects the user to trips, permissions, and subscription state.',
+          'Plan is the subscription level for a Plantour account. It defines billing status and the commercial level of service the user has selected.'
         ]),
         keywords: ['prefilled data', 'demo data', 'sample data', 'test data', 'first steps', 'packing list']
       },
