@@ -1,8 +1,7 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { REQUEST } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { EntitiesHeader } from '../entities/entities-header-component/entities-header-component';
 import { HelpSearchService } from '../../services/help-search-service';
 import { SeoService } from '../../services/seo-service';
@@ -11,7 +10,7 @@ import { HELP_HOME_PAGE_ID, HELP_SEARCH_PAGE_ID, getHelpPageUrl, getHelpBreadcru
 @Component({
   selector: 'app-help-search-results',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, EntitiesHeader],
+  imports: [CommonModule, RouterLink, EntitiesHeader],
   templateUrl: './help-search-results-component.html',
   styleUrl: './help-component.scss'
 })
@@ -19,7 +18,6 @@ export class HelpSearchResultsComponent {
   componentId = 'help';
 
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly helpSearchService = inject(HelpSearchService);
   private readonly seoService = inject(SeoService);
   private readonly document = inject(DOCUMENT);
@@ -52,21 +50,8 @@ export class HelpSearchResultsComponent {
     });
   }
 
-  async submitSearch(event: Event): Promise<void> {
-    event.preventDefault();
-
-    const query = this.searchQuery().trim();
-    await this.router.navigate(['/help/search'], {
-      queryParams: query ? { q: query } : {}
-    });
-  }
-
   pageUrl(pageId: string): string {
     return getHelpPageUrl(pageId);
-  }
-
-  homeUrl(): string {
-    return getHelpPageUrl(HELP_HOME_PAGE_ID);
   }
 
   private buildAbsoluteUrl(path: string): string {

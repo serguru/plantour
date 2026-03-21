@@ -20,40 +20,40 @@
                 }
             </nav>
         }
-
-        <section class="help-page-card help-page-card--hero">
-            <div class="help-page-intro">
-                <span class="help-page-kicker">Server-rendered help</span>
-                <h1>{{ currentPage().title }}</h1>
-                <p class="help-page-summary">{{ currentPage().summary }}</p>
-            </div>
-
-            <form class="help-search-form" (submit)="submitSearch($event)">
-                <label class="help-search-label" for="help-search-query">Search help</label>
-                <div class="help-search-box">
-                    <i class="pi pi-search"></i>
-                    <input
-                        id="help-search-query"
-                        type="text"
-                        [ngModel]="searchQuery()"
-                        (ngModelChange)="searchQuery.set($event)"
-                        name="helpSearchQuery"
-                        placeholder="Try: guest access, packing list, shared item"
-                    />
-                    <button type="submit" class="help-search-submit">Search</button>
+        @if (searchPanelVisible()) {
+            <section class="help-page-card help-search-card">
+                <div class="help-search-form">
+                    <label class="help-search-label" for="help-search-query">Search help</label>
+                    <div class="help-search-box">
+                        <i class="pi pi-search"></i>
+                        <input
+                            id="help-search-query"
+                            type="text"
+                            [ngModel]="searchQuery()"
+                            (ngModelChange)="searchQuery.set($event)"
+                            name="helpSearchQuery"
+                            placeholder="Try: guest access, packing list, shared item"
+                        />
+                        <button type="button" class="help-search-submit" (click)="runSearch()">Search</button>
+                    </div>
                 </div>
-            </form>
-        </section>
+            </section>
+        }
 
         <section class="help-section-stack">
-            @for (section of visibleSections(); track section.id) {
-                <article class="help-page-card help-section-card">
-                    <div class="help-section-card__header">
-                        <div>
-                            <a class="help-section-card__title" [routerLink]="sectionUrl(section.id)">{{ section.title }}</a>
-                            <p class="help-section-card__summary">{{ section.summary }}</p>
+            @for (section of visibleSections(); track section.id; let isFirst = $first) {
+                <details
+                    class="help-page-card help-section-card help-faq-section"
+                    [open]="isSectionExpanded(section.id, isFirst)"
+                    (toggle)="onSectionToggle(section.id, $event)"
+                >
+                    <summary>
+                        <div class="help-faq-section__heading">
+                            <a class="help-section-card__title" [routerLink]="sectionUrl(section.id)" (click)="$event.stopPropagation()">{{ section.title }}</a>
+                            <p class="help-faq-section__summary">{{ section.summary }}</p>
                         </div>
-                    </div>
+                        <span class="help-faq-section__arrow" aria-hidden="true"></span>
+                    </summary>
 
                     <ol class="help-question-grid">
                         @for (question of section.questions; track question.pageId) {
@@ -65,7 +65,7 @@
                             </li>
                         }
                     </ol>
-                </article>
+                </details>
             }
         </section>
 

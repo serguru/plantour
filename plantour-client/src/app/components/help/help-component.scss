@@ -259,7 +259,8 @@
 .help-page-card--hero,
 .help-page-card--answer,
 .help-page-card--results,
-.help-section-card {
+.help-section-card,
+.help-search-card {
   padding: 1.2rem;
 }
 
@@ -285,12 +286,16 @@
 .help-search-form {
   display: grid;
   gap: 0.55rem;
-  margin-top: 1rem;
 }
 
 .help-section-stack {
   display: grid;
   gap: 1rem;
+}
+
+.help-search-card {
+  display: grid;
+  gap: 0.6rem;
 }
 
 .help-section-card__header {
@@ -314,6 +319,50 @@
   text-decoration: underline;
 }
 
+.help-faq-section {
+  overflow: hidden;
+}
+
+.help-faq-section summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.help-faq-section summary::-webkit-details-marker {
+  display: none;
+}
+
+.help-faq-section__heading {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.help-faq-section__summary {
+  color: #55767b;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.help-faq-section__arrow {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-right: 2px solid #41676d;
+  border-bottom: 2px solid #41676d;
+  transform: rotate(45deg);
+  transition: transform 0.18s ease;
+  flex: 0 0 auto;
+  margin-right: 0.25rem;
+}
+
+.help-faq-section[open] .help-faq-section__arrow {
+  transform: rotate(225deg);
+}
+
 .help-section-card__summary,
 .help-related-card__summary,
 .help-question-card__summary,
@@ -326,7 +375,7 @@
 
 .help-question-grid {
   margin: 0;
-  padding-left: 1.4rem;
+  padding: 1rem 0 0 1.4rem;
   display: grid;
   gap: 0.8rem;
 }
@@ -484,10 +533,7 @@
 
 @media (min-width: 960px) {
   .help-page-card--hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
-    gap: 1.25rem;
-    align-items: end;
+    display: block;
   }
 
   .help-search-results-grid,

@@ -18,34 +18,10 @@
       }
     </nav>
 
-    <section class="help-page-card help-page-card--hero">
-      <div class="help-page-intro">
-        <span class="help-page-kicker">Dedicated search page</span>
-        <h1>Search Plantour Help</h1>
-        <p class="help-page-summary">Search results are rendered on their own SSR page and can open section pages or answer pages directly.</p>
-      </div>
-
-      <form class="help-search-form" (submit)="submitSearch($event)">
-        <label class="help-search-label" for="help-search-page-query">Search help</label>
-        <div class="help-search-box">
-          <i class="pi pi-search"></i>
-          <input
-            id="help-search-page-query"
-            type="text"
-            [ngModel]="searchQuery()"
-            (ngModelChange)="searchQuery.set($event)"
-            name="helpSearchQuery"
-            placeholder="Try: guest access, packing list, shared item"
-          />
-          <button type="submit" class="help-search-submit">Search</button>
-        </div>
-      </form>
-    </section>
-
     <section class="help-page-card help-page-card--results">
       @if (searchQuery()) {
         <div class="help-results-summary">
-          <h2>Results</h2>
+          <h1>Search Plantour Help</h1>
           <p>{{ searchResults().length }} page(s) matched "{{ searchQuery() }}".</p>
         </div>
 
