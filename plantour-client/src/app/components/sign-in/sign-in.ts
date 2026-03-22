@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Inject, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, Inject, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, DOCUMENT, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -8,12 +8,9 @@ import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 import {
   FacebookLoginProvider,
-  GoogleLoginProvider,
-  GoogleSigninButtonDirective,
-  SocialAuthService,
+  SocialAuthService as LibrarySocialAuthService,
   SocialUser,
 } from '@abacritt/angularx-social-login';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
 import { RadioButton } from 'primeng/radiobutton';
@@ -24,6 +21,7 @@ import { PasswordModule } from 'primeng/password';
 import { SignInResponse } from '../../models/auth.models';
 import { getMessageFromError } from '../../helpers/utils';
 import { SeoService } from '../../services/seo-service';
+import { SocialAuthService as PlantourSocialAuthService } from '../../services/social-auth-service';
 
 @Component({
   selector: 'app-sign-in',
@@ -37,7 +35,6 @@ import { SeoService } from '../../services/seo-service';
     FormsModule,
     AppButton,
     PasswordModule,
-    GoogleSigninButtonDirective,
   ],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.scss',
@@ -52,17 +49,27 @@ export class SignInComponent implements OnInit {
   signInType: 'admin' | 'participant' = 'admin';
   hasGoogleLogin = false;
   hasFacebookLogin = false;
+  private googleButtonHostElement?: HTMLElement;
 
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
-  private socialAuthService = inject(SocialAuthService);
+  private socialAuthService = inject(LibrarySocialAuthService);
+  private plantourSocialAuthService = inject(PlantourSocialAuthService);
   private botProtectionService = inject(BotProtectionService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private location = inject(Location);
-  private destroyRef = inject(DestroyRef);
   private seoService = inject(SeoService);
   private document = inject(DOCUMENT);
+
+  @ViewChild('googleButtonHost')
+  set googleButtonHost(elementRef: ElementRef<HTMLElement> | undefined) {
+    this.googleButtonHostElement = elementRef?.nativeElement;
+
+    if (this.googleButtonHostElement) {
+      void this.initializeGoogleButton();
+    }
+  }
 
   constructor(
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
@@ -106,16 +113,6 @@ export class SignInComponent implements OnInit {
         this.adminForm.patchValue({ email: email });
       }
     }
-
-    this.socialAuthService.authState
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((user) => {
-        if (!user || user.provider !== GoogleLoginProvider.PROVIDER_ID) {
-          return;
-        }
-
-        void this.completeSocialSignInFromUser('google', user, 'Google');
-      });
   }
 
   onEmailChange(e) {
@@ -241,6 +238,30 @@ export class SignInComponent implements OnInit {
     this.router.navigate(['']);
   }
 
+  private async initializeGoogleButton(): Promise<void> {
+    if (!this.hasGoogleLogin || !this.isAdmin || this.isLoading || !this.googleButtonHostElement || !this.environment.googleClientId) {
+      return;
+    }
+
+    try {
+      await this.plantourSocialAuthService.loadGoogleSdk();
+      this.plantourSocialAuthService.renderGoogleButton(
+        this.googleButtonHostElement,
+        this.environment.googleClientId,
+        this.onGoogleCredential
+      );
+    } catch (error) {
+      console.error('Google Identity Services initialization failed', error);
+    }
+  }
+
+  private onGoogleCredential = (idToken: string): void => {
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.isLoading = true;
+    void this.signInWithSocial('google', idToken);
+  };
+
   getFieldError(fieldName: string): string {
     const field = this.currentForm.get(fieldName);
     if (!field || !field.touched) return '';
@@ -324,11 +345,11 @@ export class SignInComponent implements OnInit {
   }
 
   private async completeSocialSignInFromUser(
-    provider: 'google' | 'facebook',
+    provider: 'facebook',
     user: SocialUser,
     providerName: string
   ): Promise<void> {
-    const token = provider === 'google' ? user.idToken : user.authToken;
+    const token = user.authToken;
 
     if (!token) {
       this.isLoading = false;

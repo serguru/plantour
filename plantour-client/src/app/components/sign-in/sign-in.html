@@ -70,7 +70,7 @@
       }
 
       @if (hasGoogleLogin) {
-      <div class="google-button-wrapper">
+      <!-- <div class="google-button-wrapper"> -->
         <app-button
           label="Google"
           [icon]="'pi pi-google'"
@@ -78,18 +78,12 @@
         />
 
         @if (!isLoading) {
-        <asl-google-signin-button
+        <div
+          #googleButtonHost
           class="google-button-overlay"
-          type="standard"
-          size="large"
-          text="continue_with"
-          shape="rectangular"
-          theme="outline"
-          logo_alignment="left"
-          [width]="150"
-        ></asl-google-signin-button>
+        ></div>
         }
-      </div>
+      <!-- </div> -->
       }
 
 

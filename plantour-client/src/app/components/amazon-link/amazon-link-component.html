@@ -1,10 +1,27 @@
-<a
-	class="amazon-link"
-	[attr.href]="amazonSearchUrl()"
-	[attr.aria-label]="ariaLabel()"
-	[class.is-disabled]="!amazonSearchUrl()"
-	target="_blank"
-	rel="noopener sponsored nofollow"
-    [innerHtml]="resolvedLinkText()"
->
-</a>
+<span class="amazon-link-wrapper" #origin>
+	<a
+		class="amazon-link"
+		[attr.href]="amazonSearchUrl() || null"
+		[attr.aria-label]="ariaLabel()"
+		[class.is-disabled]="!amazonSearchUrl()"
+		rel="noopener sponsored nofollow"
+		[innerHtml]="resolvedLinkText()"
+		(click)="onLinkClick($event)"
+		(keydown.enter)="onLinkActivate($event)"
+	></a>
+
+	<app-popover #popover [panelClass]="'amazon-link-popover'" (onShow)="onPopoverShow()">
+		<button
+			#popupAction
+			type="button"
+			class="amazon-link-popover-button"
+			[attr.aria-label]="popupLabel()"
+			(click)="onPopupClick($event)"
+			(keydown.enter)="onPopupActivate($event)"
+			(keydown.escape)="onEscape($event)"
+		>
+			<span class="amazon-link-popover-text">{{ popupLabel() }}</span>
+			<span class="amazon-link-popover-icon" aria-hidden="true">↗</span>
+		</button>
+	</app-popover>
+</span>

@@ -1,13 +1,12 @@
-# Angularx Social Login in Plantour
+# Social Login in Plantour
 
-This document describes the Angular client changes made to switch Plantour sign-in social authentication to @abacritt/angularx-social-login for Google and Facebook.
+This document describes the current Angular client social-auth setup in Plantour.
 
 ## What was changed
 
-- Added angularx-social-login provider configuration to the standalone Angular application in app.config.ts.
-- Registered only Google and Facebook providers.
-- Replaced the custom SDK calls inside sign-in.ts with the package SocialAuthService.
-- Replaced the Google custom button flow with the package Google Sign-In button directive.
+- Kept angularx-social-login provider configuration only for Facebook.
+- Replaced the deprecated package Google button flow with direct Google Identity Services integration.
+- Kept the visible Google button style unchanged by rendering a hidden GIS button over the existing Plantour button.
 - Kept the existing Plantour backend API call unchanged: the client still sends the Google ID token or Facebook access token to /users/admin/social/signin.
 
 ## Files changed
@@ -15,17 +14,19 @@ This document describes the Angular client changes made to switch Plantour sign-
 - plantour-client/src/app/app.config.ts
 - plantour-client/src/app/components/sign-in/sign-in.ts
 - plantour-client/src/app/components/sign-in/sign-in.html
+- plantour-client/src/app/services/social-auth-service.ts
+- plantour-client/src/app/services/users-service.ts
 - documents/angularx-social.md
 
 ## How the new client flow works
 
 ### Google
 
-1. app.config.ts registers GoogleLoginProvider with the configured googleClientId.
-2. The sign-in template renders the package element asl-google-signin-button.
-3. Google Identity Services handles the Google popup and returns a SocialUser through SocialAuthService.authState.
-4. sign-in.ts reads user.idToken from that SocialUser.
-5. The component requests a bot-protection token.
+1. sign-in.ts loads the official Google Identity Services script from accounts.google.com/gsi/client through plantour-client/src/app/services/social-auth-service.ts.
+2. The sign-in template renders the existing Plantour Google button and overlays a hidden GIS-rendered button on top of it.
+3. The service initializes google.accounts.id once for the page and renders the GIS button with popup mode.
+4. Google returns a credential response containing an ID token through the GIS callback.
+5. sign-in.ts requests a bot-protection token.
 6. The component sends the Google ID token to the existing Plantour API endpoint.
 7. The API verifies the token and signs the user into Plantour.
 
@@ -46,13 +47,10 @@ The social config is registered through the package SOCIAL_AUTH_CONFIG token.
 
 Configured providers:
 
-- GoogleLoginProvider
 - FacebookLoginProvider
 
 Important options:
 
-- Google uses oneTapEnabled: false.
-  This keeps the page focused on explicit button-based sign-in instead of One Tap.
 - Facebook uses scope email,public_profile.
 - Facebook uses fields name,email,picture,first_name,last_name.
 - Facebook uses Graph API version v25.0.
@@ -86,8 +84,10 @@ These are already part of the Plantour environment object shape.
 
 Official references used:
 
-- https://github.com/abacritt/angularx-social-login
+- https://developers.google.com/identity/gsi/web/guides/display-button
+- https://developers.google.com/identity/gsi/web/reference/js-reference
 - https://developers.google.com/identity/gsi/web/guides/overview
+- https://developers.google.com/identity/gsi/web/guides/migration
 - https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
 
 ### Facebook setup
@@ -111,7 +111,8 @@ Official references used:
 
 ## Notes and limitations
 
-- Google sign-in through this package is button-driven. The package documentation states that calling signIn() for Google has no effect, so Plantour now uses the package Google sign-in button directive instead.
+- Google sign-in no longer uses angularx-social-login. Plantour now uses the official Google Identity Services button API directly.
+- Google Identity Services should be initialized once per page. Plantour keeps that responsibility inside plantour-client/src/app/services/social-auth-service.ts.
 - Google popup sizing is controlled by Google Identity Services. Plantour can control the rendered button width, but not the size of the Google authentication popup window itself.
 - Facebook still uses a custom Plantour button, but the authentication flow now goes through the package provider instead of direct SDK calls in sign-in.ts.
 - The backend contract was not changed by this client refactor.

@@ -23,7 +23,6 @@
     <div class="search-results" [class.search-results--idle]="!searchQuery()">
       @if (searchQuery()) {
         <div class="search-results__summary">
-          <h2>Results</h2>
           <p>{{ searchResults().length }} result(s) matched "{{ searchQuery() }}".</p>
           @if (isLoading()) {
             <p class="search-results__loading">Loading dynamic public template results...</p>
@@ -41,11 +40,7 @@
               </a>
             }
           </div>
-        } @else {
-          <p class="search-results__empty">No search results found. Matching Plantour pages and templates will be shown here.</p>
         }
-      } @else {
-        <p class="search-results__empty search-results__empty--idle">Search results, if any, will be shown here.</p>
       }
     </div>
   </div>
