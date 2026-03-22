@@ -17,10 +17,13 @@ import featuresWhatAreItemTemplatesJsonQuestion from './sections/features/What a
 import featuresHowToAskAIForItemRecommendationsJsonQuestion from './sections/features/How to ask AI for item recommendations.json';
 import workflowsWhatIsMainPlantourWorkflowJsonQuestion from './sections/workflows/What is main Plantour workflow.json';
 import workflowsHowDoIInviteTravelersJsonQuestion from './sections/workflows/How do I invite travelers.json';
+import workflowsHowDoISearchPlantourForSomethingJsonQuestion from './sections/workflows/How do I search Plantour for something.json';
+import workflowsHowCanISendAMessageToThePlantourAdministrationJsonQuestion from './sections/workflows/How can I send a message to the Plantour administration.json';
 import workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion from './sections/workflows/How do I work with my items dictionary.json';
 import workflowsHowDoIWorkWithMyBagsDictionaryJsonQuestion from './sections/workflows/How do I work with my bags dictionary.json';
 import workflowsHowDoIWorkWithMyTodosDictionaryJsonQuestion from './sections/workflows/How do I work with my todos dictionary.json';
 import tripWorkflowsHowDoIWorkWithTripsJsonQuestion from './sections/trip-workflows/How do I work with trips.json';
+import tripWorkflowsWhyIsCurrentTripAndHowToSetUnsetAndShowHideItJsonQuestion from './sections/trip-workflows/Why is current trip and how to set/unset and show/hide it.json';
 import tripWorkflowsWhatCanIDoWithTripItemsJsonQuestion from './sections/trip-workflows/What can I do with trip items.json';
 import tripWorkflowsHowDoIWorkWithTripBagsJsonQuestion from './sections/trip-workflows/How do I work with trip bags.json';
 import tripWorkflowsWhatOptionsDoIHaveToPackTheTripItemsJsonQuestion from './sections/trip-workflows/What options do I have to pack the trip items.json';
@@ -58,10 +61,13 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['features/How to ask AI for item recommendations.json', featuresHowToAskAIForItemRecommendationsJsonQuestion],
   ['workflows/What is main Plantour workflow.json', workflowsWhatIsMainPlantourWorkflowJsonQuestion],
   ['workflows/How do I invite travelers.json', workflowsHowDoIInviteTravelersJsonQuestion],
+  ['workflows/How do I search Plantour for something.json', workflowsHowDoISearchPlantourForSomethingJsonQuestion],
+  ['workflows/How can I send a message to the Plantour administration.json', workflowsHowCanISendAMessageToThePlantourAdministrationJsonQuestion],
   ['workflows/How do I work with my items dictionary.json', workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion],
   ['workflows/How do I work with my bags dictionary.json', workflowsHowDoIWorkWithMyBagsDictionaryJsonQuestion],
   ['workflows/How do I work with my todos dictionary.json', workflowsHowDoIWorkWithMyTodosDictionaryJsonQuestion],
   ['trip-workflows/How do I work with trips.json', tripWorkflowsHowDoIWorkWithTripsJsonQuestion],
+  ['trip-workflows/Why is current trip and how to set/unset and show/hide it.json', tripWorkflowsWhyIsCurrentTripAndHowToSetUnsetAndShowHideItJsonQuestion],
   ['trip-workflows/What can I do with trip items.json', tripWorkflowsWhatCanIDoWithTripItemsJsonQuestion],
   ['trip-workflows/How do I work with trip bags.json', tripWorkflowsHowDoIWorkWithTripBagsJsonQuestion],
   ['trip-workflows/What options do I have to pack the trip items.json', tripWorkflowsWhatOptionsDoIHaveToPackTheTripItemsJsonQuestion],
