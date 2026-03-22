@@ -1,0 +1,11 @@
+{
+  "id": "trip-workflows",
+  "title": "Trip workflows",
+  "summary": "What can I do with trips",
+  "questions": [
+    "How do I work with trips.json",
+    "What can I do with trip items.json",
+    "How do I work with trip bags.json",
+    "What options do I have to pack the trip items.json"
+  ]
+}

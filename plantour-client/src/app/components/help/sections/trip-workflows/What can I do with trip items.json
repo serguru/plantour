@@ -1,0 +1,95 @@
+{
+  "slug": "what-can-i-do-with-trip-items",
+  "question": "What can I do with trip items?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Add trip items directly",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to create a personal item directly inside one trip without going through a dictionary page first.",
+        "items": [
+          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Select the trip you want to work in.",
+          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Items</strong>.",
+          "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Trip Item</strong> form opens.",
+          "Enter the item name. Add category, notes, units, value, and an optional bag if you already know where the item should be packed.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the item in that trip and returns you to the <strong>Trip Items</strong> list."
+        ],
+        "afterHtml": "This creates a trip-specific item. It belongs to that trip, not to your reusable dictionary."
+      },
+      {
+        "title": "Copy items from your Items dictionary into a trip",
+        "listTag": "ol",
+        "beforeHtml": "Use this when the item already exists in your reusable <a href='/items'>Items</a> dictionary and you want to include it in one trip.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Items</strong>.",
+          "Open the actions bar in the page header and choose the target option.",
+          "Choose the trip you want to send items to.",
+          "If the target offers more than one mode, choose <strong>Own</strong>. This answer is about trip items, not shared items.",
+          "Narrow the list to the items you want by filtering or sorting if needed.",
+          "For the exact workflow of target, filter, and sort tools, see <a href='/help/features/filter-sort-target-entities'>How do I filter, sort and target entities?</a>.",
+          "To copy one item, click the add button on that row. To copy many visible items at once, use the page-level plus button.",
+          "Plantour copies the selected dictionary items into the chosen trip`s <strong>Trip Items</strong> list."
+        ]
+      },
+      {
+        "title": "Copy template items into a trip",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to start from ready-made template suggestions and place them into your personal trip item list.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Template items</strong>.",
+          "Open the target option in the actions bar and choose the trip you want to work in.",
+          "If the target offers more than one mode, choose <strong>Own</strong>. Do not choose Shared here.",
+          "Filter the template list by Template, Activity, Temperature Range, Age, Category, or Name until only the items you want are shown.",
+          "If you need a refresher on how bulk targeting works, read <a href='/help/features/filter-sort-target-entities'>How do I filter, sort and target entities?</a>.",
+          "To copy one visible template item, click the add button on that row. To copy many visible template items at once, use the page-level plus button.",
+          "Plantour copies the selected template items into that trip`s <strong>Trip Items</strong> list."
+        ]
+      },
+      {
+        "title": "Copy AI recommendations into a trip",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want Plantour to generate item suggestions from your trip description and then place the useful ones into your personal trip item list.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>AI prompts</strong>.",
+          "Type a prompt or choose one of the recent prompts from the dropdown list.",
+          "Describe the trip clearly, such as destination, weather, activities, trip length, or traveler age, then click <strong>Ask AI</strong>.",
+          "When the recommendations appear, choose the trip you want as the target.",
+          "If the target offers more than one mode, choose <strong>Own</strong>. This keeps the result in personal trip items instead of shared items.",
+          "If you want to narrow or batch the results first, use filtering and sorting. For the exact target and bulk-copy workflow, see <a href='/help/features/filter-sort-target-entities'>How do I filter, sort and target entities?</a>.",
+          "To copy one recommendation, click the add button on that row. To copy many visible recommendations at once, use the page-level plus button.",
+          "Plantour copies the selected AI recommendations into that trip`s <strong>Trip Items</strong> list."
+        ]
+      },
+      {
+        "title": "Update a trip item",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to change a trip item that already belongs to one trip.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Items</strong> for the selected trip.",
+          "Select the trip item you want to change so it is highlighted.",
+          "Click the <strong>Update</strong> button with the pencil icon. The <strong>Edit Trip Item</strong> form opens.",
+          "Change the fields you want to update, such as name, category, notes, units, value, or selected bag.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the updated trip item and returns you to the trip item list."
+        ],
+        "afterHtml": "Updating a trip item changes only that trip item. It does not change the original item in your reusable <a href='/items'>Items</a> dictionary."
+      },
+      {
+        "title": "Delete a trip item",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to remove an item from one trip.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Items</strong> for the selected trip.",
+          "Select the trip item you want to remove so it is highlighted.",
+          "Click the <strong>Delete</strong> button with the trash icon.",
+          "Confirm the deletion.",
+          "Plantour removes the item from that trip`s <strong>Trip Items</strong> list."
+        ],
+        "afterHtml": "Deleting a trip item affects only that trip. It does not delete the original item from your reusable <a href='/items'>Items</a> dictionary. To continue with bag-related workflows, read <a href='/help/trip-workflows/what-options-do-i-have-to-pack-the-trip-items'>What options do I have to pack the trip items?</a>."
+      }
+    ]
+  }
+}

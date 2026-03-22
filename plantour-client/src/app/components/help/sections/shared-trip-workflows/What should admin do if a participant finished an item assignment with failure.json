@@ -1,0 +1,23 @@
+{
+  "slug": "what-should-admin-do-if-a-participant-finished-an-item-assignment-with-failure",
+  "question": "What should admin do if a participant finished an item assignment with failure?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ol",
+        "beforeHtml": "Plantour does not expose a special one-click recovery action for a failed shared item. Instead, the admin handles failure by reviewing the failed shared item and then taking a normal management action.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Shared items</strong> for the selected trip.",
+          "Find the shared item with the failed status. Plantour marks failed items in the assignment status text, and the admin is also notified when a participant finishes with failure.",
+          "Review whether the item should stay failed as a record, be updated, be unassigned, or be reassigned.",
+          "If the item itself needs correction, select it and use <strong>Update</strong> to change its details.",
+          "If the same participant should no longer own it, clear the assignee or use the target workflow to unassign it.",
+          "If another participant should take over, choose a different assignee from the row dropdown or use the <strong>Trip participant</strong> target to reassign it.",
+          "After reassignment, Plantour resets the previous acceptance state so the new participant can accept and handle it."
+        ],
+        "afterHtml": "In practice, a failed shared item means the admin should decide whether to revise the item, remove the assignment, or move the responsibility to someone else."
+      }
+    ]
+  }
+}

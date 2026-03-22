@@ -1,0 +1,22 @@
+{
+  "slug": "what-can-a-participant-do-after-accepting-the-item-assignment",
+  "question": "What can a participant do after accepting the item assignment?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ol",
+        "beforeHtml": "After acceptance, the shared item becomes part of the participant`s personal trip work. Plantour creates a corresponding row in that participant`s <strong>Trip Items</strong> list.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Items</strong> for the selected trip.",
+          "Find the accepted item in your personal trip items. Plantour shows assignment status text there so you can see that it came from a shared-item assignment.",
+          "If you need to organize it physically, assign the item to a trip bag and move it through the normal trip-item packing workflow.",
+          "When you complete the assignment successfully, mark <strong>Finished success</strong> on that trip item row.",
+          "If you attempted it but it failed, mark <strong>Finished failure</strong> on that trip item row.",
+          "Plantour sends the admin a notification when you finish the accepted item successfully or with failure."
+        ],
+        "afterHtml": "The shared-item page is where assignment is accepted or rejected. The personal <strong>Trip Items</strong> page is where the accepted work is actually packed and finished."
+      }
+    ]
+  }
+}

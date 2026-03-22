@@ -1,6 +1,8 @@
 import getStartedSectionManifest from './sections/get-started/section.json';
 import featuresSectionManifest from './sections/features/section.json';
 import workflowsSectionManifest from './sections/workflows/section.json';
+import tripWorkflowsSectionManifest from './sections/trip-workflows/section.json';
+import sharedTripWorkflowsSectionManifest from './sections/shared-trip-workflows/section.json';
 import getStartedHowCanPlanturHelpMeSolveMyProblemsJsonQuestion from './sections/get-started/How can Plantur help me solve my problems.json';
 import getStartedCanITryPlantourWithoutTheAccountCreationJsonQuestion from './sections/get-started/Can I try Plantour without the account creation.json';
 import getStartedWhatAreMyFirstStepsWithPlantourJsonQuestion from './sections/get-started/What are my first steps with Plantour.json';
@@ -16,11 +18,29 @@ import featuresHowToAskAIForItemRecommendationsJsonQuestion from './sections/fea
 import workflowsWhatIsMainPlantourWorkflowJsonQuestion from './sections/workflows/What is main Plantour workflow.json';
 import workflowsHowDoIInviteTravelersJsonQuestion from './sections/workflows/How do I invite travelers.json';
 import workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion from './sections/workflows/How do I work with my items dictionary.json';
+import workflowsHowDoIWorkWithMyBagsDictionaryJsonQuestion from './sections/workflows/How do I work with my bags dictionary.json';
+import workflowsHowDoIWorkWithMyTodosDictionaryJsonQuestion from './sections/workflows/How do I work with my todos dictionary.json';
+import tripWorkflowsHowDoIWorkWithTripsJsonQuestion from './sections/trip-workflows/How do I work with trips.json';
+import tripWorkflowsWhatCanIDoWithTripItemsJsonQuestion from './sections/trip-workflows/What can I do with trip items.json';
+import tripWorkflowsHowDoIWorkWithTripBagsJsonQuestion from './sections/trip-workflows/How do I work with trip bags.json';
+import tripWorkflowsWhatOptionsDoIHaveToPackTheTripItemsJsonQuestion from './sections/trip-workflows/What options do I have to pack the trip items.json';
+import sharedTripWorkflowsHowDoesAdminAddUpdateAndDeleteSharedItemsJsonQuestion from './sections/shared-trip-workflows/How does admin add, update and delete shared items.json';
+import sharedTripWorkflowsHowDoesAdminAssignSharedItemsJsonQuestion from './sections/shared-trip-workflows/How does admin assign shared items.json';
+import sharedTripWorkflowsHowCanAParticipantReactOnTheSharedItemAssignmentJsonQuestion from './sections/shared-trip-workflows/How can a participant react on the shared item assignment.json';
+import sharedTripWorkflowsWhatCanAParticipantDoAfterAcceptingTheItemAssignmentJsonQuestion from './sections/shared-trip-workflows/What can a participant do after accepting the item assignment.json';
+import sharedTripWorkflowsWhatShouldAdminDoIfAParticipantFinishedAnItemAssignmentWithFailureJsonQuestion from './sections/shared-trip-workflows/What should admin do if a participant finished an item assignment with failure.json';
+import sharedTripWorkflowsHowDoesAdminAddUpdateAndDeleteSharedTodosJsonQuestion from './sections/shared-trip-workflows/How does admin add, update and delete shared todos.json';
+import sharedTripWorkflowsHowDoesAdminAssignSharedTodosJsonQuestion from './sections/shared-trip-workflows/How does admin assign shared todos.json';
+import sharedTripWorkflowsHowCanAParticipantReactOnTheSharedTodoAssignmentJsonQuestion from './sections/shared-trip-workflows/How can a participant react on the shared todo assignment.json';
+import sharedTripWorkflowsWhatCanAParticipantDoAfterAcceptingTheTodoAssignmentJsonQuestion from './sections/shared-trip-workflows/What can a participant do after accepting the todo assignment.json';
+import sharedTripWorkflowsWhatShouldAdminDoIfAParticipantFinishedATodoAssignmentWithFailureJsonQuestion from './sections/shared-trip-workflows/What should admin do if a participant finished a todo assignment with failure.json';
 
 export const GENERATED_SECTION_MANIFEST_ENTRIES: [string, unknown][] = [
   ['get-started', getStartedSectionManifest],
   ['features', featuresSectionManifest],
-  ['workflows', workflowsSectionManifest]
+  ['workflows', workflowsSectionManifest],
+  ['trip-workflows', tripWorkflowsSectionManifest],
+  ['shared-trip-workflows', sharedTripWorkflowsSectionManifest]
 ];
 
 export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
@@ -38,5 +58,21 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['features/How to ask AI for item recommendations.json', featuresHowToAskAIForItemRecommendationsJsonQuestion],
   ['workflows/What is main Plantour workflow.json', workflowsWhatIsMainPlantourWorkflowJsonQuestion],
   ['workflows/How do I invite travelers.json', workflowsHowDoIInviteTravelersJsonQuestion],
-  ['workflows/How do I work with my items dictionary.json', workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion]
+  ['workflows/How do I work with my items dictionary.json', workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion],
+  ['workflows/How do I work with my bags dictionary.json', workflowsHowDoIWorkWithMyBagsDictionaryJsonQuestion],
+  ['workflows/How do I work with my todos dictionary.json', workflowsHowDoIWorkWithMyTodosDictionaryJsonQuestion],
+  ['trip-workflows/How do I work with trips.json', tripWorkflowsHowDoIWorkWithTripsJsonQuestion],
+  ['trip-workflows/What can I do with trip items.json', tripWorkflowsWhatCanIDoWithTripItemsJsonQuestion],
+  ['trip-workflows/How do I work with trip bags.json', tripWorkflowsHowDoIWorkWithTripBagsJsonQuestion],
+  ['trip-workflows/What options do I have to pack the trip items.json', tripWorkflowsWhatOptionsDoIHaveToPackTheTripItemsJsonQuestion],
+  ['shared-trip-workflows/How does admin add, update and delete shared items.json', sharedTripWorkflowsHowDoesAdminAddUpdateAndDeleteSharedItemsJsonQuestion],
+  ['shared-trip-workflows/How does admin assign shared items.json', sharedTripWorkflowsHowDoesAdminAssignSharedItemsJsonQuestion],
+  ['shared-trip-workflows/How can a participant react on the shared item assignment.json', sharedTripWorkflowsHowCanAParticipantReactOnTheSharedItemAssignmentJsonQuestion],
+  ['shared-trip-workflows/What can a participant do after accepting the item assignment.json', sharedTripWorkflowsWhatCanAParticipantDoAfterAcceptingTheItemAssignmentJsonQuestion],
+  ['shared-trip-workflows/What should admin do if a participant finished an item assignment with failure.json', sharedTripWorkflowsWhatShouldAdminDoIfAParticipantFinishedAnItemAssignmentWithFailureJsonQuestion],
+  ['shared-trip-workflows/How does admin add, update and delete shared todos.json', sharedTripWorkflowsHowDoesAdminAddUpdateAndDeleteSharedTodosJsonQuestion],
+  ['shared-trip-workflows/How does admin assign shared todos.json', sharedTripWorkflowsHowDoesAdminAssignSharedTodosJsonQuestion],
+  ['shared-trip-workflows/How can a participant react on the shared todo assignment.json', sharedTripWorkflowsHowCanAParticipantReactOnTheSharedTodoAssignmentJsonQuestion],
+  ['shared-trip-workflows/What can a participant do after accepting the todo assignment.json', sharedTripWorkflowsWhatCanAParticipantDoAfterAcceptingTheTodoAssignmentJsonQuestion],
+  ['shared-trip-workflows/What should admin do if a participant finished a todo assignment with failure.json', sharedTripWorkflowsWhatShouldAdminDoIfAParticipantFinishedATodoAssignmentWithFailureJsonQuestion]
 ];

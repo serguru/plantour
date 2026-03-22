@@ -1,0 +1,47 @@
+{
+  "slug": "what-options-do-i-have-to-pack-the-trip-items",
+  "question": "What options do I have to pack the trip items?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Assign a bag while creating or updating one trip item",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you already know where one item belongs.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Items</strong> for the selected trip.",
+          "Open the <strong>Add Trip Item</strong> or <strong>Edit Trip Item</strong> form.",
+          "Use the optional <strong>Bag</strong> field in that form to choose the trip bag for that item.",
+          "Submit the form. Plantour saves the item with that bag already assigned."
+        ]
+      },
+      {
+        "title": "Pack or unpack one item directly in the Trip Items list",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to change packing one item at a time from the list view.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Items</strong> for the selected trip.",
+          "If the bag selector is not visible on item rows, open the page menu and choose <strong>Show Bags</strong>.",
+          "To pack one item, use the bag dropdown on that row and choose a bag.",
+          "To unpack one item, clear that same bag dropdown.",
+          "Plantour immediately updates the item so the row shows whether it is packed or not packed."
+        ]
+      },
+      {
+        "title": "Pack or unpack many items at once with the Trip bag target",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to work in bulk with one bag and many currently shown items.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Items</strong> for the selected trip.",
+          "Open the actions bar in the page header.",
+          "Choose the <strong>Trip bag</strong> target and select the bag you want to work with.",
+          "Use filtering by name if you want to limit the current item list before the bulk action.",
+          "Click the page-level plus button to pack all currently shown items into that selected bag.",
+          "Click the page-level minus button to unpack the currently shown items from that selected bag.",
+          "With a Trip bag target selected, Plantour also lets you review the contents of that one bag by working with the targeted item list."
+        ],
+        "afterHtml": "These are the actual packing options exposed by the current Trip Items UI: item form assignment, row-level bag dropdown, and bulk pack or bulk unpack through the <strong>Trip bag</strong> target. If you still need to create or manage bags first, read <a href='/help/trip-workflows/how-do-i-work-with-trip-bags'>How do I work with trip bags?</a>."
+      }
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "slug": "work-with-my-bags-dictionary",
+  "question": "How do I work with my bags dictionary?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Add a bag to the dictionary",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to save a reusable bag or container in your <a href='/packs'>Bags</a> dictionary.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Bags</strong>.",
+          "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Bag</strong> form opens.",
+          "Enter the bag name. Add notes if you want to keep extra details about that bag.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the bag in your <a href='/packs'>Bags</a> dictionary and returns you to the list.",
+          "Make sure the new bag is visible in the list. If needed, use the name filter to find it faster."
+        ],
+        "afterHtml": "Use the dictionary when you want to keep reusable bags such as Backpack, Suitcase, Carry-on, or Document Folder and copy them into trips later."
+      },
+      {
+        "title": "Update an existing dictionary bag",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to change the saved name or notes of a bag in your <a href='/packs'>Bags</a> dictionary.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Bags</strong>.",
+          "Select the bag you want to change so it is highlighted.",
+          "Click the <strong>Update</strong> button with the pencil icon. The <strong>Edit Bag</strong> form opens.",
+          "Change the fields you want to update.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the updated dictionary bag and returns you to the list."
+        ],
+        "afterHtml": "Updating a bag in your dictionary does not change trip bags that were already copied into trips earlier. Those trip bags keep their own trip data."
+      },
+      {
+        "title": "Delete a bag from the dictionary",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you no longer want a bag to stay in your reusable dictionary.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Bags</strong>.",
+          "Select the bag you want to remove so it is highlighted.",
+          "Click the <strong>Delete</strong> button with the trash icon.",
+          "Confirm the deletion.",
+          "Plantour removes the bag from your <a href='/packs'>Bags</a> dictionary."
+        ],
+        "afterHtml": "Deleting a bag from your dictionary does not remove trip bags that were already copied into trips. Existing trip bags stay in those trips until you change or delete them there."
+      }
+    ]
+  }
+}
