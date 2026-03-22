@@ -909,5 +909,12 @@ public class UsersService(
         await _usersRepository.UpdateAsync(user);
     }
 
+    
+    public async Task<string> GetDbVersion()
+    {
+        string version = (string)await _settingsRepository.GetSettingByKey("app_version");
+        return version;
+    }
+
 }
 

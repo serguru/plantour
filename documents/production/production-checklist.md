@@ -1,9 +1,6 @@
-# Plantour Production Launch Checklist 4
+# Plantour Production Launch Checklist
 
-There are no objections to this deployment model.
-
-This checklist reflects the intended sequence:
-
+Main steps
 1. Create 3 paid Render services.
 2. Deploy `pred-prod` to those services first.
 3. Test the real production-grade infrastructure and external integrations while SEO is still limited by the `pred-prod` behavior.
@@ -13,21 +10,15 @@ This checklist reflects the intended sequence:
 7. Test the production version on `plantour.app` while public access is still blocked.
 8. Open the site to the public and to SEO only after production is verified.
 
-The key difference from the earlier checklist is this:
-
-`pred-prod` is not a separate side track before the paid production setup exists. It is the first deployment phase on the same paid Render services that will later serve the final public production release.
-
 ## 1. Current Environment Behavior In Code
 
 Plantour currently has 4 environments:
-
 1. `development`
 2. `qa`
 3. `pred-prod`
 4. `production`
 
 Important behavior already present:
-
 1. Frontend SSR in `src/server.ts` adds `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet` for every non-production environment.
 2. Frontend `qa` and `pred-prod` builds publish a blocking `robots.txt` with `Disallow: /`.
 3. Frontend `production` publishes a public `robots.txt` that allows crawling and includes `Sitemap: https://plantour.app/sitemap.xml`.
@@ -38,9 +29,6 @@ Important behavior already present:
 Because of that, `pred-prod` is suitable for private launch rehearsal on the real paid services without exposing the site to search engines.
 
 ## 2. Deployment Model
-
-Use this model:
-
 1. One paid Render frontend SSR service.
 2. One paid Render backend API service.
 3. One paid Render PostgreSQL database.

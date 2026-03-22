@@ -248,9 +248,10 @@ public class UsersController : ControllerBase
 
         [HttpGet("health-check")]
         [AllowAnonymous]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-                return Ok(new { status = "ok" });
+                string version = await _usersService.GetDbVersion();
+                return Ok(new { db_version = version });
         }
 }
 

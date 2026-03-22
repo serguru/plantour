@@ -32,4 +32,7 @@ public interface IUsersService
     Task ConvertTemporaryUserAsync(string oldEmail, string newEmail);
     Task SendParticipantInvitationAsync(Guid adminParticipantId);
 
+    Task<string> GetDbVersion();
+    
+
 }
