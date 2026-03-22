@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Text.Json;
 using System.Xml;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -14,13 +14,10 @@ namespace plantour_server.Controllers;
 public class SitemapController(PlantourContext context, IWebHostEnvironment environment) : ControllerBase
 {
     private const string SitemapNamespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
-    private static readonly Regex HelpSectionIdPattern = new(
-        @"^\s*id:\s*'(?<id>[^']+)'\s*,?\s*$",
-        RegexOptions.Compiled);
-
-    private static readonly Regex HelpQuestionSlugPattern = new(
-        @"^\s*slug:\s*'(?<slug>[^']+)'\s*,?\s*$",
-        RegexOptions.Compiled);
+    private static readonly JsonSerializerOptions HelpJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
 
     private static readonly SitemapEntry[] StaticEntries =
     [
@@ -149,63 +146,125 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
 
     private async Task<List<SitemapEntry>> GetHelpSitemapEntriesAsync()
     {
-        var helpContentPath = ResolveHelpContentPath();
-        if (helpContentPath is null)
+        var helpSectionsRootPath = ResolveHelpSectionsRootPath();
+        var sectionOrderPath = ResolveHelpSectionOrderPath();
+        if (helpSectionsRootPath is null || sectionOrderPath is null)
         {
             return [new("/help", 0.8m)];
         }
 
-        var lines = await System.IO.File.ReadAllLinesAsync(helpContentPath);
-        var lastModified = System.IO.File.GetLastWriteTimeUtc(helpContentPath);
-        var entries = new List<SitemapEntry> { new("/help", 0.8m, lastModified) };
-        var isInsideSectionSources = false;
-        string? currentSectionId = null;
+        string[] sectionFolders;
 
-        foreach (var line in lines)
+        try
         {
-            if (!isInsideSectionSources)
+            sectionFolders = await ReadHelpSectionOrderAsync(sectionOrderPath);
+        }
+        catch (IOException)
+        {
+            return [new("/help", 0.8m)];
+        }
+        catch (JsonException)
+        {
+            return [new("/help", 0.8m)];
+        }
+
+        var lastModified = System.IO.File.GetLastWriteTimeUtc(sectionOrderPath);
+        var entries = new List<SitemapEntry> { new("/help", 0.8m, lastModified) };
+
+        foreach (var sectionFolder in sectionFolders)
+        {
+            var sectionManifestPath = Path.Combine(helpSectionsRootPath, sectionFolder, "section.json");
+            if (!System.IO.File.Exists(sectionManifestPath))
             {
-                if (line.Contains("const SECTION_SOURCES"))
+                continue;
+            }
+
+            HelpSectionManifest? manifest;
+            try
+            {
+                manifest = await ReadHelpSectionManifestAsync(sectionManifestPath);
+            }
+            catch (IOException)
+            {
+                continue;
+            }
+            catch (JsonException)
+            {
+                continue;
+            }
+
+            if (manifest is null || string.IsNullOrWhiteSpace(manifest.Id) || manifest.Questions is null)
+            {
+                continue;
+            }
+
+            lastModified = Max(lastModified, System.IO.File.GetLastWriteTimeUtc(sectionManifestPath));
+
+            foreach (var questionFileName in manifest.Questions)
+            {
+                if (string.IsNullOrWhiteSpace(questionFileName))
                 {
-                    isInsideSectionSources = true;
+                    continue;
                 }
 
-                continue;
-            }
+                var questionPath = Path.Combine(helpSectionsRootPath, sectionFolder, questionFileName);
+                if (!System.IO.File.Exists(questionPath))
+                {
+                    continue;
+                }
 
-            if (line.Contains("export const HELP_SECTIONS"))
-            {
-                break;
-            }
+                HelpQuestionSource? question;
+                try
+                {
+                    question = await ReadHelpQuestionSourceAsync(questionPath);
+                }
+                catch (IOException)
+                {
+                    continue;
+                }
+                catch (JsonException)
+                {
+                    continue;
+                }
 
-            var sectionMatch = HelpSectionIdPattern.Match(line);
-            if (sectionMatch.Success)
-            {
-                currentSectionId = sectionMatch.Groups["id"].Value;
-                continue;
-            }
+                if (question is null || string.IsNullOrWhiteSpace(question.Slug))
+                {
+                    continue;
+                }
 
-            var slugMatch = HelpQuestionSlugPattern.Match(line);
-            if (!slugMatch.Success || string.IsNullOrWhiteSpace(currentSectionId))
-            {
-                continue;
+                var questionLastModified = System.IO.File.GetLastWriteTimeUtc(questionPath);
+                lastModified = Max(lastModified, questionLastModified);
+                entries.Add(new($"/help/{manifest.Id}/{question.Slug}", 0.5m, questionLastModified));
             }
-
-            var slug = slugMatch.Groups["slug"].Value;
-            if (string.IsNullOrWhiteSpace(slug))
-            {
-                continue;
-            }
-
-            entries.Add(new($"/help/{currentSectionId}/{slug}", 0.5m, lastModified));
         }
+
+        entries[0] = entries[0] with { LastModified = lastModified };
 
         return entries;
     }
 
-    private string? ResolveHelpContentPath()
+    private async Task<string[]> ReadHelpSectionOrderAsync(string sectionOrderPath)
     {
-        var workspacePath = Path.GetFullPath(Path.Combine(
+        await using var stream = System.IO.File.OpenRead(sectionOrderPath);
+        var sectionFolders = await JsonSerializer.DeserializeAsync<string[]>(stream, HelpJsonOptions);
+        return sectionFolders ?? [];
+    }
+
+    private async Task<HelpSectionManifest?> ReadHelpSectionManifestAsync(string sectionManifestPath)
+    {
+        await using var stream = System.IO.File.OpenRead(sectionManifestPath);
+        return await JsonSerializer.DeserializeAsync<HelpSectionManifest>(stream, HelpJsonOptions);
+    }
+
+    private async Task<HelpQuestionSource?> ReadHelpQuestionSourceAsync(string questionPath)
+    {
+        await using var stream = System.IO.File.OpenRead(questionPath);
+        return await JsonSerializer.DeserializeAsync<HelpQuestionSource>(stream, HelpJsonOptions);
+    }
+
+    private string? ResolveHelpSectionsRootPath()
+    {
+        var sectionsRootPath = Path.GetFullPath(Path.Combine(
             environment.ContentRootPath,
             "..",
             "plantour-client",
@@ -213,9 +272,30 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
             "app",
             "components",
             "help",
-            "help-content.ts"));
+            "sections"));
 
-        return System.IO.File.Exists(workspacePath) ? workspacePath : null;
+        return Directory.Exists(sectionsRootPath) ? sectionsRootPath : null;
+    }
+
+    private string? ResolveHelpSectionOrderPath()
+    {
+        var sectionOrderPath = Path.GetFullPath(Path.Combine(
+            environment.ContentRootPath,
+            "..",
+            "plantour-client",
+            "src",
+            "app",
+            "components",
+            "help",
+            "sections",
+            "sections-order.json"));
+
+        return System.IO.File.Exists(sectionOrderPath) ? sectionOrderPath : null;
+    }
+
+    private static DateTime Max(DateTime left, DateTime right)
+    {
+        return left >= right ? left : right;
     }
 
     private Uri GetRequestBaseUri()
@@ -277,6 +357,10 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
         var slug = builder.ToString().Trim('-');
         return slug.Length <= 60 ? slug : slug[..60].TrimEnd('-');
     }
+
+    private sealed record HelpSectionManifest(string Id, string[] Questions);
+
+    private sealed record HelpQuestionSource(string Slug);
 
     private sealed record SitemapEntry(string Url, decimal? Priority, DateTime? LastModified = null);
 }

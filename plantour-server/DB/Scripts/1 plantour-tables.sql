@@ -970,15 +970,6 @@ create table plantour.settings (
     updated_at timestamptz not null default (now() at time zone 'utc')
 );
     
-create table plantour.sitemap_urls (
-    id uuid primary key default gen_random_uuid(),
-    url text not null unique,
-    last_modified timestamptz not null default (now() at time zone 'utc'),
-    priority int default 50, -- in xml must be from 0 to 1
-    is_active boolean default true,
-    created_at timestamptz not null default (now() at time zone 'utc')
-);
-
 create table plantour.refresh_tokens (
     id uuid primary key,
     user_id uuid not null references users(id) on delete cascade,

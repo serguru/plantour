@@ -55,8 +55,6 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Setting> Settings { get; set; }
 
-    public virtual DbSet<SitemapUrl> SitemapUrls { get; set; }
-
     public virtual DbSet<TemperatureRange> TemperatureRanges { get; set; }
 
     public virtual DbSet<TemplateThing> TemplateThings { get; set; }
@@ -288,17 +286,6 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.ValueType).HasDefaultValueSql("'string'::text");
-        });
-
-        modelBuilder.Entity<SitemapUrl>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("sitemap_urls_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.LastModified).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.Priority).HasDefaultValue(50);
         });
 
         modelBuilder.Entity<TemperatureRange>(entity =>
