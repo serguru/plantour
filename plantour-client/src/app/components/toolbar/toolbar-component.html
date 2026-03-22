@@ -217,6 +217,14 @@
         </a>
         <a
           class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('search')"
+          (click)="featureClick($event, '/search', popoverFeatures)"
+        >
+          <span class="pi pi-search"></span>
+          <span class="button-label">Search</span>
+        </a>
+        <a
+          class="pl-menu-item"
           [class.selected]="isNavigatedComponent('contact')"
           (click)="featureClick($event, '/contact', popoverFeatures)"
         >

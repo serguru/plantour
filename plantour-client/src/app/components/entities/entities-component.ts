@@ -1,12 +1,14 @@
-import { Component, computed, inject, input, Input, OnInit, signal, Type } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, Input, OnInit, PLATFORM_ID, signal, Type } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { MessagesService } from '../../services/messages-service';
 import { AppService } from '../../services/app-service';
 import { ComponentService } from '../../services/component-service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { DynamicQueryService } from '../../services/dynamic-query-service';
-import { map } from 'rxjs';
+import { map, filter, distinctUntilChanged } from 'rxjs';
 import { Button } from 'primeng/button';
+import { SearchStateService } from '../../services/search-state.service';
 
 @Component({
   selector: 'app-entities',
@@ -33,6 +35,9 @@ export class EntitiesComponent implements OnInit {
   }
 
   componentService = inject(ComponentService);
+  private readonly searchStateService = inject(SearchStateService);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly destroyRef = inject(DestroyRef);
   showEntityButton = computed(() => {
     const x = this.targetEntityClick;
     const y = this.targetCondition();
@@ -94,6 +99,21 @@ export class EntitiesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    this.componentService.selectedId$.pipe(
+      filter(id => !!id),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(id => {
+      const pendingId = this.searchStateService.consumePendingScroll();
+      if (pendingId && pendingId === id) {
+        setTimeout(() => {
+          const el = document.querySelector<HTMLElement>('.item-container.selected');
+          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 150);
+      }
+    });
   }
 
   getEntityInputs(entity: any) {

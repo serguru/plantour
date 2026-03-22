@@ -607,3 +607,22 @@ Redesign the help system. The requirements are:
   ],
   afterHtml: 'After downloading, print the PDF and place it inside the bag.'
 }
+
+Read FlexSearch officiial documentation. Install it. Implememt an app - level search. The search must:
+- work for all the pages for which search is reasonable possible
+- find text occurences for all the text if it is visible for a user
+- be case insensitive
+- search for a partial text, i.e. bc must be found in Abcd 
+- higlight found occurences
+- create a separate search component with /search path
+- at the top of that page put app-entities-actions header
+- add highlight on/off menu with icons to the three-dot icon, see how other components using app-entities-actions
+- add help menu item as well
+- under the header put a search field wth "Type to search..." placeholder
+- under the field put right aligned text "found X search results"
+- show search results in one column
+- each search result must show the found UI fragment containig the search text
+- do not show any borders around the search result
+- click on the found fragment must navigate to the containing page and scroll into view the found occurences
+- use no gradients
+- ass menu Serach under Help in the toolbar sandvich menu
