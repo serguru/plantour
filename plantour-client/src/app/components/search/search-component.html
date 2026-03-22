@@ -1,0 +1,48 @@
+<div class="page-container">
+  <app-entities-header
+    entityIcon="pi pi-search"
+    title="Search"
+    [useEntitiesActions]="false"
+    [menuItems]="menuItems()"
+  ></app-entities-header>
+
+  <div class="search-body">
+    <div class="search-input-wrap">
+      <span class="pi pi-search search-input-icon"></span>
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Type to search..."
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+
+    @if (isBuilding()) {
+      <div class="search-status">Building index…</div>
+    }
+
+    @if (searchTerm().trim() && !isBuilding()) {
+      <div class="search-count">found {{ searchResults().length }} search result{{ searchResults().length !== 1 ? 's' : '' }}</div>
+    }
+
+    <ul class="search-results-list">
+      @for (result of searchResults(); track result.itemId) {
+        <li [class]="'search-result-item ' + getCategoryClass(result.category)" (click)="onResultClick(result)">
+          <span class="result-category">{{ result.category }}</span>
+          <span class="result-content">
+            <span class="result-primary" [innerHTML]="getPrimary(result.displayText) | highlight:searchTerm():highlightEnabled()"></span>
+            @if (getSecondary(result.displayText)) {
+              <span class="result-secondary" [innerHTML]="getSecondary(result.displayText) | highlight:searchTerm():highlightEnabled()"></span>
+            }
+          </span>
+        </li>
+      }
+      @if (searchTerm().trim() && !isBuilding() && searchResults().length === 0) {
+        <li class="search-empty">No results for &ldquo;{{ searchTerm() }}&rdquo;</li>
+      }
+    </ul>
+  </div>
+</div>

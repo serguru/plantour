@@ -250,6 +250,13 @@ public class UsersController : ControllerBase
         [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
+                return Ok(new { status = "OK" });
+        }
+
+        [HttpGet("version")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetVersion()
+        {
                 string version = await _usersService.GetDbVersion();
                 return Ok(new { db_version = version });
         }

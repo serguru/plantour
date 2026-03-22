@@ -422,6 +422,12 @@ export const routes: Routes = [
     data: { componentId: 'plans' }
   },
   {
+    path: 'search',
+    loadComponent: () => import('./components/search/search-component').then(m => m.SearchComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'search' }
+  },
+  {
     path: '**',
     redirectTo: ''
   }
