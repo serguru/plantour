@@ -10,6 +10,9 @@ export class GlobalErrorHandler implements ErrorHandler {
   constructor(private injector: Injector) { }
 
   handleError(error: any): void {
+    if (error.status == 429) {
+      return;
+    }
 
     if (error?.error?.isCustom && error?.error?.message) {
       let message = error.error.message;
