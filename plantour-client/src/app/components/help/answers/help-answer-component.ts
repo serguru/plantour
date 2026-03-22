@@ -1,7 +1,7 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, computed, effect, inject, signal, Type } from '@angular/core';
 import { REQUEST } from '@angular/core';
-import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { SeoService } from '../../../services/seo-service';
 import { HelpPage } from '../../../services/help-service';
@@ -26,7 +26,7 @@ interface HelpAnswerRenderSpec {
 @Component({
   selector: 'app-help-answer',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './help-answer-component.html',
   styleUrl: '../help-component.scss'
 })
@@ -88,6 +88,14 @@ export class HelpAnswerComponent {
 
   backLinkFragment(): string | undefined {
     return this.currentSection()?.id;
+  }
+
+  navigateBack(event: Event): void {
+    event.preventDefault();
+    const urlTree = this.router.createUrlTree([this.homeUrl()], {
+      fragment: this.backLinkFragment()
+    });
+    void this.router.navigateByUrl(urlTree);
   }
 
   private buildAnswerSpec(question: HelpQuestionDefinition | null): HelpAnswerRenderSpec | null {

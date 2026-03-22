@@ -1,25 +1,34 @@
-<div class="help-shell">
-  <section class="help-answer-page">
-    <article class="help-page-card--answer">
-      <div class="help-answer-heading">
-        <a
-          class="pl-button help-answer-back-button"
-          [routerLink]="homeUrl()"
-          [fragment]="backLinkFragment()"
-          [attr.title]="backLinkLabel()"
-          [attr.aria-label]="backLinkLabel()"
-        >
-          <span class="pi pi-chevron-left" aria-hidden="true"></span>
-        </a>
+<div class="page-container">
+  <div class="page-header">
+    <div class="page-left">
+      <i class="pi pi-question-circle"></i>
+      <h2 class="ellipsis-text">Help answer</h2>
+    </div>
+  </div>
 
-        <h1 class="help-answer-title">{{ displayTitle() }}</h1>
-      </div>
+  <div class="help-shell">
+    <section class="help-answer-page">
+      <article class="help-page-card--answer">
+        <div class="help-answer-heading">
+          <a
+            class="pl-button help-answer-back-button"
+            [attr.href]="homeUrl()"
+            [attr.title]="backLinkLabel()"
+            [attr.aria-label]="backLinkLabel()"
+            (click)="navigateBack($event)"
+          >
+            <span class="pi pi-chevron-left" aria-hidden="true"></span>
+          </a>
 
-      @if (answerSpec(); as spec) {
-        <ng-container *ngComponentOutlet="spec.component; inputs: spec.inputs"></ng-container>
-      } @else {
-        <p class="help-empty-state">No answer component is configured for this page.</p>
-      }
-    </article>
-  </section>
+          <h1 class="help-answer-title">{{ displayTitle() }}</h1>
+        </div>
+
+        @if (answerSpec(); as spec) {
+          <ng-container *ngComponentOutlet="spec.component; inputs: spec.inputs"></ng-container>
+        } @else {
+          <p class="help-empty-state">No answer component is configured for this page.</p>
+        }
+      </article>
+    </section>
+  </div>
 </div>

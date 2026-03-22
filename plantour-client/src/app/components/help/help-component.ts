@@ -5,6 +5,7 @@ import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
 import { EntitiesHeader, HeaderButtonConfig } from '../entities/entities-header-component/entities-header-component';
 import { SeoService } from '../../services/seo-service';
+import { ENVIRONMENT } from '../../../environment.token';
 import {
   HELP_HOME_PAGE_ID,
   HELP_SECTIONS,
@@ -28,9 +29,11 @@ export class HelpComponent {
   private readonly seoService = inject(SeoService);
   private readonly document = inject(DOCUMENT);
   private readonly request = inject(REQUEST, { optional: true });
+  private readonly environment = inject(ENVIRONMENT);
 
   readonly currentPage = computed<HelpPage>(() => findHelpPageByPath([])!);
   readonly visibleSections = computed(() => this.sections);
+  readonly appVersion = this.environment.version;
   readonly expandedSections = signal<Record<string, boolean>>({});
   readonly currentFragment = signal<string | null>(null);
   readonly allVisibleSectionsExpanded = computed(() =>
