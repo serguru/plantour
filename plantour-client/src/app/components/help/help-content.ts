@@ -399,9 +399,9 @@ export const HELP_SECTIONS: HelpSectionDefinition[] = SECTION_SOURCES.map((secti
         path: [section.id, question.slug],
         summary,
         description,
-        keywords: [...SHARED_KEYWORDS, section.id, ...generatedKeywords],
+        keywords: [...SHARED_KEYWORDS, section.id, section.title.toLocaleLowerCase(), ...generatedKeywords],
         answer: question.answer,
-        searchText: [question.question, summary, description, answerText].join(' ')
+        searchText: [section.title, section.summary, question.question, summary, description, answerText].join(' ')
       };
     })
   };
@@ -418,7 +418,7 @@ const HELP_HOME_PAGE: HelpPage = {
   searchable: true,
   allowIndexing: true,
   includeInSitemap: true,
-  searchText: 'Plantour help questions answers sections'
+  searchText: ['Plantour help questions answers sections', ...HELP_SECTIONS.map((section) => `${section.title} ${section.summary}`)].join(' ')
 };
 
 const HELP_ANSWER_PAGES: HelpPage[] = HELP_SECTIONS.flatMap((section) =>

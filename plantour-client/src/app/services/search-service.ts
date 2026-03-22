@@ -1,7 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Index } from 'flexsearch';
 import { catchError, of, timeout } from 'rxjs';
-import { HELP_PAGES, getHelpBreadcrumbs, getHelpPageUrl } from '../components/help/help-content';
+import { HELP_PAGES, HELP_SECTIONS, getHelpBreadcrumbs, getHelpPageUrl } from '../components/help/help-content';
+import { GENERATED_PUBLIC_PAGE_DOCUMENTS } from './generated-public-page-documents';
 import { PublicTemplateThingDto, PublicTemplatesService } from './public-templates-service';
 
 const SEARCH_RESULT_LIMIT = 20;
@@ -78,11 +79,11 @@ export class SearchService {
       return [];
     }
 
-    const ids = this.index.search(trimmedQuery, { limit: SEARCH_RESULT_LIMIT }) as string[];
+    const exactMatches = this.collectExactMatches(trimmedQuery);
+    const rankedMatches = this.collectCandidateDocuments(trimmedQuery, new Set(exactMatches.map((document) => document.id)));
 
-    return ids
-      .map((id) => this.documentsById.get(id))
-      .filter((document): document is SearchDocument => !!document)
+    return [...exactMatches, ...rankedMatches]
+      .slice(0, SEARCH_RESULT_LIMIT)
       .map((document) => this.buildSearchResult(document, trimmedQuery, highlightMatches))
       .filter((result): result is SearchResult => !!result);
   }
@@ -101,63 +102,22 @@ export class SearchService {
   }
 
   private buildStaticDocuments(): SearchDocument[] {
-    const staticDocuments: SearchDocument[] = [
-      {
-        id: 'page/home',
-        title: 'Plantour Packing Lists & Travel Planning App',
-        summary: 'Plan trips, build packing lists, coordinate group travel, and get AI-powered packing suggestions with Plantour.',
-        description: 'Plantour landing page for packing lists, trip planning, group coordination, and AI packing recommendations.',
-        url: '/',
-        breadcrumbText: 'Home',
-        keywords: ['plantour', 'packing', 'travel planning', 'landing', 'packing lists', 'ai'],
-        searchText: 'Plantour packing lists travel planning group coordination AI packing recommendations',
-        sourceLabel: 'Page'
-      },
-      {
-        id: 'page/contact',
-        title: 'Contact',
-        summary: 'Contact Plantour support for questions, bug reports, feature requests, feedback, or partnerships.',
-        description: 'Contact page for Plantour support and business inquiries.',
-        url: '/contact',
-        breadcrumbText: 'Home / Contact',
-        keywords: ['contact', 'support', 'feedback', 'bug report', 'feature request'],
-        searchText: 'Contact Plantour support questions bug reports feature requests feedback partnerships',
-        sourceLabel: 'Page'
-      },
-      {
-        id: 'page/privacy',
-        title: 'Privacy Policy',
-        summary: 'Learn what Plantour collects, how the data is used, and how deletion requests work.',
-        description: 'Plantour privacy policy covering collection, usage, payments, retention, and deletion requests.',
-        url: '/privacy',
-        breadcrumbText: 'Home / Privacy Policy',
-        keywords: ['privacy', 'policy', 'data', 'retention', 'deletion'],
-        searchText: 'Plantour privacy policy data collection usage payments retention deletion requests',
-        sourceLabel: 'Page'
-      },
-      {
-        id: 'page/terms',
-        title: 'Terms of Usage',
-        summary: 'Read Plantour terms covering accounts, trial access, billing, acceptable use, and limitations.',
-        description: 'Plantour terms of usage for eligibility, accounts, billing, acceptable use, and limitations.',
-        url: '/terms',
-        breadcrumbText: 'Home / Terms of Usage',
-        keywords: ['terms', 'usage', 'billing', 'trial', 'accounts'],
-        searchText: 'Plantour terms of usage eligibility accounts trial access billing acceptable use limitations',
-        sourceLabel: 'Page'
-      },
-      {
-        id: 'page/public-templates',
-        title: 'Plantour Packing Templates by Activity, Age & Temperature',
-        summary: 'Browse public packing templates filtered by activity, age range, temperature, and category.',
-        description: 'Public Plantour packing templates page with activity, age, temperature, and category filters.',
-        url: '/packing-list-generator/templates',
-        breadcrumbText: 'Home / Public Templates',
-        keywords: ['public templates', 'packing templates', 'activity', 'age range', 'temperature'],
-        searchText: 'Plantour public packing templates activity age temperature category packing list generator',
-        sourceLabel: 'Public templates'
-      }
-    ];
+    const staticDocuments: SearchDocument[] = GENERATED_PUBLIC_PAGE_DOCUMENTS;
+    const helpSectionDocuments: SearchDocument[] = HELP_SECTIONS.map((section) => ({
+      id: `help-section/${section.id}`,
+      title: section.title,
+      summary: section.summary,
+      description: section.summary,
+      url: '/help',
+      breadcrumbText: `Help / ${section.title}`,
+      keywords: [...section.keywords, ...section.questions.map((question) => question.question)],
+      searchText: [
+        section.title,
+        section.summary,
+        ...section.questions.map((question) => `${question.question} ${question.summary}`)
+      ].join(' '),
+      sourceLabel: 'Help section'
+    }));
 
     const helpDocuments = HELP_PAGES
       .filter((page) => page.searchable && page.allowIndexing)
@@ -173,7 +133,127 @@ export class SearchService {
         sourceLabel: 'Help'
       }));
 
-    return [...staticDocuments, ...helpDocuments];
+    return [...staticDocuments, ...helpSectionDocuments, ...helpDocuments];
+  }
+
+  private collectExactMatches(query: string): SearchDocument[] {
+    const normalizedQuery = this.normalizeSearchValue(query);
+
+    return Array.from(this.documentsById.values())
+      .filter((document) => this.isExactLookupMatch(document, normalizedQuery))
+      .sort((left, right) => this.compareExactMatches(left, right, normalizedQuery));
+  }
+
+  private collectCandidateDocuments(query: string, excludedIds: Set<string>): SearchDocument[] {
+    const indexedIds = this.index.search(query, { limit: SEARCH_RESULT_LIMIT }) as string[];
+    const combinedScores = new Map<string, number>();
+
+    indexedIds.forEach((id, index) => {
+      if (excludedIds.has(id)) {
+        return;
+      }
+
+      combinedScores.set(id, 1000 - index);
+    });
+
+    for (const document of this.documentsById.values()) {
+      if (excludedIds.has(document.id)) {
+        continue;
+      }
+
+      const matchScore = this.scoreLiteralMatch(document, query);
+      if (matchScore > 0) {
+        combinedScores.set(document.id, (combinedScores.get(document.id) ?? 0) + matchScore);
+      }
+    }
+
+    return Array.from(combinedScores.entries())
+      .sort((left, right) => {
+        if (right[1] !== left[1]) {
+          return right[1] - left[1];
+        }
+
+        return left[0].localeCompare(right[0]);
+      })
+      .slice(0, SEARCH_RESULT_LIMIT)
+      .map(([id]) => this.documentsById.get(id))
+      .filter((document): document is SearchDocument => !!document);
+  }
+
+  private isExactLookupMatch(document: SearchDocument, normalizedQuery: string): boolean {
+    if (!normalizedQuery) {
+      return false;
+    }
+
+    const normalizedTitle = this.normalizeSearchValue(document.title);
+    if (normalizedTitle === normalizedQuery) {
+      return true;
+    }
+
+    const normalizedBreadcrumb = this.normalizeSearchValue(document.breadcrumbText);
+    if (normalizedBreadcrumb === normalizedQuery) {
+      return true;
+    }
+
+    const breadcrumbTail = normalizedBreadcrumb.split(' ').slice(-normalizedQuery.split(' ').length).join(' ');
+    return breadcrumbTail === normalizedQuery;
+  }
+
+  private compareExactMatches(left: SearchDocument, right: SearchDocument, normalizedQuery: string): number {
+    const leftTitle = this.normalizeSearchValue(left.title);
+    const rightTitle = this.normalizeSearchValue(right.title);
+    const leftTitleExact = leftTitle === normalizedQuery;
+    const rightTitleExact = rightTitle === normalizedQuery;
+
+    if (leftTitleExact !== rightTitleExact) {
+      return leftTitleExact ? -1 : 1;
+    }
+
+    return left.title.localeCompare(right.title);
+  }
+
+  private scoreLiteralMatch(document: SearchDocument, query: string): number {
+    const normalizedQuery = query.toLocaleLowerCase();
+    const normalizedTitle = document.title.toLocaleLowerCase();
+    const normalizedBreadcrumb = document.breadcrumbText.toLocaleLowerCase();
+    let score = 0;
+
+    if (normalizedTitle === normalizedQuery) {
+      score += 10000;
+    } else if (normalizedTitle.startsWith(normalizedQuery)) {
+      score += 6000;
+    }
+
+    if (normalizedBreadcrumb === normalizedQuery || normalizedBreadcrumb.endsWith(` / ${normalizedQuery}`)) {
+      score += 5000;
+    }
+
+    score += this.matchScoreForField(document.title, normalizedQuery, 600);
+    score += this.matchScoreForField(document.breadcrumbText, normalizedQuery, 500);
+    score += this.matchScoreForField(document.keywords.join(' '), normalizedQuery, 450);
+    score += this.matchScoreForField(document.summary, normalizedQuery, 350);
+    score += this.matchScoreForField(document.description, normalizedQuery, 250);
+    score += this.matchScoreForField(document.searchText, normalizedQuery, 150);
+
+    return score;
+  }
+
+  private matchScoreForField(value: string, normalizedQuery: string, weight: number): number {
+    const normalizedValue = value.toLocaleLowerCase();
+    const index = normalizedValue.indexOf(normalizedQuery);
+    if (index < 0) {
+      return 0;
+    }
+
+    return Math.max(1, weight - Math.min(index, weight - 1));
+  }
+
+  private normalizeSearchValue(value: string): string {
+    return value
+      .toLocaleLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   private buildPublicTemplateDocuments(items: PublicTemplateThingDto[]): SearchDocument[] {

@@ -4,9 +4,13 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const helpWatcherScript = fileURLToPath(new URL('./check-help-content.mjs', import.meta.url));
+const searchWatcherScript = fileURLToPath(new URL('./check-public-search-content.mjs', import.meta.url));
 const ngCliEntrypoint = require.resolve('@angular/cli/bin/ng.js');
 
 const helpWatcher = spawn(process.execPath, [helpWatcherScript, '--watch'], {
+  stdio: 'inherit'
+});
+const searchWatcher = spawn(process.execPath, [searchWatcherScript, '--watch'], {
   stdio: 'inherit'
 });
 const ngProcess = spawn(process.execPath, [ngCliEntrypoint, ...process.argv.slice(2)], {
@@ -28,11 +32,20 @@ function shutdown(exitCode = 0) {
 
   shuttingDown = true;
   terminateChild(helpWatcher);
+  terminateChild(searchWatcher);
   terminateChild(ngProcess);
   process.exit(exitCode);
 }
 
 helpWatcher.on('exit', (code) => {
+  if (shuttingDown) {
+    return;
+  }
+
+  shutdown(code ?? 1);
+});
+
+searchWatcher.on('exit', (code) => {
   if (shuttingDown) {
     return;
   }

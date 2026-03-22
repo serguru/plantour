@@ -4,16 +4,18 @@
   "scripts": {
     "ng": "ng",
     "check:help": "node ./scripts/check-help-content.mjs",
+    "check:search": "node ./scripts/check-public-search-content.mjs",
     "watch:help": "node ./scripts/check-help-content.mjs --watch",
+    "watch:search": "node ./scripts/check-public-search-content.mjs --watch",
     "m": "node ./scripts/run-help-aware-ng.mjs serve --host 0.0.0.0 --port 4203 --open",
     "serve:dev": "node ./scripts/run-help-aware-ng.mjs serve --configuration dev --host 0.0.0.0 --port 4203 --open",
     "serve:qa": "node ./scripts/run-help-aware-ng.mjs serve --configuration qa --host 0.0.0.0 --port 4203 --open",
     "serve:pred-prod": "node ./scripts/run-help-aware-ng.mjs serve --configuration pred-prod --host 0.0.0.0 --port 4203 --open",
-    "build:qa": "npm run check:help && ng build --configuration qa",
-    "build:pred-prod": "npm run check:help && ng build --configuration pred-prod",
-    "build:production": "npm run check:help && ng build --configuration production",
-    "watch": "npm run check:help && ng build --watch --configuration development",
-    "test": "npm run check:help && ng test",
+    "build:qa": "npm run check:help && npm run check:search && ng build --configuration qa",
+    "build:pred-prod": "npm run check:help && npm run check:search && ng build --configuration pred-prod",
+    "build:production": "npm run check:help && npm run check:search && ng build --configuration production",
+    "watch": "npm run check:help && npm run check:search && ng build --watch --configuration development",
+    "test": "npm run check:help && npm run check:search && ng test",
     "start:ssr": "node dist/plantour-app/server/server.mjs"
   },
   "prettier": {
