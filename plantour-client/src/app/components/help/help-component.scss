@@ -6,9 +6,21 @@
 }
 
 .help-shell {
-  padding: 1rem;
+  position: relative;
+  padding: 2rem 1rem 1rem;
   display: grid;
   gap: 1rem;
+}
+
+.help-version {
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  z-index: 1;
+  color: rgba(23, 56, 61, 0.48);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  pointer-events: none;
 }
 
 .help-hero__shortcut,
@@ -411,7 +423,13 @@
 
 @media (max-width: 640px) {
   .help-shell {
-    padding: 0.75rem;
+    padding: 1.75rem 0.75rem 0.75rem;
+  }
+
+  .help-version {
+    top: 0.6rem;
+    right: 0.75rem;
+    font-size: 0.7rem;
   }
 }
 

@@ -8,6 +8,8 @@
     ></app-entities-header>
 
     <div class="help-shell">
+        <div class="help-version" aria-label="Application version">App version {{ appVersion }}</div>
+
         <section class="help-section-stack"> 
             @for (section of visibleSections(); track section.id; let isFirst = $first) {
                 <details
