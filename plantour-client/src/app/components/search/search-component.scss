@@ -9,8 +9,8 @@
   display: grid;
   gap: 1rem;
   padding: 1rem;
-  background: transparent;
-  min-height: calc(100vh - 7rem);
+  // background: transparent;
+  // min-height: calc(100vh - 7rem);
 }
 
 .search-results__summary h2 {
@@ -91,7 +91,7 @@
   display: grid;
   gap: 0.3rem;
   padding: 0.95rem 0;
-  border-bottom: 1px solid rgba(36, 91, 100, 0.12);
+  //border-bottom: 1px solid rgba(36, 91, 100, 0.12);
   text-decoration: none;
 }
 
