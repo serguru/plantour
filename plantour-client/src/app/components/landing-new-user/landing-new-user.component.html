@@ -2,15 +2,15 @@
   <header class="hero">
     <div class="header-container">
       <h1 class="slogan">
-        <span>Plan smart.</span>
-        <span>Travel better.</span>
+        <span>Plan less.</span>
+        <span>Travel more.</span>
       </h1>
     </div>
     <p class="sub-slogan">{{ subSlogan }}</p>
   </header>
 
   <section class="features-section">
-    <h2>Why Plantour?</h2>
+    <h2>Everything you need to plan a trip</h2>
     <div class="features-grid">
       @for (feature of featureList; track feature.title) {
       <article class="feature-card">
@@ -27,9 +27,9 @@
   <section class="try">
     <div class="try-section">
       <div class="try-card">
-        <button class="try-button" (click)="usersService.createTemporaryUser()">Try packing your items for the trip</button>
+        <button class="try-button" (click)="usersService.createTemporaryUser()">Open a sample trip</button>
         <h3>No registration required</h3>
-        <h3>Prefilled test data is ready</h3>
+        <h3>Start with a ready-made sample trip</h3>
       </div>
     </div>
   </section>
