@@ -15,11 +15,10 @@ import { ThingService } from '../../../services/thing-service';
 import { UsersService } from '../../../services/users-service';
 import { MessagesService } from '../../../services/messages-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { ComponentService } from '../../../services/component-service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { capitalizeFirstLetter, findDuplicates, getFullName } from '../../../helpers/utils';
 import { AdminsParticipantDto, AdminsParticipantService } from '../../../services/admins-participant-service';
-import { combineLatest, finalize, map, Observable, of, tap } from 'rxjs';
+import { combineLatest, map, Observable, of, tap } from 'rxjs';
 import { Checkbox } from 'primeng/checkbox';
 import { CurrentTripService } from '../../../services/current-trip-service';
 
@@ -52,12 +51,9 @@ export class TripUserFormComponent implements OnInit {
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
   localStorageService = inject(LocalStorageService);
-  componentService = inject(ComponentService);
   lookupService = inject(LookupService);
   adminsParticipantService = inject(AdminsParticipantService);
   currentTripService = inject(CurrentTripService);
-
-  isLoading = toSignal(this.componentService.loading$);
 
   lookupTravelers: AdminsParticipantDto[] = [];
   lookupUnits$;
@@ -171,12 +167,7 @@ export class TripUserFormComponent implements OnInit {
 
   private loadTraveler(): void {
 
-    this.componentService.updateLoading(true);
-    this.service.getByIdForAll(this.tripId!, this.id!).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.getByIdForAll(this.tripId!, this.id!).subscribe({
       next: (user: TripUserDto) => {
         this.form.patchValue({
           adminParticipantId: user.adminParticipantId,
@@ -195,7 +186,7 @@ export class TripUserFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.isLoading() || this.isViewMode) {
+    if (this.isViewMode) {
       return;
     }
 
@@ -222,13 +213,9 @@ export class TripUserFormComponent implements OnInit {
       nopackWeightUnit: formValue.nopackWeightUnit?.trim() || undefined
     };
 
-    this.componentService.updateLoading(true);
     this.service.add(request).pipe(
       tap(_ => {
         this.currentTripService.refreshCurrentTrip();
-      }),
-      finalize(() => {
-        this.componentService.updateLoading(false);
       })
     ).subscribe({
       next: (user: TripUserDto) => {
@@ -253,12 +240,7 @@ export class TripUserFormComponent implements OnInit {
       nopackWeightUnit: formValue.nopackWeightUnit?.trim() || undefined
     };
 
-    this.componentService.updateLoading(true);
-    this.service.update(request).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.update(request).subscribe({
       next: () => {
         this.localStorageService.setComponentKey('trip-users', 'selectedId', this.id!);
         this.messagesService.showInfo('User updated successfully');

@@ -12,10 +12,7 @@ import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { UsersService } from '../../../services/users-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
-import { ComponentService } from '../../../services/component-service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
-import { catchError, EMPTY, finalize, map } from 'rxjs';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
 import { dateRangeValidator } from '../../../helpers/date-range-validator';
@@ -46,12 +43,9 @@ export class TripFormComponent implements OnInit {
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
   localStorageService = inject(LocalStorageService);
-  componentService = inject(ComponentService);
   lookupService = inject(LookupService);
 
   tripStatuses: TripStatusDto[] = [];
-
-  isLoading = toSignal(this.componentService.loading$);
 
   mode: 'add' | 'edit' | 'view' = 'view';
   id: string | null = null;
@@ -110,12 +104,7 @@ export class TripFormComponent implements OnInit {
   private loadTrip(): void {
     if (!this.id) return;
 
-    this.componentService.updateLoading(true);
-    this.service.getById(this.id).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.getById(this.id).subscribe({
       next: (trip: TripDto) => {
         this.participantId = trip.id;
         this.form.patchValue({
@@ -130,7 +119,7 @@ export class TripFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.isLoading() || this.isReadOnlyMode) {
+    if (this.isReadOnlyMode) {
       return;
     }
 
@@ -156,12 +145,7 @@ export class TripFormComponent implements OnInit {
       endDate: formValue.endDate || null
     };
 
-    this.componentService.updateLoading(true);
-    this.service.add(request).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.add(request).subscribe({
       next: (trip: TripDto) => {
         this.localStorageService.setComponentKey('trips', 'selectedId', trip.id);
         this.messagesService.showInfo('Trip added successfully');
@@ -183,12 +167,7 @@ export class TripFormComponent implements OnInit {
       endDate: formValue.endDate || null
     };
 
-    this.componentService.updateLoading(true);
-    this.service.update(request).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.update(request).subscribe({
       next: () => {
         this.localStorageService.setComponentKey('trips', 'selectedId', this.id!);
         this.messagesService.showInfo('Trip updated successfully');

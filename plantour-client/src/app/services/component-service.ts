@@ -135,13 +135,6 @@ export class ComponentService {
     this.entitiesActionsVisibleSubject.next(visible);
   }
 
-  // Is loading
-  private loadingSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  loading$: Observable<boolean> = this.loadingSubject.asObservable();
-  updateLoading(loading: boolean): void {
-    this.loadingSubject.next(loading);
-  }
-
   //#endregion
 
   //#region Derivative subjects
@@ -271,7 +264,6 @@ export class ComponentService {
     this.updateTargetLookup(null);
     this.updateSelectedId(null);
     this.updateEntitiesActionsVisible(false);
-    this.updateLoading(false);
     this.destroy$ = new Subject<void>();
   }
 }

@@ -1,0 +1,22 @@
+{
+  "slug": "search-for-something",
+  "question": "How do I search for something?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ol",
+        "items": [
+          "Click the <strong>☰</strong> (sandwich) button in the toolbar to open the features menu.",
+          "Click <strong>Search</strong> in the menu. The Search page opens with an empty text box.",
+          "Type your search text in the box. Plantour searches instantly as you type — no need to press Enter.",
+          "Look at the count shown above the list to see how many results were found.",
+          "Browse the results. Each result shows the category (such as Item, Traveler, or Trip), the entity name, and a secondary description when available.",
+          "Click any result to navigate directly to that entity's page.",
+          "To return to the Search page, click <strong>☰</strong> and <strong>Search</strong> again, or use your browser's Back button. Your last search term is remembered and the same results appear right away."
+        ],
+        "afterHtml": "You can toggle search term highlighting using the <strong>Highlight On / Highlight Off</strong> option in the Search page actions menu."
+      }
+    ]
+  }
+}

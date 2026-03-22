@@ -8,7 +8,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ComponentService } from '../../services/component-service';
 import { TripSharedService } from '../../services/trip-shared-service';
 import { TripThingService } from '../../services/trip-thing-service';
-import { BehaviorSubject, catchError, combineLatest, concatMap, debounceTime, finalize, forkJoin, of, Subject, switchMap, tap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, concatMap, debounceTime, forkJoin, of, Subject, switchMap, tap, throwError } from 'rxjs';
 import { ThingService } from '../../services/thing-service';
 import { UsersService } from '../../services/users-service';
 import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
@@ -23,6 +23,7 @@ import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppButton } from '../button/button-component';
 import { MessagesService } from '../../services/messages-service';
+import { LoadingService } from '../../services/loading-service';
 import { Dropdown } from '../dropdown/dropdown-component';
 
 @Component({
@@ -107,7 +108,7 @@ export class TemplatesAiComponent {
 
   clickSubject = new BehaviorSubject<string | null>(null);
 
-  isLoading = toSignal(this.componentService.loading$, { initialValue: false });
+  isLoading = toSignal(inject(LoadingService).loading$, { initialValue: false });
 
   // 1. Helper method to keep the pipe clean
   private getTemplateApiCall(target: any, prompt: string | null) {
@@ -149,8 +150,6 @@ export class TemplatesAiComponent {
     var o = this.usersService.isAdminSignal() ? this.tripService.getAll() : this.tripService.getAllWhereParticipant();
     var p = this.templateAiService.getLatestPrompts();
 
-    this.componentService.updateLoading(true);
-
     forkJoin([o, p]).pipe(
       tap(([trips, prompts]) => {
         this.prompts = prompts.map(x => x.prompt);
@@ -166,8 +165,6 @@ export class TemplatesAiComponent {
 
       // switchMap to the actual API calls
       switchMap(([target, prompt]) => {
-        this.componentService.updateLoading(true);
-
         return this.getTemplateApiCall(target, prompt).pipe(
           tap(things => {
             if (things?.length > 0 && prompt) {
@@ -179,22 +176,15 @@ export class TemplatesAiComponent {
             this.errorHandler.handleError(err);
             return of([]);
           }),
-          finalize(() =>
-            this.componentService.updateLoading(false)
-          )
         )
       }),
       tap((p: AiItemDto[]) => {
         this.initSavedFeatures(p);
       }),
-
-      // Outer finalize: Safety net for component destruction or total stream completion
-      finalize(() => this.componentService.updateLoading(false)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (things) => {
         this.componentService.updateEntities(things || []);
-        this.componentService.updateLoading(false); // Double-check loader is off on success
       }
     });
   }

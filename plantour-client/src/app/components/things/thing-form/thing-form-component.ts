@@ -13,10 +13,8 @@ import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { MessagesService } from '../../../services/messages-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
-import { ComponentService } from '../../../services/component-service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
-import { catchError, combineLatest, finalize, map } from 'rxjs';
+import { combineLatest, map } from 'rxjs';
 import { LookupService } from '../../../services/lookup-service';
 import { InputNumber } from 'primeng/inputnumber';
 import { allTogetherValidator } from '../../../helpers/all-together-validator';
@@ -48,7 +46,6 @@ export class ThingFormComponent implements OnInit {
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
   localStorageService = inject(LocalStorageService);
-  componentService = inject(ComponentService);
   lookupService = inject(LookupService);
 
   lookupValues$ = combineLatest([
@@ -78,8 +75,6 @@ export class ThingFormComponent implements OnInit {
     }
     )
   );
-
-  isLoading = toSignal(this.componentService.loading$);
 
   mode: 'add' | 'edit' = 'add';
   id: string | null = null;
@@ -121,12 +116,7 @@ export class ThingFormComponent implements OnInit {
   private loadThing(): void {
     if (!this.id) return;
 
-    this.componentService.updateLoading(true);
-    this.service.getById(this.id).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.getById(this.id).subscribe({
       next: (thing: ThingDto) => {
         this.form.patchValue({
           name: thing.name,
@@ -140,10 +130,6 @@ export class ThingFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.isLoading()) {
-      return;
-    }
-
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.messagesService.showWarning('Please fill in all required fields correctly');
@@ -170,12 +156,7 @@ export class ThingFormComponent implements OnInit {
     };
 
 
-    this.componentService.updateLoading(true);
-    this.service.add(request).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.add(request).subscribe({
       next: (traveler: ThingDto) => {
         this.localStorageService.setComponentKey('things', 'selectedId', traveler.id);
         this.messagesService.showInfo('Item added successfully');
@@ -197,12 +178,7 @@ export class ThingFormComponent implements OnInit {
       value: formValue.value || undefined
     };
 
-    this.componentService.updateLoading(true);
-    this.service.update(request).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.update(request).subscribe({
       next: () => {
         this.localStorageService.setComponentKey('things', 'selectedId', this.id!);
         this.messagesService.showInfo('Item updated successfully');

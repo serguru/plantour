@@ -9,6 +9,7 @@ import getStartedWhatAreMyFirstStepsWithPlantourJsonQuestion from './sections/ge
 import getStartedHowCanISwitchMyAccountFromTemporaryToRegularJsonQuestion from './sections/get-started/How can I switch my account from temporary to regular.json';
 import featuresWhatAreTheMainEntitiesThatPlantourOperatesWithJsonQuestion from './sections/features/What are the main entities that Plantour operates with.json';
 import featuresHowDoIFilterSortAndTargetEntitiesJsonQuestion from './sections/features/How do I filter, sort and target entities.json';
+import featuresHowDoISearchForSomethingJsonQuestion from './sections/features/How do I search for something.json';
 import featuresWhyAdminsTravelersAndParticipantsJsonQuestion from './sections/features/Why Admins, Travelers and Participants.json';
 import featuresWhatIsToolbarJsonQuestion from './sections/features/What is toolbar.json';
 import featuresWhereCanISeeAndUpdateMyProfileDataJsonQuestion from './sections/features/Where can I see and update my profile data.json';
@@ -57,6 +58,7 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['get-started/How can I switch my account from temporary to regular.json', getStartedHowCanISwitchMyAccountFromTemporaryToRegularJsonQuestion],
   ['features/What are the main entities that Plantour operates with.json', featuresWhatAreTheMainEntitiesThatPlantourOperatesWithJsonQuestion],
   ['features/How do I filter, sort and target entities.json', featuresHowDoIFilterSortAndTargetEntitiesJsonQuestion],
+  ['features/How do I search for something.json', featuresHowDoISearchForSomethingJsonQuestion],
   ['features/Why Admins, Travelers and Participants.json', featuresWhyAdminsTravelersAndParticipantsJsonQuestion],
   ['features/What is toolbar.json', featuresWhatIsToolbarJsonQuestion],
   ['features/Where can I see and update my profile data.json', featuresWhereCanISeeAndUpdateMyProfileDataJsonQuestion],
