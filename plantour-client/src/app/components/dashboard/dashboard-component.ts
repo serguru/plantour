@@ -19,7 +19,6 @@ import { UserTripSummaryComponent } from './user-trip-summary/user-trip-summary-
 import { AllUsersTripSummaryComponent } from './all-users-trip-summary/all-users-trip-summary-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
-import { Router } from '@angular/router';
 import { FormHeader } from '../form/form-header/form-header';
 import { CurrentTripService } from '../../services/current-trip-service';
 
@@ -48,20 +47,8 @@ export class DashboardComponent implements OnInit {
   tripSummaryComponent = TripSummaryComponent;
   userTripSummaryComponent = UserTripSummaryComponent;
   allUsersTripSummaryComponent = AllUsersTripSummaryComponent;
-  router = inject(Router);
 
-  menuItems = computed<MenuConfig[]>(() => {
-    return [
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/landing-dashboard/dashboard-overview']);
-        }
-      }
-    ];
-  }
-  );
+  menuItems = computed<MenuConfig[]>(() => []);
 
   tripService = inject(TripService);
   currentTripService = inject(CurrentTripService);

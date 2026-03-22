@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, inject, OnInit, REQUEST } from '@angular/core';
 import { PlansPanelComponent } from '../plans-panel/plans-panel.component';
+import { SeoService } from '../../services/seo-service';
 import { UsersService } from '../../services/users-service';
 
 interface LandingFeature {
@@ -16,10 +17,13 @@ interface LandingFeature {
   templateUrl: './landing-new-user.component.html',
   styleUrl: './landing-new-user.component.scss'
 })
-export class LandingNewUserComponent {
+export class LandingNewUserComponent implements OnInit {
   plansPanelComponent = PlansPanelComponent;
 
   usersService = inject(UsersService);
+  private readonly seoService = inject(SeoService);
+  private readonly document = inject(DOCUMENT);
+  private readonly request = inject(REQUEST, { optional: true });
 
   subSlogan = 'Never forget an item again. Organize your packing with smart lists, categories, and seamless group coordination. Get AI-powered packing recommendations tailored to your destination.';
 
@@ -56,6 +60,77 @@ export class LandingNewUserComponent {
       description: 'In the near future route planning, expense tracking, travel notes and activities will be implemented'
     }
   ];
+
+  ngOnInit(): void {
+    const canonicalUrl = this.buildAbsoluteUrl('/');
+    const imageUrl = this.buildAbsoluteUrl('/android-chrome-512x512.png');
+    const title = 'Plantour Packing Lists & Travel Planning App';
+    const description = this.trimDescription(
+      'Plan trips, build packing lists, coordinate group travel, and get AI-powered packing suggestions with Plantour.',
+    );
+
+    this.seoService.setSeo({
+      title,
+      description,
+      canonicalUrl,
+      ogType: 'website',
+      image: imageUrl,
+      imageAlt: 'Plantour packing and travel planning app logo',
+      jsonLd: {
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'WebSite',
+            '@id': canonicalUrl,
+            url: canonicalUrl,
+            name: 'Plantour',
+            description,
+          },
+          {
+            '@type': 'Organization',
+            '@id': `${canonicalUrl}#organization`,
+            name: 'Plantour',
+            url: canonicalUrl,
+            logo: {
+              '@type': 'ImageObject',
+              url: imageUrl,
+            },
+          },
+          {
+            '@type': 'WebApplication',
+            name: 'Plantour',
+            url: canonicalUrl,
+            description,
+            applicationCategory: 'TravelApplication',
+            operatingSystem: 'Any',
+          },
+        ],
+      },
+    });
+  }
+
+  private trimDescription(value: string, maxLen = 160): string {
+    const normalized = value.replace(/\s+/g, ' ').trim();
+    if (normalized.length <= maxLen) {
+      return normalized;
+    }
+
+    return `${normalized.slice(0, maxLen - 1).trimEnd()}…`;
+  }
+
+  private buildAbsoluteUrl(path: string): string {
+    const protocol = this.request?.headers?.get('x-forwarded-proto') ?? undefined;
+    const host = this.request?.headers?.get('x-forwarded-host') ?? this.request?.headers?.get('host') ?? undefined;
+    if (protocol && host) {
+      return `${protocol}://${host}${path}`;
+    }
+
+    try {
+      return new URL(path, this.document.baseURI).toString();
+    } catch {
+      return path;
+    }
+  }
 
 
 }

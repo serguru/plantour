@@ -1,0 +1,50 @@
+{
+  "slug": "work-with-my-todos-dictionary",
+  "question": "How do I work with my todos dictionary?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Add a todo to the dictionary",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to save a reusable task in your <a href='/todos'>Todos</a> dictionary.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Todos</strong>.",
+          "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Todo</strong> form opens.",
+          "Enter the todo name. Add category and notes if you want to keep extra details in the dictionary.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the todo in your <a href='/todos'>Todos</a> dictionary and returns you to the list.",
+          "Make sure the new todo is visible in the list. If needed, use the name filter to find it faster."
+        ],
+        "afterHtml": "Use the dictionary when you want to keep reusable preparation tasks such as Check passports, Buy sunscreen, or Charge power bank and copy them into trips later."
+      },
+      {
+        "title": "Update an existing dictionary todo",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to change the saved name, category, or notes of a todo in your <a href='/todos'>Todos</a> dictionary.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Todos</strong>.",
+          "Select the todo you want to change so it is highlighted.",
+          "Click the <strong>Update</strong> button with the pencil icon. The <strong>Edit Todo</strong> form opens.",
+          "Change the fields you want to update.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the updated dictionary todo and returns you to the list."
+        ],
+        "afterHtml": "Updating a todo in your dictionary does not change trip todos that were already copied into trips earlier. Those trip todos keep their own trip data."
+      },
+      {
+        "title": "Delete a todo from the dictionary",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you no longer want a todo to stay in your reusable dictionary.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Todos</strong>.",
+          "Select the todo you want to remove so it is highlighted.",
+          "Click the <strong>Delete</strong> button with the trash icon.",
+          "Confirm the deletion.",
+          "Plantour removes the todo from your <a href='/todos'>Todos</a> dictionary."
+        ],
+        "afterHtml": "Deleting a todo from your dictionary does not remove trip todos that were already copied into trips. Existing trip todos stay in those trips until you change or delete them there."
+      }
+    ]
+  }
+}

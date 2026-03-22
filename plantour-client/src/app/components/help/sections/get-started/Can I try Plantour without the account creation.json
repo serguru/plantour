@@ -1,0 +1,8 @@
+{
+  "slug": "no-account",
+  "question": "Can I try Plantour without the account creation?",
+  "answer": {
+    "kind": "component",
+    "componentKey": "get-started-guest-access"
+  }
+}

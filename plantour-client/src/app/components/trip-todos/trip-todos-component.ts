@@ -46,13 +46,6 @@ export class TripTodosComponent implements OnInit {
         this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
       },
     },
-    {
-      label: 'Help',
-      icon: 'question-circle',
-      action: () => {
-        this.router.navigate(['/help/todos/trip-todos-intro']);
-      },
-    },
   ]);
 
   conditions: Condition[] = [
@@ -130,8 +123,8 @@ export class TripTodosComponent implements OnInit {
     }
     this.componentService.updateSelectedId(id);
 
-    const assignmentsVisible = this.localStorageService.getComponentKey(this.componentId, 'assignmentsVisible');
-    this.assignmentsVisible.set(!!assignmentsVisible);
+    const assignmentsVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'assignmentsVisible', true);
+    this.assignmentsVisible.set(assignmentsVisible);
   }
 
   initConditions(componentId: string | null): void {

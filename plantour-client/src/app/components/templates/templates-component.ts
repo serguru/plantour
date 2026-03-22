@@ -68,7 +68,7 @@ export class TemplatesComponent {
       },
       {
         kind: 'target',
-        label: 'Trip or dic things',
+        label: 'Trip or items dic',
         icon: 'compass',
         target: null
       }, {
@@ -129,13 +129,6 @@ export class TemplatesComponent {
           this.lowerTextVisible.set(!this.lowerTextVisible());
           this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
         }
-      },
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/templates/templates-intro']);
-        }
       }
     ];
   }
@@ -191,7 +184,7 @@ export class TemplatesComponent {
 
     this.componentService.updateSelectedId(id);
 
-    const lowerTextVisible: boolean = this.localStorageService.getComponentKey(this.componentId, 'lowerTextVisible');
+    const lowerTextVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'lowerTextVisible', true);
     this.lowerTextVisible.set(lowerTextVisible);
   }
 

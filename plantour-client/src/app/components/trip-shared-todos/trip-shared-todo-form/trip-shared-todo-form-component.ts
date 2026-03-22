@@ -64,15 +64,7 @@ export class TripSharedTodoFormComponent implements OnInit {
     return this.mode === 'view';
   }
 
-  menuItems = computed<MenuConfig[]>(() => [
-    {
-      label: 'Help',
-      icon: 'question-circle',
-      action: () => {
-        this.router.navigate(['/help/todos/shared-todos-intro']);
-      },
-    },
-  ]);
+  menuItems = computed<MenuConfig[]>(() => []);
 
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Trip Shared Todo`;

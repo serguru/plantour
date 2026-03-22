@@ -1,0 +1,35 @@
+{
+  "slug": "how-does-admin-assign-shared-todos",
+  "question": "How does admin assign shared todos?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Assign or reassign one shared todo from its row",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to pick one participant directly on one shared todo row.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Shared todos</strong> for the selected trip.",
+          "If assignee selectors are hidden, open the page menu and choose <strong>Show Assignees</strong>.",
+          "Use the <strong>Select assignee</strong> dropdown on the shared todo row and choose the trip participant who should handle it.",
+          "Plantour assigns the todo immediately. If the todo was already assigned to another participant, changing the assignee works as a reassignment.",
+          "If you clear the assignee dropdown, Plantour unassigns that shared todo."
+        ]
+      },
+      {
+        "title": "Assign or unassign many shared todos at once",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to work in bulk with one participant and many currently shown shared todos.",
+        "items": [
+          "Open the actions bar in the page header.",
+          "Choose the <strong>Trip participant</strong> target and select the participant you want.",
+          "Set the deadline-days field if you want Plantour to calculate an assignment deadline for the shared todos you are about to assign.",
+          "Filter the list first if you want to limit which shared todos are currently shown.",
+          "Click the page-level plus button to assign all currently shown not-targeted shared todos to that participant.",
+          "Click the page-level minus button to unassign the currently shown targeted shared todos from that participant."
+        ],
+        "afterHtml": "When assignment changes, Plantour sends participant assignment-change notifications. The shared todo list also updates its assignment status text so you can see whether a todo is awaiting assignment, assigned, accepted, rejected, successful, or failed."
+      }
+    ]
+  }
+}

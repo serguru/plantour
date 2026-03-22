@@ -1,14 +1,16 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { DomSanitizer, Meta, SafeHtml, Title } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { REQUEST } from '@angular/core';
 import { PublicTemplateThingDto, PublicTemplatesService } from '../../../../services/public-templates-service';
 import { catchError, of, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { PopoverModule } from 'primeng/popover';
 import { Select } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { AmazonLinkComponent } from '../../../amazon-link/amazon-link-component';
+import { SeoService } from '../../../../services/seo-service';
 import { UsersService } from '../../../../services/users-service';
 
 type DetailFilterKey = 'search' | 'category';
@@ -22,18 +24,17 @@ interface DetailFilterOption {
 @Component({
   selector: 'app-public-template-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, Select, InputTextModule, AmazonLinkComponent],
+  imports: [CommonModule, RouterModule, FormsModule, PopoverModule, Select, InputTextModule, AmazonLinkComponent],
   templateUrl: './public-template-detail-component.html',
   styleUrl: './public-template-detail-component.scss'
 })
 export class PublicTemplateDetailComponent implements OnInit {
   private publicTemplatesService = inject(PublicTemplatesService);
   private route = inject(ActivatedRoute);
-  private titleService = inject(Title);
-  private metaService = inject(Meta);
   private document = inject(DOCUMENT);
   private sanitizer = inject(DomSanitizer);
   private request = inject(REQUEST, { optional: true });
+  private seoService = inject(SeoService);
   usersService = inject(UsersService);
 
   isLoading = signal(true);
@@ -126,7 +127,6 @@ export class PublicTemplateDetailComponent implements OnInit {
         this.isLoading.set(false);
         if (items.length > 0) {
           this.setSeoMeta();
-          this.setStructuredData();
         } else {
           this.setNotFoundMeta();
         }
@@ -170,41 +170,77 @@ export class PublicTemplateDetailComponent implements OnInit {
   private setSeoMeta(): void {
     const title = `${this.templateName()} Packing Template | Plantour`;
     const description = `Detailed packing checklist for ${this.templateName()} with ${this.activityName()} activity and conditions. Explore recommended items, categories, and notes.`;
-
-    this.titleService.setTitle(title);
-    this.metaService.updateTag({ name: 'description', content: description });
-    this.metaService.updateTag({ property: 'og:title', content: title });
-    this.metaService.updateTag({ property: 'og:description', content: description });
-    this.metaService.updateTag({ property: 'og:type', content: 'article' });
-    this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
-    this.metaService.updateTag({ name: 'twitter:title', content: title });
-    this.metaService.updateTag({ name: 'twitter:description', content: description });
-    this.metaService.updateTag({ name: 'robots', content: 'index,follow' });
-
     const canonicalUrl = this.buildAbsoluteUrl(`/packing-list-generator/templates/${this.slugify(this.templateName())}~${this.templateId()}`);
-    this.setCanonicalLink(canonicalUrl);
+
+    this.seoService.setSeo({
+      title,
+      description,
+      canonicalUrl,
+      ogType: 'article',
+      robots: 'index,follow',
+      jsonLd: this.buildStructuredData(canonicalUrl, title, description),
+    });
   }
 
   private setNotFoundMeta(): void {
-    this.titleService.setTitle('Template not found | Plantour');
-    this.metaService.updateTag({ name: 'robots', content: 'noindex' });
+    this.seoService.setSeo({
+      title: 'Template not found | Plantour',
+      description: 'The requested Plantour packing template was not found.',
+      canonicalUrl: this.buildAbsoluteUrl('/packing-list-generator/templates'),
+      ogType: 'website',
+      robots: 'noindex,nofollow,noarchive,nosnippet',
+      jsonLd: null,
+    });
   }
 
-  private setStructuredData(): void {
+  private buildStructuredData(canonicalUrl: string, title: string, description: string): Record<string, unknown> {
+    const homeUrl = this.buildAbsoluteUrl('/');
+    const templatesUrl = this.buildAbsoluteUrl('/packing-list-generator/templates');
     const listItems = this.templateItems().map((item, index) => ({
       '@type': 'ListItem',
       position: index + 1,
-      name: item.thingName
+      name: item.thingName,
+      item: {
+        '@type': 'Thing',
+        name: item.thingName,
+        category: item.category ?? undefined,
+        description: item.thingNotes ?? undefined,
+      },
     }));
 
-    const data = {
+    return {
       '@context': 'https://schema.org',
-      '@type': 'ItemList',
-      name: this.templateName(),
-      itemListElement: listItems
+      '@graph': [
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: homeUrl },
+            { '@type': 'ListItem', position: 2, name: 'Packing Templates', item: templatesUrl },
+            { '@type': 'ListItem', position: 3, name: this.templateName(), item: canonicalUrl },
+          ],
+        },
+        {
+          '@type': 'WebPage',
+          '@id': canonicalUrl,
+          url: canonicalUrl,
+          name: title,
+          description,
+          isPartOf: {
+            '@type': 'WebSite',
+            '@id': homeUrl,
+            url: homeUrl,
+            name: 'Plantour',
+          },
+        },
+        {
+          '@type': 'ItemList',
+          name: this.templateName(),
+          description,
+          numberOfItems: this.templateItems().length,
+          itemListElement: listItems,
+        },
+      ],
     };
-
-    this.injectJsonLd(data, 'public-template-detail-jsonld');
   }
 
   goToGuestAccess(): void {
@@ -265,41 +301,6 @@ export class PublicTemplateDetailComponent implements OnInit {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '')
       .slice(0, 60);
-  }
-
-  private setCanonicalLink(url: string): void {
-    if (!this.document?.head) {
-      return;
-    }
-
-    const existing = this.document.head.querySelector('link[rel="canonical"]');
-    if (existing) {
-      existing.setAttribute('href', url);
-      return;
-    }
-
-    const link = this.document.createElement('link');
-    link.setAttribute('rel', 'canonical');
-    link.setAttribute('href', url);
-    this.document.head.appendChild(link);
-  }
-
-  private injectJsonLd(payload: unknown, id: string): void {
-    if (!this.document?.head) {
-      return;
-    }
-
-    const existing = this.document.getElementById(id);
-    if (existing) {
-      existing.textContent = JSON.stringify(payload);
-      return;
-    }
-
-    const script = this.document.createElement('script');
-    script.type = 'application/ld+json';
-    script.id = id;
-    script.text = JSON.stringify(payload);
-    this.document.head.appendChild(script);
   }
 
   private buildAbsoluteUrl(path: string): string {

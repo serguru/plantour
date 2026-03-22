@@ -9,6 +9,12 @@
         [menuItems]="menuItems()"
     ></app-entities-header>
 
+    @if (usersService.isTemporarySignal()) {
+    <div style="padding-top: 0.5rem; text-align: center;">
+        <a href="/help/get-started/first-steps">help me add item</a>
+    </div>
+    }
+
     <app-entities-actions
         [onAddTargetClick]="onAddTargetClick.bind(this)"
         [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"

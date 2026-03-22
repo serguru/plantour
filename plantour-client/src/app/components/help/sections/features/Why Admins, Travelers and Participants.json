@@ -1,0 +1,21 @@
+{
+  "slug": "why-admins-travelers-and-participants",
+  "question": "Why Admins, Travelers and Participants?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ul",
+        "beforeHtml": "Plantour separates Admins, Travelers, and Participants because they solve three different collaboration jobs. This keeps trip ownership clear, lets you reuse people across many trips, and gives invited people only the access they need.",
+        "items": [
+          "<strong>Admin</strong> is the trip owner. Admins can create, edit, and delete trips, manage the reusable <a href='/travelers'>Travelers</a> list, add or remove people in <a href='/trips'>Trips</a>, and work with shared trip planning such as shared items and shared todos.",
+          "<a href='/travelers'>Traveler</a> is a reusable person in your dictionary. Add someone here when you may travel with them again in the future. This gives you one place to keep your travel roster instead of re-entering the same person for every trip.",
+          "<strong>Participant</strong> is a traveler who has been added to a specific trip in <a href='/trips'>Trip Participants</a>. Participants are the people who actually take part in that trip and collaborate on its trip data.",
+          "A participant account can sign in and work in trips where that person was added, but participant access is intentionally narrower than admin access. Participants can work with trip items, trip todos, and comments in trips that include them, while trip creation, trip editing, traveler management, and shared trip planning stay under admin control.",
+          "This split also makes bulk actions safer. You can maintain one reusable Travelers list, then decide trip by trip who should become a Participant without changing your whole dictionary."
+        ],
+        "afterHtml": "A practical way to use Plantour is: first build your <a href='/travelers'>Travelers</a> dictionary, then open a trip and add the needed people in Trip Participants, then use shared items and shared todos as the admin while each participant manages their own trip work. If a person is in your Travelers list but not in a trip yet, they are available for reuse but are not participating in that trip. Once they are added to the trip, they become a participant for that trip and can collaborate there."
+      }
+    ]
+  }
+}

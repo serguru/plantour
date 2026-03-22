@@ -1,0 +1,50 @@
+{
+  "slug": "how-does-admin-add-update-and-delete-shared-items",
+  "question": "How does admin add, update and delete shared items?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Add a shared item",
+        "listTag": "ol",
+        "beforeHtml": "Use this when the item belongs to the whole trip and should later be assigned to one participant.",
+        "items": [
+          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Select the trip you want to work in.",
+          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Shared items</strong>.",
+          "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Trip Shared Item</strong> form opens.",
+          "Enter the shared item name. You can also fill category, notes, units, and value.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the shared item in that trip and returns you to the <strong>Shared items</strong> list."
+        ]
+      },
+      {
+        "title": "Update a shared item",
+        "listTag": "ol",
+        "beforeHtml": "Use this when the shared item already exists and you want to change its details.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Shared items</strong> for the selected trip.",
+          "Select the shared item you want to change so it is highlighted.",
+          "Click the <strong>Update</strong> button with the pencil icon. The <strong>Edit Trip Shared Item</strong> form opens.",
+          "Change fields such as name, category, notes, units, or value.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the shared item and returns you to the list."
+        ],
+        "afterHtml": "Changing who is responsible for a shared item is handled on the <strong>Shared items</strong> list itself, not in the add or update form. For the assignment workflow, continue with <a href='/help/shared-trip-workflows/how-does-admin-assign-shared-items'>How does admin assign shared items?</a>."
+      },
+      {
+        "title": "Delete a shared item",
+        "listTag": "ol",
+        "beforeHtml": "Use this when the trip no longer needs that shared responsibility.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Shared items</strong> for the selected trip.",
+          "Select the shared item you want to remove so it is highlighted.",
+          "Click the <strong>Delete</strong> button with the trash icon.",
+          "Confirm the deletion.",
+          "Plantour removes the shared item from that trip."
+        ],
+        "afterHtml": "If the item was already accepted by a participant, review the assignment state first. Shared items are tied to acceptance and assignment status, so deleting them is more sensitive than deleting a normal personal trip item."
+      }
+    ]
+  }
+}

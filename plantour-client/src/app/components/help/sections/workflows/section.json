@@ -1,0 +1,16 @@
+{
+  "id": "workflows",
+  "title": "General Workflows",
+  "summary": "What to do to in general and with dictionaries",
+  "questions": [
+    "What is main Plantour workflow.json",
+    "How do I use dashboard.json",
+    "How do I invite travelers.json",
+    "How do I manage my billing.json",
+    "How do I search Plantour for something.json",
+    "How can I send a message to the Plantour administration.json",
+    "How do I work with my items dictionary.json",
+    "How do I work with my bags dictionary.json",
+    "How do I work with my todos dictionary.json"
+  ]
+}

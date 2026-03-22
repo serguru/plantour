@@ -1,39 +1,40 @@
 <div class="page-container">
+    <app-entities-header
+        entityIcon="pi pi-question-circle"
+        title="Help"
+        [headerButtons]="headerButtons()"
+        [showHelpAction]="false"
+        [useEntitiesActions]="false"
+    ></app-entities-header>
 
-  <div class="page-header">
-    <div class="page-left">
-      <i class="pi pi-question-circle"></i>
-      <h2>Help & Documentation</h2>
-    </div>
-    <div class="page-content">
-    </div>
-  </div>
+    <div class="help-shell">
+        <section class="help-section-stack"> 
+            @for (section of visibleSections(); track section.id; let isFirst = $first) {
+                <details
+                    [attr.id]="section.id"
+                    class="help-page-card help-section-card help-faq-section"
+                    [open]="isSectionExpanded(section.id, isFirst)"
+                    (toggle)="onSectionToggle(section.id, $event)"
+                >
+                    <summary>
+                        <div class="help-faq-section__heading">
+                            <span class="help-section-card__title">{{ section.title }}</span>
+                            <p class="help-faq-section__summary">{{ section.summary }}</p>
+                        </div>
+                        <span class="help-faq-section__arrow" aria-hidden="true"></span>
+                    </summary>
 
-  <div class="help-container">
-    <div class="version">App version {{environment.version}}</div>
-    <div class="help-header">
-      <h1>Welcome to Plantour Help</h1>
-      <p class="help-subtitle">
-        Find everything you need to plan, organize, and execute your trips with confidence.
-      </p>
+                    <ol class="help-question-grid">
+                        @for (question of section.questions; track question.pageId) {
+                            <li>
+                                <a class="help-question-card" [routerLink]="pageUrlById(question.pageId)">
+                                    <span class="help-question-card__title">{{ question.question }}</span>
+                                </a>
+                            </li>
+                        }
+                    </ol>
+                </details>
+            }
+         </section>
     </div>
-
-    <div class="help-sections">
-      @for (section of helpSections(); track section.id) {
-      <app-help-section
-        [section]="section"
-        [expanded]="expandedSectionId() === section.id"
-        [selectedSubsectionId]="selectedSubsectionIdFor(section.id)"
-        [subsectionComponents]="getSectionComponents(section.id)"
-        (toggleExpanded)="toggleSection($event)"
-        (selectSubsection)="handleSelectSubsection($event)"
-        (startTestMode)="usersService.createTemporaryUser()"
-      >
-      </app-help-section>
-      }
-
-      <h3>
-        Can't find what you're looking for? Ask as a question <a href="/contact">here</a>.
-      </h3>
-    </div>
-  </div>
+</div>

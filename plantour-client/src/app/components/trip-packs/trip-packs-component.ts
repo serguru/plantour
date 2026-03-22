@@ -12,6 +12,7 @@ import { CurrentTripService } from '../../services/current-trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { switchMap, tap } from 'rxjs';
 import { DocumentsService } from '../../services/documents-service';
+import { UsersService } from '../../services/users-service';
 
 
 @Component({
@@ -34,6 +35,7 @@ export class TripPacksComponent implements OnInit {
   tripPackageService = inject(TripPackageService);
   currentTripService = inject(CurrentTripService);
   documentsService = inject(DocumentsService);
+  usersService = inject(UsersService);
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -85,13 +87,6 @@ export class TripPacksComponent implements OnInit {
             link.click();
             window.URL.revokeObjectURL(url);
           });
-        }
-      },
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/trip-packs/trip-packs-intro']);
         }
       }
     ];

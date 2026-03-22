@@ -460,7 +460,7 @@ export class UsersService {
           title: `Welcome to Plantour!`,
           message: `You are now in Guest Access Mode as Robin Miles for ${response.temporaryUserAccessTokenExpirationDays} days. The app works with full features, except you are limited to ${response.itemsLimit} items and ${response.participantsLimit} participants. To get started, add items to your current trip "Weekend in Las Vegas", pack them into bags, and download a packing list. 
           
-          If you need help, see Guest Mode Help. Good luck!
+          If you need help, click "help me add trip item". Good luck!
           `
         });
       },

@@ -1,9 +1,10 @@
 import { Component, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule, DOCUMENT, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { PopoverModule } from 'primeng/popover';
 import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 import { UsersService } from '../../../services/users-service';
@@ -19,8 +20,10 @@ import { BotProtectionService } from '../../../services/bot-protection-service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterLink,
     ButtonModule,
     InputTextModule,
+    PopoverModule,
     AppButton
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

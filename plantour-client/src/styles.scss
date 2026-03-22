@@ -128,10 +128,11 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
   background-color: white;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow-y: auto;
   overflow-x: auto;
 }
 
@@ -154,7 +155,9 @@ router-outlet {
 }
 
 @media (min-width: 769px) {
-  .outlet-container:has(form), .outlet-container:has(.form-container) {
+
+  .outlet-container:has(form),
+  .outlet-container:has(.form-container) {
     margin: 0 auto;
     max-width: 700px;
     width: 100%;
@@ -489,9 +492,10 @@ p-panel.list-actions-panel {
 
 .pl-button:disabled {
   color: rgb(202, 202, 202);
+  cursor: default;
 }
 
-.pl-button:hover {
+.pl-button:not(:disabled):hover {
   background-color: white;
   border-radius: 2rem;
   color: var(--primary-text-color);
@@ -556,8 +560,8 @@ p-panel.list-actions-panel {
 
 
 .pl-menu-item.disabled {
-    color: rgb(202, 202, 202);
-    cursor: default;
+  color: rgb(202, 202, 202);
+  cursor: default;
 }
 
 .no-arrow.p-popover:before,
@@ -725,8 +729,8 @@ app-generic-list {
 }
 
 .p-progressbar-value {
-    margin: 0;
-    background: var(--primary-color) !important;
+  margin: 0;
+  background: var(--primary-color) !important;
 }
 
 .help-link {
@@ -760,10 +764,3 @@ app-generic-list {
   }
 }
 
-// .p-select-list-container {
-//     max-height: 200px !important; /* Set your desired height */
-// }
-
-// .p-select-list-container {
-//   max-height: none !important;
-// }

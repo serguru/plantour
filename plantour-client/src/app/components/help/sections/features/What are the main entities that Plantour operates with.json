@@ -1,0 +1,29 @@
+{
+  "slug": "entities",
+  "question": "What are the main entities that Plantour operates with?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ul",
+        "items": [
+          "<a href=\"/trips\">Trip</a> is a journey or excursion to a specific destination. Can be created by the Admin. Cannot be created by the Participant.",
+          "<strong>Admin</strong> is the main owner and organizer of a trip. The admin can create trips, invite people, and assign shared items or shared todos.",
+          "<a href=\"/travelers\">Traveler</a> is a person invited by the Admin. The person has to be a Traveler to have access to the Admin`s trips as a Participant.",
+          "<strong>Participant</strong> is a Traveler included into a trip.",
+          "<a href=\"/packs\">Bag</a> is a container, used for holding or carrying items.",
+          "<strong>Trip bag</strong> is a Bag, included into a trip.",
+          "<a href=\"/items\">Item</a> is any specific piece of gear, clothing, or personal essential packed to meet a particular need or handle a specific situation during the trip.",
+          "<a href=\"/todos\">Todo</a> is a task or action that needs to be completed.",
+          "<a href=\"/\">Shared item</a> is an item intended for shared use by trip participants. It is included in the trip`s shared item list and assigned to a participant for preparation and travel.",
+          "<a href=\"/\">Shared todo</a> is a trip related task included into a trip`s shared todo list. It can be assigned to a participant so the admin can track who is responsible for completing it.",
+          "<strong>Packing list</strong> is the list of items packed into a specific trip bag. Plantour can generate and download it as a PDF so it can be printed or used during travel.",
+          "<strong>Trip report</strong> is a downloadable summary of a trip and its related trip data. It gives the user a printable snapshot of the trip in one document.",
+          "<strong>Dashboard</strong> is the main overview page of Plantour. It serves as a starting point for navigation and can also lead users to public pages such as plan selection. The Dashboard for registered users allows to select a trip and see the trip summary data, The Dashboard for public users shows the general Plantour information and allows to choose a plan",
+          "<a href=\"/profile\">Account</a> is the user identity and profile in Plantour. It stores personal access information and connects the user to trips, permissions, and subscription state.",
+          "<a href=\"/profile\">Plan</a> is the subscription level for a Plantour account. It defines billing status and the commercial level of service the user has selected."
+        ]
+      }
+    ]
+  }
+}

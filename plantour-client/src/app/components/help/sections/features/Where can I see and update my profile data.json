@@ -1,0 +1,37 @@
+{
+  "slug": "profile-data",
+  "question": "Where can I see and update my profile data?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Open your profile",
+        "listTag": "ol",
+        "items": [
+          "Open the toolbar features menu with the bars icon.",
+          "Click your profile entry in that menu.",
+          "Plantour opens the <strong>Profile</strong> page where your current account data is shown."
+        ]
+      },
+      {
+        "title": "Update your profile fields",
+        "listTag": "ol",
+        "items": [
+          "Change the fields you want to update, such as <strong>Email</strong>, <strong>First Name</strong>, <strong>Last Name</strong>, or <strong>Phone</strong>.",
+          "Click <strong>Update Profile</strong> to save the changes.",
+          "Plantour keeps your current account and updates the saved profile data instead of creating a new profile."
+        ],
+        "afterHtml": "If you are using a temporary guest account, the email field is the important switch point for moving that account toward your real identity without losing the existing test data."
+      },
+      {
+        "title": "What else you can review on the profile page",
+        "listTag": "ul",
+        "items": [
+          "Your role in Plantour.",
+          "For admins: plan information, participant code, scheduled downgrade details, and billing actions.",
+          "For participants: the related admin name and admin email."
+        ]
+      }
+    ]
+  }
+}

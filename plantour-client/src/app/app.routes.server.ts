@@ -1,10 +1,21 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 
-const landingPageRenderMode = RenderMode.Client;
 
 export const serverRoutes: ServerRoute[] = [
   {
-    path: 'packing-list-generator/**',
+    path: 'search',
+    renderMode: RenderMode.Server
+  },
+  {
+    path: 'contact',
+    renderMode: RenderMode.Server
+  },
+  {
+    path: 'privacy',
+    renderMode: RenderMode.Server
+  },
+  {
+    path: 'terms',
     renderMode: RenderMode.Server
   },
   {
@@ -12,8 +23,16 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server
   },
   {
+    path: 'help/**',
+    renderMode: RenderMode.Server
+  },
+  {
+    path: 'packing-list-generator/**',
+    renderMode: RenderMode.Server
+  },
+  {
     path: '',
-    renderMode: landingPageRenderMode
+    renderMode: RenderMode.Server
   },
   {
     path: '**',

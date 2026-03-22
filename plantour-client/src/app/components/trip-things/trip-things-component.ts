@@ -15,6 +15,7 @@ import { Condition, DynamicQueryService, Target, TargetCondition, TargetMode } f
 import { map, switchMap, tap } from 'rxjs';
 import { AssignmentStatus } from '../../helpers/enums';
 import { formatDate, getDaysDifference } from '../../helpers/utils';
+import { UsersService } from '../../services/users-service';
 
 @Component({
   selector: 'app-trip-things',
@@ -35,6 +36,7 @@ export class TripThingsComponent implements OnInit {
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(DynamicQueryService);
   tripPackageService = inject(TripPackageService);
+  usersService = inject(UsersService);
   targetCondition = toSignal(this.componentService.targetCondition$);
   target = toSignal(this.componentService.target$);
   targetedIds = toSignal(this.componentService.targetedIds$);
@@ -67,13 +69,6 @@ export class TripThingsComponent implements OnInit {
           action: () => {
             this.packsVisible.set(!this.packsVisible());
             this.localStorageService.setComponentKey(this.componentId, 'packsVisible', this.packsVisible());
-          }
-        },
-        {
-          label: 'Help',
-          icon: 'question-circle',
-          action: () => {
-            this.router.navigate(['/help/shared-things/shared-intro']);
           }
         }
       ];
@@ -168,10 +163,10 @@ export class TripThingsComponent implements OnInit {
     }
     this.componentService.updateSelectedId(id);
 
-    const packsVisible = this.localStorageService.getComponentKey(this.componentId, 'packsVisible');
+    const packsVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'packsVisible', true);
     this.packsVisible.set(packsVisible);
 
-    const assignmentsVisible = this.localStorageService.getComponentKey(this.componentId, 'assignmentsVisible');
+    const assignmentsVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'assignmentsVisible', true);
     this.assignmentsVisible.set(assignmentsVisible);
   }
 

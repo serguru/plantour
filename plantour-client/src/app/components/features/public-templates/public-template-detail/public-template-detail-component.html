@@ -22,27 +22,38 @@
         @if (temperatureRangeName()) { <span> • Temperature: {{ temperatureRangeName() }}</span> }
       </p>
     </div>
-    @if (!usersService.isAuthenticatedSignal()) {
-
     <div class="header-actions">
-      <!-- <a
+      <button
+        class="btn ghost"
+        type="button"
+        (click)="popover.toggle($event)"
+      >
+        <span class="pi pi-ellipsis-v"></span>
+      </button>
+      <p-popover
+        #popover
+        styleClass="no-arrow"
+      >
+        <a
+          class="pl-menu-item"
+          routerLink="/help/features/item-templates"
+          (click)="popover.hide()"
+        >
+          <span class="pi pi-question-circle"></span>
+          <span class="button-label">Help</span>
+        </a>
+      </p-popover>
+    @if (!usersService.isAuthenticatedSignal()) {
+      <button
         class="btn primary"
-        routerLink="/help"
-        [queryParams]="{ start: 'guest' }"
-      >Try no account needed</a> -->
-
-          <button
-            class="btn primary"
-            (click)="goToGuestAccess()"
-          >Try no account needed</button>
-
-
+        (click)="goToGuestAccess()"
+      >Try no account needed</button>
       <a
         class="btn ghost"
         routerLink="/sign-in"
       >Create an account</a>
-    </div>
     }
+    </div>
   </header>
 
   <section class="filters-bar">
@@ -165,12 +176,6 @@
         <p>Guest Access Mode lets you build real packing lists right away.</p>
       </div>
       <div class="cta-actions">
-        <!-- <a
-          class="btn primary"
-          routerLink="/help"
-          [queryParams]="{ start: 'guest' }"
-        >Try no account needed</a> -->
-
           <button
             class="btn primary"
             (click)="goToGuestAccess()"

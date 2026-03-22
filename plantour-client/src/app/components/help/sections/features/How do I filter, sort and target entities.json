@@ -1,0 +1,25 @@
+{
+  "slug": "filter-sort-target-entities",
+  "question": "How do I filter, sort and target entities?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ol",
+        "beforeHtml": "Open any supported entities list such as <a href='/items'>Items</a>, <a href='/todos'>Todos</a>, <a href='/templates'>Template items</a>, <a href='/travelers'>Travelers</a>, or trip based lists. Then click the small actions button with the chevron icon in the page header to open the actions bar.",
+        "items": [
+          "Use the dropdown on the left to choose what you want to change. The dropdown can switch between available filters, sorting, and targeting options.",
+          "Choose a filter option to reduce the visible list. Some filters use a text box with \"Type to filter...\", while others use a dropdown with exact values taken from the current entities.",
+          "Choose a sort option when you want to reorder the shown entities. You can switch between Asc, Desc, and None.",
+          "Choose the target option when you want to compare the current list with another destination such as a trip, shared trip list, own trip list, or item dictionary, depending on the page you are on and your permissions.",
+          "When the selected target offers more than one destination mode, use the radio buttons under the target selector to choose where the group operation should go. For example, admins can often switch between Shared and Own when copying items or todos into a trip.",
+          "After a target is selected, Plantour marks entities that already exist in that target and keeps other entities marked as not yet copied.",
+          "Click the plus button to copy all currently shown entities that are not yet in the selected target. Click the minus button to remove all currently shown entities that are already in that target.",
+          "Because these buttons work with the processed list, filtering first is useful. You can narrow the list to only matching entities, sort them for review, and then copy or remove only that visible subset instead of changing everything at once.",
+          "Use the reset button with the \"x\" icon when you want to clear all active filters, sorting, and target selection changes and return to the full list behavior."
+        ],
+        "afterHtml": "This helps when you need bulk actions instead of opening entities one by one. A typical example is copying a selected group of dictionary items into a trip. If you are an admin, you can also choose whether that group should go to the trip`s Shared list or to your Own list inside the trip. Plantour remembers the chosen conditions for the current page, so repeated work is faster."
+      }
+    ]
+  }
+}

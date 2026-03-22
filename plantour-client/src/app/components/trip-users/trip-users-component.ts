@@ -72,13 +72,6 @@ export class TripUsersComponent implements OnInit {
           this.lowerTextVisible.set(!this.lowerTextVisible());
           this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
         }
-      },
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/trip-participants/participants-intro']);
-        }
       }
     ];
   }
@@ -122,7 +115,7 @@ export class TripUsersComponent implements OnInit {
     }
     this.componentService.updateSelectedId(id);
 
-    const lowerTextVisible: boolean = this.localStorageService.getComponentKey(this.componentId, 'lowerTextVisible');
+    const lowerTextVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'lowerTextVisible', true);
     this.lowerTextVisible.set(lowerTextVisible);
 
   }

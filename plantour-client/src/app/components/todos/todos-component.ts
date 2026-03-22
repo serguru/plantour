@@ -84,15 +84,7 @@ export class TodosComponent {
     },
   ];
 
-  menuItems = computed<MenuConfig[]>(() => [
-    {
-      label: 'Help',
-      icon: 'question-circle',
-      action: () => {
-        this.router.navigate(['/help/todos/todos-intro']);
-      },
-    },
-  ]);
+  menuItems = computed<MenuConfig[]>(() => []);
 
   ngOnInit(): void {
     this.componentService.updateComponentId(this.componentId);

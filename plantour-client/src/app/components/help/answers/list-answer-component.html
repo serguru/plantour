@@ -1,0 +1,33 @@
+<article class="help-list-answer">
+  @for (section of sections; track $index) {
+    <section class="help-list-answer__section">
+      @if (section.title) {
+        <p class="help-list-answer__caption" [innerHTML]="section.title"></p>
+      }
+
+      @if (section.beforeHtml) {
+        <div class="help-list-answer__content" [innerHTML]="section.beforeHtml"></div>
+      }
+
+      @if (section.items?.length) {
+        @if (section.listTag === 'ol') {
+          <ol class="help-list-answer__list help-list-answer__list--ordered">
+            @for (item of section.items; track item) {
+              <li [innerHTML]="item"></li>
+            }
+          </ol>
+        } @else {
+          <ul class="help-list-answer__list help-list-answer__list--unordered">
+            @for (item of section.items; track item) {
+              <li [innerHTML]="item"></li>
+            }
+          </ul>
+        }
+      }
+
+      @if (section.afterHtml) {
+        <div class="help-list-answer__content" [innerHTML]="section.afterHtml"></div>
+      }
+    </section>
+  }
+</article>

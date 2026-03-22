@@ -1,0 +1,25 @@
+{
+  "slug": "need-to-use",
+  "question": "How can Plantur help me solve my problems?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ul",
+        "beforeHtml": "Plantur is your assistant in trip planning and during your trip. It allows you to organize, store, and access trip information in one place. All trip participants have access to trip data, exchange trip-related messages, and coordinate their activities.",
+        "items": [
+          "Centralizing trip information",
+          "Preventing forgotten items",
+          "Save time by reusing item templates",
+          "AI trip items recommendations",
+          "Group coordination",
+          "Tracking items by bag",
+          "Shared responsibility for items and todos",
+          "Trip related email notifications",
+          "Trip comments",
+          "Lower travel stress"
+        ]
+      }
+    ]
+  }
+}

@@ -78,7 +78,7 @@ export class TemplatesAiComponent {
         direction: 'none'
       }, {
         kind: 'target',
-        label: 'Trip or dic things',
+        label: 'Trip or items dic',
         icon: 'compass',
         target: null
       }, {
@@ -100,18 +100,7 @@ export class TemplatesAiComponent {
     ];
 
 
-  menuItems = computed<MenuConfig[]>(() => {
-    return [
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/ai-recommendations/ask-ai']);
-        }
-      }
-    ];
-  }
-  );
+  menuItems = computed<MenuConfig[]>(() => []);
 
   selectedPrompt: string | null = null;
   prompts: string[] | null = null;

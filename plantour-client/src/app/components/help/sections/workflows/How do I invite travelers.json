@@ -1,0 +1,65 @@
+{
+  "slug": "invite-travelers",
+  "question": "How do I invite travelers?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "If the traveler is new to your account",
+        "listTag": "ol",
+        "beforeHtml": "Use this flow when the person is not yet in your reusable <a href='/travelers'>Travelers</a> list.",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Travelers</strong>.",
+          "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Traveler</strong> form opens.",
+          "Enter the traveler email address. Add first name, last name, phone, and notes if you want to keep that information in your traveler dictionary.",
+          "Click <strong>Submit</strong>.",
+          "Plantour checks whether that email already exists. If the person is new, Plantour tells you that a new user will be created and that the traveler will receive an access code for your trips. If the person already exists in the database but is not yet in your traveler list, Plantour tells you that the existing user will be added to your traveler list and sent an access code.",
+          "Confirm by clicking <strong>Add</strong> in the dialog.",
+          "Plantour adds the person to your <a href='/travelers'>Travelers</a> list and sends the invitation email automatically.",
+          "After you return to the traveler list, select that traveler if you want to send the email again later. Open the page menu and choose <strong>Send Invitation...</strong>."
+        ],
+        "afterHtml": "If Plantour says the email already exists in your traveler list, do not create another traveler. Reuse the existing one instead. After the traveler receives access and signs in, only that traveler can update their own personal data. Admins can keep admin-side notes, but they should not expect to manage the traveler's personal profile for them."
+      },
+      {
+        "title": "If the traveler already exists in your Travelers list",
+        "listTag": "ol",
+        "beforeHtml": "You do not need to create the person again.",
+        "items": [
+          "Open <a href='/travelers'>Travelers</a> and make sure the person is already there.",
+          "Select the traveler if you want to resend the email invitation.",
+          "Open the page menu and choose <strong>Send Invitation...</strong>.",
+          "Confirm the dialog. Plantour sends the invitation email again to that traveler."
+        ]
+      },
+      {
+        "title": "Add the invited traveler to a specific trip",
+        "listTag": "ol",
+        "beforeHtml": "Being in <a href='/travelers'>Travelers</a> makes the person reusable. To let that person work in one specific trip, add them as a participant in that trip.",
+        "items": [
+          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Select the trip that the traveler should join.",
+          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Participants</strong>.",
+          "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Trip User</strong> form opens.",
+          "In the traveler field, select the person from your traveler dictionary. Plantour fills the read-only contact fields from that saved traveler.",
+          "Optionally enter trip-specific notes or participant preparation fields.",
+          "Click <strong>Submit</strong>.",
+          "Plantour adds that traveler to the selected trip as a participant. The person can now access that trip by signing in with the access code from the invitation email."
+        ],
+        "afterHtml": "A useful mental model is: <strong>Travelers</strong> is your reusable people dictionary, while <strong>Trip Participants</strong> is the list of which of those people are included in one specific trip."
+      },
+      {
+        "title": "Delete a traveler carefully",
+        "listTag": "ol",
+        "beforeHtml": "Deleting a traveler is a destructive admin action.",
+        "items": [
+          "Open <a href='/travelers'>Travelers</a> and select the traveler you want to remove.",
+          "Click the <strong>Delete</strong> button with the trash icon.",
+          "Read the confirmation carefully before you approve it.",
+          "Confirm only if you are sure. Plantour removes that traveler from your traveler list and from all trips where that traveler is a participant.",
+          "Understand the consequence: all trip data connected to that traveler as a participant is lost and cannot be restored automatically."
+        ],
+        "afterHtml": "Use deletion only when you really want to remove the traveler and their participation history from your account."
+      }
+    ]
+  }
+}

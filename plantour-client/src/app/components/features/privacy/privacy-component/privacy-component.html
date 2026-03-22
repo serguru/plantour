@@ -5,6 +5,26 @@
 	>
 		<header class="legal-header">
 			<h1 id="privacy-title">Privacy Policy</h1>
+			<button
+				class="pl-button"
+				type="button"
+				(click)="popover.toggle($event)"
+			>
+				<span class="pi pi-ellipsis-v"></span>
+			</button>
+			<p-popover
+				#popover
+				styleClass="no-arrow"
+			>
+				<a
+					class="pl-menu-item"
+					routerLink="/help/workflows/contact-plantour-administration"
+					(click)="popover.hide()"
+				>
+					<span class="pi pi-question-circle"></span>
+					<span class="button-label">Help</span>
+				</a>
+			</p-popover>
 		</header>
 
 		<section class="legal-section">

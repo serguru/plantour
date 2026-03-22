@@ -5,6 +5,12 @@
     [menuItems]="menuItems()"
   ></app-form-header>
 
+  @if (usersService.isTemporarySignal()) {
+  <div style="padding-top: 0.5rem; text-align: center;">
+    <a href="/help/get-started/first-steps">help me add item</a>
+  </div>
+  }
+
   <div class="controls-wrapper">
     <form
       [formGroup]="form"

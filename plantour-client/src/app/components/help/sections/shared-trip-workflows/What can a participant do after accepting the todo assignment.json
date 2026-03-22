@@ -1,0 +1,21 @@
+{
+  "slug": "what-can-a-participant-do-after-accepting-the-todo-assignment",
+  "question": "What can a participant do after accepting the todo assignment?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ol",
+        "beforeHtml": "After acceptance, the shared todo becomes part of the participant`s personal trip work. Plantour creates a corresponding row in that participant`s <strong>Trip Todos</strong> list.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Todos</strong> for the selected trip.",
+          "Find the accepted todo in your personal trip todos. Plantour shows assignment status text there so you can see that it came from a shared-todo assignment.",
+          "When you complete the assignment successfully, mark <strong>Finished success</strong> on that trip todo row.",
+          "If you attempted it but it failed, mark <strong>Finished failure</strong> on that trip todo row.",
+          "Plantour sends the admin a notification when you finish the accepted todo successfully or with failure."
+        ],
+        "afterHtml": "The shared-todo page is where assignment is accepted or rejected. The personal <strong>Trip Todos</strong> page is where the accepted work is actually finished."
+      }
+    ]
+  }
+}

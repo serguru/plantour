@@ -110,13 +110,6 @@ export class TripsComponent implements OnInit {
             window.URL.revokeObjectURL(url);
           });
         }
-      },
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          this.router.navigate(['/help/trips/trips-intro']);
-        }
       }
     ];
   }
@@ -191,7 +184,7 @@ export class TripsComponent implements OnInit {
     this.componentService.updateConditions(initialConditions);
     this.componentService.persistValue('conditions', initialConditions);
 
-    const lowerTextVisible: boolean = this.localStorageService.getComponentKey(this.componentId, 'lowerTextVisible');
+    const lowerTextVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'lowerTextVisible', true);
     this.lowerTextVisible.set(lowerTextVisible);
 
   }

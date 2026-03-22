@@ -82,19 +82,7 @@ export class TripUserFormComponent implements OnInit {
     return `${capitalizeFirstLetter(this.mode)} Trip User`;
   }
 
-  menuItems = computed<MenuConfig[]>(() => {
-    return [
-      {
-        label: 'Help',
-        icon: 'question-circle',
-        action: () => {
-          const helpUrl = this.isAddMode ? '/help/trip-participants/add-participant' : '/help/trip-participants/participant-permissions';
-          this.router.navigate([helpUrl]);
-        }
-      }
-    ];
-  }
-  );
+  menuItems = computed<MenuConfig[]>(() => []);
 
   onTravelerChange(value: any): void {
     const selectedUser = this.lookupTravelers.find(x => x.id === value);

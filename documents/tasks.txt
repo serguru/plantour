@@ -529,3 +529,81 @@ Explore code serving social logins. For Google it just hangs from time to time, 
 
 Explore the existing code serving social logins, specifically sign-in.ts. Explore the official @abacritt/angularx-social-login documentation. This package is already installed. Add the necessary config into app.config.ts for Google and Facebook. Do not implement log in for other providers. Replace the existing social logins related code with the new code based on the @abacritt/angularx-social-login. Put the info what was done and how to use it into angularx-social.md .
 
+I need to re-implement the entire help system. 
+
+The first step is to determine what files should be deleted and what code should be updated. Explore the project, frontend and backend. Create a plan what should be deleted and what code should be updated. After applying that plan the app should work normally but without the help system. Do no changes for now. Just create a plan and put it into remove-help.md file.
+
+
+
+It means that the content of src\app\components\help must be deleted. Explore the project. Ensure no any  help-related files or configs or data are located somewhere else including backend and DB (explore sql scripts). If 
+
+The first step is to remove the existing help pages entirely. 
+
+If help-related files or configs or data are located somewhere else including backend - delete nothing - let me know first and stop here, otherwise proceed. 
+
+Find rerfrences to the help sections throughout the code and remove them.
+
+After this cleaning the entire project
+
+
+Now let's implement a new help system.
+The general requirements to the new help system are as following:
+
+- Written in a style that, on the one hand, will help the user understand their questions, but on the other, won't be dry, technical. It should be user-friendly, and the user should feel cared for. Avoid technical terms like "Database" or "Protocol."
+
+- It's important to assume the user has absolutely no experience using computer programs. Any problem should first be briefly explained, followed by detailed step-by-step instructions on how to achieve the desired result.
+
+- Each page has its own url and can be naviageted by that url from the browser
+- Has search on help content (no custom solution, use FlexSearch library)
+- Has table of contents and hierrarchy of detail pages, for example: /help/items/add-edit or /help/shared/items/how-to-accept
+- Help pages must have links to the detail pages and also the back button
+- Any page must be small enough to avoid expandable/collapsible sections.
+- Accessible without authentication
+- SSR, 100% SEO friendly
+- The look and fill must be consistent for all help pages and folllow the entire project design principles
+- The certain peaces of UI must have a way for the user to get the context related help. For example "Add item" form must have a menu item "Help" opening the corresponding help page.
+- Only one path must be included into app.routes.ts - help
+
+Now create a list of pages/subpages/subsubpages/... you are going to create and put it into help-content.md file. Do not forget that Plantour supports temporary users, admins and participants. And it has publically accessible item templates to attract customers. Do no chnages for now, just fill help-content.md
+
+
+0) Remove the current help content ENTIRELY because it is not acceptable. Reuse the help code if possible. If not - generate new code.
+1) Explore the project structure and features 
+2) Understand in details how it works 
+3) Specifically explore the current help system, you will need to make it actually helping users
+4) The basic help structure must be:
+    1. Pages helping public users convert to temporary ones.
+    2. General Plantour peresentation: trips, travelers, items, bags, todos, plans, etc.
+    3. General workflows
+    4. List of Plantour's pages with the following for each 1) short description 2) step-by-step instruction how to use it 3) what is the result
+    5. List of typical workflows like "How do I create a list of trip things", "How do I pack things", "How can I refuse the assigned to me todo", "How can I switch from the Starter Free to Family Monthly plan" with the explanation based on the same pronciple:  1) short description 2) step-by-step instruction how to do that 3) what is the result
+
+Do not make the help large. Any your sentence must be as short as possible. Use the simple typography. Never use more than one level hierarchy like "List header / List items" is ok but "List header / List items / list subitems" is not ok.
+
+Use user friendly language. Avoid technical words. If you have any questions ask me.
+
+
+
+Redesign the help system. The requirements are:
+
+1) 100% help paqges are SSR 
+2) Ensure help pages implement all the possible things to make them 100% SEO friendly
+3) Remove currently used to store content pages like those from /get-started subfolder and help-content.
+4) Make sure the help structure allows to dynamically build a sitemap.xml 100% as SEO required
+5) Make sure the search results are shown on the separate page, same as answers to questions
+6) Make actual answers pages use ngComponentOutlet to be inserted into help-answer component. Answers pages being reused components are the only help content source.
+7) Design the reused ListAnswer.Component with predesigned HTML list collection. Provide a way how to create answers as list collection for different questions.
+8) There should be support for an original XyzAnswer.Component. 
+
+
+{
+  title: 'Steps',
+  beforeHtml: 'Use these steps before you leave for the airport.',
+  listStyle: 'ordered',
+  items: [
+    'Open the <strong>Trip</strong> menu.',
+    'Select <strong>Bags</strong>.',
+    'Download the packing list PDF.'
+  ],
+  afterHtml: 'After downloading, print the PDF and place it inside the bag.'
+}

@@ -1,0 +1,52 @@
+{
+  "slug": "first-steps",
+  "question": "What are my first steps with Plantour?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Temporary users follow (regular users see after) these steps:",
+        "listTag": "ol",
+        "items": [
+          "Click the \"Trip\" button with the \"compass\" icon on the toolbar.",
+          "Select the \"Trips\" menu item. A list of trips open.",
+          "This list will contain two trips: \"Weekend in Las Vegas\" and \"Week in Europe\". Select \"Weekend in Las Vegas\". It should be highlighted.",
+          "Click the \"Trip\", then select \"Items\". The \"Trip Items\" page open.",
+          "This list contains pre filled for the \"Weekend in Las Vegas\" trip items",
+          "Click \"Phone charger\"",
+          "Make sure the drop-down list with bags is visible on the right. If not, click the three-dot button in the page header and select \"Show Bags.\" A drop-down list with bags will appear.",
+          "Click the drop-down menu of bags and select \"Backpack.\" Your \"Phone Charger\" is now packed into the \"Backpack.\"",
+          "Download a packing list for \"Backpack\". To do this click on the toolbar \"Trip\" button with the \"compass\" icon.",
+          "Select the \"Bags\" menu item. A list of trip bags open.",
+          "Click on \"Backpack\". It should be highlighted.",
+          "Download a packing list as a PDF file. To do this click the three-dot button in the page header and select \"Download packing list PDF\". Confirm download.",
+          "Print out the downloaded packing list and put it in the \"Backpack\".",
+          "Use the printed packing list when traveling."
+        ]
+      },
+      {
+        "title": "Regular users follow these steps:",
+        "listTag": "ol",
+        "items": [
+          "Click the \"Trip\" button with the \"compass\" icon on the toolbar",
+          "Select the \"Trips\" menu item. A list of trips open.",
+          "Create a new trip. To do this, click the \"Add\" button with the plus icon. The \"Add Trip\" form will open. Enter the trip name \"Las Vegas Weekend\" and the dates. Click \"Submit.\" You will return to the trip list. Your new trip will be highlighted. If not, click it. It should be highlighted.",
+          "Click the \"Trip\" button with the \"compass\" icon on the toolbar, then select \"Items\". The \"Trip Items\" page open.",
+          "Create a new trip item. To do this, click the \"Add\" button with the plus icon. The \"Add Trip Item\" form will open. Enter the trip item name \"Phone charger\". Click \"Submit.\" You will return to the trip items list. Make sure the \"Phone charger\" is in the list",
+          "Now you will need a bag to pack your \"Phone charger\" into. To create one click the \"Trip\" button with the \"compass\" icon on the toolbar, then select \"Bags\". A list of trip bags open.",
+          "Click the \"Add\" button with the plus icon. The \"Add Trip Bag\" form will open. Enter the bag name \"Backpack\". Click \"Submit.\" You will return to the trip bags list. Make sure the \"Backpack\" is in the list",
+          "Move to the trip items list. To do this click the \"Trip\" button with the \"compass\" icon on the toolbar, then select \"Items\". The \"Trip Items\" page open.",
+          "Click \"Phone charger\"",
+          "Make sure the drop-down list with bags is visible on the right. If not, click the three-dot button in the page header and select \"Show Bags.\" A drop-down list with bags will appear.",
+          "Click the drop-down menu of bags and select \"Backpack.\" Your \"Phone Charger\" is now packed into the \"Backpack.\"",
+          "Download a packing list for \"Backpack\". To do this click on the toolbar \"Trip\" button with the \"compass\" icon.",
+          "Select the \"Bags\" menu item. A list of trip bags open.",
+          "Click on \"Backpack\". It has to be highlighted.",
+          "Download a packing list as a PDF file. To do this click the three-dot button in the page header and select \"Download packing list PDF\". Confirm download.",
+          "Print out the downloaded packing list and put it in the \"Backpack\".",
+          "Use the printed packing list when traveling."
+        ]
+      }
+    ]
+  }
+}
