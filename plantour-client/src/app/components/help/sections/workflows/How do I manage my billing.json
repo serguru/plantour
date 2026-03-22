@@ -1,0 +1,43 @@
+{
+  "slug": "manage-billing",
+  "question": "How do I manage my billing?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "When the option is available",
+        "listTag": "ul",
+        "items": [
+          "The <strong>Manage Billing</strong> button is shown on the <strong>Profile</strong> page only for admins.",
+          "Temporary accounts do not get this button, so guest or temporary users cannot open billing management from there."
+        ]
+      },
+      {
+        "title": "How to open billing management",
+        "listTag": "ol",
+        "items": [
+          "Open the toolbar features menu with the bars icon.",
+          "Open your <strong>Profile</strong> page.",
+          "In the profile actions area, click <strong>Manage Billing</strong>."
+        ],
+        "afterHtml": "Plantour asks the server to create a customer portal session and then redirects you to the external billing portal URL returned by that session."
+      },
+      {
+        "title": "What this is for",
+        "listTag": "ul",
+        "items": [
+          "Use <strong>Manage Billing</strong> when you need to work with the billing portal for your active paid account.",
+          "Use <strong>Change Plan</strong> on the same profile page when you want to change the Plantour plan itself rather than open the billing portal."
+        ]
+      },
+      {
+        "title": "If it does not open",
+        "listTag": "ul",
+        "items": [
+          "If Plantour cannot create the customer portal session, it shows a billing error message instead of redirecting you.",
+          "If you do not see the button at all, check whether you are signed in as an admin and whether the account is still temporary."
+        ]
+      }
+    ]
+  }
+}

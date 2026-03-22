@@ -6,6 +6,7 @@ import { REQUEST } from '@angular/core';
 import { PublicTemplateThingDto, PublicTemplatesService } from '../../../../services/public-templates-service';
 import { catchError, of, timeout } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { PopoverModule } from 'primeng/popover';
 import { Select } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { AmazonLinkComponent } from '../../../amazon-link/amazon-link-component';
@@ -23,7 +24,7 @@ interface DetailFilterOption {
 @Component({
   selector: 'app-public-template-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, Select, InputTextModule, AmazonLinkComponent],
+  imports: [CommonModule, RouterModule, FormsModule, PopoverModule, Select, InputTextModule, AmazonLinkComponent],
   templateUrl: './public-template-detail-component.html',
   styleUrl: './public-template-detail-component.scss'
 })

@@ -1,0 +1,41 @@
+{
+  "slug": "work-with-trip-todos",
+  "question": "How do I work with trip todos?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Add, update, or delete personal trip todos",
+        "listTag": "ol",
+        "items": [
+          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Select the trip you want to work in.",
+          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Todos</strong>.",
+          "Use <strong>Add</strong> to create a trip todo, <strong>Update</strong> to edit the selected todo, or <strong>Delete</strong> to remove the selected todo."
+        ],
+        "afterHtml": "These are trip-specific todos. They belong to the selected trip, not to your reusable <a href='/todos'>Todos</a> dictionary."
+      },
+      {
+        "title": "See shared assignment status on accepted shared todos",
+        "listTag": "ul",
+        "items": [
+          "If a todo came from an accepted shared todo assignment, Plantour shows assignment status details in the list.",
+          "The status text can show whether the shared todo was assigned, accepted, finished successfully, finished with failure, and whether there is a deadline."
+        ],
+        "afterHtml": "Use the page menu to switch between <strong>Show Assignments</strong> and <strong>Hide Assignments</strong> if you want to show or hide that assignment-related status area."
+      },
+      {
+        "title": "Finish accepted shared todos",
+        "listTag": "ol",
+        "beforeHtml": "When a shared todo was assigned to you and accepted, it appears in your trip todos list as your working copy.",
+        "items": [
+          "Find the accepted shared todo in <strong>Trip Todos</strong>.",
+          "Use <strong>Finished success</strong> when you completed it successfully.",
+          "Use <strong>Finished failure</strong> when you finished it but the result failed or needs admin attention.",
+          "Plantour updates the assignment status text so the trip and shared workflow reflect the new state."
+        ],
+        "afterHtml": "For the full assignment flow, continue with the <a href='/help/shared-trip-workflows/how-does-admin-add-update-and-delete-shared-todos'>Shared trip workflows</a> help section."
+      }
+    ]
+  }
+}
