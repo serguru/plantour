@@ -4,8 +4,6 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { provideClientHydration } from '@angular/platform-browser';
 import {
   FacebookLoginProvider,
-  GoogleLoginProvider,
-  GoogleInitOptions,
   SOCIAL_AUTH_CONFIG,
   SocialAuthServiceConfig,
 } from '@abacritt/angularx-social-login';
@@ -19,15 +17,6 @@ import { ENVIRONMENT } from '../environment.token';
 import { environment } from '../environments/environment';
 import { httpInterceptor } from './interceptors/http-interceptor';
 import { GlobalErrorHandler } from './helpers/error-handler';
-
-const googleProvider = environment.googleClientId
-  ? {
-      id: GoogleLoginProvider.PROVIDER_ID,
-      provider: new GoogleLoginProvider(environment.googleClientId, {
-        oneTapEnabled: false,
-      } as GoogleInitOptions),
-    }
-  : null;
 
 const facebookProvider = environment.facebookAppId
   ? {
@@ -43,7 +32,7 @@ const facebookProvider = environment.facebookAppId
 const socialAuthConfig: SocialAuthServiceConfig = {
   autoLogin: false,
   lang: 'en',
-  providers: [googleProvider, facebookProvider].filter((provider): provider is NonNullable<typeof provider> => provider !== null),
+  providers: [facebookProvider].filter((provider): provider is NonNullable<typeof provider> => provider !== null),
   onError: (error) => {
     console.error('Social auth initialization failed', error);
   },

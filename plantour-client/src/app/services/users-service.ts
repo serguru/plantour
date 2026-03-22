@@ -336,10 +336,9 @@ export class UsersService {
     this.updateUser(null);
     this.writeAccessToken(null);
     this.writeRefreshToken(null);
+    window.google?.accounts?.id?.disableAutoSelect?.();
 
-    void this.socialAuthService.signOut().catch(() => {
-      window.google?.accounts?.id?.disableAutoSelect?.();
-    });
+    void this.socialAuthService.signOut().catch(() => undefined);
   }
 
   resendSignIn(email: string): Observable<any> {

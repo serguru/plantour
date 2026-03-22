@@ -14,6 +14,8 @@ declare global {
 export class SocialAuthService {
   private googleSdkPromise?: Promise<void>;
   private facebookSdkPromise?: Promise<void>;
+  private googleClientId?: string;
+  private googleCredentialHandler?: (idToken: string) => void;
 
   loadGoogleSdk(): Promise<void> {
     if (window.google?.accounts?.id) {
@@ -50,24 +52,32 @@ export class SocialAuthService {
       throw new Error('Google SDK is not initialized');
     }
 
-    window.google.accounts.id.initialize({
-      client_id: clientId,
-      use_fedcm_for_button: true,
-      callback: (response: { credential?: string }) => {
-        if (response?.credential) {
-          onCredential(response.credential);
+    this.googleCredentialHandler = onCredential;
+
+    if (this.googleClientId !== clientId) {
+      this.googleClientId = clientId;
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        use_fedcm_for_button: true,
+        callback: (response: { credential?: string }) => {
+          if (response?.credential) {
+            this.googleCredentialHandler?.(response.credential);
+          }
         }
-      }
-    });
+      });
+    }
 
     container.innerHTML = '';
+    const buttonWidth = Math.round(container.getBoundingClientRect().width) || 200;
+
     window.google.accounts.id.renderButton(container, {
       type: 'standard',
       shape: 'rectangular',
       theme: 'outline',
       text: 'continue_with',
       size: 'large',
-      width: 300
+      logo_alignment: 'left',
+      width: buttonWidth
     });
   }
 
