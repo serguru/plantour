@@ -1,0 +1,38 @@
+{
+  "slug": "current-trip-set-unset-show-hide",
+  "question": "Why is current trip and how to set/unset and show/hide it?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Why Plantour uses the current trip",
+        "listTag": "ul",
+        "beforeHtml": "The current trip is Plantour's active trip context. It lets the toolbar know which trip should be used when you open trip-specific pages such as <strong>Participants</strong>, <strong>Items</strong>, <strong>Todos</strong>, <strong>Bags</strong>, <strong>Shared items</strong>, <strong>Shared todos</strong>, and <strong>Comments</strong>.",
+        "items": [
+          "When a current trip exists, the toolbar can open trip pages directly for that trip.",
+          "When no current trip exists, current-trip-only actions are disabled and the toolbar text shows <strong>No Trip Selected</strong>.",
+          "Showing the current trip name in the toolbar is only a visual shortcut. It does not create or change the trip by itself."
+        ]
+      },
+      {
+        "title": "How to set or unset it",
+        "listTag": "ol",
+        "items": [
+          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Select the trip you want to work with in the trips page. Plantour stores the selected trip as the current trip.",
+          "If no trip stays selected, Plantour clears the current trip and the toolbar falls back to <strong>No Trip Selected</strong>."
+        ],
+        "afterHtml": "A simple mental model is: in Plantour, the selected trip becomes the current trip."
+      },
+      {
+        "title": "How to show or hide it in the toolbar",
+        "listTag": "ol",
+        "items": [
+          "Open the toolbar features menu with the bars icon.",
+          "Click <strong>Hide Trip</strong> if the trip name is currently visible, or <strong>Show Trip</strong> if it is hidden.",
+          "Plantour remembers that visibility preference and keeps the same current trip underneath. Only the toolbar text is shown or hidden."
+        ]
+      }
+    ]
+  }
+}

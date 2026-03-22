@@ -163,10 +163,10 @@ export class TripThingsComponent implements OnInit {
     }
     this.componentService.updateSelectedId(id);
 
-    const packsVisible = this.localStorageService.getComponentKey(this.componentId, 'packsVisible');
+    const packsVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'packsVisible', true);
     this.packsVisible.set(packsVisible);
 
-    const assignmentsVisible = this.localStorageService.getComponentKey(this.componentId, 'assignmentsVisible');
+    const assignmentsVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'assignmentsVisible', true);
     this.assignmentsVisible.set(assignmentsVisible);
   }
 

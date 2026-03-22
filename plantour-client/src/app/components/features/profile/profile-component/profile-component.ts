@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { PopoverModule } from 'primeng/popover';
 import { catchError, finalize, EMPTY } from 'rxjs';
 import { ScheduledPlanDowngradeInfoDto, UsersService, UserDto } from '../../../../services/users-service';
 import { MessagesService } from '../../../../services/messages-service';
@@ -11,7 +12,7 @@ import { SocialAuthService } from '../../../../services/social-auth-service';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../../../environment.token';
 import { PaddleService } from '../../../../services/paddle-service';
 import { firstValueFrom } from 'rxjs';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-profile-component',
@@ -19,8 +20,10 @@ import { Router } from '@angular/router';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterLink,
     ButtonModule,
     InputTextModule,
+    PopoverModule,
     AppButton
   ],
   templateUrl: './profile-component.html',

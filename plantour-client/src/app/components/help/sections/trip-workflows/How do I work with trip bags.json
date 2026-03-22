@@ -1,0 +1,49 @@
+{
+  "slug": "how-do-i-work-with-trip-bags",
+  "question": "How do I work with trip bags?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Add a trip bag",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to create a bag that belongs only to the currently selected trip.",
+        "items": [
+          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Select the trip you want to work in.",
+          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Bags</strong>.",
+          "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Trip Bag</strong> form opens.",
+          "Enter the bag name. You can also fill optional fields such as label, notes, whether the bag should be included in the packing list, and bag weight with its unit.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the bag in that trip and returns you to the <strong>Trip Bags</strong> list."
+        ]
+      },
+      {
+        "title": "Update a trip bag",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to change a bag that already belongs to the selected trip.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Bags</strong> for the selected trip.",
+          "Select the bag you want to update so it is highlighted.",
+          "Click the <strong>Update</strong> button with the pencil icon. The <strong>Edit Trip Bag</strong> form opens.",
+          "Change the fields you need, such as name, label, notes, packing-list inclusion, or bag weight and unit.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the updated bag and returns you to the <strong>Trip Bags</strong> list."
+        ]
+      },
+      {
+        "title": "Delete a trip bag",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to remove a bag from the selected trip.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Bags</strong> for the selected trip.",
+          "Select the bag you want to remove so it is highlighted.",
+          "Click the <strong>Delete</strong> button with the trash icon.",
+          "Confirm the deletion.",
+          "Plantour removes the bag from that trip`s <strong>Trip Bags</strong> list."
+        ],
+        "afterHtml": "Trip bags are trip-specific. They are used to organize where trip items are packed inside the selected trip. After creating or updating bags, continue with <a href='/help/trip-workflows/what-options-do-i-have-to-pack-the-trip-items'>What options do I have to pack the trip items?</a>."
+      }
+    ]
+  }
+}

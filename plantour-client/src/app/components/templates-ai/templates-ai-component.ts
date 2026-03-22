@@ -78,7 +78,7 @@ export class TemplatesAiComponent {
         direction: 'none'
       }, {
         kind: 'target',
-        label: 'Trip or dic things',
+        label: 'Trip or items dic',
         icon: 'compass',
         target: null
       }, {

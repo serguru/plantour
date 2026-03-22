@@ -1,0 +1,36 @@
+{
+  "slug": "contact-plantour-administration",
+  "question": "How can I send a message to the Plantour administration?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ol",
+        "items": [
+          "Open the toolbar features menu with the bars icon and select <strong>Contact Us</strong>.",
+          "Fill in your <strong>Full Name</strong> and <strong>Email</strong>.",
+          "Optionally add your <strong>Phone Number</strong> and choose a <strong>Subject Category</strong> such as General Inquiry, Bug Report, Feature Request, Feedback, Partnership, or Other.",
+          "Write your message in the <strong>Message</strong> field.",
+          "Click <strong>Send Message</strong>."
+        ]
+      },
+      {
+        "title": "What Plantour checks before sending",
+        "listTag": "ul",
+        "items": [
+          "Full Name and Message are required.",
+          "Email is required and must be a valid email address.",
+          "Plantour runs human verification before the form is submitted."
+        ]
+      },
+      {
+        "title": "What happens next",
+        "listTag": "ul",
+        "items": [
+          "If the submission succeeds, Plantour shows a confirmation that your message was received and clears the form.",
+          "If submission or verification fails, Plantour shows an error message and lets you try again."
+        ]
+      }
+    ]
+  }
+}

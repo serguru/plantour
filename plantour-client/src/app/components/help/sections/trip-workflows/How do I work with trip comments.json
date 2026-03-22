@@ -1,0 +1,36 @@
+{
+  "slug": "work-with-trip-comments",
+  "question": "How do I work with trip comments?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Open the trip conversation",
+        "listTag": "ol",
+        "items": [
+          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Select the trip you want to discuss.",
+          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Comments</strong>."
+        ]
+      },
+      {
+        "title": "Send a new message",
+        "listTag": "ol",
+        "items": [
+          "Type your message into the <strong>Write a message...</strong> field.",
+          "Click <strong>Send</strong>.",
+          "Plantour adds the message to the trip conversation and reloads the list."
+        ]
+      },
+      {
+        "title": "Read and filter the conversation",
+        "listTag": "ul",
+        "items": [
+          "Each message shows the author name, the published date and time, and the message text.",
+          "Plantour displays your own messages differently from messages written by other trip members, so the conversation is easier to scan.",
+          "Use the actions bar filter to narrow the visible messages by comment text when the conversation grows longer."
+        ]
+      }
+    ]
+  }
+}

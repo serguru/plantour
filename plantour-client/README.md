@@ -34,6 +34,22 @@ For a complete list of available schematics (such as `components`, `directives`,
 ng generate --help
 ```
 
+## Component Structure Convention
+
+Angular components in this repo should keep markup and styling in external files.
+
+- Do not use inline `template` in `@Component` metadata.
+- Do not use inline `styles` or `style` in `@Component` metadata.
+- Use `templateUrl` with a separate HTML file.
+- Prefer `styleUrl` with a component-specific SCSS file.
+- Reusing another component's SCSS file is acceptable only when that styling is intentionally shared.
+
+Help components follow the same rule with one extra constraint:
+
+- Every Help component must have its own HTML template file.
+- A Help component may reuse an existing Help SCSS file when the styling is intentionally shared.
+- Otherwise the Help component must have its own SCSS file.
+
 ## Building
 
 Builds are environment-specific:

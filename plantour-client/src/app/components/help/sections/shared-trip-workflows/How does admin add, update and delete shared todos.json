@@ -1,0 +1,50 @@
+{
+  "slug": "how-does-admin-add-update-and-delete-shared-todos",
+  "question": "How does admin add, update and delete shared todos?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Add a shared todo",
+        "listTag": "ol",
+        "beforeHtml": "Use this when the task belongs to the whole trip and should later be assigned to one participant.",
+        "items": [
+          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Select the trip you want to work in.",
+          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Shared todos</strong>.",
+          "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Trip Shared Todo</strong> form opens.",
+          "Enter the shared todo name. You can also fill category and notes.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the shared todo in that trip and returns you to the <strong>Shared todos</strong> list."
+        ]
+      },
+      {
+        "title": "Update a shared todo",
+        "listTag": "ol",
+        "beforeHtml": "Use this when the shared todo already exists and you want to change its details.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Shared todos</strong> for the selected trip.",
+          "Select the shared todo you want to change so it is highlighted.",
+          "Click the <strong>Update</strong> button with the pencil icon. The <strong>Edit Trip Shared Todo</strong> form opens.",
+          "Change fields such as name, category, or notes.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the shared todo and returns you to the list."
+        ],
+        "afterHtml": "Changing who is responsible for a shared todo is handled on the <strong>Shared todos</strong> list itself, not inside the add or update form. For the assignment workflow, continue with <a href='/help/shared-trip-workflows/how-does-admin-assign-shared-todos'>How does admin assign shared todos?</a>."
+      },
+      {
+        "title": "Delete a shared todo",
+        "listTag": "ol",
+        "beforeHtml": "Use this when the trip no longer needs that shared task.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Shared todos</strong> for the selected trip.",
+          "Select the shared todo you want to remove so it is highlighted.",
+          "Click the <strong>Delete</strong> button with the trash icon.",
+          "Confirm the deletion.",
+          "Plantour removes the shared todo from that trip."
+        ],
+        "afterHtml": "If the todo was already accepted by a participant, review the assignment state first because shared todos are tied to acceptance and assignment status."
+      }
+    ]
+  }
+}

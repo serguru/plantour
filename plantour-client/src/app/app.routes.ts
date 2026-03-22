@@ -5,6 +5,12 @@ import { CleanupResolver } from './helpers/resolver';
 
 export const routes: Routes = [
   {
+    path: 'search',
+    loadComponent: () => import('./components/search/search-component').then(m => m.SearchComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'search' }
+  },
+  {
     path: 'help',
     children: [
       {
@@ -14,10 +20,24 @@ export const routes: Routes = [
         data: { componentId: 'help' }
       },
       {
-        path: '**',
-        loadComponent: () => import('./components/help/help-component').then(m => m.HelpComponent),
+        path: 'search',
+        redirectTo: '/search',
+        pathMatch: 'full'
+      },
+      {
+        path: ':sectionId/:questionSlug',
+        loadComponent: () => import('./components/help/answers/help-answer-component').then(m => m.HelpAnswerComponent),
         resolve: { cleanup: CleanupResolver },
         data: { componentId: 'help' }
+      },
+      {
+        path: ':sectionId',
+        redirectTo: '',
+        pathMatch: 'full'
+      },
+      {
+        path: '**',
+        redirectTo: ''
       }
     ]
   },

@@ -1,0 +1,35 @@
+{
+  "slug": "how-does-admin-assign-shared-items",
+  "question": "How does admin assign shared items?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Assign or reassign one shared item from its row",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to pick one participant directly on one shared item row.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Shared items</strong> for the selected trip.",
+          "If assignee selectors are hidden, open the page menu and choose <strong>Show Assignees</strong>.",
+          "Use the <strong>Select assignee</strong> dropdown on the shared item row and choose the trip participant who should handle it.",
+          "Plantour assigns the item immediately. If that item was already assigned to someone else, changing the assignee works as a reassignment.",
+          "If you clear the assignee dropdown, Plantour unassigns that item."
+        ]
+      },
+      {
+        "title": "Assign or unassign many shared items at once",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to work in bulk with one participant and many currently shown shared items.",
+        "items": [
+          "Open the actions bar in the page header.",
+          "Choose the <strong>Trip participant</strong> target and select the participant you want.",
+          "Set the deadline-days field if you want Plantour to calculate an assignment deadline for the shared items you are about to assign.",
+          "Filter the list first if you want to limit which shared items are currently shown.",
+          "Click the page-level plus button to assign all currently shown not-targeted shared items to that participant.",
+          "Click the page-level minus button to unassign the currently shown targeted shared items from that participant."
+        ],
+        "afterHtml": "When assignment changes, Plantour sends participant assignment-change notifications. The shared item list also updates its assignment status text so you can see whether an item is awaiting assignment, assigned, accepted, rejected, successful, or failed."
+      }
+    ]
+  }
+}

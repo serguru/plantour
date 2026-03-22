@@ -1,0 +1,19 @@
+{
+  "slug": "item-templates",
+  "question": "What are item templates?",
+  "answer": {
+    "kind": "paragraph",
+    "sections": [
+      {
+        "beforeHtml": "Item templates are reusable item collections that help you fill your packing lists faster. After <a href='/sign-in'>signing in</a>, open the toolbar`s \"Dictionary\" menu with the \"copy\" icon and click \"Template items\" to start.",
+        "paragraphs": [
+          "Each row is a reusable suggested item. Plantour groups them by template, activity, age, temperature range, and category so you can find matching packing ideas quickly.",
+          "Use the filters and the target selector above the list to choose where you want to work. You can target your Items Dictionary or one of your trips. Admins can also target the Shared trip items list.",
+          "When a row is not yet in the selected target, add it by clicking the row or by using the add action. When a row is already in the selected target, click it again or use the remove action to take it out.",
+          "This page is useful when you want to reuse proven packing ideas instead of typing every item manually."
+        ],
+        "afterHtml": "Plantour also has a separate public templates area. Anyone can open <a href='/packing-list-generator/templates'>Public Templates</a> without signing in. You can reach it from the toolbar`s more menu by clicking \"Public Templates\"."
+      }
+    ]
+  }
+}

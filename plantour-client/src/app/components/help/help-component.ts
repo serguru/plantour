@@ -1,254 +1,184 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { afterNextRender, Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { REQUEST } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
+import { EntitiesHeader, HeaderButtonConfig } from '../entities/entities-header-component/entities-header-component';
 import { SeoService } from '../../services/seo-service';
-import { UsersService } from '../../services/users-service';
-import { HELP_HOME_PAGE_ID, HELP_PAGES } from './help-content';
-import { HelpBlock, HelpBreadcrumb, HelpPage } from './help.models';
-import { HelpSearchService } from './help-search.service';
+import {
+  HELP_HOME_PAGE_ID,
+  HELP_SECTIONS,
+  HelpPage,
+  findHelpPageByPath,
+  getHelpPageUrl
+} from './help-content';
 
 @Component({
   selector: 'app-help',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, RouterLink, EntitiesHeader],
   templateUrl: './help-component.html',
   styleUrl: './help-component.scss'
 })
 export class HelpComponent {
   componentId = 'help';
+  readonly sections = HELP_SECTIONS;
 
   private readonly router = inject(Router);
   private readonly seoService = inject(SeoService);
-  private readonly helpSearchService = inject(HelpSearchService);
-  readonly usersService = inject(UsersService);
   private readonly document = inject(DOCUMENT);
   private readonly request = inject(REQUEST, { optional: true });
 
-  private readonly pageMap = new Map<string, HelpPage>(HELP_PAGES.map((page) => [page.id, page]));
-  private readonly currentPath = signal<string[]>([]);
-
-  readonly searchQuery = signal('');
-  readonly searchPanelVisible = signal(true);
-  readonly highlightFoundOccurrences = signal(true);
-  readonly firstStepsPageId = 'tasks/first-steps';
-  readonly showGuestCta = signal(false);
-
-  readonly currentPage = computed(() => {
-    const joinedPath = this.currentPath().join('/');
-    const page = HELP_PAGES.find((item) => item.path.join('/') === joinedPath);
-    return page ?? this.pageMap.get(HELP_HOME_PAGE_ID) ?? HELP_PAGES[0];
-  });
-
-  readonly breadcrumbs = computed<HelpBreadcrumb[]>(() => {
-    const trail: HelpBreadcrumb[] = [];
-    let page: HelpPage | undefined = this.currentPage();
-
-    while (page) {
-      trail.unshift({
-        label: page.title,
-        url: this.pageUrl(page),
-        pageId: page.id
-      });
-      page = page.parentId ? this.pageMap.get(page.parentId) : undefined;
+  readonly currentPage = computed<HelpPage>(() => findHelpPageByPath([])!);
+  readonly visibleSections = computed(() => this.sections);
+  readonly expandedSections = signal<Record<string, boolean>>({});
+  readonly currentFragment = signal<string | null>(null);
+  readonly allVisibleSectionsExpanded = computed(() =>
+    this.visibleSections().every((section, index) => this.isSectionExpanded(section.id, index === 0))
+  );
+  readonly allVisibleSectionsCollapsed = computed(() =>
+    this.visibleSections().every((section, index) => !this.isSectionExpanded(section.id, index === 0))
+  );
+  readonly headerButtons = computed<HeaderButtonConfig[]>(() => [
+    {
+      label: 'Expand all',
+      icon: 'angle-double-down',
+      action: () => this.expandAllSections(),
+      disabled: this.allVisibleSectionsExpanded()
+    },
+    {
+      label: 'Collapse all',
+      icon: 'angle-double-up',
+      action: () => this.collapseAllSections(),
+      disabled: this.allVisibleSectionsCollapsed()
     }
-
-    return trail;
-  });
-
-  readonly childPages = computed(() => HELP_PAGES.filter((page) => page.parentId === this.currentPage().id));
-
-  readonly showBackLink = computed(() => {
-    const currentPageUrl = this.pageUrl(this.currentPage());
-    return this.backLink() !== currentPageUrl;
-  });
-
-  readonly relatedPages = computed(() =>
-    (this.currentPage().relatedPageIds ?? [])
-      .map((pageId) => this.pageMap.get(pageId))
-      .filter((page): page is HelpPage => !!page)
-  );
-
-  readonly hasSearchQuery = computed(() => this.searchQuery().trim().length > 0);
-  readonly shouldHighlightMatches = computed(() => this.highlightFoundOccurrences() && this.hasSearchQuery());
-  readonly searchResults = computed(() =>
-    this.helpSearchService.search(this.searchQuery(), this.shouldHighlightMatches())
-  );
-  readonly firstStepsUrl = computed(() => this.pageUrlById(this.firstStepsPageId));
-  readonly isFirstStepsPage = computed(() => this.currentPage().id === this.firstStepsPageId);
+  ]);
 
   constructor() {
-    //this.usersService.syncUserFromStorage();
-    afterNextRender(() => {
-      this.syncGuestCtaVisibility();
-    });
-
-    const initialWidth = this.document?.defaultView?.innerWidth ?? 1280;
-    this.searchPanelVisible.set(initialWidth > 768);
-
-    this.syncCurrentPathFromUrl();
+    this.syncCurrentFragmentFromUrl();
+    this.expandedSections.set(this.createExpandedSectionsState());
 
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd)
     ).subscribe(() => {
-//      this.usersService.syncUserFromStorage();
-      this.syncGuestCtaVisibility();
-      this.syncCurrentPathFromUrl();
+      this.syncCurrentFragmentFromUrl();
+      this.expandedSections.set(this.createExpandedSectionsState());
     });
 
     effect(() => {
       const page = this.currentPage();
       this.seoService.setSeo({
-        title: `${page.title} | Plantour Help`,
+        title: page.id === HELP_HOME_PAGE_ID ? 'Plantour Help' : `${page.title} | Plantour Help`,
         description: page.description,
-        canonicalUrl: this.buildAbsoluteUrl(this.pageUrl(page)),
-        ogType: 'article',
+        canonicalUrl: this.buildAbsoluteUrl(this.pageUrl(page.id)),
+        ogType: 'website',
         jsonLd: this.buildJsonLd(page)
       });
     });
   }
 
-  pageUrl(page: HelpPage): string {
-    return page.path.length === 0 ? '/help' : `/help/${page.path.join('/')}`;
-  }
-
   pageUrlById(pageId: string): string {
-    const page = this.pageMap.get(pageId);
-    return page ? this.pageUrl(page) : '/help';
+    return getHelpPageUrl(pageId);
   }
 
-  blockAnchor(block: HelpBlock): string {
-    return block.id;
+  pageUrl(pageId: string): string {
+    return getHelpPageUrl(pageId);
   }
 
-  backLink(): string {
-    const page = this.currentPage();
-    if (!page.parentId) {
-      return '/help';
+  expandAllSections(): void {
+    this.expandedSections.set(
+      Object.fromEntries(this.visibleSections().map((section) => [section.id, true]))
+    );
+  }
+
+  collapseAllSections(): void {
+    this.expandedSections.set(
+      Object.fromEntries(this.visibleSections().map((section) => [section.id, false]))
+    );
+  }
+
+  isSectionExpanded(sectionId: string, isFirst: boolean): boolean {
+    const explicitState = this.expandedSections()[sectionId];
+    if (explicitState !== undefined) {
+      return explicitState;
     }
 
-    const parent = this.pageMap.get(page.parentId);
-    return parent ? this.pageUrl(parent) : '/help';
+    return isFirst;
   }
 
-  backLabel(): string {
-    const page = this.currentPage();
-    if (!page.parentId) {
-      return 'Back to Help';
-    }
-
-    const parent = this.pageMap.get(page.parentId);
-    return parent ? `Back to ${parent.title}` : 'Back to Help';
-  }
-
-  clearSearch(): void {
-    this.searchQuery.set('');
-  }
-
-  updateSearchQuery(query: string): void {
-    this.searchQuery.set(query);
-
-    if (query.trim().length > 0) {
-      this.searchPanelVisible.set(true);
-    }
-  }
-
-  toggleSearchPanel(): void {
-    this.searchPanelVisible.set(!this.searchPanelVisible());
-  }
-
-  highlightText(text: string | undefined): string {
-    const safeText = text ?? '';
-    const escapedText = this.escapeHtml(safeText);
-
-    if (!this.shouldHighlightMatches()) {
-      return escapedText;
-    }
-
-    const escapedQuery = this.escapeRegExp(this.searchQuery().trim());
-    if (!escapedQuery) {
-      return escapedText;
-    }
-
-    return escapedText.replace(new RegExp(`(${escapedQuery})`, 'gi'), '<mark>$1</mark>');
-  }
-
-  startTemporaryUser(): void {
-    this.usersService.createTemporaryUser();
-  }
-
-  private syncGuestCtaVisibility(): void {
-    const accessToken = this.usersService.accessToken;
-    const hasActiveToken = !!accessToken && !this.usersService.isJwtExpired(accessToken);
-    this.showGuestCta.set(!hasActiveToken);
-  }
-
-  async openSearchResult(pageId: string): Promise<void> {
-    const page = this.pageMap.get(pageId);
-    if (!page) {
+  onSectionToggle(sectionId: string, event: Event): void {
+    const details = event.target as HTMLDetailsElement | null;
+    if (!details) {
       return;
     }
 
-    await this.router.navigateByUrl(this.pageUrl(page));
+    this.expandedSections.update((current) => ({
+      ...current,
+      [sectionId]: details.open
+    }));
   }
 
-  trackByPageId(_: number, page: HelpPage): string {
-    return page.id;
+  private createExpandedSectionsState(): Record<string, boolean> {
+    const currentFragment = this.currentFragment();
+
+    return Object.fromEntries(
+      this.visibleSections().map((section, index) => [
+        section.id,
+        currentFragment ? section.id === currentFragment : index === 0
+      ])
+    );
   }
 
-  trackByBlockId(_: number, block: HelpBlock): string {
-    return block.id;
-  }
-
-  private syncCurrentPathFromUrl(): void {
-    const cleanUrl = this.router.url.split('?')[0].split('#')[0];
-    const withoutLeadingSlash = cleanUrl.startsWith('/') ? cleanUrl.slice(1) : cleanUrl;
-    const segments = withoutLeadingSlash.split('/').filter((segment) => segment.length > 0);
-    this.currentPath.set(segments[0] === 'help' ? segments.slice(1) : []);
+  private syncCurrentFragmentFromUrl(): void {
+    this.currentFragment.set(this.router.parseUrl(this.router.url).fragment ?? null);
   }
 
   private buildAbsoluteUrl(path: string): string {
-    if (this.request?.url) {
-      const protocol = this.request.headers?.get('x-forwarded-proto') ?? undefined;
-      const host = this.request.headers?.get('x-forwarded-host') ?? this.request.headers?.get('host') ?? undefined;
-
-      if (protocol && host) {
-        return `${protocol}://${host}${path}`;
-      }
+    const protocol = this.request?.headers?.get('x-forwarded-proto') ?? undefined;
+    const host = this.request?.headers?.get('x-forwarded-host') ?? this.request?.headers?.get('host') ?? undefined;
+    if (protocol && host) {
+      return `${protocol}://${host}${path}`;
     }
 
-    if (typeof this.document?.location?.origin === 'string' && this.document.location.origin) {
-      return `${this.document.location.origin}${path}`;
+    try {
+      return new URL(path, this.document.baseURI).toString();
+    } catch {
+      return path;
     }
-
-    return path;
   }
 
   private buildJsonLd(page: HelpPage): Record<string, unknown> {
+    const canonicalUrl = this.buildAbsoluteUrl(this.pageUrl(page.id));
+    const homeUrl = this.buildAbsoluteUrl(getHelpPageUrl(HELP_HOME_PAGE_ID));
+    const questions = this.sections.flatMap((section) => section.questions);
+
     return {
       '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: this.breadcrumbs().map((breadcrumb, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        name: breadcrumb.label,
-        item: this.buildAbsoluteUrl(breadcrumb.url)
-      }))
+      '@graph': [
+        {
+          '@type': 'CollectionPage',
+          '@id': canonicalUrl,
+          url: canonicalUrl,
+          name: page.title,
+          description: page.description,
+          isPartOf: {
+            '@type': 'WebSite',
+            '@id': homeUrl,
+            url: homeUrl,
+            name: 'Plantour'
+          },
+          mainEntity: {
+            '@type': 'ItemList',
+            itemListElement: questions
+              .map((question, index) => ({
+                '@type': 'ListItem',
+                position: index + 1,
+                name: question.question,
+                url: this.buildAbsoluteUrl(this.pageUrlById(question.pageId))
+              }))
+          }
+        }
+      ]
     };
-  }
-
-  private escapeHtml(text: string): string {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
-  private escapeRegExp(text: string): string {
-    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 }

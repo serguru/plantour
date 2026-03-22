@@ -60,6 +60,15 @@
 
     @if (isAdmin) {
     <div class="buttons">
+      @if (hasFacebookLogin) {
+      <app-button
+        label="Facebook"
+        [icon]="'pi pi-facebook'"
+        [disabled]="isLoading"
+        (click)="onSignInWithFacebook()"
+      />
+      }
+
       @if (hasGoogleLogin) {
       <div class="google-button-wrapper">
         <app-button
@@ -83,14 +92,6 @@
       </div>
       }
 
-      @if (hasFacebookLogin) {
-      <app-button
-        label="Facebook"
-        [icon]="'pi pi-facebook'"
-        [disabled]="isLoading"
-        (click)="onSignInWithFacebook()"
-      />
-      }
 
     </div>
     }

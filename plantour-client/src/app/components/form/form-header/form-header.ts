@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PopoverModule } from 'primeng/popover';
 import { Router } from '@angular/router';
-import { HelpContextService } from '../../help/help-context.service';
+import { HelpService } from '../../../services/help-service';
 
 export interface MenuConfig {
   label: string;
@@ -21,7 +21,7 @@ export interface MenuConfig {
 })
 export class FormHeader {
   private readonly router = inject(Router);
-  private readonly helpContextService = inject(HelpContextService);
+  private readonly helpContextService = inject(HelpService);
 
   title = input<string>();
   icon = input<string>();

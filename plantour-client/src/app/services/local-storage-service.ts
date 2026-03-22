@@ -115,6 +115,11 @@ export class LocalStorageService {
     return this.getItem(fullKey);
   }
 
+  getComponentBooleanKey(componentId: string, key: string, defaultValue: boolean): boolean {
+    const value = this.getComponentKey(componentId, key);
+    return typeof value === 'boolean' ? value : defaultValue;
+  }
+
   getComponentKeyObject(componentId: string, key: string): any | null {
     const fullKey = `${componentId}-${key}`;
     return this.getItemObject(fullKey);

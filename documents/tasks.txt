@@ -567,4 +567,43 @@ The general requirements to the new help system are as following:
 Now create a list of pages/subpages/subsubpages/... you are going to create and put it into help-content.md file. Do not forget that Plantour supports temporary users, admins and participants. And it has publically accessible item templates to attract customers. Do no chnages for now, just fill help-content.md
 
 
+0) Remove the current help content ENTIRELY because it is not acceptable. Reuse the help code if possible. If not - generate new code.
+1) Explore the project structure and features 
+2) Understand in details how it works 
+3) Specifically explore the current help system, you will need to make it actually helping users
+4) The basic help structure must be:
+    1. Pages helping public users convert to temporary ones.
+    2. General Plantour peresentation: trips, travelers, items, bags, todos, plans, etc.
+    3. General workflows
+    4. List of Plantour's pages with the following for each 1) short description 2) step-by-step instruction how to use it 3) what is the result
+    5. List of typical workflows like "How do I create a list of trip things", "How do I pack things", "How can I refuse the assigned to me todo", "How can I switch from the Starter Free to Family Monthly plan" with the explanation based on the same pronciple:  1) short description 2) step-by-step instruction how to do that 3) what is the result
 
+Do not make the help large. Any your sentence must be as short as possible. Use the simple typography. Never use more than one level hierarchy like "List header / List items" is ok but "List header / List items / list subitems" is not ok.
+
+Use user friendly language. Avoid technical words. If you have any questions ask me.
+
+
+
+Redesign the help system. The requirements are:
+
+1) 100% help paqges are SSR 
+2) Ensure help pages implement all the possible things to make them 100% SEO friendly
+3) Remove currently used to store content pages like those from /get-started subfolder and help-content.
+4) Make sure the help structure allows to dynamically build a sitemap.xml 100% as SEO required
+5) Make sure the search results are shown on the separate page, same as answers to questions
+6) Make actual answers pages use ngComponentOutlet to be inserted into help-answer component. Answers pages being reused components are the only help content source.
+7) Design the reused ListAnswer.Component with predesigned HTML list collection. Provide a way how to create answers as list collection for different questions.
+8) There should be support for an original XyzAnswer.Component. 
+
+
+{
+  title: 'Steps',
+  beforeHtml: 'Use these steps before you leave for the airport.',
+  listStyle: 'ordered',
+  items: [
+    'Open the <strong>Trip</strong> menu.',
+    'Select <strong>Bags</strong>.',
+    'Download the packing list PDF.'
+  ],
+  afterHtml: 'After downloading, print the PDF and place it inside the bag.'
+}

@@ -4,13 +4,20 @@ import { ComponentService } from '../../../services/component-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MessagesService } from '../../../services/messages-service';
 import { Popover } from 'primeng/popover';
-import { HelpContextService } from '../../help/help-context.service';
+import { HelpService } from '../../../services/help-service';
 
 export interface MenuConfig {
   label: string;
   icon: string;
   action: () => void;
   disabledIfNoSelection?: boolean;
+}
+
+export interface HeaderButtonConfig {
+  label: string;
+  icon?: string;
+  action: () => void;
+  disabled?: boolean;
 }
 
 @Component({
@@ -22,7 +29,7 @@ export interface MenuConfig {
   styleUrl: './entities-header-component.scss',
 })
 export class EntitiesHeader implements OnInit {
-  private readonly helpContextService = inject(HelpContextService);
+  private readonly helpContextService = inject(HelpService);
 
   @Input() entityIcon: string | null = null;
   @Input() title: string | null = null;
@@ -32,8 +39,10 @@ export class EntitiesHeader implements OnInit {
   @Input() delete: ((id: string) => void) | null = null;
   @Input() entityName: string = '';
 
+  headerButtons = input<HeaderButtonConfig[]>([]);
   menuItems = input<MenuConfig[]>([]);
   helpPageId = input<string | null>(null);
+  showHelpAction = input<boolean>(true);
 
   deleteMessage = input<string>('');
   
@@ -148,7 +157,7 @@ export class EntitiesHeader implements OnInit {
   getResolvedMenuItems(): MenuConfig[] {
     const items = [...this.menuItems()];
     const pageId = this.helpContextService.resolvePageId(this.router.url, this.helpPageId());
-    const helpUrl = this.helpContextService.getPageUrl(pageId);
+    const helpUrl = this.showHelpAction() ? this.helpContextService.getPageUrl(pageId) : null;
 
     if (helpUrl) {
       items.push({

@@ -1,0 +1,23 @@
+{
+  "slug": "how-can-a-participant-react-on-the-shared-todo-assignment",
+  "question": "How can a participant react on the shared todo assignment?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ol",
+        "beforeHtml": "A participant reacts on assigned shared todos directly in the <strong>Shared todos</strong> list. The reaction controls only appear when the current participant is the assigned person for that row.",
+        "items": [
+          "Open <strong>Trip</strong> > <strong>Shared todos</strong> for the selected trip.",
+          "Find a row assigned to you. Plantour shows <strong>Accepted</strong> and <strong>Rejected</strong> checkboxes only on rows you are allowed to react to.",
+          "Click <strong>Accepted</strong> if you agree to take responsibility for that todo. Plantour then creates a personal trip todo for you from that shared todo.",
+          "Click <strong>Rejected</strong> if you do not want to take responsibility for that todo. Plantour marks the assignment as rejected.",
+          "If you uncheck <strong>Accepted</strong>, Plantour removes the personal accepted todo that was created for you.",
+          "If you reject a todo that you had already accepted, Plantour clears the accepted link and removes the personal accepted todo from your trip todos.",
+          "Plantour notifies the admin when you accept or reject the assignment."
+        ],
+        "afterHtml": "Accepting is the bridge from the shared-planning page to your own personal work page. After acceptance, continue with <a href='/help/shared-trip-workflows/what-can-a-participant-do-after-accepting-the-todo-assignment'>What can a participant do after accepting the todo assignment?</a>."
+      }
+    ]
+  }
+}

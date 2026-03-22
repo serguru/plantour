@@ -325,11 +325,11 @@ export class TripSharedComponent implements OnInit {
     }
     this.componentService.updateSelectedId(id);
 
-    const assigneesVisible = this.localStorageService.getComponentKey(this.componentId, 'assigneesVisible');
-    this.assigneesVisible.set(!!assigneesVisible);
+    const assigneesVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'assigneesVisible', true);
+    this.assigneesVisible.set(assigneesVisible);
 
-    const assignmentsVisible = this.localStorageService.getComponentKey(this.componentId, 'assignmentsVisible');
-    this.assignmentsVisible.set(!!assignmentsVisible);
+    const assignmentsVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'assignmentsVisible', true);
+    this.assignmentsVisible.set(assignmentsVisible);
 
     const deadlineDays = this.localStorageService.getComponentKey(this.componentId, 'deadlineDays');
     this.deadlineDays.set(deadlineDays ? Number(deadlineDays) : 3);

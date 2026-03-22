@@ -1,11 +1,13 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { PopoverModule } from 'primeng/popover';
 import { SeoService } from '../../../../services/seo-service';
 
 @Component({
   selector: 'app-terms-component',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, PopoverModule],
   templateUrl: './terms-component.html',
   styleUrl: './terms-component.scss',
 })

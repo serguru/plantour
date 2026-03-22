@@ -1,0 +1,35 @@
+{
+  "slug": "search-plantour",
+  "question": "How do I search Plantour for something?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ol",
+        "items": [
+          "Open the toolbar features menu with the bars icon and select <strong>Search</strong>.",
+          "Start typing into the search box. Plantour updates the results automatically while you type.",
+          "Open any result card to jump to the matching page."
+        ],
+        "afterHtml": "You can also share or reopen a search by using the page URL with its query parameter, because Plantour keeps the current search text in the search page address."
+      },
+      {
+        "title": "What Plantour searches",
+        "listTag": "ul",
+        "items": [
+          "Public Plantour pages such as Home, Contact, Terms, and Privacy.",
+          "Help pages and help questions that are marked as searchable.",
+          "Public packing templates, including template-related details loaded for the search index."
+        ],
+        "afterHtml": "In the current implementation, this search is for Plantour pages and public template/help content. It is not a global search across your private trips, personal items, personal todos, or other account data."
+      },
+      {
+        "title": "Useful option",
+        "listTag": "ul",
+        "items": [
+          "Use the page menu to switch between <strong>Show Highlights</strong> and <strong>Hide Highlights</strong> if you want the matched text in results to be emphasized or plain."
+        ]
+      }
+    ]
+  }
+}

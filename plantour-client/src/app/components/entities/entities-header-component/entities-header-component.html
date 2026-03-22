@@ -9,6 +9,19 @@
 
     <!-- icon="pi pi-plus" -->
     <div class="page-content">
+        @for (button of headerButtons(); track button.label) {
+        <button
+          class="pl-button"
+          (click)="button.action()"
+          [disabled]="button.disabled"
+        >
+          @if (button.icon) {
+          <span [class]="'pi pi-' + button.icon"></span>
+          }
+          <span class="button-label">{{ button.label }}</span>
+        </button>
+        }
+
         <!-- no format -->
         @if(addUrl) {
 

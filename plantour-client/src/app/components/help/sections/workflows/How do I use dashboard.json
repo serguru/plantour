@@ -1,0 +1,37 @@
+{
+  "slug": "dashboard-overview",
+  "question": "How do I use dashboard?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Open the dashboard and choose a trip",
+        "listTag": "ol",
+        "items": [
+          "Click <strong>Dashboard</strong> in the toolbar.",
+          "Use the trip dropdown at the top of the page to choose the trip you want to review.",
+          "When you change the selected trip in the dashboard, Plantour also updates the current trip context for the rest of the app."
+        ]
+      },
+      {
+        "title": "Open the dashboard sections you need",
+        "listTag": "ul",
+        "items": [
+          "<strong>Trip info</strong> shows the current trip overview and summary metrics.",
+          "<strong>User Trip info</strong> shows your own progress, assignments, and packing status for that trip.",
+          "<strong>All Users Trip info</strong> shows the wider team view with shared responsibilities and overall progress."
+        ],
+        "afterHtml": "Click a section row to expand it, and click it again to collapse it."
+      },
+      {
+        "title": "When to use the dashboard",
+        "listTag": "ul",
+        "items": [
+          "Use it when you want a quick overview before opening detailed trip pages.",
+          "Use it to see progress for yourself and for the whole trip without switching through every trip page one by one.",
+          "Use it to confirm that the correct trip is selected before you continue into trip-specific pages."
+        ]
+      }
+    ]
+  }
+}

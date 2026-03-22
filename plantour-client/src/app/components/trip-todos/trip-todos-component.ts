@@ -123,8 +123,8 @@ export class TripTodosComponent implements OnInit {
     }
     this.componentService.updateSelectedId(id);
 
-    const assignmentsVisible = this.localStorageService.getComponentKey(this.componentId, 'assignmentsVisible');
-    this.assignmentsVisible.set(!!assignmentsVisible);
+    const assignmentsVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'assignmentsVisible', true);
+    this.assignmentsVisible.set(assignmentsVisible);
   }
 
   initConditions(componentId: string | null): void {
