@@ -25,24 +25,24 @@ export class LandingNewUserComponent implements OnInit {
   private readonly document = inject(DOCUMENT);
   private readonly request = inject(REQUEST, { optional: true });
 
-  subSlogan = 'Never forget an item again. Organize your packing with smart lists, categories, and seamless group coordination. Get AI-powered packing recommendations tailored to your destination.';
+  subSlogan = 'One place for your packing lists, todos, and shared group details.';
 
 
   featureList: LandingFeature[] = [
     {
       icon: 'building-columns',
-      title: 'Organization',
-      description: 'Keep travelers, items, todos, and bags neatly structured and easy to manage. Everything has its place and is always up to date.'
+      title: 'Keep trip details organized',
+      description: 'Keep travelers, packing items, tasks, and trip details together in one clear workspace, so nothing gets lost between notes, chats, and spreadsheets.'
     },
     {
       icon: 'share-alt',
-      title: 'Sharing',
-      description: 'Create shared item lists and todo lists for groups and families. Coordinate who brings what and who does what.'
+      title: 'Coordinate group travel easily',
+      description: 'Share packing lists and tasks with family or travel companions, so everyone knows what to bring, what to do, and what is already covered.'
     },
     {
       icon: 'shopping-bag',
-      title: 'Packing',
-      description: 'Build packing lists and track what is packed and what is missing. Download and print packing lists as PDF files.'
+      title: 'Pack with fewer forgotten items',
+      description: 'Build clear packing lists, track what is packed and what is still missing, and keep everything ready before the trip instead of checking scattered notes at the last minute.'
     },
     {
       icon: 'sun',
@@ -57,7 +57,7 @@ export class LandingNewUserComponent implements OnInit {
     {
       icon: 'bars',
       title: 'Coming soon',
-      description: 'In the near future route planning, expense tracking, travel notes and activities will be implemented'
+      description: 'Plantour is growing beyond packing lists with upcoming tools for route planning, travel notes, activities, and expense tracking.'
     }
   ];
 
