@@ -7,10 +7,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { UsersService } from '../../../services/users-service';
 import { MessagesService } from '../../../services/messages-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
-import { ComponentService } from '../../../services/component-service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
-import { catchError, EMPTY, finalize } from 'rxjs';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
@@ -39,9 +36,6 @@ export class PackFormComponent implements OnInit {
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
   localStorageService = inject(LocalStorageService);
-  componentService = inject(ComponentService);
-
-  isLoading = toSignal(this.componentService.loading$);
 
   mode: 'add' | 'edit' = 'add';
   id: string | null = null;
@@ -72,12 +66,7 @@ export class PackFormComponent implements OnInit {
   private loadPack(): void {
     if (!this.id) return;
 
-    this.componentService.updateLoading(true);
-    this.service.getById(this.id).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.getById(this.id).subscribe({
       next: (pack: PackageDto) => {
         this.form.patchValue({
           name: pack.name,
@@ -88,10 +77,6 @@ export class PackFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.isLoading()) {
-      return;
-    }
-
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.messagesService.showWarning('Please fill in all required fields correctly');
@@ -113,12 +98,7 @@ export class PackFormComponent implements OnInit {
       notes: formValue.notes?.trim() || undefined
     };
 
-    this.componentService.updateLoading(true);
-    this.service.add(request).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    )
+    this.service.add(request)
       .subscribe({
         next: (pack: PackageDto) => {
           this.localStorageService.setComponentKey('packs', 'selectedId', pack.id);
@@ -139,12 +119,7 @@ export class PackFormComponent implements OnInit {
       notes: formValue.notes?.trim() || undefined
     };
 
-    this.componentService.updateLoading(true);
-    this.service.update(request).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    )
+    this.service.update(request)
       .subscribe({
         next: () => {
           this.localStorageService.setComponentKey('packs', 'selectedId', this.id!);

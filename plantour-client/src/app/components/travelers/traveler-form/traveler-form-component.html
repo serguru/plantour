@@ -95,7 +95,7 @@
         [onSubmit]="!isReadOnlyMode ? onSubmit.bind(this) : null"
         submitLabel="Submit"
         submitIcon="save"
-        [submitDisabled]="isLoading() || form.invalid"
+        [submitDisabled]="form.invalid"
       >
       </app-form-actions>
     </form>

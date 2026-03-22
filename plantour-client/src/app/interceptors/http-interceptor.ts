@@ -1,7 +1,8 @@
 import { HttpErrorResponse, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, filter, finalize, switchMap, take, throwError } from 'rxjs';
 import { UsersService } from '../services/users-service';
+import { LoadingService } from '../services/loading-service';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<any>(null);
@@ -43,6 +44,7 @@ const handle401Error = (request: HttpRequest<any>, next: HttpHandlerFn, usersSer
 
 export const httpInterceptor: HttpInterceptorFn = (req, next) => {
     const usersService = inject(UsersService);
+    const loadingService = inject(LoadingService);
     const token = usersService.accessToken;
 
     let authReq = req;
@@ -50,6 +52,7 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
         authReq = addTokenHeader(req, token);
     }
 
+    loadingService.start();
     return next(authReq).pipe(
         catchError((error: HttpErrorResponse) => {
             // If error is 401, handle token refresh
@@ -57,6 +60,7 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
                 return handle401Error(authReq, next, usersService);
             }
             return throwError(() => error);
-        })
+        }),
+        finalize(() => loadingService.stop())
     );
 };

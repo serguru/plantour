@@ -11,7 +11,7 @@ import { AppService } from '../../services/app-service';
 import { TripDto, TripService } from '../../services/trip-service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ComponentService } from '../../services/component-service';
-import { catchError, finalize, switchMap, tap, throwError } from 'rxjs';
+import { catchError, switchMap, tap, throwError } from 'rxjs';
 import { Condition, Target, TargetCondition, TargetMode } from '../../services/dynamic-query-service';
 import { LocalStorageService } from '../../services/local-storage-service';
 import { CurrentTripService } from '../../services/current-trip-service';
@@ -131,8 +131,6 @@ export class TravelersComponent implements OnInit {
 
     this.componentService.updateComponentId(this.componentId);
 
-    this.componentService.updateLoading(true);
-
     this.tripService.getAll().pipe(
       tap((trips: TripDto[]) => {
         this.initConditions(this.componentId, trips);
@@ -150,10 +148,8 @@ export class TravelersComponent implements OnInit {
       ),
       tap((participants: AdminsParticipantDto[]) => {
         this.initSavedFeatures(participants);
-        this.componentService.updateLoading(false)
       }),
       catchError(err => {
-        this.componentService.updateLoading(false)
         return throwError(() => err);
       }),
       takeUntilDestroyed(this.destroyRef),

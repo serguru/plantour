@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { distinctUntilChanged, Subject, takeUntil } from 'rxjs';
-import { ComponentService } from '../../services/component-service';
+import { LoadingService } from '../../services/loading-service';
 
 @Component({
   selector: 'app-loading',
@@ -10,7 +10,7 @@ import { ComponentService } from '../../services/component-service';
   styleUrl: './loading-component.scss',
 })
 export class LoadingComponent implements OnDestroy {
-  private componentService = inject(ComponentService);
+  private loadingService = inject(LoadingService);
   private destroy$ = new Subject<void>();
 
   // Controls whether the overlay is in the DOM
@@ -22,7 +22,7 @@ export class LoadingComponent implements OnDestroy {
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
-    this.componentService.loading$.pipe(
+    this.loadingService.loading$.pipe(
       distinctUntilChanged(),
       takeUntil(this.destroy$)
     ).subscribe(loading => {

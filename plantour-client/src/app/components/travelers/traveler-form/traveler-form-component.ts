@@ -8,13 +8,11 @@ import { AdminsParticipantService, AdminsParticipantDto, UpdateAdminsParticipant
 import { UsersService } from '../../../services/users-service';
 import { MessagesService } from '../../../services/messages-service';
 import { SignUpParticipantRequest } from '../../../models/auth.models';
-import { EMPTY, finalize, switchMap, mergeMap } from 'rxjs';
+import { EMPTY, switchMap, mergeMap } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
-import { ComponentService } from '../../../services/component-service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
 import { LocalStorageService } from '../../../services/local-storage-service';
 
@@ -43,9 +41,6 @@ export class TravelerFormComponent implements OnInit {
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
   localStorageService = inject(LocalStorageService);
-  componentService = inject(ComponentService);
-
-  isLoading = toSignal(this.componentService.loading$);
 
   mode: 'add' | 'edit' | 'view' = 'view';
   id: string | null = null;
@@ -94,12 +89,7 @@ export class TravelerFormComponent implements OnInit {
       throw new Error('Traveler Id is required in edit/view mode');
     }
 
-    this.componentService.updateLoading(true);
-    this.service.getById(this.id).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.getById(this.id).subscribe({
       next: (traveler: AdminsParticipantDto) => {
         this.participantId = traveler.id;
         this.form.patchValue({
@@ -114,7 +104,7 @@ export class TravelerFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.isLoading() || this.isReadOnlyMode) {
+    if (this.isReadOnlyMode) {
       return;
     }
 
@@ -141,8 +131,6 @@ export class TravelerFormComponent implements OnInit {
       phone: formValue.phone?.trim() || undefined,
       notes: formValue.notes?.trim() || undefined
     };
-
-    this.componentService.updateLoading(true);
 
     this.service.checkParticipantByEmail(request.email).pipe(
       switchMap(async (result: CheckParticipantResponse) => {
@@ -183,9 +171,6 @@ export class TravelerFormComponent implements OnInit {
         return this.service.add(request);
       }),
       mergeMap(result => result),
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
     ).subscribe({
       next: (traveler: AdminsParticipantDto) => {
         this.localStorageService.setComponentKey('travelers', 'selectedId', traveler.id);
@@ -205,12 +190,7 @@ export class TravelerFormComponent implements OnInit {
       notes: formValue.notes?.trim() || null
     };
 
-    this.componentService.updateLoading(true);
-    this.service.update(request).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.update(request).subscribe({
       next: () => {
         this.localStorageService.setComponentKey('travelers', 'selectedId', this.id!);
         this.messagesService.showInfo('Traveler updated successfully');

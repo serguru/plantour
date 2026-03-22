@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { MessagesService } from '../../services/messages-service';
 import { AppService } from '../../services/app-service';
 import { ComponentService } from '../../services/component-service';
+import { LoadingService } from '../../services/loading-service';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { DynamicQueryService } from '../../services/dynamic-query-service';
@@ -62,7 +63,7 @@ export class EntitiesComponent implements OnInit {
   target = toSignal(this.componentService.target$, { initialValue: null });
   
 
-  loading = toSignal(this.componentService.loading$, { initialValue: false });
+  loading = toSignal(inject(LoadingService).loading$, { initialValue: false });
 
   emptyText = computed(() => {
     if (this.loading()) {

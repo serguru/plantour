@@ -14,10 +14,8 @@ import { InputNumber } from 'primeng/inputnumber';
 import { UsersService } from '../../../services/users-service';
 import { MessagesService } from '../../../services/messages-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
-import { ComponentService } from '../../../services/component-service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
-import { combineLatest, finalize, map } from 'rxjs';
+import { combineLatest, map } from 'rxjs';
 import { TripPackageService } from '../../../services/trip-package-service';
 import { allTogetherValidator } from '../../../helpers/all-together-validator';
 import { ThingService } from '../../../services/thing-service';
@@ -51,10 +49,8 @@ export class TripThingFormComponent implements OnInit {
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
   localStorageService = inject(LocalStorageService);
-  componentService = inject(ComponentService);
   lookupService = inject(LookupService);
 
-  isLoading = toSignal(this.componentService.loading$);
   lookupCategories$;
    
   lookupTripThings$;
@@ -173,12 +169,7 @@ export class TripThingFormComponent implements OnInit {
   private loadThing(): void {
     if (!this.id) return;
 
-    this.componentService.updateLoading(true);
-    this.service.getById(this.id, this.tripId!).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.getById(this.id, this.tripId!).subscribe({
       next: (pack: TripThingDto) => {
         this.form.patchValue({
           name: pack.name,
@@ -193,10 +184,6 @@ export class TripThingFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.isLoading()) {
-      return;
-    }
-
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.messagesService.showWarning('Please fill in all required fields correctly');
@@ -221,12 +208,7 @@ export class TripThingFormComponent implements OnInit {
       tripUserPackageId: formValue.tripUserPackageId || null,
     };
 
-    this.componentService.updateLoading(true);
-    this.service.add(request).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.add(request).subscribe({
       next: (thing: TripThingDto) => {
         this.localStorageService.setComponentKey('trip-things', 'selectedId', thing.id);
         this.messagesService.showInfo('Item added successfully');
@@ -250,12 +232,7 @@ export class TripThingFormComponent implements OnInit {
       tripUserPackageId: formValue.tripUserPackageId || null,
     };
 
-    this.componentService.updateLoading(true);
-    this.service.update(request).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.update(request).subscribe({
       next: () => {
         this.localStorageService.setComponentKey('trip-things', 'selectedId', this.id!);
         this.messagesService.showInfo('Item updated successfully');

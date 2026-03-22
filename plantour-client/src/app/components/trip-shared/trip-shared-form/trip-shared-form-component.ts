@@ -7,8 +7,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { Select, SelectChangeEvent } from 'primeng/select';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { LookupService } from '../../../services/lookup-service';
-import { combineLatest, finalize, map, Observable } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { combineLatest, map, Observable } from 'rxjs';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormActions } from '../../form/form-actions/form-actions';
@@ -17,7 +16,6 @@ import { ThingService } from '../../../services/thing-service';
 import { UsersService } from '../../../services/users-service';
 import { MessagesService } from '../../../services/messages-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
-import { ComponentService } from '../../../services/component-service';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
 import { allTogetherValidator } from '../../../helpers/all-together-validator';
 
@@ -63,10 +61,7 @@ export class TripSharedFormComponent implements OnInit {
   usersService = inject(UsersService);
   messagesService = inject(MessagesService);
   localStorageService = inject(LocalStorageService);
-  componentService = inject(ComponentService);
   lookupService = inject(LookupService);
-
-  isLoading = toSignal(this.componentService.loading$);
 
   lookupCategories$;
   lookupTripThings$;
@@ -182,12 +177,7 @@ export class TripSharedFormComponent implements OnInit {
   private loadThing(): void {
     if (!this.id) return;
 
-    this.componentService.updateLoading(true);
-    this.service.getById(this.id, this.tripId!).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.getById(this.id, this.tripId!).subscribe({
       next: (pack: TripSharedDto) => {
         this.form.patchValue({
           name: pack.name,
@@ -201,10 +191,6 @@ export class TripSharedFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.isLoading()) {
-      return;
-    }
-
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.messagesService.showWarning('Please fill in all required fields correctly');
@@ -228,12 +214,7 @@ export class TripSharedFormComponent implements OnInit {
       value: formValue.value || null
     };
 
-    this.componentService.updateLoading(true);
-    this.service.add(request).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.add(request).subscribe({
       next: (thing: TripSharedDto) => {
         this.localStorageService.setComponentKey('trip-shared', 'selectedId', thing.id);
         this.messagesService.showInfo('Shared Item added successfully');
@@ -256,12 +237,7 @@ export class TripSharedFormComponent implements OnInit {
       value: formValue.value || null
     };
 
-    this.componentService.updateLoading(true);
-    this.service.update(request).pipe(
-      finalize(() => {
-        this.componentService.updateLoading(false);
-      })
-    ).subscribe({
+    this.service.update(request).subscribe({
       next: () => {
         this.localStorageService.setComponentKey('trip-shared', 'selectedId', this.id!);
         this.messagesService.showInfo('Shared Item updated successfully');

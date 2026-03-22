@@ -6,8 +6,6 @@ import { LoadingComponent } from './components/loading/loading-component';
 import { AppService } from './services/app-service';
 import { debounceTime, filter, fromEvent, Subject, takeUntil } from 'rxjs';
 import { Toolbar } from './components/toolbar/toolbar-component';
-import { ComponentService } from './services/component-service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { environment } from '../environments/environment';
 
 @Component({
@@ -25,8 +23,6 @@ export class AppComponent implements OnInit {
   }
 
   appService = inject(AppService);
-  componentService = inject(ComponentService);
-  loading = toSignal(this.componentService.loading$, { initialValue: true });
 
   onActivate($componentRef: any) {
     this.appService.routeActivated.next($componentRef);

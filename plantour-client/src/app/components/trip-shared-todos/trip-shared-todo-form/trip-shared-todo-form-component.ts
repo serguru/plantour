@@ -2,8 +2,8 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, finalize, map } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { combineLatest, map } from 'rxjs';
+import { LookupService } from '../../../services/lookup-service';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select, SelectChangeEvent } from 'primeng/select';
@@ -11,8 +11,6 @@ import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
-import { LookupService } from '../../../services/lookup-service';
-import { ComponentService } from '../../../services/component-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
 import { MessagesService } from '../../../services/messages-service';
 import { CreateTripSharedTodoRequest, TripSharedTodoDto, TripSharedTodoService, UpdateTripSharedTodoRequest } from '../../../services/trip-shared-todo-service';
@@ -44,10 +42,8 @@ export class TripSharedTodoFormComponent implements OnInit {
   todoService = inject(TodoService);
   messagesService = inject(MessagesService);
   localStorageService = inject(LocalStorageService);
-  componentService = inject(ComponentService);
   lookupService = inject(LookupService);
 
-  isLoading = toSignal(this.componentService.loading$);
   lookupCategories$;
   lookupTripTodos$;
 
@@ -131,10 +127,7 @@ export class TripSharedTodoFormComponent implements OnInit {
       return;
     }
 
-    this.componentService.updateLoading(true);
-    this.service.getById(this.id, this.tripId!).pipe(
-      finalize(() => this.componentService.updateLoading(false))
-    ).subscribe({
+    this.service.getById(this.id, this.tripId!).subscribe({
       next: (todo: TripSharedTodoDto) => {
         this.form.patchValue({
           name: todo.name,
@@ -146,9 +139,6 @@ export class TripSharedTodoFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.isLoading()) {
-      return;
-    }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.messagesService.showWarning('Please fill in all required fields correctly');
@@ -170,10 +160,7 @@ export class TripSharedTodoFormComponent implements OnInit {
       notes: formValue.notes?.trim() || undefined,
     };
 
-    this.componentService.updateLoading(true);
-    this.service.add(request).pipe(
-      finalize(() => this.componentService.updateLoading(false))
-    ).subscribe({
+    this.service.add(request).subscribe({
       next: (todo: TripSharedTodoDto) => {
         this.localStorageService.setComponentKey('trip-shared-todos', 'selectedId', todo.id);
         this.messagesService.showInfo('Shared todo added successfully');
@@ -196,10 +183,7 @@ export class TripSharedTodoFormComponent implements OnInit {
       notes: formValue.notes?.trim() || undefined,
     };
 
-    this.componentService.updateLoading(true);
-    this.service.update(request).pipe(
-      finalize(() => this.componentService.updateLoading(false))
-    ).subscribe({
+    this.service.update(request).subscribe({
       next: () => {
         this.localStorageService.setComponentKey('trip-shared-todos', 'selectedId', this.id!);
         this.messagesService.showInfo('Shared todo updated successfully');
