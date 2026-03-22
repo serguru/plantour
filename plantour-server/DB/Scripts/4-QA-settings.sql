@@ -10,4 +10,5 @@ values
     ('admin_email', 'admin@plantour.app',  'string'),
     ('support_email', 'support@plantour.app',  'string'),
     ('send_email_user_created', 'true',  'boolean'),
+    ('app_version', '0.0.0',  'string'),
     ('plantour_app_origin', 'https://plantour-client-qa.onrender.com',  'string');
