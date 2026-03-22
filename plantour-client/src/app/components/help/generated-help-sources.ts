@@ -20,7 +20,6 @@ import workflowsWhatIsMainPlantourWorkflowJsonQuestion from './sections/workflow
 import workflowsHowDoIUseDashboardJsonQuestion from './sections/workflows/How do I use dashboard.json';
 import workflowsHowDoIInviteTravelersJsonQuestion from './sections/workflows/How do I invite travelers.json';
 import workflowsHowDoIManageMyBillingJsonQuestion from './sections/workflows/How do I manage my billing.json';
-import workflowsHowDoISearchPlantourForSomethingJsonQuestion from './sections/workflows/How do I search Plantour for something.json';
 import workflowsHowCanISendAMessageToThePlantourAdministrationJsonQuestion from './sections/workflows/How can I send a message to the Plantour administration.json';
 import workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion from './sections/workflows/How do I work with my items dictionary.json';
 import workflowsHowDoIWorkWithMyBagsDictionaryJsonQuestion from './sections/workflows/How do I work with my bags dictionary.json';
@@ -69,7 +68,6 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['workflows/How do I use dashboard.json', workflowsHowDoIUseDashboardJsonQuestion],
   ['workflows/How do I invite travelers.json', workflowsHowDoIInviteTravelersJsonQuestion],
   ['workflows/How do I manage my billing.json', workflowsHowDoIManageMyBillingJsonQuestion],
-  ['workflows/How do I search Plantour for something.json', workflowsHowDoISearchPlantourForSomethingJsonQuestion],
   ['workflows/How can I send a message to the Plantour administration.json', workflowsHowCanISendAMessageToThePlantourAdministrationJsonQuestion],
   ['workflows/How do I work with my items dictionary.json', workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion],
   ['workflows/How do I work with my bags dictionary.json', workflowsHowDoIWorkWithMyBagsDictionaryJsonQuestion],

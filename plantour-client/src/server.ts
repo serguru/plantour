@@ -11,6 +11,8 @@ import { HELP_SITEMAP_PAGES, getHelpPageUrl } from './app/components/help/help-c
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
+const RENDER_HEALTH_CHECK_PATH = '/health';
+const RENDER_HEALTH_CHECK_BODY = 'OK';
 
 const app = express();
 const angularAppEngine = new AngularNodeAppEngine();
@@ -29,11 +31,6 @@ function isAuthPage(path: string): boolean {
   return normalizedPath === '/sign-in'
     || normalizedPath.startsWith('/sign-in/')
     || normalizedPath === '/signin-token';
-}
-
-function isSearchPage(path: string): boolean {
-  const normalizedPath = (path || '/').replace(/\/+$/, '') || '/';
-  return normalizedPath === '/search';
 }
 
 function resolveBaseUrl(req?: express.Request): string {
@@ -114,11 +111,24 @@ function buildSitemapXml(entries: SitemapEntry[]): string {
 }
 
 app.use((req, res, next) => {
-  if (environment.environment !== 'production' || isAuthPage(req.path) || isSearchPage(req.path)) {
+  if (environment.environment !== 'production' || isAuthPage(req.path)) {
     res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
   }
 
   next();
+});
+
+// Render sends GET requests to the configured health-check path and expects a fast 2xx/3xx response.
+app.get(RENDER_HEALTH_CHECK_PATH, (_req, res) => {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
+  res.status(200).send(RENDER_HEALTH_CHECK_BODY);
+});
+
+app.head(RENDER_HEALTH_CHECK_PATH, (_req, res) => {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
+  res.status(200).end();
 });
 
 // 1. Serve static files
@@ -129,13 +139,6 @@ app.use(
     redirect: false,
   }),
 );
-
-// 2. Health Check (Crucial for Render)
-// This gives Render a "dumb" endpoint to hit that doesn't trigger the Angular Engine.
-// If this works, Render will pass the port scan instantly.
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
-});
 
 app.get('/sitemap.xml', (req, res) => {
   const baseUrl = resolveBaseUrl(req);
@@ -155,7 +158,6 @@ app.get('/robots.txt', (req, res) => {
         'Disallow: /sign-in',
         'Disallow: /sign-in/participant',
         'Disallow: /signin-token',
-        'Disallow: /search',
         `Sitemap: ${baseUrl}/sitemap.xml`,
       ]
     : [
