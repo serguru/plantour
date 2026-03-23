@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { HelpAnswerListSection } from '../help-content';
 
 @Component({
   selector: 'app-help-list-answer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './list-answer-component.html',
   styleUrl: '../help-component.scss'
 })

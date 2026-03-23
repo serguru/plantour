@@ -1,11 +1,11 @@
 import { Component, inject, OnDestroy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import { LoadingService } from '../../services/loading-service';
 
 @Component({
   selector: 'app-loading',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './loading-component.html',
   styleUrl: './loading-component.scss',
 })

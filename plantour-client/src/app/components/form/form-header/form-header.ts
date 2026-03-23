@@ -1,5 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { PopoverModule } from 'primeng/popover';
 import { Router } from '@angular/router';
 import { HelpService } from '../../../services/help-service';
@@ -13,9 +13,8 @@ export interface MenuConfig {
 @Component({
   selector: 'app-form-header',
   imports: [
-    CommonModule,
     PopoverModule
-  ],
+],
   templateUrl: './form-header.html',
   styleUrl: './form-header.scss',
 })

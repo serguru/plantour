@@ -15,7 +15,6 @@
     "target": "ES2022",
     "module": "preserve",
     "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
     "noImplicitAny": false
   },
   "angularCompilerOptions": {

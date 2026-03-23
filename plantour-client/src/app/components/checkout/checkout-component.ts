@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { PaddleService } from '../../services/paddle-service';
@@ -14,7 +14,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 @Component({
   selector: 'app-checkout-component',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, InputTextModule, AppButton],
+  imports: [ReactiveFormsModule, InputTextModule, AppButton],
   templateUrl: './checkout-component.html',
   styleUrl: './checkout-component.scss',
 })

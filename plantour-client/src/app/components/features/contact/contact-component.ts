@@ -1,5 +1,5 @@
 import { Component, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { CommonModule, DOCUMENT, Location } from '@angular/common';
+import { DOCUMENT, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -18,14 +18,13 @@ import { BotProtectionService } from '../../../services/bot-protection-service';
   selector: 'app-contact-component',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     ButtonModule,
     InputTextModule,
     PopoverModule,
     AppButton
-  ],
+],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './contact-component.html',
   styleUrl: './contact-component.scss',
