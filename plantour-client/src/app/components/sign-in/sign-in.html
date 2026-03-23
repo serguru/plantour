@@ -60,6 +60,14 @@
 
     @if (isAdmin) {
     <div class="buttons">
+
+      @if (hasGoogleLogin) {
+        <div
+          #googleButtonHost
+          class="google-button-overlay1"
+        ></div>
+        }
+
       @if (hasFacebookLogin) {
       <app-button
         label="Facebook"
@@ -68,24 +76,6 @@
         (click)="onSignInWithFacebook()"
       />
       }
-
-      @if (hasGoogleLogin) {
-      <!-- <div class="google-button-wrapper"> -->
-        <app-button
-          label="Google"
-          [icon]="'pi pi-google'"
-          [disabled]="isLoading"
-        />
-
-        @if (!isLoading) {
-        <div
-          #googleButtonHost
-          class="google-button-overlay"
-        ></div>
-        }
-      <!-- </div> -->
-      }
-
 
     </div>
     }
