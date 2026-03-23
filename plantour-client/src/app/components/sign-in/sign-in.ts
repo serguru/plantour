@@ -6,11 +6,6 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
-import {
-  FacebookLoginProvider,
-  SocialAuthService as LibrarySocialAuthService,
-  SocialUser,
-} from '@abacritt/angularx-social-login';
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
 import { RadioButton } from 'primeng/radiobutton';
@@ -52,7 +47,6 @@ export class SignInComponent implements OnInit {
 
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
-  private socialAuthService = inject(LibrarySocialAuthService);
   private plantourSocialAuthService = inject(PlantourSocialAuthService);
   private botProtectionService = inject(BotProtectionService);
   private fb = inject(FormBuilder);
@@ -280,7 +274,9 @@ export class SignInComponent implements OnInit {
   }
 
   async onSignInWithFacebook(): Promise<void> {
-    if (!this.hasFacebookLogin) {
+    const facebookAppId = this.environment.facebookAppId;
+
+    if (!this.hasFacebookLogin || !facebookAppId) {
       this.messagesService.showWarning('Facebook Login', 'Facebook App ID is not configured.');
       return;
     }
@@ -290,11 +286,9 @@ export class SignInComponent implements OnInit {
     this.successMessage = '';
 
     try {
-      const user = await this.socialAuthService.signIn(FacebookLoginProvider.PROVIDER_ID, {
-        scope: 'email,public_profile',
-      });
-
-      await this.completeSocialSignInFromUser('facebook', user, 'Facebook');
+      await this.plantourSocialAuthService.loadFacebookSdk(facebookAppId);
+      const accessToken = await this.plantourSocialAuthService.loginWithFacebook();
+      await this.completeSocialSignIn('facebook', accessToken, 'Facebook');
     } catch (error: any) {
       this.isLoading = false;
 
@@ -343,13 +337,11 @@ export class SignInComponent implements OnInit {
     return rawMessage || 'Facebook sign in failed. Please try again.';
   }
 
-  private async completeSocialSignInFromUser(
+  private async completeSocialSignIn(
     provider: 'facebook',
-    user: SocialUser,
+    token: string,
     providerName: string
   ): Promise<void> {
-    const token = user.authToken;
-
     if (!token) {
       this.isLoading = false;
       this.errorMessage = `${providerName} authentication token was not returned.`;

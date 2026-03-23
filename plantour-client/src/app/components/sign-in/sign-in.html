@@ -69,12 +69,15 @@
         }
 
       @if (hasFacebookLogin) {
-      <app-button
-        label="Facebook"
-        [icon]="'pi pi-facebook'"
+      <button
+        type="button"
+        class="social-button social-button-facebook"
         [disabled]="isLoading"
         (click)="onSignInWithFacebook()"
-      />
+      >
+        <span class="social-button-icon pi pi-facebook"></span>
+        <span>Continue with Facebook</span>
+      </button>
       }
 
     </div>
