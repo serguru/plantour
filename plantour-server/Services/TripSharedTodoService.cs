@@ -419,6 +419,11 @@ public class TripSharedTodoService(
         DateTime? deadlineAt,
         string entityName)
     {
+        if (participant.Temporary)
+        {
+            return;
+        }
+
         var name = Misc.GenerateFullName(participant.FirstName, participant.LastName);
         name = string.IsNullOrWhiteSpace(name) ? participant.Email : name;
         var key = (participant.Email, name, actionLabel, deadlineAt);

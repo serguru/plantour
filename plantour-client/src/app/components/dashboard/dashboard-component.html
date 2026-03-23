@@ -27,13 +27,13 @@
             <li
                 class="item"
                 [class.expanded]="item.expanded"
-                (click)="toggleItem(item)"
-                role="button"
-                tabindex="0"
-                (keydown.enter)="toggleItem(item)"
-                (keydown.space)="toggleItem(item)"
-                [attr.aria-expanded]="item.expanded"
             >
+                <button
+                    type="button"
+                    class="item-toggle"
+                    (click)="toggleItem(item)"
+                    [attr.aria-expanded]="item.expanded"
+                >
                 <div class="item-header">
                     <div class="item-title-group">
                         <i
@@ -44,6 +44,7 @@
                     </div>
                     <i [class]="item.expanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
                 </div>
+                </button>
 
                 @if (item.expanded) {
                 <div class="item-content">

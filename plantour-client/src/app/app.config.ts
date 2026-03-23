@@ -2,11 +2,6 @@ import { ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners, pr
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideClientHydration } from '@angular/platform-browser';
-import {
-  FacebookLoginProvider,
-  SOCIAL_AUTH_CONFIG,
-  SocialAuthServiceConfig,
-} from '@abacritt/angularx-social-login';
 
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -18,31 +13,10 @@ import { environment } from '../environments/environment';
 import { httpInterceptor } from './interceptors/http-interceptor';
 import { GlobalErrorHandler } from './helpers/error-handler';
 
-const facebookProvider = environment.facebookAppId
-  ? {
-      id: FacebookLoginProvider.PROVIDER_ID,
-      provider: new FacebookLoginProvider(environment.facebookAppId, {
-        scope: 'email,public_profile',
-        fields: 'name,email,picture,first_name,last_name',
-        version: 'v25.0',
-      }),
-    }
-  : null;
-
-const socialAuthConfig: SocialAuthServiceConfig = {
-  autoLogin: false,
-  lang: 'en',
-  providers: [facebookProvider].filter((provider): provider is NonNullable<typeof provider> => provider !== null),
-  onError: (error) => {
-    console.error('Social auth initialization failed', error);
-  },
-};
-
 
 export const appConfig: ApplicationConfig = {
   providers: [
     { provide: ENVIRONMENT, useValue: environment },
-    { provide: SOCIAL_AUTH_CONFIG, useValue: socialAuthConfig },
     provideHttpClient(withInterceptors([httpInterceptor]),withFetch()),
     provideBrowserGlobalErrorListeners(),
     provideClientHydration(),

@@ -2,7 +2,6 @@ import { Injectable, Inject, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, finalize, map, of, shareReplay, tap, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
-import { SocialAuthService as LibrarySocialAuthService } from '@abacritt/angularx-social-login';
 import { AccessRule, AccessToken, AuthResponse, SignInResponse, SignUpParticipantRequest } from '../models/auth.models';
 import { ContactSubmissionRequest, ContactSubmissionDto } from '../models/contact.models';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
@@ -13,6 +12,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { MessagesService } from './messages-service';
 import { getFullName } from '../helpers/utils';
+import { SocialAuthService } from './social-auth-service';
 
 export interface TemporaryUserResponse {
   accessToken: string;
@@ -60,7 +60,7 @@ export class UsersService {
   appService = inject(AppService);
   botProtectionService = inject(BotProtectionService);
   localStorageService = inject(LocalStorageService);
-  private socialAuthService = inject(LibrarySocialAuthService);
+  private socialAuthService = inject(SocialAuthService);
 
 
   //currentTripService = inject(CurrentTripService);
@@ -336,9 +336,7 @@ export class UsersService {
     this.updateUser(null);
     this.writeAccessToken(null);
     this.writeRefreshToken(null);
-    window.google?.accounts?.id?.disableAutoSelect?.();
-
-    void this.socialAuthService.signOut().catch(() => undefined);
+    this.socialAuthService.signOut();
   }
 
   resendSignIn(email: string): Observable<any> {

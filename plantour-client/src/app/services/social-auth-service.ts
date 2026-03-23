@@ -15,6 +15,7 @@ export class SocialAuthService {
   private googleSdkPromise?: Promise<void>;
   private facebookSdkPromise?: Promise<void>;
   private googleClientId?: string;
+  private facebookAppId?: string;
   private googleCredentialHandler?: (idToken: string) => void;
 
   loadGoogleSdk(): Promise<void> {
@@ -82,7 +83,7 @@ export class SocialAuthService {
   }
 
   loadFacebookSdk(appId: string): Promise<void> {
-    if (window.FB?.login) {
+    if (window.FB?.login && this.facebookAppId === appId) {
       return Promise.resolve();
     }
 
@@ -90,19 +91,31 @@ export class SocialAuthService {
       return this.facebookSdkPromise;
     }
 
+    this.facebookAppId = appId;
     this.facebookSdkPromise = new Promise<void>((resolve, reject) => {
       window.fbAsyncInit = () => {
         window.FB.init({
           appId,
           cookie: true,
           xfbml: false,
-          version: 'v24.0'
+          version: 'v25.0'
         });
-        resolve();
+
+        window.FB.getLoginStatus(() => resolve());
       };
 
       const existing = document.querySelector('script[data-social-sdk="facebook"]') as HTMLScriptElement | null;
       if (existing) {
+        if (window.FB?.login) {
+          window.fbAsyncInit();
+          return;
+        }
+
+        existing.addEventListener('load', () => {
+          if (window.FB?.login) {
+            window.fbAsyncInit?.();
+          }
+        }, { once: true });
         existing.addEventListener('error', () => reject(new Error('Failed to load Facebook SDK')), { once: true });
         return;
       }
@@ -111,7 +124,13 @@ export class SocialAuthService {
       script.src = 'https://connect.facebook.net/en_US/sdk.js';
       script.async = true;
       script.defer = true;
+      script.crossOrigin = 'anonymous';
       script.dataset['socialSdk'] = 'facebook';
+      script.onload = () => {
+        if (window.FB?.login) {
+          window.fbAsyncInit?.();
+        }
+      };
       script.onerror = () => reject(new Error('Failed to load Facebook SDK'));
       document.head.appendChild(script);
     });
@@ -126,15 +145,38 @@ export class SocialAuthService {
         return;
       }
 
-      window.FB.login((response: any) => {
-        const accessToken = response?.authResponse?.accessToken;
-        if (!accessToken) {
-          reject(new Error('Facebook authentication was cancelled'));
+      window.FB.getLoginStatus((statusResponse: any) => {
+        const existingAccessToken = statusResponse?.authResponse?.accessToken;
+        if (statusResponse?.status === 'connected' && existingAccessToken) {
+          resolve(existingAccessToken);
           return;
         }
 
-        resolve(accessToken);
-      }, { scope: 'email,public_profile' });
+        window.FB.login((response: any) => {
+          const accessToken = response?.authResponse?.accessToken;
+          if (!accessToken) {
+            reject(new Error('Facebook authentication was cancelled'));
+            return;
+          }
+
+          resolve(accessToken);
+        }, { scope: 'email,public_profile' });
+      });
+    });
+  }
+
+  signOut(): void {
+    window.google?.accounts?.id?.disableAutoSelect?.();
+
+    const facebookStatus = window.FB?.getLoginStatus;
+    if (!facebookStatus) {
+      return;
+    }
+
+    facebookStatus((response: any) => {
+      if (response?.status === 'connected') {
+        window.FB?.logout?.(() => undefined);
+      }
     });
   }
 }

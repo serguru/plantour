@@ -60,32 +60,25 @@
 
     @if (isAdmin) {
     <div class="buttons">
-      @if (hasFacebookLogin) {
-      <app-button
-        label="Facebook"
-        [icon]="'pi pi-facebook'"
-        [disabled]="isLoading"
-        (click)="onSignInWithFacebook()"
-      />
-      }
 
       @if (hasGoogleLogin) {
-      <!-- <div class="google-button-wrapper"> -->
-        <app-button
-          label="Google"
-          [icon]="'pi pi-google'"
-          [disabled]="isLoading"
-        />
-
-        @if (!isLoading) {
         <div
           #googleButtonHost
-          class="google-button-overlay"
+          class="google-button-overlay1"
         ></div>
         }
-      <!-- </div> -->
-      }
 
+      @if (hasFacebookLogin) {
+      <button
+        type="button"
+        class="social-button social-button-facebook"
+        [disabled]="isLoading"
+        (click)="onSignInWithFacebook()"
+      >
+        <span class="social-button-icon pi pi-facebook"></span>
+        <span>Continue with Facebook</span>
+      </button>
+      }
 
     </div>
     }
