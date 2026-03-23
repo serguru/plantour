@@ -258,7 +258,7 @@ public class TripUserService(
         foreach (var participant in participants)
         {
             var recipientEmail = participant.Participant.Email;
-            if (string.IsNullOrWhiteSpace(recipientEmail))
+            if (string.IsNullOrWhiteSpace(recipientEmail) || participant.Participant.Temporary)
             {
                 continue;
             }

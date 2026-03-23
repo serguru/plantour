@@ -39,6 +39,11 @@ public class InvitationService(
             throw new CustomException("Cannot send invitation to a participant with non-active access type");
         }
 
+        if (adminParticipant.Participant.Temporary)
+        {
+            throw new CustomException("Cannot send invitation to a temporary user");
+        }
+
         var accessUrl = $"{baseUrl}/dashboard?accessToken={Uri.EscapeDataString(authResponse.AccessToken)}&refreshToken={authResponse.RefreshToken}";
 
         var participantFullName = string.Join(' ', new[] { adminParticipant.Participant.FirstName, adminParticipant.Participant.LastName }.Where(x => !string.IsNullOrWhiteSpace(x)));
