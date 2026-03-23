@@ -171,7 +171,7 @@ app.get('/robots.txt', (req, res) => {
 });
 
 // 3. Handle Angular Rendering
-app.get('/*path', (req, res, next) => {
+app.get('/{*path}', (req, res, next) => {
   angularAppEngine
     .handle(req)
     .then((response) =>
