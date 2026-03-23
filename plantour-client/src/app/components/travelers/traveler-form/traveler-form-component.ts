@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { CommonModule } from '@angular/common';
+
 import { AdminsParticipantService, AdminsParticipantDto, UpdateAdminsParticipantRequest, CheckParticipantResponse, CheckParticipantStatus } from '../../../services/admins-participant-service';
 import { UsersService } from '../../../services/users-service';
 import { MessagesService } from '../../../services/messages-service';
@@ -20,7 +20,6 @@ import { LocalStorageService } from '../../../services/local-storage-service';
   selector: 'app-traveler-form-component',
   standalone: true,
   imports: [
-    CommonModule,
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
@@ -28,7 +27,7 @@ import { LocalStorageService } from '../../../services/local-storage-service';
     AutoFocusDirective,
     FormHeader,
     FormActions
-  ],
+],
   templateUrl: './traveler-form-component.html',
   styleUrl: './traveler-form-component.scss',
 })

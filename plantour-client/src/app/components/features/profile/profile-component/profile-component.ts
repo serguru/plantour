@@ -1,5 +1,5 @@
 import { Component, Inject, computed, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -18,14 +18,13 @@ import { Router, RouterLink } from '@angular/router';
   selector: 'app-profile-component',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     ButtonModule,
     InputTextModule,
     PopoverModule,
     AppButton
-  ],
+],
   templateUrl: './profile-component.html',
   styleUrl: './profile-component.scss',
 })

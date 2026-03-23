@@ -4,7 +4,7 @@ import { FormControl, ReactiveFormsModule, Validators, FormGroup, FormBuilder } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { CommonModule } from '@angular/common';
+
 import { LookupService, TripStatusDto } from '../../../services/lookup-service';
 import { MessagesService } from '../../../services/messages-service';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
@@ -20,7 +20,6 @@ import { dateRangeValidator } from '../../../helpers/date-range-validator';
 @Component({
   selector: 'app-trip-form-component',
   imports: [
-    CommonModule,
     InputTextModule,
     ReactiveFormsModule,
     TextareaModule,
@@ -29,7 +28,7 @@ import { dateRangeValidator } from '../../../helpers/date-range-validator';
     FormActions,
     DatePicker,
     Select
-  ],
+],
   standalone: true,
   templateUrl: './trip-form-component.html'
 })

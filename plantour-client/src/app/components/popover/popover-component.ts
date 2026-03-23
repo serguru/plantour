@@ -1,13 +1,13 @@
 
 import { Component, Input, ViewChild, TemplateRef, ViewContainerRef, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 
 @Component({
   selector: 'app-popover',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './popover-component.html',
   styleUrl: './popover-component.scss',
 })

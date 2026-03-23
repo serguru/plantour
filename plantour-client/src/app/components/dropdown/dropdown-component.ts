@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { AfterViewInit, Component, ElementRef, EventEmitter, forwardRef, HostListener, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { PopoverComponent } from '../popover/popover-component';
@@ -6,7 +6,7 @@ import { PopoverComponent } from '../popover/popover-component';
 @Component({
   selector: 'app-dropdown',
   standalone: true,
-  imports: [CommonModule, PopoverComponent],
+  imports: [PopoverComponent],
   templateUrl: './dropdown-component.html',
   styleUrl: './dropdown-component.scss',
   providers: [

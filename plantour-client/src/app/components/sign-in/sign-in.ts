@@ -1,5 +1,5 @@
 import { Component, ElementRef, Inject, inject, OnInit, ViewChild } from '@angular/core';
-import { CommonModule, DOCUMENT, Location } from '@angular/common';
+import { DOCUMENT, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -27,15 +27,14 @@ import { SocialAuthService as PlantourSocialAuthService } from '../../services/s
   selector: 'app-sign-in',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
     RadioButton,
     FormsModule,
     AppButton,
-    PasswordModule,
-  ],
+    PasswordModule
+],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.scss',
 })

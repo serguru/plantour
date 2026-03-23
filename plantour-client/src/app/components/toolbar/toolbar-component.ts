@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, computed, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterModule } from '@angular/router';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
@@ -15,13 +15,12 @@ import { MessagesService } from '../../services/messages-service';
 @Component({
   selector: 'app-toolbar',
   imports: [
-    CommonModule,
     MenuModule,
     ButtonModule,
     TooltipModule,
     PopoverModule,
     RouterModule
-  ],
+],
   templateUrl: './toolbar-component.html',
   styleUrl: './toolbar-component.scss',
 })

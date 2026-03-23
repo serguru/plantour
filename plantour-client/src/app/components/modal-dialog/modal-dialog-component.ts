@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Subscription } from 'rxjs';
 
 import { DialogModule } from 'primeng/dialog';
@@ -14,7 +14,7 @@ import {
 @Component({
   selector: 'app-modal-dialog',
   standalone: true,
-  imports: [CommonModule, DialogModule, ButtonModule],
+  imports: [DialogModule, ButtonModule],
   templateUrl: './modal-dialog-component.html',
   styleUrls: ['./modal-dialog-component.scss']
 })
