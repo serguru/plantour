@@ -38,9 +38,10 @@ public class TemporaryUserService : ITemporaryUserService
     private readonly AccessTypeRepository _accessTypeRepository;
 
     private readonly JwtSettings _jwtSettings;
-
+    private readonly AccessCodeGenerator _accessCodeGenerator;
 
     public TemporaryUserService(
+        AccessCodeGenerator accessCodeGenerator,
         IOptions<JwtSettings> jwtSettings,
         UsersRepository usersRepository,
         ITokenService tokenService,
@@ -74,38 +75,25 @@ public class TemporaryUserService : ITemporaryUserService
         _adminsParticipantRepository = adminsParticipantRepository;
         _context = context;
         _mapper = mapper;
-    }
+        _accessCodeGenerator = accessCodeGenerator;
+}
 
     public async Task<CreateTemporaryUserResponse> CreateTemporaryUserAsync()
     {
         // Generate unique email with counter from database
-        string email;
-        int counter;
-
-        // Query all users with Robin.Miles pattern
-        var existingUsers = await _context.Users
-            .Where(u => u.Email.StartsWith("Robin.Miles") && u.Email.EndsWith("@plantour.app"))
-            .Select(u => u.Email)
-            .ToListAsync();
-
-        // Extract counters and find maximum
-        int maxCounter = 1272;
-        foreach (var userEmail in existingUsers)
+        string email = "";
+        for (int i = 0; i < 100; i++)
         {
-            // Extract number from Robin.MilesXXXX@plantour.app
-            var emailPrefix = userEmail.Replace("@plantour.app", "").Replace("Robin.Miles", "");
-            if (int.TryParse(emailPrefix, out int existingCounter))
+            email = $"Robin.Miles.{_accessCodeGenerator.GenerateAccessCode()}@plantour.app";
+            if (!await _usersRepository.AnyAsync(x => x.Email.ToLower() == email.ToLower()))
             {
-                if (existingCounter > maxCounter)
-                {
-                    maxCounter = existingCounter;
-                }
+                break;
+            }
+            if (i == 99)
+            {
+                throw new CustomException("Failed to generate unique Robin.Miles email after multiple attempts");
             }
         }
-
-        // Increment counter and generate email
-        counter = maxCounter + 1;
-        email = $"Robin.Miles{counter:D4}@plantour.app";
 
         // Create temporary user
         var user = new User
