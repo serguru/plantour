@@ -8,7 +8,7 @@ Step 1. DB.
 
 Step 2. API.
 
-- Buy a Docker web service in Render.
+- Buy a Docker web service in Render - done!
 
 - Set  the ASPNETCORE_ENVIRONMENT variable In Render to "pred-prod" (it will be "production" for production)
 
