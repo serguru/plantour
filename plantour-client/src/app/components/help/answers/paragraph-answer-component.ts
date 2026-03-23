@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { HelpAnswerParagraphSection } from '../help-content';
 
 @Component({
   selector: 'app-help-paragraph-answer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './paragraph-answer-component.html',
   styleUrl: '../help-component.scss'
 })

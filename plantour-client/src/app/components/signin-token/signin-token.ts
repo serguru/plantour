@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { UsersService } from '../../services/users-service';
@@ -11,7 +11,7 @@ import { SeoService } from '../../services/seo-service';
 @Component({
   selector: 'app-confirm-email',
   standalone: true,
-  imports: [CommonModule, ButtonModule, AppButton],
+  imports: [ButtonModule, AppButton],
   templateUrl: './signin-token.html',
   styleUrl: './signin-token.scss',
 })

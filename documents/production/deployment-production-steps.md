@@ -11,6 +11,20 @@ Step 2. API.
 
 - Buy a Docker web service in Render.
 
+- Ensure backend relayed stopping SEO measures are in place
+
+    app-pred-prod-settings.json
+    ...
+    ...
+
+- Deploy from pred-prod branch
+
+
+Step 3. Client.
+
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ProgressBarModule } from 'primeng/progressbar';
@@ -64,7 +64,7 @@ export class DashboardComponent implements OnInit {
     this.currentTripService.updateCurrentTripId(event.value);
   }
 
-  items = [
+  items: { id: string; title: string; description: string; icon: string; component: Type<any>; expanded: boolean }[] = [
     {
       id: 'trip-info',
       title: 'Trip info',

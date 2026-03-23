@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { LandingDto, LandingService, PlanDto } from '../../services/landing-service';
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
@@ -31,9 +31,7 @@ interface Plan {
 @Component({
   selector: 'app-plans-panel',
   standalone: true,
-  imports: [
-    CommonModule
-  ],
+  imports: [],
   templateUrl: './plans-panel.component.html',
   styleUrl: './plans-panel.component.scss'
 })

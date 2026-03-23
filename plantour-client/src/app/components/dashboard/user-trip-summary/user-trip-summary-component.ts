@@ -7,7 +7,7 @@ import { BadgeModule } from 'primeng/badge';
 import { TagModule } from 'primeng/tag';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { CardModule } from 'primeng/card';
-import { CommonModule } from '@angular/common';
+
 import { CurrentTripService } from '../../../services/current-trip-service';
 import { map, Observable, of, startWith, switchMap, withLatestFrom } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -16,15 +16,14 @@ import { DashboardService, DashboardTripDto, DashboardUserTripDto } from '../../
 @Component({
   selector: 'app-trip-summary',
   imports: [
-    CommonModule,
     CardModule,
     ProgressBarModule,
     TagModule,
     BadgeModule,
     ButtonModule,
     AvatarModule,
-    DividerModule,
-  ],
+    DividerModule
+],
   templateUrl: './user-trip-summary-component.html',
   styleUrl: './user-trip-summary-component.scss',
 })

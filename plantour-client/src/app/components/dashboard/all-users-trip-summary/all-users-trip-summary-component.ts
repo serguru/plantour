@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { CardModule } from 'primeng/card';
-import { CommonModule } from '@angular/common';
+
 import { map, Observable, of, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardService, DashboardAllUsersTripDto } from '../../../services/dashboard-service';
@@ -10,10 +10,9 @@ import { DashboardService, DashboardAllUsersTripDto } from '../../../services/da
 @Component({
   selector: 'app-all-users-trip-summary',
   imports: [
-    CommonModule,
     CardModule,
-    ProgressBarModule,
-  ],
+    ProgressBarModule
+],
   templateUrl: './all-users-trip-summary-component.html',
   styleUrl: './all-users-trip-summary-component.scss',
 })

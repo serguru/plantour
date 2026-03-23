@@ -1,4 +1,4 @@
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { REQUEST } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
@@ -17,7 +17,7 @@ import {
 @Component({
   selector: 'app-help',
   standalone: true,
-  imports: [CommonModule, RouterLink, EntitiesHeader],
+  imports: [RouterLink, EntitiesHeader],
   templateUrl: './help-component.html',
   styleUrl: './help-component.scss'
 })
