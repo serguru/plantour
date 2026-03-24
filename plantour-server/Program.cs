@@ -577,17 +577,18 @@ try
             }
             else
             {
-                // Use configured origins in production
-                // var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
-                //     ?? Array.Empty<string>();
+                //Use configured origins in production
+                var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>();
 
-                // policy.WithOrigins(allowedOrigins)
-                //       .AllowAnyMethod()
-                //       .AllowAnyHeader()
-                //       .AllowCredentials();
-                policy.AllowAnyOrigin()
+                if (allowedOrigins == null || !allowedOrigins.Any())
+                {
+                    throw new CustomException("No origins allowed in a CORS policy");
+                }
+
+                policy.WithOrigins(allowedOrigins)
                       .AllowAnyMethod()
-                      .AllowAnyHeader();
+                      .AllowAnyHeader()
+                      .AllowCredentials();
             }
         });
     });
