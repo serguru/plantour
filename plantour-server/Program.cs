@@ -198,8 +198,13 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     // Configure Gemini settings
     builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
 
-    var jwtConfig = jwtSettings.Get<JwtSettings>();
-    var key = Encoding.UTF8.GetBytes(jwtConfig!.SecretKey);
+    var jwtConfig = jwtSettings.Get<JwtSettings>()
+        ?? throw new InvalidOperationException(
+            $"JwtSettings configuration section is missing. " +
+            $"ASPNETCORE_ENVIRONMENT='{env.EnvironmentName}'. " +
+            $"Ensure the correct appsettings file is present and ASPNETCORE_ENVIRONMENT is set correctly.");
+    var key = Encoding.UTF8.GetBytes(jwtConfig.SecretKey
+        ?? throw new InvalidOperationException("JwtSettings:SecretKey is null or missing in configuration."));
 
     var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
 
