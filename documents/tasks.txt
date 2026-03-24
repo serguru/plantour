@@ -635,3 +635,9 @@ Get-Content ~/.ssh/id_ed25519.pub
 ssh -L 4200:localhost:10000 srv-d70qibk9c44c73b7119g@ssh.oregon.render.com
 
 I have a web app hosted in Render, .Net API and Angular Client. I set the Client under the Render's maintenance mode. I build the tunnel connection to the Render hosted Client from my local comp. It works, I can access the Client app. But now it does not see the API, even though the API is not under maintenance. How can I fix this?
+
+internal
+postgresql://plantour_production_admin:ft9fvVFevZsCeDk3JJYBIZv6OFQPK4mP@dpg-d70o4mqa214c73fivgd0-a/plantour_production_db
+
+external
+postgresql://plantour_production_admin:ft9fvVFevZsCeDk3JJYBIZv6OFQPK4mP@dpg-d70o4mqa214c73fivgd0-a.oregon-postgres.render.com/plantour_production_db
