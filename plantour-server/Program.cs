@@ -578,13 +578,16 @@ try
             else
             {
                 // Use configured origins in production
-                var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
-                    ?? Array.Empty<string>();
+                // var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
+                //     ?? Array.Empty<string>();
 
-                policy.WithOrigins(allowedOrigins)
+                // policy.WithOrigins(allowedOrigins)
+                //       .AllowAnyMethod()
+                //       .AllowAnyHeader()
+                //       .AllowCredentials();
+                policy.AllowAnyOrigin()
                       .AllowAnyMethod()
-                      .AllowAnyHeader()
-                      .AllowCredentials();
+                      .AllowAnyHeader();
             }
         });
     });
