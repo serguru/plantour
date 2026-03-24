@@ -157,8 +157,8 @@ foreach (var overrideSection in minimumLevelSection.GetSection("Override").GetCh
 
 Serilog.Log.Logger = loggerConfiguration.CreateLogger();
 
-try
-{
+// try
+// {
     Serilog.Log.Information("Starting Plantour API application");
 
     builder.Host.UseSerilog();
@@ -190,7 +190,7 @@ try
     builder.Services.Configure<SocialAuthSettings>(builder.Configuration.GetSection("SocialAuthSettings"));
 
     // Configure Turnstile settings
-    builder.Services.Configure<TurnstileSettings>(builder.Configuration.GetSection("Turnstile"));
+    builder.Services.Configure<TurnstileSettings>(builder.Configuration.GetSection("TurnstileSettings"));
 
     // Configure Brevo settings
     builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("BrevoSettings"));
@@ -640,15 +640,15 @@ try
     app.MapControllers();
 
     app.Run();
-}
-catch (Exception ex)
-{
-    Serilog.Log.Fatal(ex, "Application terminated unexpectedly");
-}
-finally
-{
-    Serilog.Log.CloseAndFlush();
-}
+// }
+// catch (Exception ex)
+// {
+//     Serilog.Log.Fatal(ex, "Application terminated unexpectedly");
+// }
+// finally
+// {
+//     Serilog.Log.CloseAndFlush();
+// }
 
 
 
