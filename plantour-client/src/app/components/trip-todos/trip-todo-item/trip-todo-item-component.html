@@ -1,20 +1,24 @@
-<amazon-link
-    class="ic-2-item ellipsis-text"
-    [item]="entity.name"
-    [linkText]="entity.name"
-></amazon-link>
+<div class="container">
+    <amazon-link
+        class="ic-2-item ellipsis-text"
+        [item]="entity.name"
+        [linkText]="entity.name"
+    ></amazon-link>
 
-@if(entity.category) {
-<span class="ic-2-item ic-2-right ellipsis-text">
-    <div class="category">
-        <amazon-link
-            class="ic-2-item ellipsis-text"
-            [item]="entity.category"
-            [linkText]="entity.category"
-        ></amazon-link>
+    <div class="ic-2-item ic-2-right">
+        @if(entity.category) {
+        <span class="ic-2-item ic-2-right ellipsis-text">
+            <div class="category">
+                <amazon-link
+                    class="ic-2-item ellipsis-text"
+                    [item]="entity.category"
+                    [linkText]="entity.category"
+                ></amazon-link>
+            </div>
+        </span>
+        }
     </div>
-</span>
-}
+</div>
 @if (entity.assignmentStatusText && itemMetaData?.assignmentsVisible()) {
 @if(assigned) {
 <div class="checkboxes-wrapper">

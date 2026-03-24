@@ -1,5 +1,6 @@
 import {
   AngularNodeAppEngine,
+  createNodeRequestHandler,
   isMainModule,
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
@@ -15,7 +16,12 @@ const RENDER_HEALTH_CHECK_PATH = '/health';
 const RENDER_HEALTH_CHECK_BODY = 'OK';
 
 const app = express();
-const angularAppEngine = new AngularNodeAppEngine();
+const _allowedHosts = ['localhost', '127.0.0.1', '::1'];
+try {
+  const envHostname = new URL(environment.clientUrl).hostname;
+  if (envHostname) _allowedHosts.push(envHostname);
+} catch { /* clientUrl is empty or invalid (e.g. production placeholder) */ }
+const angularAppEngine = new AngularNodeAppEngine({ allowedHosts: _allowedHosts });
 
 type SitemapChangeFrequency = 'daily' | 'weekly' | 'monthly' | 'yearly';
 
@@ -199,4 +205,5 @@ if (isMainModule(import.meta.url)) {
   server.headersTimeout = 125000;
 }
 
+export const reqHandler = createNodeRequestHandler(app);
 export default app;
