@@ -166,8 +166,29 @@ public HTTP route.
 
 ### Step-by-step: open an SSH tunnel to the frontend
 
+ssh-keygen -t ed25519 -C "sechevan@gmail.com"
+This generated a SSH key as Render required and stored it in c://Users/Sergey/.ssh
+
+
+Get-Content ~/.ssh/id_ed25519.pub
+This showed the in the terminal. Copy-pasted it to https://dashboard.render.com/u/usr-d65kkmogjchc73f31d30/settings -> SSH public keys
+
+
+ssh -L 4200:localhost:10000 srv-d70qibk9c44c73b7119g@ssh.oregon.render.com
+Afer this navigating to http://localhost:4200/ shows pred-prod Plantour web app
+
+
+For the API
+
+ssh -L 4201:localhost:10000 <api-service-ssh-user>@ssh.oregon.render.com
+
+
+
+
 ```
 ssh -L 4200:localhost:4000 srv-YOURSERVICEID@ssh.oregon.render.com
+ssh -L 4200:localhost:4203 srv-d70qibk9c44c73b7119g@ssh.oregon.render.com
+ssh -L 4200:localhost:4203 srv-d70qibk9c44c73b7119g@ssh.oregon.render.com
 ```
 
 - Replace `srv-YOURSERVICEID` with your frontend service ID from the Render
