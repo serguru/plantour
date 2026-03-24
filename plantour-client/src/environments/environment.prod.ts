@@ -7,6 +7,6 @@ export const environment = {
   clientUrl: '',
   googleClientId: '',
   facebookAppId: '',
-  turnstileSiteKey: '',
+  turnstileSiteKey: '0x4AAAAAACvju5I0imtTiXRv',
   version: '0.0.0'
 };
