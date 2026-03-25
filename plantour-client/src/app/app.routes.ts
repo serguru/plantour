@@ -428,12 +428,6 @@ export const routes: Routes = [
     data: { componentId: 'search' }
   },
   {
-    path: 'test-layout',
-    loadComponent: () => import('./components/test-layout/test-layout-component').then(m => m.TestLayoutComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'test-layout' }
-  },
-  {
     path: '**',
     redirectTo: ''
   }
