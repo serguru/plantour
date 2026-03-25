@@ -1,3 +1,9 @@
+:host {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .confirm-email {
   display: flex;
   align-items: center;

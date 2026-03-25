@@ -8,14 +8,28 @@ $paper: #ffffff;
 $cloud: #f5f8f7;
 $line: #e1eaec;
 
+// :host {
+//   display: block;
+//   font-family: 'Manrope', 'Segoe UI', sans-serif;
+//   background: radial-gradient(1200px 600px at 15% -10%, #e6f4f2 0%, #f5f8f7 45%, #f9fbfb 100%);
+//   color: $ink;
+//   line-height: 1.6;
+//   overflow: auto;
+// }
+
 :host {
-  display: block;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+
   font-family: 'Manrope', 'Segoe UI', sans-serif;
   background: radial-gradient(1200px 600px at 15% -10%, #e6f4f2 0%, #f5f8f7 45%, #f9fbfb 100%);
   color: $ink;
   line-height: 1.6;
-  overflow: auto;
+
 }
+
+
 
 .landing-container {
   max-width: 1120px;
