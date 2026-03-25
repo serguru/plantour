@@ -1,7 +1,7 @@
 :host {
-  display: block;
-  width: 100%;
-  overflow: auto;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .content {

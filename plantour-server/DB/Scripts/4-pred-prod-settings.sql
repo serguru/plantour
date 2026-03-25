@@ -11,4 +11,5 @@ values
     ('support_email', 'support@plantour.app',  'string'),
     ('send_email_user_created', 'true',  'boolean'),
     ('app_version', '2.15.7',  'string'),
+    ('exclude_paths_from_log', 'users/health-check;users/version;version',  'string'),
     ('plantour_app_origin', 'https://plantour-client-production.onrender.com',  'string');

@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using plantour_server.DbModels;
+using plantour_server.Repositories;
 using PlantourApi.Models;
 
 namespace PlantourApi.Middleware;
@@ -18,6 +19,15 @@ public class ApiVisitLoggingMiddleware
         _logger = logger;
     }
 
+    // public List<string> GetNoLogPaths()
+    // {
+    //     object? setting = GetSettingByKey("exclude_paths_from_log") ?? throw new CustomException("exclude_paths_from_log setting not found");
+    //     string s = (string)setting;
+    //     List<string> result = [.. s.Split(";")];
+    //     return result;
+    // }
+
+
     public async Task InvokeAsync(HttpContext context)
     {
         var stopwatch = Stopwatch.StartNew();
@@ -28,6 +38,27 @@ public class ApiVisitLoggingMiddleware
 
         try
         {
+            var settingsRepository = context.RequestServices.GetRequiredService<SettingsRepository>();
+
+            object? setting = await settingsRepository.GetSettingByKey("exclude_paths_from_log") ?? throw new CustomException("exclude_paths_from_log setting not found");
+            string s = (string)setting;
+            List<string> pathsToExclude = [.. s.Split(";")];
+
+
+            string? path = context.Request.Path.HasValue ? context.Request.Path.Value : null;
+
+            if (path == null)
+            {
+                return;
+            }
+
+            path = path.Trim('/');
+
+            if (pathsToExclude.Any(x => String.Equals(x, path, StringComparison.OrdinalIgnoreCase)))
+            {
+                return;
+            }
+
             var db = context.RequestServices.GetRequiredService<PlantourContext>();
             var currentUser = context.Items["CurrentUser"] as CurrentUser;
 

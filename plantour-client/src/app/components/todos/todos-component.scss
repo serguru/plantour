@@ -1,1 +1,5 @@
-/* Todo list styles inherit shared entity layout */
+:host {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}

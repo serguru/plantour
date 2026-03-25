@@ -1,12 +1,12 @@
-<section class="checkout-page">
-	<div class="page-header">
-		<div class="page-left">
-			<i class="pi pi-credit-card"></i>
-			<h2>Secure checkout</h2>
+<div class="page-container">
+		<div class="page-header">
+			<div class="page-left">
+				<i class="pi pi-credit-card"></i>
+				<h2>Secure checkout</h2>
+			</div>
 		</div>
-	</div>
 
-	@if (showCheckout) {
+		@if (showCheckout) {
 		<div class="checkout-actions">
 			<app-button
 				[type]="'button'"
@@ -16,9 +16,9 @@
 				(click)="onBackToFirstScreen()"
 			></app-button>
 		</div>
-	}
+		}
 
-	@if (!showCheckout) {
+		@if (!showCheckout) {
 		<div class="first-view">
 			<div class="controls-wrapper">
 				<form
@@ -40,15 +40,15 @@
 							(keyup)="onEmailInput($event)"
 						/>
 						@if (emailInvalid) {
-							<small class="error-message">Please enter a valid email address</small>
+						<small class="error-message">Please enter a valid email address</small>
 						}
 					</div>
 
 					@if (errorMessage) {
-						<div class="error-alert">
-							<i class="pi pi-exclamation-triangle"></i>
-							<span>{{ errorMessage }}</span>
-						</div>
+					<div class="error-alert">
+						<i class="pi pi-exclamation-triangle"></i>
+						<span>{{ errorMessage }}</span>
+					</div>
 					}
 
 					<div class="form-actions">
@@ -62,15 +62,15 @@
 				</form>
 			</div>
 		</div>
-	}
+		}
 
-	@if (showCheckout && isLoading) {
+		@if (showCheckout && isLoading) {
 		<p class="status">Loading checkout...</p>
-	}
+		}
 
-	@if (showCheckout) {
+		@if (showCheckout) {
 		<div class="checkout-frame-wrapper">
 			<div [class]="checkoutContainerClass"></div>
 		</div>
-	}
-</section>
+		}
+</div>

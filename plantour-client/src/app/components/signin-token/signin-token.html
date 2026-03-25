@@ -1,34 +1,36 @@
-<div class="confirm-email">
-  <div class="card">
-    <h2>Sign In</h2>
+<div class="page-container">
+  <div class="confirm-email">
+    <div class="card">
+      <h2>Sign In</h2>
 
-    @if (isLoading) {
-      <p >Signing you in...</p>
-    } @else {
+      @if (isLoading) {
+      <p>Signing you in...</p>
+      } @else {
 
-    }
-
-
-    @if (successMessage) {
-    <p class="success">
-      {{ successMessage }}
-    </p>
-    }
-
-    @if (errorMessage) {
-    <p class="error">
-      {{ errorMessage }}
-    </p>
-    }
-
-
-    <div class="actions">
-      @if(!isLoading && errorMessage) {
-      <app-button
-        label="Go to sign in"
-        (click)="goToSignIn()"
-      ></app-button>
       }
+
+
+      @if (successMessage) {
+      <p class="success">
+        {{ successMessage }}
+      </p>
+      }
+
+      @if (errorMessage) {
+      <p class="error">
+        {{ errorMessage }}
+      </p>
+      }
+
+
+      <div class="actions">
+        @if(!isLoading && errorMessage) {
+        <app-button
+          label="Go to sign in"
+          (click)="goToSignIn()"
+        ></app-button>
+        }
+      </div>
     </div>
   </div>
 </div>
