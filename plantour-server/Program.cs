@@ -181,10 +181,22 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
         };
     });
 
+// TODO: remove this once ready
+// var appsettingsFileName = $"appsettings.{env.EnvironmentName}.json";
+// var appsettingsFile = Path.Combine(AppContext.BaseDirectory, appsettingsFileName);
+// if (!File.Exists(appsettingsFile))
+//     appsettingsFile = Path.Combine("/etc/secrets", appsettingsFileName);
+// var appsettingsContent = File.Exists(appsettingsFile) ? File.ReadAllText(appsettingsFile) : "(appsettings file not found)";
+// Console.WriteLine(appsettingsContent);
 
     // Configure JWT settings
-    var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+    IConfigurationSection? jwtSettings = builder.Configuration.GetSection("JwtSettings");
     builder.Services.Configure<JwtSettings>(jwtSettings);
+    var jwtConfig = jwtSettings.Get<JwtSettings>()
+        ?? throw new InvalidOperationException(
+            $"JwtSettings configuration section is missing. " +
+            $"ASPNETCORE_ENVIRONMENT='{env.EnvironmentName}'. " +
+            $"Ensure the correct appsettings file is present and ASPNETCORE_ENVIRONMENT is set correctly.");
 
     // Configure Social auth settings
     builder.Services.Configure<SocialAuthSettings>(builder.Configuration.GetSection("SocialAuthSettings"));
@@ -198,8 +210,8 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     // Configure Gemini settings
     builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
 
-    var jwtConfig = jwtSettings.Get<JwtSettings>();
-    var key = Encoding.UTF8.GetBytes(jwtConfig!.SecretKey);
+    var key = Encoding.UTF8.GetBytes(jwtConfig.SecretKey
+        ?? throw new InvalidOperationException("JwtSettings:SecretKey is null or missing in configuration."));
 
     var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
 
