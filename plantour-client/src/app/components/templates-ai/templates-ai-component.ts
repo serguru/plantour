@@ -126,15 +126,19 @@ export class TemplatesAiComponent {
   }
 
   addPromptToLookup = (prompt: string) => {
-    if (!this.prompts) {
-      this.prompts = [];
+    if (!prompt) {
+      return;
     }
     prompt = prompt.trim();
     if (!prompt) {
       return;
     }
 
-    const index = this.prompts.findIndex(p => p.toLowerCase() === prompt.toLowerCase());
+    if (!this.prompts) {
+      this.prompts = [];
+    }
+
+    const index = this.prompts.findIndex(p => p?.toLowerCase() === prompt.toLowerCase());
     if (index === 0) {
       return;
     }

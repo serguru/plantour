@@ -1,7 +1,7 @@
 @if (showNonProductionBanner) {
-  <div class="non-production">
-    {{ environmentName }} environment - test data only
-  </div>
+<div class="non-production">
+  {{ environmentName }} environment - test data only
+</div>
 }
 <app-toolbar></app-toolbar>
 <div class="outlet-container">
@@ -10,6 +10,11 @@
     (deactivate)="onDeactivate($event)"
   >
   </router-outlet>
+  <div class="app-footer">
+    <a href="/help">Help</a>
+    <a href="/search">Search</a>
+    <a href="/terms">Terms of Usage</a>
+  </div>
 </div>
 <app-toast-container></app-toast-container>
 <app-modal-dialog></app-modal-dialog>

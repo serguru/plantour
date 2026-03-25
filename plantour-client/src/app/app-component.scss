@@ -18,3 +18,16 @@ app-toolbar {
   background-color: white;
   color: grey;
 }
+
+.app-footer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: end;
+  padding: 0.3rem;
+  margin-right: 2rem;
+  text-transform: uppercase;
+  font-size: small;
+  background-color: white;
+  color: grey;
+}

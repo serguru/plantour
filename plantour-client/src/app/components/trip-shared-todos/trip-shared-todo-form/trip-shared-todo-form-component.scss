@@ -1,1 +1,5 @@
-/* Shared trip todo form styles inherit shared form layout */
+:host {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
