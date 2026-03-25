@@ -241,7 +241,7 @@ export class UsersService {
   }
 
   clearLocalStorageIfNewUser(newToken: string | null): void {
-    
+
     if (!newToken) {
       return;
     }
@@ -249,7 +249,7 @@ export class UsersService {
     const newUser = jwtDecode<AccessToken>(newToken);
     if (!newUser) {
       return;
-    } 
+    }
 
     const storedUserId = this.localStorageService.getItem('signin-userId');
     if (storedUserId && newUser.user_id && storedUserId != newUser.user_id) {
@@ -456,8 +456,7 @@ export class UsersService {
         this.messagesService.openInfo({
           title: `Welcome to Plantour!`,
           message: `You are now in Guest Access Mode as Robin Miles for ${response.temporaryUserAccessTokenExpirationDays} days. The app works with full features, except you are limited to ${response.itemsLimit} items and ${response.participantsLimit} participants. To get started, add items to your current trip "Weekend in Las Vegas", pack them into bags, and download a packing list. 
-          
-          If you need help, click "help me add trip item". Good luck!
+          If you need help, please follow the link "How to take the first steps." Good luck!
           `
         });
       },
@@ -482,7 +481,7 @@ export class UsersService {
   }
 
   sendInvitationEmail(adminParticipantId: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/users/send-participant-invitation`, 
+    return this.http.post<void>(`${this.apiUrl}/users/send-participant-invitation`,
       {
         adminParticipantId: adminParticipantId
       });
