@@ -182,8 +182,11 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     });
 
 // TODO: remove this once ready
-var appsettingsFile = Path.Combine(AppContext.BaseDirectory, $"appsettings.{env.EnvironmentName}.json");
-var appsettingsContent = File.ReadAllText(appsettingsFile);
+var appsettingsFileName = $"appsettings.{env.EnvironmentName}.json";
+var appsettingsFile = Path.Combine(AppContext.BaseDirectory, appsettingsFileName);
+if (!File.Exists(appsettingsFile))
+    appsettingsFile = Path.Combine("/etc/secrets", appsettingsFileName);
+var appsettingsContent = File.Exists(appsettingsFile) ? File.ReadAllText(appsettingsFile) : "(appsettings file not found)";
 Console.WriteLine(appsettingsContent);
 
 
