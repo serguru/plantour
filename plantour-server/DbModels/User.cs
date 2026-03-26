@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("users", Schema = "plantour")]
+[Table("users", Schema = "plantour_v2")]
 [Index("Email", Name = "users_email_key", IsUnique = true)]
 [Index("FacebookUserId", Name = "users_facebook_user_id_key", IsUnique = true)]
 [Index("GoogleSub", Name = "users_google_sub_key", IsUnique = true)]
@@ -53,6 +53,9 @@ public partial class User
     [Column("participant_code")]
     public string? ParticipantCode { get; set; }
 
+    [Column("currency_id")]
+    public Guid? CurrencyId { get; set; }
+
     [ForeignKey("AccessTypeId")]
     [InverseProperty("Users")]
     public virtual AccessType AccessType { get; set; } = null!;
@@ -68,6 +71,10 @@ public partial class User
 
     [InverseProperty("User")]
     public virtual ICollection<AiPrompt> AiPrompts { get; set; } = new List<AiPrompt>();
+
+    [ForeignKey("CurrencyId")]
+    [InverseProperty("Users")]
+    public virtual Currency? Currency { get; set; }
 
     [InverseProperty("User")]
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();

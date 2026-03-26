@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("communication_types", Schema = "plantour")]
+[Table("communication_types", Schema = "plantour_v2")]
 [Index("Name", Name = "communication_types_name_key", IsUnique = true)]
 public partial class CommunicationType
 {

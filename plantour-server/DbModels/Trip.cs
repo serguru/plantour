@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("trips", Schema = "plantour")]
+[Table("trips", Schema = "plantour_v2")]
 [Index("UserId", "Name", Name = "idx_trips_user_id_name", IsUnique = true)]
 public partial class Trip
 {
@@ -35,8 +35,21 @@ public partial class Trip
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 
+    [Column("currency_id")]
+    public Guid CurrencyId { get; set; }
+
+    [ForeignKey("CurrencyId")]
+    [InverseProperty("Trips")]
+    public virtual Currency Currency { get; set; } = null!;
+
+    [InverseProperty("Trip")]
+    public virtual ICollection<ItineraryPart> ItineraryParts { get; set; } = new List<ItineraryPart>();
+
     [InverseProperty("Trip")]
     public virtual ICollection<TripComment> TripComments { get; set; } = new List<TripComment>();
+
+    [InverseProperty("Trip")]
+    public virtual ICollection<TripSharedExpense> TripSharedExpenses { get; set; } = new List<TripSharedExpense>();
 
     [InverseProperty("Trip")]
     public virtual ICollection<TripSharedThing> TripSharedThings { get; set; } = new List<TripSharedThing>();

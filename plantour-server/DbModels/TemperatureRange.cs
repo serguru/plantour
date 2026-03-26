@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("temperature_ranges", Schema = "plantour")]
+[Table("temperature_ranges", Schema = "plantour_v2")]
 [Index("Name", Name = "temperature_ranges_name_key", IsUnique = true)]
 public partial class TemperatureRange
 {

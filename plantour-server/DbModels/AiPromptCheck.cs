@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("ai_prompt_checks", Schema = "plantour")]
+[Table("ai_prompt_checks", Schema = "plantour_v2")]
 public partial class AiPromptCheck
 {
     [Key]

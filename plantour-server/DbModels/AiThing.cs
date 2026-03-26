@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("ai_things", Schema = "plantour")]
+[Table("ai_things", Schema = "plantour_v2")]
 [Index("PromptId", "Name", Name = "idx_ai_prompts_prompt_id_name", IsUnique = true)]
 public partial class AiThing
 {

@@ -9,7 +9,7 @@ namespace plantour_server.DbModels;
 /// <summary>
 /// stores application log events from serilog framework
 /// </summary>
-[Table("logs", Schema = "plantour")]
+[Table("logs", Schema = "plantour_v2")]
 [Index("Level", Name = "idx_logs_level")]
 [Index("MessageTemplate", Name = "idx_logs_message_template")]
 [Index("TimeStamp", Name = "idx_logs_timestamp", AllDescending = true)]

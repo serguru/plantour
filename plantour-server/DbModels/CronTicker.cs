@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("CronTickers", Schema = "plantour")]
+[Table("CronTickers", Schema = "plantour_v2")]
 [Index("Expression", Name = "IX_CronTickers_Expression")]
 [Index("Function", "Expression", Name = "IX_Function_Expression")]
 public partial class CronTicker

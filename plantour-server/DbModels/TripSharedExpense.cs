@@ -6,9 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("trip_shared_things", Schema = "plantour_v2")]
-[Index("TripId", "Name", Name = "idx_trip_shared_things_trip_id_name", IsUnique = true)]
-public partial class TripSharedThing
+[Table("trip_shared_expenses", Schema = "plantour_v2")]
+public partial class TripSharedExpense
 {
     [Key]
     [Column("id")]
@@ -23,12 +22,15 @@ public partial class TripSharedThing
     [Column("name")]
     public string Name { get; set; } = null!;
 
-    [Column("units")]
-    public string? Units { get; set; }
+    [Column("payment_method")]
+    public string? PaymentMethod { get; set; }
 
-    [Column("value")]
-    [Precision(10, 3)]
-    public decimal? Value { get; set; }
+    [Column("currency_id")]
+    public Guid? CurrencyId { get; set; }
+
+    [Column("amount")]
+    [Precision(19, 2)]
+    public decimal Amount { get; set; }
 
     [Column("notes")]
     public string? Notes { get; set; }
@@ -36,8 +38,8 @@ public partial class TripSharedThing
     [Column("assigned_to_id")]
     public Guid? AssignedToId { get; set; }
 
-    [Column("assigned_thing_id")]
-    public Guid? AssignedThingId { get; set; }
+    [Column("assigned_expense_id")]
+    public Guid? AssignedExpenseId { get; set; }
 
     [Column("assigned_at")]
     public DateTime? AssignedAt { get; set; }
@@ -48,15 +50,19 @@ public partial class TripSharedThing
     [Column("rejected")]
     public bool Rejected { get; set; }
 
-    [ForeignKey("AssignedThingId")]
-    [InverseProperty("TripSharedThings")]
-    public virtual TripUserThing? AssignedThing { get; set; }
+    [ForeignKey("AssignedExpenseId")]
+    [InverseProperty("TripSharedExpenses")]
+    public virtual TripUserExpense? AssignedExpense { get; set; }
 
     [ForeignKey("AssignedToId")]
-    [InverseProperty("TripSharedThings")]
+    [InverseProperty("TripSharedExpenses")]
     public virtual TripUser? AssignedTo { get; set; }
 
+    [ForeignKey("CurrencyId")]
+    [InverseProperty("TripSharedExpenses")]
+    public virtual Currency? Currency { get; set; }
+
     [ForeignKey("TripId")]
-    [InverseProperty("TripSharedThings")]
+    [InverseProperty("TripSharedExpenses")]
     public virtual Trip Trip { get; set; } = null!;
 }

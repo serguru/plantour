@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("trip_status", Schema = "plantour_v2")]
-[Index("Name", Name = "trip_status_name_key", IsUnique = true)]
-public partial class TripStatus
+[Table("payment_methods", Schema = "plantour_v2")]
+[Index("Name", Name = "payment_methods_name_key", IsUnique = true)]
+public partial class PaymentMethod
 {
     [Key]
     [Column("id")]
@@ -16,10 +16,4 @@ public partial class TripStatus
 
     [Column("name")]
     public string Name { get; set; } = null!;
-
-    [Column("notes")]
-    public string? Notes { get; set; }
-
-    [InverseProperty("TripStatus")]
-    public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 }

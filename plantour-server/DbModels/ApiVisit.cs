@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("api_visits", Schema = "plantour")]
+[Table("api_visits", Schema = "plantour_v2")]
 [Index("CreatedAt", Name = "idx_api_visits_created_at", AllDescending = true)]
 [Index("Endpoint", Name = "idx_api_visits_endpoint")]
 [Index("Path", Name = "idx_api_visits_path")]

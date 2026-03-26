@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("invitations", Schema = "plantour")]
+[Table("invitations", Schema = "plantour_v2")]
 public partial class Invitation
 {
     [Key]

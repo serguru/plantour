@@ -11,6 +11,13 @@ create table plantour_v2.currencies (
 insert into plantour_v2.currencies (name) values
 ('AED'),('AFN'),('ALL'),('AMD'),('ANG'),('AOA'),('ARS'),('AUD'),('AWG'),('AZN'),('BAM'),('BBD'),('BDT'),('BGN'),('BHD'),('BIF'),('BMD'),('BND'),('BOB'),('BRL'),('BSD'),('BTN'),('BWP'),('BYN'),('BZD'),('CAD'),('CDF'),('CHF'),('CLP'),('CNY'),('COP'),('CRC'),('CUP'),('CVE'),('CZK'),('DJF'),('DKK'),('DOP'),('DZD'),('EGP'),('ERN'),('ETB'),('EUR'),('FJD'),('FKP'),('GBP'),('GEL'),('GHS'),('GIP'),('GMD'),('GNF'),('GTQ'),('GYD'),('HKD'),('HNL'),('HRK'),('HTG'),('HUF'),('IDR'),('ILS'),('INR'),('IQD'),('IRR'),('ISK'),('JMD'),('JOD'),('JPY'),('KES'),('KGS'),('KHR'),('KMF'),('KPW'),('KRW'),('KWD'),('KYD'),('KZT'),('LAK'),('LBP'),('LKR'),('LRD'),('LSL'),('LYD'),('MAD'),('MDL'),('MGA'),('MKD'),('MMK'),('MNT'),('MOP'),('MRU'),('MUR'),('MVR'),('MWK'),('MXN'),('MYR'),('MZN'),('NAD'),('NGN'),('NIO'),('NOK'),('NPR'),('NZD'),('OMR'),('PAB'),('PEN'),('PGK'),('PHP'),('PKR'),('PLN'),('PYG'),('QAR'),('RON'),('RSD'),('RUB'),('RWF'),('SAR'),('SBD'),('SCR'),('SDG'),('SEK'),('SGD'),('SHP'),('SLL'),('SOS'),('SRD'),('SSP'),('STN'),('SVC'),('SYP'),('SZL'),('THB'),('TJS'),('TMT'),('TND'),('TOP'),('TRY'),('TTD'),('TWD'),('TZS'),('UAH'),('UGX'),('USD'),('UYU'),('UZS'),('VES'),('VND'),('VUV'),('WST'),('XAF'),('XCD'),('XOF'),('XPF'),('YER'),('ZAR'),('ZMW'),('ZWL');
 
+create table plantour_v2.payment_methods (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique
+);
+insert into plantour_v2.payment_methods (name) values
+('cash'),('credit card'),('debit card'),('prepaid card'),('bank transfer'),('direct debit'),('digital wallet'),('mobile pay'),('cryptocurrency'),('buy now pay later'),('wire transfer'),('certified cheque');
+
 -----------------------------------------------------------------------
 -- COMMUNICATION TYPES
 -----------------------------------------------------------------------
@@ -481,7 +488,7 @@ create table trips (
     start_date date not null,
     end_date date not null,
     created_at timestamptz not null default (now() at time zone 'utc'),
-    currency_id uuid null references currencies(id) on delete set null,
+    currency_id uuid not null references currencies(id) on delete set null,
     constraint ch_trips_start_before_end check (
         start_date is null 
         or end_date is null 
@@ -624,9 +631,37 @@ before delete on plantour_v2.trip_users
 for each row
 execute function plantour_v2.prevent_delete_trip_user_with_assigned_shared_entities();
 
+
+-----------------------------------------------------------------------
+-- TRIP USER EXPENSES
+-----------------------------------------------------------------------
+create table trip_user_expenses (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_user_id uuid not null references trip_users(id) on delete cascade,
+    name text not null,
+    payment_method text,
+    currency_id uuid null references currencies(id),
+    rate decimal(19,8) null,
+    amount decimal(19,2) not null check (amount > 0),
+    recipient_id uuid null references trip_users(id) on delete cascade,
+    notes text,
+
+    finished_at timestamptz,
+    finished text null check (finished in ('success', 'failure') or finished is null)
+
+    constraint ch_trip_user_expenses_users check 
+    (
+        recipient_id is null or recipient_id != trip_user_id
+    ),
+    constraint ch_trip_user_expenses_rate check 
+    (
+        (currency_id is null and rate is null) or
+        (currency_id is not null and rate is not null)
+    )
+);
+
 -----------------------------------------------------------------------
 -- TRIP USER PACKAGES
-
 -----------------------------------------------------------------------
 create table trip_user_packages (
     id uuid not null primary key default gen_random_uuid(),
@@ -821,6 +856,76 @@ for each row
 execute function plantour_v2.prevent_delete_referenced_trip_user_todo();
 
 -----------------------------------------------------------------------
+-- TRIP SHARED EXPENSES
+-----------------------------------------------------------------------
+create table trip_shared_expenses (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_id uuid not null references trips(id) on delete cascade,
+    category text,
+    name text not null,
+    payment_method text,
+    currency_id uuid null references currencies(id),
+    amount decimal(19,2) not null check (amount > 0),
+    notes text,
+
+    assigned_to_id uuid null references trip_users(id) on delete set null,
+    assigned_expense_id uuid null references trip_user_expenses(id) on delete set null,
+    assigned_at timestamptz null,
+    assigned_deadline timestamptz null,
+    rejected boolean not null default false
+);
+
+create or replace function plantour_v2.prevent_delete_accepted_trip_shared_expense()
+returns trigger
+language plpgsql
+as $$
+begin
+    if old.assigned_expense_id is not null then
+        raise exception 'accepted shared expense cannot be deleted while assigned; unassign it first';
+    end if;
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_accepted_trip_shared_expense
+before delete on plantour_v2.trip_shared_expenses
+for each row
+execute function plantour_v2.prevent_delete_accepted_trip_shared_expense();
+
+create or replace function plantour_v2.prevent_delete_referenced_trip_user_expense()
+returns trigger
+language plpgsql
+as $$
+begin
+    if exists (
+        select 1
+        from plantour_v2.trip_user_expenses a
+        where a.assigned_expense_id = old.id
+    ) then
+        raise exception 'trip user expense cannot be deleted while referenced by a shared expense; unassign it first';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_referenced_trip_user_expense
+before delete on plantour_v2.trip_user_expenses
+for each row
+execute function plantour_v2.prevent_delete_referenced_trip_user_expense();
+
+
+----------------------------------------------------------------------
+-- TRIP NOTES
+-----------------------------------------------------------------------
+create table trip_notes (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_user_id uuid not null references trip_users(id) on delete cascade,
+    note text not null,
+    created_at timestamptz not null default (now() at time zone 'utc')
+);
+
+----------------------------------------------------------------------
 -- TRIP COMMENTS
 -----------------------------------------------------------------------
 create table trip_comments (

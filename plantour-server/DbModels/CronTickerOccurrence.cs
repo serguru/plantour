@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("CronTickerOccurrences", Schema = "plantour")]
+[Table("CronTickerOccurrences", Schema = "plantour_v2")]
 [Index("CronTickerId", Name = "IX_CronTickerOccurrence_CronTickerId")]
 [Index("ExecutionTime", Name = "IX_CronTickerOccurrence_ExecutionTime")]
 [Index("Status", "ExecutionTime", Name = "IX_CronTickerOccurrence_Status_ExecutionTime")]
