@@ -658,3 +658,6 @@ user_todos table have new fields:
     longitude decimal(9,6) check (longitude is null or longitude between -180 and 180),
 
 Add the necessary backend and frontend code to support these new fields
+
+
+There are two new DB tables: trip_shared_expenses and trip_user_expenses. The idea is to provide customers with an ability to track their trip related expenses, including 1) personal expenses 2) shared expemses 3) ability to calculate shared balance and show who owe what to whom, this should be a pdf report 4) ability to give mobey to other trip paticipant

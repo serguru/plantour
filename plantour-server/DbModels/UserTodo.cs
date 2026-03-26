@@ -23,12 +23,6 @@ public partial class UserTodo
     [Column("name")]
     public string Name { get; set; } = null!;
 
-    [Column("start_date")]
-    public DateTime? StartDate { get; set; }
-
-    [Column("end_date")]
-    public DateTime? EndDate { get; set; }
-
     [Column("address")]
     public string? Address { get; set; }
 

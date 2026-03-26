@@ -49,7 +49,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.insert_trip_user_packages(@adminId, @participantId, @tripId, @packageIds);",
+            "SELECT plantour_v2.insert_trip_user_packages(@adminId, @participantId, @tripId, @packageIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@participantId", participantId),
             new NpgsqlParameter("@tripId", tripId),
@@ -64,7 +64,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.delete_trip_user_packages(@adminId, @participantId, @tripId, @packageIds);",
+            "SELECT plantour_v2.delete_trip_user_packages(@adminId, @participantId, @tripId, @packageIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@participantId", participantId),
             new NpgsqlParameter("@tripId", tripId),
@@ -79,7 +79,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.insert_trip_user_things(@adminId, @participantId, @tripId, @thingIds);",
+            "SELECT plantour_v2.insert_trip_user_things(@adminId, @participantId, @tripId, @thingIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@participantId", participantId),
             new NpgsqlParameter("@tripId", tripId),
@@ -94,7 +94,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.delete_trip_user_things(@adminId, @participantId, @tripId, @thingIds);",
+            "SELECT plantour_v2.delete_trip_user_things(@adminId, @participantId, @tripId, @thingIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@participantId", participantId),
             new NpgsqlParameter("@tripId", tripId),
@@ -109,7 +109,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.insert_trip_user_todos(@adminId, @participantId, @tripId, @todoIds);",
+            "SELECT plantour_v2.insert_trip_user_todos(@adminId, @participantId, @tripId, @todoIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@participantId", participantId),
             new NpgsqlParameter("@tripId", tripId),
@@ -124,7 +124,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.delete_trip_user_todos(@adminId, @participantId, @tripId, @todoIds);",
+            "SELECT plantour_v2.delete_trip_user_todos(@adminId, @participantId, @tripId, @todoIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@participantId", participantId),
             new NpgsqlParameter("@tripId", tripId),
@@ -139,7 +139,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.insert_trip_users(@adminId, @tripId, @adminParticipantIds);",
+            "SELECT plantour_v2.insert_trip_users(@adminId, @tripId, @adminParticipantIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@tripId", tripId),
             new NpgsqlParameter("@adminParticipantIds", adminParticipantIds));
@@ -153,7 +153,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.delete_trip_users(@adminId, @tripId, @adminParticipantIds);",
+            "SELECT plantour_v2.delete_trip_users(@adminId, @tripId, @adminParticipantIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@tripId", tripId),
             new NpgsqlParameter("@adminParticipantIds", adminParticipantIds));
@@ -167,7 +167,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.pack_trip_things(@adminId, @participantId, @tripId, @packageId, @tripThingIds, @unpack);",
+            "SELECT plantour_v2.pack_trip_things(@adminId, @participantId, @tripId, @packageId, @tripThingIds, @unpack);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@participantId", participantId),
             new NpgsqlParameter("@tripId", tripId),
@@ -184,7 +184,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.insert_trip_shared_things(@adminId, @tripId, @thingIds);",
+            "SELECT plantour_v2.insert_trip_shared_things(@adminId, @tripId, @thingIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@tripId", tripId),
             new NpgsqlParameter("@thingIds", thingIds));
@@ -198,7 +198,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.delete_trip_shared_things(@adminId,  @tripId, @thingIds);",
+            "SELECT plantour_v2.delete_trip_shared_things(@adminId,  @tripId, @thingIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@tripId", tripId),
             new NpgsqlParameter("@thingIds", thingIds));
@@ -212,7 +212,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.insert_trip_shared_todos(@adminId, @tripId, @todoIds);",
+            "SELECT plantour_v2.insert_trip_shared_todos(@adminId, @tripId, @todoIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@tripId", tripId),
             new NpgsqlParameter("@todoIds", todoIds));
@@ -226,7 +226,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.delete_trip_shared_todos(@adminId, @tripId, @todoIds);",
+            "SELECT plantour_v2.delete_trip_shared_todos(@adminId, @tripId, @todoIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@tripId", tripId),
             new NpgsqlParameter("@todoIds", todoIds));
@@ -240,7 +240,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.insert_template_trip_shared_things(@adminId, @tripId, @thingIds);",
+            "SELECT plantour_v2.insert_template_trip_shared_things(@adminId, @tripId, @thingIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@tripId", tripId),
             new NpgsqlParameter("@thingIds", thingIds));
@@ -254,7 +254,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.insert_template_ai_trip_shared_things(@adminId, @tripId, @thingIds);",
+            "SELECT plantour_v2.insert_template_ai_trip_shared_things(@adminId, @tripId, @thingIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@tripId", tripId),
             new NpgsqlParameter("@thingIds", thingIds));
@@ -268,7 +268,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.delete_template_trip_shared_things(@adminId,  @tripId, @thingIds);",
+            "SELECT plantour_v2.delete_template_trip_shared_things(@adminId,  @tripId, @thingIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@tripId", tripId),
             new NpgsqlParameter("@thingIds", thingIds));
@@ -282,7 +282,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.delete_template_ai_trip_shared_things(@adminId,  @tripId, @thingIds);",
+            "SELECT plantour_v2.delete_template_ai_trip_shared_things(@adminId,  @tripId, @thingIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@tripId", tripId),
             new NpgsqlParameter("@thingIds", thingIds));
@@ -296,7 +296,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.insert_template_trip_user_things(@adminId, @participantId, @tripId, @thingIds);",
+            "SELECT plantour_v2.insert_template_trip_user_things(@adminId, @participantId, @tripId, @thingIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@participantId", participantId),
             new NpgsqlParameter("@tripId", tripId),
@@ -311,7 +311,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.insert_template_ai_trip_user_things(@adminId, @participantId, @tripId, @thingIds);",
+            "SELECT plantour_v2.insert_template_ai_trip_user_things(@adminId, @participantId, @tripId, @thingIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@participantId", participantId),
             new NpgsqlParameter("@tripId", tripId),
@@ -326,7 +326,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.delete_template_trip_user_things(@adminId, @participantId, @tripId, @thingIds);",
+            "SELECT plantour_v2.delete_template_trip_user_things(@adminId, @participantId, @tripId, @thingIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@participantId", participantId),
             new NpgsqlParameter("@tripId", tripId),
@@ -341,7 +341,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.delete_template_ai_trip_user_things(@adminId, @participantId, @tripId, @thingIds);",
+            "SELECT plantour_v2.delete_template_ai_trip_user_things(@adminId, @participantId, @tripId, @thingIds);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@participantId", participantId),
             new NpgsqlParameter("@tripId", tripId),
@@ -356,7 +356,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.insert_template_user_things(@userId, @thingIds);",
+            "SELECT plantour_v2.insert_template_user_things(@userId, @thingIds);",
             new NpgsqlParameter("@userId", userId),
             new NpgsqlParameter("@thingIds", thingIds));
     }
@@ -369,7 +369,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.insert_template_ai_user_things(@userId, @thingIds);",
+            "SELECT plantour_v2.insert_template_ai_user_things(@userId, @thingIds);",
             new NpgsqlParameter("@userId", userId),
             new NpgsqlParameter("@thingIds", thingIds));
     }
@@ -382,7 +382,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.delete_template_user_things(@userId, @thingIds);",
+            "SELECT plantour_v2.delete_template_user_things(@userId, @thingIds);",
             new NpgsqlParameter("@userId", userId),
             new NpgsqlParameter("@thingIds", thingIds));
     }
@@ -395,7 +395,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.delete_template_ai_user_things(@userId, @thingIds);",
+            "SELECT plantour_v2.delete_template_ai_user_things(@userId, @thingIds);",
             new NpgsqlParameter("@userId", userId),
             new NpgsqlParameter("@thingIds", thingIds));
     }
@@ -408,7 +408,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.assign_trip_shared_things(@adminId, @tripId, @tripUserId, @tripSharedThingIds, @deadlineAt, @unassign);",
+            "SELECT plantour_v2.assign_trip_shared_things(@adminId, @tripId, @tripUserId, @tripSharedThingIds, @deadlineAt, @unassign);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@tripId", tripId),
             new NpgsqlParameter("@tripUserId", tripUserId),
@@ -425,7 +425,7 @@ public class DicTripRepository(PlantourContext context)
         }
 
         return await ExecuteCountFunctionAsync(
-            "SELECT plantour.assign_trip_shared_todos(@adminId, @tripId, @tripUserId, @tripSharedTodoIds, @deadlineAt, @unassign);",
+            "SELECT plantour_v2.assign_trip_shared_todos(@adminId, @tripId, @tripUserId, @tripSharedTodoIds, @deadlineAt, @unassign);",
             new NpgsqlParameter("@adminId", adminId),
             new NpgsqlParameter("@tripId", tripId),
             new NpgsqlParameter("@tripUserId", tripUserId),

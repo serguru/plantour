@@ -242,8 +242,6 @@ begin
         name,
         category,
         notes,
-        start_date,
-        end_date,
         address,
         latitude,
         longitude
@@ -253,8 +251,6 @@ begin
         b.name,
         b.category,
         b.notes,
-        b.start_date,
-        b.end_date,
         b.address,
         b.latitude,
         b.longitude
@@ -538,8 +534,6 @@ begin
         category,
         name,
         notes,
-        start_date,
-        end_date,
         address,
         latitude,
         longitude
@@ -549,8 +543,6 @@ begin
         b.category,
         b.name,
         b.notes,
-        b.start_date,
-        b.end_date,
         b.address,
         b.latitude,
         b.longitude

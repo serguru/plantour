@@ -7,8 +7,6 @@ export interface TodoDto {
   id: string;
   category?: string | null;
   name: string;
-  startDate?: string | null;
-  endDate?: string | null;
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -19,8 +17,6 @@ export interface TodoDto {
 export interface CreateTodoRequest {
   category?: string | null;
   name: string;
-  startDate?: string | null;
-  endDate?: string | null;
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -31,8 +27,6 @@ export interface UpdateTodoRequest {
   id: string;
   category?: string | null;
   name: string;
-  startDate?: string | null;
-  endDate?: string | null;
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;

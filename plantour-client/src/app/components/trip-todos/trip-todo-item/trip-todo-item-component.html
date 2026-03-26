@@ -5,6 +5,12 @@
         [linkText]="entity.name"
     ></amazon-link>
 
+    @if (scheduleText || entity.address) {
+    <span class="ic-2-item ellipsis-text">
+        {{ scheduleText }}@if (scheduleText && entity.address) { · }{{ entity.address }}
+    </span>
+    }
+
     <div class="ic-2-item ic-2-right">
         @if(entity.category) {
         <span class="ic-2-item ic-2-right ellipsis-text">

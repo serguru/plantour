@@ -40,42 +40,6 @@
         ></p-select>
       </div>
 
-      <div class="form-row two-columns">
-        <div class="form-field">
-          <label for="startDate">Start date</label>
-          <p-datepicker
-            id="startDate"
-            formControlName="startDate"
-            dateFormat="yy-mm-dd"
-            dataType="string"
-            [showIcon]="true"
-            styleClass="w-full"
-            appendTo="body"
-          ></p-datepicker>
-        </div>
-
-        <div class="form-field">
-          <label for="endDate">End date</label>
-          <p-datepicker
-            id="endDate"
-            formControlName="endDate"
-            dateFormat="yy-mm-dd"
-            dataType="string"
-            [showIcon]="true"
-            styleClass="w-full"
-            appendTo="body"
-          ></p-datepicker>
-        </div>
-      </div>
-
-      @if (form.hasError('datePairRequired')) {
-        <small class="error-message">Start date and end date must both be filled or both be empty</small>
-      }
-
-      @if (form.hasError('dateRangeInvalid')) {
-        <small class="error-message">Start date cannot be later than end date</small>
-      }
-
       <div class="form-field">
         <label for="address">Address</label>
         <input

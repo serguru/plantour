@@ -13,9 +13,6 @@ public class UpdateTodoRequest : IValidatableObject
     [StringLength(200)]
     public string Name { get; set; } = null!;
 
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
-
     [StringLength(500)]
     public string? Address { get; set; }
 
@@ -26,6 +23,10 @@ public class UpdateTodoRequest : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        return TodoRequestValidation.Validate(StartDate, EndDate, Latitude, Longitude);
+        return TodoRequestValidation.ValidateCoordinates(
+            Latitude,
+            Longitude,
+            nameof(Latitude),
+            nameof(Longitude));
     }
 }

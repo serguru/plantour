@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Checkbox, CheckboxChangeEvent } from 'primeng/checkbox';
-import { mapStatusToClass } from '../../../helpers/utils';
+import { formatDate, mapStatusToClass } from '../../../helpers/utils';
 import { AmazonLinkComponent } from '../../amazon-link/amazon-link-component';
 import { TripTodoDto } from '../../../services/trip-todo-service';
 
@@ -21,6 +21,14 @@ export class TripTodoItemComponent {
 
   get statusToClassMap() {
     return mapStatusToClass(this.entity.assignmentStatus || null);
+  }
+
+  get scheduleText(): string | null {
+    if (this.entity.startDate && this.entity.endDate) {
+      return `${formatDate(this.entity.startDate)} - ${formatDate(this.entity.endDate)}`;
+    }
+
+    return null;
   }
 
   handleFinishedSuccessClick(event: CheckboxChangeEvent) {

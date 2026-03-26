@@ -9,6 +9,11 @@ export interface TripTodoDto {
   id: string;
   category?: string | null;
   name: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   notes?: string | null;
   tripSharedTodoId: string | null;
   assignedAt: string | null;
@@ -23,6 +28,11 @@ export interface CreateTripTodoRequest {
   tripId: string;
   category?: string | null;
   name: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   notes?: string | null;
 }
 
@@ -31,6 +41,11 @@ export interface UpdateTripTodoRequest {
   tripId: string;
   category?: string | null;
   name: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   notes?: string | null;
 }
 
