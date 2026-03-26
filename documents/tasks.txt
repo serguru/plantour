@@ -643,3 +643,8 @@ external
 postgresql://plantour_production_admin:ft9fvVFevZsCeDk3JJYBIZv6OFQPK4mP@dpg-d70o4mqa214c73fivgd0-a.oregon-postgres.render.com/plantour_production_db
 
 There is a group of travelers participating in the same trip. They have their own expenses and shared expenses, in different currencies and using different payment methods. They can exchange with money among them.  I need a micro-accounting system within a trip to store money data and at the end of the trip calculate who own what and to who.
+
+
+Explore how trips work. The trips table now has currency_id not null field. Do this:
+1) Add another lookup "currencies" to the LookupController and lookup-sService.ts
+3) Add currency to all the trip related code including backend and frontend. This field must have an ability to be taken in UI from the lookup and it is required.

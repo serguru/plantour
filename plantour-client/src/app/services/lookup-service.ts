@@ -11,6 +11,11 @@ export interface CommunicationTypeDto {
   notes?: string | null;
 }
 
+export interface CurrencyDto {
+  id: string;
+  name: string;
+}
+
 export interface ThingCategoryDto {
   id: string;
   name: string;
@@ -35,6 +40,7 @@ export interface UnitDto {
 
 export interface LookupsResponse {
   communicationTypes: CommunicationTypeDto[];
+  currencies: CurrencyDto[];
   thingCategories: ThingCategoryDto[];
   todoCategories: TodoCategoryDto[];
   tripStatuses: TripStatusDto[];
@@ -92,6 +98,20 @@ export class LookupService {
   }
 
   thingCategories$ = this.getThingCategories();
+
+  getCurrencies(): Observable<CurrencyDto[]> {
+    return new Observable((observer) => {
+      this.loadLookupsIfNeeded().subscribe({
+        next: (lookups) => {
+          observer.next(lookups.currencies);
+          observer.complete();
+        },
+        error: (err) => observer.error(err),
+      });
+    });
+  }
+
+  currencies$ = this.getCurrencies();
 
   getTripStatuses(): Observable<TripStatusDto[]> {
     return new Observable((observer) => {

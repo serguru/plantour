@@ -10,6 +10,7 @@ public class LookupsMappingProfile : Profile
     {
         CreateMap<PackingStatus, PackingStatusDto>();
         CreateMap<CommunicationType, CommunicationTypeDto>();
+        CreateMap<Currency, CurrencyDto>();
         CreateMap<ThingCategory, ThingCategoryDto>();
         CreateMap<TripStatus, TripStatusDto>();
         CreateMap<Unit, UnitDto>();
