@@ -237,12 +237,27 @@ begin
     )
     into v_trip_user_id;
 
-    insert into plantour_v2.trip_user_todos (trip_user_id, name, category, notes)
+    insert into plantour_v2.trip_user_todos (
+        trip_user_id,
+        name,
+        category,
+        notes,
+        start_date,
+        end_date,
+        address,
+        latitude,
+        longitude
+    )
     select
         v_trip_user_id,
         b.name,
         b.category,
-        b.notes
+        b.notes,
+        b.start_date,
+        b.end_date,
+        b.address,
+        b.latitude,
+        b.longitude
     from plantour_v2.user_todos b
     left join plantour_v2.trip_user_todos c on 
         c.trip_user_id = v_trip_user_id and 
@@ -518,12 +533,27 @@ as $$
 declare
     v_inserted_count integer;
 begin
-    insert into plantour_v2.trip_shared_todos (trip_id, category, name, notes)
+    insert into plantour_v2.trip_shared_todos (
+        trip_id,
+        category,
+        name,
+        notes,
+        start_date,
+        end_date,
+        address,
+        latitude,
+        longitude
+    )
     select
         p_trip_id,
         b.category,
         b.name,
-        b.notes
+        b.notes,
+        b.start_date,
+        b.end_date,
+        b.address,
+        b.latitude,
+        b.longitude
     from plantour_v2.user_todos b
     left join plantour_v2.trip_shared_todos c on 
         c.trip_id = p_trip_id and 

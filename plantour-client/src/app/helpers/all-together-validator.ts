@@ -1,6 +1,6 @@
 import { AbstractControl, ValidationErrors, ValidatorFn, FormGroup } from '@angular/forms';
 
-export function allTogetherValidator(controlNames: string[]): ValidatorFn {
+export function allTogetherValidator(controlNames: string[], errorKey = 'allTogether'): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const formGroup = control as FormGroup;
     
@@ -10,6 +10,6 @@ export function allTogetherValidator(controlNames: string[]): ValidatorFn {
 
     const isValid = filledCount === 0 || filledCount === controlNames.length;
 
-    return isValid ? null : { allTogether: true };
+    return isValid ? null : { [errorKey]: true };
   };
 }

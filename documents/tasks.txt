@@ -648,3 +648,13 @@ There is a group of travelers participating in the same trip. They have their ow
 Explore how trips work. The trips table now has currency_id not null field. Do this:
 1) Add another lookup "currencies" to the LookupController and lookup-sService.ts
 3) Add currency to all the trip related code including backend and frontend. This field must have an ability to be taken in UI from the lookup and it is required.
+
+
+user_todos table have new fields:
+    start_date timestamptz,
+    end_date timestamptz,
+    address text,
+    latitude decimal(9,6) check (latitude is null or latitude between -90 and 90),
+    longitude decimal(9,6) check (longitude is null or longitude between -180 and 180),
+
+Add the necessary backend and frontend code to support these new fields
