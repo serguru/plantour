@@ -1,4 +1,4 @@
-SET search_path TO plantour, public;
+SET search_path TO plantour_v2, public;
 
 begin;
 
