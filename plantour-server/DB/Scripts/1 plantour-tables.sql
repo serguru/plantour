@@ -701,6 +701,33 @@ execute function plantour.prevent_delete_trip_user_with_assigned_shared_entities
 
 
 -----------------------------------------------------------------------
+-- TRIP ACTIVITIES
+-----------------------------------------------------------------------
+create table plantour.trip_activities (
+    id uuid not null primary key default gen_random_uuid(),
+    -- If null - group activity
+    trip_user_id uuid null references trip_users(id) on delete cascade,
+    itinerary_part_id uuid null references itinerary_parts(id) on delete cascade,
+    category text,
+    name text not null,
+    notes text,
+    start_date timestamptz,
+    end_date timestamptz,
+    address text,
+    latitude decimal(9,6) check (latitude is null or latitude between -90 and 90),
+    longitude decimal(9,6) check (longitude is null or longitude between -180 and 180),
+
+    constraint ch_trip_activities_start_before_end check (
+        start_date is null or end_date is null or
+        start_date <= end_date
+    ),
+    constraint ch_trip_activities_lat_long check (
+        (latitude is null and longitude is null) or 
+        (latitude is not null and longitude is not null) 
+    )
+);
+
+-----------------------------------------------------------------------
 -- TRIP USER EXPENSES
 -----------------------------------------------------------------------
 create table trip_user_expenses (

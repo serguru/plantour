@@ -77,6 +77,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Trip> Trips { get; set; }
 
+    public virtual DbSet<TripActivity> TripActivities { get; set; }
+
     public virtual DbSet<TripComment> TripComments { get; set; }
 
     public virtual DbSet<TripNote> TripNotes { get; set; }
@@ -399,6 +401,21 @@ public partial class PlantourContext : DbContext
                 .HasConstraintName("trips_trip_status_id_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.Trips).HasConstraintName("trips_user_id_fkey");
+        });
+
+        modelBuilder.Entity<TripActivity>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("trip_activities_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.ItineraryPart).WithMany(p => p.TripActivities)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("trip_activities_itinerary_part_id_fkey");
+
+            entity.HasOne(d => d.TripUser).WithMany(p => p.TripActivities)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("trip_activities_trip_user_id_fkey");
         });
 
         modelBuilder.Entity<TripComment>(entity =>

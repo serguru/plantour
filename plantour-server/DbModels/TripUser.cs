@@ -42,6 +42,9 @@ public partial class TripUser
     public virtual Trip Trip { get; set; } = null!;
 
     [InverseProperty("TripUser")]
+    public virtual ICollection<TripActivity> TripActivities { get; set; } = new List<TripActivity>();
+
+    [InverseProperty("TripUser")]
     public virtual ICollection<TripComment> TripComments { get; set; } = new List<TripComment>();
 
     [InverseProperty("TripUser")]
