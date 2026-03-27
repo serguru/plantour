@@ -16,6 +16,11 @@ export interface CurrencyDto {
   name: string;
 }
 
+export interface PaymentMethodDto {
+  id: string;
+  name: string;
+}
+
 export interface ThingCategoryDto {
   id: string;
   name: string;
@@ -41,6 +46,7 @@ export interface UnitDto {
 export interface LookupsResponse {
   communicationTypes: CommunicationTypeDto[];
   currencies: CurrencyDto[];
+  paymentMethods: PaymentMethodDto[];
   thingCategories: ThingCategoryDto[];
   todoCategories: TodoCategoryDto[];
   tripStatuses: TripStatusDto[];
@@ -112,6 +118,20 @@ export class LookupService {
   }
 
   currencies$ = this.getCurrencies();
+
+  getPaymentMethods(): Observable<PaymentMethodDto[]> {
+    return new Observable((observer) => {
+      this.loadLookupsIfNeeded().subscribe({
+        next: (lookups) => {
+          observer.next(lookups.paymentMethods);
+          observer.complete();
+        },
+        error: (err) => observer.error(err),
+      });
+    });
+  }
+
+  paymentMethods$ = this.getPaymentMethods();
 
   getTripStatuses(): Observable<TripStatusDto[]> {
     return new Observable((observer) => {

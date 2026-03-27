@@ -1,0 +1,18 @@
+<div class="page-container">
+  <app-entities-header
+    entityIcon="pi pi-wallet"
+    title="Trip expenses"
+    [delete]="deleteTripExpense.bind(this)"
+    entityName="expense"
+    addUrl="add"
+    editUrl="edit/:id"
+    [menuItems]="menuItems()"
+  ></app-entities-header>
+
+  <app-entities-actions></app-entities-actions>
+
+  <app-entities
+    [itemComponent]="tripExpenseItemComponent"
+    [itemMetaData]="itemMetaData"
+  ></app-entities>
+</div>

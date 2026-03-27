@@ -1,0 +1,13 @@
+ :host {
+	flex: 1;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 1rem;
+		gap: 0.5rem;
+}

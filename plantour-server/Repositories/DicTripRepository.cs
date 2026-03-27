@@ -433,6 +433,36 @@ public class DicTripRepository(PlantourContext context)
             new NpgsqlParameter("@deadlineAt", deadlineAt ?? (object)DBNull.Value),
             new NpgsqlParameter("@unassign", unassign));
     }
+
+    public async Task<int> AssignTripSharedExpensesAsync(Guid adminId, Guid tripId, Guid tripUserId, Guid[] tripSharedExpenseIds, DateTime? deadlineAt, bool unassign)
+    {
+        if (tripSharedExpenseIds.Length == 0)
+        {
+            return 0;
+        }
+
+        var query = _context.TripSharedExpenses.Where(x =>
+            x.TripId == tripId &&
+            x.Trip.UserId == adminId &&
+            tripSharedExpenseIds.Contains(x.Id));
+
+        if (unassign)
+        {
+            return await query.ExecuteUpdateAsync(setters => setters
+                .SetProperty(x => x.AssignedToId, x => null)
+                .SetProperty(x => x.AssignedExpenseId, x => null)
+                .SetProperty(x => x.AssignedAt, x => null)
+                .SetProperty(x => x.AssignedDeadline, x => null)
+                .SetProperty(x => x.Rejected, x => false));
+        }
+
+        return await query.ExecuteUpdateAsync(setters => setters
+            .SetProperty(x => x.AssignedToId, x => tripUserId)
+            .SetProperty(x => x.AssignedExpenseId, x => null)
+            .SetProperty(x => x.AssignedAt, x => DateTime.UtcNow)
+            .SetProperty(x => x.AssignedDeadline, x => deadlineAt)
+            .SetProperty(x => x.Rejected, x => false));
+    }
 }
 
 

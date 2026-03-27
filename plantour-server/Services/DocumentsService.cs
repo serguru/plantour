@@ -15,6 +15,8 @@ public class DocumentsService : IDocumentsService
     private readonly ITripThingService _tripThingService;
     private readonly ITripTodoService _tripTodoService;
     private readonly ITripSharedTodoService _tripSharedTodoService;
+    private readonly ITripExpenseService _tripExpenseService;
+    private readonly ITripSharedExpenseService _tripSharedExpenseService;
     private readonly CurrentUser _currentUser;
 
     private readonly ICheckAccessService _checkAccessService;
@@ -28,6 +30,8 @@ public class DocumentsService : IDocumentsService
         ITripThingService tripThingService,
         ITripTodoService tripTodoService,
         ITripSharedTodoService tripSharedTodoService,
+        ITripExpenseService tripExpenseService,
+        ITripSharedExpenseService tripSharedExpenseService,
         HttpCurrentUser httpCurrentUser,
         ICheckAccessService checkAccessService)
     {
@@ -37,6 +41,8 @@ public class DocumentsService : IDocumentsService
         _tripThingService = tripThingService;
         _tripTodoService = tripTodoService;
         _tripSharedTodoService = tripSharedTodoService;
+        _tripExpenseService = tripExpenseService;
+        _tripSharedExpenseService = tripSharedExpenseService;
         _currentUser = httpCurrentUser.CurrentUser;
         _checkAccessService = checkAccessService;
     }
@@ -465,6 +471,399 @@ public class DocumentsService : IDocumentsService
                 }
             });
         }
+    }
+
+    public async Task<byte[]> GenerateTripExpensesReportPdfAsync(Guid tripId)
+    {
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new UnauthorizedAccessException("User does not have access to this trip");
+        }
+
+        var trip = await _tripService.GetByIdWithStatsAsync(tripId);
+        if (trip == null)
+        {
+            throw new Exception($"Trip with ID {tripId} not found");
+        }
+
+        var participants = (await _tripUserService.GetAllAsync(tripId)).OrderBy(x => GetParticipantName(x.FirstName, x.LastName, x.Email)).ToList();
+        var personalExpenses = (await _tripExpenseService.GetAllForTripAsync(tripId)).ToList();
+        var sharedExpenses = (await _tripSharedExpenseService.GetAllFullAsync(tripId)).ToList();
+
+        var summaryByParticipant = participants.ToDictionary(x => x.Id, x => new ExpenseParticipantSummary
+        {
+            TripUserId = x.Id,
+            ParticipantName = GetParticipantName(x.FirstName, x.LastName, x.Email)
+        });
+
+        foreach (var expense in personalExpenses)
+        {
+            if (!summaryByParticipant.TryGetValue(expense.TripUserId, out var summary))
+            {
+                continue;
+            }
+
+            var amount = decimal.Round(expense.AmountInTripCurrency, 2);
+
+            if (expense.RecipientId.HasValue)
+            {
+                summary.TransfersGiven += amount;
+                if (summaryByParticipant.TryGetValue(expense.RecipientId.Value, out var recipientSummary))
+                {
+                    recipientSummary.TransfersReceived += amount;
+                }
+                continue;
+            }
+
+            if (expense.TripSharedExpenseId.HasValue)
+            {
+                summary.SharedPaid += amount;
+                continue;
+            }
+
+            summary.PersonalTotal += amount;
+        }
+
+        var participantIds = participants.Select(x => x.Id).ToList();
+        foreach (var acceptedSharedExpense in personalExpenses.Where(x => x.TripSharedExpenseId.HasValue && participantIds.Count > 0))
+        {
+            foreach (var split in SplitAmount(acceptedSharedExpense.AmountInTripCurrency, participantIds))
+            {
+                summaryByParticipant[split.TripUserId].SharedShare += split.Amount;
+            }
+        }
+
+        var summaries = summaryByParticipant.Values
+            .Select(x =>
+            {
+                x.PersonalTotal = decimal.Round(x.PersonalTotal, 2);
+                x.TransfersGiven = decimal.Round(x.TransfersGiven, 2);
+                x.TransfersReceived = decimal.Round(x.TransfersReceived, 2);
+                x.SharedPaid = decimal.Round(x.SharedPaid, 2);
+                x.SharedShare = decimal.Round(x.SharedShare, 2);
+                x.NetBalance = decimal.Round(x.SharedPaid + x.TransfersGiven - x.TransfersReceived - x.SharedShare, 2);
+                return x;
+            })
+            .OrderBy(x => x.ParticipantName)
+            .ToList();
+
+        var settlements = BuildSettlements(summaries);
+        var tripCurrency = trip.Currency ?? string.Empty;
+
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(2, Unit.Centimetre);
+                page.PageColor(Colors.White);
+                page.DefaultTextStyle(x => x.FontSize(10));
+
+                page.Header().Column(column =>
+                {
+                    column.Item().Text("Plantour Trip Expenses Report").SemiBold().FontSize(22).FontColor(primaryColor);
+                    column.Item().Text($"Trip: {trip.Name}").FontSize(11);
+                    column.Item().Text($"Generated: {DateTime.Now:dd.MM.yyyy HH:mm}").FontSize(9).FontColor(Colors.Grey.Darken1);
+                });
+
+                page.Content().PaddingVertical(1, Unit.Centimetre).Column(column =>
+                {
+                    column.Spacing(14);
+                    column.Item().Text($"Trip currency: {trip.Currency ?? "Not specified"}").FontSize(11);
+
+                    RenderExpenseSummary(column, summaries);
+                    RenderSettlements(column, settlements, tripCurrency);
+                    RenderPersonalExpenses(column, personalExpenses, tripCurrency);
+                    RenderSharedExpenses(column, sharedExpenses, tripCurrency);
+                });
+
+                page.Footer().AlignCenter().Text(x =>
+                {
+                    x.Span("Page ");
+                    x.CurrentPageNumber();
+                    x.Span(" of ");
+                    x.TotalPages();
+                });
+            });
+        });
+
+        return document.GeneratePdf();
+    }
+
+    private void RenderExpenseSummary(ColumnDescriptor column, List<ExpenseParticipantSummary> summaries)
+    {
+        column.Item().Text("Expense Summary").SemiBold().FontSize(16).FontColor(primaryColor);
+        column.Item().Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
+            });
+
+            table.Header(header =>
+            {
+                header.Cell().Element(ExpenseCellStyle).Text("Participant").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Personal").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Transfers +").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Transfers -").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Shared paid/share").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Net").SemiBold();
+            });
+
+            foreach (var item in summaries)
+            {
+                table.Cell().Element(ExpenseCellStyle).Text(item.ParticipantName);
+                table.Cell().Element(ExpenseCellStyle).Text(item.PersonalTotal.ToString("0.00"));
+                table.Cell().Element(ExpenseCellStyle).Text(item.TransfersGiven.ToString("0.00"));
+                table.Cell().Element(ExpenseCellStyle).Text(item.TransfersReceived.ToString("0.00"));
+                table.Cell().Element(ExpenseCellStyle).Text($"{item.SharedPaid:0.00} / {item.SharedShare:0.00}");
+                table.Cell().Element(ExpenseCellStyle).Text(item.NetBalance.ToString("0.00"));
+            }
+        });
+    }
+
+    private void RenderSettlements(ColumnDescriptor column, List<ExpenseSettlementLine> settlements, string currency)
+    {
+        column.Item().Text("Who Owes What To Whom").SemiBold().FontSize(16).FontColor(primaryColor);
+
+        if (settlements.Count == 0)
+        {
+            column.Item().Text("No balances need to be settled.");
+            return;
+        }
+
+        column.Item().Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(2);
+            });
+
+            table.Header(header =>
+            {
+                header.Cell().Element(ExpenseCellStyle).Text("Payer").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Receiver").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text(string.IsNullOrWhiteSpace(currency) ? "Amount" : currency).SemiBold();
+            });
+
+            foreach (var line in settlements)
+            {
+                table.Cell().Element(ExpenseCellStyle).Text(line.FromParticipant);
+                table.Cell().Element(ExpenseCellStyle).Text(line.ToParticipant);
+                table.Cell().Element(ExpenseCellStyle).Text(line.Amount.ToString("0.00"));
+            }
+        });
+    }
+
+    private void RenderPersonalExpenses(ColumnDescriptor column, List<TripExpenseDto> personalExpenses, string tripCurrency)
+    {
+        column.Item().Text("Personal Expenses And Transfers").SemiBold().FontSize(16).FontColor(primaryColor);
+
+        if (personalExpenses.Count == 0)
+        {
+            column.Item().Text("No personal expenses found.");
+            return;
+        }
+
+        column.Item().Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(3);
+            });
+
+            table.Header(header =>
+            {
+                header.Cell().Element(ExpenseCellStyle).Text("Participant").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Expense").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Original").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text(string.IsNullOrWhiteSpace(tripCurrency) ? "Trip" : tripCurrency).SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Type").SemiBold();
+            });
+
+            foreach (var expense in personalExpenses.OrderBy(x => GetParticipantName(x.UserFirstName, x.UserLastName, x.UserEmail)).ThenBy(x => x.Name))
+            {
+                var type = expense.RecipientId.HasValue
+                    ? $"Transfer to {GetParticipantName(expense.RecipientFirstName, expense.RecipientLastName, expense.RecipientEmail)}"
+                    : expense.TripSharedExpenseId.HasValue
+                        ? "Accepted shared expense"
+                        : "Personal expense";
+
+                table.Cell().Element(ExpenseCellStyle).Text(GetParticipantName(expense.UserFirstName, expense.UserLastName, expense.UserEmail));
+                table.Cell().Element(ExpenseCellStyle).Text(expense.Name);
+                table.Cell().Element(ExpenseCellStyle).Text($"{expense.Amount:0.00} {expense.EffectiveCurrency}");
+                table.Cell().Element(ExpenseCellStyle).Text(expense.AmountInTripCurrency.ToString("0.00"));
+                table.Cell().Element(ExpenseCellStyle).Text(type);
+            }
+        });
+    }
+
+    private void RenderSharedExpenses(ColumnDescriptor column, List<TripSharedExpenseDto> sharedExpenses, string tripCurrency)
+    {
+        column.Item().Text("Shared Expenses").SemiBold().FontSize(16).FontColor(primaryColor);
+
+        if (sharedExpenses.Count == 0)
+        {
+            column.Item().Text("No shared expenses found.");
+            return;
+        }
+
+        column.Item().Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(3);
+            });
+
+            table.Header(header =>
+            {
+                header.Cell().Element(ExpenseCellStyle).Text("Expense").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Original").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text(string.IsNullOrWhiteSpace(tripCurrency) ? "Trip" : tripCurrency).SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Assignee").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Status").SemiBold();
+            });
+
+            foreach (var expense in sharedExpenses.OrderBy(x => x.Name))
+            {
+                var assignee = expense.AssignedToId.HasValue
+                    ? GetParticipantName(expense.AssigneeFirstName, expense.AssigneeLastName, expense.AssigneeEmail)
+                    : "-";
+
+                var status = expense.AssignedExpenseId.HasValue
+                    ? "Accepted"
+                    : expense.Rejected
+                        ? "Rejected"
+                        : expense.AssignedToId.HasValue
+                            ? "Assigned"
+                            : "Awaiting assignment";
+
+                table.Cell().Element(ExpenseCellStyle).Text(expense.Name);
+                table.Cell().Element(ExpenseCellStyle).Text($"{expense.Amount:0.00} {expense.EffectiveCurrency}");
+                table.Cell().Element(ExpenseCellStyle).Text(expense.AmountInTripCurrency?.ToString("0.00") ?? "-");
+                table.Cell().Element(ExpenseCellStyle).Text(assignee);
+                table.Cell().Element(ExpenseCellStyle).Text(status);
+            }
+        });
+    }
+
+    private static IContainer ExpenseCellStyle(IContainer container)
+    {
+        return container.BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingVertical(4).PaddingRight(6);
+    }
+
+    private static string GetParticipantName(string? firstName, string? lastName, string? email)
+    {
+        var name = string.Join(" ", new[] { firstName, lastName }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim();
+        return string.IsNullOrWhiteSpace(name) ? (email ?? "Unknown") : name;
+    }
+
+    private static List<ExpenseSplitAmount> SplitAmount(decimal totalAmount, List<Guid> participantIds)
+    {
+        var totalCents = (int)decimal.Round(totalAmount * 100m, MidpointRounding.AwayFromZero);
+        var baseCents = totalCents / participantIds.Count;
+        var remainder = totalCents % participantIds.Count;
+        var result = new List<ExpenseSplitAmount>(participantIds.Count);
+
+        for (var index = 0; index < participantIds.Count; index++)
+        {
+            var cents = baseCents + (index < remainder ? 1 : 0);
+            result.Add(new ExpenseSplitAmount(participantIds[index], cents / 100m));
+        }
+
+        return result;
+    }
+
+    private static List<ExpenseSettlementLine> BuildSettlements(List<ExpenseParticipantSummary> summaries)
+    {
+        var creditors = summaries
+            .Where(x => x.NetBalance > 0)
+            .Select(x => new ExpenseBalanceNode(x.ParticipantName, x.NetBalance))
+            .OrderByDescending(x => x.Amount)
+            .ToList();
+
+        var debtors = summaries
+            .Where(x => x.NetBalance < 0)
+            .Select(x => new ExpenseBalanceNode(x.ParticipantName, decimal.Abs(x.NetBalance)))
+            .OrderByDescending(x => x.Amount)
+            .ToList();
+
+        var result = new List<ExpenseSettlementLine>();
+        var creditorIndex = 0;
+        var debtorIndex = 0;
+
+        while (creditorIndex < creditors.Count && debtorIndex < debtors.Count)
+        {
+            var creditor = creditors[creditorIndex];
+            var debtor = debtors[debtorIndex];
+            var amount = decimal.Round(decimal.Min(creditor.Amount, debtor.Amount), 2);
+
+            if (amount > 0)
+            {
+                result.Add(new ExpenseSettlementLine(debtor.ParticipantName, creditor.ParticipantName, amount));
+            }
+
+            creditor.Amount = decimal.Round(creditor.Amount - amount, 2);
+            debtor.Amount = decimal.Round(debtor.Amount - amount, 2);
+
+            if (creditor.Amount <= 0)
+            {
+                creditorIndex++;
+            }
+
+            if (debtor.Amount <= 0)
+            {
+                debtorIndex++;
+            }
+        }
+
+        return result;
+    }
+
+    private sealed class ExpenseParticipantSummary
+    {
+        public Guid TripUserId { get; set; }
+        public string ParticipantName { get; set; } = string.Empty;
+        public decimal PersonalTotal { get; set; }
+        public decimal TransfersGiven { get; set; }
+        public decimal TransfersReceived { get; set; }
+        public decimal SharedPaid { get; set; }
+        public decimal SharedShare { get; set; }
+        public decimal NetBalance { get; set; }
+    }
+
+    private sealed class ExpenseSplitAmount(Guid tripUserId, decimal amount)
+    {
+        public Guid TripUserId { get; } = tripUserId;
+        public decimal Amount { get; } = amount;
+    }
+
+    private sealed class ExpenseBalanceNode(string participantName, decimal amount)
+    {
+        public string ParticipantName { get; } = participantName;
+        public decimal Amount { get; set; } = amount;
+    }
+
+    private sealed class ExpenseSettlementLine(string fromParticipant, string toParticipant, decimal amount)
+    {
+        public string FromParticipant { get; } = fromParticipant;
+        public string ToParticipant { get; } = toParticipant;
+        public decimal Amount { get; } = amount;
     }
 
     public async Task<byte[]> GeneratePackingListPdfAsync(Guid tripId, Guid packageId)

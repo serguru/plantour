@@ -660,4 +660,14 @@ user_todos table have new fields:
 Add the necessary backend and frontend code to support these new fields
 
 
-There are two new DB tables: trip_shared_expenses and trip_user_expenses. The idea is to provide customers with an ability to track their trip related expenses, including 1) personal expenses 2) shared expemses 3) ability to calculate shared balance and show who owe what to whom, this should be a pdf report 4) ability to give mobey to other trip paticipant
+There are two new DB tables: trip_shared_expenses and trip_user_expenses. The idea is to provide customers with an ability to track their trip related expenses, including 1) personal expenses 2) shared expenses 3) ability to calculate shared and personal balance and show who owe what to whom, this should be a pdf report 4) ability to give money to other trip paticipants. 
+
+If the expense does not have the explicit currency the trip's currency is used. When a user sets the same currency for the expense as it is set for the trip - set rate to 1. Otherwise go to the free of charge internet service and fill the rate. If that service does not work - write to the log and do nothing. If the currency specified the rate must be specified as well.
+
+The expense cannot be shared and have a recepient at the same time, it should be nothing, first or second.
+
+The expenses sharing logic is similar to todos sharing. 
+
+Expenses do not have dictionary - no bulck copying.  
+
+Put Expenses and Shared expenses under the Trip menu, they are accesible only if therei a current trip selected. Create corresponding controllers, services, repos, pages etc. to make the expenses working.

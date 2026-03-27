@@ -29,6 +29,14 @@ public class LookupsRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<PaymentMethod>> GetAllPaymentMethodsAsync()
+    {
+        return await _context.PaymentMethods
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<ThingCategory>> GetAllThingCategoriesAsync()
     {
         return await _context.ThingCategories

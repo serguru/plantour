@@ -223,6 +223,27 @@ export const routes: Routes = [
     data: { componentId: 'trip-packs' }
   },
   {
+    path: 'trips/:tripId/trip-expenses',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-expenses/trip-expenses-component').then(m => m.TripExpensesComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'trip-expenses' }
+  },
+  {
+    path: 'trips/:tripId/trip-expenses/add',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-expenses/trip-expense-form/trip-expense-form-component').then(m => m.TripExpenseFormComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { mode: 'add', componentId: 'trip-expense-form' }
+  },
+  {
+    path: 'trips/:tripId/trip-expenses/edit/:id',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-expenses/trip-expense-form/trip-expense-form-component').then(m => m.TripExpenseFormComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { mode: 'edit', componentId: 'trip-expense-form' }
+  },
+  {
     path: 'trips/:tripId/trip-packs/add',
     canActivate: [checkTripIdGuard],
     loadComponent: () => import('./components/trip-packs/trip-pack-form/trip-pack-form-component').then(m => m.TripPackFormComponent),
@@ -347,6 +368,34 @@ export const routes: Routes = [
     loadComponent: () => import('./components/trip-shared-todos/trip-shared-todo-form/trip-shared-todo-form-component').then(m => m.TripSharedTodoFormComponent),
     resolve: {cleanup: CleanupResolver},
     data: { mode: 'add', componentId: 'trip-shared-todo-form' }
+  },
+  {
+    path: 'trips/:tripId/trip-shared-expenses',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-shared-expenses/trip-shared-expenses-component').then(m => m.TripSharedExpensesComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'trip-shared-expenses' }
+  },
+  {
+    path: 'trips/:tripId/trip-shared-expenses/add',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-shared-expenses/trip-shared-expense-form/trip-shared-expense-form-component').then(m => m.TripSharedExpenseFormComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { mode: 'add', componentId: 'trip-shared-expense-form' }
+  },
+  {
+    path: 'trips/:tripId/trip-shared-expenses/edit/:id',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-shared-expenses/trip-shared-expense-form/trip-shared-expense-form-component').then(m => m.TripSharedExpenseFormComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { mode: 'edit', componentId: 'trip-shared-expense-form' }
+  },
+  {
+    path: 'trips/:tripId/trip-shared-expenses/view/:id',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-shared-expenses/trip-shared-expense-form/trip-shared-expense-form-component').then(m => m.TripSharedExpenseFormComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { mode: 'view', componentId: 'trip-shared-expense-form' }
   },
   {
     path: 'trips/:tripId/trip-shared-todos/edit/:id',

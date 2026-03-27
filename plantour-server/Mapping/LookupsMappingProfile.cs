@@ -11,6 +11,7 @@ public class LookupsMappingProfile : Profile
         CreateMap<PackingStatus, PackingStatusDto>();
         CreateMap<CommunicationType, CommunicationTypeDto>();
         CreateMap<Currency, CurrencyDto>();
+        CreateMap<PaymentMethod, PaymentMethodDto>();
         CreateMap<ThingCategory, ThingCategoryDto>();
         CreateMap<TripStatus, TripStatusDto>();
         CreateMap<Unit, UnitDto>();
