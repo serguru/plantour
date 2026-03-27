@@ -216,6 +216,27 @@ export const routes: Routes = [
     data: { mode: 'view', componentId: 'trip-form' }
   },
   {
+    path: 'trips/:tripId/itinerary',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-itinerary/trip-itinerary-component').then(m => m.TripItineraryComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'trip-itinerary' }
+  },
+  {
+    path: 'trips/:tripId/itinerary/add',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-itinerary/trip-itinerary-form/trip-itinerary-form-component').then(m => m.TripItineraryFormComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { mode: 'add', componentId: 'trip-itinerary-form' }
+  },
+  {
+    path: 'trips/:tripId/itinerary/edit/:id',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-itinerary/trip-itinerary-form/trip-itinerary-form-component').then(m => m.TripItineraryFormComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { mode: 'edit', componentId: 'trip-itinerary-form' }
+  },
+  {
     path: 'trips/:tripId/trip-packs',
     canActivate: [checkTripIdGuard],
     loadComponent: () => import('./components/trip-packs/trip-packs-component').then(m => m.TripPacksComponent),

@@ -34,6 +34,7 @@ public class LookupsService : ILookupsService
             {
                 var communicationTypes = await _lookupsRepository.GetAllCommunicationTypesAsync();
                 var currencies = await _lookupsRepository.GetAllCurrenciesAsync();
+                var itineraryPartCategories = await _lookupsRepository.GetAllItineraryPartCategoriesAsync();
                 var paymentMethods = await _lookupsRepository.GetAllPaymentMethodsAsync();
                 var thingCategories = await _lookupsRepository.GetAllThingCategoriesAsync();
                 var todoCategories = await _lookupsRepository.GetAllTodoCategoriesAsync();
@@ -58,6 +59,7 @@ public class LookupsService : ILookupsService
                 {
                     CommunicationTypes = _mapper.Map<IEnumerable<CommunicationTypeDto>>(communicationTypes),
                     Currencies = _mapper.Map<IEnumerable<CurrencyDto>>(currencies),
+                    ItineraryPartCategories = _mapper.Map<IEnumerable<ItineraryPartCategoryDto>>(itineraryPartCategories),
                     PaymentMethods = _mapper.Map<IEnumerable<PaymentMethodDto>>(paymentMethods),
                     ThingCategories = _mapper.Map<IEnumerable<ThingCategoryDto>>(thingCategories),
                     TodoCategories = _mapper.Map<IEnumerable<TodoCategoryDto>>(todoCategories),

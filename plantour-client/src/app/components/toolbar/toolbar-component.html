@@ -115,6 +115,15 @@
           </a>
           <a
             class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-itinerary')"
+            (click)="onTripItineraryClick($event, popoverTrip)"
+            [class.disabled]="disableParticipantOnlyFeatures()"
+          >
+            <span class="pi pi-map"></span>
+            <span class="button-label">Itinerary</span>
+          </a>
+          <a
+            class="pl-menu-item"
             [class.selected]="isNavigatedComponent('trip-participants')"
             (click)="onTripParticipantsClick($event, popoverTrip)"
             [class.disabled]="!isCurrentTrip()"

@@ -673,4 +673,8 @@ Expenses do not have dictionary - no bulck copying.
 Put Expenses and Shared expenses under the Trip menu, they are accesible only if therei a current trip selected. Create corresponding controllers, services, repos, pages etc. to make the expenses working.
 
 
-See itinerary_part_categories, itinerary_parts and trip_user_todos db tables
+See itinerary_part_categories, itinerary_parts and trip_user_todos db tables. Add backend and frontend code to allow users create the trip's itinerary. Add menu item "Itinerary" right after "Trip" -> "Trips". Must be disabled if no currrent trip selected. Show a list of itinerary parts. Design Add/Update form. Do not include sorting and targeting to entinty-actions. Sort by start_date. Each part presented as collapsible read only section with a list of todos sorted by todo start_date. Any todos within the itinerary part should have a check box allowing to select an arbitrary todos. In the three-dot menu should be a menu item "Send to Google maps" allowing to send marked todos to Google maps and see the actual roure directions.
+
+To the existing trip user (nor shared!) todos code add an ability to add a refernce to the iyinerary part, it must by a hideable select control shown for the every todo (similar to bags for trip items).
+
+

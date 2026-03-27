@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,6 +19,7 @@ import { CreateTripTodoRequest, TripTodoDto, TripTodoService, UpdateTripTodoRequ
 import { TodoService } from '../../../services/todo-service';
 import { dateRangeValidator } from '../../../helpers/date-range-validator';
 import { allTogetherValidator } from '../../../helpers/all-together-validator';
+import { ItineraryPartDto, ItineraryService } from '../../../services/itinerary-service';
 
 @Component({
   selector: 'app-trip-todo-form-component',
@@ -44,6 +45,7 @@ export class TripTodoFormComponent implements OnInit {
   private fb = inject(FormBuilder);
 
   service = inject(TripTodoService);
+  itineraryService = inject(ItineraryService);
   todoService = inject(TodoService);
   messagesService = inject(MessagesService);
   localStorageService = inject(LocalStorageService);
@@ -51,11 +53,13 @@ export class TripTodoFormComponent implements OnInit {
 
   lookupCategories$;
   lookupTripTodos$;
+  lookupItineraryParts$;
 
   mode: 'add' | 'edit' = 'add';
   id: string | null = null;
   tripId: string | null = null;
   form!: FormGroup;
+  itineraryPartVisible = signal<boolean>(false);
 
   get isAddMode(): boolean {
     return this.mode === 'add';
@@ -65,7 +69,17 @@ export class TripTodoFormComponent implements OnInit {
     return `${capitalizeFirstLetter(this.mode)} Trip Todo`;
   }
 
-  menuItems = computed<MenuConfig[]>(() => []);
+  menuItems = computed<MenuConfig[]>(() => [
+    {
+      label: `${this.itineraryPartVisible() ? 'Hide' : 'Show'} Itinerary Part`,
+      icon: 'map',
+      action: () => {
+        const nextValue = !this.itineraryPartVisible();
+        this.itineraryPartVisible.set(nextValue);
+        this.localStorageService.setComponentKey('trip-todo-form', 'showItineraryPart', nextValue);
+      },
+    },
+  ]);
 
   ngOnInit(): void {
     this.tripId = this.route.snapshot.params['tripId'];
@@ -113,8 +127,21 @@ export class TripTodoFormComponent implements OnInit {
       })
     );
 
+    this.lookupItineraryParts$ = this.itineraryService.getAll(this.tripId).pipe(
+      map((parts: ItineraryPartDto[]) => {
+        return [...parts].sort((a, b) => {
+          const startDateComparison = (a.startDate || '').localeCompare(b.startDate || '');
+          return startDateComparison !== 0 ? startDateComparison : a.name.localeCompare(b.name);
+        });
+      })
+    );
+
     this.mode = this.route.snapshot.data['mode'];
     this.initForm();
+
+    const itineraryPartVisible = this.localStorageService.getComponentBooleanKey('trip-todo-form', 'showItineraryPart', false);
+    this.itineraryPartVisible.set(itineraryPartVisible);
+
     if (this.isAddMode) {
       return;
     }
@@ -135,6 +162,7 @@ export class TripTodoFormComponent implements OnInit {
       latitude: new FormControl<number | null>(null, [Validators.min(-90), Validators.max(90)]),
       longitude: new FormControl<number | null>(null, [Validators.min(-180), Validators.max(180)]),
       notes: new FormControl(''),
+      itineraryPartId: new FormControl<string | null>(null),
     }, {
       validators: [
         allTogetherValidator(['startDate', 'endDate'], 'datePairRequired'),
@@ -160,7 +188,12 @@ export class TripTodoFormComponent implements OnInit {
           latitude: todo.latitude,
           longitude: todo.longitude,
           notes: todo.notes,
+          itineraryPartId: todo.itineraryPartId ?? null,
         });
+
+        if (todo.itineraryPartId) {
+          this.itineraryPartVisible.set(true);
+        }
       },
     });
   }
@@ -187,6 +220,7 @@ export class TripTodoFormComponent implements OnInit {
     const request: CreateTripTodoRequest = {
       tripId: this.tripId!,
       name: formValue.name.trim(),
+      itineraryPartId: formValue.itineraryPartId || null,
       category: formValue.category?.trim() || undefined,
       startDate: formValue.startDate || null,
       endDate: formValue.endDate || null,
@@ -215,6 +249,7 @@ export class TripTodoFormComponent implements OnInit {
       id: this.id,
       tripId: this.tripId!,
       name: formValue.name.trim(),
+      itineraryPartId: formValue.itineraryPartId || null,
       category: formValue.category?.trim() || undefined,
       startDate: formValue.startDate || null,
       endDate: formValue.endDate || null,

@@ -16,6 +16,11 @@ export interface CurrencyDto {
   name: string;
 }
 
+export interface ItineraryPartCategoryDto {
+  id: string;
+  name: string;
+}
+
 export interface PaymentMethodDto {
   id: string;
   name: string;
@@ -46,6 +51,7 @@ export interface UnitDto {
 export interface LookupsResponse {
   communicationTypes: CommunicationTypeDto[];
   currencies: CurrencyDto[];
+  itineraryPartCategories: ItineraryPartCategoryDto[];
   paymentMethods: PaymentMethodDto[];
   thingCategories: ThingCategoryDto[];
   todoCategories: TodoCategoryDto[];
@@ -118,6 +124,20 @@ export class LookupService {
   }
 
   currencies$ = this.getCurrencies();
+
+  getItineraryPartCategories(): Observable<ItineraryPartCategoryDto[]> {
+    return new Observable((observer) => {
+      this.loadLookupsIfNeeded().subscribe({
+        next: (lookups) => {
+          observer.next(lookups.itineraryPartCategories);
+          observer.complete();
+        },
+        error: (err) => observer.error(err),
+      });
+    });
+  }
+
+  itineraryPartCategories$ = this.getItineraryPartCategories();
 
   getPaymentMethods(): Observable<PaymentMethodDto[]> {
     return new Observable((observer) => {
