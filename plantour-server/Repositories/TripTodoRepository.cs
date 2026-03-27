@@ -8,7 +8,6 @@ public class TripTodoRepository(PlantourContext context) : GenericRepository<Tri
     public async Task<TripUserTodo?> GetByIdAsync(Guid adminId, Guid userId, Guid tripId, Guid id)
     {
         return await _dbSet
-            .Include(x => x.ItineraryPart)
             .FirstOrDefaultAsync(x =>
                 x.Id == id &&
                 x.TripUser.Trip.Id == tripId &&
@@ -20,7 +19,6 @@ public class TripTodoRepository(PlantourContext context) : GenericRepository<Tri
     public async Task<TripUserTodo?> GetByIdWithSharedDetailsAsync(Guid adminId, Guid userId, Guid tripId, Guid id)
     {
         return await _dbSet
-            .Include(x => x.ItineraryPart)
             .Include(x => x.TripUser)
             .ThenInclude(x => x.Trip)
             .Include(x => x.TripSharedTodos)
@@ -49,7 +47,6 @@ public class TripTodoRepository(PlantourContext context) : GenericRepository<Tri
     {
         return await _dbSet
             .AsNoTracking()
-            .Include(x => x.ItineraryPart)
             .Include(x => x.TripSharedTodos)
             .Where(x =>
                 x.TripUser.Trip.Id == tripId &&

@@ -17,9 +17,6 @@ public partial class TripUserTodo
     [Column("trip_user_id")]
     public Guid TripUserId { get; set; }
 
-    [Column("itinerary_part_id")]
-    public Guid? ItineraryPartId { get; set; }
-
     [Column("category")]
     public string? Category { get; set; }
 
@@ -34,10 +31,6 @@ public partial class TripUserTodo
 
     [Column("finished")]
     public string? Finished { get; set; }
-
-    [ForeignKey("ItineraryPartId")]
-    [InverseProperty("TripUserTodos")]
-    public virtual ItineraryPart? ItineraryPart { get; set; }
 
     [InverseProperty("AssignedTodo")]
     public virtual ICollection<TripSharedTodo> TripSharedTodos { get; set; } = new List<TripSharedTodo>();

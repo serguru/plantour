@@ -3,8 +3,6 @@ namespace plantour_server.DTOs;
 public class TripTodoDto
 {
     public Guid Id { get; set; }
-    public Guid? ItineraryPartId { get; set; }
-    public string? ItineraryPartName { get; set; }
     public string? Category { get; set; }
     public string Name { get; set; } = null!;
     public string? Notes { get; set; }

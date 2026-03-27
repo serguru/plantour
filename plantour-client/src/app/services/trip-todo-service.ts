@@ -7,8 +7,6 @@ import { AssignmentStatus } from '../helpers/enums';
 
 export interface TripTodoDto {
   id: string;
-  itineraryPartId?: string | null;
-  itineraryPartName?: string | null;
   category?: string | null;
   name: string;
   notes?: string | null;
@@ -23,7 +21,6 @@ export interface TripTodoDto {
 
 export interface CreateTripTodoRequest {
   tripId: string;
-  itineraryPartId?: string | null;
   category?: string | null;
   name: string;
   notes?: string | null;
@@ -32,7 +29,6 @@ export interface CreateTripTodoRequest {
 export interface UpdateTripTodoRequest {
   id: string;
   tripId: string;
-  itineraryPartId?: string | null;
   category?: string | null;
   name: string;
   notes?: string | null;

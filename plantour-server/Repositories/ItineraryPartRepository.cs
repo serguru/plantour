@@ -15,11 +15,6 @@ public class ItineraryPartRepository(PlantourContext context) : GenericRepositor
                 x.Trip.TripUsers.Any(tu =>
                     tu.AdminParticipant.AdminId == adminId &&
                     tu.AdminParticipant.ParticipantId == userId))
-            .Include(x => x.TripUserTodos.Where(todo =>
-                todo.TripUser.Trip.Id == tripId &&
-                todo.TripUser.Trip.UserId == adminId &&
-                todo.TripUser.AdminParticipant.AdminId == adminId &&
-                todo.TripUser.AdminParticipant.ParticipantId == userId))
             .OrderBy(x => x.StartDate)
             .ThenBy(x => x.Name)
             .ToListAsync();

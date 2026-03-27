@@ -12,5 +12,4 @@ public class ItineraryPartDto
     public string? Notes { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
-    public List<ItineraryTodoSummaryDto> Todos { get; set; } = [];
 }

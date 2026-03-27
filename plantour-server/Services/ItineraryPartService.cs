@@ -28,16 +28,7 @@ public class ItineraryPartService(
         }
 
         var entities = await _itineraryPartRepository.GetAllAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
-        var dtos = _mapper.Map<List<ItineraryPartDto>>(entities);
-
-        foreach (var dto in dtos)
-        {
-            dto.Todos = dto.Todos
-                .OrderBy(x => x.Name)
-                .ToList();
-        }
-
-        return dtos;
+        return _mapper.Map<List<ItineraryPartDto>>(entities);
     }
 
     public async Task<ItineraryPartDto?> GetByIdAsync(Guid tripId, Guid id)

@@ -11,7 +11,6 @@ import { AssignmentStatus } from '../../helpers/enums';
 import { formatDate, getDaysDifference } from '../../helpers/utils';
 import { TripTodoDto, TripTodoService } from '../../services/trip-todo-service';
 import { TripTodoItemComponent } from './trip-todo-item/trip-todo-item-component';
-import { ItineraryPartDto, ItineraryService } from '../../services/itinerary-service';
 
 @Component({
   selector: 'app-trip-todos',
@@ -28,7 +27,6 @@ export class TripTodosComponent implements OnInit {
   componentId = 'trip-todos';
   componentService = inject(ComponentService);
   tripTodoService = inject(TripTodoService);
-  itineraryService = inject(ItineraryService);
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(DynamicQueryService);
 
@@ -38,7 +36,6 @@ export class TripTodosComponent implements OnInit {
   private tripId: string | null = null;
 
   assignmentsVisible = signal<boolean>(true);
-  itineraryPartsVisible = signal<boolean>(true);
 
   menuItems = computed<MenuConfig[]>(() => [
     {
@@ -47,14 +44,6 @@ export class TripTodosComponent implements OnInit {
       action: () => {
         this.assignmentsVisible.set(!this.assignmentsVisible());
         this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
-      },
-    },
-    {
-      label: `${this.itineraryPartsVisible() ? 'Hide' : 'Show'} Itinerary Parts`,
-      icon: 'map',
-      action: () => {
-        this.itineraryPartsVisible.set(!this.itineraryPartsVisible());
-        this.localStorageService.setComponentKey(this.componentId, 'itineraryPartsVisible', this.itineraryPartsVisible());
       },
     },
   ]);
@@ -98,8 +87,6 @@ export class TripTodosComponent implements OnInit {
   itemMetaData: any = {
     assignmentsVisible: this.assignmentsVisible,
     toggleFinished: this.toggleFinishedClick.bind(this),
-    itineraryPartsVisible: this.itineraryPartsVisible,
-    assignItineraryPart: this.assignItineraryPart.bind(this),
   };
 
   ngOnInit(): void {
@@ -112,13 +99,7 @@ export class TripTodosComponent implements OnInit {
 
     this.initConditions(this.componentId);
 
-    this.itineraryService.getAll(this.tripId).pipe(
-      tap((parts: ItineraryPartDto[]) => {
-        this.itemMetaData.itineraryParts = parts
-          .map((part) => ({ id: part.id, name: part.name }))
-          .sort((a, b) => a.name.localeCompare(b.name));
-      }),
-      switchMap(() => this.tripTodoService.getAll(this.tripId!)),
+    this.tripTodoService.getAll(this.tripId).pipe(
       map((tripTodos: TripTodoDto[]) => {
         tripTodos.forEach(todo => this.generateMessagesData(todo));
         return tripTodos;
@@ -144,9 +125,6 @@ export class TripTodosComponent implements OnInit {
 
     const assignmentsVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'assignmentsVisible', true);
     this.assignmentsVisible.set(assignmentsVisible);
-
-    const itineraryPartsVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'itineraryPartsVisible', true);
-    this.itineraryPartsVisible.set(itineraryPartsVisible);
   }
 
   initConditions(componentId: string | null): void {
@@ -236,28 +214,6 @@ export class TripTodosComponent implements OnInit {
       finished: entity.finished,
     };
     this.tripTodoService.toggleFinished(transport).pipe(
-      switchMap(() => this.tripTodoService.getAll(this.tripId!)),
-      map((tripTodos: TripTodoDto[]) => {
-        tripTodos.forEach(todo => this.generateMessagesData(todo));
-        return tripTodos;
-      }),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe((tripTodos) => {
-      this.componentService.updateEntities(tripTodos);
-    });
-  }
-
-  assignItineraryPart(entity: TripTodoDto, itineraryPartId: string | null): void {
-    const request = {
-      id: entity.id,
-      tripId: this.tripId!,
-      itineraryPartId,
-      category: entity.category ?? null,
-      name: entity.name,
-      notes: entity.notes ?? null,
-    };
-
-    this.tripTodoService.update(request).pipe(
       switchMap(() => this.tripTodoService.getAll(this.tripId!)),
       map((tripTodos: TripTodoDto[]) => {
         tripTodos.forEach(todo => this.generateMessagesData(todo));

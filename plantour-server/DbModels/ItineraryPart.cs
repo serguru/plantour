@@ -52,7 +52,4 @@ public partial class ItineraryPart
 
     [InverseProperty("ItineraryPart")]
     public virtual ICollection<TripActivity> TripActivities { get; set; } = new List<TripActivity>();
-
-    [InverseProperty("ItineraryPart")]
-    public virtual ICollection<TripUserTodo> TripUserTodos { get; set; } = new List<TripUserTodo>();
 }

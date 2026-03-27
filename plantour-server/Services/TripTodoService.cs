@@ -10,7 +10,6 @@ namespace plantour_server.Services;
 
 public class TripTodoService(
     TripTodoRepository tripTodoRepository,
-    ItineraryPartRepository itineraryPartRepository,
     DicTripRepository dicTripRepository,
     ICheckAccessService checkAccessService,
     TripUserRepository tripUserRepository,
@@ -20,7 +19,6 @@ public class TripTodoService(
     ISharedAssignmentNotificationService sharedAssignmentNotificationService) : ITripTodoService
 {
     private readonly TripTodoRepository _tripUserTodoRepository = tripTodoRepository;
-    private readonly ItineraryPartRepository _itineraryPartRepository = itineraryPartRepository;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
     private readonly IMapper _mapper = mapper;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
@@ -86,7 +84,6 @@ public class TripTodoService(
         var entity = _mapper.Map<TripUserTodo>(request);
         entity.Id = Guid.NewGuid();
         entity.TripUserId = tripUser.Id;
-        await ValidateItineraryPartSelectionAsync(request.TripId, request.ItineraryPartId);
         await _tripUserTodoRepository.AddAsync(entity);
         return _mapper.Map<TripTodoDto>(entity);
     }
@@ -126,7 +123,6 @@ public class TripTodoService(
             throw new CustomException("User does not have access to this trip");
         }
 
-        await ValidateItineraryPartSelectionAsync(request.TripId, request.ItineraryPartId);
         _mapper.Map(request, entity);
         await _tripUserTodoRepository.UpdateAsync(entity);
     }
@@ -187,25 +183,6 @@ public class TripTodoService(
                         finished == "success" ? "finished successfully" : "finished with failure");
                 }
             }
-        }
-    }
-
-    private async Task ValidateItineraryPartSelectionAsync(Guid tripId, Guid? itineraryPartId)
-    {
-        if (!itineraryPartId.HasValue)
-        {
-            return;
-        }
-
-        var exists = await _itineraryPartRepository.AnyAccessibleByIdAsync(
-            _currentUser.AdminId,
-            _currentUser.UserId,
-            tripId,
-            itineraryPartId.Value);
-
-        if (!exists)
-        {
-            throw new CustomException("Itinerary part not found or access denied");
         }
     }
 }

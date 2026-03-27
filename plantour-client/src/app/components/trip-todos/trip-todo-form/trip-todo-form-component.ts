@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select, SelectChangeEvent } from 'primeng/select';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
-import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
+import { FormHeader } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
 import { LookupService } from '../../../services/lookup-service';
@@ -15,7 +15,6 @@ import { LocalStorageService } from '../../../services/local-storage-service';
 import { MessagesService } from '../../../services/messages-service';
 import { CreateTripTodoRequest, TripTodoDto, TripTodoService, UpdateTripTodoRequest } from '../../../services/trip-todo-service';
 import { TodoService } from '../../../services/todo-service';
-import { ItineraryPartDto, ItineraryService } from '../../../services/itinerary-service';
 
 @Component({
   selector: 'app-trip-todo-form-component',
@@ -39,7 +38,6 @@ export class TripTodoFormComponent implements OnInit {
   private fb = inject(FormBuilder);
 
   service = inject(TripTodoService);
-  itineraryService = inject(ItineraryService);
   todoService = inject(TodoService);
   messagesService = inject(MessagesService);
   localStorageService = inject(LocalStorageService);
@@ -47,13 +45,11 @@ export class TripTodoFormComponent implements OnInit {
 
   lookupCategories$;
   lookupTripTodos$;
-  lookupItineraryParts$;
 
   mode: 'add' | 'edit' = 'add';
   id: string | null = null;
   tripId: string | null = null;
   form!: FormGroup;
-  itineraryPartVisible = signal<boolean>(false);
 
   get isAddMode(): boolean {
     return this.mode === 'add';
@@ -62,18 +58,6 @@ export class TripTodoFormComponent implements OnInit {
   get title(): string {
     return `${capitalizeFirstLetter(this.mode)} Trip Todo`;
   }
-
-  menuItems = computed<MenuConfig[]>(() => [
-    {
-      label: `${this.itineraryPartVisible() ? 'Hide' : 'Show'} Itinerary Part`,
-      icon: 'map',
-      action: () => {
-        const nextValue = !this.itineraryPartVisible();
-        this.itineraryPartVisible.set(nextValue);
-        this.localStorageService.setComponentKey('trip-todo-form', 'showItineraryPart', nextValue);
-      },
-    },
-  ]);
 
   ngOnInit(): void {
     this.tripId = this.route.snapshot.params['tripId'];
@@ -92,6 +76,7 @@ export class TripTodoFormComponent implements OnInit {
           ...todos.map(x => x.category).filter((x): x is string => !!x),
           ...tripTodos.map(x => x.category).filter((x): x is string => !!x),
         ].filter((item, index, self) => index === self.findIndex(t => t.toLowerCase() === item.toLowerCase()));
+
         return resultNames.sort((a, b) => a.localeCompare(b));
       })
     );
@@ -114,32 +99,23 @@ export class TripTodoFormComponent implements OnInit {
             notes: todo?.notes ?? null,
           };
         });
-        return resultNames.sort((a, b) => a.name.localeCompare(b.name));
-      })
-    );
 
-    this.lookupItineraryParts$ = this.itineraryService.getAll(this.tripId).pipe(
-      map((parts: ItineraryPartDto[]) => {
-        return [...parts].sort((a, b) => {
-          const startDateComparison = (a.startDate || '').localeCompare(b.startDate || '');
-          return startDateComparison !== 0 ? startDateComparison : a.name.localeCompare(b.name);
-        });
+        return resultNames.sort((a, b) => a.name.localeCompare(b.name));
       })
     );
 
     this.mode = this.route.snapshot.data['mode'];
     this.initForm();
 
-    const itineraryPartVisible = this.localStorageService.getComponentBooleanKey('trip-todo-form', 'showItineraryPart', false);
-    this.itineraryPartVisible.set(itineraryPartVisible);
-
     if (this.isAddMode) {
       return;
     }
+
     this.id = this.route.snapshot.params['id'];
     if (!this.id) {
       throw new Error('Id is required to edit a trip todo');
     }
+
     this.loadTodo();
   }
 
@@ -148,7 +124,6 @@ export class TripTodoFormComponent implements OnInit {
       name: new FormControl('', Validators.required),
       category: new FormControl(''),
       notes: new FormControl(''),
-      itineraryPartId: new FormControl<string | null>(null),
     });
   }
 
@@ -163,12 +138,7 @@ export class TripTodoFormComponent implements OnInit {
           name: todo.name,
           category: todo.category,
           notes: todo.notes,
-          itineraryPartId: todo.itineraryPartId ?? null,
         });
-
-        if (todo.itineraryPartId) {
-          this.itineraryPartVisible.set(true);
-        }
       },
     });
   }
@@ -179,19 +149,20 @@ export class TripTodoFormComponent implements OnInit {
       this.messagesService.showWarning('Please fill in all required fields correctly');
       return;
     }
+
     if (this.isAddMode) {
       this.addTodo();
       return;
     }
+
     this.updateTodo();
   }
 
-  private addTodo() {
+  private addTodo(): void {
     const formValue = this.form.value;
     const request: CreateTripTodoRequest = {
       tripId: this.tripId!,
       name: formValue.name.trim(),
-      itineraryPartId: formValue.itineraryPartId || null,
       category: formValue.category?.trim() || undefined,
       notes: formValue.notes?.trim() || undefined,
     };
@@ -215,7 +186,6 @@ export class TripTodoFormComponent implements OnInit {
       id: this.id,
       tripId: this.tripId!,
       name: formValue.name.trim(),
-      itineraryPartId: formValue.itineraryPartId || null,
       category: formValue.category?.trim() || undefined,
       notes: formValue.notes?.trim() || undefined,
     };
@@ -238,10 +208,11 @@ export class TripTodoFormComponent implements OnInit {
     return `/trips/${this.tripId}/trip-todos`;
   }
 
-  onChangeName(event: SelectChangeEvent) {
+  onChangeName(event: SelectChangeEvent): void {
     if (event.value == null) {
       return;
     }
+
     if (typeof event.value === 'object') {
       this.form.patchValue({
         name: event.value.name,
@@ -250,6 +221,7 @@ export class TripTodoFormComponent implements OnInit {
       });
       return;
     }
+
     this.form.controls['name'].patchValue(event.value);
   }
 }

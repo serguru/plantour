@@ -3,14 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 
-export interface ItineraryTodoDto {
-  id: string;
-  category?: string | null;
-  name: string;
-  notes?: string | null;
-  finished?: string | null;
-}
-
 export interface ItineraryPartDto {
   id: string;
   tripId: string;
@@ -22,7 +14,6 @@ export interface ItineraryPartDto {
   notes?: string | null;
   startDate: string;
   endDate?: string | null;
-  todos: ItineraryTodoDto[];
 }
 
 export interface CreateItineraryPartRequest {

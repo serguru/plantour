@@ -1,14 +1,13 @@
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Checkbox, CheckboxChangeEvent } from 'primeng/checkbox';
-import { Select } from 'primeng/select';
 import { mapStatusToClass } from '../../../helpers/utils';
 import { AmazonLinkComponent } from '../../amazon-link/amazon-link-component';
 import { TripTodoDto } from '../../../services/trip-todo-service';
 
 @Component({
   selector: 'app-trip-todo-item-component',
-  imports: [Checkbox, FormsModule, Select, AmazonLinkComponent],
+  imports: [Checkbox, FormsModule, AmazonLinkComponent],
   templateUrl: './trip-todo-item-component.html',
   styleUrl: './trip-todo-item-component.scss',
 })
@@ -36,17 +35,5 @@ export class TripTodoItemComponent {
     event.originalEvent!.stopPropagation();
     this.entity.finished = event.checked ? 'failure' : null;
     this.itemMetaData.toggleFinished(this.entity);
-  }
-
-  onItineraryPartChange(id: string | null) {
-    if (!this.itemMetaData?.assignItineraryPart) {
-      return;
-    }
-
-    this.itemMetaData.assignItineraryPart(this.entity, id);
-  }
-
-  onItineraryPartClick(event: Event) {
-    event.stopPropagation();
   }
 }

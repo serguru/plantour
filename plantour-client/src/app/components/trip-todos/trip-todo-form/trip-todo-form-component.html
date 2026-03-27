@@ -2,7 +2,6 @@
   <app-form-header
     [title]="title"
     icon="check-square"
-    [menuItems]="menuItems()"
   ></app-form-header>
 
   <div class="controls-wrapper">
@@ -44,24 +43,6 @@
           [editable]="true"
         ></p-select>
       </div>
-
-      @if (itineraryPartVisible()) {
-      <div class="form-field">
-        <label for="itineraryPartId">Itinerary part</label>
-        <p-select
-          id="itineraryPartId"
-          formControlName="itineraryPartId"
-          [options]="lookupItineraryParts$ | async"
-          optionLabel="name"
-          optionValue="id"
-          placeholder="Select itinerary part (optional)"
-          styleClass="w-full"
-          showClear="true"
-          [editable]="false"
-          appendTo="body"
-        ></p-select>
-      </div>
-      }
 
       <div class="form-field">
         <label for="notes">Notes</label>

@@ -557,10 +557,6 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            entity.HasOne(d => d.ItineraryPart).WithMany(p => p.TripUserTodos)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("trip_user_todos_itinerary_part_id_fkey");
-
             entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserTodos).HasConstraintName("trip_user_todos_trip_user_id_fkey");
         });
 

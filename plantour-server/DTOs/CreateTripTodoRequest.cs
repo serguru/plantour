@@ -5,7 +5,6 @@ namespace plantour_server.DTOs;
 public class CreateTripTodoRequest
 {
     public Guid TripId { get; set; }
-    public Guid? ItineraryPartId { get; set; }
 
     [StringLength(200)]
     public string? Category { get; set; }

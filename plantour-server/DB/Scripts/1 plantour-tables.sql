@@ -787,7 +787,6 @@ create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(t
 create table trip_user_todos (
     id uuid not null primary key default gen_random_uuid(),
     trip_user_id uuid not null references trip_users(id) on delete cascade,
-    itinerary_part_id uuid null references itinerary_parts(id) on delete cascade,
     category text,
     name text not null,
     notes text,
