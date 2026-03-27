@@ -641,3 +641,42 @@ postgresql://plantour_production_admin:ft9fvVFevZsCeDk3JJYBIZv6OFQPK4mP@dpg-d70o
 
 external
 postgresql://plantour_production_admin:ft9fvVFevZsCeDk3JJYBIZv6OFQPK4mP@dpg-d70o4mqa214c73fivgd0-a.oregon-postgres.render.com/plantour_production_db
+
+There is a group of travelers participating in the same trip. They have their own expenses and shared expenses, in different currencies and using different payment methods. They can exchange with money among them.  I need a micro-accounting system within a trip to store money data and at the end of the trip calculate who own what and to who.
+
+
+Explore how trips work. The trips table now has currency_id not null field. Do this:
+1) Add another lookup "currencies" to the LookupController and lookup-sService.ts
+3) Add currency to all the trip related code including backend and frontend. This field must have an ability to be taken in UI from the lookup and it is required.
+
+
+user_todos table have new fields:
+    start_date timestamptz,
+    end_date timestamptz,
+    address text,
+    latitude decimal(9,6) check (latitude is null or latitude between -90 and 90),
+    longitude decimal(9,6) check (longitude is null or longitude between -180 and 180),
+
+Add the necessary backend and frontend code to support these new fields
+
+
+There are two new DB tables: trip_shared_expenses and trip_user_expenses. The idea is to provide customers with an ability to track their trip related expenses, including 1) personal expenses 2) shared expenses 3) ability to calculate shared and personal balance and show who owe what to whom, this should be a pdf report 4) ability to give money to other trip paticipants. 
+
+If the expense does not have the explicit currency the trip's currency is used. When a user sets the same currency for the expense as it is set for the trip - set rate to 1. Otherwise go to the free of charge internet service and fill the rate. If that service does not work - write to the log and do nothing. If the currency specified the rate must be specified as well.
+
+The expense cannot be shared and have a recepient at the same time, it should be nothing, first or second.
+
+The expenses sharing logic is similar to todos sharing. 
+
+Expenses do not have dictionary - no bulck copying.  
+
+Put Expenses and Shared expenses under the Trip menu, they are accesible only if therei a current trip selected. Create corresponding controllers, services, repos, pages etc. to make the expenses working.
+
+
+See itinerary_part_categories, itinerary_parts and trip_user_todos db tables. Add backend and frontend code to allow users create the trip's itinerary. Add menu item "Itinerary" right after "Trip" -> "Trips". Must be disabled if no currrent trip selected. Show a list of itinerary parts. Design Add/Update form. Do not include sorting and targeting to entinty-actions. Sort by start_date. Each part presented as collapsible read only section with a list of todos sorted by todo start_date. Any todos within the itinerary part should have a check box allowing to select an arbitrary todos. In the three-dot menu should be a menu item "Send to Google maps" allowing to send marked todos to Google maps and see the actual roure directions.
+
+To the existing trip user (nor shared!) todos code add an ability to add a refernce to the iyinerary part, it must by a hideable select control shown for the every todo (similar to bags for trip items).
+
+
+Let's add a map related features to Plantour. Explore the official Leaflet and @bluehalo/ngx-leaflet documentation. Install it. Create a component MapComponent. THat component will show itinerary parts + their todos on the map. In the Itinertary three-dot menu should be a menu "Show on the map". Pass itinerary data to the MapComponent. Show itinerary parts with certain markers and connected with lines (sorted by start date). Show todos with different markers and not connectewd with each other. Show part's and todo's names beside markers. Click on the marker should open the popup with detailed info.
+

@@ -1,0 +1,44 @@
+<div class="page-container">
+  <app-entities-header
+    entityIcon="pi pi-money-bill"
+    title="Trip shared expenses"
+    [delete]="isParticipant() ? null : deleteTripSharedExpense.bind(this)"
+    entityName="shared expense"
+    [addUrl]="isParticipant() ? null : 'add'"
+    [editUrl]="isParticipant() ? null : 'edit/:id'"
+    [viewUrl]="!isParticipant() ? null : 'view/:id'"
+    [menuItems]="menuItems()"
+  ></app-entities-header>
+
+  <app-entities-actions
+    [onAddTargetClick]="onAddTargetClick.bind(this)"
+    [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"
+  ></app-entities-actions>
+
+  @if(showCalendarForDeadline()) {
+    <div class="container">
+      <label
+        for="deadlineDays"
+        class="font-bold block mb-2"
+      >Deadline in</label>
+      <p-inputNumber
+        [style]="{'width': '100px'}"
+        [(ngModel)]="deadlineDays"
+        (ngModelChange)="onModelChangeDays()"
+        fluid
+        [min]="1"
+        [max]="365"
+        [showButtons]="true"
+      />
+      @if (deadlineDays() && deadlineDays()! >= 1) {
+        <div>day{{deadlineDays() == 1 ? '' : 's'}}</div>
+      }
+    </div>
+  }
+
+  <app-entities
+    [itemComponent]="tripSharedExpenseItemComponent"
+    [targetEntityClick]="targetEntityButtonClick.bind(this)"
+    [itemMetaData]="itemMetaData"
+  ></app-entities>
+</div>

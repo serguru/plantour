@@ -232,6 +232,11 @@ public class TripSharedTodoService(
                     TripUserId = assignedToTripUser.Id,
                     Category = entity.Category,
                     Name = entity.Name,
+                    StartDate = entity.StartDate,
+                    EndDate = entity.EndDate,
+                    Address = entity.Address,
+                    Latitude = entity.Latitude,
+                    Longitude = entity.Longitude,
                     Notes = entity.Notes
                 };
                 todo = await _tripTodoRepository.AddAsync(todo);

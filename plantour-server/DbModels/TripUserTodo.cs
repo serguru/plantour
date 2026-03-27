@@ -17,6 +17,9 @@ public partial class TripUserTodo
     [Column("trip_user_id")]
     public Guid TripUserId { get; set; }
 
+    [Column("itinerary_part_id")]
+    public Guid? ItineraryPartId { get; set; }
+
     [Column("category")]
     public string? Category { get; set; }
 
@@ -26,11 +29,32 @@ public partial class TripUserTodo
     [Column("notes")]
     public string? Notes { get; set; }
 
+    [Column("start_date")]
+    public DateTime? StartDate { get; set; }
+
+    [Column("end_date")]
+    public DateTime? EndDate { get; set; }
+
+    [Column("address")]
+    public string? Address { get; set; }
+
+    [Column("latitude")]
+    [Precision(9, 6)]
+    public decimal? Latitude { get; set; }
+
+    [Column("longitude")]
+    [Precision(9, 6)]
+    public decimal? Longitude { get; set; }
+
     [Column("finished_at")]
     public DateTime? FinishedAt { get; set; }
 
     [Column("finished")]
     public string? Finished { get; set; }
+
+    [ForeignKey("ItineraryPartId")]
+    [InverseProperty("TripUserTodos")]
+    public virtual ItineraryPart? ItineraryPart { get; set; }
 
     [InverseProperty("AssignedTodo")]
     public virtual ICollection<TripSharedTodo> TripSharedTodos { get; set; } = new List<TripSharedTodo>();

@@ -23,6 +23,17 @@ public partial class UserTodo
     [Column("name")]
     public string Name { get; set; } = null!;
 
+    [Column("address")]
+    public string? Address { get; set; }
+
+    [Column("latitude")]
+    [Precision(9, 6)]
+    public decimal? Latitude { get; set; }
+
+    [Column("longitude")]
+    [Precision(9, 6)]
+    public decimal? Longitude { get; set; }
+
     [Column("notes")]
     public string? Notes { get; set; }
 

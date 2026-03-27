@@ -6,6 +6,7 @@ import { combineLatest, map } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
+import { InputNumber } from 'primeng/inputnumber';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
@@ -14,6 +15,7 @@ import { LookupService } from '../../../services/lookup-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
 import { MessagesService } from '../../../services/messages-service';
 import { CreateTodoRequest, TodoDto, TodoService, UpdateTodoRequest } from '../../../services/todo-service';
+import { allTogetherValidator } from '../../../helpers/all-together-validator';
 
 @Component({
   selector: 'app-todo-form-component',
@@ -26,6 +28,7 @@ import { CreateTodoRequest, TodoDto, TodoService, UpdateTodoRequest } from '../.
     FormHeader,
     FormActions,
     Select,
+    InputNumber,
   ],
   templateUrl: './todo-form-component.html',
   styleUrl: './todo-form-component.scss',
@@ -81,7 +84,14 @@ export class TodoFormComponent implements OnInit {
     this.form = this.fb.group({
       name: ['', [Validators.required]],
       category: [''],
+      address: [''],
+      latitude: [null as number | null, [Validators.min(-90), Validators.max(90)]],
+      longitude: [null as number | null, [Validators.min(-180), Validators.max(180)]],
       notes: [''],
+    }, {
+      validators: [
+        allTogetherValidator(['latitude', 'longitude'], 'coordinatesPairRequired'),
+      ],
     });
   }
 
@@ -95,6 +105,9 @@ export class TodoFormComponent implements OnInit {
         this.form.patchValue({
           name: todo.name,
           category: todo.category,
+          address: todo.address,
+          latitude: todo.latitude,
+          longitude: todo.longitude,
           notes: todo.notes,
         });
       },
@@ -120,6 +133,9 @@ export class TodoFormComponent implements OnInit {
     const request: CreateTodoRequest = {
       name: formValue.name?.trim(),
       category: formValue.category?.trim() || undefined,
+      address: formValue.address?.trim() || null,
+      latitude: formValue.latitude ?? null,
+      longitude: formValue.longitude ?? null,
       notes: formValue.notes?.trim() || undefined,
     };
 
@@ -142,6 +158,9 @@ export class TodoFormComponent implements OnInit {
       id: this.id,
       name: formValue.name?.trim(),
       category: formValue.category?.trim() || undefined,
+      address: formValue.address?.trim() || null,
+      latitude: formValue.latitude ?? null,
+      longitude: formValue.longitude ?? null,
       notes: formValue.notes?.trim() || undefined,
     };
 

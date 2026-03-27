@@ -179,6 +179,30 @@ export class Toolbar implements OnInit {
     this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-participants`]);
   }
 
+  onTripItineraryClick($event, popover): void {
+    if (this.disableParticipantOnlyFeatures()) {
+      return;
+    }
+    $event.preventDefault();
+    popover.hide();
+
+    if (!this.currentTrip()) {
+      return;
+    }
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/itinerary`]);
+  }
+
+  onTripMapClick($event, popover): void {
+    $event.preventDefault();
+    popover.hide();
+
+    if (!this.currentTrip()) {
+      return;
+    }
+
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/itinerary/map`]);
+  }
+
   onTripThingsClick($event, popover): void {
     if (this.disableParticipantOnlyFeatures()) {
       return;
@@ -205,6 +229,19 @@ export class Toolbar implements OnInit {
     this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-todos`]);
   }
 
+  onTripExpensesClick($event, popover): void {
+    if (this.disableParticipantOnlyFeatures()) {
+      return;
+    }
+    $event.preventDefault();
+    popover.hide();
+
+    if (!this.currentTrip()) {
+      return;
+    }
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-expenses`]);
+  }
+
   onTripPacksClick($event, popover): void {
     if (this.disableParticipantOnlyFeatures()) {
       return;
@@ -226,6 +263,16 @@ export class Toolbar implements OnInit {
       return;
     }
     this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-shared`]);
+  }
+
+  onTripSharedExpensesClick($event, popover): void {
+    $event.preventDefault();
+    popover.hide();
+
+    if (!this.currentTrip()) {
+      return;
+    }
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-shared-expenses`]);
   }
 
   onTripSharedTodosClick($event, popover): void {

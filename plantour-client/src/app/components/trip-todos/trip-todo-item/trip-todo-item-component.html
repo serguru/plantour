@@ -5,8 +5,29 @@
         [linkText]="entity.name"
     ></amazon-link>
 
+    @if (scheduleText || entity.address) {
+    <span class="ic-2-item ellipsis-text">
+        {{ scheduleText }}@if (scheduleText && entity.address) { · }{{ entity.address }}
+    </span>
+    }
+
     <div class="ic-2-item ic-2-right">
-        @if(entity.category) {
+        @if(itemMetaData?.itineraryPartsVisible()) {
+        <p-select
+            class="ic-2-select"
+            [options]="itemMetaData.itineraryParts"
+            optionLabel="name"
+            optionValue="id"
+            [ngModel]="entity.itineraryPartId"
+            [placeholder]="'Select itinerary part'"
+            [ngModelOptions]="{ standalone: true }"
+            [showClear]="true"
+            appendTo="body"
+            (onChange)="onItineraryPartChange($event.value)"
+            (onClick)="onItineraryPartClick($event)"
+        >
+        </p-select>
+        } @else if(entity.category) {
         <span class="ic-2-item ic-2-right ellipsis-text">
             <div class="category">
                 <amazon-link
@@ -19,6 +40,9 @@
         }
     </div>
 </div>
+@if (itemMetaData?.itineraryPartsVisible()) {
+<div class="smaller-text">{{ entity.itineraryPartName ? 'Itinerary part: ' + entity.itineraryPartName : 'No itinerary part' }}</div>
+}
 @if (entity.assignmentStatusText && itemMetaData?.assignmentsVisible()) {
 @if(assigned) {
 <div class="checkboxes-wrapper">

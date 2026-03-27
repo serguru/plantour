@@ -1,0 +1,104 @@
+<div class="page-container">
+  <app-entities-header
+    entityIcon="pi pi-map"
+    title="Trip itinerary"
+    [delete]="deletePart.bind(this)"
+    entityName="itinerary part"
+    addUrl="add"
+    editUrl="edit/:id"
+    [menuItems]="menuItems()"
+    [useEntitiesActions]="false"
+    deleteMessage="Deleting this itinerary part also deletes linked trip todos. Continue?"
+  ></app-entities-header>
+
+  <ul class="itinerary-list">
+    @for (part of parts(); track part.id) {
+    <li
+      class="itinerary-item"
+      [class.selected]="selectedId() === part.id"
+      (click)="selectPart(part.id)"
+    >
+      @if (isCollapsible(part)) {
+      <button
+        type="button"
+        class="itinerary-toggle"
+        (click)="togglePart(part.id, $event); selectPart(part.id)"
+        [attr.aria-expanded]="isExpanded(part.id)"
+      >
+        <div class="itinerary-heading">
+          <div class="itinerary-title-group">
+            <span class="itinerary-title">{{ part.name }}</span>
+            @if (part.category) {
+            <span class="itinerary-category">{{ part.category }}</span>
+            }
+          </div>
+          <i [class]="isExpanded(part.id) ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+        </div>
+        @if (getScheduleText(part) || part.address) {
+        <div class="itinerary-summary">
+          {{ getScheduleText(part) }}@if (getScheduleText(part) && part.address) { · }{{ part.address }}
+        </div>
+        }
+      </button>
+      } @else {
+      <div class="itinerary-static">
+        <div class="itinerary-heading">
+          <div class="itinerary-title-group">
+            <span class="itinerary-title">{{ part.name }}</span>
+            @if (part.category) {
+            <span class="itinerary-category">{{ part.category }}</span>
+            }
+          </div>
+        </div>
+        @if (getScheduleText(part) || part.address) {
+        <div class="itinerary-summary">
+          {{ getScheduleText(part) }}@if (getScheduleText(part) && part.address) { · }{{ part.address }}
+        </div>
+        }
+      </div>
+      }
+
+      @if (!isCollapsible(part)) {
+      <div class="itinerary-content">
+        @if (part.notes) {
+        <p class="itinerary-notes">{{ part.notes }}</p>
+        }
+        <div class="no-todos">No todos linked to this itinerary part</div>
+      </div>
+      } @else if (isExpanded(part.id)) {
+      <div class="itinerary-content">
+        @if (part.notes) {
+        <p class="itinerary-notes">{{ part.notes }}</p>
+        }
+
+        <ul class="todo-list">
+          @for (todo of part.todos; track todo.id) {
+          <li class="todo-item">
+            <label class="todo-checkbox-row">
+              <input
+                type="checkbox"
+                [checked]="isMarked(todo.id)"
+                (click)="$event.stopPropagation()"
+                (change)="toggleTodoSelection(todo.id, $any($event.target).checked, $event)"
+              />
+              <span class="todo-main">
+                <span class="todo-name">{{ todo.name }}</span>
+                @if (getTodoScheduleText(todo) || todo.address) {
+                <span class="todo-meta">{{ getTodoScheduleText(todo) }}@if (getTodoScheduleText(todo) && todo.address) { · }{{ todo.address }}</span>
+                }
+                @if (todo.notes) {
+                <span class="todo-notes">{{ todo.notes }}</span>
+                }
+              </span>
+            </label>
+          </li>
+          }
+        </ul>
+      </div>
+      }
+    </li>
+    } @empty {
+    <li class="no-rows">No rows</li>
+    }
+  </ul>
+</div>

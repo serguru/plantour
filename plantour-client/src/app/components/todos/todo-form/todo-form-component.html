@@ -41,6 +41,65 @@
       </div>
 
       <div class="form-field">
+        <label for="address">Address</label>
+        <input
+          pInputText
+          id="address"
+          type="text"
+          formControlName="address"
+          placeholder="Enter address (optional)"
+        />
+      </div>
+
+      <div class="form-row two-columns">
+        <div class="form-field">
+          <label for="latitude">Latitude</label>
+          <p-inputnumber
+            inputId="latitude"
+            formControlName="latitude"
+            mode="decimal"
+            [min]="-90"
+            [max]="90"
+            [minFractionDigits]="0"
+            [maxFractionDigits]="6"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+            placeholder="Enter latitude"
+          ></p-inputnumber>
+          @if (form.get('latitude')?.invalid && (form.get('latitude')?.touched || form.get('latitude')?.dirty)) {
+            @if (form.get('latitude')?.errors?.['min'] || form.get('latitude')?.errors?.['max']) {
+              <small class="error-message">Latitude must be between -90 and 90</small>
+            }
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="longitude">Longitude</label>
+          <p-inputnumber
+            inputId="longitude"
+            formControlName="longitude"
+            mode="decimal"
+            [min]="-180"
+            [max]="180"
+            [minFractionDigits]="0"
+            [maxFractionDigits]="6"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+            placeholder="Enter longitude"
+          ></p-inputnumber>
+          @if (form.get('longitude')?.invalid && (form.get('longitude')?.touched || form.get('longitude')?.dirty)) {
+            @if (form.get('longitude')?.errors?.['min'] || form.get('longitude')?.errors?.['max']) {
+              <small class="error-message">Longitude must be between -180 and 180</small>
+            }
+          }
+        </div>
+      </div>
+
+      @if (form.hasError('coordinatesPairRequired')) {
+        <small class="error-message">Latitude and longitude must both be filled or both be empty</small>
+      }
+
+      <div class="form-field">
         <label for="notes">Notes</label>
         <textarea
           pTextarea

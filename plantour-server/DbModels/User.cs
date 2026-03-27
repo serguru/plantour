@@ -53,6 +53,9 @@ public partial class User
     [Column("participant_code")]
     public string? ParticipantCode { get; set; }
 
+    [Column("currency_id")]
+    public Guid? CurrencyId { get; set; }
+
     [ForeignKey("AccessTypeId")]
     [InverseProperty("Users")]
     public virtual AccessType AccessType { get; set; } = null!;
@@ -68,6 +71,10 @@ public partial class User
 
     [InverseProperty("User")]
     public virtual ICollection<AiPrompt> AiPrompts { get; set; } = new List<AiPrompt>();
+
+    [ForeignKey("CurrencyId")]
+    [InverseProperty("Users")]
+    public virtual Currency? Currency { get; set; }
 
     [InverseProperty("User")]
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();

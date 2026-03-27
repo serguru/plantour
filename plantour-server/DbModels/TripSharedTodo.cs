@@ -26,6 +26,23 @@ public partial class TripSharedTodo
     [Column("notes")]
     public string? Notes { get; set; }
 
+    [Column("start_date")]
+    public DateTime? StartDate { get; set; }
+
+    [Column("end_date")]
+    public DateTime? EndDate { get; set; }
+
+    [Column("address")]
+    public string? Address { get; set; }
+
+    [Column("latitude")]
+    [Precision(9, 6)]
+    public decimal? Latitude { get; set; }
+
+    [Column("longitude")]
+    [Precision(9, 6)]
+    public decimal? Longitude { get; set; }
+
     [Column("assigned_to_id")]
     public Guid? AssignedToId { get; set; }
 

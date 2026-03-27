@@ -115,6 +115,24 @@
           </a>
           <a
             class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-itinerary')"
+            (click)="onTripItineraryClick($event, popoverTrip)"
+            [class.disabled]="disableParticipantOnlyFeatures()"
+          >
+            <span class="pi pi-map"></span>
+            <span class="button-label">Itinerary</span>
+          </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-itinerary-map')"
+            (click)="onTripMapClick($event, popoverTrip)"
+            [class.disabled]="!isCurrentTrip()"
+          >
+            <span class="pi pi-map-marker"></span>
+            <span class="button-label">Map</span>
+          </a>
+          <a
+            class="pl-menu-item"
             [class.selected]="isNavigatedComponent('trip-participants')"
             (click)="onTripParticipantsClick($event, popoverTrip)"
             [class.disabled]="!isCurrentTrip()"
@@ -142,6 +160,15 @@
           </a>
           <a
             class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-expenses')"
+            (click)="onTripExpensesClick($event, popoverTrip)"
+            [class.disabled]="disableParticipantOnlyFeatures()"
+          >
+            <span class="pi pi-wallet"></span>
+            <span class="button-label">Expenses</span>
+          </a>
+          <a
+            class="pl-menu-item"
             [class.selected]="isNavigatedComponent('trip-packs')"
             (click)="onTripPacksClick($event, popoverTrip)"
             [class.disabled]="disableParticipantOnlyFeatures()"
@@ -166,6 +193,15 @@
           >
             <span class="pi pi-list-check"></span>
             <span class="button-label">Shared todos</span>
+          </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-shared-expenses')"
+            (click)="onTripSharedExpensesClick($event, popoverTrip)"
+            [class.disabled]="!isCurrentTrip()"
+          >
+            <span class="pi pi-money-bill"></span>
+            <span class="button-label">Shared expenses</span>
           </a>
           <a
             class="pl-menu-item"

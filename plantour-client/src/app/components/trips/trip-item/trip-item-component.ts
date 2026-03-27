@@ -40,6 +40,10 @@ export class TripItemComponent {
       array.push(dt);
     }
 
+    if (this.entity.currency) {
+      array.push('currency ' + this.entity.currency);
+    }
+
     array.push('participants: ' + this.entity.totalParticipants);
     array.push('bags ' + this.entity.totalPacks);
     //array.push('personal items ' + this.entity.totalThings);

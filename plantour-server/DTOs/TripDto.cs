@@ -10,6 +10,9 @@ public class TripDto
     public Guid TripStatusId { get; set; }
     public string TripStatus { get; set; } = null!;
 
+    public Guid CurrencyId { get; set; }
+    public string Currency { get; set; } = null!;
+
     public string Name { get; set; } = null!;
 
     public string? Notes { get; set; }

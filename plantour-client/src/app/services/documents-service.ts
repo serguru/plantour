@@ -22,6 +22,12 @@ export class DocumentsService {
     });
   }
 
+  getTripExpensesReportPdf(tripId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/trip/${tripId}/expenses`, {
+      responseType: 'blob'
+    });
+  }
+
   getPackingListPdf(tripId: string, tripPackId: string): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/trip/${tripId}/package/${tripPackId}/packing-list`, {
       responseType: 'blob'

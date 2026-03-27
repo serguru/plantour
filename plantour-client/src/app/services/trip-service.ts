@@ -8,6 +8,8 @@ export interface TripDto {
   id: string;
   tripStatusId: string | null;
   tripStatus: string | null;
+  currencyId: string;
+  currency: string | null;
   name: string;
 
   notes?: string | null;
@@ -37,6 +39,7 @@ export interface TripDto {
 }
 export interface CreateTripRequest {
   tripStatusId: string | null;
+  currencyId: string | null;
   name: string;
   notes?: string | null;
   startDate?: string | null;
@@ -46,6 +49,7 @@ export interface CreateTripRequest {
 export interface UpdateTripRequest {
   id: string;
   tripStatusId: string | null;
+  currencyId: string | null;
   name: string;
   notes?: string | null;
   startDate?: string | null;

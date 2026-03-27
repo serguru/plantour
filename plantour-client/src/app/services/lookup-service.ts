@@ -11,6 +11,21 @@ export interface CommunicationTypeDto {
   notes?: string | null;
 }
 
+export interface CurrencyDto {
+  id: string;
+  name: string;
+}
+
+export interface ItineraryPartCategoryDto {
+  id: string;
+  name: string;
+}
+
+export interface PaymentMethodDto {
+  id: string;
+  name: string;
+}
+
 export interface ThingCategoryDto {
   id: string;
   name: string;
@@ -35,6 +50,9 @@ export interface UnitDto {
 
 export interface LookupsResponse {
   communicationTypes: CommunicationTypeDto[];
+  currencies: CurrencyDto[];
+  itineraryPartCategories: ItineraryPartCategoryDto[];
+  paymentMethods: PaymentMethodDto[];
   thingCategories: ThingCategoryDto[];
   todoCategories: TodoCategoryDto[];
   tripStatuses: TripStatusDto[];
@@ -92,6 +110,48 @@ export class LookupService {
   }
 
   thingCategories$ = this.getThingCategories();
+
+  getCurrencies(): Observable<CurrencyDto[]> {
+    return new Observable((observer) => {
+      this.loadLookupsIfNeeded().subscribe({
+        next: (lookups) => {
+          observer.next(lookups.currencies);
+          observer.complete();
+        },
+        error: (err) => observer.error(err),
+      });
+    });
+  }
+
+  currencies$ = this.getCurrencies();
+
+  getItineraryPartCategories(): Observable<ItineraryPartCategoryDto[]> {
+    return new Observable((observer) => {
+      this.loadLookupsIfNeeded().subscribe({
+        next: (lookups) => {
+          observer.next(lookups.itineraryPartCategories);
+          observer.complete();
+        },
+        error: (err) => observer.error(err),
+      });
+    });
+  }
+
+  itineraryPartCategories$ = this.getItineraryPartCategories();
+
+  getPaymentMethods(): Observable<PaymentMethodDto[]> {
+    return new Observable((observer) => {
+      this.loadLookupsIfNeeded().subscribe({
+        next: (lookups) => {
+          observer.next(lookups.paymentMethods);
+          observer.complete();
+        },
+        error: (err) => observer.error(err),
+      });
+    });
+  }
+
+  paymentMethods$ = this.getPaymentMethods();
 
   getTripStatuses(): Observable<TripStatusDto[]> {
     return new Observable((observer) => {
