@@ -678,3 +678,5 @@ See itinerary_part_categories, itinerary_parts and trip_user_todos db tables. Ad
 To the existing trip user (nor shared!) todos code add an ability to add a refernce to the iyinerary part, it must by a hideable select control shown for the every todo (similar to bags for trip items).
 
 
+Let's add a map related features to Plantour. Explore the official Leaflet and @bluehalo/ngx-leaflet documentation. Install it. Create a component MapComponent. THat component will show itinerary parts + their todos on the map. In the Itinertary three-dot menu should be a menu "Show on the map". Pass itinerary data to the MapComponent. Show itinerary parts with certain markers and connected with lines (sorted by start date). Show todos with different markers and not connectewd with each other. Show part's and todo's names beside markers. Click on the marker should open the popup with detailed info.
+

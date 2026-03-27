@@ -192,6 +192,17 @@ export class Toolbar implements OnInit {
     this.router.navigate([`/trips/${this.currentTrip()!.id}/itinerary`]);
   }
 
+  onTripMapClick($event, popover): void {
+    $event.preventDefault();
+    popover.hide();
+
+    if (!this.currentTrip()) {
+      return;
+    }
+
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/itinerary/map`]);
+  }
+
   onTripThingsClick($event, popover): void {
     if (this.disableParticipantOnlyFeatures()) {
       return;

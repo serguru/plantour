@@ -223,6 +223,13 @@ export const routes: Routes = [
     data: { componentId: 'trip-itinerary' }
   },
   {
+    path: 'trips/:tripId/itinerary/map',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-itinerary/map/map-component').then(m => m.MapComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'trip-itinerary-map' }
+  },
+  {
     path: 'trips/:tripId/itinerary/add',
     canActivate: [checkTripIdGuard],
     loadComponent: () => import('./components/trip-itinerary/trip-itinerary-form/trip-itinerary-form-component').then(m => m.TripItineraryFormComponent),
