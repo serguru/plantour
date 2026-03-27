@@ -220,7 +220,7 @@ public partial class PlantourContext : DbContext
 
         modelBuilder.Entity<ErrorLog>(entity =>
         {
-            entity.ToView("error_logs", "plantour_v2");
+            entity.ToView("error_logs", "plantour");
         });
 
         modelBuilder.Entity<Gender>(entity =>
@@ -261,7 +261,7 @@ public partial class PlantourContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("logs_pkey");
 
-            entity.ToTable("logs", "plantour_v2", tb => tb.HasComment("stores application log events from serilog framework"));
+            entity.ToTable("logs", "plantour", tb => tb.HasComment("stores application log events from serilog framework"));
 
             entity.Property(e => e.Id).HasComment("auto-incrementing primary key");
             entity.Property(e => e.Exception).HasComment("exception details if applicable");
@@ -303,7 +303,7 @@ public partial class PlantourContext : DbContext
 
         modelBuilder.Entity<RecentLog>(entity =>
         {
-            entity.ToView("recent_logs", "plantour_v2");
+            entity.ToView("recent_logs", "plantour");
         });
 
         modelBuilder.Entity<RefreshToken>(entity =>
@@ -608,7 +608,7 @@ public partial class PlantourContext : DbContext
 
         modelBuilder.Entity<VTemplateThingsFull>(entity =>
         {
-            entity.ToView("v_template_things_full", "plantour_v2");
+            entity.ToView("v_template_things_full", "plantour");
         });
 
         OnModelCreatingPartial(modelBuilder);

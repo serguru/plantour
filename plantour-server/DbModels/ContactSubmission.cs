@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("contact_submissions", Schema = "plantour_v2")]
+[Table("contact_submissions", Schema = "plantour")]
 [Index("Email", Name = "idx_contact_email")]
 [Index("ContactStatus", Name = "idx_contact_status")]
 public partial class ContactSubmission

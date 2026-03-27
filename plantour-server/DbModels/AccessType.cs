@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("access_types", Schema = "plantour_v2")]
+[Table("access_types", Schema = "plantour")]
 [Index("Name", Name = "access_types_name_key", IsUnique = true)]
 public partial class AccessType
 {

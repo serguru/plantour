@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("trip_users", Schema = "plantour_v2")]
+[Table("trip_users", Schema = "plantour")]
 [Index("TripId", "AdminParticipantId", Name = "idx_trip_users_trip_id_user_id", IsUnique = true)]
 public partial class TripUser
 {

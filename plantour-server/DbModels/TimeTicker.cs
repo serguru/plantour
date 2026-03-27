@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("TimeTickers", Schema = "plantour_v2")]
+[Table("TimeTickers", Schema = "plantour")]
 [Index("ExecutionTime", Name = "IX_TimeTicker_ExecutionTime")]
 [Index("Status", "ExecutionTime", Name = "IX_TimeTicker_Status_ExecutionTime")]
 [Index("ParentId", Name = "IX_TimeTickers_ParentId")]

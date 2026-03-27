@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("age_ranges", Schema = "plantour_v2")]
+[Table("age_ranges", Schema = "plantour")]
 [Index("Name", Name = "age_ranges_name_key", IsUnique = true)]
 public partial class AgeRange
 {

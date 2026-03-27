@@ -1,17 +1,17 @@
-drop schema if exists plantour_v2 cascade;
+drop schema if exists plantour cascade;
 
-create schema plantour_v2;
+create schema plantour;
 
-set search_path to plantour_v2, public;
+set search_path to plantour, public;
 
 -----------------------------------------------------------------------
 -- ITINERARY_PART_CATEGORIES
 -----------------------------------------------------------------------
-create table plantour_v2.itinerary_part_categories (
+create table plantour.itinerary_part_categories (
     id uuid not null primary key default gen_random_uuid(),
     name text not null unique
 );
-insert into plantour_v2.itinerary_part_categories (name)
+insert into plantour.itinerary_part_categories (name)
 values 
     ('Flight'),
     ('Ferry'),
@@ -50,18 +50,18 @@ values
     ('Pickup');
 
 
-create table plantour_v2.currencies (
+create table plantour.currencies (
     id uuid not null primary key default gen_random_uuid(),
     name text not null unique
 );
-insert into plantour_v2.currencies (name) values
+insert into plantour.currencies (name) values
 ('AED'),('AFN'),('ALL'),('AMD'),('ANG'),('AOA'),('ARS'),('AUD'),('AWG'),('AZN'),('BAM'),('BBD'),('BDT'),('BGN'),('BHD'),('BIF'),('BMD'),('BND'),('BOB'),('BRL'),('BSD'),('BTN'),('BWP'),('BYN'),('BZD'),('CAD'),('CDF'),('CHF'),('CLP'),('CNY'),('COP'),('CRC'),('CUP'),('CVE'),('CZK'),('DJF'),('DKK'),('DOP'),('DZD'),('EGP'),('ERN'),('ETB'),('EUR'),('FJD'),('FKP'),('GBP'),('GEL'),('GHS'),('GIP'),('GMD'),('GNF'),('GTQ'),('GYD'),('HKD'),('HNL'),('HRK'),('HTG'),('HUF'),('IDR'),('ILS'),('INR'),('IQD'),('IRR'),('ISK'),('JMD'),('JOD'),('JPY'),('KES'),('KGS'),('KHR'),('KMF'),('KPW'),('KRW'),('KWD'),('KYD'),('KZT'),('LAK'),('LBP'),('LKR'),('LRD'),('LSL'),('LYD'),('MAD'),('MDL'),('MGA'),('MKD'),('MMK'),('MNT'),('MOP'),('MRU'),('MUR'),('MVR'),('MWK'),('MXN'),('MYR'),('MZN'),('NAD'),('NGN'),('NIO'),('NOK'),('NPR'),('NZD'),('OMR'),('PAB'),('PEN'),('PGK'),('PHP'),('PKR'),('PLN'),('PYG'),('QAR'),('RON'),('RSD'),('RUB'),('RWF'),('SAR'),('SBD'),('SCR'),('SDG'),('SEK'),('SGD'),('SHP'),('SLL'),('SOS'),('SRD'),('SSP'),('STN'),('SVC'),('SYP'),('SZL'),('THB'),('TJS'),('TMT'),('TND'),('TOP'),('TRY'),('TTD'),('TWD'),('TZS'),('UAH'),('UGX'),('USD'),('UYU'),('UZS'),('VES'),('VND'),('VUV'),('WST'),('XAF'),('XCD'),('XOF'),('XPF'),('YER'),('ZAR'),('ZMW'),('ZWL');
 
-create table plantour_v2.payment_methods (
+create table plantour.payment_methods (
     id uuid not null primary key default gen_random_uuid(),
     name text not null unique
 );
-insert into plantour_v2.payment_methods (name) values
+insert into plantour.payment_methods (name) values
 ('cash'),('credit card'),('debit card'),('prepaid card'),('bank transfer'),('direct debit'),('digital wallet'),('mobile pay'),('cryptocurrency'),('buy now pay later'),('wire transfer'),('certified cheque');
 
 -----------------------------------------------------------------------
@@ -294,7 +294,7 @@ insert into transaction_types (name) values
 -----------------------------------------------------------------------
 -- PLAN
 -----------------------------------------------------------------------
-create table plantour_v2.plans (
+create table plantour.plans (
     id uuid primary key default gen_random_uuid(),
     name text not null unique,
     paddle_product_id text null unique,
@@ -307,12 +307,12 @@ create table plantour_v2.plans (
     extended_AI_allowed boolean not null default false,
     created_at timestamptz not null default (now() at time zone 'utc')
 );
-insert into plantour_v2.plans (name, paddle_product_id, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
+insert into plantour.plans (name, paddle_product_id, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
 ('Starter', null, 'For small trips and light packers', true, 10, 2, 5, false),
 ('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, null, 5, 20, false),
 ('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, null, 50, 100, true);
 
-create table plantour_v2.prices (
+create table plantour.prices (
     id uuid primary key default gen_random_uuid(),
     plan_id uuid not null references plans(id),
     paddle_price_id text null unique,
@@ -320,34 +320,34 @@ create table plantour_v2.prices (
     value_cents int not null check(value_cents >= 0)
 );
 
-insert into plantour_v2.prices (paddle_price_id,plan_id,name,value_cents) values
+insert into plantour.prices (paddle_price_id,plan_id,name,value_cents) values
 (
     null,
-    (select id from plantour_v2.plans where name = 'Starter'),
+    (select id from plantour.plans where name = 'Starter'),
     'Starter Free',
     0
 ),
 (
     'pri_01khvsx5szpnfqd97c6sdv3e2w',
-    (select id from plantour_v2.plans where name = 'Family'),
+    (select id from plantour.plans where name = 'Family'),
     'Family Monthly',
     499
 ),
 (
     'pri_01khvsg62zpjhh6qbmc5sfmkm3',
-    (select id from plantour_v2.plans where name = 'Expedition'),
+    (select id from plantour.plans where name = 'Expedition'),
     'Expedition Monthly',
     1499
 ),
 (
     'pri_01khvsyg17b43cm5kf0t63zfnr',
-    (select id from plantour_v2.plans where name = 'Family'),
+    (select id from plantour.plans where name = 'Family'),
     'Family Yearly',
     2999
 ),
 (
     'pri_01khvspsgmrkcggdxxtksbzy88',
-    (select id from plantour_v2.plans where name = 'Expedition'),
+    (select id from plantour.plans where name = 'Expedition'),
     'Expedition Yearly',
     8999
 );
@@ -373,7 +373,7 @@ create table users (
     currency_id uuid null references currencies(id) on delete set null
 );
 
-create or replace function plantour_v2.prevent_email_change_for_non_temporary_users()
+create or replace function plantour.prevent_email_change_for_non_temporary_users()
 returns trigger
 language plpgsql
 as $$
@@ -386,22 +386,22 @@ begin
 end;
 $$;
 
---drop trigger if exists trg_prevent_email_change_for_non_temporary_users on plantour_v2.users;
+--drop trigger if exists trg_prevent_email_change_for_non_temporary_users on plantour.users;
 create trigger trg_prevent_email_change_for_non_temporary_users
-before update on plantour_v2.users
+before update on plantour.users
 for each row
-execute function plantour_v2.prevent_email_change_for_non_temporary_users();
+execute function plantour.prevent_email_change_for_non_temporary_users();
 
-create table plantour_v2.user_settings (
+create table plantour.user_settings (
     id uuid not null primary key default gen_random_uuid(),
-    user_id uuid not null references plantour_v2.users(id) on delete cascade,
+    user_id uuid not null references plantour.users(id) on delete cascade,
     active boolean default false,
     key text not null,
     value text not null,
     value_type text not null check (value_type in ('json', 'string', 'integer', 'boolean')) default 'string',
     notes text
 );
-create unique index idx_user_settings_user_id_key on plantour_v2.user_settings(user_id, key);
+create unique index idx_user_settings_user_id_key on plantour.user_settings(user_id, key);
 
 create table ai_prompt_checks (
     id uuid primary key not null references users(id) on delete cascade,
@@ -418,7 +418,7 @@ create table admins_participants (
 );
 create unique index idx_admins_participants_admin_id_participant_id on admins_participants(admin_id, participant_id);
 
-create or replace function plantour_v2.prevent_self_link_admins_participants_delete()
+create or replace function plantour.prevent_self_link_admins_participants_delete()
 returns trigger
 language plpgsql
 as $$
@@ -432,28 +432,28 @@ end;
 $$;
 
 create trigger trg_prevent_self_link_admins_participants_delete
-before delete on plantour_v2.admins_participants
+before delete on plantour.admins_participants
 for each row
-execute function plantour_v2.prevent_self_link_admins_participants_delete();
+execute function plantour.prevent_self_link_admins_participants_delete();
 
-create or replace function plantour_v2.prevent_delete_admin_participant_assignments()
+create or replace function plantour.prevent_delete_admin_participant_assignments()
 returns trigger
 language plpgsql
 as $$
 begin
     if exists (
         select 1
-        from plantour_v2.trip_users trip_user
+        from plantour.trip_users trip_user
         where trip_user.admin_participant_id = old.id
           and (
               exists (
                   select 1
-                  from plantour_v2.trip_shared_things shared_thing
+                  from plantour.trip_shared_things shared_thing
                   where shared_thing.assigned_to_id = trip_user.id
               )
               or exists (
                   select 1
-                  from plantour_v2.trip_shared_todos shared_todo
+                  from plantour.trip_shared_todos shared_todo
                   where shared_todo.assigned_to_id = trip_user.id
               )
           )
@@ -466,9 +466,9 @@ end;
 $$;
 
 create trigger trg_prevent_delete_admin_participant_assignments
-before delete on plantour_v2.admins_participants
+before delete on plantour.admins_participants
 for each row
-execute function plantour_v2.prevent_delete_admin_participant_assignments();
+execute function plantour.prevent_delete_admin_participant_assignments();
 
 -----------------------------------------------------------------------
 -- USER THINGS
@@ -537,27 +537,27 @@ create table trips (
 );
 create unique index idx_trips_user_id_name on trips(user_id, name);
 
-create or replace function plantour_v2.prevent_overlapping_trips_for_user()
+create or replace function plantour.prevent_overlapping_trips_for_user()
 returns trigger
 language plpgsql
 as $$
 begin
     if tg_op = 'UPDATE' and old.user_id is distinct from new.user_id then
         perform 1
-        from plantour_v2.users
+        from plantour.users
         where id in (old.user_id, new.user_id)
         order by id
         for update;
     else
         perform 1
-        from plantour_v2.users
+        from plantour.users
         where id = new.user_id
         for update;
     end if;
 
     if exists (
         select 1
-        from plantour_v2.trips existing_trip
+        from plantour.trips existing_trip
         where existing_trip.user_id = new.user_id
           and existing_trip.id is distinct from new.id
           and new.start_date < existing_trip.end_date
@@ -571,9 +571,9 @@ end;
 $$;
 
 create trigger trg_prevent_overlapping_trips_for_user
-before insert or update of user_id, start_date, end_date on plantour_v2.trips
+before insert or update of user_id, start_date, end_date on plantour.trips
 for each row
-execute function plantour_v2.prevent_overlapping_trips_for_user();
+execute function plantour.prevent_overlapping_trips_for_user();
 
 
 -----------------------------------------------------------------------
@@ -669,14 +669,14 @@ create table trip_users (
 );
 create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, admin_participant_id);
 
-create or replace function plantour_v2.prevent_delete_trip_user_with_assigned_shared_entities()
+create or replace function plantour.prevent_delete_trip_user_with_assigned_shared_entities()
 returns trigger
 language plpgsql
 as $$
 begin
     if exists (
         select 1
-        from plantour_v2.trip_shared_things shared_thing
+        from plantour.trip_shared_things shared_thing
         where shared_thing.assigned_to_id = old.id
     ) then
         raise exception 'trip user cannot be deleted while assigned shared things exist';
@@ -684,7 +684,7 @@ begin
 
     if exists (
         select 1
-        from plantour_v2.trip_shared_todos shared_todo
+        from plantour.trip_shared_todos shared_todo
         where shared_todo.assigned_to_id = old.id
     ) then
         raise exception 'trip user cannot be deleted while assigned shared todos exist';
@@ -695,9 +695,9 @@ end;
 $$;
 
 create trigger trg_prevent_delete_trip_user_with_assigned_shared_entities
-before delete on plantour_v2.trip_users
+before delete on plantour.trip_users
 for each row
-execute function plantour_v2.prevent_delete_trip_user_with_assigned_shared_entities();
+execute function plantour.prevent_delete_trip_user_with_assigned_shared_entities();
 
 
 -----------------------------------------------------------------------
@@ -844,7 +844,7 @@ create table trip_shared_todos (
 );
 create unique index idx_trip_shared_todos_trip_id_name on trip_shared_todos(trip_id, name);
 
-create or replace function plantour_v2.prevent_delete_accepted_trip_shared_thing()
+create or replace function plantour.prevent_delete_accepted_trip_shared_thing()
 returns trigger
 language plpgsql
 as $$
@@ -858,18 +858,18 @@ end;
 $$;
 
 create trigger trg_prevent_delete_accepted_trip_shared_thing
-before delete on plantour_v2.trip_shared_things
+before delete on plantour.trip_shared_things
 for each row
-execute function plantour_v2.prevent_delete_accepted_trip_shared_thing();
+execute function plantour.prevent_delete_accepted_trip_shared_thing();
 
-create or replace function plantour_v2.prevent_delete_referenced_trip_user_thing()
+create or replace function plantour.prevent_delete_referenced_trip_user_thing()
 returns trigger
 language plpgsql
 as $$
 begin
     if exists (
         select 1
-        from plantour_v2.trip_shared_things shared_thing
+        from plantour.trip_shared_things shared_thing
         where shared_thing.assigned_thing_id = old.id
     ) then
         raise exception 'trip user thing cannot be deleted while referenced by a shared thing; unassign it first';
@@ -880,11 +880,11 @@ end;
 $$;
 
 create trigger trg_prevent_delete_referenced_trip_user_thing
-before delete on plantour_v2.trip_user_things
+before delete on plantour.trip_user_things
 for each row
-execute function plantour_v2.prevent_delete_referenced_trip_user_thing();
+execute function plantour.prevent_delete_referenced_trip_user_thing();
 
-create or replace function plantour_v2.prevent_delete_accepted_trip_shared_todo()
+create or replace function plantour.prevent_delete_accepted_trip_shared_todo()
 returns trigger
 language plpgsql
 as $$
@@ -898,18 +898,18 @@ end;
 $$;
 
 create trigger trg_prevent_delete_accepted_trip_shared_todo
-before delete on plantour_v2.trip_shared_todos
+before delete on plantour.trip_shared_todos
 for each row
-execute function plantour_v2.prevent_delete_accepted_trip_shared_todo();
+execute function plantour.prevent_delete_accepted_trip_shared_todo();
 
-create or replace function plantour_v2.prevent_delete_referenced_trip_user_todo()
+create or replace function plantour.prevent_delete_referenced_trip_user_todo()
 returns trigger
 language plpgsql
 as $$
 begin
     if exists (
         select 1
-        from plantour_v2.trip_shared_todos shared_todo
+        from plantour.trip_shared_todos shared_todo
         where shared_todo.assigned_todo_id = old.id
     ) then
         raise exception 'trip user todo cannot be deleted while referenced by a shared todo; unassign it first';
@@ -920,9 +920,9 @@ end;
 $$;
 
 create trigger trg_prevent_delete_referenced_trip_user_todo
-before delete on plantour_v2.trip_user_todos
+before delete on plantour.trip_user_todos
 for each row
-execute function plantour_v2.prevent_delete_referenced_trip_user_todo();
+execute function plantour.prevent_delete_referenced_trip_user_todo();
 
 -----------------------------------------------------------------------
 -- TRIP SHARED EXPENSES
@@ -944,7 +944,7 @@ create table trip_shared_expenses (
     rejected boolean not null default false
 );
 
-create or replace function plantour_v2.prevent_delete_accepted_trip_shared_expense()
+create or replace function plantour.prevent_delete_accepted_trip_shared_expense()
 returns trigger
 language plpgsql
 as $$
@@ -957,18 +957,18 @@ end;
 $$;
 
 create trigger trg_prevent_delete_accepted_trip_shared_expense
-before delete on plantour_v2.trip_shared_expenses
+before delete on plantour.trip_shared_expenses
 for each row
-execute function plantour_v2.prevent_delete_accepted_trip_shared_expense();
+execute function plantour.prevent_delete_accepted_trip_shared_expense();
 
-create or replace function plantour_v2.prevent_delete_referenced_trip_user_expense()
+create or replace function plantour.prevent_delete_referenced_trip_user_expense()
 returns trigger
 language plpgsql
 as $$
 begin
     if exists (
         select 1
-        from plantour_v2.trip_user_expenses a
+        from plantour.trip_user_expenses a
         where a.assigned_expense_id = old.id
     ) then
         raise exception 'trip user expense cannot be deleted while referenced by a shared expense; unassign it first';
@@ -979,9 +979,9 @@ end;
 $$;
 
 create trigger trg_prevent_delete_referenced_trip_user_expense
-before delete on plantour_v2.trip_user_expenses
+before delete on plantour.trip_user_expenses
 for each row
-execute function plantour_v2.prevent_delete_referenced_trip_user_expense();
+execute function plantour.prevent_delete_referenced_trip_user_expense();
 
 
 ----------------------------------------------------------------------
@@ -1064,7 +1064,7 @@ create unique index idx_ai_prompts_prompt_id_name on ai_things(prompt_id, name);
 -- this script creates the necessary tables for storing serilog logs in postgresql
 
 -- main logs table
-create table plantour_v2.logs (
+create table plantour.logs (
     id serial primary key,
     message_template text,
     level text,
@@ -1078,41 +1078,41 @@ create table plantour_v2.logs (
 
 -- create indexes for better query performance
 create index if not exists idx_logs_timestamp 
-    on plantour_v2.logs(time_stamp desc);
+    on plantour.logs(time_stamp desc);
 
 create index if not exists idx_logs_level 
-    on plantour_v2.logs(level);
+    on plantour.logs(level);
 
 create index if not exists idx_logs_message_template 
-    on plantour_v2.logs(message_template);
+    on plantour.logs(message_template);
 
 -- add comments to tables for documentation
-comment on table plantour_v2.logs 
+comment on table plantour.logs 
     is 'stores application log events from serilog framework';
 
-comment on column plantour_v2.logs.id 
+comment on column plantour.logs.id 
     is 'auto-incrementing primary key';
 
-comment on column plantour_v2.logs.message_template 
+comment on column plantour.logs.message_template 
     is 'the log message template with placeholders';
 
-comment on column plantour_v2.logs.level 
+comment on column plantour.logs.level 
     is 'log level: verbose, debug, information, warning, error, fatal';
 
-comment on column plantour_v2.logs.time_stamp 
+comment on column plantour.logs.time_stamp 
     is 'timestamptz when the log event was recorded';
 
-comment on column plantour_v2.logs.exception 
+comment on column plantour.logs.exception 
     is 'exception details if applicable';
 
-comment on column plantour_v2.logs.log_event 
+comment on column plantour.logs.log_event 
     is 'complete log event as json';
 
-comment on column plantour_v2.logs.properties 
+comment on column plantour.logs.properties 
     is 'additional structured properties as json (enrichers, context data)';
 
 -- create a view for easier log querying
-create or replace view plantour_v2.recent_logs as
+create or replace view plantour.recent_logs as
 select 
     id,
     time_stamp,
@@ -1120,15 +1120,15 @@ select
     message_template,
     exception,
     properties
-from plantour_v2.logs
+from plantour.logs
 order by time_stamp desc
 limit 1000;
 
-comment on view plantour_v2.recent_logs 
+comment on view plantour.recent_logs 
     is 'view of the 1000 most recent log entries';
 
 -- create a view for error logs
-create or replace view plantour_v2.error_logs as
+create or replace view plantour.error_logs as
 select 
     id,
     time_stamp,
@@ -1136,15 +1136,15 @@ select
     message_template,
     exception,
     properties
-from plantour_v2.logs
+from plantour.logs
 where level in ('Error', 'Fatal')
 order by time_stamp desc
 limit 500;
 
-comment on view plantour_v2.error_logs 
+comment on view plantour.error_logs 
     is 'view of the 500 most recent error/fatal logs';
 
-create table if not exists plantour_v2.api_visits (
+create table if not exists plantour.api_visits (
     id uuid primary key default gen_random_uuid(),
     created_at timestamptz not null default (now() at time zone 'utc'),
     method text,
@@ -1167,14 +1167,14 @@ create table if not exists plantour_v2.api_visits (
     user_role text
 );
 
-create index if not exists idx_api_visits_created_at on plantour_v2.api_visits (created_at desc);
-create index if not exists idx_api_visits_user_id on plantour_v2.api_visits (user_id);
-create index if not exists idx_api_visits_status_code on plantour_v2.api_visits (status_code);
-create index if not exists idx_api_visits_path on plantour_v2.api_visits (path);
-create index if not exists idx_api_visits_endpoint on plantour_v2.api_visits (endpoint);
+create index if not exists idx_api_visits_created_at on plantour.api_visits (created_at desc);
+create index if not exists idx_api_visits_user_id on plantour.api_visits (user_id);
+create index if not exists idx_api_visits_status_code on plantour.api_visits (status_code);
+create index if not exists idx_api_visits_path on plantour.api_visits (path);
+create index if not exists idx_api_visits_endpoint on plantour.api_visits (endpoint);
 
 
-create table plantour_v2.settings (
+create table plantour.settings (
     key text not null primary key,
     value text not null,
     value_type text not null check (value_type in ('string', 'integer', 'boolean')) default 'string',
@@ -1182,7 +1182,7 @@ create table plantour_v2.settings (
     updated_at timestamptz not null default (now() at time zone 'utc')
 );
     
-create table plantour_v2.refresh_tokens (
+create table plantour.refresh_tokens (
     id uuid primary key,
     user_id uuid not null references users(id) on delete cascade,
     token uuid not null unique,
@@ -1194,18 +1194,18 @@ create table plantour_v2.refresh_tokens (
 );
 
 
--- TickerQ operational store objects for plantour_v2 (DB-first)
+-- TickerQ operational store objects for plantour (DB-first)
 -- Generated from TickerQOperationalDbContext and adapted to be re-runnable.
 
 -- DO $EF$
 -- BEGIN
---     IF NOT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = 'plantour_v2') THEN
---         CREATE SCHEMA plantour_v2;
+--     IF NOT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = 'plantour') THEN
+--         CREATE SCHEMA plantour;
 --     END IF;
 -- END $EF$;
 
 
-CREATE TABLE IF NOT EXISTS plantour_v2."CronTickers" (
+CREATE TABLE IF NOT EXISTS plantour."CronTickers" (
     "Id" uuid NOT NULL,
     "Expression" text,
     "Request" bytea,
@@ -1220,7 +1220,7 @@ CREATE TABLE IF NOT EXISTS plantour_v2."CronTickers" (
 );
 
 
-CREATE TABLE IF NOT EXISTS plantour_v2."TimeTickers" (
+CREATE TABLE IF NOT EXISTS plantour."TimeTickers" (
     "Id" uuid NOT NULL,
     "Function" text,
     "Description" text,
@@ -1242,11 +1242,11 @@ CREATE TABLE IF NOT EXISTS plantour_v2."TimeTickers" (
     "ParentId" uuid,
     "RunCondition" integer,
     CONSTRAINT "PK_TimeTickers" PRIMARY KEY ("Id"),
-    CONSTRAINT "FK_TimeTickers_TimeTickers_ParentId" FOREIGN KEY ("ParentId") REFERENCES plantour_v2."TimeTickers" ("Id")
+    CONSTRAINT "FK_TimeTickers_TimeTickers_ParentId" FOREIGN KEY ("ParentId") REFERENCES plantour."TimeTickers" ("Id")
 );
 
 
-CREATE TABLE IF NOT EXISTS plantour_v2."CronTickerOccurrences" (
+CREATE TABLE IF NOT EXISTS plantour."CronTickerOccurrences" (
     "Id" uuid NOT NULL,
     "Status" integer NOT NULL,
     "LockHolder" text,
@@ -1261,34 +1261,34 @@ CREATE TABLE IF NOT EXISTS plantour_v2."CronTickerOccurrences" (
     "CreatedAt" timestamp without time zone NOT NULL,
     "UpdatedAt" timestamp without time zone NOT NULL,
     CONSTRAINT "PK_CronTickerOccurrences" PRIMARY KEY ("Id"),
-    CONSTRAINT "FK_CronTickerOccurrences_CronTickers_CronTickerId" FOREIGN KEY ("CronTickerId") REFERENCES plantour_v2."CronTickers" ("Id") ON DELETE CASCADE
+    CONSTRAINT "FK_CronTickerOccurrences_CronTickers_CronTickerId" FOREIGN KEY ("CronTickerId") REFERENCES plantour."CronTickers" ("Id") ON DELETE CASCADE
 );
 
 
-CREATE INDEX IF NOT EXISTS "IX_CronTickerOccurrence_CronTickerId" ON plantour_v2."CronTickerOccurrences" ("CronTickerId");
+CREATE INDEX IF NOT EXISTS "IX_CronTickerOccurrence_CronTickerId" ON plantour."CronTickerOccurrences" ("CronTickerId");
 
 
-CREATE INDEX IF NOT EXISTS "IX_CronTickerOccurrence_ExecutionTime" ON plantour_v2."CronTickerOccurrences" ("ExecutionTime");
+CREATE INDEX IF NOT EXISTS "IX_CronTickerOccurrence_ExecutionTime" ON plantour."CronTickerOccurrences" ("ExecutionTime");
 
 
-CREATE INDEX IF NOT EXISTS "IX_CronTickerOccurrence_Status_ExecutionTime" ON plantour_v2."CronTickerOccurrences" ("Status", "ExecutionTime");
+CREATE INDEX IF NOT EXISTS "IX_CronTickerOccurrence_Status_ExecutionTime" ON plantour."CronTickerOccurrences" ("Status", "ExecutionTime");
 
 
-CREATE UNIQUE INDEX IF NOT EXISTS "UQ_CronTickerId_ExecutionTime" ON plantour_v2."CronTickerOccurrences" ("CronTickerId", "ExecutionTime");
+CREATE UNIQUE INDEX IF NOT EXISTS "UQ_CronTickerId_ExecutionTime" ON plantour."CronTickerOccurrences" ("CronTickerId", "ExecutionTime");
 
 
-CREATE INDEX IF NOT EXISTS "IX_CronTickers_Expression" ON plantour_v2."CronTickers" ("Expression");
+CREATE INDEX IF NOT EXISTS "IX_CronTickers_Expression" ON plantour."CronTickers" ("Expression");
 
 
-CREATE INDEX IF NOT EXISTS "IX_Function_Expression" ON plantour_v2."CronTickers" ("Function", "Expression");
+CREATE INDEX IF NOT EXISTS "IX_Function_Expression" ON plantour."CronTickers" ("Function", "Expression");
 
 
-CREATE INDEX IF NOT EXISTS "IX_TimeTicker_ExecutionTime" ON plantour_v2."TimeTickers" ("ExecutionTime");
+CREATE INDEX IF NOT EXISTS "IX_TimeTicker_ExecutionTime" ON plantour."TimeTickers" ("ExecutionTime");
 
 
-CREATE INDEX IF NOT EXISTS "IX_TimeTicker_Status_ExecutionTime" ON plantour_v2."TimeTickers" ("Status", "ExecutionTime");
+CREATE INDEX IF NOT EXISTS "IX_TimeTicker_Status_ExecutionTime" ON plantour."TimeTickers" ("Status", "ExecutionTime");
 
 
-CREATE INDEX IF NOT EXISTS "IX_TimeTickers_ParentId" ON plantour_v2."TimeTickers" ("ParentId");
+CREATE INDEX IF NOT EXISTS "IX_TimeTickers_ParentId" ON plantour."TimeTickers" ("ParentId");
 
 

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("itinerary_part_categories", Schema = "plantour_v2")]
+[Table("itinerary_part_categories", Schema = "plantour")]
 [Index("Name", Name = "itinerary_part_categories_name_key", IsUnique = true)]
 public partial class ItineraryPartCategory
 {

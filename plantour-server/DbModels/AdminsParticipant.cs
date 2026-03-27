@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.DbModels;
 
-[Table("admins_participants", Schema = "plantour_v2")]
+[Table("admins_participants", Schema = "plantour")]
 [Index("AccessCodeHash", Name = "admins_participants_access_code_hash_key", IsUnique = true)]
 [Index("AdminId", "ParticipantId", Name = "idx_admins_participants_admin_id_participant_id", IsUnique = true)]
 public partial class AdminsParticipant

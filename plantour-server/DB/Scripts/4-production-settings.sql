@@ -1,4 +1,4 @@
-insert into plantour_v2.settings (key, value, value_type)
+insert into plantour.settings (key, value, value_type)
 values 
     ('user_entities_logging_days', '16', 'integer'),
     ('user_email_confirmation_url', 'https://plantour.app/confirm-email', 'string'),
