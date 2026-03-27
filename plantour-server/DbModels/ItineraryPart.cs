@@ -23,8 +23,8 @@ public partial class ItineraryPart
     [Column("category")]
     public string? Category { get; set; }
 
-    [Column("location")]
-    public string? Location { get; set; }
+    [Column("address")]
+    public string? Address { get; set; }
 
     [Column("latitude")]
     [Precision(9, 6)]
@@ -49,4 +49,7 @@ public partial class ItineraryPart
     [ForeignKey("TripId")]
     [InverseProperty("ItineraryParts")]
     public virtual Trip Trip { get; set; } = null!;
+
+    [InverseProperty("ItineraryPart")]
+    public virtual ICollection<TripUserTodo> TripUserTodos { get; set; } = new List<TripUserTodo>();
 }

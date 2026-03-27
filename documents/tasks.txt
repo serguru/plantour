@@ -671,3 +671,6 @@ The expenses sharing logic is similar to todos sharing.
 Expenses do not have dictionary - no bulck copying.  
 
 Put Expenses and Shared expenses under the Trip menu, they are accesible only if therei a current trip selected. Create corresponding controllers, services, repos, pages etc. to make the expenses working.
+
+
+See itinerary_part_categories, itinerary_parts and trip_user_todos db tables

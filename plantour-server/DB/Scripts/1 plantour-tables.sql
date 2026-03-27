@@ -4,6 +4,52 @@ create schema plantour_v2;
 
 set search_path to plantour_v2, public;
 
+-----------------------------------------------------------------------
+-- ITINERARY_PART_CATEGORIES
+-----------------------------------------------------------------------
+create table plantour_v2.itinerary_part_categories (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique
+);
+insert into plantour_v2.itinerary_part_categories (name)
+values 
+    ('Flight'),
+    ('Ferry'),
+    ('Train'),
+    ('Drive'),
+    ('Bus'),
+    ('Sail'),
+    ('Transit'),
+    ('Transfer'),
+    ('Hotel'),
+    ('Airbnb'),
+    ('Camping'),
+    ('Resort'),
+    ('Mooring'),
+    ('Hostel'),
+    ('Breakfast'),
+    ('Brunch'),
+    ('Lunch'),
+    ('Dinner'),
+    ('Drinks'),
+    ('Tasting'),
+    ('Sightseeing'),
+    ('Tour'),
+    ('Hike'),
+    ('Fishing'),
+    ('Museum'),
+    ('Shopping'),
+    ('Beach'),
+    ('Meeting'),
+    ('Check-in'),
+    ('Check-out'),
+    ('Layover'),
+    ('Free Time'),
+    ('Reminder'),
+    ('Excursion'),
+    ('Pickup');
+
+
 create table plantour_v2.currencies (
     id uuid not null primary key default gen_random_uuid(),
     name text not null unique
@@ -529,6 +575,34 @@ before insert or update of user_id, start_date, end_date on plantour_v2.trips
 for each row
 execute function plantour_v2.prevent_overlapping_trips_for_user();
 
+
+-----------------------------------------------------------------------
+-- TRIP ITINERARY_PARTS
+-----------------------------------------------------------------------
+create table itinerary_parts (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_id uuid not null references trips(id) on delete cascade,
+    name text not null,
+    category text,
+    address text,
+    latitude decimal(9,6) check (latitude is null or latitude between -90 and 90),
+    longitude decimal(9,6) check (longitude is null or longitude between -180 and 180),
+    notes text,
+    start_date timestamptz not null,
+    end_date timestamptz null,
+    created_at timestamptz not null default (now() at time zone 'utc'),
+    constraint ch_itinerary_parts_start_before_end check (
+        end_date is null 
+        or start_date <= end_date
+    ),
+    constraint ch_itinerary_parts_lat_long check (
+        (latitude is null and longitude is null) or 
+        (latitude is not null and longitude is not null) 
+    )
+);
+create unique index idx_itinerary_parts_trip_id_name on itinerary_parts(trip_id, name, start_date);
+
+
 -----------------------------------------------------------------------
 -- INVITATIONS
 -----------------------------------------------------------------------
@@ -692,6 +766,7 @@ create unique index idx_trip_user_things_trip_user_id_name on trip_user_things(t
 create table trip_user_todos (
     id uuid not null primary key default gen_random_uuid(),
     trip_user_id uuid not null references trip_users(id) on delete cascade,
+    itinerary_part_id uuid null references itinerary_parts(id) on delete cascade,
     category text,
     name text not null,
     notes text,
@@ -1217,74 +1292,3 @@ CREATE INDEX IF NOT EXISTS "IX_TimeTicker_Status_ExecutionTime" ON plantour_v2."
 CREATE INDEX IF NOT EXISTS "IX_TimeTickers_ParentId" ON plantour_v2."TimeTickers" ("ParentId");
 
 
------------------------------------------------------------------------
--- ITINERARY_PART_CATEGORIES
------------------------------------------------------------------------
-create table plantour_v2.itinerary_part_categories (
-    id uuid not null primary key default gen_random_uuid(),
-    name text not null unique
-);
-insert into plantour_v2.itinerary_part_categories (name)
-values 
-    ('Flight'),
-    ('Ferry'),
-    ('Train'),
-    ('Drive'),
-    ('Bus'),
-    ('Sail'),
-    ('Transit'),
-    ('Transfer'),
-    ('Hotel'),
-    ('Airbnb'),
-    ('Camping'),
-    ('Resort'),
-    ('Mooring'),
-    ('Hostel'),
-    ('Breakfast'),
-    ('Brunch'),
-    ('Lunch'),
-    ('Dinner'),
-    ('Drinks'),
-    ('Tasting'),
-    ('Sightseeing'),
-    ('Tour'),
-    ('Hike'),
-    ('Fishing'),
-    ('Museum'),
-    ('Shopping'),
-    ('Beach'),
-    ('Meeting'),
-    ('Check-in'),
-    ('Check-out'),
-    ('Layover'),
-    ('Free Time'),
-    ('Reminder'),
-    ('Excursion'),
-    ('Pickup');
-
-
------------------------------------------------------------------------
--- TRIP ITINERARY_PARTS
------------------------------------------------------------------------
-create table itinerary_parts (
-    id uuid not null primary key default gen_random_uuid(),
-    trip_id uuid not null references trips(id) on delete cascade,
-    name text not null,
-    category text,
-    location text,
-    latitude decimal(9,6) check (latitude is null or latitude between -90 and 90),
-    longitude decimal(9,6) check (longitude is null or longitude between -180 and 180),
-    notes text,
-    start_date timestamptz not null,
-    end_date timestamptz null,
-    created_at timestamptz not null default (now() at time zone 'utc'),
-    constraint ch_itinerary_parts_start_before_end check (
-        end_date is null 
-        or start_date <= end_date
-    ),
-    constraint ch_itinerary_parts_lat_long check (
-        (latitude is null and longitude is null) or 
-        (latitude is not null and longitude is not null) 
-    )
-);
-create unique index idx_itinerary_parts_trip_id_name on itinerary_parts(trip_id, name, start_date);
