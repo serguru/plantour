@@ -705,10 +705,11 @@ execute function plantour.prevent_delete_trip_user_with_assigned_shared_entities
 -----------------------------------------------------------------------
 create table plantour.trip_activities (
     id uuid not null primary key default gen_random_uuid(),
+    trip_id uuid not null references trips(id) on delete cascade,
     -- If null - group activity
     trip_user_id uuid null references trip_users(id) on delete cascade,
     itinerary_part_id uuid null references itinerary_parts(id) on delete cascade,
-    category text,
+    activity text,
     name text not null,
     notes text,
     start_date timestamptz,

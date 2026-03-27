@@ -387,7 +387,7 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddSingleton<IAuthorizationHandler, UserRoleHandler>();
 
     // Register AutoMapper
-    builder.Services.AddAutoMapper(typeof(Program).Assembly);
+    builder.Services.AddAutoMapper(_ => { }, typeof(Program).Assembly);
 
     builder.Services.AddRateLimiter(options =>
     {
@@ -508,6 +508,7 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddScoped<ITripThingService, TripThingService>();
     builder.Services.AddScoped<ITripTodoService, TripTodoService>();
     builder.Services.AddScoped<IItineraryPartService, ItineraryPartService>();
+        builder.Services.AddScoped<ITripActivityService, TripActivityService>();
     builder.Services.AddScoped<ITripExpenseService, TripExpenseService>();
     builder.Services.AddScoped<ITripPackageService, TripPackageService>();
     builder.Services.AddScoped<ILookupsService, LookupsService>();
@@ -580,6 +581,7 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddScoped<plantour_server.Repositories.RefreshTokenRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TimeTickerRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.UserSettingsRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.TripActivityRepository>();
 
     builder.Services.AddScoped<HttpCurrentUser>();
 

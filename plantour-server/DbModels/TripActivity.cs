@@ -13,14 +13,17 @@ public partial class TripActivity
     [Column("id")]
     public Guid Id { get; set; }
 
+    [Column("trip_id")]
+    public Guid TripId { get; set; }
+
     [Column("trip_user_id")]
     public Guid? TripUserId { get; set; }
 
     [Column("itinerary_part_id")]
     public Guid? ItineraryPartId { get; set; }
 
-    [Column("category")]
-    public string? Category { get; set; }
+    [Column("activity")]
+    public string? Activity { get; set; }
 
     [Column("name")]
     public string Name { get; set; } = null!;
@@ -48,6 +51,10 @@ public partial class TripActivity
     [ForeignKey("ItineraryPartId")]
     [InverseProperty("TripActivities")]
     public virtual ItineraryPart? ItineraryPart { get; set; }
+
+    [ForeignKey("TripId")]
+    [InverseProperty("TripActivities")]
+    public virtual Trip Trip { get; set; } = null!;
 
     [ForeignKey("TripUserId")]
     [InverseProperty("TripActivities")]

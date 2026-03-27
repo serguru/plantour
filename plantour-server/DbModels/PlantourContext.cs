@@ -413,6 +413,8 @@ public partial class PlantourContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("trip_activities_itinerary_part_id_fkey");
 
+            entity.HasOne(d => d.Trip).WithMany(p => p.TripActivities).HasConstraintName("trip_activities_trip_id_fkey");
+
             entity.HasOne(d => d.TripUser).WithMany(p => p.TripActivities)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("trip_activities_trip_user_id_fkey");
