@@ -7,11 +7,6 @@ export interface ItineraryTodoDto {
   id: string;
   category?: string | null;
   name: string;
-  startDate?: string | null;
-  endDate?: string | null;
-  address?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
   notes?: string | null;
   finished?: string | null;
 }

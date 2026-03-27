@@ -33,8 +33,7 @@ public class ItineraryPartService(
         foreach (var dto in dtos)
         {
             dto.Todos = dto.Todos
-                .OrderBy(x => x.StartDate ?? DateTime.MaxValue)
-                .ThenBy(x => x.Name)
+                .OrderBy(x => x.Name)
                 .ToList();
         }
 

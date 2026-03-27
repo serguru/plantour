@@ -11,11 +11,6 @@ export interface TripTodoDto {
   itineraryPartName?: string | null;
   category?: string | null;
   name: string;
-  startDate?: string | null;
-  endDate?: string | null;
-  address?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
   notes?: string | null;
   tripSharedTodoId: string | null;
   assignedAt: string | null;
@@ -31,11 +26,6 @@ export interface CreateTripTodoRequest {
   itineraryPartId?: string | null;
   category?: string | null;
   name: string;
-  startDate?: string | null;
-  endDate?: string | null;
-  address?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
   notes?: string | null;
 }
 
@@ -45,11 +35,6 @@ export interface UpdateTripTodoRequest {
   itineraryPartId?: string | null;
   category?: string | null;
   name: string;
-  startDate?: string | null;
-  endDate?: string | null;
-  address?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
   notes?: string | null;
 }
 

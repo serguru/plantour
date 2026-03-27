@@ -493,14 +493,7 @@ create table user_todos (
     user_id uuid not null references users(id) on delete cascade,
     category text,
     name text not null,
-    address text,
-    latitude decimal(9,6) check (latitude is null or latitude between -90 and 90),
-    longitude decimal(9,6) check (longitude is null or longitude between -180 and 180),
-    notes text,
-    constraint ch_user_todos_lat_long check (
-        (latitude is null and longitude is null) or 
-        (latitude is not null and longitude is not null) 
-    )
+    notes text
 );
 create unique index idx_user_todos_user_id_name on user_todos(user_id, name);
 
@@ -798,22 +791,8 @@ create table trip_user_todos (
     category text,
     name text not null,
     notes text,
-    start_date timestamptz,
-    end_date timestamptz,
-    address text,
-    latitude decimal(9,6) check (latitude is null or latitude between -90 and 90),
-    longitude decimal(9,6) check (longitude is null or longitude between -180 and 180),
     finished_at timestamptz,
-    finished text null check (finished in ('success', 'failure') or finished is null),
-
-    constraint ch_trip_user_todos_start_before_end check (
-        start_date is null or end_date is null or
-        start_date <= end_date
-    ),
-    constraint ch_trip_user_todos_lat_long check (
-        (latitude is null and longitude is null) or 
-        (latitude is not null and longitude is not null) 
-    )
+    finished text null check (finished in ('success', 'failure') or finished is null)
 );
 create unique index idx_trip_user_todos_trip_user_id_name on trip_user_todos(trip_user_id, name);
 
@@ -847,26 +826,11 @@ create table trip_shared_todos (
     name text not null,
     notes text,
 
-    start_date timestamptz,
-    end_date timestamptz,
-    address text,
-    latitude decimal(9,6) check (latitude is null or latitude between -90 and 90),
-    longitude decimal(9,6) check (longitude is null or longitude between -180 and 180),
-
     assigned_to_id uuid null references trip_users(id) on delete set null,
     assigned_todo_id uuid null references trip_user_todos(id) on delete set null,
     assigned_at timestamptz null,
     assigned_deadline timestamptz null,
-    rejected boolean not null default false,
-
-    constraint ch_trip_shared_todos_start_before_end check (
-        start_date is null or end_date is null or
-        start_date <= end_date
-    ),
-    constraint ch_trip_shared_todos_lat_long check (
-        (latitude is null and longitude is null) or 
-        (latitude is not null and longitude is not null) 
-    )
+    rejected boolean not null default false
 
 
 );

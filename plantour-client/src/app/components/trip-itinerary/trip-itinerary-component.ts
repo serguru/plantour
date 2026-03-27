@@ -208,30 +208,14 @@ export class TripItineraryComponent implements OnInit {
     return formatDate(part.startDate || part.endDate || '');
   }
 
-  getTodoScheduleText(todo: ItineraryTodoDto): string | null {
-    if (!todo.startDate && !todo.endDate) {
-      return null;
-    }
-
-    if (todo.startDate && todo.endDate) {
-      return `${formatDate(todo.startDate)} - ${formatDate(todo.endDate)}`;
-    }
-
-    return formatDate(todo.startDate || todo.endDate || '');
-  }
-
   private sendMarkedTodosToGoogleMaps(): void {
-    const markedTodos = this.parts()
-      .flatMap((part) => part.todos)
-      .filter((todo) => this.isMarked(todo.id))
-      .sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''));
-
-    const locations = markedTodos
-      .map((todo) => this.getLocationValue(todo))
+    const locations = this.parts()
+      .filter((part) => part.todos.some((todo) => this.isMarked(todo.id)))
+      .map((part) => this.getPartLocationValue(part))
       .filter((value): value is string => !!value);
 
     if (locations.length < 2) {
-      this.messagesService.showWarning('Select at least two marked todos with an address or coordinates');
+      this.messagesService.showWarning('Select marked todos across at least two itinerary parts with an address or coordinates');
       return;
     }
 
@@ -249,13 +233,13 @@ export class TripItineraryComponent implements OnInit {
     }
   }
 
-  private getLocationValue(todo: ItineraryTodoDto): string | null {
-    if (todo.latitude != null && todo.longitude != null) {
-      return `${todo.latitude},${todo.longitude}`;
+  private getPartLocationValue(part: ItineraryPartDto): string | null {
+    if (part.latitude != null && part.longitude != null) {
+      return `${part.latitude},${part.longitude}`;
     }
 
-    if (todo.address && todo.address.trim().length > 0) {
-      return todo.address.trim();
+    if (part.address && part.address.trim().length > 0) {
+      return part.address.trim();
     }
 
     return null;

@@ -254,11 +254,6 @@ export class TripTodosComponent implements OnInit {
       itineraryPartId,
       category: entity.category ?? null,
       name: entity.name,
-      startDate: entity.startDate ?? null,
-      endDate: entity.endDate ?? null,
-      address: entity.address ?? null,
-      latitude: entity.latitude ?? null,
-      longitude: entity.longitude ?? null,
       notes: entity.notes ?? null,
     };
 

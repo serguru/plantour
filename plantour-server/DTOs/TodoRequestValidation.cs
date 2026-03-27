@@ -31,34 +31,4 @@ public static class TodoRequestValidation
                 [longitudeMemberName]);
         }
     }
-
-    public static IEnumerable<ValidationResult> Validate(
-        DateTime? startDate,
-        DateTime? endDate,
-        decimal? latitude,
-        decimal? longitude,
-        string startDateMemberName,
-        string endDateMemberName,
-        string latitudeMemberName,
-        string longitudeMemberName)
-    {
-        if (startDate.HasValue != endDate.HasValue)
-        {
-            yield return new ValidationResult(
-                "StartDate and EndDate must both be provided or both be omitted.",
-                [startDateMemberName, endDateMemberName]);
-        }
-
-        if (startDate.HasValue && endDate.HasValue && startDate.Value > endDate.Value)
-        {
-            yield return new ValidationResult(
-                "StartDate cannot be later than EndDate.",
-                [startDateMemberName, endDateMemberName]);
-        }
-
-        foreach (var validationResult in ValidateCoordinates(latitude, longitude, latitudeMemberName, longitudeMemberName))
-        {
-            yield return validationResult;
-        }
-    }
 }

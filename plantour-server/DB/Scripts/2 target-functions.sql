@@ -241,19 +241,13 @@ begin
         trip_user_id,
         name,
         category,
-        notes,
-        address,
-        latitude,
-        longitude
+        notes
     )
     select
         v_trip_user_id,
         b.name,
         b.category,
-        b.notes,
-        b.address,
-        b.latitude,
-        b.longitude
+        b.notes
     from plantour.user_todos b
     left join plantour.trip_user_todos c on 
         c.trip_user_id = v_trip_user_id and 
@@ -533,19 +527,13 @@ begin
         trip_id,
         category,
         name,
-        notes,
-        address,
-        latitude,
-        longitude
+        notes
     )
     select
         p_trip_id,
         b.category,
         b.name,
-        b.notes,
-        b.address,
-        b.latitude,
-        b.longitude
+        b.notes
     from plantour.user_todos b
     left join plantour.trip_shared_todos c on 
         c.trip_id = p_trip_id and 

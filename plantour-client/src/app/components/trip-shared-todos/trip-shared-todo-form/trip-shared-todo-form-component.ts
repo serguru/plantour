@@ -7,8 +7,6 @@ import { LookupService } from '../../../services/lookup-service';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select, SelectChangeEvent } from 'primeng/select';
-import { DatePicker } from 'primeng/datepicker';
-import { InputNumber } from 'primeng/inputnumber';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
@@ -17,8 +15,6 @@ import { LocalStorageService } from '../../../services/local-storage-service';
 import { MessagesService } from '../../../services/messages-service';
 import { CreateTripSharedTodoRequest, TripSharedTodoDto, TripSharedTodoService, UpdateTripSharedTodoRequest } from '../../../services/trip-shared-todo-service';
 import { TodoService } from '../../../services/todo-service';
-import { dateRangeValidator } from '../../../helpers/date-range-validator';
-import { allTogetherValidator } from '../../../helpers/all-together-validator';
 
 @Component({
   selector: 'app-trip-shared-todo-form',
@@ -33,8 +29,6 @@ import { allTogetherValidator } from '../../../helpers/all-together-validator';
     FormActions,
     Select,
     FormsModule,
-    DatePicker,
-    InputNumber,
   ],
   templateUrl: './trip-shared-todo-form-component.html',
   styleUrl: './trip-shared-todo-form-component.scss',
@@ -124,18 +118,7 @@ export class TripSharedTodoFormComponent implements OnInit {
     this.form = this.fb.group({
       name: new FormControl('', Validators.required),
       category: new FormControl(''),
-      startDate: new FormControl<string | null>(null),
-      endDate: new FormControl<string | null>(null),
-      address: new FormControl(''),
-      latitude: new FormControl<number | null>(null, [Validators.min(-90), Validators.max(90)]),
-      longitude: new FormControl<number | null>(null, [Validators.min(-180), Validators.max(180)]),
       notes: new FormControl(''),
-    }, {
-      validators: [
-        allTogetherValidator(['startDate', 'endDate'], 'datePairRequired'),
-        dateRangeValidator,
-        allTogetherValidator(['latitude', 'longitude'], 'coordinatesPairRequired'),
-      ],
     });
   }
 
@@ -149,19 +132,10 @@ export class TripSharedTodoFormComponent implements OnInit {
         this.form.patchValue({
           name: todo.name,
           category: todo.category,
-          startDate: this.toDateInputValue(todo.startDate),
-          endDate: this.toDateInputValue(todo.endDate),
-          address: todo.address,
-          latitude: todo.latitude,
-          longitude: todo.longitude,
           notes: todo.notes,
         });
       },
     });
-  }
-
-  private toDateInputValue(value?: string | null): string | null {
-    return value ? value.slice(0, 10) : null;
   }
 
   onSubmit(): void {
@@ -183,11 +157,6 @@ export class TripSharedTodoFormComponent implements OnInit {
       tripId: this.tripId!,
       name: formValue.name.trim(),
       category: formValue.category?.trim() || undefined,
-      startDate: formValue.startDate || null,
-      endDate: formValue.endDate || null,
-      address: formValue.address?.trim() || null,
-      latitude: formValue.latitude ?? null,
-      longitude: formValue.longitude ?? null,
       notes: formValue.notes?.trim() || undefined,
     };
 
@@ -211,11 +180,6 @@ export class TripSharedTodoFormComponent implements OnInit {
       tripId: this.tripId!,
       name: formValue.name.trim(),
       category: formValue.category?.trim() || undefined,
-      startDate: formValue.startDate || null,
-      endDate: formValue.endDate || null,
-      address: formValue.address?.trim() || null,
-      latitude: formValue.latitude ?? null,
-      longitude: formValue.longitude ?? null,
       notes: formValue.notes?.trim() || undefined,
     };
 

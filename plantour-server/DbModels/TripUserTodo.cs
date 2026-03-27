@@ -29,23 +29,6 @@ public partial class TripUserTodo
     [Column("notes")]
     public string? Notes { get; set; }
 
-    [Column("start_date")]
-    public DateTime? StartDate { get; set; }
-
-    [Column("end_date")]
-    public DateTime? EndDate { get; set; }
-
-    [Column("address")]
-    public string? Address { get; set; }
-
-    [Column("latitude")]
-    [Precision(9, 6)]
-    public decimal? Latitude { get; set; }
-
-    [Column("longitude")]
-    [Precision(9, 6)]
-    public decimal? Longitude { get; set; }
-
     [Column("finished_at")]
     public DateTime? FinishedAt { get; set; }
 

@@ -6,8 +6,6 @@ import { combineLatest, map } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select, SelectChangeEvent } from 'primeng/select';
-import { DatePicker } from 'primeng/datepicker';
-import { InputNumber } from 'primeng/inputnumber';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
@@ -17,8 +15,6 @@ import { LocalStorageService } from '../../../services/local-storage-service';
 import { MessagesService } from '../../../services/messages-service';
 import { CreateTripTodoRequest, TripTodoDto, TripTodoService, UpdateTripTodoRequest } from '../../../services/trip-todo-service';
 import { TodoService } from '../../../services/todo-service';
-import { dateRangeValidator } from '../../../helpers/date-range-validator';
-import { allTogetherValidator } from '../../../helpers/all-together-validator';
 import { ItineraryPartDto, ItineraryService } from '../../../services/itinerary-service';
 
 @Component({
@@ -33,8 +29,6 @@ import { ItineraryPartDto, ItineraryService } from '../../../services/itinerary-
     FormHeader,
     FormActions,
     Select,
-    DatePicker,
-    InputNumber,
   ],
   templateUrl: './trip-todo-form-component.html',
   styleUrl: './trip-todo-form-component.scss',
@@ -117,9 +111,6 @@ export class TripTodoFormComponent implements OnInit {
           return {
             name: x,
             category: searchCategory(x),
-            address: todo?.address ?? null,
-            latitude: todo?.latitude ?? null,
-            longitude: todo?.longitude ?? null,
             notes: todo?.notes ?? null,
           };
         });
@@ -156,19 +147,8 @@ export class TripTodoFormComponent implements OnInit {
     this.form = this.fb.group({
       name: new FormControl('', Validators.required),
       category: new FormControl(''),
-      startDate: new FormControl<string | null>(null),
-      endDate: new FormControl<string | null>(null),
-      address: new FormControl(''),
-      latitude: new FormControl<number | null>(null, [Validators.min(-90), Validators.max(90)]),
-      longitude: new FormControl<number | null>(null, [Validators.min(-180), Validators.max(180)]),
       notes: new FormControl(''),
       itineraryPartId: new FormControl<string | null>(null),
-    }, {
-      validators: [
-        allTogetherValidator(['startDate', 'endDate'], 'datePairRequired'),
-        dateRangeValidator,
-        allTogetherValidator(['latitude', 'longitude'], 'coordinatesPairRequired'),
-      ],
     });
   }
 
@@ -182,11 +162,6 @@ export class TripTodoFormComponent implements OnInit {
         this.form.patchValue({
           name: todo.name,
           category: todo.category,
-          startDate: this.toDateInputValue(todo.startDate),
-          endDate: this.toDateInputValue(todo.endDate),
-          address: todo.address,
-          latitude: todo.latitude,
-          longitude: todo.longitude,
           notes: todo.notes,
           itineraryPartId: todo.itineraryPartId ?? null,
         });
@@ -196,10 +171,6 @@ export class TripTodoFormComponent implements OnInit {
         }
       },
     });
-  }
-
-  private toDateInputValue(value?: string | null): string | null {
-    return value ? value.slice(0, 10) : null;
   }
 
   onSubmit(): void {
@@ -222,11 +193,6 @@ export class TripTodoFormComponent implements OnInit {
       name: formValue.name.trim(),
       itineraryPartId: formValue.itineraryPartId || null,
       category: formValue.category?.trim() || undefined,
-      startDate: formValue.startDate || null,
-      endDate: formValue.endDate || null,
-      address: formValue.address?.trim() || null,
-      latitude: formValue.latitude ?? null,
-      longitude: formValue.longitude ?? null,
       notes: formValue.notes?.trim() || undefined,
     };
 
@@ -251,11 +217,6 @@ export class TripTodoFormComponent implements OnInit {
       name: formValue.name.trim(),
       itineraryPartId: formValue.itineraryPartId || null,
       category: formValue.category?.trim() || undefined,
-      startDate: formValue.startDate || null,
-      endDate: formValue.endDate || null,
-      address: formValue.address?.trim() || null,
-      latitude: formValue.latitude ?? null,
-      longitude: formValue.longitude ?? null,
       notes: formValue.notes?.trim() || undefined,
     };
 
@@ -285,9 +246,6 @@ export class TripTodoFormComponent implements OnInit {
       this.form.patchValue({
         name: event.value.name,
         category: event.value.category,
-        address: event.value.address,
-        latitude: event.value.latitude,
-        longitude: event.value.longitude,
         notes: event.value.notes,
       });
       return;

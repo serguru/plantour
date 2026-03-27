@@ -83,9 +83,6 @@
               />
               <span class="todo-main">
                 <span class="todo-name">{{ todo.name }}</span>
-                @if (getTodoScheduleText(todo) || todo.address) {
-                <span class="todo-meta">{{ getTodoScheduleText(todo) }}@if (getTodoScheduleText(todo) && todo.address) { · }{{ todo.address }}</span>
-                }
                 @if (todo.notes) {
                 <span class="todo-notes">{{ todo.notes }}</span>
                 }
