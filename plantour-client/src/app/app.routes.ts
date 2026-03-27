@@ -45,6 +45,13 @@ export const routes: Routes = [
     data: { componentId: 'dashboard' }
   },
   {
+    path: 'trip-info',
+    canActivate: [dashboardGuard],
+    loadComponent: () => import('./components/trip-info/trip-info-component').then(m => m.TripInfoComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'trip-info' }
+  },
+  {
     path: 'sign-in',
     canActivate: [signInGuard],
     loadComponent: () => import('./components/sign-in/sign-in').then(m => m.SignInComponent),

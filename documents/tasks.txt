@@ -680,3 +680,16 @@ To the existing trip user (nor shared!) todos code add an ability to add a refer
 
 Let's add a map related features to Plantour. Explore the official Leaflet and @bluehalo/ngx-leaflet documentation. Install it. Create a component MapComponent. THat component will show itinerary parts + their todos on the map. In the Itinertary three-dot menu should be a menu "Show on the map". Pass itinerary data to the MapComponent. Show itinerary parts with certain markers and connected with lines (sorted by start date). Show todos with different markers and not connectewd with each other. Show part's and todo's names beside markers. Click on the marker should open the popup with detailed info.
 
+
+1) Create a new TripInfoComponent as a clone of the existing DashboardComponent. Add it to app.routes under trip-info route. 
+2) Remove any code from the Dashboard component, make it showing only "Hello world"
+
+
+
+Let's make the Dashboard component the main navigation page. 
+
+Put a standard entity header Dashboard. Add a three-dot icon and then a help menu item.
+
+Implement a list of collapsible sections similar to how it is done in Help. Each section should contain a number of links to Plantour pages duplicating the current toolbar functionality.
+
+Create sections and links with same structure the toolbar currently has. Design it in a way to be convenient for user to naviagate pages. The look should not be boring. Try using animations.
