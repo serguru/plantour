@@ -229,6 +229,32 @@ export class Toolbar implements OnInit {
     this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-todos`]);
   }
 
+  onTripPersonalActivitiesClick($event, popover): void {
+    if (this.disableParticipantOnlyFeatures()) {
+      return;
+    }
+    $event.preventDefault();
+    popover.hide();
+
+    if (!this.currentTrip()) {
+      return;
+    }
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-activities/personal`]);
+  }
+
+  onTripPublicActivitiesClick($event, popover): void {
+    if (this.disableParticipantOnlyFeatures()) {
+      return;
+    }
+    $event.preventDefault();
+    popover.hide();
+
+    if (!this.currentTrip()) {
+      return;
+    }
+    this.router.navigate([`/trips/${this.currentTrip()!.id}/trip-activities/public`]);
+  }
+
   onTripExpensesClick($event, popover): void {
     if (this.disableParticipantOnlyFeatures()) {
       return;

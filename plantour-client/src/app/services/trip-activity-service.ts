@@ -7,6 +7,7 @@ export interface TripActivityDto {
   id: string;
   tripUserId?: string | null;
   itineraryPartId?: string | null;
+  itineraryPartName?: string | null;
   activity?: string | null;
   name: string;
   notes?: string | null;

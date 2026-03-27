@@ -160,6 +160,24 @@
           </a>
           <a
             class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-activities-personal')"
+            (click)="onTripPersonalActivitiesClick($event, popoverTrip)"
+            [class.disabled]="disableParticipantOnlyFeatures()"
+          >
+            <span class="pi pi-user"></span>
+            <span class="button-label">Personal activities</span>
+          </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trip-activities-public')"
+            (click)="onTripPublicActivitiesClick($event, popoverTrip)"
+            [class.disabled]="disableParticipantOnlyFeatures()"
+          >
+            <span class="pi pi-globe"></span>
+            <span class="button-label">Public activities</span>
+          </a>
+          <a
+            class="pl-menu-item"
             [class.selected]="isNavigatedComponent('trip-expenses')"
             (click)="onTripExpensesClick($event, popoverTrip)"
             [class.disabled]="disableParticipantOnlyFeatures()"
