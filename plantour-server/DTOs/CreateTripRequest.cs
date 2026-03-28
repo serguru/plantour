@@ -5,8 +5,10 @@ namespace plantour_server.DTOs;
 public class CreateTripRequest
 {
     [Required]
-    
     public Guid? TripStatusId { get; set; }
+
+    [Required]
+    public Guid? CurrencyId { get; set; }
     
     [Required]
     [StringLength(200)]

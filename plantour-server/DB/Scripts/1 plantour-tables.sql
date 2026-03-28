@@ -4,17 +4,65 @@ create schema plantour;
 
 set search_path to plantour, public;
 
+-----------------------------------------------------------------------
+-- ITINERARY_PART_CATEGORIES
+-----------------------------------------------------------------------
+create table plantour.itinerary_part_categories (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique
+);
+insert into plantour.itinerary_part_categories (name)
+values 
+    ('Flight'),
+    ('Ferry'),
+    ('Train'),
+    ('Drive'),
+    ('Bus'),
+    ('Sail'),
+    ('Transit'),
+    ('Transfer'),
+    ('Hotel'),
+    ('Airbnb'),
+    ('Camping'),
+    ('Resort'),
+    ('Mooring'),
+    ('Hostel'),
+    ('Breakfast'),
+    ('Brunch'),
+    ('Lunch'),
+    ('Dinner'),
+    ('Drinks'),
+    ('Tasting'),
+    ('Sightseeing'),
+    ('Tour'),
+    ('Hike'),
+    ('Fishing'),
+    ('Museum'),
+    ('Shopping'),
+    ('Beach'),
+    ('Meeting'),
+    ('Check-in'),
+    ('Check-out'),
+    ('Layover'),
+    ('Free Time'),
+    ('Reminder'),
+    ('Excursion'),
+    ('Pickup');
+
+
 create table plantour.currencies (
     id uuid not null primary key default gen_random_uuid(),
     name text not null unique
 );
 insert into plantour.currencies (name) values
-('USD'),
-('CAD'),
-('EUR'),
-('JPY'),
-('GBP'),
-('CHF');
+('AED'),('AFN'),('ALL'),('AMD'),('ANG'),('AOA'),('ARS'),('AUD'),('AWG'),('AZN'),('BAM'),('BBD'),('BDT'),('BGN'),('BHD'),('BIF'),('BMD'),('BND'),('BOB'),('BRL'),('BSD'),('BTN'),('BWP'),('BYN'),('BZD'),('CAD'),('CDF'),('CHF'),('CLP'),('CNY'),('COP'),('CRC'),('CUP'),('CVE'),('CZK'),('DJF'),('DKK'),('DOP'),('DZD'),('EGP'),('ERN'),('ETB'),('EUR'),('FJD'),('FKP'),('GBP'),('GEL'),('GHS'),('GIP'),('GMD'),('GNF'),('GTQ'),('GYD'),('HKD'),('HNL'),('HRK'),('HTG'),('HUF'),('IDR'),('ILS'),('INR'),('IQD'),('IRR'),('ISK'),('JMD'),('JOD'),('JPY'),('KES'),('KGS'),('KHR'),('KMF'),('KPW'),('KRW'),('KWD'),('KYD'),('KZT'),('LAK'),('LBP'),('LKR'),('LRD'),('LSL'),('LYD'),('MAD'),('MDL'),('MGA'),('MKD'),('MMK'),('MNT'),('MOP'),('MRU'),('MUR'),('MVR'),('MWK'),('MXN'),('MYR'),('MZN'),('NAD'),('NGN'),('NIO'),('NOK'),('NPR'),('NZD'),('OMR'),('PAB'),('PEN'),('PGK'),('PHP'),('PKR'),('PLN'),('PYG'),('QAR'),('RON'),('RSD'),('RUB'),('RWF'),('SAR'),('SBD'),('SCR'),('SDG'),('SEK'),('SGD'),('SHP'),('SLL'),('SOS'),('SRD'),('SSP'),('STN'),('SVC'),('SYP'),('SZL'),('THB'),('TJS'),('TMT'),('TND'),('TOP'),('TRY'),('TTD'),('TWD'),('TZS'),('UAH'),('UGX'),('USD'),('UYU'),('UZS'),('VES'),('VND'),('VUV'),('WST'),('XAF'),('XCD'),('XOF'),('XPF'),('YER'),('ZAR'),('ZMW'),('ZWL');
+
+create table plantour.payment_methods (
+    id uuid not null primary key default gen_random_uuid(),
+    name text not null unique
+);
+insert into plantour.payment_methods (name) values
+('cash'),('credit card'),('debit card'),('prepaid card'),('bank transfer'),('direct debit'),('digital wallet'),('mobile pay'),('cryptocurrency'),('buy now pay later'),('wire transfer'),('certified cheque');
 
 -----------------------------------------------------------------------
 -- COMMUNICATION TYPES
@@ -184,33 +232,33 @@ create table template_things (
     notes text
 );
 
-CREATE OR REPLACE VIEW v_template_things_full AS
-SELECT 
-    tt.id AS thing_id,
-    tt.name AS thing_name,
+create or replace view v_template_things_full as
+select 
+    tt.id as thing_id,
+    tt.name as thing_name,
     tt.category,
     tt.units,
     tt.value,
-    tt.notes AS thing_notes,
+    tt.notes as thing_notes,
 
-    tpl.id AS template_id,
-    tpl.name AS template_name,
+    tpl.id as template_id,
+    tpl.name as template_name,
 
-    act.name AS activity_name,
+    act.name as activity_name,
 
-    tr.name AS temperature_range_name,
+    tr.name as temperature_range_name,
     tr.fromtemp,
     tr.totemp,
 
-    ar.name AS age_range_name,
+    ar.name as age_range_name,
     ar.fromage,
     ar.toage
 
-FROM template_things tt
-JOIN thing_templates tpl ON tt.template_id = tpl.id
-JOIN activities act ON tpl.activity_id = act.id
-LEFT JOIN temperature_ranges tr ON tpl.temperature_ranges_id = tr.id
-LEFT JOIN age_ranges ar ON tpl.age_ranges_id = ar.id;
+from template_things tt
+join thing_templates tpl on tt.template_id = tpl.id
+join activities act on tpl.activity_id = act.id
+left join temperature_ranges tr on tpl.temperature_ranges_id = tr.id
+left join age_ranges ar on tpl.age_ranges_id = ar.id;
 
 
 -----------------------------------------------------------------------
@@ -228,8 +276,6 @@ insert into access_types (name) values
 ('Suspended'),
 ('Banned'),
 ('Archived');
-
-
 
 -----------------------------------------------------------------------
 -- TRANSACTION TYPE
@@ -323,7 +369,8 @@ create table users (
     access_type_id uuid not null references access_types(id),
     paddle_subscription_id text unique,
     temporary bool not null default false,
-    participant_code text null
+    participant_code text null,
+    currency_id uuid null references currencies(id) on delete set null
 );
 
 create or replace function plantour.prevent_email_change_for_non_temporary_users()
@@ -361,6 +408,18 @@ create table ai_prompt_checks (
     start timestamptz not null ,
     count int not null check(count >= 0)
 );
+
+create table plantour.user_keys (
+    id uuid not null primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    name text not null,
+    key text not null,
+    active boolean not null default true,
+    created_at timestamptz not null default (now() at time zone 'utc'),
+    notes text
+);
+create unique index idx_user_keys_user_id_name on plantour.user_keys(user_id, name);
+
 
 create table admins_participants (
     id uuid not null primary key default gen_random_uuid(),
@@ -423,7 +482,6 @@ before delete on plantour.admins_participants
 for each row
 execute function plantour.prevent_delete_admin_participant_assignments();
 
-
 -----------------------------------------------------------------------
 -- USER THINGS
 -----------------------------------------------------------------------
@@ -475,6 +533,7 @@ create table trips (
     start_date date not null,
     end_date date not null,
     created_at timestamptz not null default (now() at time zone 'utc'),
+    currency_id uuid not null references currencies(id) on delete set null,
     constraint ch_trips_start_before_end check (
         start_date is null 
         or end_date is null 
@@ -520,6 +579,65 @@ create trigger trg_prevent_overlapping_trips_for_user
 before insert or update of user_id, start_date, end_date on plantour.trips
 for each row
 execute function plantour.prevent_overlapping_trips_for_user();
+
+create or replace function plantour.prevent_trip_currency_change_with_expenses()
+returns trigger
+language plpgsql
+as $$
+begin
+    if new.currency_id is distinct from old.currency_id
+       and (
+           exists (
+               select 1
+               from plantour.trip_users trip_user
+               join plantour.trip_user_expenses expense on expense.trip_user_id = trip_user.id
+               where trip_user.trip_id = old.id
+           )
+           or exists (
+               select 1
+               from plantour.trip_shared_expenses shared_expense
+               where shared_expense.trip_id = old.id
+           )
+       ) then
+        raise exception 'Trip currency cannot be changed while the trip has expenses';
+    end if;
+
+    return new;
+end;
+$$;
+
+create trigger trg_prevent_trip_currency_change_with_expenses
+before update of currency_id on plantour.trips
+for each row
+execute function plantour.prevent_trip_currency_change_with_expenses();
+
+
+-----------------------------------------------------------------------
+-- TRIP ITINERARY_PARTS
+-----------------------------------------------------------------------
+create table itinerary_parts (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_id uuid not null references trips(id) on delete cascade,
+    name text not null,
+    category text,
+    address text,
+    latitude decimal(9,6) check (latitude is null or latitude between -90 and 90),
+    longitude decimal(9,6) check (longitude is null or longitude between -180 and 180),
+    notes text,
+    start_date timestamptz not null,
+    end_date timestamptz null,
+    created_at timestamptz not null default (now() at time zone 'utc'),
+    constraint ch_itinerary_parts_start_before_end check (
+        end_date is null 
+        or start_date <= end_date
+    ),
+    constraint ch_itinerary_parts_lat_long check (
+        (latitude is null and longitude is null) or 
+        (latitude is not null and longitude is not null) 
+    )
+);
+create unique index idx_itinerary_parts_trip_id_name on itinerary_parts(trip_id, name, start_date);
+
 
 -----------------------------------------------------------------------
 -- INVITATIONS
@@ -617,9 +735,75 @@ before delete on plantour.trip_users
 for each row
 execute function plantour.prevent_delete_trip_user_with_assigned_shared_entities();
 
+
+-----------------------------------------------------------------------
+-- TRIP ACTIVITIES
+-----------------------------------------------------------------------
+create table plantour.trip_activities (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_id uuid not null references trips(id) on delete cascade,
+    -- If null - group activity
+    trip_user_id uuid null references trip_users(id) on delete cascade,
+    itinerary_part_id uuid null references itinerary_parts(id) on delete cascade,
+    activity text,
+    name text not null,
+    notes text,
+    start_date timestamptz,
+    end_date timestamptz,
+    address text,
+    latitude decimal(9,6) check (latitude is null or latitude between -90 and 90),
+    longitude decimal(9,6) check (longitude is null or longitude between -180 and 180),
+
+    constraint ch_trip_activities_start_before_end check (
+        start_date is null or end_date is null or
+        start_date <= end_date
+    ),
+    constraint ch_trip_activities_lat_long check (
+        (latitude is null and longitude is null) or 
+        (latitude is not null and longitude is not null) 
+    )
+);
+
+create table plantour.trip_notes (
+    id uuid primary key default gen_random_uuid(),
+    trip_user_id uuid references trip_users(id),
+    trip_activity_id uuid null references trip_activities(id) on delete cascade,
+    title text not null,
+    content_json jsonb,
+    note_order integer null check (note_order > 0),
+    created_at timestamptz default (now() at time zone 'utc')
+);
+
+-----------------------------------------------------------------------
+-- TRIP USER EXPENSES
+-----------------------------------------------------------------------
+create table trip_user_expenses (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_user_id uuid not null references trip_users(id) on delete cascade,
+    name text not null,
+    payment_method text,
+    currency_id uuid null references currencies(id),
+    rate decimal(19,8) null,
+    amount decimal(19,2) not null check (amount > 0),
+    recipient_id uuid null references trip_users(id) on delete cascade,
+    notes text,
+
+    finished_at timestamptz,
+    finished text null check (finished in ('success', 'failure') or finished is null)
+
+    constraint ch_trip_user_expenses_users check 
+    (
+        recipient_id is null or recipient_id != trip_user_id
+    ),
+    constraint ch_trip_user_expenses_rate check 
+    (
+        (currency_id is null and rate is null) or
+        (currency_id is not null and rate is not null)
+    )
+);
+
 -----------------------------------------------------------------------
 -- TRIP USER PACKAGES
-
 -----------------------------------------------------------------------
 create table trip_user_packages (
     id uuid not null primary key default gen_random_uuid(),
@@ -699,6 +883,8 @@ create table trip_shared_todos (
     assigned_at timestamptz null,
     assigned_deadline timestamptz null,
     rejected boolean not null default false
+
+
 );
 create unique index idx_trip_shared_todos_trip_id_name on trip_shared_todos(trip_id, name);
 
@@ -783,6 +969,76 @@ for each row
 execute function plantour.prevent_delete_referenced_trip_user_todo();
 
 -----------------------------------------------------------------------
+-- TRIP SHARED EXPENSES
+-----------------------------------------------------------------------
+create table trip_shared_expenses (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_id uuid not null references trips(id) on delete cascade,
+    category text,
+    name text not null,
+    payment_method text,
+    currency_id uuid null references currencies(id),
+    amount decimal(19,2) not null check (amount > 0),
+    notes text,
+
+    assigned_to_id uuid null references trip_users(id) on delete set null,
+    assigned_expense_id uuid null references trip_user_expenses(id) on delete set null,
+    assigned_at timestamptz null,
+    assigned_deadline timestamptz null,
+    rejected boolean not null default false
+);
+
+create or replace function plantour.prevent_delete_accepted_trip_shared_expense()
+returns trigger
+language plpgsql
+as $$
+begin
+    if old.assigned_expense_id is not null then
+        raise exception 'accepted shared expense cannot be deleted while assigned; unassign it first';
+    end if;
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_accepted_trip_shared_expense
+before delete on plantour.trip_shared_expenses
+for each row
+execute function plantour.prevent_delete_accepted_trip_shared_expense();
+
+create or replace function plantour.prevent_delete_referenced_trip_user_expense()
+returns trigger
+language plpgsql
+as $$
+begin
+    if exists (
+        select 1
+        from plantour.trip_user_expenses a
+        where a.assigned_expense_id = old.id
+    ) then
+        raise exception 'trip user expense cannot be deleted while referenced by a shared expense; unassign it first';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_referenced_trip_user_expense
+before delete on plantour.trip_user_expenses
+for each row
+execute function plantour.prevent_delete_referenced_trip_user_expense();
+
+
+----------------------------------------------------------------------
+-- TRIP NOTES
+-----------------------------------------------------------------------
+create table trip_notes (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_user_id uuid not null references trip_users(id) on delete cascade,
+    note text not null,
+    created_at timestamptz not null default (now() at time zone 'utc')
+);
+
+----------------------------------------------------------------------
 -- TRIP COMMENTS
 -----------------------------------------------------------------------
 create table trip_comments (
@@ -847,6 +1103,14 @@ create table ai_things (
 );
 create unique index idx_ai_prompts_prompt_id_name on ai_things(prompt_id, name);
 
+create table plantour.ai_trip_plans (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    question text not null,
+    plan json not null,
+    created_at timestamptz not null default (now() at time zone 'utc')
+);
+create unique index idx_ai_trip_plans_question on plantour.ai_trip_plans(user_id, question);
 
 -- serilog postgresql logging tables
 -- this script creates the necessary tables for storing serilog logs in postgresql
@@ -982,7 +1246,7 @@ create table plantour.refresh_tokens (
 );
 
 
--- TickerQ operational store objects for Plantour (DB-first)
+-- TickerQ operational store objects for plantour (DB-first)
 -- Generated from TickerQOperationalDbContext and adapted to be re-runnable.
 
 -- DO $EF$

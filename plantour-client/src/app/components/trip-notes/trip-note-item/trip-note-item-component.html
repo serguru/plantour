@@ -1,0 +1,53 @@
+<div class="trip-note-row">
+  <div class="trip-note-row__main">
+    <div class="trip-note-row__title-row">
+      <span class="trip-note-row__title">{{ entity.title }}</span>
+      <label class="trip-note-row__mark" (click)="onMarkedClick($event)">
+        <input type="checkbox" [checked]="marked" (change)="onMarkedChange($event)" />
+        <span>Mark for PDF</span>
+      </label>
+    </div>
+
+    @if (createdAtText || entity.tripActivityName) {
+    <div class="smaller-text trip-note-row__meta">
+      @if (createdAtText) {
+      <span>{{ createdAtText }}</span>
+      }
+      @if (createdAtText && entity.tripActivityName) {
+      <span>·</span>
+      }
+      @if (entity.tripActivityName) {
+      <span>Activity: {{ entity.tripActivityName }}</span>
+      }
+    </div>
+    }
+  </div>
+
+  <div class="trip-note-row__right">
+    @if (itemMetaData?.activityAssignmentsVisible()) {
+    <p-select
+      class="trip-note-row__select"
+      [options]="itemMetaData.activityOptions"
+      optionLabel="name"
+      optionValue="id"
+      [ngModel]="entity.tripActivityId"
+      [ngModelOptions]="{ standalone: true }"
+      placeholder="Select activity"
+      [showClear]="true"
+      appendTo="body"
+      (onChange)="onTripActivityChange($event.value)"
+      (onClick)="onTripActivityClick($event)"
+    ></p-select>
+    }
+  </div>
+</div>
+
+@if (isExpanded) {
+<div class="trip-note-row__body">
+  @if (renderedHtml) {
+  <div class="trip-note-rendered-content" [innerHTML]="renderedHtml"></div>
+  } @else {
+  <div class="smaller-text">No note content yet.</div>
+  }
+</div>
+}

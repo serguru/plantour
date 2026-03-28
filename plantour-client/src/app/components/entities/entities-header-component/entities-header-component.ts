@@ -10,6 +10,7 @@ export interface MenuConfig {
   label: string;
   icon: string;
   action: () => void;
+  disabled?: boolean;
   disabledIfNoSelection?: boolean;
 }
 
@@ -147,7 +148,7 @@ export class EntitiesHeader implements OnInit {
 
   onMenuClick(event, item: MenuConfig, popover: Popover) {
     event.stopPropagation();
-    if (item.disabledIfNoSelection && !this.selectedId()) {
+    if (item.disabled || (item.disabledIfNoSelection && !this.selectedId())) {
       return;
     }
     item.action();

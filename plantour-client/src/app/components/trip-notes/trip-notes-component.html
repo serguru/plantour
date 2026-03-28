@@ -1,0 +1,15 @@
+<div class="page-container">
+  <app-entities-header
+    entityIcon="pi pi-book"
+    title="Trip notes"
+    [delete]="deleteTripNote.bind(this)"
+    entityName="note"
+    addUrl="add"
+    editUrl="edit/:id"
+    [menuItems]="menuItems()"
+  ></app-entities-header>
+
+  <app-entities-actions></app-entities-actions>
+
+  <app-entities [itemComponent]="tripNoteItemComponent" [itemMetaData]="itemMetaData"></app-entities>
+</div>

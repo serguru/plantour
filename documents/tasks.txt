@@ -641,3 +641,84 @@ postgresql://plantour_production_admin:ft9fvVFevZsCeDk3JJYBIZv6OFQPK4mP@dpg-d70o
 
 external
 postgresql://plantour_production_admin:ft9fvVFevZsCeDk3JJYBIZv6OFQPK4mP@dpg-d70o4mqa214c73fivgd0-a.oregon-postgres.render.com/plantour_production_db
+
+There is a group of travelers participating in the same trip. They have their own expenses and shared expenses, in different currencies and using different payment methods. They can exchange with money among them.  I need a micro-accounting system within a trip to store money data and at the end of the trip calculate who own what and to who.
+
+
+Explore how trips work. The trips table now has currency_id not null field. Do this:
+1) Add another lookup "currencies" to the LookupController and lookup-sService.ts
+3) Add currency to all the trip related code including backend and frontend. This field must have an ability to be taken in UI from the lookup and it is required.
+
+
+user_todos table have new fields:
+    start_date timestamptz,
+    end_date timestamptz,
+    address text,
+    latitude decimal(9,6) check (latitude is null or latitude between -90 and 90),
+    longitude decimal(9,6) check (longitude is null or longitude between -180 and 180),
+
+Add the necessary backend and frontend code to support these new fields
+
+
+There are two new DB tables: trip_shared_expenses and trip_user_expenses. The idea is to provide customers with an ability to track their trip related expenses, including 1) personal expenses 2) shared expenses 3) ability to calculate shared and personal balance and show who owe what to whom, this should be a pdf report 4) ability to give money to other trip paticipants. 
+
+If the expense does not have the explicit currency the trip's currency is used. When a user sets the same currency for the expense as it is set for the trip - set rate to 1. Otherwise go to the free of charge internet service and fill the rate. If that service does not work - write to the log and do nothing. If the currency specified the rate must be specified as well.
+
+The expense cannot be shared and have a recepient at the same time, it should be nothing, first or second.
+
+The expenses sharing logic is similar to todos sharing. 
+
+Expenses do not have dictionary - no bulck copying.  
+
+Put Expenses and Shared expenses under the Trip menu, they are accesible only if therei a current trip selected. Create corresponding controllers, services, repos, pages etc. to make the expenses working.
+
+
+See itinerary_part_categories, itinerary_parts and trip_user_todos db tables. Add backend and frontend code to allow users create the trip's itinerary. Add menu item "Itinerary" right after "Trip" -> "Trips". Must be disabled if no currrent trip selected. Show a list of itinerary parts. Design Add/Update form. Do not include sorting and targeting to entinty-actions. Sort by start_date. Each part presented as collapsible read only section with a list of todos sorted by todo start_date. Any todos within the itinerary part should have a check box allowing to select an arbitrary todos. In the three-dot menu should be a menu item "Send to Google maps" allowing to send marked todos to Google maps and see the actual roure directions.
+
+To the existing trip user (nor shared!) todos code add an ability to add a refernce to the iyinerary part, it must by a hideable select control shown for the every todo (similar to bags for trip items).
+
+
+Let's add a map related features to Plantour. Explore the official Leaflet and @bluehalo/ngx-leaflet documentation. Install it. Create a component MapComponent. THat component will show itinerary parts + their todos on the map. In the Itinertary three-dot menu should be a menu "Show on the map". Pass itinerary data to the MapComponent. Show itinerary parts with certain markers and connected with lines (sorted by start date). Show todos with different markers and not connectewd with each other. Show part's and todo's names beside markers. Click on the marker should open the popup with detailed info.
+
+
+1) Create a new TripInfoComponent as a clone of the existing DashboardComponent. Add it to app.routes under trip-info route. 
+2) Remove any code from the Dashboard component, make it showing only "Hello world"
+
+
+
+Let's make the Dashboard component the main navigation page. 
+
+Put a standard entity header Dashboard. Add a three-dot icon and then a help menu item.
+
+Implement a list of collapsible sections similar to how it is done in Help. Each section should contain a number of links to Plantour pages duplicating the current toolbar functionality.
+
+Create sections and links with same structure the toolbar currently has. Design it in a way to be convenient for user to naviagate pages. The look should not be boring. Try using animations.
+
+
+Explore the MapComponent. Make it working this way: similar to Trip items, Trip todos this componewnt requires tripIs as a url param. Then take the itinerary for that trip. There are two types of data to be shown on the map: itinerary parts and trip activities, personal and shared. All of them have addresses and / or latitude + longitude. Using that data the map should show markers, different for itinerary parts, personal or public activities. Points to be show must be sorted by start date and connected with a line.
+
+See how is Gemini already used in the project for item prompts. Create a new component TripsAiComponent and put it into the trips-ai folder. Create or reuse server side code. Implement an ability for a user to explain to the AI where, when and for what type of activities and how many people trip they want to go. For example: "The 4 persons family with 2 children 8 and 12 years old want to have a trip to Japan for sightseen for 7 days this summer, we live in Vancouver bc". And the AI should generate the entire trip with an itinerary (flights, hotels), personal and public activites (museums, resaturants, etc.), items, bags, todos (book tickets and hotels, get visas, etc.), shared items, shared todos, possible personal and shared expenses, no assignments. Ai should put the general recommendations to the trip's notes.
+
+
+
+Add to the AI trip planner the following fucntionality.
+
+The question and the answer must be stored into a ai_trip_plans table imilar how it is done for AI item prompts, but using json. Next question must be searched in that table for that user first. If found - parse the JSON and show the answer. Otherwise send the question to the AI. Questions must be a dropdown, same as for AI prompts. 
+
+The app shows a suggested trip preview including all the trip details in  one view. At the top that preview must have two buttons: create trip and reset. First must create a trip in planning mode. Trip dates overlapping is prohibited, the suggested dates must take that into account. If a trip with these or overlapping dates exists show a dialog asking for two new dates.  
+
+
+Let's add trip notes feature to Plantour. Read the official Tiptap Angular library documentation. Install that library. Generate client and backend code, see how the other modules are implemented. The new TripNotes component allows user to see a list of connected to a trip and optionally to a trip activity notes. The activity can be set for the note in a way similar how a bag can be assigned to an item using an inline select. Each note is a collapsible row in  TripNotes. User can Add, Update and Delete notes. For adding and editing the TripNotesForm component is used. To present a note in a row the  TripNotesItem component is used. How this approach is implemented see other components. Once a user created and saved a note they can mark certain notes and download them as one pdf file. Notes can contain links to images. When presenting in  the row those images must be shown. When generating a pdf they must be downloaded from the internet and embedded into the pdf. Add a link to notes to the trip personal Dashboard section.
+
+
+
+Add a new KeysComponent - backend and frontend code. Use user_keys db table. See now does Packs component work and implement the similar approach for keys.
+
+
+Now users can use public image links in notes - it is already implemented. Do not touch it. Add an ability for a user to access private images from the Google Photos. Read the official Google Photos documentation how to implement access to the protected images freom the Agular 21 app. Install the necesary libraries if any. Read "google-photos" key for the current user from the user_keys db table. Use that key to access private images in Google Photos.
+
+
+
+Now Plantour supports: trips, itineraries, activities, map, bags, personal and shared items, personal and shared todos, personal and shared expenses, notes with rich text and images, AI full trip generation according to user requirements. 
+
+Dropbox shared link download returned non-image content. ContentType="application/octet-stream", UserId=0bc33ee6-b13d-423d-a9c9-1551c976c130, UrlPath="/scl/fi/1hdexk83gsm3ne6agqexg/istockphoto-1550071750-612x612.jpg"

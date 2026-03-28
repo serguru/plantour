@@ -237,7 +237,12 @@ begin
     )
     into v_trip_user_id;
 
-    insert into plantour.trip_user_todos (trip_user_id, name, category, notes)
+    insert into plantour.trip_user_todos (
+        trip_user_id,
+        name,
+        category,
+        notes
+    )
     select
         v_trip_user_id,
         b.name,
@@ -518,7 +523,12 @@ as $$
 declare
     v_inserted_count integer;
 begin
-    insert into plantour.trip_shared_todos (trip_id, category, name, notes)
+    insert into plantour.trip_shared_todos (
+        trip_id,
+        category,
+        name,
+        notes
+    )
     select
         p_trip_id,
         b.category,

@@ -1,0 +1,19 @@
+<div class="trip-note-editor">
+  <div class="trip-note-editor__toolbar">
+    <button type="button" class="trip-note-editor__tool" [class.active]="isActive('bold')" [disabled]="readOnly" (click)="toggleBold()">B</button>
+    <button type="button" class="trip-note-editor__tool" [class.active]="isActive('italic')" [disabled]="readOnly" (click)="toggleItalic()">I</button>
+    <button type="button" class="trip-note-editor__tool" [class.active]="isActive('underline')" [disabled]="readOnly" (click)="toggleUnderline()">U</button>
+    <button type="button" class="trip-note-editor__tool" [class.active]="isActive('strike')" [disabled]="readOnly" (click)="toggleStrike()">S</button>
+    <button type="button" class="trip-note-editor__tool" [class.active]="isActive('heading', { level: 2 })" [disabled]="readOnly" (click)="toggleHeading(2)">H2</button>
+    <button type="button" class="trip-note-editor__tool" [class.active]="isActive('heading', { level: 3 })" [disabled]="readOnly" (click)="toggleHeading(3)">H3</button>
+    <button type="button" class="trip-note-editor__tool" [class.active]="isActive('bulletList')" [disabled]="readOnly" (click)="toggleBulletList()">• List</button>
+    <button type="button" class="trip-note-editor__tool" [class.active]="isActive('orderedList')" [disabled]="readOnly" (click)="toggleOrderedList()">1. List</button>
+    <button type="button" class="trip-note-editor__tool" [class.active]="isActive('blockquote')" [disabled]="readOnly" (click)="toggleBlockquote()">Quote</button>
+    <button type="button" class="trip-note-editor__tool" [disabled]="readOnly" (click)="setLink()">Link</button>
+    <button type="button" class="trip-note-editor__tool" [disabled]="readOnly" (click)="unsetLink()">Unlink</button>
+    <button type="button" class="trip-note-editor__tool" [disabled]="readOnly" (click)="addImage()">Image URL</button>
+    <button type="button" class="trip-note-editor__tool" [disabled]="readOnly" (click)="openDropboxBrowser()">Browse Dropbox</button>
+  </div>
+
+  <div #editorHost class="trip-note-editor__surface"></div>
+</div>

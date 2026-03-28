@@ -20,6 +20,31 @@ public class LookupsRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Currency>> GetAllCurrenciesAsync()
+    {
+        return await _context.Currencies
+            .AsNoTracking()
+            .OrderBy(x => x.Name == "USD" ? 0 : 1)
+            .ThenBy(x => x.Name)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<ItineraryPartCategory>> GetAllItineraryPartCategoriesAsync()
+    {
+        return await _context.ItineraryPartCategories
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<PaymentMethod>> GetAllPaymentMethodsAsync()
+    {
+        return await _context.PaymentMethods
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<ThingCategory>> GetAllThingCategoriesAsync()
     {
         return await _context.ThingCategories

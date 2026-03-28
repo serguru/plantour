@@ -52,6 +52,29 @@
         ></p-select>
       </div>
 
+      <div class="form-field">
+        <label for="currencyId">Currency<span class="required">*</span></label>
+        <p-select
+          id="currencyId"
+          formControlName="currencyId"
+          [options]="currencies"
+          optionLabel="name"
+          optionValue="id"
+          [placeholder]="!isReadOnlyMode ? 'Select currency' : ''"
+          [readonly]="isReadOnlyMode"
+          [showClear]="false"
+          styleClass="w-full"
+          [editable]="false"
+        ></p-select>
+        @if (form.get('currencyId')?.invalid && (form.get('currencyId')?.touched || form.get('currencyId')?.dirty)) {
+        @if (form.get('currencyId')?.errors?.['required']) {
+        <small class="error-message">
+          Currency is required
+        </small>
+        }
+        }
+      </div>
+
       @if (isReadOnlyMode) {
       <div class="form-field">
         <label for="startDate">Start date</label>

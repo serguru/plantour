@@ -42,13 +42,28 @@ public partial class TripUser
     public virtual Trip Trip { get; set; } = null!;
 
     [InverseProperty("TripUser")]
+    public virtual ICollection<TripActivity> TripActivities { get; set; } = new List<TripActivity>();
+
+    [InverseProperty("TripUser")]
     public virtual ICollection<TripComment> TripComments { get; set; } = new List<TripComment>();
+
+    [InverseProperty("TripUser")]
+    public virtual ICollection<TripNote> TripNotes { get; set; } = new List<TripNote>();
+
+    [InverseProperty("AssignedTo")]
+    public virtual ICollection<TripSharedExpense> TripSharedExpenses { get; set; } = new List<TripSharedExpense>();
 
     [InverseProperty("AssignedTo")]
     public virtual ICollection<TripSharedThing> TripSharedThings { get; set; } = new List<TripSharedThing>();
 
     [InverseProperty("AssignedTo")]
     public virtual ICollection<TripSharedTodo> TripSharedTodos { get; set; } = new List<TripSharedTodo>();
+
+    [InverseProperty("Recipient")]
+    public virtual ICollection<TripUserExpense> TripUserExpenseRecipients { get; set; } = new List<TripUserExpense>();
+
+    [InverseProperty("TripUser")]
+    public virtual ICollection<TripUserExpense> TripUserExpenseTripUsers { get; set; } = new List<TripUserExpense>();
 
     [InverseProperty("TripUser")]
     public virtual ICollection<TripUserPackage> TripUserPackages { get; set; } = new List<TripUserPackage>();

@@ -7,7 +7,7 @@ namespace plantour_server.Services;
 
 public class LookupsService : ILookupsService
 {
-    private const string LookupsCacheKey = "lookups:all:v1";
+    private const string LookupsCacheKey = "lookups:all:v3";
 
     private static readonly HybridCacheEntryOptions LookupsCacheEntryOptions = new()
     {
@@ -33,6 +33,9 @@ public class LookupsService : ILookupsService
             async cancel =>
             {
                 var communicationTypes = await _lookupsRepository.GetAllCommunicationTypesAsync();
+                var currencies = await _lookupsRepository.GetAllCurrenciesAsync();
+                var itineraryPartCategories = await _lookupsRepository.GetAllItineraryPartCategoriesAsync();
+                var paymentMethods = await _lookupsRepository.GetAllPaymentMethodsAsync();
                 var thingCategories = await _lookupsRepository.GetAllThingCategoriesAsync();
                 var todoCategories = await _lookupsRepository.GetAllTodoCategoriesAsync();
 
@@ -55,6 +58,9 @@ public class LookupsService : ILookupsService
                 return new LookupsResponse
                 {
                     CommunicationTypes = _mapper.Map<IEnumerable<CommunicationTypeDto>>(communicationTypes),
+                    Currencies = _mapper.Map<IEnumerable<CurrencyDto>>(currencies),
+                    ItineraryPartCategories = _mapper.Map<IEnumerable<ItineraryPartCategoryDto>>(itineraryPartCategories),
+                    PaymentMethods = _mapper.Map<IEnumerable<PaymentMethodDto>>(paymentMethods),
                     ThingCategories = _mapper.Map<IEnumerable<ThingCategoryDto>>(thingCategories),
                     TodoCategories = _mapper.Map<IEnumerable<TodoCategoryDto>>(todoCategories),
                     TripStatuses = _mapper.Map<IEnumerable<TripStatusDto>>(tripStatuses),
