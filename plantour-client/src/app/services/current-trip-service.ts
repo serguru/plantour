@@ -9,17 +9,22 @@ import { LocalStorageService } from './local-storage-service';
     providedIn: 'root',
 })
 export class CurrentTripService {
+    private readonly currentTripStorageComponentId = 'trips';
+    private readonly currentTripStorageKey = 'selectedId';
 
     usersService = inject(UsersService);
     tripService = inject(TripService);
     localStorageService = inject(LocalStorageService);
 
-    private currentTripIdSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+    private currentTripIdSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(
+        this.localStorageService.getComponentKey(this.currentTripStorageComponentId, this.currentTripStorageKey)
+    );
     currentTripId$: Observable<string | null> = this.currentTripIdSubject.asObservable();
     
     private refreshSubject = new BehaviorSubject<void>(undefined);
     
     public updateCurrentTripId(tripId: string | null): void {
+        this.localStorageService.setComponentKey(this.currentTripStorageComponentId, this.currentTripStorageKey, tripId);
         this.currentTripIdSubject.next(tripId);
     }
 
