@@ -245,14 +245,14 @@ function collectDropboxImageUrls(node: any, urls: Set<string>): void {
     return;
   }
 
-  if (node.type === 'image' && typeof node.attrs?.src === 'string' && isDropboxSharedLink(node.attrs.src)) {
+  if (node.type === 'image' && typeof node.attrs?.src === 'string' && isDropboxImageSource(node.attrs.src)) {
     urls.add(node.attrs.src);
   }
 
   if (node.type === 'text' && Array.isArray(node.marks)) {
     for (const mark of node.marks) {
       const href = typeof mark?.attrs?.href === 'string' ? mark.attrs.href : '';
-      if (isDropboxSharedLink(href)) {
+      if (isDropboxImageSource(href)) {
         urls.add(href);
       }
     }
@@ -268,7 +268,22 @@ function collectDropboxImageUrls(node: any, urls: Set<string>): void {
 }
 
 function isRenderableImageUrl(value: string): boolean {
-  return isImageUrl(value) || isDropboxSharedLink(value);
+  return isImageUrl(value) || isDropboxImageSource(value);
+}
+
+export function isDropboxImageSource(value: string): boolean {
+  return isDropboxSharedLink(value) || isDropboxPrivateImageSource(value);
+}
+
+export function isDropboxPrivateImageSource(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'plantour-dropbox:'
+      && url.hostname === 'file'
+      && !!url.searchParams.get('id');
+  } catch {
+    return false;
+  }
 }
 
 function isDropboxSharedLink(value: string): boolean {

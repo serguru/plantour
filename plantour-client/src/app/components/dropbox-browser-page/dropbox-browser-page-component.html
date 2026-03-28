@@ -1,0 +1,22 @@
+<div class="page-container">
+  <app-entities-header
+    entityIcon="pi pi-images"
+    title="Browse Dropbox"
+    entityName="Dropbox image"
+    [headerButtons]="headerButtons()"
+    [menuItems]="menuItems()"
+    helpPageId="help/features/notes-and-images"
+  ></app-entities-header>
+
+  @if (browseResult?.currentPath) {
+    <div class="dropbox-browser-page__path">{{ browseResult?.currentPath }}</div>
+  }
+
+  @if (loadError) {
+    <div class="dropbox-browser-page__error">{{ loadError }}</div>
+  }
+
+  <app-entities-actions></app-entities-actions>
+
+  <app-entities [itemComponent]="itemComponent" [itemMetaData]="itemMetaData"></app-entities>
+</div>

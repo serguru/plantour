@@ -3,6 +3,20 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 
+export interface DropboxBrowseEntryDto {
+  type: 'folder' | 'file';
+  name: string;
+  pathDisplay?: string | null;
+  id?: string | null;
+  source?: string | null;
+}
+
+export interface DropboxBrowseResultDto {
+  currentPath?: string | null;
+  parentPath?: string | null;
+  entries: DropboxBrowseEntryDto[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -16,8 +30,17 @@ export class DropboxService {
     this.apiUrl = `${environment.api.baseUrl}/Dropbox`;
   }
 
-  getImage(url: string): Observable<Blob> {
-    const params = new HttpParams().set('url', url);
+  browse(path: string | null): Observable<DropboxBrowseResultDto> {
+    let params = new HttpParams();
+    if (path) {
+      params = params.set('path', path);
+    }
+
+    return this.http.get<DropboxBrowseResultDto>(`${this.apiUrl}/browse`, { params });
+  }
+
+  getImage(source: string): Observable<Blob> {
+    const params = new HttpParams().set('source', source);
     return this.http.get(`${this.apiUrl}/image`, {
       params,
       responseType: 'blob',

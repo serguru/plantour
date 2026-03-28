@@ -59,8 +59,10 @@
   & ::ng-deep .trip-note-editor__content img {
     display: block;
     max-width: 100%;
+    min-height: 3rem;
     height: auto;
     border-radius: 0.8rem;
+    background: #eef2f4;
   }
 
   & ::ng-deep .trip-note-editor__content blockquote {

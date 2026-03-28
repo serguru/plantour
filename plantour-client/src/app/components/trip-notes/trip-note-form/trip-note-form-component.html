@@ -31,7 +31,13 @@
 
       <div class="form-field">
         <label>Content<span class="required">*</span></label>
-        <app-trip-note-editor [contentJson]="contentJson" (contentJsonChange)="contentJson = $event"></app-trip-note-editor>
+        <app-trip-note-editor
+          [contentJson]="contentJson"
+          [dropboxSelection]="pendingDropboxSelection"
+          (browseDropbox)="onBrowseDropbox()"
+          (dropboxSelectionHandled)="onDropboxSelectionHandled()"
+          (contentJsonChange)="contentJson = $event"
+        ></app-trip-note-editor>
       </div>
 
       <app-form-actions

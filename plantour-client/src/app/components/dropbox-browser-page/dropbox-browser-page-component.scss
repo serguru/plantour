@@ -1,0 +1,15 @@
+:host {
+  .dropbox-browser-page__path {
+    margin: 0 0 1rem;
+    padding: 0.5rem 0.75rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: #47636b;
+    font-weight: 600;
+  }
+
+  .dropbox-browser-page__error {
+    margin-bottom: 1rem;
+    color: #c0392b;
+  }
+}

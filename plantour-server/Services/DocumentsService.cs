@@ -1378,9 +1378,9 @@ public class DocumentsService : IDocumentsService
         var result = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         foreach (var url in urls)
         {
-            if (DropboxService.IsDropboxSharedLink(url))
+            if (DropboxService.IsDropboxImageSource(url))
             {
-                var dropboxImage = await _dropboxService.TryDownloadImageBySharedLinkAsync(url);
+                var dropboxImage = await _dropboxService.TryDownloadImageAsync(url);
                 if (dropboxImage != null && dropboxImage.Bytes.Length > 0)
                 {
                     result[url] = dropboxImage.Bytes;
@@ -1413,7 +1413,7 @@ public class DocumentsService : IDocumentsService
 
     private static bool IsSupportedImageUrl(string? value)
     {
-        if (DropboxService.IsDropboxSharedLink(value))
+        if (DropboxService.IsDropboxImageSource(value))
         {
             return true;
         }
