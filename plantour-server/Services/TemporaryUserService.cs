@@ -149,6 +149,7 @@ public class TemporaryUserService : ITemporaryUserService
         // Create two trips: one past, one active
         var tripStatusCompleted = await GetTripStatus("Completed");
         var tripStatusActive = await GetTripStatus("Active");
+        var usdCurrencyId = await GetCurrencyIdAsync("USD");
 
         // Create past trip - "Week in Europe"
         var pastTrip = new Trip
@@ -159,7 +160,8 @@ public class TemporaryUserService : ITemporaryUserService
             Name = "Week in Europe",
             StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-30)),
             EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-24)),
-            Notes = "Sample trip in the past"
+            Notes = "Sample trip in the past",
+            CurrencyId = usdCurrencyId
         };
         await _tripRepository.AddAsync(pastTrip);
 
@@ -172,7 +174,8 @@ public class TemporaryUserService : ITemporaryUserService
             Name = "Weekend in Las Vegas",
             StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
             EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(3)),
-            Notes = "Sample active trip"
+            Notes = "Sample active trip",
+            CurrencyId = usdCurrencyId
         };
         await _tripRepository.AddAsync(activeTrip);
 
@@ -367,6 +370,22 @@ public class TemporaryUserService : ITemporaryUserService
         }
 
         return status;
+    }
+
+    private async Task<Guid> GetCurrencyIdAsync(string currencyName)
+    {
+        var currencyId = await _context.Currencies
+            .AsNoTracking()
+            .Where(currency => currency.Name == currencyName)
+            .Select(currency => (Guid?)currency.Id)
+            .FirstOrDefaultAsync();
+
+        if (!currencyId.HasValue)
+        {
+            throw new CustomException($"Currency '{currencyName}' was not found");
+        }
+
+        return currencyId.Value;
     }
 
     private string GenerateAccessCodeHash(string accessCode)
