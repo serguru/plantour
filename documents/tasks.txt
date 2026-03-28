@@ -693,3 +693,6 @@ Put a standard entity header Dashboard. Add a three-dot icon and then a help men
 Implement a list of collapsible sections similar to how it is done in Help. Each section should contain a number of links to Plantour pages duplicating the current toolbar functionality.
 
 Create sections and links with same structure the toolbar currently has. Design it in a way to be convenient for user to naviagate pages. The look should not be boring. Try using animations.
+
+
+Explore the MapComponent. Make it working this way: similar to Trip items, Trip todos this componewnt requires tripIs as a url param. Then take the itinerary for that trip. There are two types of data to be shown on the map: itinerary parts and trip activities, personal and shared. All of them have addresses and / or latitude + longitude. Using that data the map should show markers, different for itinerary parts, personal or public activities. Points to be show must be sorted by start date and connected with a line.

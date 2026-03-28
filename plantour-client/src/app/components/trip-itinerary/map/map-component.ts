@@ -1,175 +1,91 @@
-import { Component, ViewChild, computed, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, ViewChild, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import {
   GoogleMap,
-  MapAdvancedMarker,
   MapInfoWindow,
+  MapMarker,
   MapPolyline,
-  MapTrafficLayer,
 } from '@angular/google-maps';
 import { importLibrary, setOptions } from '@googlemaps/js-api-loader';
+import { firstValueFrom, forkJoin } from 'rxjs';
 import { mapsConfig } from './maps.config';
+import { ItineraryPartDto, ItineraryService } from '../../../services/itinerary-service';
+import { TripActivityDto, TripActivityService } from '../../../services/trip-activity-service';
+import { TripDto, TripService } from '../../../services/trip-service';
 
-type FeatureSpot = {
+type MapPointKind = 'itinerary' | 'personal' | 'shared';
+
+type MapPoint = {
   id: string;
   title: string;
-  summary: string;
-  position: google.maps.LatLngLiteral;
-  accent: string;
-};
-
-type MarkerSelection = {
-  title: string;
-  summary: string;
-  accent: string;
-  position: google.maps.LatLngLiteral;
-};
-
-type RouteStop = {
-  id: string;
-  title: string;
-  summary: string;
-  query: string;
+  kind: MapPointKind;
+  kindLabel: string;
+  meta: string;
+  address: string | null;
+  notes: string | null;
+  startDate: string | null;
+  endDate: string | null;
   position: google.maps.LatLngLiteral;
 };
 
-type RouteLeg = {
-  id: string;
-  from: RouteStop;
-  to: RouteStop;
-  title: string;
+type InvalidItineraryPart = {
+  part: ItineraryPartDto;
+  reason: string;
 };
 
-const FEATURE_SPOTS: FeatureSpot[] = [
-  {
-    id: 'vancouver',
-    title: 'Vancouver',
-    summary: 'Departure and return point for the international trip.',
-    position: { lat: 49.2827, lng: -123.1207 },
-    accent: 'sky',
-  },
-  {
-    id: 'london',
-    title: 'London',
-    summary: 'Transatlantic stop on the itinerary before continuing through Europe.',
-    position: { lat: 51.5074, lng: -0.1278 },
-    accent: 'amber',
-  },
-  {
-    id: 'rome',
-    title: 'Rome',
-    summary: 'Mediterranean leg of the trip and midpoint of the European stops.',
-    position: { lat: 41.9028, lng: 12.4964 },
-    accent: 'coral',
-  },
-  {
-    id: 'paris',
-    title: 'Paris',
-    summary: 'Final European stop before returning across the Atlantic to Vancouver.',
-    position: { lat: 48.8566, lng: 2.3522 },
-    accent: 'mint',
-  },
-];
+type MarkerStyle = {
+  fill: string;
+  stroke: string;
+  chipFill: string;
+};
 
-const CUSTOM_ROUTE_STOPS: RouteStop[] = [
-  {
-    id: 'trip-vancouver-start',
-    title: 'Vancouver',
-    summary: 'Trip departure point on the Pacific coast.',
-    query: 'Vancouver BC',
-    position: { lat: 49.2827, lng: -123.1207 },
+const MARKER_STYLES: Record<MapPointKind, MarkerStyle> = {
+  itinerary: {
+    fill: '#0b6e4f',
+    stroke: '#084c38',
+    chipFill: '#effaf5',
   },
-  {
-    id: 'trip-london',
-    title: 'London',
-    summary: 'Transatlantic arrival before the continental Europe segment.',
-    query: 'London UK',
-    position: { lat: 51.5074, lng: -0.1278 },
+  personal: {
+    fill: '#1d4ed8',
+    stroke: '#1e3a8a',
+    chipFill: '#eff6ff',
   },
-  {
-    id: 'trip-rome',
-    title: 'Rome',
-    summary: 'Italian stop before continuing north to Paris.',
-    query: 'Rome Italy',
-    position: { lat: 41.9028, lng: 12.4964 },
+  shared: {
+    fill: '#b45309',
+    stroke: '#7c2d12',
+    chipFill: '#fff7ed',
   },
-  {
-    id: 'trip-paris',
-    title: 'Paris',
-    summary: 'Final European stop before returning to Vancouver.',
-    query: 'Paris France',
-    position: { lat: 48.8566, lng: 2.3522 },
-  },
-  {
-    id: 'trip-vancouver-end',
-    title: 'Vancouver',
-    summary: 'Return point that completes the round trip.',
-    query: 'Vancouver BC',
-    position: { lat: 49.2827, lng: -123.1207 },
-  },
-];
-
-const ROME_SIGHTSEEING_STOPS: RouteStop[] = [
-  {
-    id: 'rome-colosseum',
-    title: 'Colosseum',
-    summary: 'Ancient amphitheater and the strongest visual anchor for the Rome walk.',
-    query: 'Colosseum Rome Italy',
-    position: { lat: 41.8902, lng: 12.4922 },
-  },
-  {
-    id: 'rome-pantheon',
-    title: 'Pantheon',
-    summary: 'Historic Roman temple known for its preserved dome and central oculus.',
-    query: 'Pantheon Rome Italy',
-    position: { lat: 41.8986, lng: 12.4769 },
-  },
-  {
-    id: 'rome-trevi',
-    title: 'Trevi Fountain',
-    summary: 'One of Rome\'s busiest landmarks and a natural stop on a central walking route.',
-    query: 'Trevi Fountain Rome Italy',
-    position: { lat: 41.9009, lng: 12.4833 },
-  },
-  {
-    id: 'rome-st-peters',
-    title: "St. Peter's Basilica",
-    summary: 'Vatican-side destination that closes the Rome sightseeing circuit.',
-    query: "St Peter's Basilica Vatican City",
-    position: { lat: 41.9022, lng: 12.4539 },
-  },
-];
-
+};
 
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [GoogleMap, MapAdvancedMarker, MapInfoWindow, MapPolyline, MapTrafficLayer],
+  imports: [GoogleMap, MapInfoWindow, MapMarker, MapPolyline],
   templateUrl: './map-component.html',
   styleUrls: ['./map-component.scss'],
 })
-export class MapComponent {
+export class MapComponent implements OnInit {
   @ViewChild(GoogleMap) private googleMap?: GoogleMap;
   @ViewChild(MapInfoWindow) private infoWindow?: MapInfoWindow;
 
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly route = inject(ActivatedRoute);
+  private readonly itineraryService = inject(ItineraryService);
+  private readonly tripActivityService = inject(TripActivityService);
+  private readonly tripService = inject(TripService);
+  private readonly geocodeCache = new Map<string, google.maps.LatLngLiteral | null>();
+
+  protected readonly isBrowser = isPlatformBrowser(this.platformId);
   protected readonly mapsApiKeyConfigured = mapsConfig.apiKey.trim().length > 0;
   protected readonly apiReady = signal(false);
   protected readonly loading = signal(false);
   protected readonly loadError = signal('');
-  protected readonly showTraffic = signal(false);
-  protected readonly currentLocation = signal<google.maps.LatLngLiteral | null>(null);
-  protected readonly droppedPin = signal<google.maps.LatLngLiteral | null>(null);
-  protected readonly selectedSpot = signal<MarkerSelection | null>(null);
-  protected readonly featureSpots = FEATURE_SPOTS;
-  protected readonly routeStops = CUSTOM_ROUTE_STOPS;
-  protected readonly routePath = CUSTOM_ROUTE_STOPS.map((stop) => stop.position);
-  protected readonly romeSightseeingStops = ROME_SIGHTSEEING_STOPS;
-  protected readonly romeSightseeingPath = ROME_SIGHTSEEING_STOPS.map((stop) => stop.position);
-  protected readonly routeLegs: RouteLeg[] = CUSTOM_ROUTE_STOPS.slice(0, -1).map((stop, index) => ({
-    id: `${stop.id}-${CUSTOM_ROUTE_STOPS[index + 1].id}`,
-    from: stop,
-    to: CUSTOM_ROUTE_STOPS[index + 1],
-    title: `${stop.title} -> ${CUSTOM_ROUTE_STOPS[index + 1].title}`,
-  }));
+  protected readonly trip = signal<TripDto | null>(null);
+  protected readonly itineraryParts = signal<ItineraryPartDto[]>([]);
+  protected readonly invalidItineraryParts = signal<InvalidItineraryPart[]>([]);
+  protected readonly selectedPoint = signal<MapPoint | null>(null);
+  protected readonly points = signal<MapPoint[]>([]);
 
   protected readonly mapCenter = signal<google.maps.LatLngLiteral>(mapsConfig.defaultCenter);
   protected readonly zoom = signal(2);
@@ -179,12 +95,7 @@ export class MapComponent {
     strokeWeight: 5,
     geodesic: true,
   };
-  protected readonly romePolylineOptions: google.maps.PolylineOptions = {
-    strokeColor: '#c05621',
-    strokeOpacity: 0.95,
-    strokeWeight: 4,
-    geodesic: false,
-  };
+  protected readonly routePath = computed(() => this.points().map((point) => point.position));
 
   protected readonly mapOptions = computed<google.maps.MapOptions>(() => ({
     center: this.mapCenter(),
@@ -198,21 +109,29 @@ export class MapComponent {
     gestureHandling: 'greedy',
   }));
 
-  protected readonly routeSummary = computed(
-    () => 'International trip: Vancouver -> London -> Rome -> Paris -> Vancouver'
-  );
-  protected readonly romeSightseeingSummary = computed(
-    () => 'Rome sightseeing walk: Colosseum -> Pantheon -> Trevi Fountain -> St. Peter\'s Basilica'
-  );
+  protected readonly hasBlockingItineraryIssue = computed(() => this.invalidItineraryParts().length > 0);
 
-  constructor() {
-    if (this.mapsApiKeyConfigured) {
-      void this.loadGoogleMaps();
+  protected readonly routeSummary = computed(() => {
+    const points = this.points();
+
+    if (points.length === 0) {
+      return 'No itinerary parts or trip activities with map data were found for this trip.';
     }
+
+    return points.map((point) => point.title).join(' -> ');
+  });
+
+  ngOnInit(): void {
+    const tripId = this.route.snapshot.paramMap.get('tripId');
+    if (!tripId) {
+      throw new Error('Trip Id is required for the map page');
+    }
+
+    void this.initialize(tripId);
   }
 
-  protected async loadGoogleMaps(): Promise<void> {
-    if (this.apiReady() || this.loading()) {
+  private async initialize(tripId: string): Promise<void> {
+    if (this.loading()) {
       return;
     }
 
@@ -220,236 +139,319 @@ export class MapComponent {
     this.loadError.set('');
 
     try {
-      setOptions({
-        key: mapsConfig.apiKey,
-        v: 'weekly',
-        language: mapsConfig.language,
-        region: mapsConfig.region,
-        authReferrerPolicy: 'origin',
-        mapIds: [mapsConfig.mapId],
-      });
+      const trip = await firstValueFrom(this.tripService.getById(tripId));
+      this.trip.set(trip);
 
-      await Promise.all([importLibrary('maps'), importLibrary('marker')]);
+      if (!this.isBrowser || !this.mapsApiKeyConfigured) {
+        return;
+      }
 
-      this.apiReady.set(true);
+      await this.loadGoogleMaps();
+
+      const response = await firstValueFrom(
+        forkJoin({
+          itineraryParts: this.itineraryService.getAll(tripId),
+          personalActivities: this.tripActivityService.getAllPersonal(tripId),
+          sharedActivities: this.tripActivityService.getAllPublic(tripId),
+        })
+      );
+
+      const sortedItineraryParts = [...response.itineraryParts].sort((left, right) =>
+        this.compareByStartDate(left.startDate, right.startDate, left.name, right.name)
+      );
+
+      this.itineraryParts.set(sortedItineraryParts);
+
+      const { points, invalidItineraryParts } = await this.buildMapPoints(
+        sortedItineraryParts,
+        response.personalActivities,
+        response.sharedActivities
+      );
+
+      this.invalidItineraryParts.set(invalidItineraryParts);
+
+      if (invalidItineraryParts.length > 0) {
+        this.points.set([]);
+        this.selectedPoint.set(null);
+        return;
+      }
+
+      this.points.set(points);
+
+      if (points.length > 0) {
+        this.mapCenter.set(points[0].position);
+        this.zoom.set(points.length === 1 ? 13 : 5);
+      } else {
+        this.loadError.set('No itinerary parts or trip activities with address or coordinates were found for this trip.');
+      }
+
+      this.fitToPoints();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown loading error.';
-      this.loadError.set(`Google Maps failed to load. ${message}`);
+      this.loadError.set(`Unable to load trip map data. ${message}`);
     } finally {
       this.loading.set(false);
     }
   }
 
-  protected focusSpot(spot: FeatureSpot): void {
-    this.mapCenter.set(spot.position);
-    this.zoom.set(5);
-    this.selectedSpot.set(spot);
-    this.infoWindow?.close();
-  }
-
-  protected focusRomeSightseeing(): void {
-    const map = this.googleMap?.googleMap;
-
-    if (!map) {
+  private async loadGoogleMaps(): Promise<void> {
+    if (this.apiReady()) {
       return;
     }
 
-    const bounds = new google.maps.LatLngBounds();
-
-    for (const stop of this.romeSightseeingStops) {
-      bounds.extend(stop.position);
-    }
-
-    map.fitBounds(bounds, 72);
-    this.selectedSpot.set({
-      title: 'Rome sightseeing route',
-      summary: this.romeSightseeingSummary(),
-      accent: 'rome-route',
-      position: this.romeSightseeingStops[0].position,
+    setOptions({
+      key: mapsConfig.apiKey,
+      v: 'weekly',
+      language: mapsConfig.language,
+      region: mapsConfig.region,
+      authReferrerPolicy: 'origin',
+      mapIds: [mapsConfig.mapId],
     });
-    this.infoWindow?.close();
+
+    await Promise.all([importLibrary('maps'), importLibrary('marker')]);
+    this.apiReady.set(true);
   }
 
-  protected openSpot(spot: FeatureSpot, marker: MapAdvancedMarker): void {
-    this.selectedSpot.set(spot);
-    this.infoWindow?.open(marker);
-  }
+  private async buildMapPoints(
+    itineraryParts: ItineraryPartDto[],
+    personalActivities: TripActivityDto[],
+    sharedActivities: TripActivityDto[]
+  ): Promise<{ points: MapPoint[]; invalidItineraryParts: InvalidItineraryPart[] }> {
+    const sortedPersonalActivities = [...personalActivities].sort((left, right) => this.compareByStartDate(left.startDate, right.startDate, left.name, right.name));
+    const sortedSharedActivities = [...sharedActivities].sort((left, right) => this.compareByStartDate(left.startDate, right.startDate, left.name, right.name));
 
-  protected openRouteStop(stop: RouteStop, marker: MapAdvancedMarker): void {
-    this.selectedSpot.set({
-      title: stop.title,
-      summary: stop.summary,
-      accent: 'route-stop',
-      position: stop.position,
-    });
-    this.infoWindow?.open(marker);
-  }
-
-  protected toggleTraffic(): void {
-    this.showTraffic.update((value) => !value);
-  }
-
-  protected async recenterOnUser(): Promise<void> {
-    if (!navigator.geolocation) {
-      this.loadError.set('This browser does not expose the Geolocation API.');
-      return;
-    }
-
-    this.loadError.set('');
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const nextCenter = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-
-        this.currentLocation.set(nextCenter);
-        this.mapCenter.set(nextCenter);
-        this.zoom.set(4);
-      },
-      (error) => {
-        this.loadError.set(`Unable to fetch your current location: ${error.message}`);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-      }
+    const itineraryPointResults = await Promise.all(
+      itineraryParts.map((part) => this.buildPointFromItineraryPart(part))
     );
+
+    const invalidItineraryParts = itineraryPointResults
+      .filter((result): result is InvalidItineraryPart => 'reason' in result)
+      .map((result) => result);
+
+    const activityPointResults = await Promise.all([
+      ...sortedPersonalActivities.map((activity) => this.buildPointFromActivity(activity, 'personal')),
+      ...sortedSharedActivities.map((activity) => this.buildPointFromActivity(activity, 'shared')),
+    ]);
+
+    const points = [
+      ...itineraryPointResults.filter((result): result is MapPoint => 'position' in result),
+      ...activityPointResults.filter((point): point is MapPoint => point !== null),
+    ].sort((left, right) => this.compareByStartDate(left.startDate, right.startDate, left.title, right.title));
+
+    return { points, invalidItineraryParts };
+  }
+
+  private async buildPointFromItineraryPart(part: ItineraryPartDto): Promise<MapPoint | InvalidItineraryPart> {
+    const result = await this.resolvePosition(part.latitude, part.longitude, part.address);
+    if (!result.position) {
+      return {
+        part,
+        reason: result.reason,
+      };
+    }
+
+    const position = result.position;
+    if (!position) {
+      return {
+        part,
+        reason: 'This itinerary part does not have usable map coordinates or address.',
+      };
+    }
+
+    return {
+      id: `itinerary-${part.id}`,
+      title: part.name,
+      kind: 'itinerary',
+      kindLabel: 'Itinerary part',
+      meta: part.category?.trim() || 'Itinerary part',
+      address: part.address?.trim() || null,
+      notes: part.notes?.trim() || null,
+      startDate: part.startDate ?? null,
+      endDate: part.endDate ?? null,
+      position,
+    };
+  }
+
+  private async buildPointFromActivity(activity: TripActivityDto, kind: 'personal' | 'shared'): Promise<MapPoint | null> {
+    const result = await this.resolvePosition(activity.latitude, activity.longitude, activity.address);
+    if (!result.position) {
+      return null;
+    }
+
+    return {
+      id: `${kind}-${activity.id}`,
+      title: activity.name,
+      kind,
+      kindLabel: kind === 'personal' ? 'Personal activity' : 'Shared activity',
+      meta: activity.activity?.trim() || (kind === 'personal' ? 'Personal activity' : 'Shared activity'),
+      address: activity.address?.trim() || null,
+      notes: activity.notes?.trim() || null,
+      startDate: activity.startDate ?? null,
+      endDate: activity.endDate ?? null,
+      position: result.position,
+    };
+  }
+
+  private async resolvePosition(
+    latitude?: number | null,
+    longitude?: number | null,
+    address?: string | null
+  ): Promise<{ position: google.maps.LatLngLiteral | null; reason: string }> {
+    if (typeof latitude === 'number' && typeof longitude === 'number') {
+      return {
+        position: { lat: latitude, lng: longitude },
+        reason: '',
+      };
+    }
+
+    const normalizedAddress = address?.trim();
+    if (!normalizedAddress) {
+      return {
+        position: null,
+        reason: 'No latitude/longitude and no address were provided.',
+      };
+    }
+
+    if (this.geocodeCache.has(normalizedAddress)) {
+      const cachedPosition = this.geocodeCache.get(normalizedAddress) ?? null;
+      return {
+        position: cachedPosition,
+        reason: cachedPosition ? '' : 'The address could not be placed on the map.',
+      };
+    }
+
+    const position = await this.geocodeAddress(normalizedAddress);
+    this.geocodeCache.set(normalizedAddress, position);
+    return {
+      position,
+      reason: position ? '' : 'The address could not be placed on the map.',
+    };
+  }
+
+  private geocodeAddress(address: string): Promise<google.maps.LatLngLiteral | null> {
+    return new Promise((resolve) => {
+      const geocoder = new google.maps.Geocoder();
+
+      geocoder.geocode({ address }, (results, status) => {
+        if (status !== google.maps.GeocoderStatus.OK || !results?.length) {
+          resolve(null);
+          return;
+        }
+
+        const location = results[0].geometry.location;
+        resolve({ lat: location.lat(), lng: location.lng() });
+      });
+    });
   }
 
   protected onMapInitialized(map: google.maps.Map): void {
-    this.focusRoute(undefined, map);
+    this.fitToPoints(map);
   }
 
-  protected dropPin(event: google.maps.MapMouseEvent): void {
-    if (!event.latLng) {
-      return;
-    }
-
-    const position = event.latLng.toJSON();
-    this.droppedPin.set(position);
-    this.selectedSpot.set({
-      title: 'Dropped Pin',
-      summary: `Lat ${position.lat.toFixed(5)}, Lng ${position.lng.toFixed(5)}`,
-      accent: 'slate',
-      position,
-    });
-    this.infoWindow?.close();
+  protected openPoint(point: MapPoint, marker: MapMarker): void {
+    this.selectedPoint.set(point);
+    this.infoWindow?.open(marker);
   }
 
-  protected fitFeaturedMarkers(): void {
-    const map = this.googleMap?.googleMap;
-
-    if (!map) {
-      return;
-    }
-
-    const bounds = new google.maps.LatLngBounds();
-
-    for (const spot of this.featureSpots) {
-      bounds.extend(spot.position);
-    }
-
-    const currentLocation = this.currentLocation();
-    if (currentLocation) {
-      bounds.extend(currentLocation);
-    }
-
-    const droppedPin = this.droppedPin();
-    if (droppedPin) {
-      bounds.extend(droppedPin);
-    }
-
-    for (const point of this.routePath) {
-      bounds.extend(point);
-    }
-
-    map.fitBounds(bounds, 72);
-  }
-
-  protected focusRoute(selection?: MarkerSelection, mapInstance?: google.maps.Map): void {
+  protected fitToPoints(mapInstance?: google.maps.Map): void {
     const map = mapInstance ?? this.googleMap?.googleMap;
+    const points = this.points();
 
-    if (!map) {
+    if (!map || points.length === 0) {
+      return;
+    }
+
+    if (points.length === 1) {
+      map.setCenter(points[0].position);
+      map.setZoom(13);
       return;
     }
 
     const bounds = new google.maps.LatLngBounds();
 
-    for (const point of this.routePath) {
-      bounds.extend(point);
+    for (const point of points) {
+      bounds.extend(point.position);
     }
 
     map.fitBounds(bounds, 72);
-    this.selectedSpot.set(
-      selection ?? {
-        title: 'International trip route',
-        summary: this.routeSummary(),
-        accent: 'route',
-        position: this.routeStops[0].position,
-      }
-    );
-    this.infoWindow?.close();
   }
 
-  protected sendRouteToGoogleMaps(): void {
-    if (this.routeLegs.length === 0) {
-      this.loadError.set('At least one trip leg is required to open directions in Google Maps.');
-      return;
-    }
+  protected getMarkerOptions(point: MapPoint): google.maps.MarkerOptions {
+    const iconWidth = this.getMarkerWidth(point.title);
 
-    this.loadError.set(
-      'Google Maps cannot create one continuous driving route across the Atlantic. Use the leg buttons below to open each segment with actual directions.'
-    );
-
-    this.sendLegToGoogleMaps(this.routeLegs[0]);
+    return {
+      icon: {
+        url: this.buildMarkerIconUrl(point),
+        scaledSize: new google.maps.Size(iconWidth, 36),
+        anchor: new google.maps.Point(14, 30),
+      },
+      optimized: false,
+    };
   }
 
-  protected sendLegToGoogleMaps(leg: RouteLeg): void {
-    const params = new URLSearchParams({
-      api: '1',
-      origin: leg.from.query,
-      destination: leg.to.query,
-    });
+  protected formatDate(value: string | null): string {
+    if (!value) {
+      return '';
+    }
 
-    window.open(`https://www.google.com/maps/dir/?${params.toString()}`, '_blank', 'noopener,noreferrer');
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return date.toLocaleString();
   }
 
-  protected sendRomeSightseeingToGoogleMaps(): void {
-    if (this.romeSightseeingStops.length < 2) {
-      this.loadError.set('Add at least two Rome sightseeing stops before opening Google Maps.');
-      return;
+  protected formatTripDates(trip: TripDto | null): string {
+    if (!trip) {
+      return '';
     }
 
-    const [origin, ...rest] = this.romeSightseeingStops;
-    const destination = rest.at(-1);
-
-    if (!destination) {
-      return;
+    if (!trip.startDate && !trip.endDate) {
+      return 'Dates are not set';
     }
 
-    const waypoints = rest
-      .slice(0, -1)
-      .map((stop) => stop.query)
-      .join('|');
-
-    const params = new URLSearchParams({
-      api: '1',
-      travelmode: 'walking',
-      origin: origin.query,
-      destination: destination.query,
-    });
-
-    if (waypoints) {
-      params.set('waypoints', waypoints);
-    }
-
-    this.loadError.set('');
-    window.open(`https://www.google.com/maps/dir/?${params.toString()}`, '_blank', 'noopener,noreferrer');
+    const start = trip.startDate ? this.formatDate(trip.startDate) : 'No start date';
+    const end = trip.endDate ? this.formatDate(trip.endDate) : 'No end date';
+    return `${start} - ${end}`;
   }
 
-  protected resetView(): void {
-    this.focusRoute();
+  private getMarkerWidth(title: string): number {
+    return Math.max(120, 44 + title.length * 8);
+  }
+
+  private buildMarkerIconUrl(point: MapPoint): string {
+    const style = MARKER_STYLES[point.kind];
+    const width = this.getMarkerWidth(point.title);
+    const escapedTitle = this.escapeXml(point.title);
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="36" viewBox="0 0 ${width} 36">
+        <path d="M14 1C7.37258 1 2 6.37258 2 13C2 21.75 14 33 14 33C14 33 26 21.75 26 13C26 6.37258 20.6274 1 14 1Z" fill="${style.fill}" stroke="${style.stroke}" stroke-width="1.5"/>
+        <circle cx="14" cy="13" r="4.5" fill="#ffffff"/>
+        <rect x="30" y="7" width="${width - 34}" height="18" rx="9" fill="${style.chipFill}" stroke="${style.stroke}" stroke-width="1"/>
+        <text x="39" y="20" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#132238">${escapedTitle}</text>
+      </svg>`;
+
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
+
+  private compareByStartDate(
+    leftStartDate: string | null | undefined,
+    rightStartDate: string | null | undefined,
+    leftName: string,
+    rightName: string
+  ): number {
+    const leftValue = leftStartDate ?? '';
+    const rightValue = rightStartDate ?? '';
+    const dateComparison = leftValue.localeCompare(rightValue);
+    return dateComparison !== 0 ? dateComparison : leftName.localeCompare(rightName);
+  }
+
+  private escapeXml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 }

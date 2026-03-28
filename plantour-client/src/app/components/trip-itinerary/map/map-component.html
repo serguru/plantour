@@ -1,219 +1,149 @@
-<!-- <main class="shell"> -->
-  <!-- <section class="hero-card">
-    <p class="eyebrow">Angular 20 + Google Maps Platform</p>
-    <h1>Maps Explorer</h1>
-    <p class="lede">
-      A trimmed Angular starter that demonstrates official Google Maps features for
-      navigation, markers, info windows, traffic overlays, geolocation, and map events.
-    </p>
+<div class="page-container">
+  <section class="map-shell">
+    <header class="trip-header">
+      <h1>{{ trip()?.name || 'Trip map' }}</h1>
+      <p>{{ formatTripDates(trip()) }}</p>
+    </header>
 
-    <div class="hero-actions">
-      <button type="button" class="action" (click)="fitFeaturedMarkers()" [disabled]="!apiReady()">
-        Fit all markers
-      </button>
-      <button type="button" class="action action-ghost" (click)="focusRoute()" [disabled]="!apiReady()">
-        Show trip route
-      </button>
-      <button
-        type="button"
-        class="action action-ghost"
-        (click)="sendRouteToGoogleMaps()"
-        [disabled]="routeLegs.length < 1"
-      >
-        Open trip in Google Maps
-      </button>
-      <button type="button" class="action action-ghost" (click)="resetView()" [disabled]="!apiReady()">
-        Reset view
-      </button>
-      <button type="button" class="action action-ghost" (click)="toggleTraffic()" [disabled]="!apiReady()">
-        {{ showTraffic() ? 'Hide traffic' : 'Show traffic' }}
-      </button>
-      <button type="button" class="action action-ghost" (click)="recenterOnUser()" [disabled]="!apiReady()">
-        Find my location
-      </button>
-      <button type="button" class="action action-ghost" (click)="focusRomeSightseeing()" [disabled]="!apiReady()">
-        Show Rome sights
-      </button>
-      <button
-        type="button"
-        class="action action-ghost"
-        (click)="sendRomeSightseeingToGoogleMaps()"
-        [disabled]="romeSightseeingStops.length < 2"
-      >
-        Open Rome sights in Google Maps
-      </button>
+    @if (!isBrowser) {
+    <div class="map-message">
+      <h2>Map loads in the browser</h2>
+      <p>The trip map will appear after the page hydrates in the browser.</p>
     </div>
-  </section> -->
-
-  <!-- <section class="workspace"> -->
-    <!-- <aside class="panel">
-      <div class="panel-block">
-        <h2>Feature spots</h2>
-        <p>
-          These markers demonstrate clickable landmarks, popup content, and fast camera jumps.
+    } @else if (!mapsApiKeyConfigured) {
+    <div class="map-message">
+      <h2>Add your API key</h2>
+      <p>Set <code>apiKey</code> in <code>src/app/components/trip-itinerary/map/maps.config.ts</code>, then reload the
+        app.</p>
+    </div>
+    } @else if (loading()) {
+    <div class="map-message">
+      <h2>Loading trip map</h2>
+      <p>Plantour is loading itinerary parts, personal activities, shared activities, and map coordinates.</p>
+    </div>
+    } @else if (hasBlockingItineraryIssue()) {
+    <section class="itinerary-fallback">
+      <div class="fallback-message">
+        <h2>Map not shown</h2>
+        <p>At least one itinerary part cannot be placed on the map. Fix the wrong parts below, then open the map again.
         </p>
       </div>
 
-      <div class="spot-list">
-        @for (spot of featureSpots; track spot.id) {
-          <button type="button" class="spot-card" (click)="focusSpot(spot)">
-            <span class="spot-chip" [attr.data-accent]="spot.accent"></span>
-            <span class="spot-copy">
-              <strong>{{ spot.title }}</strong>
-              <span>{{ spot.summary }}</span>
-            </span>
-          </button>
+      <div class="invalid-parts">
+        @for (invalidPart of invalidItineraryParts(); track invalidPart.part.id) {
+        <article class="invalid-part-card">
+          <h3>{{ invalidPart.part.name }}</h3>
+          <p>{{ invalidPart.reason }}</p>
+
+          @if (invalidPart.part.address) {
+          <p>Address: {{ invalidPart.part.address }}</p>
+          }
+
+          @if (invalidPart.part.startDate) {
+          <p>Start: {{ formatDate(invalidPart.part.startDate) }}</p>
+          }
+        </article>
         }
       </div>
 
-      <div class="panel-block note-block">
-        <h2>Enabled capabilities</h2>
-        <ul>
-          <li>Built-in map type, fullscreen, scale, and Street View controls</li>
-          <li>Advanced markers with info windows</li>
-          <li>International trip overlay rendered as a geodesic polyline</li>
-          <li>Browser geolocation to recenter the map</li>
-          <li>Traffic overlay toggle</li>
-          <li>Click-to-drop pin with captured coordinates</li>
-        </ul>
-      </div>
+      <div class="itinerary-list">
+        <h2>Itinerary</h2>
 
-      <div class="panel-block route-block">
-        <h2>International trip</h2>
-        <p>{{ routeSummary() }}</p>
-        <ol class="route-list">
-          @for (stop of routeStops; track stop.id) {
-            <li>{{ stop.title }}</li>
+        @for (part of itineraryParts(); track part.id) {
+        <article class="itinerary-card">
+          <div class="itinerary-card-header">
+            <h3>{{ part.name }}</h3>
+            <span
+              class="status-chip"
+              [class.status-chip-invalid]="invalidItineraryParts().some(item => item.part.id === part.id)"
+            >
+              {{ invalidItineraryParts().some(item => item.part.id === part.id) ? 'Needs fix' : 'Ready for map' }}
+            </span>
+          </div>
+
+          @if (part.startDate) {
+          <p>Start: {{ formatDate(part.startDate) }}</p>
           }
-        </ol>
-      </div>
 
-      <div class="panel-block leg-block">
-        <h2>Trip legs</h2>
-        <p>Open each leg in Google Maps to get actual route instructions for that segment.</p>
-        <div class="leg-list">
-          @for (leg of routeLegs; track leg.id) {
-            <button type="button" class="leg-card" (click)="sendLegToGoogleMaps(leg)">
-              <span class="leg-title">{{ leg.title }}</span>
-              <span class="leg-cta">Open directions</span>
-            </button>
+          @if (part.endDate) {
+          <p>End: {{ formatDate(part.endDate) }}</p>
           }
-        </div>
-      </div>
 
-      <div class="panel-block rome-block">
-        <h2>Rome sightseeing</h2>
-        <p>{{ romeSightseeingSummary() }}</p>
-        <ol class="route-list">
-          @for (stop of romeSightseeingStops; track stop.id) {
-            <li>{{ stop.title }}</li>
+          @if (part.address) {
+          <p>Address: {{ part.address }}</p>
           }
-        </ol>
-        <div class="rome-actions">
-          <button type="button" class="inline-action" (click)="focusRomeSightseeing()" [disabled]="!apiReady()">
-            Focus Rome route
-          </button>
-          <button
-            type="button"
-            class="inline-action inline-action-ghost"
-            (click)="sendRomeSightseeingToGoogleMaps()"
-            [disabled]="romeSightseeingStops.length < 2"
-          >
-            Open 4 points in Google Maps
-          </button>
-        </div>
+
+          @if (part.latitude !== null && part.latitude !== undefined && part.longitude !== null && part.longitude !==
+          undefined) {
+          <p>{{ part.latitude }}, {{ part.longitude }}</p>
+          }
+        </article>
+        }
       </div>
-
-      @if (selectedSpot(); as spot) {
-        <div class="panel-block selection-block">
-          <h2>Selection</h2>
-          <strong>{{ spot.title }}</strong>
-          <p>{{ spot.summary }}</p>
-          <p>{{ spot.position.lat.toFixed(5) }}, {{ spot.position.lng.toFixed(5) }}</p>
-        </div>
-      }
-
+    </section>
+    } @else if (apiReady()) {
+    <section class="map-stage">
       @if (loadError()) {
-        <div class="panel-block error-block">
-          <h2>Load status</h2>
-          <p>{{ loadError() }}</p>
-        </div>
+      <div class="map-banner map-banner-warning">{{ loadError() }}</div>
       }
-    </aside> -->
 
-    <!-- <section class="map-stage"> -->
-      @if (!mapsApiKeyConfigured) {
-        <div class="map-message">
-          <h2>Add your API key</h2>
-          <p>
-            Set <code>apiKey</code> in <code>src/app/maps.config.ts</code>, then reload the app.
-          </p>
-          <p>
-            Use a browser key with HTTP referrer restrictions, as recommended by Google Maps Platform.
-          </p>
-        </div>
-      } @else if (loading() && !apiReady()) {
-        <div class="map-message">
-          <h2>Loading Google Maps</h2>
-          <p>The app is importing the Maps JavaScript API and marker library on demand.</p>
-        </div>
-      } @else if (apiReady()) {
-        <google-map
-          height="100%"
-          width="100%"
-          [options]="mapOptions()"
-          (mapClick)="dropPin($event)"
-          (mapInitialized)="onMapInitialized($event)"
-        >
-          <map-polyline [path]="routePath" [options]="polylineOptions" />
-          <map-polyline [path]="romeSightseeingPath" [options]="romePolylineOptions" />
+      <google-map
+        height="100%"
+        width="100%"
+        [options]="mapOptions()"
+        (mapInitialized)="onMapInitialized($event)"
+      >
+        @if (routePath().length > 1) {
+        <map-polyline
+          [path]="routePath()"
+          [options]="polylineOptions"
+        />
+        }
 
-          @for (spot of featureSpots; track spot.id) {
-            <map-advanced-marker
-              #marker="mapAdvancedMarker"
-              [position]="spot.position"
-              [title]="spot.title"
-              (mapClick)="openSpot(spot, marker)"
-            />
-          }
+        @for (point of points(); track point.id) {
+        <map-marker
+          #marker="mapMarker"
+          [position]="point.position"
+          [title]="point.title"
+          [options]="getMarkerOptions(point)"
+          (mapClick)="openPoint(point, marker)"
+        />
+        }
 
-          @for (stop of romeSightseeingStops; track stop.id) {
-            <map-advanced-marker
-              #marker="mapAdvancedMarker"
-              [position]="stop.position"
-              [title]="stop.title"
-              (mapClick)="openRouteStop(stop, marker)"
-            />
-          }
+        <map-info-window>
+          @if (selectedPoint(); as point) {
+          <div class="info-window">
+            <span class="info-type">{{ point.kindLabel }}</span>
+            <strong>{{ point.title }}</strong>
+            <p>{{ point.meta }}</p>
 
-          @if (currentLocation(); as location) {
-            <map-advanced-marker [position]="location" title="Your current location" />
-          }
-
-          @if (droppedPin(); as pin) {
-            <map-advanced-marker [position]="pin" title="Dropped pin" />
-          }
-
-          <!-- @if (showTraffic()) {
-            <map-traffic-layer />
-          } -->
-
-          <map-info-window>
-            @if (selectedSpot(); as spot) {
-              <div class="info-window">
-                <strong>{{ spot.title }}</strong>
-                <p>{{ spot.summary }}</p>
-                <p>{{ spot.position.lat.toFixed(5) }}, {{ spot.position.lng.toFixed(5) }}</p>
-              </div>
+            @if (point.address) {
+            <p>{{ point.address }}</p>
             }
-          </map-info-window>
-        </google-map>
-      } @else {
-        <div class="map-message">
-          <h2>Map unavailable</h2>
-          <p>Check the API key and referrer restrictions, then reload the page.</p>
-        </div>
-      }
-    <!-- </section> -->
-  <!-- </section> -->
-<!-- </main> -->
+
+            @if (point.startDate) {
+            <p>Start: {{ formatDate(point.startDate) }}</p>
+            }
+
+            @if (point.endDate) {
+            <p>End: {{ formatDate(point.endDate) }}</p>
+            }
+
+            @if (point.notes) {
+            <p>{{ point.notes }}</p>
+            }
+
+            <p>{{ point.position.lat.toFixed(6) }}, {{ point.position.lng.toFixed(6) }}</p>
+          </div>
+          }
+        </map-info-window>
+      </google-map>
+    </section>
+    } @else {
+    <div class="map-message">
+      <h2>Map unavailable</h2>
+      <p>Check the Google Maps key and reload the page.</p>
+    </div>
+    }
+  </section>
+</div>
