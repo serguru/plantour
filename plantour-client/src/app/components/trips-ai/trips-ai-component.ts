@@ -67,9 +67,28 @@ export class TripsAiComponent {
   readonly overrideEndDate = signal<string | null>(null);
 
   readonly selectedCurrency = computed(() => this.currencies().find(x => x.id === this.selectedCurrencyId()) ?? null);
+  readonly previewCurrencyText = computed(() => this.preview()?.plan.currencyText?.trim() || this.selectedCurrency()?.name || '');
+  readonly previewCurrencyId = computed(() => {
+    const currencyText = this.previewCurrencyText().toLowerCase();
+    if (!currencyText) {
+      return this.selectedCurrencyId();
+    }
+
+    return this.currencies().find(x => x.name.toLowerCase() === currencyText)?.id ?? this.selectedCurrencyId();
+  });
   readonly createdTripId = computed(() => this.createResult()?.tripId ?? null);
   readonly createdTripName = computed(() => this.createResult()?.tripName ?? this.preview()?.plan.title ?? 'Suggested trip');
-  readonly canCreateTrip = computed(() => this.usersService.isAdminSignal() && !!this.preview() && !!this.selectedCurrencyId());
+  readonly canCreateTrip = computed(() => this.usersService.isAdminSignal() && !!this.preview() && !!this.previewCurrencyId());
+  readonly estimatedTripTotal = computed(() => {
+    const plan = this.preview()?.plan;
+    if (!plan) {
+      return 0;
+    }
+
+    const personalTotal = plan.personalExpenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+    const sharedTotal = plan.sharedExpenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+    return personalTotal + sharedTotal;
+  });
   readonly totalSuggestedEntries = computed(() => {
     const plan = this.preview()?.plan;
     if (!plan) {
@@ -162,7 +181,10 @@ export class TripsAiComponent {
     }
 
     this.isPreviewLoading.set(true);
-    this.tripsAiService.getPreview({ question }).pipe(
+    this.tripsAiService.getPreview({
+      question,
+      currencyText: this.selectedCurrency()?.name || '',
+    }).pipe(
       finalize(() => this.isPreviewLoading.set(false)),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
@@ -185,14 +207,14 @@ export class TripsAiComponent {
 
   createTrip(useOverrides = false): void {
     const preview = this.preview();
-    const currencyId = this.selectedCurrencyId();
+    const currencyId = this.previewCurrencyId();
     if (!preview) {
       this.messagesService.showWarning('Generate a trip preview first');
       return;
     }
 
     if (!currencyId) {
-      this.messagesService.showWarning('Please select a currency for the new trip');
+      this.messagesService.showWarning('The preview currency is not available in the currency lookup');
       return;
     }
 

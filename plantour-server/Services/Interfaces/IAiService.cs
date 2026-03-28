@@ -11,7 +11,7 @@ public interface IAiService
     Task<IEnumerable<AiItemDto>> GetAllForTripAsync(Guid tripId, string prompt);
     Task<IEnumerable<AiItemDto>> GetAllForTripSharedAsync(Guid tripId, string prompt);
     Task<IEnumerable<AiItemDto>> GetAllForDicAsync(string prompt);
-    Task<TripAiPreviewResponseDto> GetTripPlanPreviewAsync(string question);
+    Task<TripAiPreviewResponseDto> GetTripPlanPreviewAsync(string question, string currencyText);
     Task<TripAiCreateTripResponseDto> CreateTripFromPlanAsync(CreateTripFromAiPlanRequest request);
     Task<TripAiApplyResponseDto> ApplyTripPlanAsync(Guid tripId, string prompt);
 }

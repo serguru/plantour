@@ -75,7 +75,7 @@ public class TemplateAiController(IAiService service) : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult<TripAiPreviewResponseDto>> GetTripPlanPreview([FromBody] TripAiPreviewRequest request)
     {
-        var dto = await _service.GetTripPlanPreviewAsync(request.Question);
+        var dto = await _service.GetTripPlanPreviewAsync(request.Question, request.CurrencyText);
         return Ok(dto);
     }
 

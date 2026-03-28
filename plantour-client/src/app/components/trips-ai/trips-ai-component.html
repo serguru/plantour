@@ -14,36 +14,38 @@
         plan first, cache that answer for reuse, and then let you create a new Planning trip from the preview.
       </p>
     </div>
-
-    <div class="hero-points">
-      <span>Questions are reused from your recent AI trip history</span>
-      <span>Flights and hotel stays are included in the itinerary preview</span>
-      <span>Create trip writes items, todos, expenses, and notes into a new Planning trip</span>
-    </div>
   </section>
 
   <section class="prompt-card">
-    <label class="prompt-label">Previous questions</label>
-    <app-dropdown
-      placeholder="Select or type a trip request"
-      emptyText="No previous questions"
-      [options]="prompts()"
-      [value]="prompt()"
-      (valueChange)="onPromptChanged($event)"
-      (optionSelected)="onPromptSelected($event)"
-    ></app-dropdown>
+    <div class="question-row">
+      <div>
+        <label class="prompt-label">Previous questions</label>
+        <app-dropdown
+          placeholder="Select or type a trip request"
+          emptyText="No previous questions"
+          [options]="prompts()"
+          [value]="prompt()"
+          (valueChange)="onPromptChanged($event)"
+          (optionSelected)="onPromptSelected($event)"
+        ></app-dropdown>
+      </div>
 
-    <label class="prompt-label" for="trip-ai-currency">Trip currency</label>
-    <p-select
-      inputId="trip-ai-currency"
-      class="currency-select"
-      [options]="currencies()"
-      optionLabel="name"
-      optionValue="id"
-      placeholder="Select currency"
-      [ngModel]="selectedCurrencyId()"
-      (ngModelChange)="onCurrencyChange($event)"
-    ></p-select>
+      <div class="form-field">
+        <label class="prompt-label" for="trip-ai-currency">Trip currency</label>
+        <p-select
+          id="trip-ai-currency"
+          [options]="currencies()"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Select currency"
+          [ngModel]="selectedCurrencyId()"
+          (ngModelChange)="onCurrencyChange($event)"
+          [showClear]="false"
+          styleClass="w-full"
+          [editable]="false"
+        ></p-select>
+      </div>
+    </div>
 
     <label class="prompt-label" for="trip-ai-prompt">Trip request</label>
     <textarea
@@ -132,8 +134,13 @@
         </div>
 
         <div class="date-row">
-          <span>Selected currency</span>
-          <strong>{{ selectedCurrency()?.name || 'Select currency' }}</strong>
+          <span>Trip currency</span>
+          <strong>{{ previewCurrencyText() || 'Not set' }}</strong>
+        </div>
+
+        <div class="date-row">
+          <span>Estimated trip total</span>
+          <strong>{{ estimatedTripTotal() | number:'1.0-2' }} {{ previewCurrencyText() }}</strong>
         </div>
 
         <div class="recommendations">
@@ -354,7 +361,7 @@
               @for (expense of previewValue.plan.personalExpenses; track expense.name + expense.amount) {
                 <li>
                   <strong>{{ expense.name }}</strong>
-                  <span>{{ expense.amount | number:'1.0-2' }} {{ selectedCurrency()?.name }}</span>
+                  <span>{{ expense.amount | number:'1.0-2' }} {{ previewCurrencyText() }}</span>
                   @if (expense.notes) {
                     <p>{{ expense.notes }}</p>
                   }
@@ -372,7 +379,7 @@
               @for (expense of previewValue.plan.sharedExpenses; track expense.name + expense.amount) {
                 <li>
                   <strong>{{ expense.name }}</strong>
-                  <span>{{ expense.amount | number:'1.0-2' }} {{ selectedCurrency()?.name }}</span>
+                  <span>{{ expense.amount | number:'1.0-2' }} {{ previewCurrencyText() }}</span>
                   @if (expense.notes) {
                     <p>{{ expense.notes }}</p>
                   }

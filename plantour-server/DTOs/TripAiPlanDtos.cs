@@ -3,6 +3,7 @@ namespace plantour_server.DTOs;
 public class TripAiPreviewRequest
 {
     public string Question { get; set; } = string.Empty;
+    public string CurrencyText { get; set; } = string.Empty;
 }
 
 public class TripAiQuestionDto
@@ -65,6 +66,7 @@ public class TripAiPlanDto
 {
     public string Title { get; set; } = string.Empty;
     public string Summary { get; set; } = string.Empty;
+    public string CurrencyText { get; set; } = string.Empty;
     public string GeneralRecommendations { get; set; } = string.Empty;
     public List<string> Assumptions { get; set; } = [];
     public string SuggestedStartDate { get; set; } = string.Empty;

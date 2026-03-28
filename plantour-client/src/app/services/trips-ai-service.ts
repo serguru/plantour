@@ -10,6 +10,7 @@ export interface TripAiQuestionDto {
 
 export interface TripAiPreviewRequest {
   question: string;
+  currencyText: string;
 }
 
 export interface CreateTripFromAiPlanRequest {
@@ -59,6 +60,7 @@ export interface TripAiAppliedCountsDto {
 export interface TripAiPlanDto {
   title: string;
   summary: string;
+  currencyText: string;
   generalRecommendations: string;
   assumptions: string[];
   suggestedStartDate: string;

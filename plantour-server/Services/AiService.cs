@@ -485,17 +485,17 @@ public class AiService : IAiService
         }
 
         var normalizedPrompt = prompt.Trim();
-        var preview = await GetOrCreateTripPlanAsync(normalizedPrompt);
+        var preview = await GetOrCreateTripPlanAsync(normalizedPrompt, trip.Currency.Name);
         var plan = ClonePlan(preview.Plan);
         return await ApplyGeneratedTripPlanAsync(trip, tripUser.Id, normalizedPrompt, plan);
     }
 
-    public async Task<TripAiPreviewResponseDto> GetTripPlanPreviewAsync(string question)
+    public async Task<TripAiPreviewResponseDto> GetTripPlanPreviewAsync(string question, string currencyText)
     {
         _currentUser.RaiseIfNotAuthenticated();
 
         var normalizedQuestion = NormalizeQuestion(question);
-        var result = await GetOrCreateTripPlanAsync(normalizedQuestion);
+        var result = await GetOrCreateTripPlanAsync(normalizedQuestion, NormalizeCurrencyText(currencyText));
 
         return new TripAiPreviewResponseDto
         {
@@ -516,7 +516,7 @@ public class AiService : IAiService
         }
 
         var normalizedQuestion = NormalizeQuestion(request.Question);
-        var preview = await GetOrCreateTripPlanAsync(normalizedQuestion);
+        var preview = await GetOrCreateTripPlanAsync(normalizedQuestion, string.Empty);
         var plan = ClonePlan(preview.Plan);
 
         if (request.StartDate.HasValue != request.EndDate.HasValue)
@@ -580,7 +580,7 @@ public class AiService : IAiService
         };
     }
 
-    private async Task<TripAiPlanDto> GenerateTripPlanAsync(string prompt)
+    private async Task<TripAiPlanDto> GenerateTripPlanAsync(string prompt, string currencyText)
     {
         var requestBody = new
         {
@@ -593,7 +593,7 @@ public class AiService : IAiService
                     {
                         new
                         {
-                            text = BuildTripPlanPrompt(prompt)
+                            text = BuildTripPlanPrompt(prompt, currencyText)
                         }
                     }
                 }
@@ -639,6 +639,10 @@ public class AiService : IAiService
             }
 
             NormalizeTripPlan(plan);
+            if (string.IsNullOrWhiteSpace(plan.CurrencyText))
+            {
+                plan.CurrencyText = currencyText;
+            }
             return plan;
         }
         catch (JsonException ex)
@@ -647,9 +651,10 @@ public class AiService : IAiService
         }
     }
 
-    private async Task<(TripAiPlanDto Plan, bool FromCache, bool DatesAdjusted)> GetOrCreateTripPlanAsync(string question)
+    private async Task<(TripAiPlanDto Plan, bool FromCache, bool DatesAdjusted)> GetOrCreateTripPlanAsync(string question, string currencyText)
     {
         var normalizedQuestion = NormalizeQuestion(question);
+        var normalizedCurrencyText = NormalizeCurrencyText(currencyText);
         var existing = await _aiTripPlanRepository.GetByQuestionAsync(_currentUser.UserId, normalizedQuestion);
         if (existing != null)
         {
@@ -658,6 +663,10 @@ public class AiService : IAiService
                 var storedPlan = JsonSerializer.Deserialize<TripAiPlanDto>(existing.Plan, _jsonOptions)
                     ?? throw new CustomException("Stored AI trip plan is empty");
                 NormalizeTripPlan(storedPlan);
+                if (string.IsNullOrWhiteSpace(storedPlan.CurrencyText) && !string.IsNullOrWhiteSpace(normalizedCurrencyText))
+                {
+                    storedPlan.CurrencyText = normalizedCurrencyText;
+                }
                 return (storedPlan, true, false);
             }
             catch (JsonException ex)
@@ -673,7 +682,7 @@ public class AiService : IAiService
 
         await CheckAccessAsync();
 
-        var generatedPlan = await GenerateTripPlanAsync(normalizedQuestion);
+        var generatedPlan = await GenerateTripPlanAsync(normalizedQuestion, normalizedCurrencyText);
         var datesAdjusted = await ShiftPlanDatesToAvoidOverlapAsync(generatedPlan);
         var serializedPlan = JsonSerializer.Serialize(generatedPlan, _jsonOptions);
 
@@ -696,6 +705,10 @@ public class AiService : IAiService
                 var storedPlan = JsonSerializer.Deserialize<TripAiPlanDto>(stored.Plan, _jsonOptions)
                     ?? throw new CustomException("Stored AI trip plan is empty");
                 NormalizeTripPlan(storedPlan);
+                if (string.IsNullOrWhiteSpace(storedPlan.CurrencyText) && !string.IsNullOrWhiteSpace(normalizedCurrencyText))
+                {
+                    storedPlan.CurrencyText = normalizedCurrencyText;
+                }
                 return (storedPlan, true, false);
             }
 
@@ -806,9 +819,16 @@ public class AiService : IAiService
             .Where(x => x.TripUserId == tripUserId)
             .Select(x => x.Name)
             .ToListAsync(), StringComparer.OrdinalIgnoreCase);
+        var remainingPersonalItemCapacity = await GetRemainingItemCapacityAsync(
+            () => _context.TripUserThings.CountAsync(x => x.TripUserId == tripUserId));
 
         foreach (var item in plan.PersonalItems)
         {
+            if (remainingPersonalItemCapacity <= 0)
+            {
+                break;
+            }
+
             var name = CleanRequired(item.Name);
             if (name == null || !personalThingNames.Add(name))
             {
@@ -826,15 +846,23 @@ public class AiService : IAiService
                 Notes = CleanOptional(item.Notes)
             });
             counts.PersonalItemsAdded += 1;
+            remainingPersonalItemCapacity -= 1;
         }
 
         var sharedThingNames = new HashSet<string>(await _context.TripSharedThings
             .Where(x => x.TripId == trip.Id)
             .Select(x => x.Name)
             .ToListAsync(), StringComparer.OrdinalIgnoreCase);
+        var remainingSharedItemCapacity = await GetRemainingItemCapacityAsync(
+            () => _context.TripSharedThings.CountAsync(x => x.TripId == trip.Id));
 
         foreach (var item in plan.SharedItems)
         {
+            if (remainingSharedItemCapacity <= 0)
+            {
+                break;
+            }
+
             var name = CleanRequired(item.Name);
             if (name == null || !sharedThingNames.Add(name))
             {
@@ -857,6 +885,7 @@ public class AiService : IAiService
                 Rejected = false
             });
             counts.SharedItemsAdded += 1;
+            remainingSharedItemCapacity -= 1;
         }
 
         var personalTodoNames = new HashSet<string>(await _context.TripUserTodos
@@ -1040,10 +1069,24 @@ public class AiService : IAiService
         }
     }
 
+    private async Task<int> GetRemainingItemCapacityAsync(Func<Task<int>> currentCountFactory)
+    {
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        if (rule == null || rule.Granted)
+        {
+            return int.MaxValue;
+        }
+
+        var limit = rule.Value ?? 0;
+        var currentCount = await currentCountFactory();
+        return Math.Max(0, limit - currentCount);
+    }
+
     private static void NormalizeTripPlan(TripAiPlanDto plan)
     {
         plan.Title = CleanOptional(plan.Title) ?? string.Empty;
         plan.Summary = CleanOptional(plan.Summary) ?? string.Empty;
+        plan.CurrencyText = CleanOptional(plan.CurrencyText) ?? string.Empty;
         plan.GeneralRecommendations = CleanOptional(plan.GeneralRecommendations) ?? string.Empty;
         plan.SuggestedStartDate = CleanOptional(plan.SuggestedStartDate) ?? string.Empty;
         plan.SuggestedEndDate = CleanOptional(plan.SuggestedEndDate) ?? string.Empty;
@@ -1270,12 +1313,13 @@ public class AiService : IAiService
             ?? throw new CustomException("Failed to clone AI trip plan");
     }
 
-    private static string BuildTripPlanPrompt(string userPrompt)
+    private static string BuildTripPlanPrompt(string userPrompt, string currencyText)
     {
         return "You are a travel planner inside a trip management application. " +
                "Generate a complete, practical trip plan from the user's description. " +
                "Return only JSON that matches the provided schema. Do not add markdown or commentary. " +
                "Use plain numeric estimated expense amounts without currency symbols. " +
+               $"All expense estimates must be in {currencyText}. " +
                "Create unique names inside each collection. " +
                "Do not assign any shared items, shared todos, or shared expenses to participants. " +
                "Put transportation and lodging details into the itinerary, including flights and hotel stays. " +
@@ -1297,6 +1341,7 @@ public class AiService : IAiService
             {
                 title = new { type = "string" },
                 summary = new { type = "string" },
+                currencyText = new { type = "string" },
                 generalRecommendations = new { type = "string" },
                 assumptions = new
                 {
@@ -1336,6 +1381,7 @@ public class AiService : IAiService
             {
                 "title",
                 "summary",
+                "currencyText",
                 "generalRecommendations",
                 "assumptions",
                 "suggestedStartDate",
@@ -1349,6 +1395,11 @@ public class AiService : IAiService
                 "sharedExpenses"
             }
         };
+    }
+
+    private static string NormalizeCurrencyText(string currencyText)
+    {
+        return CleanOptional(currencyText) ?? string.Empty;
     }
 
     private static object BuildTripActivitiesSchema()
