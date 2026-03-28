@@ -1,3 +1,9 @@
-:host ::ng-deep .item-container.selected {
-  background: linear-gradient(180deg, rgba(31, 111, 120, 0.08), rgba(31, 111, 120, 0.02));
+:host {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  & ::ng-deep .item-container.selected {
+    background: linear-gradient(180deg, rgba(31, 111, 120, 0.08), rgba(31, 111, 120, 0.02));
+  }
 }

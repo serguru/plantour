@@ -712,3 +712,5 @@ Let's add trip notes feature to Plantour. Read the official Tiptap Angular libra
 
 
 
+3) Now they can use public image links - it is already implemented. Do not touch it. Add an ability for a user to access private images from the Google Photos. See a new db table user_keys. Add a new KeysComponent
+

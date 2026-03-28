@@ -107,6 +107,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<UserKey> UserKeys { get; set; }
+
     public virtual DbSet<UserPackage> UserPackages { get; set; }
 
     public virtual DbSet<UserSetting> UserSettings { get; set; }
@@ -597,6 +599,17 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Currency).WithMany(p => p.Users)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("users_currency_id_fkey");
+        });
+
+        modelBuilder.Entity<UserKey>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("user_keys_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserKeys).HasConstraintName("user_keys_user_id_fkey");
         });
 
         modelBuilder.Entity<UserPackage>(entity =>

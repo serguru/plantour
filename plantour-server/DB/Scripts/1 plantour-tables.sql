@@ -409,6 +409,18 @@ create table ai_prompt_checks (
     count int not null check(count >= 0)
 );
 
+create table plantour.user_keys (
+    id uuid not null primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    name text not null,
+    key text not null,
+    active boolean not null default true,
+    created_at timestamptz not null default (now() at time zone 'utc'),
+    notes text
+);
+create unique index idx_user_keys_user_id_name on plantour.user_keys(user_id, name);
+
+
 create table admins_participants (
     id uuid not null primary key default gen_random_uuid(),
     admin_id uuid not null references users(id) on delete cascade,

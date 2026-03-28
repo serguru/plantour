@@ -2,6 +2,7 @@ import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angula
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, map, switchMap, tap } from 'rxjs';
+import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { ComponentService } from '../../services/component-service';
@@ -16,7 +17,7 @@ import { buildTripNoteActivityOptions } from './trip-note-utils';
 @Component({
   selector: 'app-trip-notes',
   standalone: true,
-  imports: [EntitiesComponent, EntitiesHeader],
+  imports: [EntitiesComponent, EntitiesHeader, EntitiesActionsComponent],
   templateUrl: './trip-notes-component.html',
   styleUrl: './trip-notes-component.scss',
 })

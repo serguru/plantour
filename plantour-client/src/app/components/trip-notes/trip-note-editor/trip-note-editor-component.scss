@@ -1,75 +1,77 @@
-.trip-note-editor {
-  border: 1px solid var(--p-content-border-color, #d6dde3);
-  border-radius: 1rem;
-  background: #fff;
-  overflow: hidden;
-}
+:host {
+  .trip-note-editor {
+    border: 1px solid var(--p-content-border-color, #d6dde3);
+    border-radius: 1rem;
+    background: #fff;
+    overflow: hidden;
+  }
 
-.trip-note-editor__toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.85rem;
-  border-bottom: 1px solid var(--p-content-border-color, #d6dde3);
-  background: #f6f8fa;
-}
+  .trip-note-editor__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.85rem;
+    border-bottom: 1px solid var(--p-content-border-color, #d6dde3);
+    background: #f6f8fa;
+  }
 
-.trip-note-editor__tool {
-  border: 1px solid #c8d1d9;
-  background: #fff;
-  color: #22313f;
-  border-radius: 0.7rem;
-  padding: 0.45rem 0.7rem;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
+  .trip-note-editor__tool {
+    border: 1px solid #c8d1d9;
+    background: #fff;
+    color: #22313f;
+    border-radius: 0.7rem;
+    padding: 0.45rem 0.7rem;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
 
-.trip-note-editor__tool.active {
-  background: #1f6f78;
-  border-color: #1f6f78;
-  color: #fff;
-}
+  .trip-note-editor__tool.active {
+    background: #1f6f78;
+    border-color: #1f6f78;
+    color: #fff;
+  }
 
-.trip-note-editor__tool:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
+  .trip-note-editor__tool:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
 
-.trip-note-editor__surface {
-  min-height: 16rem;
-  padding: 1rem;
-}
+  .trip-note-editor__surface {
+    min-height: 16rem;
+    padding: 1rem;
+  }
 
-:host ::ng-deep .trip-note-editor__content {
-  outline: none;
-  min-height: 14rem;
-}
+  & ::ng-deep .trip-note-editor__content {
+    outline: none;
+    min-height: 14rem;
+  }
 
-:host ::ng-deep .trip-note-editor__content p,
-:host ::ng-deep .trip-note-editor__content h2,
-:host ::ng-deep .trip-note-editor__content h3,
-:host ::ng-deep .trip-note-editor__content ul,
-:host ::ng-deep .trip-note-editor__content ol,
-:host ::ng-deep .trip-note-editor__content blockquote {
-  margin: 0 0 0.85rem;
-}
+  & ::ng-deep .trip-note-editor__content p,
+  & ::ng-deep .trip-note-editor__content h2,
+  & ::ng-deep .trip-note-editor__content h3,
+  & ::ng-deep .trip-note-editor__content ul,
+  & ::ng-deep .trip-note-editor__content ol,
+  & ::ng-deep .trip-note-editor__content blockquote {
+    margin: 0 0 0.85rem;
+  }
 
-:host ::ng-deep .trip-note-editor__content img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  border-radius: 0.8rem;
-}
+  & ::ng-deep .trip-note-editor__content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.8rem;
+  }
 
-:host ::ng-deep .trip-note-editor__content blockquote {
-  border-left: 4px solid #97b7bc;
-  padding-left: 0.85rem;
-  color: #47636b;
-}
+  & ::ng-deep .trip-note-editor__content blockquote {
+    border-left: 4px solid #97b7bc;
+    padding-left: 0.85rem;
+    color: #47636b;
+  }
 
-:host ::ng-deep .trip-note-editor__content code {
-  background: #eef2f4;
-  border-radius: 0.35rem;
-  padding: 0.1rem 0.3rem;
+  & ::ng-deep .trip-note-editor__content code {
+    background: #eef2f4;
+    border-radius: 0.35rem;
+    padding: 0.1rem 0.3rem;
+  }
 }
