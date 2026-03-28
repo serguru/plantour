@@ -1,9 +1,17 @@
 <div class="page-container">
   <section class="map-shell">
-    <header class="trip-header">
+    <app-entities-header
+      entityIcon="pi pi-map"
+      title="Map"
+      [headerButtons]="headerButtons()"
+      [menuItems]="menuItems()"
+      [useEntitiesActions]="false"
+    ></app-entities-header>
+
+    <section class="trip-summary">
       <h1>{{ trip()?.name || 'Trip map' }}</h1>
       <p>{{ formatTripDates(trip()) }}</p>
-    </header>
+    </section>
 
     @if (!isBrowser) {
     <div class="map-message">
@@ -21,70 +29,16 @@
       <h2>Loading trip map</h2>
       <p>Plantour is loading itinerary parts, personal activities, shared activities, and map coordinates.</p>
     </div>
-    } @else if (hasBlockingItineraryIssue()) {
-    <section class="itinerary-fallback">
-      <div class="fallback-message">
-        <h2>Map not shown</h2>
-        <p>At least one itinerary part cannot be placed on the map. Fix the wrong parts below, then open the map again.
-        </p>
-      </div>
-
-      <div class="invalid-parts">
-        @for (invalidPart of invalidItineraryParts(); track invalidPart.part.id) {
-        <article class="invalid-part-card">
-          <h3>{{ invalidPart.part.name }}</h3>
-          <p>{{ invalidPart.reason }}</p>
-
-          @if (invalidPart.part.address) {
-          <p>Address: {{ invalidPart.part.address }}</p>
-          }
-
-          @if (invalidPart.part.startDate) {
-          <p>Start: {{ formatDate(invalidPart.part.startDate) }}</p>
-          }
-        </article>
-        }
-      </div>
-
-      <div class="itinerary-list">
-        <h2>Itinerary</h2>
-
-        @for (part of itineraryParts(); track part.id) {
-        <article class="itinerary-card">
-          <div class="itinerary-card-header">
-            <h3>{{ part.name }}</h3>
-            <span
-              class="status-chip"
-              [class.status-chip-invalid]="invalidItineraryParts().some(item => item.part.id === part.id)"
-            >
-              {{ invalidItineraryParts().some(item => item.part.id === part.id) ? 'Needs fix' : 'Ready for map' }}
-            </span>
-          </div>
-
-          @if (part.startDate) {
-          <p>Start: {{ formatDate(part.startDate) }}</p>
-          }
-
-          @if (part.endDate) {
-          <p>End: {{ formatDate(part.endDate) }}</p>
-          }
-
-          @if (part.address) {
-          <p>Address: {{ part.address }}</p>
-          }
-
-          @if (part.latitude !== null && part.latitude !== undefined && part.longitude !== null && part.longitude !==
-          undefined) {
-          <p>{{ part.latitude }}, {{ part.longitude }}</p>
-          }
-        </article>
-        }
-      </div>
-    </section>
     } @else if (apiReady()) {
     <section class="map-stage">
       @if (loadError()) {
       <div class="map-banner map-banner-warning">{{ loadError() }}</div>
+      }
+
+      @if (hasLocationIssues()) {
+      <div class="map-banner map-banner-warning">
+        Some itinerary parts or activities could not be placed on the map. Valid locations are still shown.
+      </div>
       }
 
       <google-map
@@ -93,14 +47,21 @@
         [options]="mapOptions()"
         (mapInitialized)="onMapInitialized($event)"
       >
-        @if (routePath().length > 1) {
+        @if (showItineraryPath() && itineraryPath().length > 1) {
         <map-polyline
-          [path]="routePath()"
-          [options]="polylineOptions"
+          [path]="itineraryPath()"
+          [options]="itineraryPolylineOptions"
         />
         }
 
-        @for (point of points(); track point.id) {
+        @for (activityPath of visibleActivityPaths(); track activityPath.id) {
+        <map-polyline
+          [path]="activityPath.path"
+          [options]="activityPath.options"
+        />
+        }
+
+        @for (point of visiblePoints(); track point.id) {
         <map-marker
           #marker="mapMarker"
           [position]="point.position"
@@ -138,7 +99,77 @@
           }
         </map-info-window>
       </google-map>
+
+      @if (pathList().length > 0) {
+      <section class="path-panel">
+        <div class="path-panel-toolbar">
+          <button
+            type="button"
+            class="path-panel-toggle"
+            [attr.aria-expanded]="!pathsCollapsed()"
+            [attr.aria-label]="pathsCollapsed() ? 'Expand paths' : 'Collapse paths'"
+            (click)="togglePathsCollapsed()"
+          >
+            <span>Paths</span>
+            <span
+              class="path-panel-chevron pi"
+              [class.pi-chevron-down]="pathsCollapsed()"
+              [class.pi-chevron-up]="!pathsCollapsed()"
+              aria-hidden="true"
+            ></span>
+          </button>
+        </div>
+
+        @if (!pathsCollapsed()) {
+        <div class="path-panel-body">
+          <div class="path-list">
+            @for (pathItem of pathList(); track pathItem.id) {
+            <div class="path-toggle">
+              <p-checkbox
+                [binary]="true"
+                [inputId]="'path-toggle-' + pathItem.id"
+                [ngModel]="pathItem.visible"
+                (ngModelChange)="pathItem.id === 'itinerary' ? toggleItineraryPath($event) : toggleActivityPath(pathItem.id, $event)"
+              />
+              <label class="path-toggle-copy" [attr.for]="'path-toggle-' + pathItem.id">
+                <strong>{{ pathItem.title }}</strong>
+                <span>{{ pathItem.kindLabel }} · {{ pathItem.pointCount }} points · {{ pathItem.visible ? 'Shown' : 'Hidden' }}</span>
+              </label>
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </section>
+      }
     </section>
+
+    @if (hasLocationIssues()) {
+    <section class="itinerary-fallback">
+      <div class="fallback-message">
+        <h2>Needs map data</h2>
+        <p>These itinerary parts or activities still need valid coordinates or a geocodable address.</p>
+      </div>
+
+      <div class="invalid-parts">
+        @for (item of invalidLocations(); track item.id) {
+        <article class="invalid-part-card">
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.entityLabel }}</p>
+          <p>{{ item.reason }}</p>
+
+          @if (item.address) {
+          <p>Address: {{ item.address }}</p>
+          }
+
+          @if (item.startDate) {
+          <p>Start: {{ formatDate(item.startDate) }}</p>
+          }
+        </article>
+        }
+      </div>
+    </section>
+    }
     } @else {
     <div class="map-message">
       <h2>Map unavailable</h2>

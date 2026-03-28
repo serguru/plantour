@@ -85,6 +85,8 @@ public class TripAiItineraryPartDto
     public string Name { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
+    public decimal? Latitude { get; set; }
+    public decimal? Longitude { get; set; }
     public string Notes { get; set; } = string.Empty;
     public string StartDate { get; set; } = string.Empty;
     public string EndDate { get; set; } = string.Empty;
@@ -100,6 +102,8 @@ public class TripAiActivityDto
     public string StartDate { get; set; } = string.Empty;
     public string EndDate { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
+    public decimal? Latitude { get; set; }
+    public decimal? Longitude { get; set; }
 }
 
 public class TripAiThingDto

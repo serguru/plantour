@@ -78,6 +78,8 @@ export interface TripAiItineraryPartDto {
   name: string;
   category: string;
   address: string;
+  latitude?: number | null;
+  longitude?: number | null;
   notes: string;
   startDate: string;
   endDate: string;
@@ -92,6 +94,8 @@ export interface TripAiActivityDto {
   startDate: string;
   endDate: string;
   address: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface TripAiThingDto {

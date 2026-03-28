@@ -14,7 +14,7 @@
 	background: #f7fafc;
 }
 
-.trip-header,
+.trip-summary,
 .map-message,
 .map-stage,
 .itinerary-fallback {
@@ -25,18 +25,18 @@
 }
 
 
-.trip-header {
+.trip-summary {
 	display: grid;
 	gap: 6px;
-	padding: 16px 20px;
+	padding: 12px 20px;
 }
 
-.trip-header h1 {
+.trip-summary h1 {
 	margin: 0;
 	font-size: 1.5rem;
 }
 
-.trip-header p,
+.trip-summary p,
 .map-message p,
 .info-window p,
 .fallback-message p,
@@ -62,6 +62,76 @@
 	gap: 12px;
 	padding: 12px;
 	min-height: 70vh;
+}
+
+.path-panel {
+	display: grid;
+	gap: 12px;
+	padding: 14px;
+	border: 1px solid #d7e3f0;
+	border-radius: 12px;
+	background: #f8fbff;
+}
+
+.path-panel-toolbar {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+.path-panel-toggle {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #132238;
+	font: inherit;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.path-panel-chevron {
+	font-size: 0.95rem;
+	line-height: 1;
+}
+
+.path-panel-body {
+	display: grid;
+	gap: 12px;
+}
+
+.path-toggle-copy span {
+	margin: 0;
+	color: #4a6078;
+	line-height: 1.4;
+}
+
+.path-list {
+	display: grid;
+	gap: 10px;
+}
+
+.path-toggle {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 12px;
+	align-items: center;
+	padding: 12px 14px;
+	border: 1px solid #d7e3f0;
+	border-radius: 12px;
+	background: #ffffff;
+}
+
+.path-toggle-copy {
+	display: grid;
+	gap: 3px;
+	cursor: pointer;
+}
+
+.path-toggle-copy strong {
+	font-size: 0.95rem;
 }
 
 .map-banner {

@@ -782,6 +782,8 @@ public class AiService : IAiService
                     Name = name,
                     Category = CleanOptional(rawPart.Category),
                     Address = CleanOptional(rawPart.Address),
+                    Latitude = NormalizeLatitude(rawPart.Latitude),
+                    Longitude = NormalizeLongitude(rawPart.Longitude),
                     Notes = CleanOptional(rawPart.Notes),
                     StartDate = startDate,
                     EndDate = endDate,
@@ -1060,7 +1062,9 @@ public class AiService : IAiService
                     Notes = CleanOptional(activity.Notes),
                     StartDate = activityStart,
                     EndDate = activityEnd,
-                    Address = CleanOptional(activity.Address)
+                    Address = CleanOptional(activity.Address),
+                    Latitude = NormalizeLatitude(activity.Latitude),
+                    Longitude = NormalizeLongitude(activity.Longitude)
                 });
                 added += 1;
             }
@@ -1104,6 +1108,8 @@ public class AiService : IAiService
             part.Name = CleanOptional(part.Name) ?? string.Empty;
             part.Category = CleanOptional(part.Category) ?? string.Empty;
             part.Address = CleanOptional(part.Address) ?? string.Empty;
+            part.Latitude = NormalizeLatitude(part.Latitude);
+            part.Longitude = NormalizeLongitude(part.Longitude);
             part.Notes = CleanOptional(part.Notes) ?? string.Empty;
             part.StartDate = CleanOptional(part.StartDate) ?? string.Empty;
             part.EndDate = CleanOptional(part.EndDate) ?? string.Empty;
@@ -1132,6 +1138,8 @@ public class AiService : IAiService
             activity.StartDate = CleanOptional(activity.StartDate) ?? string.Empty;
             activity.EndDate = CleanOptional(activity.EndDate) ?? string.Empty;
             activity.Address = CleanOptional(activity.Address) ?? string.Empty;
+            activity.Latitude = NormalizeLatitude(activity.Latitude);
+            activity.Longitude = NormalizeLongitude(activity.Longitude);
         }
     }
 
@@ -1324,6 +1332,9 @@ public class AiService : IAiService
                "Do not assign any shared items, shared todos, or shared expenses to participants. " +
                "Put transportation and lodging details into the itinerary, including flights and hotel stays. " +
                "For each itinerary part, include both public and personal activities when useful. " +
+               "For every itinerary part and every activity, always include latitude and longitude when you can determine them confidently. " +
+               "If precise coordinates are not known, still include the latitude and longitude fields with null values and provide the best available address. " +
+               "When coordinates are available, ensure they match the described place so the trip can be shown on a map without extra geocoding. " +
                "General recommendations and assumptions should be concise and suitable to append into trip notes. " +
                $"Today is {DateTime.UtcNow:yyyy-MM-dd}. " +
                "If the request has vague timing like a season or month, choose a reasonable concrete date range in the nearest practical future and record that assumption. " +
@@ -1361,13 +1372,15 @@ public class AiService : IAiService
                             name = new { type = "string" },
                             category = new { type = "string" },
                             address = new { type = "string" },
+                            latitude = new { type = new[] { "number", "null" } },
+                            longitude = new { type = new[] { "number", "null" } },
                             notes = new { type = "string" },
                             startDate = new { type = "string" },
                             endDate = new { type = "string" },
                             publicActivities = BuildTripActivitiesSchema(),
                             personalActivities = BuildTripActivitiesSchema()
                         },
-                        required = new[] { "name", "category", "address", "notes", "startDate", "endDate", "publicActivities", "personalActivities" }
+                        required = new[] { "name", "category", "address", "latitude", "longitude", "notes", "startDate", "endDate", "publicActivities", "personalActivities" }
                     }
                 },
                 personalItems = BuildTripThingsSchema(),
@@ -1417,11 +1430,33 @@ public class AiService : IAiService
                     notes = new { type = "string" },
                     startDate = new { type = "string" },
                     endDate = new { type = "string" },
-                    address = new { type = "string" }
+                    address = new { type = "string" },
+                    latitude = new { type = new[] { "number", "null" } },
+                    longitude = new { type = new[] { "number", "null" } }
                 },
-                required = new[] { "activity", "name", "notes", "startDate", "endDate", "address" }
+                required = new[] { "activity", "name", "notes", "startDate", "endDate", "address", "latitude", "longitude" }
             }
         };
+    }
+
+    private static decimal? NormalizeLatitude(decimal? value)
+    {
+        if (!value.HasValue || value.Value < -90m || value.Value > 90m)
+        {
+            return null;
+        }
+
+        return value.Value;
+    }
+
+    private static decimal? NormalizeLongitude(decimal? value)
+    {
+        if (!value.HasValue || value.Value < -180m || value.Value > 180m)
+        {
+            return null;
+        }
+
+        return value.Value;
     }
 
     private static object BuildTripThingsSchema()
