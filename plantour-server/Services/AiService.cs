@@ -1332,9 +1332,6 @@ public class AiService : IAiService
                "Do not assign any shared items, shared todos, or shared expenses to participants. " +
                "Put transportation and lodging details into the itinerary, including flights and hotel stays. " +
                "For each itinerary part, include both public and personal activities when useful. " +
-               "For every itinerary part and every activity, always include latitude and longitude when you can determine them confidently. " +
-               "If precise coordinates are not known, still include the latitude and longitude fields with null values and provide the best available address. " +
-               "When coordinates are available, ensure they match the described place so the trip can be shown on a map without extra geocoding. " +
                "General recommendations and assumptions should be concise and suitable to append into trip notes. " +
                $"Today is {DateTime.UtcNow:yyyy-MM-dd}. " +
                "If the request has vague timing like a season or month, choose a reasonable concrete date range in the nearest practical future and record that assumption. " +
@@ -1372,15 +1369,13 @@ public class AiService : IAiService
                             name = new { type = "string" },
                             category = new { type = "string" },
                             address = new { type = "string" },
-                            latitude = new { type = new[] { "number", "null" } },
-                            longitude = new { type = new[] { "number", "null" } },
                             notes = new { type = "string" },
                             startDate = new { type = "string" },
                             endDate = new { type = "string" },
                             publicActivities = BuildTripActivitiesSchema(),
                             personalActivities = BuildTripActivitiesSchema()
                         },
-                        required = new[] { "name", "category", "address", "latitude", "longitude", "notes", "startDate", "endDate", "publicActivities", "personalActivities" }
+                        required = new[] { "name", "category", "address", "notes", "startDate", "endDate", "publicActivities", "personalActivities" }
                     }
                 },
                 personalItems = BuildTripThingsSchema(),
@@ -1430,11 +1425,9 @@ public class AiService : IAiService
                     notes = new { type = "string" },
                     startDate = new { type = "string" },
                     endDate = new { type = "string" },
-                    address = new { type = "string" },
-                    latitude = new { type = new[] { "number", "null" } },
-                    longitude = new { type = new[] { "number", "null" } }
+                    address = new { type = "string" }
                 },
-                required = new[] { "activity", "name", "notes", "startDate", "endDate", "address", "latitude", "longitude" }
+                required = new[] { "activity", "name", "notes", "startDate", "endDate", "address" }
             }
         };
     }
