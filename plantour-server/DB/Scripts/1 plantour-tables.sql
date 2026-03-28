@@ -568,6 +568,37 @@ before insert or update of user_id, start_date, end_date on plantour.trips
 for each row
 execute function plantour.prevent_overlapping_trips_for_user();
 
+create or replace function plantour.prevent_trip_currency_change_with_expenses()
+returns trigger
+language plpgsql
+as $$
+begin
+    if new.currency_id is distinct from old.currency_id
+       and (
+           exists (
+               select 1
+               from plantour.trip_users trip_user
+               join plantour.trip_user_expenses expense on expense.trip_user_id = trip_user.id
+               where trip_user.trip_id = old.id
+           )
+           or exists (
+               select 1
+               from plantour.trip_shared_expenses shared_expense
+               where shared_expense.trip_id = old.id
+           )
+       ) then
+        raise exception 'Trip currency cannot be changed while the trip has expenses';
+    end if;
+
+    return new;
+end;
+$$;
+
+create trigger trg_prevent_trip_currency_change_with_expenses
+before update of currency_id on plantour.trips
+for each row
+execute function plantour.prevent_trip_currency_change_with_expenses();
+
 
 -----------------------------------------------------------------------
 -- TRIP ITINERARY_PARTS
