@@ -42,6 +42,14 @@ public class DocumentsController : ControllerBase
         return File(pdfBytes, "application/pdf", $"trip-expenses-{tripId}.pdf");
     }
 
+    [HttpPost("trip/{tripId}/notes/pdf")]
+    [AdminOrParticipant]
+    public async Task<IActionResult> GetTripNotesPdf(Guid tripId, [FromBody] ArrayOfGuidsRequest request)
+    {
+        var pdfBytes = await _service.GenerateTripNotesPdfAsync(tripId, request.Ids);
+        return File(pdfBytes, "application/pdf", $"trip-notes-{tripId}.pdf");
+    }
+
     [HttpGet("version")]
     public string GetAppVersion()
     {

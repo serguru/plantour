@@ -215,6 +215,17 @@ export class DashboardComponent {
             disabledReason: hasTrip
               ? 'Available only when you are included in the selected trip.'
               : 'Select a trip first.'
+          },
+          {
+            id: 'trip-notes',
+            title: 'Notes',
+            description: 'Write personal rich-text notes and export marked notes to PDF.',
+            icon: 'pi pi-book',
+            route: tripId ? `/trips/${tripId}/trip-notes` : '/trips',
+            disabled: participantOnlyDisabled,
+            disabledReason: hasTrip
+              ? 'Available only when you are included in the selected trip.'
+              : 'Select a trip first.'
           }
         ]
       },

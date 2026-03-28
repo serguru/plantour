@@ -377,6 +377,27 @@ export const routes: Routes = [
     data: { mode: 'edit', componentId: 'trip-todo-form' }
   },
   {
+    path: 'trips/:tripId/trip-notes',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-notes/trip-notes-component').then(m => m.TripNotesComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'trip-notes' }
+  },
+  {
+    path: 'trips/:tripId/trip-notes/add',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-notes/trip-note-form/trip-note-form-component').then(m => m.TripNoteFormComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { mode: 'add', componentId: 'trip-note-form' }
+  },
+  {
+    path: 'trips/:tripId/trip-notes/edit/:id',
+    canActivate: [checkTripIdGuard],
+    loadComponent: () => import('./components/trip-notes/trip-note-form/trip-note-form-component').then(m => m.TripNoteFormComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { mode: 'edit', componentId: 'trip-note-form' }
+  },
+  {
     path: 'trips/:tripId/trip-activities/personal',
     canActivate: [checkTripIdGuard],
     loadComponent: () => import('./components/trip-activity/personal/trip-activity-personal-component').then(m => m.TripActivityPersonalComponent),

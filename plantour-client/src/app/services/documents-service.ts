@@ -33,4 +33,10 @@ export class DocumentsService {
       responseType: 'blob'
     });
   }
+
+  getTripNotesPdf(tripId: string, ids: string[]): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/trip/${tripId}/notes/pdf`, { ids }, {
+      responseType: 'blob'
+    });
+  }
 }

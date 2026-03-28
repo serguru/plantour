@@ -1,7 +1,9 @@
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using System.Text.Json;
 using plantour_server.DTOs;
+using plantour_server.Repositories;
 using PlantourApi.Models;
 using plantour_server.Utils;
 
@@ -17,6 +19,8 @@ public class DocumentsService : IDocumentsService
     private readonly ITripSharedTodoService _tripSharedTodoService;
     private readonly ITripExpenseService _tripExpenseService;
     private readonly ITripSharedExpenseService _tripSharedExpenseService;
+    private readonly TripNoteRepository _tripNoteRepository;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly CurrentUser _currentUser;
 
     private readonly ICheckAccessService _checkAccessService;
@@ -32,6 +36,8 @@ public class DocumentsService : IDocumentsService
         ITripSharedTodoService tripSharedTodoService,
         ITripExpenseService tripExpenseService,
         ITripSharedExpenseService tripSharedExpenseService,
+        TripNoteRepository tripNoteRepository,
+        IHttpClientFactory httpClientFactory,
         HttpCurrentUser httpCurrentUser,
         ICheckAccessService checkAccessService)
     {
@@ -43,6 +49,8 @@ public class DocumentsService : IDocumentsService
         _tripSharedTodoService = tripSharedTodoService;
         _tripExpenseService = tripExpenseService;
         _tripSharedExpenseService = tripSharedExpenseService;
+        _tripNoteRepository = tripNoteRepository;
+        _httpClientFactory = httpClientFactory;
         _currentUser = httpCurrentUser.CurrentUser;
         _checkAccessService = checkAccessService;
     }
@@ -987,4 +995,578 @@ public class DocumentsService : IDocumentsService
 
         return document.GeneratePdf();
     }
+
+    public async Task<byte[]> GenerateTripNotesPdfAsync(Guid tripId, Guid[] ids)
+    {
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new UnauthorizedAccessException("User does not have access to this trip");
+        }
+
+        var distinctIds = ids
+            .Where(x => x != Guid.Empty)
+            .Distinct()
+            .ToArray();
+
+        if (distinctIds.Length == 0)
+        {
+            throw new InvalidOperationException("At least one note must be selected");
+        }
+
+        var trip = await _tripService.GetByIdWithStatsAsync(tripId);
+        if (trip == null)
+        {
+            throw new Exception($"Trip with ID {tripId} not found");
+        }
+
+        var notes = await _tripNoteRepository.GetByIdsAsync(_currentUser.AdminId, _currentUser.UserId, tripId, distinctIds);
+        if (notes.Count != distinctIds.Length)
+        {
+            throw new InvalidOperationException("One or more selected notes could not be loaded");
+        }
+
+        var noteBlocks = notes.ToDictionary(x => x.Id, x => ParseTripNoteBlocks(x.ContentJson));
+        var imageUrlMap = noteBlocks.ToDictionary(
+            x => x.Key,
+            x => x.Value.SelectMany(GetImageUrls).Distinct(StringComparer.OrdinalIgnoreCase).ToList());
+
+        var imageBytes = await DownloadImagesAsync(imageUrlMap.SelectMany(x => x.Value).Distinct(StringComparer.OrdinalIgnoreCase));
+
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(2, Unit.Centimetre);
+                page.PageColor(Colors.White);
+                page.DefaultTextStyle(x => x.FontSize(11));
+
+                page.Header()
+                    .Column(column =>
+                    {
+                        column.Item()
+                            .Text("Plantour Trip Notes")
+                            .SemiBold()
+                            .FontSize(24)
+                            .FontColor(primaryColor);
+                        column.Item()
+                            .Text($"{trip.Name} · Generated: {DateTime.Now:dd.MM.yyyy HH:mm}")
+                            .FontSize(9)
+                            .FontColor(Colors.Grey.Darken1);
+                    });
+
+                page.Content()
+                    .PaddingVertical(1, Unit.Centimetre)
+                    .Column(column =>
+                    {
+                        column.Spacing(18);
+
+                        foreach (var note in notes)
+                        {
+                            column.Item().Column(noteColumn =>
+                            {
+                                noteColumn.Spacing(6);
+                                noteColumn.Item().Text(note.Title).SemiBold().FontSize(16).FontColor(primaryColor);
+
+                                var metaParts = new List<string>();
+                                if (note.TripActivity != null)
+                                {
+                                    metaParts.Add($"Activity: {note.TripActivity.Name}");
+                                }
+
+                                if (note.CreatedAt.HasValue)
+                                {
+                                    metaParts.Add($"Created: {note.CreatedAt.Value:dd.MM.yyyy HH:mm}");
+                                }
+
+                                if (metaParts.Count > 0)
+                                {
+                                    noteColumn.Item().Text(string.Join(" · ", metaParts)).FontSize(9).FontColor(Colors.Grey.Darken1);
+                                }
+
+                                var blocks = noteBlocks[note.Id];
+                                if (blocks.Count == 0)
+                                {
+                                    noteColumn.Item().Text("No note content").Italic().FontColor(Colors.Grey.Medium);
+                                }
+                                else
+                                {
+                                    foreach (var block in blocks)
+                                    {
+                                        RenderTripNoteBlock(noteColumn, block, imageBytes, 0);
+                                    }
+                                }
+
+                                noteColumn.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                            });
+                        }
+                    });
+
+                page.Footer()
+                    .AlignCenter()
+                    .Text(x =>
+                    {
+                        x.Span("Page ");
+                        x.CurrentPageNumber();
+                        x.Span(" of ");
+                        x.TotalPages();
+                    });
+            });
+        });
+
+        return document.GeneratePdf();
+    }
+
+    private static List<TripNotePdfBlock> ParseTripNoteBlocks(string? contentJson)
+    {
+        if (string.IsNullOrWhiteSpace(contentJson))
+        {
+            return [];
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(contentJson);
+            return ParseTripNoteNode(document.RootElement);
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
+    }
+
+    private static List<TripNotePdfBlock> ParseTripNoteNode(JsonElement node)
+    {
+        var type = GetNodeType(node);
+
+        return type switch
+        {
+            "doc" => ParseChildren(node),
+            "paragraph" => ParseParagraphNode(node),
+            "heading" => ParseHeadingNode(node),
+            "bulletList" => [new TripNotePdfBlock("bulletList", Children: ParseListItems(node))],
+            "orderedList" => [new TripNotePdfBlock("orderedList", Children: ParseListItems(node))],
+            "blockquote" => ParseContainerNode(node, "blockquote"),
+            "codeBlock" => ParseContainerNode(node, "codeBlock"),
+            "image" => TryCreateImageBlock(node) is { } imageBlock ? [imageBlock] : [],
+            _ => ParseChildren(node),
+        };
+    }
+
+    private static List<TripNotePdfBlock> ParseChildren(JsonElement node)
+    {
+        var blocks = new List<TripNotePdfBlock>();
+        if (!node.TryGetProperty("content", out var content) || content.ValueKind != JsonValueKind.Array)
+        {
+            return blocks;
+        }
+
+        foreach (var child in content.EnumerateArray())
+        {
+            blocks.AddRange(ParseTripNoteNode(child));
+        }
+
+        return blocks;
+    }
+
+    private static List<TripNotePdfBlock> ParseParagraphNode(JsonElement node)
+    {
+        var result = ParseInlineContent(node);
+        var blocks = new List<TripNotePdfBlock>();
+
+        if (result.Inlines.Count > 0)
+        {
+            blocks.Add(new TripNotePdfBlock("paragraph", Inlines: result.Inlines));
+        }
+
+        blocks.AddRange(result.ImageBlocks);
+        return blocks;
+    }
+
+    private static List<TripNotePdfBlock> ParseHeadingNode(JsonElement node)
+    {
+        var result = ParseInlineContent(node);
+        var blocks = new List<TripNotePdfBlock>();
+        var level = 2;
+
+        if (node.TryGetProperty("attrs", out var attrs) &&
+            attrs.TryGetProperty("level", out var levelProp) &&
+            levelProp.ValueKind == JsonValueKind.Number &&
+            levelProp.TryGetInt32(out var parsedLevel))
+        {
+            level = parsedLevel;
+        }
+
+        if (result.Inlines.Count > 0)
+        {
+            blocks.Add(new TripNotePdfBlock("heading", Level: level, Inlines: result.Inlines));
+        }
+
+        blocks.AddRange(result.ImageBlocks);
+        return blocks;
+    }
+
+    private static List<TripNotePdfBlock> ParseContainerNode(JsonElement node, string type)
+    {
+        var children = ParseChildren(node);
+        return children.Count > 0 ? [new TripNotePdfBlock(type, Children: children)] : [];
+    }
+
+    private static List<TripNotePdfBlock> ParseListItems(JsonElement node)
+    {
+        var items = new List<TripNotePdfBlock>();
+        if (!node.TryGetProperty("content", out var content) || content.ValueKind != JsonValueKind.Array)
+        {
+            return items;
+        }
+
+        foreach (var child in content.EnumerateArray())
+        {
+            if (GetNodeType(child) != "listItem")
+            {
+                continue;
+            }
+
+            var childBlocks = ParseChildren(child);
+            if (childBlocks.Count > 0)
+            {
+                items.Add(new TripNotePdfBlock("listItem", Children: childBlocks));
+            }
+        }
+
+        return items;
+    }
+
+    private static InlineParseResult ParseInlineContent(JsonElement node)
+    {
+        var inlines = new List<TripNotePdfInline>();
+        var imageBlocks = new List<TripNotePdfBlock>();
+
+        if (!node.TryGetProperty("content", out var content) || content.ValueKind != JsonValueKind.Array)
+        {
+            return new InlineParseResult(inlines, imageBlocks);
+        }
+
+        foreach (var child in content.EnumerateArray())
+        {
+            var type = GetNodeType(child);
+
+            if (type == "text")
+            {
+                var text = child.TryGetProperty("text", out var textProp) ? textProp.GetString() : null;
+                if (string.IsNullOrEmpty(text))
+                {
+                    continue;
+                }
+
+                var inline = BuildInline(text, child);
+                inlines.Add(inline);
+
+                if (!string.IsNullOrWhiteSpace(inline.LinkUrl) && IsSupportedImageUrl(inline.LinkUrl))
+                {
+                    imageBlocks.Add(new TripNotePdfBlock("image", Url: inline.LinkUrl));
+                }
+
+                continue;
+            }
+
+            if (type == "hardBreak")
+            {
+                inlines.Add(new TripNotePdfInline("\n"));
+                continue;
+            }
+
+            if (type == "image" && TryCreateImageBlock(child) is { } imageBlock)
+            {
+                imageBlocks.Add(imageBlock);
+            }
+        }
+
+        return new InlineParseResult(inlines, imageBlocks);
+    }
+
+    private static TripNotePdfInline BuildInline(string text, JsonElement node)
+    {
+        var inline = new TripNotePdfInline(text);
+        if (!node.TryGetProperty("marks", out var marks) || marks.ValueKind != JsonValueKind.Array)
+        {
+            return inline;
+        }
+
+        foreach (var mark in marks.EnumerateArray())
+        {
+            var type = GetNodeType(mark);
+            switch (type)
+            {
+                case "bold":
+                    inline = inline with { Bold = true };
+                    break;
+                case "italic":
+                    inline = inline with { Italic = true };
+                    break;
+                case "underline":
+                    inline = inline with { Underline = true };
+                    break;
+                case "strike":
+                    inline = inline with { Strike = true };
+                    break;
+                case "code":
+                    inline = inline with { Code = true };
+                    break;
+                case "link":
+                    if (mark.TryGetProperty("attrs", out var attrs) && attrs.TryGetProperty("href", out var href) && href.ValueKind == JsonValueKind.String)
+                    {
+                        inline = inline with { LinkUrl = href.GetString() };
+                    }
+                    break;
+            }
+        }
+
+        return inline;
+    }
+
+    private static TripNotePdfBlock? TryCreateImageBlock(JsonElement node)
+    {
+        if (!node.TryGetProperty("attrs", out var attrs) ||
+            !attrs.TryGetProperty("src", out var src) ||
+            src.ValueKind != JsonValueKind.String)
+        {
+            return null;
+        }
+
+        var url = src.GetString();
+        return IsSupportedImageUrl(url) ? new TripNotePdfBlock("image", Url: url) : null;
+    }
+
+    private static string GetNodeType(JsonElement node)
+    {
+        return node.TryGetProperty("type", out var type) && type.ValueKind == JsonValueKind.String
+            ? type.GetString() ?? string.Empty
+            : string.Empty;
+    }
+
+    private static IEnumerable<string> GetImageUrls(TripNotePdfBlock block)
+    {
+        if (!string.IsNullOrWhiteSpace(block.Url) && block.Type == "image")
+        {
+            yield return block.Url;
+        }
+
+        if (block.Children == null)
+        {
+            yield break;
+        }
+
+        foreach (var child in block.Children)
+        {
+            foreach (var url in GetImageUrls(child))
+            {
+                yield return url;
+            }
+        }
+    }
+
+    private async Task<Dictionary<string, byte[]>> DownloadImagesAsync(IEnumerable<string> urls)
+    {
+        var client = _httpClientFactory.CreateClient();
+        client.Timeout = TimeSpan.FromSeconds(15);
+
+        var result = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
+        foreach (var url in urls)
+        {
+            if (!IsSupportedImageUrl(url))
+            {
+                continue;
+            }
+
+            try
+            {
+                var bytes = await client.GetByteArrayAsync(url);
+                if (bytes.Length > 0)
+                {
+                    result[url] = bytes;
+                }
+            }
+            catch
+            {
+                // Ignore image download failures and keep the rest of the PDF renderable.
+            }
+        }
+
+        return result;
+    }
+
+    private static bool IsSupportedImageUrl(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || !Uri.TryCreate(value, UriKind.Absolute, out var uri))
+        {
+            return false;
+        }
+
+        if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+        {
+            return false;
+        }
+
+        var path = uri.AbsolutePath;
+        return path.EndsWith(".png", StringComparison.OrdinalIgnoreCase)
+            || path.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)
+            || path.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)
+            || path.EndsWith(".gif", StringComparison.OrdinalIgnoreCase)
+            || path.EndsWith(".webp", StringComparison.OrdinalIgnoreCase)
+            || path.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase)
+            || path.EndsWith(".svg", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void RenderTripNoteBlock(ColumnDescriptor column, TripNotePdfBlock block, IReadOnlyDictionary<string, byte[]> imageBytes, int indent)
+    {
+        switch (block.Type)
+        {
+            case "heading":
+                column.Item().PaddingLeft(indent).Text(text =>
+                {
+                    text.DefaultTextStyle(x => x.FontSize(block.Level <= 2 ? 15 : 13).SemiBold());
+                    RenderTripNoteInlines(text, block.Inlines);
+                });
+                return;
+            case "paragraph":
+                column.Item().PaddingLeft(indent).Text(text => RenderTripNoteInlines(text, block.Inlines));
+                return;
+            case "blockquote":
+                column.Item().PaddingLeft(indent + 10).BorderLeft(3).BorderColor(Colors.Grey.Lighten1).PaddingLeft(8).Column(inner =>
+                {
+                    inner.Spacing(4);
+                    foreach (var child in block.Children ?? [])
+                    {
+                        RenderTripNoteBlock(inner, child, imageBytes, 0);
+                    }
+                });
+                return;
+            case "codeBlock":
+                column.Item().PaddingLeft(indent).Background(Colors.Grey.Lighten3).Padding(8).Column(inner =>
+                {
+                    foreach (var child in block.Children ?? [])
+                    {
+                        RenderTripNoteBlock(inner, child, imageBytes, 0);
+                    }
+                });
+                return;
+            case "bulletList":
+                RenderTripNoteList(column, block.Children ?? [], imageBytes, indent, false);
+                return;
+            case "orderedList":
+                RenderTripNoteList(column, block.Children ?? [], imageBytes, indent, true);
+                return;
+            case "image":
+                if (!string.IsNullOrWhiteSpace(block.Url) && imageBytes.TryGetValue(block.Url, out var bytes))
+                {
+                    column.Item().PaddingLeft(indent).PaddingTop(4).Image(bytes).FitWidth();
+                }
+                return;
+        }
+    }
+
+    private static void RenderTripNoteList(ColumnDescriptor column, IReadOnlyList<TripNotePdfBlock> items, IReadOnlyDictionary<string, byte[]> imageBytes, int indent, bool ordered)
+    {
+        for (var index = 0; index < items.Count; index++)
+        {
+            var item = items[index];
+            var childBlocks = item.Children ?? [];
+            if (childBlocks.Count == 0)
+            {
+                continue;
+            }
+
+            var firstBlock = childBlocks[0];
+            if (firstBlock.Type == "paragraph" || firstBlock.Type == "heading")
+            {
+                var prefix = ordered ? $"{index + 1}. " : "• ";
+                column.Item().PaddingLeft(indent).Text(text =>
+                {
+                    text.Span(prefix).SemiBold();
+                    RenderTripNoteInlines(text, firstBlock.Inlines);
+                });
+
+                foreach (var child in childBlocks.Skip(1))
+                {
+                    RenderTripNoteBlock(column, child, imageBytes, indent + 18);
+                }
+
+                continue;
+            }
+
+            column.Item().PaddingLeft(indent).Text(ordered ? $"{index + 1}." : "•").SemiBold();
+            foreach (var child in childBlocks)
+            {
+                RenderTripNoteBlock(column, child, imageBytes, indent + 18);
+            }
+        }
+    }
+
+    private static void RenderTripNoteInlines(TextDescriptor text, IReadOnlyList<TripNotePdfInline>? inlines)
+    {
+        if (inlines == null)
+        {
+            return;
+        }
+
+        foreach (var inline in inlines)
+        {
+            var displayText = inline.LinkUrl != null && !string.Equals(inline.Text, inline.LinkUrl, StringComparison.OrdinalIgnoreCase)
+                ? $"{inline.Text} ({inline.LinkUrl})"
+                : inline.Text;
+
+            var span = text.Span(displayText);
+            if (inline.Bold)
+            {
+                span.SemiBold();
+            }
+
+            if (inline.Italic)
+            {
+                span.Italic();
+            }
+
+            if (inline.Underline || inline.LinkUrl != null)
+            {
+                span.Underline();
+            }
+
+            if (inline.Strike)
+            {
+                span.Strikethrough();
+            }
+
+            if (inline.Code)
+            {
+                span.FontFamily("Courier New");
+                span.BackgroundColor(Colors.Grey.Lighten3);
+            }
+
+            if (inline.LinkUrl != null)
+            {
+                span.FontColor(Colors.Blue.Darken2);
+            }
+        }
+    }
+
+    private sealed record TripNotePdfBlock(
+        string Type,
+        int Level = 0,
+        IReadOnlyList<TripNotePdfInline>? Inlines = null,
+        IReadOnlyList<TripNotePdfBlock>? Children = null,
+        string? Url = null);
+
+    private sealed record TripNotePdfInline(
+        string Text,
+        bool Bold = false,
+        bool Italic = false,
+        bool Underline = false,
+        bool Strike = false,
+        bool Code = false,
+        string? LinkUrl = null);
+
+    private sealed record InlineParseResult(
+        List<TripNotePdfInline> Inlines,
+        List<TripNotePdfBlock> ImageBlocks);
 }
