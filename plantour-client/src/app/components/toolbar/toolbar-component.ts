@@ -62,6 +62,12 @@ export class Toolbar implements OnInit {
     this.router.navigate(["packs"]);
   }
 
+  onKeysClick($event, popover) {
+    $event.preventDefault();
+    popover.hide();
+    this.router.navigate(["keys"]);
+  }
+
   onTemplateThingsClick($event, popover) {
     $event.preventDefault();
     popover.hide();

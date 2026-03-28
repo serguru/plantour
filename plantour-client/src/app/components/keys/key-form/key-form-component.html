@@ -1,0 +1,91 @@
+<div class="page-container">
+  <app-form-header
+    [title]="title"
+    icon="key"
+    [menuItems]="menuItems()"
+  ></app-form-header>
+
+  @if (usersService.isTemporarySignal()) {
+  <div style="padding-top: 0.5rem; text-align: center;">
+    <a href="/help/get-started/first-steps">How to take the first steps</a>
+  </div>
+  }
+
+  <div class="controls-wrapper">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="form-field">
+        <label for="name">Name<span class="required">*</span></label>
+        <input
+          appAutoFocus
+          pInputText
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Enter key name"
+        />
+        @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
+        @if (form.get('name')?.errors?.['required']) {
+        <small class="error-message">
+          Name is required
+        </small>
+        }
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="key">Key<span class="required">*</span></label>
+        <input
+          pInputText
+          id="key"
+          type="text"
+          formControlName="key"
+          placeholder="Enter key value"
+        />
+        @if (form.get('key')?.invalid && (form.get('key')?.touched || form.get('key')?.dirty)) {
+        @if (form.get('key')?.errors?.['required']) {
+        <small class="error-message">
+          Key is required
+        </small>
+        }
+        }
+      </div>
+
+      <div class="form-field">
+        <div class="container">
+          <p-checkbox
+            formControlName="active"
+            [binary]="true"
+            inputId="active"
+          />
+          <label for="active"> Active </label>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="notes">Notes</label>
+        <textarea
+          pTextarea
+          id="notes"
+          formControlName="notes"
+          rows="5"
+          placeholder="Enter key notes"
+        ></textarea>
+      </div>
+
+      <app-form-actions
+        [onCancel]="onCancel.bind(this)"
+        cancelLabel="To keys"
+        cancelIcon="chevron-left"
+        [cancelDisabled]="false"
+        [onSubmit]="onSubmit.bind(this)"
+        submitLabel="Submit"
+        submitIcon="save"
+        [submitDisabled]="form.invalid"
+      >
+      </app-form-actions>
+    </form>
+  </div>
+</div>

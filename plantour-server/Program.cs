@@ -500,6 +500,7 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
 
     // Register services
     builder.Services.AddScoped<IUsersService, UsersService>();
+    builder.Services.AddScoped<IKeyService, KeyService>();
     builder.Services.AddScoped<IPackageService, PackService>();
     builder.Services.AddScoped<IThingService, ThingService>();
     builder.Services.AddScoped<ITodoService, TodoService>();
@@ -541,6 +542,7 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddHttpClient<IAiService, AiService>();
 
     // Register repositories
+    builder.Services.AddScoped<plantour_server.Repositories.KeyRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.PackRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.ThingRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TodoRepository>();

@@ -195,6 +195,27 @@ export const routes: Routes = [
     data: { mode: 'edit', componentId: 'pack-form' }
   },
   {
+    path: 'keys',
+    canActivate: [adminOrParticipantGuard],
+    loadComponent: () => import('./components/keys/keys-component').then(m => m.KeysComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'keys' }
+  },
+  {
+    path: 'keys/add',
+    canActivate: [adminOrParticipantGuard],
+    loadComponent: () => import('./components/keys/key-form/key-form-component').then(m => m.KeyFormComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { mode: 'add', componentId: 'key-form' }
+  },
+  {
+    path: 'keys/edit/:id',
+    canActivate: [adminOrParticipantGuard],
+    loadComponent: () => import('./components/keys/key-form/key-form-component').then(m => m.KeyFormComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { mode: 'edit', componentId: 'key-form' }
+  },
+  {
     path: 'trips',
     canActivate: [adminOrParticipantGuard],
     loadComponent: () => import('./components/trips/trips-component').then(m => m.TripsComponent),

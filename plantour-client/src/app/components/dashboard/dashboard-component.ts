@@ -57,7 +57,7 @@ export class DashboardComponent {
       {
         id: 'dictionary',
         title: 'Dictionary',
-        summary: 'Build your reusable travelers, items, todos, bags, templates, and AI prompts.',
+        summary: 'Build your reusable travelers, items, todos, bags, keys, templates, and AI prompts.',
         icon: 'pi pi-clone',
         accent: '#3a9aa8',
         links: [
@@ -88,6 +88,13 @@ export class DashboardComponent {
             description: 'Prepare bag templates before you start packing.',
             icon: 'pi pi-shopping-bag',
             route: '/packs'
+          },
+          {
+            id: 'keys',
+            title: 'Keys',
+            description: 'Store private keys and mark which ones are active.',
+            icon: 'pi pi-key',
+            route: '/keys'
           },
           {
             id: 'templates',
