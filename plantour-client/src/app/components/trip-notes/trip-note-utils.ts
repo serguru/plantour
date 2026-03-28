@@ -10,6 +10,8 @@ interface TripNoteInlineRenderResult {
   imageHtml: string[];
 }
 
+type TripNoteImageUrlResolver = (url: string) => string;
+
 export function buildTripNoteActivityOptions(
   publicActivities: TripActivityDto[],
   personalActivities: TripActivityDto[]
@@ -40,13 +42,27 @@ export function hasMeaningfulTripNoteContentJson(contentJson: string | null | un
   return !!parsed && hasMeaningfulTripNoteNode(parsed);
 }
 
-export function renderTripNoteContentHtml(contentJson: string | null | undefined): string {
+export function renderTripNoteContentHtml(
+  contentJson: string | null | undefined,
+  resolveImageUrl?: TripNoteImageUrlResolver
+): string {
   const parsed = parseTripNoteContentJson(contentJson);
   if (!parsed) {
     return '';
   }
 
-  return renderTripNoteNode(parsed);
+  return renderTripNoteNode(parsed, resolveImageUrl);
+}
+
+export function extractDropboxImageUrls(contentJson: string | null | undefined): string[] {
+  const parsed = parseTripNoteContentJson(contentJson);
+  if (!parsed) {
+    return [];
+  }
+
+  const urls = new Set<string>();
+  collectDropboxImageUrls(parsed, urls);
+  return [...urls];
 }
 
 function parseTripNoteContentJson(contentJson: string | null | undefined): any | null {
@@ -91,53 +107,53 @@ function buildTripNoteActivityLabel(activity: TripActivityDto): string {
   return `${scope}: ${parts.join(' · ')}`;
 }
 
-function renderTripNoteNode(node: any): string {
+function renderTripNoteNode(node: any, resolveImageUrl?: TripNoteImageUrlResolver): string {
   if (!node || typeof node !== 'object') {
     return '';
   }
 
   switch (node.type) {
     case 'doc':
-      return renderChildren(node.content);
+      return renderChildren(node.content, resolveImageUrl);
     case 'paragraph': {
-      const inline = renderInlineChildren(node.content);
+      const inline = renderInlineChildren(node.content, resolveImageUrl);
       const paragraphHtml = inline.html ? `<p>${inline.html}</p>` : '';
       return paragraphHtml + inline.imageHtml.join('');
     }
     case 'heading': {
       const level = Math.min(Math.max(Number(node.attrs?.level) || 2, 2), 4);
-      const inline = renderInlineChildren(node.content);
+      const inline = renderInlineChildren(node.content, resolveImageUrl);
       const headingHtml = inline.html ? `<h${level}>${inline.html}</h${level}>` : '';
       return headingHtml + inline.imageHtml.join('');
     }
     case 'bulletList':
-      return `<ul>${renderChildren(node.content)}</ul>`;
+      return `<ul>${renderChildren(node.content, resolveImageUrl)}</ul>`;
     case 'orderedList':
-      return `<ol>${renderChildren(node.content)}</ol>`;
+      return `<ol>${renderChildren(node.content, resolveImageUrl)}</ol>`;
     case 'listItem':
-      return `<li>${renderChildren(node.content)}</li>`;
+      return `<li>${renderChildren(node.content, resolveImageUrl)}</li>`;
     case 'blockquote':
-      return `<blockquote>${renderChildren(node.content)}</blockquote>`;
+      return `<blockquote>${renderChildren(node.content, resolveImageUrl)}</blockquote>`;
     case 'codeBlock':
       return `<pre><code>${escapeHtml(extractText(node))}</code></pre>`;
     case 'horizontalRule':
       return '<hr />';
     case 'image':
-      return renderImageHtml(node.attrs?.src, node.attrs?.alt);
+      return renderImageHtml(node.attrs?.src, node.attrs?.alt, resolveImageUrl);
     default:
-      return renderChildren(node.content);
+      return renderChildren(node.content, resolveImageUrl);
   }
 }
 
-function renderChildren(content: any): string {
+function renderChildren(content: any, resolveImageUrl?: TripNoteImageUrlResolver): string {
   if (!Array.isArray(content)) {
     return '';
   }
 
-  return content.map((child) => renderTripNoteNode(child)).join('');
+  return content.map((child) => renderTripNoteNode(child, resolveImageUrl)).join('');
 }
 
-function renderInlineChildren(content: any): TripNoteInlineRenderResult {
+function renderInlineChildren(content: any, resolveImageUrl?: TripNoteImageUrlResolver): TripNoteInlineRenderResult {
   if (!Array.isArray(content)) {
     return { html: '', imageHtml: [] };
   }
@@ -180,8 +196,8 @@ function renderInlineChildren(content: any): TripNoteInlineRenderResult {
             const href = typeof mark.attrs?.href === 'string' ? mark.attrs.href : '';
             if (href) {
               textHtml = `<a href="${escapeAttribute(href)}" target="_blank" rel="noopener noreferrer nofollow">${textHtml}</a>`;
-              if (isImageUrl(href)) {
-                imageHtml.push(renderImageHtml(href, textValue || 'Note image'));
+              if (isRenderableImageUrl(href)) {
+                imageHtml.push(renderImageHtml(href, textValue || 'Note image', resolveImageUrl));
               }
             }
             break;
@@ -199,7 +215,7 @@ function renderInlineChildren(content: any): TripNoteInlineRenderResult {
     }
 
     if (child.type === 'image') {
-      imageHtml.push(renderImageHtml(child.attrs?.src, child.attrs?.alt));
+      imageHtml.push(renderImageHtml(child.attrs?.src, child.attrs?.alt, resolveImageUrl));
     }
   }
 
@@ -209,14 +225,61 @@ function renderInlineChildren(content: any): TripNoteInlineRenderResult {
   };
 }
 
-function renderImageHtml(src: unknown, alt: unknown): string {
+function renderImageHtml(src: unknown, alt: unknown, resolveImageUrl?: TripNoteImageUrlResolver): string {
   if (typeof src !== 'string' || !src.trim()) {
     return '';
   }
 
-  return `<figure class="trip-note-rendered-image"><img src="${escapeAttribute(src)}" alt="${escapeAttribute(
+  const resolvedSrc = resolveImageUrl?.(src) ?? src;
+  if (!resolvedSrc.trim()) {
+    return '';
+  }
+
+  return `<figure class="trip-note-rendered-image"><img src="${escapeAttribute(resolvedSrc)}" alt="${escapeAttribute(
     typeof alt === 'string' ? alt : 'Trip note image'
   )}" referrerpolicy="no-referrer" loading="lazy" /></figure>`;
+}
+
+function collectDropboxImageUrls(node: any, urls: Set<string>): void {
+  if (!node || typeof node !== 'object') {
+    return;
+  }
+
+  if (node.type === 'image' && typeof node.attrs?.src === 'string' && isDropboxSharedLink(node.attrs.src)) {
+    urls.add(node.attrs.src);
+  }
+
+  if (node.type === 'text' && Array.isArray(node.marks)) {
+    for (const mark of node.marks) {
+      const href = typeof mark?.attrs?.href === 'string' ? mark.attrs.href : '';
+      if (isDropboxSharedLink(href)) {
+        urls.add(href);
+      }
+    }
+  }
+
+  if (!Array.isArray(node.content)) {
+    return;
+  }
+
+  for (const child of node.content) {
+    collectDropboxImageUrls(child, urls);
+  }
+}
+
+function isRenderableImageUrl(value: string): boolean {
+  return isImageUrl(value) || isDropboxSharedLink(value);
+}
+
+function isDropboxSharedLink(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:'
+      && (url.hostname === 'www.dropbox.com' || url.hostname === 'dropbox.com')
+      && (url.pathname.includes('/s/') || url.pathname.includes('/scl/'));
+  } catch {
+    return false;
+  }
 }
 
 function extractText(node: any): string {

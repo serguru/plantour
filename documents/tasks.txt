@@ -715,7 +715,10 @@ Let's add trip notes feature to Plantour. Read the official Tiptap Angular libra
 Add a new KeysComponent - backend and frontend code. Use user_keys db table. See now does Packs component work and implement the similar approach for keys.
 
 
-Now users can use public image links in notes - it is already implemented. Do not touch it. 
-Add an ability for a user to access private images from the Google Photos. See a new db table user_keys.
+Now users can use public image links in notes - it is already implemented. Do not touch it. Add an ability for a user to access private images from the Google Photos. Read the official Google Photos documentation how to implement access to the protected images freom the Agular 21 app. Install the necesary libraries if any. Read "google-photos" key for the current user from the user_keys db table. Use that key to access private images in Google Photos.
+
+
 
 Now Plantour supports: trips, itineraries, activities, map, bags, personal and shared items, personal and shared todos, personal and shared expenses, notes with rich text and images, AI full trip generation according to user requirements. 
+
+Dropbox shared link download returned non-image content. ContentType="application/octet-stream", UserId=0bc33ee6-b13d-423d-a9c9-1551c976c130, UrlPath="/scl/fi/1hdexk83gsm3ne6agqexg/istockphoto-1550071750-612x612.jpg"

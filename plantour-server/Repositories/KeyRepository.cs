@@ -10,4 +10,12 @@ public class KeyRepository(PlantourContext context) : GenericRepository<UserKey>
         return await _dbSet
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
     }
+
+    public async Task<UserKey?> GetByNameAsync(Guid userId, string name)
+    {
+        var normalizedName = name.Trim().ToLower();
+
+        return await _dbSet
+            .FirstOrDefaultAsync(x => x.UserId == userId && x.Name.ToLower() == normalizedName);
+    }
 }

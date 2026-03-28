@@ -4,6 +4,7 @@ using QuestPDF.Infrastructure;
 using System.Text.Json;
 using plantour_server.DTOs;
 using plantour_server.Repositories;
+using plantour_server.Services.Interfaces;
 using PlantourApi.Models;
 using plantour_server.Utils;
 
@@ -21,6 +22,7 @@ public class DocumentsService : IDocumentsService
     private readonly ITripSharedExpenseService _tripSharedExpenseService;
     private readonly TripNoteRepository _tripNoteRepository;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IDropboxService _dropboxService;
     private readonly CurrentUser _currentUser;
 
     private readonly ICheckAccessService _checkAccessService;
@@ -38,6 +40,7 @@ public class DocumentsService : IDocumentsService
         ITripSharedExpenseService tripSharedExpenseService,
         TripNoteRepository tripNoteRepository,
         IHttpClientFactory httpClientFactory,
+        IDropboxService dropboxService,
         HttpCurrentUser httpCurrentUser,
         ICheckAccessService checkAccessService)
     {
@@ -51,6 +54,7 @@ public class DocumentsService : IDocumentsService
         _tripSharedExpenseService = tripSharedExpenseService;
         _tripNoteRepository = tripNoteRepository;
         _httpClientFactory = httpClientFactory;
+        _dropboxService = dropboxService;
         _currentUser = httpCurrentUser.CurrentUser;
         _checkAccessService = checkAccessService;
     }
@@ -1374,6 +1378,17 @@ public class DocumentsService : IDocumentsService
         var result = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         foreach (var url in urls)
         {
+            if (DropboxService.IsDropboxSharedLink(url))
+            {
+                var dropboxImage = await _dropboxService.TryDownloadImageBySharedLinkAsync(url);
+                if (dropboxImage != null && dropboxImage.Bytes.Length > 0)
+                {
+                    result[url] = dropboxImage.Bytes;
+                }
+
+                continue;
+            }
+
             if (!IsSupportedImageUrl(url))
             {
                 continue;
@@ -1398,6 +1413,11 @@ public class DocumentsService : IDocumentsService
 
     private static bool IsSupportedImageUrl(string? value)
     {
+        if (DropboxService.IsDropboxSharedLink(value))
+        {
+            return true;
+        }
+
         if (string.IsNullOrWhiteSpace(value) || !Uri.TryCreate(value, UriKind.Absolute, out var uri))
         {
             return false;
