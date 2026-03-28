@@ -14,15 +14,28 @@ public partial class TripNote
     public Guid Id { get; set; }
 
     [Column("trip_user_id")]
-    public Guid TripUserId { get; set; }
+    public Guid? TripUserId { get; set; }
 
-    [Column("note")]
-    public string Note { get; set; } = null!;
+    [Column("trip_activity_id")]
+    public Guid? TripActivityId { get; set; }
+
+    [Column("title")]
+    public string Title { get; set; } = null!;
+
+    [Column("content_json", TypeName = "jsonb")]
+    public string? ContentJson { get; set; }
+
+    [Column("note_order")]
+    public int? NoteOrder { get; set; }
 
     [Column("created_at")]
-    public DateTime CreatedAt { get; set; }
+    public DateTime? CreatedAt { get; set; }
+
+    [ForeignKey("TripActivityId")]
+    [InverseProperty("TripNotes")]
+    public virtual TripActivity? TripActivity { get; set; }
 
     [ForeignKey("TripUserId")]
     [InverseProperty("TripNotes")]
-    public virtual TripUser TripUser { get; set; } = null!;
+    public virtual TripUser? TripUser { get; set; }
 }

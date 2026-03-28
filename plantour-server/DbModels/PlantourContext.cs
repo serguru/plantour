@@ -452,6 +452,10 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
+            entity.HasOne(d => d.TripActivity).WithMany(p => p.TripNotes)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("trip_notes_trip_activity_id_fkey");
+
             entity.HasOne(d => d.TripUser).WithMany(p => p.TripNotes).HasConstraintName("trip_notes_trip_user_id_fkey");
         });
 

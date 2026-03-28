@@ -752,6 +752,16 @@ create table plantour.trip_activities (
     )
 );
 
+create table plantour.trip_notes (
+    id uuid primary key default gen_random_uuid(),
+    trip_user_id uuid references trip_users(id),
+    trip_activity_id uuid null references trip_activities(id) on delete cascade,
+    title text not null,
+    content_json jsonb,
+    note_order integer null check (note_order > 0),
+    created_at timestamptz default (now() at time zone 'utc')
+);
+
 -----------------------------------------------------------------------
 -- TRIP USER EXPENSES
 -----------------------------------------------------------------------

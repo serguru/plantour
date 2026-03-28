@@ -707,3 +707,8 @@ The question and the answer must be stored into a ai_trip_plans table imilar how
 
 The app shows a suggested trip preview including all the trip details in  one view. At the top that preview must have two buttons: create trip and reset. First must create a trip in planning mode. Trip dates overlapping is prohibited, the suggested dates must take that into account. If a trip with these or overlapping dates exists show a dialog asking for two new dates.  
 
+
+Let's add trip notes feature to Plantour. Read the official Tiptap Angular library documentation. Install that library. Generate client and backend code, see how the other modules are implemented. The new TripNotes component allows user to see a list of connected to a trip and optionally to a trip activity notes. The activity can be set for the note in a way similar how a bag can be assigned to an item using an inline select. Each note is a collapsible row in  TripNotes. User can Add, Update and Delete notes. For adding and editing the TripNotesForm component is used. To present a note in a row the  TripNotesItem component is used. How this approach is implemented see other components. Once a user created and saved a note they can mark certain notes and download them as one pdf file. Notes can contain links to images. When presenting in  the row those images must be shown. When generating a pdf they must be downloaded from the internet and embedded into the pdf. Add a link to notes to the trip personal Dashboard section.
+
+
+
