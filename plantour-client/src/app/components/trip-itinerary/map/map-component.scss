@@ -1,7 +1,7 @@
 :host {
 	display: block;
 	flex: 1;
-	min-height: 100vh;
+//	min-height: 100vh;
 	overflow: auto;
 	color: #132238;
 }
@@ -9,7 +9,7 @@
 .map-shell {
 	display: grid;
 	gap: 16px;
-	padding: 16px;
+//	padding: 16px;
 	min-height: 100vh;
 	background: #f7fafc;
 }
