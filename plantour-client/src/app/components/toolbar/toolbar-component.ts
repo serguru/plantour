@@ -74,6 +74,12 @@ export class Toolbar implements OnInit {
     this.router.navigate(["templates-ai"]);
   }
 
+  onAiTripPlanClick($event, popover) {
+    $event.preventDefault();
+    popover.hide();
+    this.router.navigate(["trips-ai"]);
+  }
+
   featureClick($event, path: string, popover) {
     $event.preventDefault();
     popover.hide();

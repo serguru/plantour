@@ -88,6 +88,14 @@
             <span class="pi pi-star"></span>
             <span class="button-label">AI prompts</span>
           </a>
+          <a
+            class="pl-menu-item"
+            [class.selected]="isNavigatedComponent('trips-ai')"
+            (click)="onAiTripPlanClick($event, popoverDic)"
+          >
+            <span class="pi pi-sparkles"></span>
+            <span class="button-label">AI trip plan</span>
+          </a>
 
 
         </nav>

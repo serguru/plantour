@@ -72,6 +72,9 @@ public partial class User
     [InverseProperty("User")]
     public virtual ICollection<AiPrompt> AiPrompts { get; set; } = new List<AiPrompt>();
 
+    [InverseProperty("User")]
+    public virtual ICollection<AiTripPlan> AiTripPlans { get; set; } = new List<AiTripPlan>();
+
     [ForeignKey("CurrencyId")]
     [InverseProperty("Users")]
     public virtual Currency? Currency { get; set; }

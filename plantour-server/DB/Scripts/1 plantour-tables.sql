@@ -1081,6 +1081,14 @@ create table ai_things (
 );
 create unique index idx_ai_prompts_prompt_id_name on ai_things(prompt_id, name);
 
+create table plantour.ai_trip_plans (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    question text not null,
+    plan json not null,
+    created_at timestamptz not null default (now() at time zone 'utc')
+);
+create unique index idx_ai_trip_plans_question on plantour.ai_trip_plans(user_id, question);
 
 -- serilog postgresql logging tables
 -- this script creates the necessary tables for storing serilog logs in postgresql

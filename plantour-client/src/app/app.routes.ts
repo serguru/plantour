@@ -52,6 +52,13 @@ export const routes: Routes = [
     data: { componentId: 'trip-info' }
   },
   {
+    path: 'trips-ai',
+    canActivate: [adminOrParticipantGuard],
+    loadComponent: () => import('./components/trips-ai/trips-ai-component').then(m => m.TripsAiComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'trips-ai' }
+  },
+  {
     path: 'sign-in',
     canActivate: [signInGuard],
     loadComponent: () => import('./components/sign-in/sign-in').then(m => m.SignInComponent),
@@ -298,6 +305,13 @@ export const routes: Routes = [
     loadComponent: () => import('./components/trip-users/trip-users-component').then(m => m.TripUsersComponent),
     resolve: {cleanup: CleanupResolver},
     data: { componentId: 'trip-users' }
+  },
+  {
+    path: 'trips/:tripId/trips-ai',
+    canActivate: [checkTripIdGuard, adminOrParticipantGuard],
+    loadComponent: () => import('./components/trips-ai/trips-ai-component').then(m => m.TripsAiComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'trips-ai' }
   },
   {
     path: 'trips/:tripId/trip-participants/add',

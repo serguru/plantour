@@ -25,6 +25,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<AiThing> AiThings { get; set; }
 
+    public virtual DbSet<AiTripPlan> AiTripPlans { get; set; }
+
     public virtual DbSet<ApiVisit> ApiVisits { get; set; }
 
     public virtual DbSet<CommunicationType> CommunicationTypes { get; set; }
@@ -178,6 +180,16 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
             entity.HasOne(d => d.Prompt).WithMany(p => p.AiThings).HasConstraintName("ai_things_prompt_id_fkey");
+        });
+
+        modelBuilder.Entity<AiTripPlan>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("ai_trip_plans_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasOne(d => d.User).WithMany(p => p.AiTripPlans).HasConstraintName("ai_trip_plans_user_id_fkey");
         });
 
         modelBuilder.Entity<ApiVisit>(entity =>

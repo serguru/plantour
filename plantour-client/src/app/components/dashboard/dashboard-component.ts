@@ -289,6 +289,13 @@ export class DashboardComponent {
             description: 'Ask Plantour AI for suggested items based on a trip idea.',
             icon: 'pi pi-star',
             route: '/templates-ai'
+          },
+          {
+            id: 'trips-ai',
+            title: 'AI trip plan',
+            description: 'Generate and apply a full trip draft for any trip you choose on the page.',
+            icon: 'pi pi-sparkles',
+            route: '/trips-ai'
           }
         ]
       },

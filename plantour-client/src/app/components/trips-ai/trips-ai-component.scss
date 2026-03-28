@@ -1,0 +1,268 @@
+:host {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.trips-ai-page {
+  padding-bottom: 1.5rem;
+}
+
+.hero-card,
+.prompt-card,
+.card-block {
+  margin: 0 1rem 1rem;
+  border: 1px solid var(--secondary-border-color);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(34, 122, 135, 0.08), rgba(255, 255, 255, 0.96)),
+    #fff;
+  box-shadow: 0 14px 36px rgba(23, 54, 64, 0.08);
+}
+
+.hero-card {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+.hero-copy {
+  max-width: 70ch;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+.hero-points {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-self: stretch;
+
+  span {
+    display: block;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(47, 124, 135, 0.12);
+    font-weight: 600;
+  }
+}
+
+.eyebrow {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.prompt-card {
+  padding: 1rem;
+}
+
+.prompt-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.currency-select {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+textarea {
+  width: 100%;
+  min-height: 12rem;
+  resize: vertical;
+}
+
+.prompt-actions {
+  margin-top: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.prompt-buttons,
+.preview-button-row,
+.dialog-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.link-button {
+  border: 0;
+  background: transparent;
+  color: var(--primary-color);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.results-grid,
+.collections-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0 1rem 1rem;
+}
+
+.summary-card,
+.stats-card,
+.itinerary-card {
+  margin: 0;
+}
+
+.card-block {
+  padding: 1rem;
+}
+
+.preview-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.status-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+
+  span {
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(34, 122, 135, 0.1);
+    color: #1f6670;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+}
+
+.participant-note,
+.created-summary,
+.dialog-body p {
+  color: var(--secondary-text-color);
+}
+
+.date-row,
+.section-header,
+.timeline-topline,
+.stats-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.date-row {
+  margin: 1rem 0;
+}
+
+.recommendations h4,
+.double-list h5,
+.activities-grid h5 {
+  margin-bottom: 0.5rem;
+}
+
+.stats-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.timeline {
+  display: grid;
+  gap: 1rem;
+}
+
+.timeline-item {
+  border-top: 1px solid var(--secondary-border-color);
+  padding-top: 1rem;
+}
+
+.timeline-item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.timeline-time,
+.timeline-address,
+.empty-text {
+  color: var(--secondary-text-color);
+}
+
+.activities-grid,
+.double-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+li {
+  margin-bottom: 0.65rem;
+}
+
+li span {
+  display: block;
+  color: var(--secondary-text-color);
+}
+
+li p {
+  margin: 0.2rem 0 0;
+}
+
+.dialog-body {
+  display: grid;
+  gap: 1rem;
+}
+
+.dialog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.dialog-grid label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.dialog-error {
+  margin: 0;
+  color: #c4382d;
+  font-weight: 600;
+}
+
+@media (max-width: 960px) {
+  .hero-card,
+  .results-grid,
+  .collections-grid,
+  .activities-grid,
+  .double-list,
+  .dialog-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prompt-actions,
+  .preview-actions,
+  .prompt-buttons,
+  .preview-button-row,
+  .dialog-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

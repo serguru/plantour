@@ -696,3 +696,14 @@ Create sections and links with same structure the toolbar currently has. Design 
 
 
 Explore the MapComponent. Make it working this way: similar to Trip items, Trip todos this componewnt requires tripIs as a url param. Then take the itinerary for that trip. There are two types of data to be shown on the map: itinerary parts and trip activities, personal and shared. All of them have addresses and / or latitude + longitude. Using that data the map should show markers, different for itinerary parts, personal or public activities. Points to be show must be sorted by start date and connected with a line.
+
+See how is Gemini already used in the project for item prompts. Create a new component TripsAiComponent and put it into the trips-ai folder. Create or reuse server side code. Implement an ability for a user to explain to the AI where, when and for what type of activities and how many people trip they want to go. For example: "The 4 persons family with 2 children 8 and 12 years old want to have a trip to Japan for sightseen for 7 days this summer, we live in Vancouver bc". And the AI should generate the entire trip with an itinerary (flights, hotels), personal and public activites (museums, resaturants, etc.), items, bags, todos (book tickets and hotels, get visas, etc.), shared items, shared todos, possible personal and shared expenses, no assignments. Ai should put the general recommendations to the trip's notes.
+
+
+
+Add to the AI trip planner the following fucntionality.
+
+The question and the answer must be stored into a ai_trip_plans table imilar how it is done for AI item prompts, but using json. Next question must be searched in that table for that user first. If found - parse the JSON and show the answer. Otherwise send the question to the AI. Questions must be a dropdown, same as for AI prompts. 
+
+The app shows a suggested trip preview including all the trip details in  one view. At the top that preview must have two buttons: create trip and reset. First must create a trip in planning mode. Trip dates overlapping is prohibited, the suggested dates must take that into account. If a trip with these or overlapping dates exists show a dialog asking for two new dates.  
+
