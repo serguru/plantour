@@ -31,7 +31,8 @@ import { dateRangeValidator } from '../../../helpers/date-range-validator';
     Select
 ],
   standalone: true,
-  templateUrl: './trip-form-component.html'
+  templateUrl: './trip-form-component.html',
+  styleUrl: './trip-form-component.scss'
 })
 export class TripFormComponent implements OnInit {
   private readonly componentId = 'trips';

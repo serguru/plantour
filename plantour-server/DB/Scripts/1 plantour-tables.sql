@@ -764,6 +764,9 @@ create table plantour.trip_activities (
     )
 );
 
+----------------------------------------------------------------------
+-- TRIP NOTES
+-----------------------------------------------------------------------
 create table plantour.trip_notes (
     id uuid primary key default gen_random_uuid(),
     trip_user_id uuid references trip_users(id),
@@ -1027,16 +1030,6 @@ before delete on plantour.trip_user_expenses
 for each row
 execute function plantour.prevent_delete_referenced_trip_user_expense();
 
-
-----------------------------------------------------------------------
--- TRIP NOTES
------------------------------------------------------------------------
-create table trip_notes (
-    id uuid not null primary key default gen_random_uuid(),
-    trip_user_id uuid not null references trip_users(id) on delete cascade,
-    note text not null,
-    created_at timestamptz not null default (now() at time zone 'utc')
-);
 
 ----------------------------------------------------------------------
 -- TRIP COMMENTS

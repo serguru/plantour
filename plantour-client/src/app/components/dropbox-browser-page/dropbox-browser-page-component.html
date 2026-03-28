@@ -13,7 +13,18 @@
   }
 
   @if (loadError) {
-    <div class="dropbox-browser-page__error">{{ loadError }}</div>
+    <div class="dropbox-browser-page__error">
+      <div>{{ loadError }}</div>
+
+      @if (missingDropboxKey) {
+        <div class="dropbox-browser-page__error-links">
+          <a [routerLink]="['/keys']">Open Keys</a>
+          <span>or</span>
+          <!-- TODO: add a dedicated help section for Dropbox image keys and replace this generic /help link. -->
+          <a [routerLink]="['/help']">Help</a>
+        </div>
+      }
+    </div>
   }
 
   <app-entities-actions></app-entities-actions>

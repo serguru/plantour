@@ -1,5 +1,5 @@
 import { Component, DestroyRef, computed, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, filter } from 'rxjs';
 import { EntitiesComponent } from '../entities/entities-component';
@@ -17,11 +17,13 @@ import { getMessageFromError } from '../../helpers/utils';
 @Component({
   selector: 'app-dropbox-browser-page',
   standalone: true,
-  imports: [EntitiesComponent, EntitiesActionsComponent, EntitiesHeader],
+  imports: [EntitiesComponent, EntitiesActionsComponent, EntitiesHeader, RouterLink],
   templateUrl: './dropbox-browser-page-component.html',
   styleUrl: './dropbox-browser-page-component.scss',
 })
 export class DropboxBrowserPageComponent implements OnInit {
+  private static readonly missingDropboxKeyPrefix = "Active 'dropbox' key not found.";
+
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly componentService = inject(ComponentService);
@@ -36,6 +38,7 @@ export class DropboxBrowserPageComponent implements OnInit {
 
   browseResult: DropboxBrowseResultDto | null = null;
   loadError = '';
+  missingDropboxKey = false;
 
   private readonly previewUrls = new Map<string, string>();
   private readonly previewLoadingIds = new Set<string>();
@@ -173,6 +176,7 @@ export class DropboxBrowserPageComponent implements OnInit {
   private load(path: string | null): void {
     this.clearPreviewState();
     this.loadError = '';
+    this.missingDropboxKey = false;
     const currentGeneration = ++this.previewGeneration;
 
     this.dropboxService.browse(path).subscribe({
@@ -193,10 +197,18 @@ export class DropboxBrowserPageComponent implements OnInit {
 
         this.browseResult = null;
         this.componentService.updateEntities([]);
-        this.loadError = getMessageFromError(error, 'Unable to load Dropbox images.');
+        const errorMessage = getMessageFromError(error, 'Unable to load Dropbox images.');
+        this.missingDropboxKey = this.isMissingDropboxKeyError(errorMessage);
+        this.loadError = this.missingDropboxKey
+          ? 'To add images from Dropbox, add an active dropbox key in your Keys first.'
+          : errorMessage;
         this.messagesService.showError('Dropbox', this.loadError);
       },
     });
+  }
+
+  private isMissingDropboxKeyError(message: string): boolean {
+    return message.startsWith(DropboxBrowserPageComponent.missingDropboxKeyPrefix);
   }
 
   private async ensurePreview(entity: DropboxBrowseEntryDto): Promise<void> {

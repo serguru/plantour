@@ -12,4 +12,18 @@
     margin-bottom: 1rem;
     color: #c0392b;
   }
+
+  .dropbox-browser-page__error-links {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+
+  .dropbox-browser-page__error-links a {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+  }
 }
