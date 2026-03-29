@@ -5,7 +5,7 @@
     entityName="Dropbox image"
     [headerButtons]="headerButtons()"
     [menuItems]="menuItems()"
-    helpPageId="help/features/notes-and-images"
+    helpPageId="help/trip-workflows/keep-travel-notes"
   ></app-entities-header>
 
   @if (browseResult?.currentPath) {
@@ -20,8 +20,7 @@
         <div class="dropbox-browser-page__error-links">
           <a [routerLink]="['/keys']">Open Keys</a>
           <span>or</span>
-          <!-- TODO: add a dedicated help section for Dropbox image keys and replace this generic /help link. -->
-          <a [routerLink]="['/help']">Help</a>
+          <a [routerLink]="['/help', 'trip-workflows', 'keep-travel-notes']">Help</a>
         </div>
       }
     </div>

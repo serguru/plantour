@@ -14,7 +14,7 @@ import { SeoService } from '../../../../services/seo-service';
 export class PrivacyComponent implements OnInit {
   componentId = 'privacy';
   appName = 'Plantour';
-  lastUpdated = 'March 16, 2026';
+  lastUpdated = 'March 28, 2026';
   supportContact = 'the support channel available in the app';
 
   private readonly seoService = inject(SeoService);

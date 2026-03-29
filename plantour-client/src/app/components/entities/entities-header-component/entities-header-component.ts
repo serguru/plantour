@@ -157,7 +157,10 @@ export class EntitiesHeader implements OnInit {
 
   getResolvedMenuItems(): MenuConfig[] {
     const items = [...this.menuItems()];
-    const pageId = this.helpContextService.resolvePageId(this.router.url, this.helpPageId());
+    const componentId = this.helpContextService.resolveComponentId(
+      this.route.snapshot.pathFromRoot.map((snapshot) => snapshot.data['componentId'] as string | null | undefined)
+    );
+    const pageId = this.helpContextService.resolvePageId(this.router.url, this.helpPageId(), componentId);
     const helpUrl = this.showHelpAction() ? this.helpContextService.getPageUrl(pageId) : null;
 
     if (helpUrl) {
