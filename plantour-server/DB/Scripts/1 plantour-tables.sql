@@ -331,25 +331,25 @@ insert into plantour.prices (paddle_price_id,plan_id,name,value_cents) values
     'pri_01khvsx5szpnfqd97c6sdv3e2w',
     (select id from plantour.plans where name = 'Family'),
     'Family Monthly',
-    499
+    1299
 ),
 (
     'pri_01khvsg62zpjhh6qbmc5sfmkm3',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Monthly',
-    1499
+    4499
 ),
 (
     'pri_01khvsyg17b43cm5kf0t63zfnr',
     (select id from plantour.plans where name = 'Family'),
     'Family Yearly',
-    2999
+    11999
 ),
 (
     'pri_01khvspsgmrkcggdxxtksbzy88',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Yearly',
-    8999
+    39999
 );
 
 

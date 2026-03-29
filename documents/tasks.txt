@@ -719,6 +719,9 @@ Now users can use public image links in notes - it is already implemented. Do no
 
 
 
-Now Plantour supports: trips, itineraries, activities, map, bags, personal and shared items, personal and shared todos, personal and shared expenses, notes with rich text and images, AI full trip generation according to user requirements. 
+Now Plantour supports: 100% mobilew first, trips, itineraries, activities, map, bags, personal and shared items, personal and shared todos, personal and shared expenses, notes with rich text and images, AI full trip generation according to user requirements, AI and predefined item templates, PDF reports. So now Plantour is full size traveler assistant.
+
+Estimate how much money will most of users be ready to pay, for small groups up to 5 travelers (Family plan) and 50 travelers (Expedition plan)
+
 
 Dropbox shared link download returned non-image content. ContentType="application/octet-stream", UserId=0bc33ee6-b13d-423d-a9c9-1551c976c130, UrlPath="/scl/fi/1hdexk83gsm3ne6agqexg/istockphoto-1550071750-612x612.jpg"
