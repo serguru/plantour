@@ -1,9 +1,5 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Editor } from '@tiptap/core';
-import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
-import Image from '@tiptap/extension-image';
 
 @Component({
   selector: 'app-trip-note-editor',
@@ -12,167 +8,139 @@ import Image from '@tiptap/extension-image';
   templateUrl: './trip-note-editor-component.html',
   styleUrl: './trip-note-editor-component.scss',
 })
-export class TripNoteEditorComponent implements AfterViewInit, OnChanges, OnDestroy {
+export class TripNoteEditorComponent implements OnChanges {
   @Input() contentJson: string | null = null;
   @Input() readOnly = false;
   @Output() contentJsonChange = new EventEmitter<string | null>();
-
-  @ViewChild('editorHost') private editorHost?: ElementRef<HTMLDivElement>;
-
-  private editor: Editor | null = null;
-
-  ngAfterViewInit(): void {
-    if (!this.editorHost) {
-      return;
-    }
-
-    this.editor = new Editor({
-      element: this.editorHost.nativeElement,
-      editable: !this.readOnly,
-      extensions: [
-        StarterKit,
-        Link.configure({
-          openOnClick: false,
-          autolink: true,
-          defaultProtocol: 'https',
-        }),
-        Image,
-      ],
-      content: { type: 'doc', content: [{ type: 'paragraph' }] },
-      editorProps: {
-        attributes: {
-          class: 'trip-note-editor__content ProseMirror',
-        },
-      },
-      onUpdate: ({ editor }) => {
-        this.contentJsonChange.emit(JSON.stringify(this.serializeContent(editor.getJSON())));
-      },
-    });
-
-    void this.applyContentAsync(this.contentJson);
-  }
+  textValue = '';
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!this.editor) {
-      return;
-    }
-
-    if (changes['readOnly']) {
-      this.editor.setEditable(!this.readOnly);
-    }
-
     if (changes['contentJson']) {
-      void this.applyContentAsync(this.contentJson);
+      this.textValue = this.contentJsonToPlainText(this.contentJson);
     }
   }
 
-  ngOnDestroy(): void {
-    this.editor?.destroy();
+  onTextInput(value: string): void {
+    this.textValue = value;
+    this.contentJsonChange.emit(this.plainTextToContentJson(value));
   }
 
-  isActive(name: string, attributes?: Record<string, unknown>): boolean {
-    return this.editor?.isActive(name, attributes) ?? false;
-  }
-
-  toggleBold(): void {
-    this.editor?.chain().focus().toggleBold().run();
-  }
-
-  toggleItalic(): void {
-    this.editor?.chain().focus().toggleItalic().run();
-  }
-
-  toggleUnderline(): void {
-    this.editor?.chain().focus().toggleUnderline().run();
-  }
-
-  toggleStrike(): void {
-    this.editor?.chain().focus().toggleStrike().run();
-  }
-
-  toggleBulletList(): void {
-    this.editor?.chain().focus().toggleBulletList().run();
-  }
-
-  toggleOrderedList(): void {
-    this.editor?.chain().focus().toggleOrderedList().run();
-  }
-
-  toggleHeading(level: 2 | 3): void {
-    this.editor?.chain().focus().toggleHeading({ level }).run();
-  }
-
-  toggleBlockquote(): void {
-    this.editor?.chain().focus().toggleBlockquote().run();
-  }
-
-  setLink(): void {
-    const value = window.prompt('Enter link URL', 'https://');
-    if (!value) {
-      return;
+  private plainTextToContentJson(value: string): string | null {
+    const normalized = value.replace(/\r\n/g, '\n').trim();
+    if (!normalized) {
+      return null;
     }
 
-    this.editor?.chain().focus().extendMarkRange('link').setLink({ href: value.trim() }).run();
-  }
+    const paragraphs = normalized
+      .split(/\n{2,}/)
+      .map((paragraph) => paragraph.trim())
+      .filter((paragraph) => paragraph.length > 0)
+      .map((paragraph) => ({
+        type: 'paragraph',
+        content: this.buildParagraphContent(paragraph),
+      }));
 
-  unsetLink(): void {
-    this.editor?.chain().focus().unsetLink().run();
-  }
-
-  addImage(): void {
-    const value = window.prompt('Enter image URL', 'https://');
-    if (!value) {
-      return;
+    if (paragraphs.length === 0) {
+      return null;
     }
 
-    const url = value.trim();
-    if (!this.isPublicHttpUrl(url)) {
-      window.alert('Enter a public image URL that starts with http:// or https://.');
-      return;
-    }
-
-    this.editor?.chain().focus().setImage({ src: url, alt: 'Trip note image' }).run();
+    return JSON.stringify({
+      type: 'doc',
+      content: paragraphs,
+    });
   }
 
-  private parseContent(contentJson: string | null): Record<string, unknown> {
+  private buildParagraphContent(paragraph: string): Array<Record<string, unknown>> {
+    const lines = paragraph.split('\n');
+    const content: Array<Record<string, unknown>> = [];
+
+    lines.forEach((line, index) => {
+      if (line.length > 0) {
+        content.push({
+          type: 'text',
+          text: line,
+        });
+      }
+
+      if (index < lines.length - 1) {
+        content.push({ type: 'hardBreak' });
+      }
+    });
+
+    return content.length > 0 ? content : [{ type: 'text', text: '' }];
+  }
+
+  private contentJsonToPlainText(contentJson: string | null): string {
     if (!contentJson) {
-      return { type: 'doc', content: [{ type: 'paragraph' }] };
+      return '';
     }
 
     try {
-      return JSON.parse(contentJson) as Record<string, unknown>;
+      return this.extractNodeText(JSON.parse(contentJson)).trim();
     } catch {
-      return { type: 'doc', content: [{ type: 'paragraph' }] };
+      return '';
     }
   }
 
-  private async applyContentAsync(contentJson: string | null): Promise<void> {
-    if (!this.editor) {
-      return;
+  private extractNodeText(node: any): string {
+    if (!node || typeof node !== 'object') {
+      return '';
     }
 
-    const nextContent = this.parseContent(contentJson);
-    const currentContent = JSON.stringify(this.serializeContent(this.editor.getJSON()));
-    const nextContentSerialized = JSON.stringify(this.serializeContent(nextContent));
-    if (currentContent !== nextContentSerialized) {
-      this.editor.commands.setContent(nextContent, { emitUpdate: false });
+    switch (node.type) {
+      case 'doc':
+        return this.joinChildText(node.content, '\n\n');
+      case 'paragraph':
+      case 'heading':
+      case 'blockquote':
+      case 'codeBlock':
+        return this.joinChildText(node.content, '');
+      case 'bulletList':
+        return this.joinListText(node.content, '- ');
+      case 'orderedList':
+        return this.joinOrderedListText(node.content);
+      case 'listItem':
+        return this.joinChildText(node.content, ' ');
+      case 'text':
+        return typeof node.text === 'string' ? node.text : '';
+      case 'hardBreak':
+        return '\n';
+      case 'image':
+        return typeof node.attrs?.src === 'string' ? `[Image: ${node.attrs.src}]` : '';
+      case 'horizontalRule':
+        return '---';
+      default:
+        return this.joinChildText(node.content, '');
     }
   }
 
-  private serializeContent(content: any): Record<string, unknown> {
-    return this.cloneContent(content);
-  }
-
-  private cloneContent(content: Record<string, unknown>): Record<string, unknown> {
-    return JSON.parse(JSON.stringify(content)) as Record<string, unknown>;
-  }
-
-  private isPublicHttpUrl(value: string): boolean {
-    try {
-      const url = new URL(value);
-      return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch {
-      return false;
+  private joinChildText(content: any, separator: string): string {
+    if (!Array.isArray(content)) {
+      return '';
     }
+
+    return content.map((child) => this.extractNodeText(child)).join(separator);
+  }
+
+  private joinListText(content: any, prefix: string): string {
+    if (!Array.isArray(content)) {
+      return '';
+    }
+
+    return content
+      .map((child) => `${prefix}${this.extractNodeText(child).trim()}`.trimEnd())
+      .filter((line) => line.length > 0)
+      .join('\n');
+  }
+
+  private joinOrderedListText(content: any): string {
+    if (!Array.isArray(content)) {
+      return '';
+    }
+
+    return content
+      .map((child, index) => `${index + 1}. ${this.extractNodeText(child).trim()}`.trimEnd())
+      .filter((line) => line.length > 0)
+      .join('\n');
   }
 }

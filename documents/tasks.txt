@@ -734,3 +734,15 @@ new
 353939012826-c2kjp1l86irs1tfbblp1bbdn109prdqe.apps.googleusercontent.com
 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
 
+
+
+Explore TinyMCE 7 and Cloudinary official documentation. Implement the following:
+
+- rich text editor for trip notes
+- ability to embed image links into the note
+- crop, resize, aligning in text for images
+- non destructive editing, images are not stored in the db, stored only their links
+- user must autorize Plantour to access their private images
+- 
+
+

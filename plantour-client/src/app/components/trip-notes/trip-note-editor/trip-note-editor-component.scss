@@ -6,74 +6,42 @@
     overflow: hidden;
   }
 
-  .trip-note-editor__toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+  .trip-note-editor__hint {
     padding: 0.85rem;
     border-bottom: 1px solid var(--p-content-border-color, #d6dde3);
     background: #f6f8fa;
-  }
-
-  .trip-note-editor__tool {
-    border: 1px solid #c8d1d9;
-    background: #fff;
-    color: #22313f;
-    border-radius: 0.7rem;
-    padding: 0.45rem 0.7rem;
-    font: inherit;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .trip-note-editor__tool.active {
-    background: #1f6f78;
-    border-color: #1f6f78;
-    color: #fff;
-  }
-
-  .trip-note-editor__tool:disabled {
-    cursor: not-allowed;
-    opacity: 0.55;
+    color: #47636b;
+    font-size: 0.95rem;
   }
 
   .trip-note-editor__surface {
     min-height: 16rem;
     padding: 1rem;
-  }
-
-  & ::ng-deep .trip-note-editor__content {
+    width: 100%;
+    border: 0;
+    resize: vertical;
+    font: inherit;
+    line-height: 1.5;
+    color: #22313f;
+    background: #fff;
     outline: none;
-    min-height: 14rem;
+    box-sizing: border-box;
   }
 
-  & ::ng-deep .trip-note-editor__content p,
-  & ::ng-deep .trip-note-editor__content h2,
-  & ::ng-deep .trip-note-editor__content h3,
-  & ::ng-deep .trip-note-editor__content ul,
-  & ::ng-deep .trip-note-editor__content ol,
-  & ::ng-deep .trip-note-editor__content blockquote {
-    margin: 0 0 0.85rem;
+  .trip-note-editor__surface[readonly] {
+    color: #60737a;
   }
 
-  & ::ng-deep .trip-note-editor__content img {
-    display: block;
+  .trip-note-editor__surface::placeholder {
+    color: #8a9aa3;
+  }
+
+  .trip-note-editor__surface:focus {
+    background: #fcfefe;
+  }
+
+  .trip-note-editor__surface {
     max-width: 100%;
-    min-height: 3rem;
-    height: auto;
-    border-radius: 0.8rem;
-    background: #eef2f4;
-  }
-
-  & ::ng-deep .trip-note-editor__content blockquote {
-    border-left: 4px solid #97b7bc;
-    padding-left: 0.85rem;
-    color: #47636b;
-  }
-
-  & ::ng-deep .trip-note-editor__content code {
-    background: #eef2f4;
-    border-radius: 0.35rem;
-    padding: 0.1rem 0.3rem;
+    white-space: pre-wrap;
   }
 }
