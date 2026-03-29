@@ -11,8 +11,6 @@ import { FormActions } from '../../form/form-actions/form-actions';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
 import { MessagesService } from '../../../services/messages-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
-import { DropboxBrowseEntryDto } from '../../../services/dropbox-service';
-import { TripNoteDropboxBrowserStateService } from '../../../services/trip-note-dropbox-browser-state-service';
 import { TripActivityService } from '../../../services/trip-activity-service';
 import { CreateTripNoteRequest, TripNoteDto, TripNoteService, UpdateTripNoteRequest } from '../../../services/trip-note-service';
 import { TripNoteEditorComponent } from '../trip-note-editor/trip-note-editor-component';
@@ -43,7 +41,6 @@ export class TripNoteFormComponent implements OnInit {
   private readonly tripActivityService = inject(TripActivityService);
   private readonly messagesService = inject(MessagesService);
   private readonly localStorageService = inject(LocalStorageService);
-  private readonly dropboxBrowserStateService = inject(TripNoteDropboxBrowserStateService);
 
   lookupActivities$;
 
@@ -52,8 +49,6 @@ export class TripNoteFormComponent implements OnInit {
   tripId: string | null = null;
   form!: FormGroup;
   contentJson: string | null = null;
-  pendingDropboxSelection: DropboxBrowseEntryDto | null = null;
-  private dropboxContextId: string | null = null;
 
   get isAddMode(): boolean {
     return this.mode === 'add';
@@ -84,8 +79,7 @@ export class TripNoteFormComponent implements OnInit {
 
     this.initForm();
 
-    const restoredDraft = this.restoreDropboxDraft();
-    if (restoredDraft || this.isAddMode) {
+    if (this.isAddMode) {
       return;
     }
 
@@ -97,31 +91,6 @@ export class TripNoteFormComponent implements OnInit {
       title: new FormControl('', Validators.required),
       tripActivityId: new FormControl<string | null>(null),
     });
-  }
-
-  private restoreDropboxDraft(): boolean {
-    const contextId = this.route.snapshot.queryParamMap.get('dropboxContextId');
-    const draft = this.dropboxBrowserStateService.takeDraft(contextId);
-    if (!draft) {
-      return false;
-    }
-
-    this.form.patchValue({
-      title: draft.title,
-      tripActivityId: draft.tripActivityId,
-    });
-    this.contentJson = draft.contentJson;
-    this.pendingDropboxSelection = draft.pendingSelection;
-    this.dropboxContextId = null;
-
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { dropboxContextId: null },
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
-
-    return true;
   }
 
   private loadTripNote(): void {
@@ -204,40 +173,6 @@ export class TripNoteFormComponent implements OnInit {
   onCancel(event: Event): void {
     event.preventDefault();
     this.router.navigate([this.tripNotesUrl]);
-  }
-
-  onBrowseDropbox(): void {
-    const contextId = this.createDropboxContextId();
-    const formValue = this.form.getRawValue();
-    this.dropboxBrowserStateService.saveDraft(contextId, {
-      returnUrl: this.formUrl,
-      title: formValue.title ?? '',
-      tripActivityId: formValue.tripActivityId ?? null,
-      contentJson: this.contentJson,
-      pendingSelection: null,
-    });
-
-    this.dropboxContextId = contextId;
-    void this.router.navigate(['/dropbox-browser'], {
-      queryParams: {
-        returnUrl: this.formUrl,
-        contextId,
-      },
-    });
-  }
-
-  onDropboxSelectionHandled(): void {
-    this.pendingDropboxSelection = null;
-  }
-
-  private createDropboxContextId(): string {
-    return `${this.mode}-${this.tripId}-${this.id ?? 'new'}-${Date.now()}`;
-  }
-
-  get formUrl(): string {
-    return this.isAddMode
-      ? `/trips/${this.tripId}/trip-notes/add`
-      : `/trips/${this.tripId}/trip-notes/edit/${this.id}`;
   }
 
   get tripNotesUrl(): string {

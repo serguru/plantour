@@ -54,17 +54,6 @@ export function renderTripNoteContentHtml(
   return renderTripNoteNode(parsed, resolveImageUrl);
 }
 
-export function extractDropboxImageUrls(contentJson: string | null | undefined): string[] {
-  const parsed = parseTripNoteContentJson(contentJson);
-  if (!parsed) {
-    return [];
-  }
-
-  const urls = new Set<string>();
-  collectDropboxImageUrls(parsed, urls);
-  return [...urls];
-}
-
 function parseTripNoteContentJson(contentJson: string | null | undefined): any | null {
   if (!contentJson) {
     return null;
@@ -231,7 +220,7 @@ function renderImageHtml(src: unknown, alt: unknown, resolveImageUrl?: TripNoteI
   }
 
   const resolvedSrc = resolveImageUrl?.(src) ?? src;
-  if (!resolvedSrc.trim()) {
+  if (!isPublicImageSource(resolvedSrc)) {
     return '';
   }
 
@@ -240,58 +229,14 @@ function renderImageHtml(src: unknown, alt: unknown, resolveImageUrl?: TripNoteI
   )}" referrerpolicy="no-referrer" loading="lazy" /></figure>`;
 }
 
-function collectDropboxImageUrls(node: any, urls: Set<string>): void {
-  if (!node || typeof node !== 'object') {
-    return;
-  }
-
-  if (node.type === 'image' && typeof node.attrs?.src === 'string' && isDropboxImageSource(node.attrs.src)) {
-    urls.add(node.attrs.src);
-  }
-
-  if (node.type === 'text' && Array.isArray(node.marks)) {
-    for (const mark of node.marks) {
-      const href = typeof mark?.attrs?.href === 'string' ? mark.attrs.href : '';
-      if (isDropboxImageSource(href)) {
-        urls.add(href);
-      }
-    }
-  }
-
-  if (!Array.isArray(node.content)) {
-    return;
-  }
-
-  for (const child of node.content) {
-    collectDropboxImageUrls(child, urls);
-  }
-}
-
 function isRenderableImageUrl(value: string): boolean {
-  return isImageUrl(value) || isDropboxImageSource(value);
+  return isImageUrl(value);
 }
 
-export function isDropboxImageSource(value: string): boolean {
-  return isDropboxSharedLink(value) || isDropboxPrivateImageSource(value);
-}
-
-export function isDropboxPrivateImageSource(value: string): boolean {
+function isPublicImageSource(value: string): boolean {
   try {
     const url = new URL(value);
-    return url.protocol === 'plantour-dropbox:'
-      && url.hostname === 'file'
-      && !!url.searchParams.get('id');
-  } catch {
-    return false;
-  }
-}
-
-function isDropboxSharedLink(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return url.protocol === 'https:'
-      && (url.hostname === 'www.dropbox.com' || url.hostname === 'dropbox.com')
-      && (url.pathname.includes('/s/') || url.pathname.includes('/scl/'));
+    return url.protocol === 'http:' || url.protocol === 'https:';
   } catch {
     return false;
   }

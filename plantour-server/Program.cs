@@ -521,7 +521,6 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddScoped<ITemplateService, TemplateService>();
     builder.Services.AddScoped<ITripCommentService, TripCommentService>();
     builder.Services.AddScoped<ITripNoteService, TripNoteService>();
-    builder.Services.AddScoped<IDropboxService, DropboxService>();
     builder.Services.AddScoped<IDocumentsService, DocumentsService>();
     builder.Services.AddScoped<IEmailService, EmailService>();
     builder.Services.AddScoped<IInvitationService, InvitationService>();

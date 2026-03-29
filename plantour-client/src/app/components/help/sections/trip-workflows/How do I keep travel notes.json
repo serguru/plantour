@@ -32,43 +32,9 @@
         "listTag": "ul",
         "items": [
           "The editor toolbar lets you format text with bold, italic, underline, strike, headings, bullet lists, ordered lists, block quotes, links, and unlink.",
-          "Use <strong>Image URL</strong> when you want to insert an image directly from a normal image link.",
-          "Use <strong>Browse Dropbox</strong> when you want to insert a private Dropbox image without exposing a public shared link.",
+          "Use <strong>Image URL</strong> when you want to insert an image from a public link that starts with <strong>http://</strong> or <strong>https://</strong>.",
           "When you reopen a note, Plantour restores the saved rich-text content and image references in the editor."
         ]
-      },
-      {
-        "title": "Add your Dropbox key in Plantour",
-        "listTag": "ol",
-        "beforeHtml": "Plantour reads a Dropbox <strong>access token</strong> from your active <strong>dropbox</strong> key. The server uses that token to browse folders and download private images for the editor, note list, and note PDFs.",
-        "items": [
-          "Open the Dropbox developer console and create a <strong>scoped access</strong> app for the Dropbox account that stores your note images.",
-          "Choose an app access level that can see the files you want to use. If your images are outside a Dropbox app folder, choose <strong>Full Dropbox</strong> access.",
-          "In the app permissions, enable at least <strong>files.metadata.read</strong> and <strong>files.content.read</strong>.",
-          "Generate an access token for that app in Dropbox.",
-          "Open <a href='/keys'>Keys</a> in Plantour.",
-          "Create or update a key with the name <strong>dropbox</strong>.",
-          "Paste the Dropbox access token into the key value. Plantour also accepts a value that starts with <strong>Bearer </strong>, but a plain token is simpler.",
-          "Mark that key as active and save it."
-        ],
-        "afterHtml": "If Plantour says that the active <strong>dropbox</strong> key is missing or that Dropbox browsing cannot load, first check that the key is active and then confirm the token still works and still has <strong>files.metadata.read</strong> and <strong>files.content.read</strong> permissions."
-      },
-      {
-        "title": "Add a private Dropbox image step by step",
-        "listTag": "ol",
-        "beforeHtml": "Private Dropbox images require an active <strong>dropbox</strong> key in your <a href='/keys'>Keys</a> first. Without that key, the Dropbox browser page cannot load your private images.",
-        "items": [
-          "Open <strong>Trip personal</strong> > <strong>Notes</strong> and create a new note or open an existing note for editing.",
-          "Enter the note title and any text you want to keep.",
-          "Click <strong>Browse Dropbox</strong> in the editor toolbar.",
-          "Plantour opens the Dropbox browser page and keeps a draft of your note so you can return to it.",
-          "Browse folders until you find the image file you want.",
-          "Select the file so Plantour loads its preview.",
-          "Click <strong>To Note</strong> or the submit action for the selected image to return to the note form.",
-          "Plantour restores your draft note and inserts the selected Dropbox image into the editor as a private Dropbox reference.",
-          "Click <strong>Submit</strong> to save the note with that image."
-        ],
-        "afterHtml": "Plantour keeps the Dropbox image private by storing a protected Dropbox reference instead of a public shared link. The note editor and note list can still resolve and preview that image for you, and marked note PDFs use the same private image resolution flow."
       },
       {
         "title": "Review notes, connect them to activities, and export them",

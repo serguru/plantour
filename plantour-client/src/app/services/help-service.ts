@@ -22,7 +22,6 @@ const COMPONENT_HELP_PAGE_IDS: Readonly<Record<string, string>> = {
   'pack-form': 'help/workflows/work-with-my-bags-dictionary',
   keys: 'help/workflows/work-with-keys',
   'key-form': 'help/workflows/work-with-keys',
-  'dropbox-browser': 'help/trip-workflows/keep-travel-notes',
   trips: 'help/trip-workflows/work-with-trips',
   'trip-form': 'help/trip-workflows/work-with-trips',
   'trip-itinerary': 'help/trip-workflows/work-with-trip-itinerary',

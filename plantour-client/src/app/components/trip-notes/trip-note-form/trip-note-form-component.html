@@ -33,9 +33,6 @@
         <label>Content<span class="required">*</span></label>
         <app-trip-note-editor
           [contentJson]="contentJson"
-          [dropboxSelection]="pendingDropboxSelection"
-          (browseDropbox)="onBrowseDropbox()"
-          (dropboxSelectionHandled)="onDropboxSelectionHandled()"
           (contentJsonChange)="contentJson = $event"
         ></app-trip-note-editor>
       </div>

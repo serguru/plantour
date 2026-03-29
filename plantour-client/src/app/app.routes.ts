@@ -216,13 +216,6 @@ export const routes: Routes = [
     data: { mode: 'edit', componentId: 'key-form' }
   },
   {
-    path: 'dropbox-browser',
-    canActivate: [adminOrParticipantGuard],
-    loadComponent: () => import('./components/dropbox-browser-page/dropbox-browser-page-component').then(m => m.DropboxBrowserPageComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'dropbox-browser' }
-  },
-  {
     path: 'trips',
     canActivate: [adminOrParticipantGuard],
     loadComponent: () => import('./components/trips/trips-component').then(m => m.TripsComponent),
