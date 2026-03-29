@@ -723,3 +723,14 @@ Now Plantour supports: 100% mobilew first, trips, itineraries, activities, maps,
 
 Estimate how much money will most of users be ready to pay, for small groups up to 5 travelers (Family plan) and 50 travelers (Expedition plan)
 
+Google Auth CliendIds
+
+old
+256558134062-f78noulvdiq52n7bfmmh0cm23j91942s.apps.googleusercontent.com
+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
+
+new 
+
+353939012826-c2kjp1l86irs1tfbblp1bbdn109prdqe.apps.googleusercontent.com
+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
+
