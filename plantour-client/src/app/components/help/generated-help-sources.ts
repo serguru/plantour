@@ -17,21 +17,27 @@ import featuresHowDoIAddUpdateOrDeleteEntitiesJsonQuestion from './sections/feat
 import featuresWhatAreDictionariesJsonQuestion from './sections/features/What are dictionaries.json';
 import featuresWhatAreItemTemplatesJsonQuestion from './sections/features/What are item templates.json';
 import featuresHowToAskAIForItemRecommendationsJsonQuestion from './sections/features/How to ask AI for item recommendations.json';
+import featuresHowToAskAIForFullTripGenerationJsonQuestion from './sections/features/How to ask AI for full trip generation.json';
 import workflowsWhatIsMainPlantourWorkflowJsonQuestion from './sections/workflows/What is main Plantour workflow.json';
-import workflowsHowDoIUseDashboardJsonQuestion from './sections/workflows/How do I use dashboard.json';
 import workflowsHowDoIInviteTravelersJsonQuestion from './sections/workflows/How do I invite travelers.json';
 import workflowsHowDoIManageMyBillingJsonQuestion from './sections/workflows/How do I manage my billing.json';
 import workflowsHowCanISendAMessageToThePlantourAdministrationJsonQuestion from './sections/workflows/How can I send a message to the Plantour administration.json';
 import workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion from './sections/workflows/How do I work with my items dictionary.json';
 import workflowsHowDoIWorkWithMyBagsDictionaryJsonQuestion from './sections/workflows/How do I work with my bags dictionary.json';
 import workflowsHowDoIWorkWithMyTodosDictionaryJsonQuestion from './sections/workflows/How do I work with my todos dictionary.json';
+import workflowsHowDoIUseDashboardJsonQuestion from './sections/workflows/How do I use dashboard.json';
 import tripWorkflowsHowDoIWorkWithTripsJsonQuestion from './sections/trip-workflows/How do I work with trips.json';
 import tripWorkflowsWhyIsCurrentTripAndHowToSetUnsetAndShowHideItJsonQuestion from './sections/trip-workflows/Why is current trip and how to set/unset and show/hide it.json';
+import tripWorkflowsHowDoIWorkWithTheTripItineraryJsonQuestion from './sections/trip-workflows/How do I work with the trip itinerary.json';
+import tripWorkflowsHowDoIWorkWithTripActivitiesJsonQuestion from './sections/trip-workflows/How do I work with trip activities.json';
 import tripWorkflowsHowDoIWorkWithTripTodosJsonQuestion from './sections/trip-workflows/How do I work with trip todos.json';
 import tripWorkflowsWhatCanIDoWithTripItemsJsonQuestion from './sections/trip-workflows/What can I do with trip items.json';
 import tripWorkflowsHowDoIWorkWithTripBagsJsonQuestion from './sections/trip-workflows/How do I work with trip bags.json';
 import tripWorkflowsWhatOptionsDoIHaveToPackTheTripItemsJsonQuestion from './sections/trip-workflows/What options do I have to pack the trip items.json';
+import tripWorkflowsHowDoIManageTripExpensesJsonQuestion from './sections/trip-workflows/How do I manage trip expenses.json';
+import tripWorkflowsHowDoIKeepTravelNotesJsonQuestion from './sections/trip-workflows/How do I keep travel notes.json';
 import tripWorkflowsHowDoIWorkWithTripCommentsJsonQuestion from './sections/trip-workflows/How do I work with trip comments.json';
+import tripWorkflowsHowCanISeeTheTripOnTheMapJsonQuestion from './sections/trip-workflows/How can I see the trip on the map.json';
 import sharedTripWorkflowsHowDoesAdminAddUpdateAndDeleteSharedItemsJsonQuestion from './sections/shared-trip-workflows/How does admin add, update and delete shared items.json';
 import sharedTripWorkflowsHowDoesAdminAssignSharedItemsJsonQuestion from './sections/shared-trip-workflows/How does admin assign shared items.json';
 import sharedTripWorkflowsHowCanAParticipantReactOnTheSharedItemAssignmentJsonQuestion from './sections/shared-trip-workflows/How can a participant react on the shared item assignment.json';
@@ -66,21 +72,27 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['features/What are dictionaries.json', featuresWhatAreDictionariesJsonQuestion],
   ['features/What are item templates.json', featuresWhatAreItemTemplatesJsonQuestion],
   ['features/How to ask AI for item recommendations.json', featuresHowToAskAIForItemRecommendationsJsonQuestion],
+  ['features/How to ask AI for full trip generation.json', featuresHowToAskAIForFullTripGenerationJsonQuestion],
   ['workflows/What is main Plantour workflow.json', workflowsWhatIsMainPlantourWorkflowJsonQuestion],
-  ['workflows/How do I use dashboard.json', workflowsHowDoIUseDashboardJsonQuestion],
   ['workflows/How do I invite travelers.json', workflowsHowDoIInviteTravelersJsonQuestion],
   ['workflows/How do I manage my billing.json', workflowsHowDoIManageMyBillingJsonQuestion],
   ['workflows/How can I send a message to the Plantour administration.json', workflowsHowCanISendAMessageToThePlantourAdministrationJsonQuestion],
   ['workflows/How do I work with my items dictionary.json', workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion],
   ['workflows/How do I work with my bags dictionary.json', workflowsHowDoIWorkWithMyBagsDictionaryJsonQuestion],
   ['workflows/How do I work with my todos dictionary.json', workflowsHowDoIWorkWithMyTodosDictionaryJsonQuestion],
+  ['workflows/How do I use dashboard.json', workflowsHowDoIUseDashboardJsonQuestion],
   ['trip-workflows/How do I work with trips.json', tripWorkflowsHowDoIWorkWithTripsJsonQuestion],
   ['trip-workflows/Why is current trip and how to set/unset and show/hide it.json', tripWorkflowsWhyIsCurrentTripAndHowToSetUnsetAndShowHideItJsonQuestion],
+  ['trip-workflows/How do I work with the trip itinerary.json', tripWorkflowsHowDoIWorkWithTheTripItineraryJsonQuestion],
+  ['trip-workflows/How do I work with trip activities.json', tripWorkflowsHowDoIWorkWithTripActivitiesJsonQuestion],
   ['trip-workflows/How do I work with trip todos.json', tripWorkflowsHowDoIWorkWithTripTodosJsonQuestion],
   ['trip-workflows/What can I do with trip items.json', tripWorkflowsWhatCanIDoWithTripItemsJsonQuestion],
   ['trip-workflows/How do I work with trip bags.json', tripWorkflowsHowDoIWorkWithTripBagsJsonQuestion],
   ['trip-workflows/What options do I have to pack the trip items.json', tripWorkflowsWhatOptionsDoIHaveToPackTheTripItemsJsonQuestion],
+  ['trip-workflows/How do I manage trip expenses.json', tripWorkflowsHowDoIManageTripExpensesJsonQuestion],
+  ['trip-workflows/How do I keep travel notes.json', tripWorkflowsHowDoIKeepTravelNotesJsonQuestion],
   ['trip-workflows/How do I work with trip comments.json', tripWorkflowsHowDoIWorkWithTripCommentsJsonQuestion],
+  ['trip-workflows/How can I see the trip on the map.json', tripWorkflowsHowCanISeeTheTripOnTheMapJsonQuestion],
   ['shared-trip-workflows/How does admin add, update and delete shared items.json', sharedTripWorkflowsHowDoesAdminAddUpdateAndDeleteSharedItemsJsonQuestion],
   ['shared-trip-workflows/How does admin assign shared items.json', sharedTripWorkflowsHowDoesAdminAssignSharedItemsJsonQuestion],
   ['shared-trip-workflows/How can a participant react on the shared item assignment.json', sharedTripWorkflowsHowCanAParticipantReactOnTheSharedItemAssignmentJsonQuestion],

@@ -1,0 +1,85 @@
+{
+  "slug": "keep-travel-notes",
+  "question": "How do I keep travel notes?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Open trip notes for the current trip",
+        "listTag": "ol",
+        "items": [
+          "Click <strong>Dashboard</strong> in the toolbar.",
+          "Open <strong>Trip personal</strong> > <strong>Notes</strong>.",
+          "Plantour opens the <strong>Trip notes</strong> page for the currently selected trip."
+        ],
+        "afterHtml": "If the wrong trip opens, select the correct trip first and then return to <strong>Notes</strong>."
+      },
+      {
+        "title": "Add, update, or delete a trip note",
+        "listTag": "ol",
+        "beforeHtml": "Use trip notes when you want to keep travel information, plans, reminders, or image-based references inside the selected trip.",
+        "items": [
+          "Use <strong>Add</strong> to create a new trip note.",
+          "Enter a required title.",
+          "Optionally choose an activity if you want to connect the note to one activity.",
+          "Enter note content in the editor. Plantour requires meaningful content before saving.",
+          "Click <strong>Submit</strong> to save the note.",
+          "Select a saved note and use <strong>Update</strong> to edit it, or <strong>Delete</strong> to remove it."
+        ]
+      },
+      {
+        "title": "Use the notes editor",
+        "listTag": "ul",
+        "items": [
+          "The editor toolbar lets you format text with bold, italic, underline, strike, headings, bullet lists, ordered lists, block quotes, links, and unlink.",
+          "Use <strong>Image URL</strong> when you want to insert an image directly from a normal image link.",
+          "Use <strong>Browse Dropbox</strong> when you want to insert a private Dropbox image without exposing a public shared link.",
+          "When you reopen a note, Plantour restores the saved rich-text content and image references in the editor."
+        ]
+      },
+      {
+        "title": "Add your Dropbox key in Plantour",
+        "listTag": "ol",
+        "beforeHtml": "Plantour reads a Dropbox <strong>access token</strong> from your active <strong>dropbox</strong> key. The server uses that token to browse folders and download private images for the editor, note list, and note PDFs.",
+        "items": [
+          "Open the Dropbox developer console and create a <strong>scoped access</strong> app for the Dropbox account that stores your note images.",
+          "Choose an app access level that can see the files you want to use. If your images are outside a Dropbox app folder, choose <strong>Full Dropbox</strong> access.",
+          "In the app permissions, enable at least <strong>files.metadata.read</strong> and <strong>files.content.read</strong>.",
+          "Generate an access token for that app in Dropbox.",
+          "Open <a href='/keys'>Keys</a> in Plantour.",
+          "Create or update a key with the name <strong>dropbox</strong>.",
+          "Paste the Dropbox access token into the key value. Plantour also accepts a value that starts with <strong>Bearer </strong>, but a plain token is simpler.",
+          "Mark that key as active and save it."
+        ],
+        "afterHtml": "If Plantour says that the active <strong>dropbox</strong> key is missing or that Dropbox browsing cannot load, first check that the key is active and then confirm the token still works and still has <strong>files.metadata.read</strong> and <strong>files.content.read</strong> permissions."
+      },
+      {
+        "title": "Add a private Dropbox image step by step",
+        "listTag": "ol",
+        "beforeHtml": "Private Dropbox images require an active <strong>dropbox</strong> key in your <a href='/keys'>Keys</a> first. Without that key, the Dropbox browser page cannot load your private images.",
+        "items": [
+          "Open <strong>Trip personal</strong> > <strong>Notes</strong> and create a new note or open an existing note for editing.",
+          "Enter the note title and any text you want to keep.",
+          "Click <strong>Browse Dropbox</strong> in the editor toolbar.",
+          "Plantour opens the Dropbox browser page and keeps a draft of your note so you can return to it.",
+          "Browse folders until you find the image file you want.",
+          "Select the file so Plantour loads its preview.",
+          "Click <strong>To Note</strong> or the submit action for the selected image to return to the note form.",
+          "Plantour restores your draft note and inserts the selected Dropbox image into the editor as a private Dropbox reference.",
+          "Click <strong>Submit</strong> to save the note with that image."
+        ],
+        "afterHtml": "Plantour keeps the Dropbox image private by storing a protected Dropbox reference instead of a public shared link. The note editor and note list can still resolve and preview that image for you, and marked note PDFs use the same private image resolution flow."
+      },
+      {
+        "title": "Review notes, connect them to activities, and export them",
+        "listTag": "ul",
+        "items": [
+          "Use the list filters such as <strong>Filter by Title</strong> and <strong>Activity</strong> when you want to narrow the notes list.",
+          "Use the page menu option <strong>Show Activity Select</strong> or <strong>Hide Activity Select</strong> when you want to show or hide the activity selector in the list.",
+          "Mark notes with <strong>Mark for PDF</strong> when you want to include them in an exported document.",
+          "Use <strong>Download Marked Notes PDF</strong> from the page menu when you want a PDF export of the marked notes only."
+        ]
+      }
+    ]
+  }
+}

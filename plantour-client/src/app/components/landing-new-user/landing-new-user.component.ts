@@ -44,8 +44,8 @@ export class LandingNewUserComponent implements OnInit {
       eyebrow: 'Route and schedule',
       icon: 'map',
       title: 'Shape itineraries, activities, and maps together',
-      description: 'Build a real travel plan with itinerary stops, activities, timing, and maps, so the trip is not just a list of things to pack but a clear plan everyone can follow.',
-      highlights: ['Trip itinerary planning', 'Activities and timing in one flow', 'Maps for route context'],
+      description: 'Build a real travel plan with itinerary stops, activities, timing, and maps, so the trip is not just a list of things to pack but a clear plan everyone can follow and navigate.',
+      highlights: ['Trip itinerary planning', 'Activities and timing in one flow', 'Send addressed activities to Google Maps for directions'],
       tone: 'sky'
     },
     {

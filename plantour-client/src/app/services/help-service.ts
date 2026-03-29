@@ -5,7 +5,7 @@ import type { HelpBreadcrumb, HelpPage } from '../components/help/help-content';
 export type { HelpBreadcrumb, HelpPage } from '../components/help/help-content';
 
 const ROUTE_HELP_PAGE_MATCHERS: ReadonlyArray<{ pattern: RegExp; pageId: string }> = [
-  { pattern: /^\/dashboard(?:\/.*)?$/, pageId: 'help/workflows/dashboard-overview' },
+  { pattern: /^\/dashboard(?:\/.*)?$/, pageId: 'help/workflows/trip-info' },
   { pattern: /^\/packing-list-generator\/templates(?:\/.*)?$/, pageId: 'help/features/item-templates' },
   { pattern: /^\/templates-ai(?:\/.*)?$/, pageId: 'help/features/ai-item-recommendations' },
   { pattern: /^\/templates(?:\/.*)?$/, pageId: 'help/features/item-templates' },

@@ -18,7 +18,7 @@
           "Click <strong>Submit</strong>.",
           "Plantour saves the trip, returns you to the <strong>Trips</strong> list, and highlights the new trip."
         ],
-        "afterHtml": "After a trip is created, Plantour uses the selected trip as the main context for trip-specific pages such as Trip Participants, Trip Items, Trip Todos, Trip Bags, Shared items, Shared todos, and Comments."
+        "afterHtml": "After a trip is created, Plantour uses the selected trip as the main context for trip-specific pages such as Trip Participants, Trip Items, Trip Todos, Trip Bags, Itinerary, Activities, Expenses, Notes, and Comments."
       },
       {
         "title": "Select and review a trip",
@@ -27,7 +27,7 @@
         "items": [
           "Open <strong>Trip</strong> > <strong>Trips</strong>.",
           "Click the trip you want to work with so it becomes highlighted.",
-          "Review the trip summary text in the list row, such as dates, participants, bags, and shared item counts.",
+          "Review the trip summary text in the list row, such as dates, participants, bags, and other trip details.",
           "If needed, use filtering by Name or Trip Status and sorting by Name to narrow the list before selecting the trip.",
           "After the trip is selected, open other pages from the <strong>Trip</strong> menu to work inside that trip."
         ]

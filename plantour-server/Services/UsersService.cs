@@ -764,7 +764,10 @@ public class UsersService(
         {
             throw new CustomException("Tokens for temporary users cannot be refreshed", "REFRESH_TOKEN_FAILED");
         }
-
+// TODO: add new AI requests to limits count
+// TODO: ensure participants can generate trip level questions to AI but cannot create a trip
+// TODO: redesign Trip info
+// TODO: auto currency rate works?
         User? user = await _usersRepository.GetActiveByIdAsync(userId);
 
         if (user == null)
