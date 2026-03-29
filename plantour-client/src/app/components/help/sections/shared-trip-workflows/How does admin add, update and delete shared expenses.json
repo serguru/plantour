@@ -1,0 +1,48 @@
+{
+  "slug": "how-does-admin-add-update-and-delete-shared-expenses",
+  "question": "How does admin add, update and delete shared expenses?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Add a shared expense",
+        "listTag": "ol",
+        "beforeHtml": "Use this when the cost belongs to the group and should later be assigned to one participant for acceptance.",
+        "items": [
+          "Click <strong>Dashboard</strong> in the toolbar.",
+          "Open the <strong>Trip Shared</strong> section and click <strong>Expenses</strong>.",
+          "Click <strong>Add</strong>. The <strong>Add Trip Shared Expense</strong> form opens.",
+          "Enter the required name and amount. You can also fill currency, payment method, category, and notes.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the shared expense and returns you to the <strong>Trip shared expenses</strong> list."
+        ]
+      },
+      {
+        "title": "Update a shared expense",
+        "listTag": "ol",
+        "beforeHtml": "Use this when the shared cost already exists and you want to correct its details.",
+        "items": [
+          "Open <strong>Dashboard</strong> > <strong>Trip Shared</strong> > <strong>Expenses</strong>.",
+          "Select the shared expense you want to change.",
+          "Click <strong>Update</strong>. The <strong>Edit Trip Shared Expense</strong> form opens.",
+          "Change fields such as name, amount, currency, payment method, category, or notes.",
+          "Click <strong>Submit</strong>.",
+          "Plantour saves the shared expense and returns you to the list."
+        ],
+        "afterHtml": "Changing who is responsible for a shared expense is handled on the list itself, not inside the add or update form. For that workflow, continue with <a href='/help/shared-trip-workflows/how-does-admin-assign-shared-expenses'>How does admin assign shared expenses?</a>."
+      },
+      {
+        "title": "Delete a shared expense",
+        "listTag": "ol",
+        "beforeHtml": "Use this when the trip no longer needs that shared cost entry.",
+        "items": [
+          "Open <strong>Dashboard</strong> > <strong>Trip Shared</strong> > <strong>Expenses</strong>.",
+          "Select the shared expense you want to remove.",
+          "Click <strong>Delete</strong> and confirm the action.",
+          "Plantour removes the shared expense from that trip."
+        ],
+        "afterHtml": "If the expense was already assigned or accepted, review its assignment state first so you do not remove a cost that someone is actively handling."
+      }
+    ]
+  }
+}

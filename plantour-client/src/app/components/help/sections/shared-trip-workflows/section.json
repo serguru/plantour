@@ -1,7 +1,7 @@
 {
   "id": "shared-trip-workflows",
   "title": "Shared trip workflows",
-  "summary": "How admins and participants work with shared trip items and shared trip todos",
+  "summary": "How admins and participants work with shared items, shared todos, public activities, and shared expenses",
   "questions": [
     "How does admin add, update and delete shared items.json",
     "How does admin assign shared items.json",
@@ -12,6 +12,11 @@
     "How does admin assign shared todos.json",
     "How can a participant react on the shared todo assignment.json",
     "What can a participant do after accepting the todo assignment.json",
-    "What should admin do if a participant finished a todo assignment with failure.json"
+    "What should admin do if a participant finished a todo assignment with failure.json",
+    "How do I work with shared activities.json",
+    "How does admin add, update and delete shared expenses.json",
+    "How does admin assign shared expenses.json",
+    "How can a participant react on the shared expense assignment.json",
+    "What can a participant do after accepting the expense assignment.json"
   ]
 }

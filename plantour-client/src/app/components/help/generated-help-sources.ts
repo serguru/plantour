@@ -48,6 +48,11 @@ import sharedTripWorkflowsHowDoesAdminAssignSharedTodosJsonQuestion from './sect
 import sharedTripWorkflowsHowCanAParticipantReactOnTheSharedTodoAssignmentJsonQuestion from './sections/shared-trip-workflows/How can a participant react on the shared todo assignment.json';
 import sharedTripWorkflowsWhatCanAParticipantDoAfterAcceptingTheTodoAssignmentJsonQuestion from './sections/shared-trip-workflows/What can a participant do after accepting the todo assignment.json';
 import sharedTripWorkflowsWhatShouldAdminDoIfAParticipantFinishedATodoAssignmentWithFailureJsonQuestion from './sections/shared-trip-workflows/What should admin do if a participant finished a todo assignment with failure.json';
+import sharedTripWorkflowsHowDoIWorkWithSharedActivitiesJsonQuestion from './sections/shared-trip-workflows/How do I work with shared activities.json';
+import sharedTripWorkflowsHowDoesAdminAddUpdateAndDeleteSharedExpensesJsonQuestion from './sections/shared-trip-workflows/How does admin add, update and delete shared expenses.json';
+import sharedTripWorkflowsHowDoesAdminAssignSharedExpensesJsonQuestion from './sections/shared-trip-workflows/How does admin assign shared expenses.json';
+import sharedTripWorkflowsHowCanAParticipantReactOnTheSharedExpenseAssignmentJsonQuestion from './sections/shared-trip-workflows/How can a participant react on the shared expense assignment.json';
+import sharedTripWorkflowsWhatCanAParticipantDoAfterAcceptingTheExpenseAssignmentJsonQuestion from './sections/shared-trip-workflows/What can a participant do after accepting the expense assignment.json';
 
 export const GENERATED_SECTION_MANIFEST_ENTRIES: [string, unknown][] = [
   ['get-started', getStartedSectionManifest],
@@ -102,5 +107,10 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['shared-trip-workflows/How does admin assign shared todos.json', sharedTripWorkflowsHowDoesAdminAssignSharedTodosJsonQuestion],
   ['shared-trip-workflows/How can a participant react on the shared todo assignment.json', sharedTripWorkflowsHowCanAParticipantReactOnTheSharedTodoAssignmentJsonQuestion],
   ['shared-trip-workflows/What can a participant do after accepting the todo assignment.json', sharedTripWorkflowsWhatCanAParticipantDoAfterAcceptingTheTodoAssignmentJsonQuestion],
-  ['shared-trip-workflows/What should admin do if a participant finished a todo assignment with failure.json', sharedTripWorkflowsWhatShouldAdminDoIfAParticipantFinishedATodoAssignmentWithFailureJsonQuestion]
+  ['shared-trip-workflows/What should admin do if a participant finished a todo assignment with failure.json', sharedTripWorkflowsWhatShouldAdminDoIfAParticipantFinishedATodoAssignmentWithFailureJsonQuestion],
+  ['shared-trip-workflows/How do I work with shared activities.json', sharedTripWorkflowsHowDoIWorkWithSharedActivitiesJsonQuestion],
+  ['shared-trip-workflows/How does admin add, update and delete shared expenses.json', sharedTripWorkflowsHowDoesAdminAddUpdateAndDeleteSharedExpensesJsonQuestion],
+  ['shared-trip-workflows/How does admin assign shared expenses.json', sharedTripWorkflowsHowDoesAdminAssignSharedExpensesJsonQuestion],
+  ['shared-trip-workflows/How can a participant react on the shared expense assignment.json', sharedTripWorkflowsHowCanAParticipantReactOnTheSharedExpenseAssignmentJsonQuestion],
+  ['shared-trip-workflows/What can a participant do after accepting the expense assignment.json', sharedTripWorkflowsWhatCanAParticipantDoAfterAcceptingTheExpenseAssignmentJsonQuestion]
 ];
