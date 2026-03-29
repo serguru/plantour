@@ -5,9 +5,12 @@ import { SeoService } from '../../services/seo-service';
 import { UsersService } from '../../services/users-service';
 
 interface LandingFeature {
+  eyebrow: string;
   icon: string;
   title: string;
   description: string;
+  highlights: string[];
+  tone: 'lagoon' | 'citrus' | 'forest' | 'sunrise' | 'sky' | 'midnight';
 }
 
 @Component({
@@ -25,48 +28,66 @@ export class LandingNewUserComponent implements OnInit {
   private readonly document = inject(DOCUMENT);
   private readonly request = inject(REQUEST, { optional: true });
 
-  subSlogan = 'One place for your packing lists, todos, and shared group details.';
+  subSlogan = 'Plantour is your mobile-first travel assistant for planning trips, coordinating people, packing smart, and keeping the whole journey in one place.';
 
 
   featureList: LandingFeature[] = [
     {
-      icon: 'building-columns',
-      title: 'Keep trip details organized',
-      description: 'Keep travelers, packing items, tasks, and trip details together in one clear workspace, so nothing gets lost between notes, chats, and spreadsheets.'
+      eyebrow: 'Mobile-first base',
+      icon: 'mobile',
+      title: 'Run the whole trip from your phone',
+      description: 'Plantour is built mobile first, so you can create trips, switch contexts, check lists, update plans, and keep moving without waiting to get back to a laptop.',
+      highlights: ['100% mobile-first workflow', 'Trips stay easy to manage on the road', 'Fast updates for live travel days'],
+      tone: 'lagoon'
     },
     {
-      icon: 'share-alt',
-      title: 'Coordinate group travel easily',
-      description: 'Share packing lists and tasks with family or travel companions, so everyone knows what to bring, what to do, and what is already covered.'
+      eyebrow: 'Route and schedule',
+      icon: 'map',
+      title: 'Shape itineraries, activities, and maps together',
+      description: 'Build a real travel plan with itinerary stops, activities, timing, and maps, so the trip is not just a list of things to pack but a clear plan everyone can follow.',
+      highlights: ['Trip itinerary planning', 'Activities and timing in one flow', 'Maps for route context'],
+      tone: 'sky'
     },
     {
+      eyebrow: 'Packing control',
       icon: 'shopping-bag',
-      title: 'Pack with fewer forgotten items',
-      description: 'Build clear packing lists, track what is packed and what is still missing, and keep everything ready before the trip instead of checking scattered notes at the last minute.'
+      title: 'Track bags, personal items, and shared gear',
+      description: 'Organize bags, personal items, and shared items in one system, then use templates to fill common needs faster and keep every traveler accountable for what they carry.',
+      highlights: ['Bags with packed-state tracking', 'Personal and shared item lists', 'AI and predefined item templates'],
+      tone: 'forest'
     },
     {
-      icon: 'sun',
-      title: 'Artificial Intelligence',
-      description: 'Get intelligent AI suggestions based on your trip destination and weather. Pack faster and avoid forgetting essentials.'
+      eyebrow: 'Shared coordination',
+      icon: 'users',
+      title: 'Coordinate work, responsibilities, and trip spending',
+      description: 'Keep personal todos, shared todos, and shared expenses visible in the same workspace, so group travel stays transparent instead of disappearing into chat threads.',
+      highlights: ['Personal and shared todos', 'Shared expenses for group trips', 'Clear ownership across travelers'],
+      tone: 'citrus'
     },
     {
-      icon: 'clone',
-      title: 'Templates',
-      description: 'Reuse proven packing setups for future journeys. Start in seconds instead of planning from scratch.'
+      eyebrow: 'Capture the journey',
+      icon: 'file-edit',
+      title: 'Save travel notes, images, and printable reports',
+      description: 'Write rich-text travel notes, attach images, and finish with PDF reports, so your trip stays useful before departure, during the journey, and after it is done.',
+      highlights: ['Rich-text notes with images', 'Useful during and after the trip', 'PDF reports for sharing or print'],
+      tone: 'sunrise'
     },
     {
-      icon: 'bars',
-      title: 'Coming soon',
-      description: 'Plantour is growing beyond packing lists with upcoming tools for route planning, travel notes, activities, and expense tracking.'
+      eyebrow: 'AI assistant',
+      icon: 'sparkles',
+      title: 'Generate a full trip from your requirements',
+      description: 'Tell Plantour what kind of trip you want, who is going, what matters, and what constraints you have. AI can turn that into a full trip setup instead of just offering one small suggestion.',
+      highlights: ['AI full trip generation', 'Requirements-driven planning', 'Faster setup from blank page to ready plan'],
+      tone: 'midnight'
     }
   ];
 
   ngOnInit(): void {
     const canonicalUrl = this.buildAbsoluteUrl('/');
     const imageUrl = this.buildAbsoluteUrl('/android-chrome-512x512.png');
-    const title = 'Plantour Packing Lists & Travel Planning App';
+    const title = 'Plantour Travel Assistant for Trips, Packing, Itineraries and AI';
     const description = this.trimDescription(
-      'Plan trips, build packing lists, coordinate group travel, and get AI-powered packing suggestions with Plantour.',
+      'Plantour is a mobile-first travel assistant for trips, itineraries, activities, maps, packing, shared planning, notes, expenses, AI trip generation, and PDF reports.',
     );
 
     this.seoService.setSeo({
