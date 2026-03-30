@@ -1382,44 +1382,115 @@ public class DocumentsService : IDocumentsService
                     {
                         column.Spacing(18);
 
-                        foreach (var note in notes)
+                        var tripLevelNotes = OrderTripNotes(notes.Where(x => !x.TripActivityId.HasValue)).ToList();
+                        if (tripLevelNotes.Any())
                         {
-                            column.Item().Column(noteColumn =>
+                            column.Item().Text("Trip Notes").SemiBold().FontSize(16).FontColor(primaryColor);
+
+                            foreach (var note in tripLevelNotes)
                             {
-                                noteColumn.Spacing(6);
-                                noteColumn.Item().Text(note.Title).SemiBold().FontSize(16).FontColor(primaryColor);
+                                column.Item().Column(noteColumn =>
+                                {
+                                    noteColumn.Spacing(6);
+                                    noteColumn.Item().Text(note.Title).SemiBold().FontSize(16).FontColor(primaryColor);
 
-                                var metaParts = new List<string>();
-                                if (note.TripActivity != null)
-                                {
-                                    metaParts.Add($"Activity: {note.TripActivity.Name}");
-                                }
-
-                                if (note.CreatedAt.HasValue)
-                                {
-                                    metaParts.Add($"Created: {note.CreatedAt.Value:dd.MM.yyyy HH:mm}");
-                                }
-
-                                if (metaParts.Count > 0)
-                                {
-                                    noteColumn.Item().Text(string.Join(" · ", metaParts)).FontSize(9).FontColor(Colors.Grey.Darken1);
-                                }
-
-                                var blocks = noteBlocks[note.Id];
-                                if (blocks.Count == 0)
-                                {
-                                    noteColumn.Item().Text("No note content").Italic().FontColor(Colors.Grey.Medium);
-                                }
-                                else
-                                {
-                                    foreach (var block in blocks)
+                                    var metaParts = new List<string>();
+                                    if (note.NoteOrder.HasValue)
                                     {
-                                        RenderTripNoteBlock(noteColumn, block, imageAssets, 0);
+                                        metaParts.Add($"Order: {note.NoteOrder.Value}");
                                     }
-                                }
 
-                                noteColumn.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
-                            });
+                                    if (note.CreatedAt.HasValue)
+                                    {
+                                        metaParts.Add($"Created: {note.CreatedAt.Value:dd.MM.yyyy HH:mm}");
+                                    }
+
+                                    if (metaParts.Count > 0)
+                                    {
+                                        noteColumn.Item().Text(string.Join(" · ", metaParts)).FontSize(9).FontColor(Colors.Grey.Darken1);
+                                    }
+
+                                    var blocks = noteBlocks[note.Id];
+                                    if (blocks.Count == 0)
+                                    {
+                                        noteColumn.Item().Text("No note content").Italic().FontColor(Colors.Grey.Medium);
+                                    }
+                                    else
+                                    {
+                                        foreach (var block in blocks)
+                                        {
+                                            RenderTripNoteBlock(noteColumn, block, imageAssets, 0);
+                                        }
+                                    }
+
+                                    noteColumn.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                                });
+                            }
+                        }
+
+                        var activityGroups = notes
+                            .Where(x => x.TripActivityId.HasValue && x.TripActivity != null)
+                            .GroupBy(x => x.TripActivityId!.Value)
+                            .Select(group => new TripNoteActivityGroup(group.First().TripActivity!, OrderTripNotes(group).ToList()))
+                            .OrderBy(x => x.Activity.StartDate ?? DateTime.MaxValue)
+                            .ThenBy(x => x.Activity.Name)
+                            .ToList();
+
+                        if (activityGroups.Any())
+                        {
+                            column.Item().Text("Activity Notes").SemiBold().FontSize(16).FontColor(primaryColor);
+
+                            foreach (var group in activityGroups)
+                            {
+                                column.Item().Column(activityColumn =>
+                                {
+                                    activityColumn.Spacing(6);
+                                    activityColumn.Item().Text(group.Activity.Name).SemiBold().FontSize(14).FontColor(primaryColor);
+                                    activityColumn.Item().Text(FormatDateTimeRange(group.Activity.StartDate, group.Activity.EndDate))
+                                        .FontSize(9)
+                                        .FontColor(Colors.Grey.Darken1);
+
+                                    foreach (var note in group.Notes)
+                                    {
+                                        activityColumn.Item().Column(noteColumn =>
+                                        {
+                                            noteColumn.Spacing(6);
+                                            noteColumn.Item().Text(note.Title).SemiBold().FontSize(16).FontColor(primaryColor);
+
+                                            var metaParts = new List<string>();
+                                            if (note.NoteOrder.HasValue)
+                                            {
+                                                metaParts.Add($"Order: {note.NoteOrder.Value}");
+                                            }
+
+                                            if (note.CreatedAt.HasValue)
+                                            {
+                                                metaParts.Add($"Created: {note.CreatedAt.Value:dd.MM.yyyy HH:mm}");
+                                            }
+
+                                            if (metaParts.Count > 0)
+                                            {
+                                                noteColumn.Item().Text(string.Join(" · ", metaParts)).FontSize(9).FontColor(Colors.Grey.Darken1);
+                                            }
+
+                                            var blocks = noteBlocks[note.Id];
+                                            if (blocks.Count == 0)
+                                            {
+                                                noteColumn.Item().Text("No note content").Italic().FontColor(Colors.Grey.Medium);
+                                            }
+                                            else
+                                            {
+                                                foreach (var block in blocks)
+                                                {
+                                                    RenderTripNoteBlock(noteColumn, block, imageAssets, 0);
+                                                }
+                                            }
+
+                                            noteColumn.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                                        });
+                                    }
+                                });
+                            }
                         }
                     });
 

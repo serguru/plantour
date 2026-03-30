@@ -1,6 +1,7 @@
 import { Component, inject, Input, OnChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Checkbox, CheckboxChangeEvent } from 'primeng/checkbox';
 import { Select } from 'primeng/select';
 import { ComponentService } from '../../../services/component-service';
 import { TripNoteEditorService } from '../../../services/trip-note-editor-service';
@@ -10,7 +11,7 @@ import { renderTripNoteContentHtml } from '../trip-note-utils';
 @Component({
   selector: 'app-trip-note-item-component',
   standalone: true,
-  imports: [FormsModule, Select],
+  imports: [FormsModule, Select, Checkbox],
   templateUrl: './trip-note-item-component.html',
   styleUrl: './trip-note-item-component.scss',
 })
@@ -53,10 +54,9 @@ export class TripNoteItemComponent implements OnChanges {
     event.stopPropagation();
   }
 
-  onMarkedChange(event: Event): void {
-    event.stopPropagation();
-    const target = event.target as HTMLInputElement | null;
-    this.itemMetaData?.toggleMarked?.(this.entity.id, !!target?.checked);
+  onMarkedChange(event: CheckboxChangeEvent): void {
+    event.originalEvent?.stopPropagation();
+    this.itemMetaData?.toggleMarked?.(this.entity.id, !!event.checked);
   }
 
   onMarkedClick(event: Event): void {

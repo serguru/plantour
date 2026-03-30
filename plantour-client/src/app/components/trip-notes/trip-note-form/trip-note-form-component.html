@@ -47,6 +47,26 @@
               appendTo="body"
             ></p-select>
           </div>
+
+          <div class="form-field">
+            <label for="noteOrder">Note order</label>
+            <p-inputnumber
+              inputId="noteOrder"
+              formControlName="noteOrder"
+              mode="decimal"
+              [min]="0"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="0"
+              [useGrouping]="false"
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              placeholder="Enter sort order (optional)"
+            ></p-inputnumber>
+
+            @if (form.get('noteOrder')?.invalid && (form.get('noteOrder')?.touched || form.get('noteOrder')?.dirty)) {
+              <small class="error-message">Note order must be 0 or greater</small>
+            }
+          </div>
         </div>
         }
       </section>
