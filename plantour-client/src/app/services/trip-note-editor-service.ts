@@ -2,6 +2,7 @@ import { Inject, Injectable, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, Observable, shareReplay } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
+import { LoadingService } from './loading-service';
 
 export class DropboxAuthorizationCancelledError extends Error {
   constructor(message = 'Dropbox authorization was cancelled.') {
@@ -56,6 +57,7 @@ export class TripNoteEditorService {
   constructor(
     private readonly http: HttpClient,
     private readonly zone: NgZone,
+    private readonly loadingService: LoadingService,
     @Inject(ENVIRONMENT) private readonly environment: EnvironmentConfig
   ) {
     this.apiUrl = `${environment.api.baseUrl}/trip-note-editor`;
@@ -93,13 +95,13 @@ export class TripNoteEditorService {
       return this.connectDropboxPromise;
     }
 
-    this.connectDropboxPromise = this.connectDropboxInternal();
-
-    try {
-      return await this.connectDropboxPromise;
-    } finally {
+    this.loadingService.start();
+    this.connectDropboxPromise = this.connectDropboxInternal().finally(() => {
+      this.loadingService.stop();
       this.connectDropboxPromise = null;
-    }
+    });
+
+    return this.connectDropboxPromise;
   }
 
   private async connectDropboxInternal(): Promise<TripNoteEditorConfig> {
