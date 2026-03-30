@@ -115,7 +115,7 @@ public class UsersService(
 
         return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
     }
-
+// TODO: fix dashboard help
     public async Task SendParticipantInvitationAsync(Guid adminParticipantId)
     {
         _currentUser.RaiseIfNotAdmin();

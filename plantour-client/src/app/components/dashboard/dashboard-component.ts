@@ -379,13 +379,13 @@ export class DashboardComponent {
                 title: 'Sign Out',
                 description: 'Leave your Plantour account on this device.',
                 icon: 'pi pi-sign-out',
-                route: null,
+                route: '/sign-in',
                 action: () => this.signOut()
               } satisfies DashboardLink]
             : [{
                 id: 'sign-in',
-                title: 'Sign In',
-                description: 'Open the sign-in page to access your Plantour account.',
+                title: 'Sign In / Sign Up',
+                description: 'Open the sign-in / sign-up page to access your Plantour account.',
                 icon: 'pi pi-sign-in',
                 route: '/sign-in'
               } satisfies DashboardLink])
