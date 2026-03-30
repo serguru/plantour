@@ -103,6 +103,13 @@ public class AiService : IAiService
         });
     }
 
+    private async Task<int> GetPersistedAiPromptCountAsync(DateTime windowStartUtc)
+    {
+        var itemPromptCount = await _aiPromptRepository.CountCreatedSinceAsync(_currentUser.UserId, windowStartUtc);
+        var tripPlanCount = await _aiTripPlanRepository.CountCreatedSinceAsync(_currentUser.UserId, windowStartUtc);
+        return itemPromptCount + tripPlanCount;
+    }
+
     private async Task CheckAccessAsync()
     {
         var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 70);
@@ -137,6 +144,12 @@ public class AiService : IAiService
             check.Start = now;
             await _aiPromptChecksRepository.UpdateAsync(check);
             return;
+        }
+
+        var persistedCount = await GetPersistedAiPromptCountAsync(check.Start);
+        if (persistedCount > check.Count)
+        {
+            check.Count = persistedCount;
         }
 
         int limit = rule.Value!.Value;

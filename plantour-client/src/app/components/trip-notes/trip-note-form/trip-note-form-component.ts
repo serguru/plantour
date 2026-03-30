@@ -1,22 +1,31 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest, map } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
-import { FormHeader } from '../../form/form-header/form-header';
+import { FormHeader, HeaderButtonConfig, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
-import { capitalizeFirstLetter } from '../../../helpers/utils';
+import { capitalizeFirstLetter, getMessageFromError } from '../../../helpers/utils';
 import { MessagesService } from '../../../services/messages-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
-import { DropboxBrowseEntryDto } from '../../../services/dropbox-service';
-import { TripNoteDropboxBrowserStateService } from '../../../services/trip-note-dropbox-browser-state-service';
 import { TripActivityService } from '../../../services/trip-activity-service';
 import { CreateTripNoteRequest, TripNoteDto, TripNoteService, UpdateTripNoteRequest } from '../../../services/trip-note-service';
-import { TripNoteEditorComponent } from '../trip-note-editor/trip-note-editor-component';
+import { TripNoteEditorComponent, TripNoteEditorViewState } from '../trip-note-editor/trip-note-editor-component';
+import { TripNoteEditorService } from '../../../services/trip-note-editor-service';
 import { buildTripNoteActivityOptions, hasMeaningfulTripNoteContentJson, normalizeTripNoteContentJson } from '../trip-note-utils';
+
+interface TripNoteFormDropboxDraft {
+  tripId: string;
+  mode: 'add' | 'edit';
+  id: string | null;
+  title: string;
+  tripActivityId: string | null;
+  contentJson: string | null;
+  controlsPanelCollapsed: boolean;
+}
 
 @Component({
   selector: 'app-trip-note-form-component',
@@ -35,15 +44,19 @@ import { buildTripNoteActivityOptions, hasMeaningfulTripNoteContentJson, normali
   styleUrl: './trip-note-form-component.scss',
 })
 export class TripNoteFormComponent implements OnInit {
+  private readonly componentId = 'trip-note-form';
+  private readonly controlsPanelCollapsedStorageKey = 'controlsPanelCollapsed';
+  private readonly dropboxDraftStorageKey = 'dropbox-connect-draft';
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly document = inject(DOCUMENT);
 
   private readonly tripNoteService = inject(TripNoteService);
   private readonly tripActivityService = inject(TripActivityService);
+  private readonly tripNoteEditorService = inject(TripNoteEditorService);
   private readonly messagesService = inject(MessagesService);
   private readonly localStorageService = inject(LocalStorageService);
-  private readonly dropboxBrowserStateService = inject(TripNoteDropboxBrowserStateService);
 
   lookupActivities$;
 
@@ -52,8 +65,12 @@ export class TripNoteFormComponent implements OnInit {
   tripId: string | null = null;
   form!: FormGroup;
   contentJson: string | null = null;
-  pendingDropboxSelection: DropboxBrowseEntryDto | null = null;
-  private dropboxContextId: string | null = null;
+  controlsPanelCollapsed = false;
+  headerButtons: HeaderButtonConfig[] = [];
+  menuItems: MenuConfig[] = [];
+  dropboxStatusLabel = 'Disconnected';
+  dropboxStatusSummary = 'Loading Dropbox configuration...';
+  dropboxDisplayName: string | null = null;
 
   get isAddMode(): boolean {
     return this.mode === 'add';
@@ -64,6 +81,12 @@ export class TripNoteFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.controlsPanelCollapsed = this.localStorageService.getComponentBooleanKey(
+      this.componentId,
+      this.controlsPanelCollapsedStorageKey,
+      false
+    );
+
     this.tripId = this.route.snapshot.params['tripId'];
     if (!this.tripId) {
       throw new Error('Trip Id is required to create or edit a trip note');
@@ -83,9 +106,10 @@ export class TripNoteFormComponent implements OnInit {
     }
 
     this.initForm();
-
     const restoredDraft = this.restoreDropboxDraft();
-    if (restoredDraft || this.isAddMode) {
+    this.handleDropboxAuthorizationReturn();
+
+    if (this.isAddMode || restoredDraft) {
       return;
     }
 
@@ -97,31 +121,6 @@ export class TripNoteFormComponent implements OnInit {
       title: new FormControl('', Validators.required),
       tripActivityId: new FormControl<string | null>(null),
     });
-  }
-
-  private restoreDropboxDraft(): boolean {
-    const contextId = this.route.snapshot.queryParamMap.get('dropboxContextId');
-    const draft = this.dropboxBrowserStateService.takeDraft(contextId);
-    if (!draft) {
-      return false;
-    }
-
-    this.form.patchValue({
-      title: draft.title,
-      tripActivityId: draft.tripActivityId,
-    });
-    this.contentJson = draft.contentJson;
-    this.pendingDropboxSelection = draft.pendingSelection;
-    this.dropboxContextId = null;
-
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { dropboxContextId: null },
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
-
-    return true;
   }
 
   private loadTripNote(): void {
@@ -206,41 +205,107 @@ export class TripNoteFormComponent implements OnInit {
     this.router.navigate([this.tripNotesUrl]);
   }
 
-  onBrowseDropbox(): void {
-    const contextId = this.createDropboxContextId();
-    const formValue = this.form.getRawValue();
-    this.dropboxBrowserStateService.saveDraft(contextId, {
-      returnUrl: this.formUrl,
-      title: formValue.title ?? '',
-      tripActivityId: formValue.tripActivityId ?? null,
-      contentJson: this.contentJson,
-      pendingSelection: null,
-    });
-
-    this.dropboxContextId = contextId;
-    void this.router.navigate(['/dropbox-browser'], {
-      queryParams: {
-        returnUrl: this.formUrl,
-        contextId,
-      },
-    });
+  toggleControlsPanel(): void {
+    this.controlsPanelCollapsed = !this.controlsPanelCollapsed;
+    this.localStorageService.setComponentKey(
+      this.componentId,
+      this.controlsPanelCollapsedStorageKey,
+      this.controlsPanelCollapsed
+    );
   }
 
-  onDropboxSelectionHandled(): void {
-    this.pendingDropboxSelection = null;
+  get controlsPanelToggleLabel(): string {
+    return this.controlsPanelCollapsed ? 'Show note details' : 'Hide note details';
   }
 
-  private createDropboxContextId(): string {
-    return `${this.mode}-${this.tripId}-${this.id ?? 'new'}-${Date.now()}`;
+  onEditorViewStateChange(viewState: TripNoteEditorViewState): void {
+    this.headerButtons = viewState.headerButtons;
+    this.menuItems = viewState.menuItems;
+    this.dropboxStatusLabel = viewState.dropboxStatusLabel;
+    this.dropboxStatusSummary = viewState.dropboxStatusSummary;
+    this.dropboxDisplayName = viewState.dropboxDisplayName;
   }
 
-  get formUrl(): string {
-    return this.isAddMode
-      ? `/trips/${this.tripId}/trip-notes/add`
-      : `/trips/${this.tripId}/trip-notes/edit/${this.id}`;
+  onDropboxConnectRequested(): void {
+    void this.prepareDropboxConnection();
   }
 
   get tripNotesUrl(): string {
     return `/trips/${this.tripId}/trip-notes`;
+  }
+
+  async prepareDropboxConnection(): Promise<void> {
+    const location = this.document.defaultView?.location;
+    if (!location) {
+      this.messagesService.showError('Dropbox authorization requires a browser.');
+      return;
+    }
+
+    try {
+      const connectUrl = await this.tripNoteEditorService.prepareDropboxConnect(
+        location.origin,
+        `${location.pathname}${location.search}`
+      );
+      this.persistDropboxDraft();
+      location.assign(connectUrl.authorizationUrl);
+    } catch (error) {
+      this.messagesService.showError(getMessageFromError(error, 'Dropbox connection could not be started'));
+    }
+  }
+
+  private persistDropboxDraft(): void {
+    const formValue = this.form.getRawValue();
+    const draft: TripNoteFormDropboxDraft = {
+      tripId: this.tripId!,
+      mode: this.mode,
+      id: this.id,
+      title: formValue.title ?? '',
+      tripActivityId: formValue.tripActivityId ?? null,
+      contentJson: this.contentJson,
+      controlsPanelCollapsed: this.controlsPanelCollapsed,
+    };
+
+    this.localStorageService.setComponentKey(this.componentId, this.dropboxDraftStorageKey, draft);
+  }
+
+  private restoreDropboxDraft(): boolean {
+    const draft = this.localStorageService.getComponentKeyObject(this.componentId, this.dropboxDraftStorageKey) as TripNoteFormDropboxDraft | null;
+    if (!draft) {
+      return false;
+    }
+
+    const matchesCurrentForm = draft.tripId === this.tripId && draft.mode === this.mode && (draft.id ?? null) === (this.id ?? null);
+    if (!matchesCurrentForm) {
+      return false;
+    }
+
+    this.localStorageService.setComponentKey(this.componentId, this.dropboxDraftStorageKey, null);
+    this.controlsPanelCollapsed = draft.controlsPanelCollapsed;
+    this.form.patchValue({
+      title: draft.title,
+      tripActivityId: draft.tripActivityId,
+    });
+    this.contentJson = draft.contentJson;
+    return true;
+  }
+
+  private handleDropboxAuthorizationReturn(): void {
+    const status = this.route.snapshot.queryParamMap.get('dropboxConnect');
+    if (!status) {
+      return;
+    }
+
+    const message = this.route.snapshot.queryParamMap.get('dropboxMessage')?.trim();
+    if (status === 'success') {
+      this.messagesService.showInfo(message || 'Dropbox connected');
+    } else {
+      this.messagesService.showError(message || 'Dropbox authorization failed');
+    }
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true,
+    });
   }
 }

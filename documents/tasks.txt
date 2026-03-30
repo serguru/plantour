@@ -719,9 +719,35 @@ Now users can use public image links in notes - it is already implemented. Do no
 
 
 
-Now Plantour supports: 100% mobilew first, trips, itineraries, activities, map, bags, personal and shared items, personal and shared todos, personal and shared expenses, notes with rich text and images, AI full trip generation according to user requirements, AI and predefined item templates, PDF reports. So now Plantour is full size traveler assistant.
+Now Plantour supports: 100% mobilew first, trips, itineraries, activities, maps, bags, personal and shared items, personal and shared todos, personal and shared expenses, notes with rich text and images, AI full trip generation according to user requirements, AI and predefined item templates, PDF reports. So now Plantour is full size traveler assistant.
 
 Estimate how much money will most of users be ready to pay, for small groups up to 5 travelers (Family plan) and 50 travelers (Expedition plan)
 
+Google Auth CliendIds
 
-Dropbox shared link download returned non-image content. ContentType="application/octet-stream", UserId=0bc33ee6-b13d-423d-a9c9-1551c976c130, UrlPath="/scl/fi/1hdexk83gsm3ne6agqexg/istockphoto-1550071750-612x612.jpg"
+old
+256558134062-f78noulvdiq52n7bfmmh0cm23j91942s.apps.googleusercontent.com
+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
+
+new 
+
+353939012826-c2kjp1l86irs1tfbblp1bbdn109prdqe.apps.googleusercontent.com
+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
+
+
+
+Explore TinyMCE 7 and Cloudinary official documentation. Implement the following:
+
+- rich text editor for trip notes
+- ability to embed image links into the note
+- crop, resize, align images in the note
+- non destructive editing, images are not stored in the db, stored only their links
+- user must autorize Plantour to access their private images stored in Cloudinary
+- the stored in trip_notes as json notes does NOT contain actual images, only links to them
+- the app shows a list of notes (TripNotesComponent) in collapsible panels, a limited in size images are shown only if expanded.
+
+Do no code change for now just estimate if you can implement this
+
+Currently Plantour while limiting AI requests takes into account only requests for items recommendations. Add the necessary code to take into account AI requests to plan the entire trip as well
+
+

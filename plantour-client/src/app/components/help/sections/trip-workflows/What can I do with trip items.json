@@ -27,7 +27,6 @@
           "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Items</strong>.",
           "Open the actions bar in the page header and choose the target option.",
           "Choose the trip you want to send items to.",
-          "If the target offers more than one mode, choose <strong>Own</strong>. This answer is about trip items, not shared items.",
           "Narrow the list to the items you want by filtering or sorting if needed.",
           "For the exact workflow of target, filter, and sort tools, see <a href='/help/features/filter-sort-target-entities'>How do I filter, sort and target entities?</a>.",
           "To copy one item, click the add button on that row. To copy many visible items at once, use the page-level plus button.",
@@ -41,7 +40,6 @@
         "items": [
           "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Template items</strong>.",
           "Open the target option in the actions bar and choose the trip you want to work in.",
-          "If the target offers more than one mode, choose <strong>Own</strong>. Do not choose Shared here.",
           "Filter the template list by Template, Activity, Temperature Range, Age, Category, or Name until only the items you want are shown.",
           "If you need a refresher on how bulk targeting works, read <a href='/help/features/filter-sort-target-entities'>How do I filter, sort and target entities?</a>.",
           "To copy one visible template item, click the add button on that row. To copy many visible template items at once, use the page-level plus button.",
@@ -57,7 +55,6 @@
           "Type a prompt or choose one of the recent prompts from the dropdown list.",
           "Describe the trip clearly, such as destination, weather, activities, trip length, or traveler age, then click <strong>Ask AI</strong>.",
           "When the recommendations appear, choose the trip you want as the target.",
-          "If the target offers more than one mode, choose <strong>Own</strong>. This keeps the result in personal trip items instead of shared items.",
           "If you want to narrow or batch the results first, use filtering and sorting. For the exact target and bulk-copy workflow, see <a href='/help/features/filter-sort-target-entities'>How do I filter, sort and target entities?</a>.",
           "To copy one recommendation, click the add button on that row. To copy many visible recommendations at once, use the page-level plus button.",
           "Plantour copies the selected AI recommendations into that trip`s <strong>Trip Items</strong> list."

@@ -1,44 +1,62 @@
 <div class="page-container">
-  <app-form-header [title]="title" icon="book"></app-form-header>
+  <app-form-header [title]="title" icon="book" [headerButtons]="headerButtons" [menuItems]="menuItems"></app-form-header>
 
   <div class="controls-wrapper">
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <div class="form-field">
-        <label for="title">Title<span class="required">*</span></label>
-        <input appAutoFocus pInputText id="title" type="text" formControlName="title" placeholder="Enter note title" />
+      <section class="trip-note-form__panel">
+        <button
+          type="button"
+          class="trip-note-form__panel-toggle"
+          [attr.aria-expanded]="!controlsPanelCollapsed"
+          [attr.aria-label]="controlsPanelToggleLabel"
+          (click)="toggleControlsPanel()"
+        >
+          <span>Note details</span>
+          <span
+            class="trip-note-form__panel-chevron pi"
+            [class.pi-chevron-down]="controlsPanelCollapsed"
+            [class.pi-chevron-up]="!controlsPanelCollapsed"
+            aria-hidden="true"
+          ></span>
+        </button>
 
-        @if (form.get('title')?.invalid && (form.get('title')?.touched || form.get('title')?.dirty)) {
-          @if (form.get('title')?.errors?.['required']) {
-          <small class="error-message">Title is required</small>
-          }
+        @if (!controlsPanelCollapsed) {
+        <div class="trip-note-form__panel-body">
+          <div class="form-field">
+            <label for="title">Title<span class="required">*</span></label>
+            <input appAutoFocus pInputText id="title" type="text" formControlName="title" placeholder="Enter note title" />
+
+            @if (form.get('title')?.invalid && (form.get('title')?.touched || form.get('title')?.dirty)) {
+              @if (form.get('title')?.errors?.['required']) {
+              <small class="error-message">Title is required</small>
+              }
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="tripActivityId">Activity</label>
+            <p-select
+              id="tripActivityId"
+              formControlName="tripActivityId"
+              [options]="lookupActivities$ | async"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select activity (optional)"
+              [showClear]="true"
+              styleClass="w-full"
+              appendTo="body"
+            ></p-select>
+          </div>
+        </div>
         }
-      </div>
+      </section>
 
-      <div class="form-field">
-        <label for="tripActivityId">Activity</label>
-        <p-select
-          id="tripActivityId"
-          formControlName="tripActivityId"
-          [options]="lookupActivities$ | async"
-          optionLabel="name"
-          optionValue="id"
-          placeholder="Select activity (optional)"
-          [showClear]="true"
-          styleClass="w-full"
-          appendTo="body"
-        ></p-select>
-      </div>
-
-      <div class="form-field">
-        <label>Content<span class="required">*</span></label>
-        <app-trip-note-editor
-          [contentJson]="contentJson"
-          [dropboxSelection]="pendingDropboxSelection"
-          (browseDropbox)="onBrowseDropbox()"
-          (dropboxSelectionHandled)="onDropboxSelectionHandled()"
-          (contentJsonChange)="contentJson = $event"
-        ></app-trip-note-editor>
-      </div>
+      <app-trip-note-editor
+        [contentJson]="contentJson"
+        (contentJsonChange)="contentJson = $event"
+        (connectDropboxRequested)="onDropboxConnectRequested()"
+        (viewStateChange)="onEditorViewStateChange($event)"
+      ></app-trip-note-editor>
 
       <app-form-actions
         [onCancel]="onCancel.bind(this)"

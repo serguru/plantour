@@ -1,0 +1,23 @@
+{
+  "slug": "ai-full-trip-generation",
+  "question": "How to ask AI for full trip generation?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ol",
+        "beforeHtml": "To ask Plantour AI to generate a full trip, <a href='/sign-in'>sign in</a>, open the <a href='/dashboard'>Dashboard</a>, and in the <strong>Artifisial Intelligence</strong> section click <strong>AI trip plan</strong>. This tool is meant for building a full trip draft from your requirements, not only a short list of item suggestions.",
+        "items": [
+          "Choose a trip currency from the currency dropdown.",
+          "In the trip request field, describe the destination, timing, travelers, activities, and important constraints. You can also start from the example prompt or reuse one of the previous questions.",
+          "Click <strong>Show preview</strong>.",
+          "Review the generated preview. Plantour can suggest the trip title, summary, recommended dates, assumptions, itinerary parts, public activities, personal activities, personal items, shared items, personal todos, shared todos, personal expenses, shared expenses, and general recommendations.",
+          "If the preview looks right and you are an admin, click <strong>Create trip</strong>. Plantour creates a new trip in <strong>Planning</strong> mode from that preview.",
+          "If Plantour says the suggested dates overlap with one of your trips, enter new dates in the dialog.",
+          "After the trip is created, use the page menu to open the new trip`s itinerary or trip items and continue working there."
+        ],
+        "afterHtml": "Plantour remembers previous trip-planning questions and can return a cached answer when the same request is asked again. Participants can use the preview, but only admins can create the new trip from the generated plan."
+      }
+    ]
+  }
+}

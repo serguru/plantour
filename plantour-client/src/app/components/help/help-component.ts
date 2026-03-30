@@ -71,10 +71,11 @@ export class HelpComponent {
     effect(() => {
       const page = this.currentPage();
       this.seoService.setSeo({
-        title: page.id === HELP_HOME_PAGE_ID ? 'Plantour Help' : `${page.title} | Plantour Help`,
+        title: page.id === HELP_HOME_PAGE_ID ? 'Plantour Help Center' : `${page.title} | Plantour Help`,
         description: page.description,
         canonicalUrl: this.buildAbsoluteUrl(this.pageUrl(page.id)),
         ogType: 'website',
+        robots: page.allowIndexing ? 'index,follow' : 'noindex,nofollow,noarchive,nosnippet',
         jsonLd: this.buildJsonLd(page)
       });
     });
@@ -159,6 +160,17 @@ export class HelpComponent {
       '@context': 'https://schema.org',
       '@graph': [
         {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Help',
+              item: canonicalUrl
+            }
+          ]
+        },
+        {
           '@type': 'CollectionPage',
           '@id': canonicalUrl,
           url: canonicalUrl,
@@ -179,6 +191,19 @@ export class HelpComponent {
                 name: question.question,
                 url: this.buildAbsoluteUrl(this.pageUrlById(question.pageId))
               }))
+          }
+        },
+        {
+          '@type': 'WebPage',
+          '@id': `${canonicalUrl}#webpage`,
+          url: canonicalUrl,
+          name: page.title,
+          description: page.description,
+          isPartOf: {
+            '@type': 'WebSite',
+            '@id': homeUrl,
+            url: homeUrl,
+            name: 'Plantour'
           }
         }
       ]

@@ -1,5 +1,6 @@
-import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, inject, OnInit, REQUEST } from '@angular/core';
+import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { Component, inject, OnInit, PLATFORM_ID, REQUEST, signal } from '@angular/core';
+import { AppService } from '../../services/app-service';
 import { PlansPanelComponent } from '../plans-panel/plans-panel.component';
 import { SeoService } from '../../services/seo-service';
 import { UsersService } from '../../services/users-service';
@@ -23,10 +24,13 @@ interface LandingFeature {
 export class LandingNewUserComponent implements OnInit {
   plansPanelComponent = PlansPanelComponent;
 
+  private readonly appService = inject(AppService);
   usersService = inject(UsersService);
   private readonly seoService = inject(SeoService);
   private readonly document = inject(DOCUMENT);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly request = inject(REQUEST, { optional: true });
+  showLandingContent = signal(false);
 
   subSlogan = 'Plantour is your mobile-first travel assistant for planning trips, coordinating people, packing smart, and keeping the whole journey in one place.';
 
@@ -44,8 +48,8 @@ export class LandingNewUserComponent implements OnInit {
       eyebrow: 'Route and schedule',
       icon: 'map',
       title: 'Shape itineraries, activities, and maps together',
-      description: 'Build a real travel plan with itinerary stops, activities, timing, and maps, so the trip is not just a list of things to pack but a clear plan everyone can follow.',
-      highlights: ['Trip itinerary planning', 'Activities and timing in one flow', 'Maps for route context'],
+      description: 'Build a real travel plan with itinerary stops, activities, timing, and maps, so the trip is not just a list of things to pack but a clear plan everyone can follow and navigate.',
+      highlights: ['Trip itinerary planning', 'Activities and timing in one flow', 'Send addressed activities to Google Maps for directions'],
       tone: 'sky'
     },
     {
@@ -83,6 +87,16 @@ export class LandingNewUserComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.appService.setRootLandingReady(false);
+
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    if (this.usersService.isAuthenticatedSignal()) {
+      return;
+    }
+
     const canonicalUrl = this.buildAbsoluteUrl('/');
     const imageUrl = this.buildAbsoluteUrl('/android-chrome-512x512.png');
     const title = 'Plantour Travel Assistant for Trips, Packing, Itineraries and AI';
@@ -128,6 +142,9 @@ export class LandingNewUserComponent implements OnInit {
         ],
       },
     });
+
+    this.showLandingContent.set(true);
+    this.appService.setRootLandingReady(true);
   }
 
   private trimDescription(value: string, maxLen = 160): string {

@@ -1,7 +1,7 @@
 import { Component, ElementRef, Inject, inject, OnInit, ViewChild } from '@angular/core';
 import { DOCUMENT, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { catchError, finalize } from 'rxjs/operators';
@@ -27,6 +27,7 @@ import { SocialAuthService as PlantourSocialAuthService } from '../../services/s
     InputTextModule,
     RadioButton,
     FormsModule,
+    RouterLink,
     AppButton,
     PasswordModule
 ],
@@ -144,6 +145,12 @@ export class SignInComponent implements OnInit {
 
   get currentForm(): FormGroup {
     return this.isAdmin ? this.adminForm : this.participantForm;
+  }
+
+  get helpUrl(): string {
+    return this.isAdmin
+      ? '/help/get-started/first-steps'
+      : '/help/workflows/invite-travelers';
   }
 
   async onSubmit(): Promise<void> {

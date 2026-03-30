@@ -1,0 +1,54 @@
+{
+  "slug": "see-trip-on-map",
+  "question": "How can I see the trip on the map?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Open the map for the current trip",
+        "listTag": "ol",
+        "items": [
+          "Click <strong>Dashboard</strong> in the toolbar.",
+          "Open the <strong>Trip</strong> section.",
+          "Click <strong>Map</strong>.",
+          "Plantour opens the map page for the currently selected trip."
+        ],
+        "afterHtml": "If the wrong trip opens, select the correct trip first and then return to <strong>Map</strong>."
+      },
+      {
+        "title": "See itinerary parts and activities together",
+        "listTag": "ul",
+        "items": [
+          "The map can show itinerary parts and trip activities together, so you can understand where each part of the trip happens.",
+          "When a part or activity has valid coordinates or a geocodable address, Plantour places it on the map and can include it in a visible path.",
+          "Click a marker when you want to see its title, type, dates, address, notes, and coordinates.",
+          "If some parts or activities cannot be placed on the map, Plantour still shows the valid ones and lists the missing-location items below the map."
+        ]
+      },
+      {
+        "title": "Hide or show itinerary parts and activity paths",
+        "listTag": "ol",
+        "items": [
+          "Use <strong>Show all paths</strong> when you want to show every available itinerary and activity path again.",
+          "Use <strong>Hide all paths</strong> when you want to clear the map and then turn paths back on selectively.",
+          "Open the <strong>Paths</strong> panel if it is collapsed.",
+          "Use the checkbox next to <strong>Itinerary</strong> when you want to hide or show the itinerary path.",
+          "Use the checkbox next to any activity path when you want to hide or show that activity only.",
+          "Plantour updates the map immediately, so the visible paths always match the selections in the panel."
+        ]
+      },
+      {
+        "title": "Send the visible trip route to Google Maps",
+        "listTag": "ol",
+        "beforeHtml": "The map page builds directions from the paths that are currently visible. This means you can hide the parts or activities you do not want before sending the route.",
+        "items": [
+          "Show only the itinerary parts and activity paths you want to include.",
+          "Click <strong>Get directions</strong>.",
+          "Plantour opens Google Maps in a new tab.",
+          "Google Maps receives the currently visible route points as the trip directions."
+        ],
+        "afterHtml": "If <strong>Get directions</strong> is disabled, Plantour does not currently have enough visible route points to build directions."
+      }
+    ]
+  }
+}

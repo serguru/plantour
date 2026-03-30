@@ -1,5 +1,11 @@
 import { TripActivityDto } from '../../services/trip-activity-service';
 
+interface TripNoteHtmlEnvelope {
+  version: number;
+  format: 'tinymce-html';
+  html: string;
+}
+
 export interface TripNoteActivityOption {
   id: string;
   name: string;
@@ -30,6 +36,11 @@ export function normalizeTripNoteContentJson(contentJson: string | null | undefi
   }
 
   const parsed = parseTripNoteContentJson(contentJson);
+  if (isTripNoteHtmlEnvelope(parsed)) {
+    const html = normalizeTripNoteHtml(parsed.html);
+    return hasMeaningfulTripNoteHtml(html) ? JSON.stringify(buildTripNoteHtmlEnvelope(html)) : null;
+  }
+
   if (!parsed || !hasMeaningfulTripNoteNode(parsed)) {
     return null;
   }
@@ -39,7 +50,29 @@ export function normalizeTripNoteContentJson(contentJson: string | null | undefi
 
 export function hasMeaningfulTripNoteContentJson(contentJson: string | null | undefined): boolean {
   const parsed = parseTripNoteContentJson(contentJson);
+  if (isTripNoteHtmlEnvelope(parsed)) {
+    return hasMeaningfulTripNoteHtml(parsed.html);
+  }
+
   return !!parsed && hasMeaningfulTripNoteNode(parsed);
+}
+
+export function createTripNoteEditorContentJson(html: string | null | undefined): string | null {
+  const normalizedHtml = normalizeTripNoteHtml(html ?? '');
+  if (!hasMeaningfulTripNoteHtml(normalizedHtml)) {
+    return null;
+  }
+
+  return JSON.stringify(buildTripNoteHtmlEnvelope(normalizedHtml));
+}
+
+export function getTripNoteEditorHtml(contentJson: string | null | undefined): string {
+  const parsed = parseTripNoteContentJson(contentJson);
+  if (isTripNoteHtmlEnvelope(parsed)) {
+    return normalizeTripNoteHtml(parsed.html);
+  }
+
+  return renderTripNoteContentHtml(contentJson);
 }
 
 export function renderTripNoteContentHtml(
@@ -51,18 +84,11 @@ export function renderTripNoteContentHtml(
     return '';
   }
 
-  return renderTripNoteNode(parsed, resolveImageUrl);
-}
-
-export function extractDropboxImageUrls(contentJson: string | null | undefined): string[] {
-  const parsed = parseTripNoteContentJson(contentJson);
-  if (!parsed) {
-    return [];
+  if (isTripNoteHtmlEnvelope(parsed)) {
+    return enhanceTripNoteHtml(parsed.html);
   }
 
-  const urls = new Set<string>();
-  collectDropboxImageUrls(parsed, urls);
-  return [...urls];
+  return renderTripNoteNode(parsed, resolveImageUrl);
 }
 
 function parseTripNoteContentJson(contentJson: string | null | undefined): any | null {
@@ -231,7 +257,7 @@ function renderImageHtml(src: unknown, alt: unknown, resolveImageUrl?: TripNoteI
   }
 
   const resolvedSrc = resolveImageUrl?.(src) ?? src;
-  if (!resolvedSrc.trim()) {
+  if (!isPublicImageSource(resolvedSrc)) {
     return '';
   }
 
@@ -240,58 +266,14 @@ function renderImageHtml(src: unknown, alt: unknown, resolveImageUrl?: TripNoteI
   )}" referrerpolicy="no-referrer" loading="lazy" /></figure>`;
 }
 
-function collectDropboxImageUrls(node: any, urls: Set<string>): void {
-  if (!node || typeof node !== 'object') {
-    return;
-  }
-
-  if (node.type === 'image' && typeof node.attrs?.src === 'string' && isDropboxImageSource(node.attrs.src)) {
-    urls.add(node.attrs.src);
-  }
-
-  if (node.type === 'text' && Array.isArray(node.marks)) {
-    for (const mark of node.marks) {
-      const href = typeof mark?.attrs?.href === 'string' ? mark.attrs.href : '';
-      if (isDropboxImageSource(href)) {
-        urls.add(href);
-      }
-    }
-  }
-
-  if (!Array.isArray(node.content)) {
-    return;
-  }
-
-  for (const child of node.content) {
-    collectDropboxImageUrls(child, urls);
-  }
-}
-
 function isRenderableImageUrl(value: string): boolean {
-  return isImageUrl(value) || isDropboxImageSource(value);
+  return isImageUrl(value);
 }
 
-export function isDropboxImageSource(value: string): boolean {
-  return isDropboxSharedLink(value) || isDropboxPrivateImageSource(value);
-}
-
-export function isDropboxPrivateImageSource(value: string): boolean {
+function isPublicImageSource(value: string): boolean {
   try {
     const url = new URL(value);
-    return url.protocol === 'plantour-dropbox:'
-      && url.hostname === 'file'
-      && !!url.searchParams.get('id');
-  } catch {
-    return false;
-  }
-}
-
-function isDropboxSharedLink(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return url.protocol === 'https:'
-      && (url.hostname === 'www.dropbox.com' || url.hostname === 'dropbox.com')
-      && (url.pathname.includes('/s/') || url.pathname.includes('/scl/'));
+    return url.protocol === 'http:' || url.protocol === 'https:';
   } catch {
     return false;
   }
@@ -328,4 +310,49 @@ function escapeAttribute(value: string): string {
 
 function isImageUrl(value: string): boolean {
   return /\.(png|jpe?g|gif|webp|bmp|svg)(?:[?#].*)?$/i.test(value);
+}
+
+function isTripNoteHtmlEnvelope(value: any): value is TripNoteHtmlEnvelope {
+  return !!value && typeof value === 'object' && value.format === 'tinymce-html' && typeof value.html === 'string';
+}
+
+function buildTripNoteHtmlEnvelope(html: string): TripNoteHtmlEnvelope {
+  return {
+    version: 2,
+    format: 'tinymce-html',
+    html,
+  };
+}
+
+function normalizeTripNoteHtml(value: string): string {
+  return value.replace(/\r\n/g, '\n').trim();
+}
+
+function hasMeaningfulTripNoteHtml(value: string): boolean {
+  if (!value.trim()) {
+    return false;
+  }
+
+  if (/<img\b/i.test(value)) {
+    return true;
+  }
+
+  const textOnly = value
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return textOnly.length > 0;
+}
+
+function enhanceTripNoteHtml(value: string): string {
+  const normalized = normalizeTripNoteHtml(value);
+  if (!normalized) {
+    return '';
+  }
+
+  return normalized.replace(/<img\b(?![^>]*\bloading=)([^>]*)>/gi, '<img loading="lazy"$1>');
 }

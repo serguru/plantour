@@ -23,4 +23,11 @@ public class AiTripPlanRepository(PlantourContext context) : GenericRepository<A
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
     }
+
+    public async Task<int> CountCreatedSinceAsync(Guid userId, DateTime sinceUtc)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .CountAsync(x => x.UserId == userId && x.CreatedAt >= sinceUtc);
+    }
 }
