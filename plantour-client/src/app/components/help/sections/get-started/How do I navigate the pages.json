@@ -1,0 +1,27 @@
+{
+  "slug": "navigate-pages",
+  "question": "How do I navigate the pages?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Use the toolbar as the main navigation",
+        "listTag": "ul",
+        "items": [
+          "The toolbar stays at the top of the page and gives you two main navigation controls: the <strong>Dashboard</strong> button and the menu button with three horizontal lines.",
+          "If you are already signed in, click <strong>Dashboard</strong> to open the main Plantour dashboard with sections such as <strong>Dictionary</strong>, <strong>Trip</strong>, <strong>Trip personal</strong>, <strong>Trip Shared</strong>, and <strong>General</strong>.",
+          "Open the dashboard section you need, then click the page link inside it, for example <strong>Trips</strong>, <strong>Trip info</strong>, <strong>Items</strong>, <strong>Bags</strong>, or <strong>Profile</strong>."
+        ]
+      },
+      {
+        "title": "If you are not authenticated",
+        "listTag": "ul",
+        "items": [
+          "Clicking <strong>Dashboard</strong> sends you to the main public page, because the full dashboard is available only after sign-in.",
+          "Use the toolbar menu button with the three horizontal lines (the sandwich menu) to open public pages such as <strong>Help</strong>, <strong>Search</strong>, <strong>Contact Us</strong>, <strong>Public Templates</strong>, <strong>Terms of Usage</strong>, and <strong>Privacy Policy</strong>.",
+          "From that same sandwich menu, click <strong>Sign In / Sign Up</strong> when you want to open your account or continue into the full Plantour dashboard."
+        ]
+      }
+    ]
+  }
+}

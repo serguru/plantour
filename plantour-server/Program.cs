@@ -181,14 +181,6 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
         };
     });
 
-// TODO: remove this once ready
-// var appsettingsFileName = $"appsettings.{env.EnvironmentName}.json";
-// var appsettingsFile = Path.Combine(AppContext.BaseDirectory, appsettingsFileName);
-// if (!File.Exists(appsettingsFile))
-//     appsettingsFile = Path.Combine("/etc/secrets", appsettingsFileName);
-// var appsettingsContent = File.Exists(appsettingsFile) ? File.ReadAllText(appsettingsFile) : "(appsettings file not found)";
-// Console.WriteLine(appsettingsContent);
-
     // Configure JWT settings
     IConfigurationSection? jwtSettings = builder.Configuration.GetSection("JwtSettings");
     builder.Services.Configure<JwtSettings>(jwtSettings);
