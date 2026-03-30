@@ -6,7 +6,7 @@ public interface ITripNoteEditorService
 {
     Task<TripNoteEditorConfigDto> GetConfigAsync();
     Task<TripNoteEditorDropboxConnectUrlDto> CreateDropboxConnectUrlAsync(TripNoteEditorDropboxConnectUrlRequest request);
-    Task<string> CompleteDropboxAuthorizationAsync(string? code, string? state, string? error, string? errorDescription);
+    Task<TripNoteEditorDropboxCallbackResultDto> CompleteDropboxAuthorizationAsync(string? code, string? state, string? error, string? errorDescription);
     Task DisconnectDropboxAsync();
     Task<TripNoteEditorDropboxBrowserDto> BrowseDropboxAsync(TripNoteEditorDropboxBrowseRequest request);
     Task<TripNoteEditorResolvedDropboxImagesDto> ResolveDropboxImagesAsync(TripNoteEditorResolveDropboxImagesRequest request);

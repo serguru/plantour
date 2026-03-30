@@ -8,7 +8,6 @@ import { HeaderButtonConfig, MenuConfig } from '../../form/form-header/form-head
 import { getMessageFromError } from '../../../helpers/utils';
 import { MessagesService } from '../../../services/messages-service';
 import {
-  DropboxAuthorizationCancelledError,
   TripNoteEditorConfig,
   TripNoteEditorDropboxBrowserEntry,
   TripNoteEditorService,
@@ -40,6 +39,7 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
   @Input() contentJson: string | null = null;
   @Input() readOnly = false;
   @Output() contentJsonChange = new EventEmitter<string | null>();
+  @Output() connectDropboxRequested = new EventEmitter<void>();
   @Output() viewStateChange = new EventEmitter<TripNoteEditorViewState>();
 
   readonly isBrowser = isPlatformBrowser(this.platformId);
@@ -55,7 +55,6 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
   dropboxCurrentPath = '';
   dropboxParentPath: string | null = null;
   dropboxEntries: TripNoteEditorDropboxBrowserEntry[] = [];
-  dropboxConnectInFlight = false;
   init: Record<string, unknown> = {};
 
   private editorInstance: any | null = null;
@@ -102,30 +101,6 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
     this.contentJsonChange.emit(contentJson);
   }
 
-  async connectDropbox(): Promise<void> {
-    if (this.dropboxConnectInFlight) {
-      return;
-    }
-
-    this.dropboxConnectInFlight = true;
-
-    try {
-      const config = await this.tripNoteEditorService.connectDropbox();
-      this.applyEditorConfig(config);
-      this.messagesService.showInfo('Dropbox connected');
-    } catch (error) {
-      if (error instanceof DropboxAuthorizationCancelledError) {
-        this.loadConfig(true);
-        return;
-      }
-
-      this.messagesService.showError(getMessageFromError(error, 'Dropbox connection failed'));
-    } finally {
-      this.dropboxConnectInFlight = false;
-      this.emitViewState();
-    }
-  }
-
   disconnectDropbox(): void {
     this.tripNoteEditorService
       .disconnectDropbox()
@@ -151,11 +126,8 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
     }
 
     if (!this.dropboxConnected) {
-      await this.connectDropbox();
-
-      if (!this.dropboxConnected) {
-        return;
-      }
+      this.emitConnectDropboxRequested();
+      return;
     }
 
     this.dropboxDialogVisible = true;
@@ -209,7 +181,7 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
   }
 
   get menuItems(): MenuConfig[] {
-    if (!this.canManageDropbox || this.dropboxConnectInFlight) {
+    if (!this.canManageDropbox) {
       return [];
     }
 
@@ -223,9 +195,7 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
         : {
             label: 'Connect to Dropbox',
             icon: 'link',
-            action: () => {
-              void this.connectDropbox();
-            },
+            action: () => this.emitConnectDropboxRequested(),
           },
     ];
   }
@@ -247,7 +217,7 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
       return this.dropboxDisplayName?.trim() || 'Dropbox account connected.';
     }
 
-    return this.dropboxConnectInFlight ? 'Authorizing Dropbox...' : 'Connect Dropbox from the menu to insert images.';
+    return 'Connect Dropbox from the menu to insert images.';
   }
 
   get hasDropboxEntries(): boolean {
@@ -260,7 +230,8 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
 
   private buildEditorInit(): Record<string, unknown> {
     return {
-      height: 420,
+      min_height: 294,
+      autoresize_bottom_margin: 24,
       menubar: false,
       statusbar: false,
       promotion: false,
@@ -271,7 +242,7 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
       remove_script_host: false,
       plugins: 'autolink autoresize charmap code image link lists paste table visualblocks',
       toolbar:
-        'undo redo | blocks | bold italic underline | bullist numlist blockquote | link image dropboximage | table | removeformat code',
+        'dropboximage | blocks | bold italic underline | bullist numlist blockquote | link image undo redo | table | removeformat code',
       block_formats: 'Paragraph=p;Heading 2=h2;Heading 3=h3;Heading 4=h4',
       object_resizing: 'img',
       image_caption: true,
@@ -365,6 +336,14 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
     Promise.resolve().then(() => {
       this.zone.run(() => {
         this.viewStateChange.emit(viewState);
+      });
+    });
+  }
+
+  private emitConnectDropboxRequested(): void {
+    Promise.resolve().then(() => {
+      this.zone.run(() => {
+        this.connectDropboxRequested.emit();
       });
     });
   }

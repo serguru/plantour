@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
@@ -66,8 +67,10 @@ public class TripNoteEditorService(
         EnsureDropboxConfigured();
 
         var frontendOrigin = NormalizeFrontendOrigin(request.FrontendOrigin);
+        ValidateFrontendOriginMatchesRequest(frontendOrigin);
+        var frontendPath = NormalizeFrontendPath(request.FrontendPath);
         var callbackUrl = BuildAbsoluteCallbackUrl();
-        var statePayload = new DropboxStatePayload(_currentUser.UserId, _currentUser.AdminId, frontendOrigin, DateTimeOffset.UtcNow);
+        var statePayload = new DropboxStatePayload(_currentUser.UserId, _currentUser.AdminId, frontendOrigin, frontendPath, DateTimeOffset.UtcNow);
         var protectedState = Uri.EscapeDataString(_stateProtector.Protect(JsonSerializer.Serialize(statePayload)));
 
         var authorizationUrl = new StringBuilder(DropboxAuthUrl)
@@ -85,7 +88,7 @@ public class TripNoteEditorService(
         });
     }
 
-    public async Task<string> CompleteDropboxAuthorizationAsync(string? code, string? state, string? error, string? errorDescription)
+    public async Task<TripNoteEditorDropboxCallbackResultDto> CompleteDropboxAuthorizationAsync(string? code, string? state, string? error, string? errorDescription)
     {
         DropboxStatePayload? payload = null;
 
@@ -94,12 +97,12 @@ public class TripNoteEditorService(
             payload = UnprotectState(state);
             if (!string.IsNullOrWhiteSpace(error))
             {
-                return BuildPopupHtml(payload.FrontendOrigin, false, errorDescription ?? error);
+                return BuildCallbackResult(payload.FrontendOrigin, payload.FrontendPath, false, errorDescription ?? error);
             }
 
             if (string.IsNullOrWhiteSpace(code))
             {
-                return BuildPopupHtml(payload.FrontendOrigin, false, "Dropbox did not return an authorization code.");
+                return BuildCallbackResult(payload.FrontendOrigin, payload.FrontendPath, false, "Dropbox did not return an authorization code.");
             }
 
             EnsureDropboxConfigured();
@@ -109,11 +112,19 @@ public class TripNoteEditorService(
             var storedToken = token with { DisplayName = account.DisplayName };
 
             await SaveTokenAsync(payload.UserId, storedToken);
-            return BuildPopupHtml(payload.FrontendOrigin, true, account.DisplayName ?? "Dropbox connected.");
+            return BuildCallbackResult(payload.FrontendOrigin, payload.FrontendPath, true, account.DisplayName ?? "Dropbox connected.");
         }
         catch (Exception ex)
         {
-            return BuildPopupHtml(payload?.FrontendOrigin, false, ex.Message);
+            if (payload != null)
+            {
+                return BuildCallbackResult(payload.FrontendOrigin, payload.FrontendPath, false, ex.Message);
+            }
+
+            return new TripNoteEditorDropboxCallbackResultDto
+            {
+                Html = BuildStatusHtml(false, ex.Message),
+            };
         }
     }
 
@@ -495,6 +506,48 @@ public class TripNoteEditorService(
         return uri.GetLeftPart(UriPartial.Authority);
     }
 
+    private static string NormalizeFrontendPath(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new CustomException("A valid frontend path is required to connect Dropbox.");
+        }
+
+        var trimmed = value.Trim();
+        if (!trimmed.StartsWith('/'))
+        {
+            throw new CustomException("Dropbox connection must return to a frontend route path.");
+        }
+
+        return trimmed;
+    }
+
+    private void ValidateFrontendOriginMatchesRequest(string frontendOrigin)
+    {
+        var request = _httpContextAccessor.HttpContext?.Request;
+        if (request == null)
+        {
+            return;
+        }
+
+        var requestOrigin = request.Headers.Origin.FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(requestOrigin))
+        {
+            requestOrigin = request.Headers.Referer.FirstOrDefault();
+        }
+
+        if (string.IsNullOrWhiteSpace(requestOrigin) || !Uri.TryCreate(requestOrigin, UriKind.Absolute, out var requestUri))
+        {
+            return;
+        }
+
+        var normalizedRequestOrigin = requestUri.GetLeftPart(UriPartial.Authority);
+        if (!string.Equals(normalizedRequestOrigin, frontendOrigin, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new CustomException("Dropbox connection request origin is invalid.");
+        }
+    }
+
     private static string NormalizeDropboxPath(string? value)
     {
         if (string.IsNullOrWhiteSpace(value) || value == "/")
@@ -550,51 +603,45 @@ public class TripNoteEditorService(
             null);
     }
 
-    private static string BuildPopupHtml(string? frontendOrigin, bool success, string message)
+    private static TripNoteEditorDropboxCallbackResultDto BuildCallbackResult(string frontendOrigin, string frontendPath, bool success, string message)
     {
-        var payload = JsonSerializer.Serialize(new
+        return new TripNoteEditorDropboxCallbackResultDto
         {
-            source = "plantour-trip-note-editor",
-            provider = "dropbox",
-            success,
-            message,
-        });
-        var encodedMessage = HtmlEncoder.Default.Encode(message);
-        var originLiteral = JsonSerializer.Serialize(frontendOrigin ?? "*");
-        var statusTitle = success ? "Dropbox connected" : "Dropbox authorization failed";
-
-                return "<!DOCTYPE html>\n"
-                        + "<html lang=\"en\">\n"
-                        + "<head>\n"
-                        + "  <meta charset=\"utf-8\" />\n"
-                        + "  <title>Dropbox Connection</title>\n"
-                + "  <style>body{font-family:Segoe UI,Arial,sans-serif;padding:24px;color:#1f2937}h1{font-size:20px;margin:0 0 12px}p{margin:0 0 12px;line-height:1.45}.hint{color:#6b7280;font-size:14px}</style>\n"
-                        + "</head>\n"
-                        + "<body>\n"
-                + $"  <h1>{HtmlEncoder.Default.Encode(statusTitle)}</h1>\n"
-                        + "  <script>\n"
-                        + "    (function() {\n"
-                        + $"      const payload = {payload};\n"
-                        + $"      const targetOrigin = {originLiteral};\n"
-                + "      const closeWindow = function() {\n"
-                + "        try { window.open('', '_self'); } catch {}\n"
-                + "        try { window.close(); } catch {}\n"
-                + "      };\n"
-                        + "      if (window.opener) {\n"
-                        + "        window.opener.postMessage(payload, targetOrigin);\n"
-                        + "      }\n"
-                + "      closeWindow();\n"
-                + "      window.setTimeout(closeWindow, 150);\n"
-                + "      window.setTimeout(closeWindow, 600);\n"
-                        + "    })();\n"
-                        + "  </script>\n"
-                        + $"  <p>{encodedMessage}</p>\n"
-                + "  <p class=\"hint\">This window should close automatically. If it stays open, you can close it manually.</p>\n"
-                        + "</body>\n"
-                        + "</html>";
+            RedirectUrl = BuildFrontendReturnUrl(frontendOrigin, frontendPath, success, message),
+        };
     }
 
-    private sealed record DropboxStatePayload(Guid UserId, Guid AdminId, string FrontendOrigin, DateTimeOffset IssuedAt);
+    private static string BuildFrontendReturnUrl(string frontendOrigin, string frontendPath, bool success, string message)
+    {
+        var baseUrl = $"{frontendOrigin}{frontendPath}";
+        return QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
+        {
+            ["dropboxConnect"] = success ? "success" : "error",
+            ["dropboxMessage"] = message,
+        });
+    }
+
+    private static string BuildStatusHtml(bool success, string message)
+    {
+        var encodedMessage = HtmlEncoder.Default.Encode(message);
+        var statusTitle = success ? "Dropbox connected" : "Dropbox authorization failed";
+
+        return "<!DOCTYPE html>\n"
+                + "<html lang=\"en\">\n"
+                + "<head>\n"
+                + "  <meta charset=\"utf-8\" />\n"
+                + "  <title>Dropbox Connection</title>\n"
+                + "  <style>body{font-family:Segoe UI,Arial,sans-serif;padding:24px;color:#1f2937}h1{font-size:20px;margin:0 0 12px}p{margin:0 0 12px;line-height:1.45}.hint{color:#6b7280;font-size:14px}</style>\n"
+                + "</head>\n"
+                + "<body>\n"
+                + $"  <h1>{HtmlEncoder.Default.Encode(statusTitle)}</h1>\n"
+                + $"  <p>{encodedMessage}</p>\n"
+                + "  <p class=\"hint\">Return to Plantour and try the Dropbox connection again.</p>\n"
+                + "</body>\n"
+                + "</html>";
+    }
+
+    private sealed record DropboxStatePayload(Guid UserId, Guid AdminId, string FrontendOrigin, string FrontendPath, DateTimeOffset IssuedAt);
 
     private sealed record DropboxTokenRecord(
         string AccessToken,

@@ -118,10 +118,33 @@
   & ::ng-deep .tox.tox-tinymce {
     border: 0;
     border-radius: 0;
+    box-shadow: none;
+  }
+
+  & ::ng-deep .tox.tox-tinymce:hover,
+  & ::ng-deep .tox.tox-tinymce:focus-within,
+  & ::ng-deep .tox.tox-tinymce.tox-tinymce--focus {
+    box-shadow: none;
+    outline: none;
+    border-color: transparent;
   }
 
   & ::ng-deep .tox .tox-editor-header {
     border-bottom: 1px solid var(--p-content-border-color, #d6dde3);
+    box-shadow: none;
+  }
+
+  & ::ng-deep .tox:not(.tox-tinymce-inline).tox-tinymce--toolbar-sticky-on .tox-editor-header,
+  & ::ng-deep .tox:not(.tox-tinymce-inline).tox-tinymce--toolbar-bottom .tox-editor-header,
+  & ::ng-deep .tox:not(.tox-tinymce-inline).tox-tinymce--toolbar-sticky-on.tox-tinymce--toolbar-bottom .tox-editor-header {
+    box-shadow: none;
+  }
+
+  & ::ng-deep .tox .tox-edit-area::before,
+  & ::ng-deep .tox.tox-edit-focus .tox-edit-area::before {
+    opacity: 0 !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
   }
 
   & ::ng-deep .tox .tox-edit-area__iframe {

@@ -21,6 +21,9 @@ public class TripNoteEditorDropboxConnectUrlRequest
 {
     [JsonPropertyName("frontendOrigin")]
     public string FrontendOrigin { get; set; } = null!;
+
+    [JsonPropertyName("frontendPath")]
+    public string FrontendPath { get; set; } = null!;
 }
 
 public class TripNoteEditorDropboxConnectUrlDto
@@ -30,6 +33,15 @@ public class TripNoteEditorDropboxConnectUrlDto
 
     [JsonPropertyName("redirectUri")]
     public string RedirectUri { get; set; } = null!;
+}
+
+public class TripNoteEditorDropboxCallbackResultDto
+{
+    [JsonPropertyName("redirectUrl")]
+    public string? RedirectUrl { get; set; }
+
+    [JsonPropertyName("html")]
+    public string? Html { get; set; }
 }
 
 public class TripNoteEditorDropboxBrowseRequest

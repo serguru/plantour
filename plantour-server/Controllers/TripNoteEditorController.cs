@@ -28,9 +28,15 @@ public class TripNoteEditorController(ITripNoteEditorService service) : Controll
 
     [HttpGet("dropbox/callback")]
     [AllowAnonymous]
-    public async Task<ContentResult> CompleteDropboxAuthorization([FromQuery] string? code, [FromQuery] string? state, [FromQuery] string? error, [FromQuery(Name = "error_description")] string? errorDescription)
+    public async Task<IActionResult> CompleteDropboxAuthorization([FromQuery] string? code, [FromQuery] string? state, [FromQuery] string? error, [FromQuery(Name = "error_description")] string? errorDescription)
     {
-        return Content(await _service.CompleteDropboxAuthorizationAsync(code, state, error, errorDescription), "text/html");
+        var result = await _service.CompleteDropboxAuthorizationAsync(code, state, error, errorDescription);
+        if (!string.IsNullOrWhiteSpace(result.RedirectUrl))
+        {
+            return Redirect(result.RedirectUrl);
+        }
+
+        return Content(result.Html ?? "Dropbox authorization failed.", "text/html");
     }
 
     [HttpDelete("dropbox/connection")]
