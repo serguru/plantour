@@ -65,7 +65,7 @@
 											</div>
 											<p>{{ link.description }}</p>
 
-											@if (link.disabledReason) {
+											@if (link.disabled && link.disabledReason) {
 												<span class="dashboard-link-card__note">{{ link.disabledReason }}</span>
 											}
 										</div>

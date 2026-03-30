@@ -51,7 +51,13 @@ export class DashboardComponent {
     const tripId = trip?.id;
     const hasTrip = !!tripId;
     const isAuthenticated = this.usersService.isAuthenticatedSignal();
+    const currentUserIncluded = !!trip?.currentUserIncluded;
     const participantOnlyDisabled = !hasTrip || !trip?.currentUserIncluded;
+    const participantOnlyDisabledReason = !hasTrip
+      ? 'Select a trip first.'
+      : currentUserIncluded
+        ? undefined
+        : 'Available only when you are included in the selected trip.';
 
     return [
       {
@@ -135,9 +141,7 @@ export class DashboardComponent {
             icon: 'pi pi-map',
             route: tripId ? `/trips/${tripId}/itinerary` : '/trips',
             disabled: participantOnlyDisabled,
-            disabledReason: hasTrip
-              ? 'Available only when you are included in the selected trip.'
-              : 'Select a trip first.'
+            disabledReason: participantOnlyDisabledReason
           },
           {
             id: 'trip-map',
@@ -175,9 +179,7 @@ export class DashboardComponent {
             icon: 'pi pi-shopping-bag',
             route: tripId ? `/trips/${tripId}/trip-packs` : '/trips',
             disabled: participantOnlyDisabled,
-            disabledReason: hasTrip
-              ? 'Available only when you are included in the selected trip.'
-              : 'Select a trip first.'
+            disabledReason: participantOnlyDisabledReason
           },
           {
             id: 'trip-things',
@@ -186,9 +188,7 @@ export class DashboardComponent {
             icon: 'pi pi-objects-column',
             route: tripId ? `/trips/${tripId}/trip-things` : '/trips',
             disabled: participantOnlyDisabled,
-            disabledReason: hasTrip
-              ? 'Available only when you are included in the selected trip.'
-              : 'Select a trip first.'
+            disabledReason: participantOnlyDisabledReason
           },
           {
             id: 'trip-todos',
@@ -197,9 +197,7 @@ export class DashboardComponent {
             icon: 'pi pi-check-square',
             route: tripId ? `/trips/${tripId}/trip-todos` : '/trips',
             disabled: participantOnlyDisabled,
-            disabledReason: hasTrip
-              ? 'Available only when you are included in the selected trip.'
-              : 'Select a trip first.'
+            disabledReason: participantOnlyDisabledReason
           },
           {
             id: 'trip-activities-personal',
@@ -208,9 +206,7 @@ export class DashboardComponent {
             icon: 'pi pi-user',
             route: tripId ? `/trips/${tripId}/trip-activities/personal` : '/trips',
             disabled: participantOnlyDisabled,
-            disabledReason: hasTrip
-              ? 'Available only when you are included in the selected trip.'
-              : 'Select a trip first.'
+            disabledReason: participantOnlyDisabledReason
           },
           {
             id: 'trip-expenses',
@@ -219,9 +215,7 @@ export class DashboardComponent {
             icon: 'pi pi-wallet',
             route: tripId ? `/trips/${tripId}/trip-expenses` : '/trips',
             disabled: participantOnlyDisabled,
-            disabledReason: hasTrip
-              ? 'Available only when you are included in the selected trip.'
-              : 'Select a trip first.'
+            disabledReason: participantOnlyDisabledReason
           },
           {
             id: 'trip-notes',
@@ -230,9 +224,7 @@ export class DashboardComponent {
             icon: 'pi pi-book',
             route: tripId ? `/trips/${tripId}/trip-notes` : '/trips',
             disabled: participantOnlyDisabled,
-            disabledReason: hasTrip
-              ? 'Available only when you are included in the selected trip.'
-              : 'Select a trip first.'
+            disabledReason: participantOnlyDisabledReason
           }
         ]
       },
@@ -270,9 +262,7 @@ export class DashboardComponent {
             icon: 'pi pi-globe',
             route: tripId ? `/trips/${tripId}/trip-activities/public` : '/trips',
             disabled: participantOnlyDisabled,
-            disabledReason: hasTrip
-              ? 'Available only when you are included in the selected trip.'
-              : 'Select a trip first.'
+            disabledReason: participantOnlyDisabledReason
           },
           {
             id: 'trip-shared-expenses',
