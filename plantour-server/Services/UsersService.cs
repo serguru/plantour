@@ -766,7 +766,7 @@ public class UsersService(
         {
             throw new CustomException("Tokens for temporary users cannot be refreshed", "REFRESH_TOKEN_FAILED");
         }
-
+// TODO: revise AI questions limits
 // TODO: test AI requests limiting
 // TODO: ensure participants can generate trip level questions to AI but cannot create a trip
 // TODO: redesign Trip info

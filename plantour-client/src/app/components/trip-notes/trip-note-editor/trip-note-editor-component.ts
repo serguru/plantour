@@ -151,8 +151,11 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
     }
 
     if (!this.dropboxConnected) {
-      this.messagesService.showWarning('Connect Dropbox first.');
-      return;
+      await this.connectDropbox();
+
+      if (!this.dropboxConnected) {
+        return;
+      }
     }
 
     this.dropboxDialogVisible = true;
