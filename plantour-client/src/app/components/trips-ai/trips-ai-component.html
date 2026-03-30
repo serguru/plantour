@@ -1,0 +1,460 @@
+<div class="page-container trips-ai-page">
+  <app-form-header
+    icon="sparkles"
+    title="AI trip planner"
+    [menuItems]="menuItems()"
+  ></app-form-header>
+
+  <section class="hero-card">
+    <div>
+      <p class="eyebrow">Suggested trip</p>
+      <h2>{{ createdTripName() }}</h2>
+      <p class="hero-copy">
+        Describe the destination, timing, travelers and activities. Plantour AI will suggest a full trip
+        plan first, cache that answer for reuse, and then let you create a new Planning trip from the preview.
+      </p>
+    </div>
+  </section>
+
+  <section class="prompt-card">
+    <div class="question-row">
+      <div>
+        <label class="prompt-label">Previous questions</label>
+        <app-dropdown
+          placeholder="Select or type a trip request"
+          emptyText="No previous questions"
+          [options]="prompts()"
+          [value]="prompt()"
+          (valueChange)="onPromptChanged($event)"
+          (optionSelected)="onPromptSelected($event)"
+        ></app-dropdown>
+      </div>
+
+      <div class="form-field">
+        <label class="prompt-label" for="trip-ai-currency">Trip currency</label>
+        <p-select
+          id="trip-ai-currency"
+          [options]="currencies()"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Select currency"
+          [ngModel]="selectedCurrencyId()"
+          (ngModelChange)="onCurrencyChange($event)"
+          [showClear]="false"
+          styleClass="w-full"
+          [editable]="false"
+        ></p-select>
+      </div>
+    </div>
+
+    <label class="prompt-label" for="trip-ai-prompt">Trip request</label>
+    <textarea
+      id="trip-ai-prompt"
+      pTextarea
+      rows="8"
+      [ngModel]="prompt()"
+      (ngModelChange)="onPromptChanged($event)"
+      placeholder="Example: The 4 persons family with 2 children 8 and 12 years old want to have a trip to Japan for sightseeing for 7 days this summer, we live in Vancouver BC."
+    ></textarea>
+
+    <div class="prompt-actions">
+      <button
+        type="button"
+        class="link-button"
+        (click)="setExamplePrompt()"
+      >Use example</button>
+
+      <div class="prompt-buttons">
+        <app-button
+          label="Reset"
+          severity="secondary"
+          [disabled]="isPreviewLoading() || isCreateLoading()"
+          (click)="reset()"
+        ></app-button>
+
+        <app-button
+          label="Show preview"
+          icon="pi pi-sparkles"
+          [loading]="isPreviewLoading()"
+          [disabled]="isPreviewLoading() || isCreateLoading()"
+          (click)="generatePreview()"
+        ></app-button>
+      </div>
+    </div>
+  </section>
+
+  @if (preview(); as previewValue) {
+    <section class="results-grid">
+      <article class="summary-card card-block">
+        <div class="preview-actions">
+          <div>
+            <p class="eyebrow">Suggested trip preview</p>
+            <h3>{{ previewValue.plan.title || 'Suggested trip' }}</h3>
+          </div>
+
+          <div class="preview-button-row">
+            <app-button
+              label="Reset"
+              severity="secondary"
+              [disabled]="isPreviewLoading() || isCreateLoading()"
+              (click)="reset()"
+            ></app-button>
+
+            <app-button
+              label="Create trip"
+              icon="pi pi-plus"
+              [loading]="isCreateLoading()"
+              [disabled]="!canCreateTrip() || isPreviewLoading() || isCreateLoading()"
+              (click)="createTrip()"
+            ></app-button>
+          </div>
+        </div>
+
+        <p>{{ previewValue.plan.summary }}</p>
+
+        <div class="status-badges">
+          @if (previewValue.fromCache) {
+            <span>Cached answer</span>
+          } @else {
+            <span>Fresh answer</span>
+          }
+
+          @if (previewValue.datesAdjusted) {
+            <span>Dates shifted to avoid overlap</span>
+          }
+
+          @if (createResult()) {
+            <span>Trip created</span>
+          }
+        </div>
+
+        <div class="date-row">
+          <span>Suggested dates</span>
+          <strong>{{ previewValue.plan.suggestedStartDate }} to {{ previewValue.plan.suggestedEndDate }}</strong>
+        </div>
+
+        <div class="date-row">
+          <span>Trip currency</span>
+          <strong>{{ previewCurrencyText() || 'Not set' }}</strong>
+        </div>
+
+        <div class="date-row">
+          <span>Estimated trip total</span>
+          <strong>{{ estimatedTripTotal() | number:'1.0-2' }} {{ previewCurrencyText() }}</strong>
+        </div>
+
+        <div class="recommendations">
+          <h4>General recommendations</h4>
+          <p>{{ previewValue.plan.generalRecommendations }}</p>
+        </div>
+
+        @if (!usersService.isAdminSignal()) {
+          <p class="participant-note">Preview is available for participants, but creating trips is limited to admins.</p>
+        }
+
+        @if (previewValue.plan.assumptions.length > 0) {
+          <div class="recommendations">
+            <h4>Assumptions</h4>
+            <ul>
+              @for (assumption of previewValue.plan.assumptions; track assumption) {
+                <li>{{ assumption }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </article>
+
+      <article class="stats-card card-block">
+        <p class="eyebrow">Suggested content</p>
+        <h3>{{ totalSuggestedEntries() }} planned entries</h3>
+        <div class="stats-list">
+          <div><span>Itinerary</span><strong>{{ previewValue.plan.itinerary.length }}</strong></div>
+          <div><span>Public activities</span><strong>{{ previewValue.plan.itinerary.reduce((sum, part) => sum + part.publicActivities.length, 0) }}</strong></div>
+          <div><span>Personal activities</span><strong>{{ previewValue.plan.itinerary.reduce((sum, part) => sum + part.personalActivities.length, 0) }}</strong></div>
+          <div><span>Personal items</span><strong>{{ previewValue.plan.personalItems.length }}</strong></div>
+          <div><span>Shared items</span><strong>{{ previewValue.plan.sharedItems.length }}</strong></div>
+          <div><span>Personal todos</span><strong>{{ previewValue.plan.personalTodos.length }}</strong></div>
+          <div><span>Shared todos</span><strong>{{ previewValue.plan.sharedTodos.length }}</strong></div>
+          <div><span>Personal expenses</span><strong>{{ previewValue.plan.personalExpenses.length }}</strong></div>
+          <div><span>Shared expenses</span><strong>{{ previewValue.plan.sharedExpenses.length }}</strong></div>
+          <div><span>Trip status on create</span><strong>Planning</strong></div>
+        </div>
+
+        @if (createResult(); as createValue) {
+          <div class="created-summary">
+            <h4>Created trip</h4>
+            <p>{{ createValue.tripName }}</p>
+            <p>{{ createValue.applied.itineraryPartsAdded }} itinerary parts and {{ createValue.applied.sharedItemsAdded + createValue.applied.personalItemsAdded }} items were written into the new trip.</p>
+          </div>
+        }
+      </article>
+    </section>
+
+    <section class="card-block itinerary-card">
+      <div class="section-header">
+        <p class="eyebrow">Itinerary</p>
+        <strong>{{ previewValue.plan.itinerary.length }} parts</strong>
+      </div>
+
+      <div class="timeline">
+        @for (part of previewValue.plan.itinerary; track part.name + part.startDate) {
+          <article class="timeline-item">
+            <div class="timeline-main">
+              <div class="timeline-topline">
+                <h4>{{ part.name }}</h4>
+                <span>{{ part.category }}</span>
+              </div>
+              <p class="timeline-time">{{ formatDateTime(part.startDate) }} to {{ formatDateTime(part.endDate) }}</p>
+              @if (part.address) {
+                <p class="timeline-address">{{ part.address }}</p>
+              }
+              @if (part.notes) {
+                <p>{{ part.notes }}</p>
+              }
+            </div>
+
+            <div class="activities-grid">
+              <div>
+                <h5>Public activities</h5>
+                @if (part.publicActivities.length === 0) {
+                  <p class="empty-text">None suggested.</p>
+                } @else {
+                  <ul>
+                    @for (activity of part.publicActivities; track activity.name + activity.startDate) {
+                      <li>
+                        <strong>{{ activity.name }}</strong>
+                        <span>{{ activity.activity }}</span>
+                        @if (activity.notes) {
+                          <p>{{ activity.notes }}</p>
+                        }
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+
+              <div>
+                <h5>Personal activities</h5>
+                @if (part.personalActivities.length === 0) {
+                  <p class="empty-text">None suggested.</p>
+                } @else {
+                  <ul>
+                    @for (activity of part.personalActivities; track activity.name + activity.startDate) {
+                      <li>
+                        <strong>{{ activity.name }}</strong>
+                        <span>{{ activity.activity }}</span>
+                        @if (activity.notes) {
+                          <p>{{ activity.notes }}</p>
+                        }
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="collections-grid">
+      <article class="card-block">
+        <div class="section-header">
+          <p class="eyebrow">Items</p>
+          <strong>{{ previewValue.plan.personalItems.length + previewValue.plan.sharedItems.length }}</strong>
+        </div>
+        <div class="double-list">
+          <div>
+            <h5>Personal</h5>
+            @if (previewValue.plan.personalItems.length === 0) {
+              <p class="empty-text">None suggested.</p>
+            } @else {
+            <ul>
+              @for (item of previewValue.plan.personalItems; track item.name) {
+                <li>
+                  <strong>{{ item.name }}</strong>
+                  <span>{{ item.value }} {{ item.units }}</span>
+                  @if (item.notes) {
+                    <p>{{ item.notes }}</p>
+                  }
+                </li>
+              }
+            </ul>
+            }
+          </div>
+          <div>
+            <h5>Shared</h5>
+            @if (previewValue.plan.sharedItems.length === 0) {
+              <p class="empty-text">None suggested.</p>
+            } @else {
+            <ul>
+              @for (item of previewValue.plan.sharedItems; track item.name) {
+                <li>
+                  <strong>{{ item.name }}</strong>
+                  <span>{{ item.value }} {{ item.units }}</span>
+                  @if (item.notes) {
+                    <p>{{ item.notes }}</p>
+                  }
+                </li>
+              }
+            </ul>
+            }
+          </div>
+        </div>
+      </article>
+
+      <article class="card-block">
+        <div class="section-header">
+          <p class="eyebrow">Todos</p>
+          <strong>{{ previewValue.plan.personalTodos.length + previewValue.plan.sharedTodos.length }}</strong>
+        </div>
+        <div class="double-list">
+          <div>
+            <h5>Personal</h5>
+            @if (previewValue.plan.personalTodos.length === 0) {
+              <p class="empty-text">None suggested.</p>
+            } @else {
+            <ul>
+              @for (todo of previewValue.plan.personalTodos; track todo.name) {
+                <li>
+                  <strong>{{ todo.name }}</strong>
+                  @if (todo.notes) {
+                    <p>{{ todo.notes }}</p>
+                  }
+                </li>
+              }
+            </ul>
+            }
+          </div>
+          <div>
+            <h5>Shared</h5>
+            @if (previewValue.plan.sharedTodos.length === 0) {
+              <p class="empty-text">None suggested.</p>
+            } @else {
+            <ul>
+              @for (todo of previewValue.plan.sharedTodos; track todo.name) {
+                <li>
+                  <strong>{{ todo.name }}</strong>
+                  @if (todo.notes) {
+                    <p>{{ todo.notes }}</p>
+                  }
+                </li>
+              }
+            </ul>
+            }
+          </div>
+        </div>
+      </article>
+
+      <article class="card-block">
+        <div class="section-header">
+          <p class="eyebrow">Expenses</p>
+          <strong>{{ previewValue.plan.personalExpenses.length + previewValue.plan.sharedExpenses.length }}</strong>
+        </div>
+        <div class="double-list">
+          <div>
+            <h5>Personal</h5>
+            @if (previewValue.plan.personalExpenses.length === 0) {
+              <p class="empty-text">None suggested.</p>
+            } @else {
+            <ul>
+              @for (expense of previewValue.plan.personalExpenses; track expense.name + expense.amount) {
+                <li>
+                  <strong>{{ expense.name }}</strong>
+                  <span>{{ expense.amount | number:'1.0-2' }} {{ previewCurrencyText() }}</span>
+                  @if (expense.notes) {
+                    <p>{{ expense.notes }}</p>
+                  }
+                </li>
+              }
+            </ul>
+            }
+          </div>
+          <div>
+            <h5>Shared</h5>
+            @if (previewValue.plan.sharedExpenses.length === 0) {
+              <p class="empty-text">None suggested.</p>
+            } @else {
+            <ul>
+              @for (expense of previewValue.plan.sharedExpenses; track expense.name + expense.amount) {
+                <li>
+                  <strong>{{ expense.name }}</strong>
+                  <span>{{ expense.amount | number:'1.0-2' }} {{ previewCurrencyText() }}</span>
+                  @if (expense.notes) {
+                    <p>{{ expense.notes }}</p>
+                  }
+                </li>
+              }
+            </ul>
+            }
+          </div>
+        </div>
+      </article>
+    </section>
+  }
+
+  <p-dialog
+    header="Choose new trip dates"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="!isCreateLoading()"
+    [visible]="showDatesDialog()"
+    (visibleChange)="showDatesDialog.set($event)"
+    styleClass="trips-ai-dialog"
+  >
+    <div class="dialog-body">
+      <p>The suggested dates now overlap with one of your trips. Enter two new dates for the new Planning trip.</p>
+
+      <div class="dialog-grid">
+        <div>
+          <label for="overrideStartDate">Start date</label>
+          <p-datepicker
+            inputId="overrideStartDate"
+            [ngModel]="overrideStartDate()"
+            (ngModelChange)="overrideStartDate.set($event)"
+            dateFormat="yy-mm-dd"
+            dataType="string"
+            [showIcon]="true"
+            appendTo="body"
+          ></p-datepicker>
+        </div>
+
+        <div>
+          <label for="overrideEndDate">End date</label>
+          <p-datepicker
+            inputId="overrideEndDate"
+            [ngModel]="overrideEndDate()"
+            (ngModelChange)="overrideEndDate.set($event)"
+            dateFormat="yy-mm-dd"
+            dataType="string"
+            [showIcon]="true"
+            appendTo="body"
+          ></p-datepicker>
+        </div>
+      </div>
+
+      @if (overrideDatesInvalid()) {
+        <p class="dialog-error">End date cannot be earlier than start date.</p>
+      }
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="dialog-actions">
+        <app-button
+          label="Cancel"
+          severity="secondary"
+          [disabled]="isCreateLoading()"
+          (click)="closeDatesDialog()"
+        ></app-button>
+
+        <app-button
+          label="Create trip"
+          [loading]="isCreateLoading()"
+          [disabled]="isCreateLoading() || !overrideStartDate() || !overrideEndDate() || overrideDatesInvalid()"
+          (click)="createTrip(true)"
+        ></app-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+</div>

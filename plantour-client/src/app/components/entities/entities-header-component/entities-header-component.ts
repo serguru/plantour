@@ -10,6 +10,7 @@ export interface MenuConfig {
   label: string;
   icon: string;
   action: () => void;
+  disabled?: boolean;
   disabledIfNoSelection?: boolean;
 }
 
@@ -147,7 +148,7 @@ export class EntitiesHeader implements OnInit {
 
   onMenuClick(event, item: MenuConfig, popover: Popover) {
     event.stopPropagation();
-    if (item.disabledIfNoSelection && !this.selectedId()) {
+    if (item.disabled || (item.disabledIfNoSelection && !this.selectedId())) {
       return;
     }
     item.action();
@@ -156,7 +157,10 @@ export class EntitiesHeader implements OnInit {
 
   getResolvedMenuItems(): MenuConfig[] {
     const items = [...this.menuItems()];
-    const pageId = this.helpContextService.resolvePageId(this.router.url, this.helpPageId());
+    const componentId = this.helpContextService.resolveComponentId(
+      this.route.snapshot.pathFromRoot.map((snapshot) => snapshot.data['componentId'] as string | null | undefined)
+    );
+    const pageId = this.helpContextService.resolvePageId(this.router.url, this.helpPageId(), componentId);
     const helpUrl = this.showHelpAction() ? this.helpContextService.getPageUrl(pageId) : null;
 
     if (helpUrl) {

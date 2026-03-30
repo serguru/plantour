@@ -1,62 +1,81 @@
 <div class="page-container">
+	<app-entities-header
+		entityIcon="pi pi-table"
+		title="Dashboard"
+		[useEntitiesActions]="false"
+		helpPageId="help/workflows/trip-info"
+	></app-entities-header>
 
-    <app-form-header
-        icon="table"
-        title="Dashboard"
-        [menuItems]="menuItems()"
-    ></app-form-header>
+	<div class="dashboard-shell">
+		<p class="dashboard-intro">Click on the link to go to the corresponding page.</p>
 
+		<section class="dashboard-sections">
+			@for (section of sections(); track section.id; let index = $index) {
+				<article
+					class="dashboard-section-card"
+					[class.is-expanded]="isSectionExpanded(section.id)"
+					[style.--section-accent]="section.accent"
+					[style.--section-delay]="(index * 80) + 'ms'"
+				>
+					<button
+						type="button"
+						class="dashboard-section-toggle"
+						(click)="toggleSection(section.id)"
+						[attr.aria-expanded]="isSectionExpanded(section.id)"
+					>
+						<div class="dashboard-section-heading">
+							<div class="dashboard-section-icon-wrap">
+								<i [class]="section.icon"></i>
+							</div>
 
-    <div class="dahboard-content">
+							<div class="dashboard-section-copy">
+								<div class="dashboard-section-title-row">
+									<span class="dashboard-section-title">{{ section.title }}</span>
+								</div>
+								<p>{{ section.summary }}</p>
+							</div>
+						</div>
 
-        <div class="trip-select">
-            <p-select
-                style="width: 100%"
-                [options]="trips"
-                optionLabel="name"
-                optionValue="id"
-                placeholder="Select Trip"
-                [ngModel]="selectedTripId()"
-                (onChange)="onTripChange($event)"
-            >
+						<i
+							class="pi pi-chevron-down dashboard-section-arrow"
+							[class.dashboard-section-arrow--expanded]="isSectionExpanded(section.id)"
+						></i>
+					</button>
 
-            </p-select>
-        </div>
-        <ul class="section">
-            @for (item of items; track item.id) {
-            <li
-                class="item"
-                [class.expanded]="item.expanded"
-            >
-                <button
-                    type="button"
-                    class="item-toggle"
-                    (click)="toggleItem(item)"
-                    [attr.aria-expanded]="item.expanded"
-                >
-                <div class="item-header">
-                    <div class="item-title-group">
-                        <i
-                            [class]="item.icon"
-                            class="item-icon"
-                        ></i>
-                        <span class="item-title">{{ item.title }}</span>
-                    </div>
-                    <i [class]="item.expanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-                </div>
-                </button>
+					<div class="dashboard-section-panel" [class.dashboard-section-panel--open]="isSectionExpanded(section.id)">
+						<div class="dashboard-section-panel__inner">
+							<div class="dashboard-link-grid">
+								@for (link of section.links; track link.id) {
+									<a
+										class="dashboard-link-card"
+										[routerLink]="link.disabled || !link.route ? null : link.route"
+										[class.is-disabled]="link.disabled"
+										[attr.aria-disabled]="link.disabled ? 'true' : 'false'"
+										[attr.tabindex]="link.disabled ? -1 : 0"
+										(click)="onLinkClick($event, link)"
+									>
+										<div class="dashboard-link-card__icon">
+											<i [class]="link.icon"></i>
+										</div>
 
-                @if (item.expanded) {
-                <div class="item-content">
-                    @if (item.component) {
-                    <ng-container *ngComponentOutlet="item.component; inputs: getEntityInputs()"></ng-container>
-                    } @else {
-                    <p>{{ item.description }}</p>
-                    }
-                </div>
-                }
-            </li>
-            }
-        </ul>
-    </div>
+										<div class="dashboard-link-card__copy">
+											<div class="dashboard-link-card__title-row">
+												<span class="dashboard-link-card__title">{{ link.title }}</span>
+												<i class="pi pi-arrow-up-right"></i>
+											</div>
+											<p>{{ link.description }}</p>
+
+											@if (link.disabledReason) {
+												<span class="dashboard-link-card__note">{{ link.disabledReason }}</span>
+											}
+										</div>
+									</a>
+								}
+							</div>
+						</div>
+					</div>
+				</article>
+			}
+		</section>
+	</div>
 </div>

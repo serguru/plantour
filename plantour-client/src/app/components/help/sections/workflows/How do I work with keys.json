@@ -1,0 +1,49 @@
+{
+  "slug": "work-with-keys",
+  "question": "How do I work with keys?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "What keys are and why Plantour uses them",
+        "listTag": "ul",
+        "items": [
+          "A <strong>key</strong> in Plantour is a private saved credential record, such as an access token or another secret value that one feature may need.",
+          "Keys let you keep those values inside your own Plantour account instead of pasting them again every time you use the feature.",
+          "Plantour uses keys only when a certain workflow needs them.",
+          "This keeps optional integrations separate from your main trip data. If you do not use a feature that needs a key, you usually do not need to create one."
+        ]
+      },
+      {
+        "title": "Open the Keys dictionary",
+        "listTag": "ol",
+        "items": [
+          "Open the toolbar <strong>Dictionary</strong> menu.",
+          "Click <strong>Keys</strong>.",
+          "Plantour opens the <strong>Keys</strong> page where you can store private key records for your account."
+        ]
+      },
+      {
+        "title": "Add, update, or delete a key",
+        "listTag": "ol",
+        "beforeHtml": "Use keys when Plantour needs a saved token or private key value for a feature you want to use.",
+        "items": [
+          "Click <strong>Add</strong> when you want to create a new key record.",
+          "Enter the required <strong>Name</strong> and <strong>Key</strong> value.",
+          "Optionally keep the key <strong>Active</strong> and add notes that help you remember what it is for.",
+          "Click <strong>Submit</strong> to save the key.",
+          "Select an existing key and use <strong>Update</strong> when you want to edit it, or <strong>Delete</strong> when you want to remove it."
+        ]
+      },
+      {
+        "title": "Use the active flag correctly",
+        "listTag": "ul",
+        "items": [
+          "Plantour can use only keys that are marked as <strong>Active</strong>.",
+          "If a feature says that a key is missing, first check whether the correct key record exists and whether it is active.",
+          "Use the notes field when you want to record what service or scenario that key supports."
+        ]
+      }
+    ]
+  }
+}

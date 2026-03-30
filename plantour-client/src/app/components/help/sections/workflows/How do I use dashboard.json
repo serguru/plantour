@@ -1,35 +1,37 @@
 {
-  "slug": "dashboard-overview",
-  "question": "How do I use dashboard?",
+  "slug": "trip-info",
+  "question": "How can I view the trip summary?",
   "answer": {
     "kind": "list",
     "sections": [
       {
-        "title": "Open the dashboard and choose a trip",
+        "title": "Open the Trip info page from Dashboard",
         "listTag": "ol",
         "items": [
           "Click <strong>Dashboard</strong> in the toolbar.",
-          "Use the trip dropdown at the top of the page to choose the trip you want to review.",
-          "When you change the selected trip in the dashboard, Plantour also updates the current trip context for the rest of the app."
+          "Open the <strong>Trip</strong> section on the Dashboard.",
+          "Click <strong>Trip info</strong>. Plantour opens the dedicated <strong>Trip info</strong> page.",
+          "Use the trip dropdown at the top of that page to choose the trip you want to review.",
+          "When you change the selected trip there, Plantour also updates the current trip context for the rest of the app."
         ]
       },
       {
-        "title": "Open the dashboard sections you need",
+        "title": "Open the summary sections you need",
         "listTag": "ul",
         "items": [
           "<strong>Trip info</strong> shows the current trip overview and summary metrics.",
           "<strong>User Trip info</strong> shows your own progress, assignments, and packing status for that trip.",
           "<strong>All Users Trip info</strong> shows the wider team view with shared responsibilities and overall progress."
         ],
-        "afterHtml": "Click a section row to expand it, and click it again to collapse it."
+        "afterHtml": "Click a section row to expand it, and click it again to collapse it. The page keeps the trip selector at the top while you switch between these views."
       },
       {
-        "title": "When to use the dashboard",
+        "title": "When to use Trip info",
         "listTag": "ul",
         "items": [
-          "Use it when you want a quick overview before opening detailed trip pages.",
-          "Use it to see progress for yourself and for the whole trip without switching through every trip page one by one.",
-          "Use it to confirm that the correct trip is selected before you continue into trip-specific pages."
+          "Use it when you want one place to review the trip overview, your own progress, and the wider team progress.",
+          "Use it before opening detailed trip pages such as Itinerary, Items, Todos, Bags, Expenses, Notes, or Comments.",
+          "Use it to confirm that the correct trip is selected before continuing into trip-specific work."
         ]
       }
     ]

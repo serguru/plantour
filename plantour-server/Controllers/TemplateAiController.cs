@@ -21,6 +21,14 @@ public class TemplateAiController(IAiService service) : ControllerBase
         return Ok(dtos);
     }
 
+    [HttpGet("trip-plan/latest-questions")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<IEnumerable<TripAiQuestionDto>>> GetLatestTripPlanQuestions()
+    {
+        var dtos = await _service.GetLatestTripPlanQuestionsAsync();
+        return Ok(dtos);
+    }
+
     [HttpPost("items-by-prompt")]
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<AiItemDto>>> GetAllByPrompt(
@@ -55,8 +63,28 @@ public class TemplateAiController(IAiService service) : ControllerBase
         return Ok(dtos);
     }
 
+    [HttpPost("trip-plan/apply")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<TripAiApplyResponseDto>> ApplyTripPlan([FromBody] ApplyTripAiPlanRequest request)
+    {
+        var dto = await _service.ApplyTripPlanAsync(request.TripId, request.Prompt);
+        return Ok(dto);
+    }
 
+    [HttpPost("trip-plan/preview")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<TripAiPreviewResponseDto>> GetTripPlanPreview([FromBody] TripAiPreviewRequest request)
+    {
+        var dto = await _service.GetTripPlanPreviewAsync(request.Question, request.CurrencyText);
+        return Ok(dto);
+    }
 
-
+    [HttpPost("trip-plan/create")]
+    [AdminOnly]
+    public async Task<ActionResult<TripAiCreateTripResponseDto>> CreateTripFromPlan([FromBody] CreateTripFromAiPlanRequest request)
+    {
+        var dto = await _service.CreateTripFromPlanAsync(request);
+        return Ok(dto);
+    }
 
 }

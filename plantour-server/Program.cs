@@ -210,6 +210,9 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     // Configure Gemini settings
     builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
 
+    // Configure Trip note editor settings
+    builder.Services.Configure<TripNoteEditorSettings>(builder.Configuration.GetSection("TripNoteEditorSettings"));
+
     var key = Encoding.UTF8.GetBytes(jwtConfig.SecretKey
         ?? throw new InvalidOperationException("JwtSettings:SecretKey is null or missing in configuration."));
 
@@ -387,7 +390,7 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddSingleton<IAuthorizationHandler, UserRoleHandler>();
 
     // Register AutoMapper
-    builder.Services.AddAutoMapper(typeof(Program).Assembly);
+    builder.Services.AddAutoMapper(_ => { }, typeof(Program).Assembly);
 
     builder.Services.AddRateLimiter(options =>
     {
@@ -500,6 +503,7 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
 
     // Register services
     builder.Services.AddScoped<IUsersService, UsersService>();
+    builder.Services.AddScoped<IKeyService, KeyService>();
     builder.Services.AddScoped<IPackageService, PackService>();
     builder.Services.AddScoped<IThingService, ThingService>();
     builder.Services.AddScoped<ITodoService, TodoService>();
@@ -507,14 +511,20 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddScoped<ITripUserService, TripUserService>();
     builder.Services.AddScoped<ITripThingService, TripThingService>();
     builder.Services.AddScoped<ITripTodoService, TripTodoService>();
+    builder.Services.AddScoped<IItineraryPartService, ItineraryPartService>();
+        builder.Services.AddScoped<ITripActivityService, TripActivityService>();
+    builder.Services.AddScoped<ITripExpenseService, TripExpenseService>();
     builder.Services.AddScoped<ITripPackageService, TripPackageService>();
     builder.Services.AddScoped<ILookupsService, LookupsService>();
     builder.Services.AddScoped<IAdminsParticipantService, AdminsParticipantService>();
     builder.Services.AddScoped<ITripSharedService, TripSharedService>();
     builder.Services.AddScoped<ITripSharedTodoService, TripSharedTodoService>();
+    builder.Services.AddScoped<ITripSharedExpenseService, TripSharedExpenseService>();
     builder.Services.AddScoped<ICheckAccessService, CheckAccessService>();
     builder.Services.AddScoped<ITemplateService, TemplateService>();
     builder.Services.AddScoped<ITripCommentService, TripCommentService>();
+    builder.Services.AddScoped<ITripNoteService, TripNoteService>();
+    builder.Services.AddScoped<ITripNoteEditorService, TripNoteEditorService>();
     builder.Services.AddScoped<IDocumentsService, DocumentsService>();
     builder.Services.AddScoped<IEmailService, EmailService>();
     builder.Services.AddScoped<IInvitationService, InvitationService>();
@@ -530,11 +540,13 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddScoped<ISchedulerService, SchedulerService>();
     builder.Services.AddScoped<AccessCodeGenerator>();
     builder.Services.AddHttpClient<IBotProtectionService, BotProtectionService>();
+    builder.Services.AddHttpClient<IExpenseCurrencyRateService, ExpenseCurrencyRateService>();
 
     builder.Services.AddHttpClient<IBrevoEmailClient, BrevoEmailClient>();
     builder.Services.AddHttpClient<IAiService, AiService>();
 
     // Register repositories
+    builder.Services.AddScoped<plantour_server.Repositories.KeyRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.PackRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.ThingRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TodoRepository>();
@@ -553,6 +565,8 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddScoped<plantour_server.Repositories.TripUserRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripThingRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripTodoRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.ItineraryPartRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.TripUserExpenseRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripPackRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.LookupsRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository>();
@@ -561,17 +575,22 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddScoped<plantour_server.Repositories.DicTripRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripSharedRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripSharedTodoRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.TripSharedExpenseRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.CurrencyRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.TripNoteRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.LogsRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.AiTripPlanRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.AiPromptChecksRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.RefreshTokenRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TimeTickerRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.UserSettingsRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.TripActivityRepository>();
 
     builder.Services.AddScoped<HttpCurrentUser>();
 

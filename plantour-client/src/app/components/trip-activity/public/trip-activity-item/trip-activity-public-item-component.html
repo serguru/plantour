@@ -1,0 +1,40 @@
+<div class="container">
+  <amazon-link
+    class="ic-2-item ellipsis-text"
+    [item]="entity.name"
+    [linkText]="entity.name"
+  ></amazon-link>
+
+  @if (scheduleText || entity.address) {
+  <span class="ic-2-item ellipsis-text">
+    {{ scheduleText }}@if (scheduleText && entity.address) { · }{{ entity.address }}
+  </span>
+  }
+
+  <div class="ic-2-item ic-2-right">
+    @if (itemMetaData?.itineraryPartsVisible()) {
+    <p-select
+      class="ic-2-select"
+      [options]="itemMetaData.itineraryParts"
+      optionLabel="name"
+      optionValue="id"
+      [ngModel]="entity.itineraryPartId"
+      placeholder="Select itinerary part"
+      [ngModelOptions]="{ standalone: true }"
+      [showClear]="!itemMetaData?.isReadOnly?.()"
+      [disabled]="itemMetaData?.isReadOnly?.()"
+      appendTo="body"
+      (onChange)="onItineraryPartChange($event.value)"
+      (onClick)="onItineraryPartClick($event)"
+    ></p-select>
+    } @else if (entity.activity) {
+    <span class="ic-2-item ic-2-right ellipsis-text">{{ entity.activity }}</span>
+    }
+  </div>
+</div>
+@if (itemMetaData?.itineraryPartsVisible()) {
+<div class="smaller-text">{{ entity.itineraryPartName ? 'Itinerary part: ' + entity.itineraryPartName : 'No itinerary part' }}</div>
+}
+@if (entity.activity) {
+<div class="smaller-text">Activity: {{ entity.activity }}</div>
+}

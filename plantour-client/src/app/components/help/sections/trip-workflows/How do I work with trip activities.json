@@ -1,0 +1,57 @@
+{
+  "slug": "work-with-trip-activities",
+  "question": "How do I work with trip activities?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Open personal trip activities",
+        "listTag": "ol",
+        "items": [
+          "Click <strong>Dashboard</strong> in the toolbar.",
+          "Open <strong>Trip personal</strong> > <strong>Activities</strong>.",
+          "Plantour opens your personal trip activities for the currently selected trip."
+        ],
+        "afterHtml": "If the wrong trip opens, select the correct trip first and then return to the activity page."
+      },
+      {
+        "title": "Add, update, or delete activities",
+        "listTag": "ul",
+        "items": [
+          "On the personal activities page, you can add, update, or delete your own trip activities.",
+          "An activity can include a name, activity type, dates, address, optional coordinates, notes, and an itinerary part link."
+        ]
+      },
+      {
+        "title": "Connect activities to itinerary parts",
+        "listTag": "ul",
+        "items": [
+          "Use the itinerary part selector in the activity form when you want to attach the activity to one itinerary part.",
+          "In the activity list, Plantour can show or hide itinerary part selectors by using the page menu option <strong>Show Itinerary Parts</strong> or <strong>Hide Itinerary Parts</strong>.",
+          "When itinerary parts are visible, you can reassign an activity to a different itinerary part directly from the list.",
+          "This helps keep the activity plan aligned with the trip route and timing."
+        ]
+      },
+      {
+        "title": "Use activities on the map and in Google Maps directions",
+        "listTag": "ul",
+        "items": [
+          "Open <strong>Map</strong> from the Dashboard`s <strong>Trip</strong> section when you want to see itinerary parts and your activities together on one map.",
+          "Activities with valid coordinates or a geocodable address can be shown on the map and included in visible activity paths.",
+          "Use the path controls on the map page to show or hide itinerary and activity paths before sending directions.",
+          "Use <strong>Get directions</strong> on the map page when you want Plantour to send the currently visible itinerary and activity route points to Google Maps."
+        ]
+      },
+      {
+        "title": "Review and narrow the activity lists",
+        "listTag": "ul",
+        "items": [
+          "Use <strong>Filter by Name</strong> when you want to narrow the list by activity name.",
+          "Use the <strong>Activity</strong> filter when you want to show only one activity type.",
+          "Use <strong>Sort by Name</strong> if you want the list alphabetically.",
+          "Activity rows can show schedule, address, itinerary-part link, and activity type so you can review the plan quickly."
+        ]
+      }
+    ]
+  }
+}

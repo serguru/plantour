@@ -5,10 +5,15 @@
   "questions": [
     "How do I work with trips.json",
     "Why is current trip and how to set/unset and show/hide it.json",
+    "How do I work with the trip itinerary.json",
+    "How do I work with trip activities.json",
     "How do I work with trip todos.json",
     "What can I do with trip items.json",
     "How do I work with trip bags.json",
     "What options do I have to pack the trip items.json",
-    "How do I work with trip comments.json"
+    "How do I manage trip expenses.json",
+    "How do I keep travel notes.json",
+    "How do I work with trip comments.json",
+    "How can I see the trip on the map.json"
   ]
 }

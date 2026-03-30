@@ -8,6 +8,9 @@ public class UpdateTripRequest
     public Guid Id { get; set; }
     
     public Guid? TripStatusId { get; set; }
+
+    [Required]
+    public Guid? CurrencyId { get; set; }
     
     [Required]
     [StringLength(200)]

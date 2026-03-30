@@ -16,4 +16,16 @@ public partial class Currency
 
     [Column("name")]
     public string Name { get; set; } = null!;
+
+    [InverseProperty("Currency")]
+    public virtual ICollection<TripSharedExpense> TripSharedExpenses { get; set; } = new List<TripSharedExpense>();
+
+    [InverseProperty("Currency")]
+    public virtual ICollection<TripUserExpense> TripUserExpenses { get; set; } = new List<TripUserExpense>();
+
+    [InverseProperty("Currency")]
+    public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
+
+    [InverseProperty("Currency")]
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

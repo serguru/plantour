@@ -1,0 +1,123 @@
+<div class="page-container">
+  <app-form-header
+    [title]="title"
+    icon="money-bill"
+    [menuItems]="menuItems()"
+  ></app-form-header>
+
+  <div class="controls-wrapper">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="form-field">
+        <label for="name">Name<span class="required">*</span></label>
+        <input
+          appAutoFocus
+          pInputText
+          id="name"
+          type="text"
+          formControlName="name"
+          [placeholder]="!isViewMode ? 'Enter expense name' : ''"
+          [readonly]="isViewMode"
+        />
+
+        @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
+          @if (form.get('name')?.errors?.['required']) {
+            <small class="error-message">Name is required</small>
+          }
+        }
+      </div>
+
+      <div class="form-row two-columns">
+        <div class="form-field">
+          <label for="currencyId">Currency</label>
+          <p-select
+            id="currencyId"
+            formControlName="currencyId"
+            [options]="lookupCurrencies$ | async"
+            optionLabel="name"
+            optionValue="id"
+            [placeholder]="!isViewMode ? 'Use trip currency' : ''"
+            styleClass="w-full"
+            [showClear]="!isViewMode"
+            appendTo="body"
+          ></p-select>
+        </div>
+
+        <div class="form-field">
+          <label for="paymentMethod">Payment method</label>
+          <p-select
+            id="paymentMethod"
+            formControlName="paymentMethod"
+            [options]="lookupPaymentMethods$ | async"
+            optionLabel="name"
+            optionValue="name"
+            [placeholder]="!isViewMode ? 'Enter payment method (optional)' : ''"
+            styleClass="w-full"
+            [editable]="true"
+            [readonly]="isViewMode"
+            [showClear]="!isViewMode"
+            appendTo="body"
+          ></p-select>
+        </div>
+      </div>
+
+      <div class="form-row two-columns">
+        <div class="form-field">
+          <label for="amount">Amount<span class="required">*</span></label>
+          <p-inputnumber
+            inputId="amount"
+            formControlName="amount"
+            mode="decimal"
+            [min]="0.01"
+            [minFractionDigits]="0"
+            [maxFractionDigits]="2"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+            placeholder="Enter amount"
+            [readonly]="isViewMode"
+          ></p-inputnumber>
+          @if (form.get('amount')?.invalid && (form.get('amount')?.touched || form.get('amount')?.dirty)) {
+            <small class="error-message">Amount must be greater than 0</small>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="category">Category</label>
+          <input
+            pInputText
+            id="category"
+            type="text"
+            formControlName="category"
+            [placeholder]="!isViewMode ? 'Enter category (optional)' : ''"
+            [readonly]="isViewMode"
+          />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="notes">Notes</label>
+        <textarea
+          pTextarea
+          id="notes"
+          formControlName="notes"
+          rows="5"
+          [placeholder]="!isViewMode ? 'Enter notes (optional)' : ''"
+          [readonly]="isViewMode"
+        ></textarea>
+      </div>
+
+      <app-form-actions
+        [onCancel]="onCancel.bind(this)"
+        cancelLabel="To expenses"
+        cancelIcon="chevron-left"
+        [cancelDisabled]="false"
+        [onSubmit]="!isViewMode ? onSubmit.bind(this) : null"
+        submitLabel="Submit"
+        submitIcon="save"
+        [submitDisabled]="form.invalid"
+      ></app-form-actions>
+    </form>
+  </div>
+</div>

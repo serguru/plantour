@@ -11,6 +11,7 @@ public class TripRepository(PlantourContext context) : GenericRepository<Trip>(c
     {
         return await _dbSet
             .AsNoTracking()
+            .Include(x => x.Currency)
             .Include(x => x.TripStatus)
             .Include(x => x.TripUsers)
                 .ThenInclude(x => x.AdminParticipant)
@@ -51,6 +52,7 @@ public class TripRepository(PlantourContext context) : GenericRepository<Trip>(c
     {
         return await _dbSet
             .AsNoTracking()
+            .Include(x => x.Currency)
             .Include(x => x.TripStatus)
             .Include(x => x.TripUsers)
                 .ThenInclude(x => x.AdminParticipant)

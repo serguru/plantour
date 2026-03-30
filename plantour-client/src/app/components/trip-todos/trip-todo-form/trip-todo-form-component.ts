@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select, SelectChangeEvent } from 'primeng/select';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
-import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
+import { FormHeader } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
 import { LookupService } from '../../../services/lookup-service';
@@ -59,8 +59,6 @@ export class TripTodoFormComponent implements OnInit {
     return `${capitalizeFirstLetter(this.mode)} Trip Todo`;
   }
 
-  menuItems = computed<MenuConfig[]>(() => []);
-
   ngOnInit(): void {
     this.tripId = this.route.snapshot.params['tripId'];
     if (!this.tripId) {
@@ -78,6 +76,7 @@ export class TripTodoFormComponent implements OnInit {
           ...todos.map(x => x.category).filter((x): x is string => !!x),
           ...tripTodos.map(x => x.category).filter((x): x is string => !!x),
         ].filter((item, index, self) => index === self.findIndex(t => t.toLowerCase() === item.toLowerCase()));
+
         return resultNames.sort((a, b) => a.localeCompare(b));
       })
     );
@@ -92,20 +91,31 @@ export class TripTodoFormComponent implements OnInit {
           return todos.find(x => x.name?.toLowerCase() === name?.toLowerCase())?.category || '';
         };
 
-        resultNames = resultNames.map(x => ({ name: x, category: searchCategory(x) }));
+        resultNames = resultNames.map(x => {
+          const todo = todos.find(item => item.name?.toLowerCase() === x.toLowerCase());
+          return {
+            name: x,
+            category: searchCategory(x),
+            notes: todo?.notes ?? null,
+          };
+        });
+
         return resultNames.sort((a, b) => a.name.localeCompare(b.name));
       })
     );
 
     this.mode = this.route.snapshot.data['mode'];
     this.initForm();
+
     if (this.isAddMode) {
       return;
     }
+
     this.id = this.route.snapshot.params['id'];
     if (!this.id) {
       throw new Error('Id is required to edit a trip todo');
     }
+
     this.loadTodo();
   }
 
@@ -139,14 +149,16 @@ export class TripTodoFormComponent implements OnInit {
       this.messagesService.showWarning('Please fill in all required fields correctly');
       return;
     }
+
     if (this.isAddMode) {
       this.addTodo();
       return;
     }
+
     this.updateTodo();
   }
 
-  private addTodo() {
+  private addTodo(): void {
     const formValue = this.form.value;
     const request: CreateTripTodoRequest = {
       tripId: this.tripId!,
@@ -196,15 +208,20 @@ export class TripTodoFormComponent implements OnInit {
     return `/trips/${this.tripId}/trip-todos`;
   }
 
-  onChangeName(event: SelectChangeEvent) {
+  onChangeName(event: SelectChangeEvent): void {
     if (event.value == null) {
       return;
     }
+
     if (typeof event.value === 'object') {
-      this.form.controls['name'].patchValue(event.value.name);
-      this.form.controls['category'].patchValue(event.value.category);
+      this.form.patchValue({
+        name: event.value.name,
+        category: event.value.category,
+        notes: event.value.notes,
+      });
       return;
     }
+
     this.form.controls['name'].patchValue(event.value);
   }
 }

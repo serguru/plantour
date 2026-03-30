@@ -135,8 +135,6 @@ public class TripThingService(
         {
             throw new CustomException("Trip user not found");
         }
-
-
         var exists = await _tripUserThingRepository.AnyAsync(x =>
             x.TripUserId == tripUser.Id &&
             x.Name.ToLower() == request.Name.ToLower());
@@ -145,6 +143,7 @@ public class TripThingService(
         {
             throw new CustomException("Item with the same name already exists");
         }
+
         await CheckAccessAsync(request.TripId, 1);
         var entity = _mapper.Map<TripUserThing>(request);
         entity.Id = Guid.NewGuid();

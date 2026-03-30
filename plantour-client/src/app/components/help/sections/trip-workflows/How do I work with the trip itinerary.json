@@ -1,0 +1,52 @@
+{
+  "slug": "work-with-trip-itinerary",
+  "question": "How do I work with the trip itinerary?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Open the itinerary for the current trip",
+        "listTag": "ol",
+        "items": [
+          "Click <strong>Dashboard</strong> in the toolbar.",
+          "Open the <strong>Trip</strong> section.",
+          "Click <strong>Itinerary</strong>.",
+          "Plantour opens the <strong>Trip itinerary</strong> page for the currently selected trip."
+        ],
+        "afterHtml": "If the wrong trip opens, select the correct trip first and then return to <strong>Itinerary</strong>."
+      },
+      {
+        "title": "Add, update, or delete itinerary parts",
+        "listTag": "ol",
+        "beforeHtml": "Use itinerary parts to define the route and timing of the trip. Each part can contain a name, category, start date, end date, address, optional coordinates, and notes.",
+        "items": [
+          "Use <strong>Add</strong> to create a new itinerary part.",
+          "Select an itinerary part in the list and use <strong>Update</strong> to edit it.",
+          "Select an itinerary part and use <strong>Delete</strong> if you want to remove it from the trip.",
+          "After saving, Plantour returns you to the itinerary list and keeps the saved part selected."
+        ]
+      },
+      {
+        "title": "Review and narrow the itinerary list",
+        "listTag": "ul",
+        "items": [
+          "Each row can show the itinerary part name, category, schedule, address, and notes.",
+          "Use <strong>Sort by Start Date</strong> when you want to see the trip in time order.",
+          "Use <strong>Sort by Name</strong> when you want an alphabetical list instead.",
+          "Use filters such as <strong>Filter by Name</strong> and <strong>Category</strong> when the itinerary grows longer."
+        ]
+      },
+      {
+        "title": "Use the itinerary together with the map and activities",
+        "listTag": "ul",
+        "items": [
+          "Use the itinerary when you want to define where the trip goes and when each part happens.",
+          "Open <strong>Map</strong> from the Dashboard`s <strong>Trip</strong> section when you want to see itinerary parts and activities together on one map.",
+          "When itinerary parts have valid coordinates or a geocodable address, Plantour can show them on the map and include them in the visible route.",
+          "Use <strong>Get directions</strong> on the map page when you want Plantour to send the visible itinerary route to Google Maps.",
+          "Continue with trip activities when you want to plan what happens inside each part of the trip."
+        ]
+      }
+    ]
+  }
+}

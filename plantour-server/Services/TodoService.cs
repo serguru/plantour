@@ -6,7 +6,7 @@ using PlantourApi.Middleware;
 using PlantourApi.Models;
 
 namespace plantour_server.Services;
-
+// TODO: bulk insert does not work for todo from 
 public class TodoService(
     TodoRepository todoRepository,
     TodoCategoryRepository todoCategoryRepository,

@@ -1,23 +1,52 @@
 {
   "slug": "need-to-use",
-  "question": "How can Plantur help me solve my problems?",
+  "question": "How can Plantour help me solve my problems?",
   "answer": {
     "kind": "list",
     "sections": [
       {
+        "title": "Use Plantour when your trip information is scattered:",
         "listTag": "ul",
-        "beforeHtml": "Plantur is your assistant in trip planning and during your trip. It allows you to organize, store, and access trip information in one place. All trip participants have access to trip data, exchange trip-related messages, and coordinate their activities.",
+        "beforeHtml": "Plantour helps when one trip is spread across notes, chat messages, screenshots, documents, and memory. Instead of juggling separate tools, you keep the trip in one mobile-first workspace that stays useful before departure, during the trip, and after it ends.",
         "items": [
-          "Centralizing trip information",
-          "Preventing forgotten items",
-          "Save time by reusing item templates",
-          "AI trip items recommendations",
-          "Group coordination",
-          "Tracking items by bag",
-          "Shared responsibility for items and todos",
-          "Trip related email notifications",
-          "Trip comments",
-          "Lower travel stress"
+          "Trips, itineraries, activities, and maps stay together instead of being split across different apps.",
+          "Itinerary activities with addresses can be sent to Google Maps so you can get directions instantly while traveling.",
+          "Personal items, shared items, bags, and packing progress stay attached to the current trip context.",
+          "Travel notes with rich text and images give you one place for important trip details and memories.",
+          "PDF reports let you keep a printable summary when you need something shareable outside the app."
+        ]
+      },
+      {
+        "title": "Use Plantour when group travel becomes unclear:",
+        "listTag": "ul",
+        "beforeHtml": "Plantour is not only for solo preparation. It is built for shared trips where people need to know who is coming, who is responsible for what, and what is already handled.",
+        "items": [
+          "Personal and shared todos make responsibilities visible instead of disappearing in chat threads.",
+          "Shared items show what the group still needs and what is already covered.",
+          "Shared expenses help everyone understand the trip costs in one place.",
+          "Trip comments and notifications keep communication tied to the trip instead of getting lost in unrelated conversations."
+        ]
+      },
+      {
+        "title": "Use Plantour when planning from scratch takes too long:",
+        "listTag": "ul",
+        "beforeHtml": "Plantour reduces setup time so you do not have to rebuild the same trip structure every time.",
+        "items": [
+          "Predefined templates help you start common packing and preparation flows faster.",
+          "AI item recommendations help you fill missing packing ideas for a specific trip.",
+          "AI full trip generation can turn your requirements into a more complete starting plan instead of leaving you with a blank page.",
+          "Mobile-first screens make it practical to keep refining the plan while you are already moving."
+        ]
+      },
+      {
+        "title": "Use Plantour when you want less stress and fewer mistakes:",
+        "listTag": "ul",
+        "beforeHtml": "The main value is not only storing data. Plantour helps reduce missed tasks, forgotten gear, duplicated effort, and last-minute confusion.",
+        "items": [
+          "Packing by bag makes it easier to see what is ready, what is missing, and where each item belongs.",
+          "A clear itinerary and activity plan helps you feel oriented during the trip, and you can open Google Maps directions for addressed stops in one click.",
+          "One shared source of truth reduces repeated questions and manual coordination.",
+          "Better preparation means lower travel stress for both solo travelers and groups."
         ]
       }
     ]

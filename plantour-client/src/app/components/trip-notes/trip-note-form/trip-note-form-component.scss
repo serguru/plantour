@@ -1,0 +1,57 @@
+:host {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  .controls-wrapper form {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .trip-note-form__panel {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid #d7e3f0;
+    border-radius: 1rem;
+    background: #f8fbff;
+  }
+
+  .trip-note-form__panel-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #132238;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .trip-note-form__panel-chevron {
+    font-size: 0.95rem;
+    line-height: 1;
+    flex: 0 0 auto;
+  }
+
+  .trip-note-form__panel-body {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .trip-note-form__dropbox-copy {
+    display: grid;
+    gap: 0.3rem;
+    color: #4a6078;
+    line-height: 1.5;
+  }
+
+  .trip-note-form__dropbox-copy strong {
+    color: #132238;
+    font-size: 0.95rem;
+  }
+}

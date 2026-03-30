@@ -1,0 +1,180 @@
+<div class="page-container">
+  <section class="map-shell">
+    <app-entities-header
+      entityIcon="pi pi-map"
+      title="Map"
+      [headerButtons]="headerButtons()"
+      [menuItems]="menuItems()"
+      [useEntitiesActions]="false"
+    ></app-entities-header>
+
+    <section class="trip-summary">
+      <h1>{{ trip()?.name || 'Trip map' }}</h1>
+      <p>{{ formatTripDates(trip()) }}</p>
+    </section>
+
+    @if (!isBrowser) {
+    <div class="map-message">
+      <h2>Map loads in the browser</h2>
+      <p>The trip map will appear after the page hydrates in the browser.</p>
+    </div>
+    } @else if (!mapsApiKeyConfigured) {
+    <div class="map-message">
+      <h2>Add your API key</h2>
+      <p>Set <code>apiKey</code> in <code>src/app/components/trip-itinerary/map/maps.config.ts</code>, then reload the
+        app.</p>
+    </div>
+    } @else if (loading()) {
+    <div class="map-message">
+      <h2>Loading trip map</h2>
+      <p>Plantour is loading itinerary parts, personal activities, shared activities, and map coordinates.</p>
+    </div>
+    } @else if (apiReady()) {
+    <section class="map-stage">
+      @if (loadError()) {
+      <div class="map-banner map-banner-warning">{{ loadError() }}</div>
+      }
+
+      @if (hasLocationIssues()) {
+      <div class="map-banner map-banner-warning">
+        Some itinerary parts or activities could not be placed on the map. Valid locations are still shown.
+      </div>
+      }
+
+      <google-map
+        height="100%"
+        width="100%"
+        [options]="mapOptions()"
+        (mapInitialized)="onMapInitialized($event)"
+      >
+        @if (showItineraryPath() && itineraryPath().length > 1) {
+        <map-polyline
+          [path]="itineraryPath()"
+          [options]="itineraryPolylineOptions"
+        />
+        }
+
+        @for (activityPath of visibleActivityPaths(); track activityPath.id) {
+        <map-polyline
+          [path]="activityPath.path"
+          [options]="activityPath.options"
+        />
+        }
+
+        @for (point of visiblePoints(); track point.id) {
+        <map-marker
+          #marker="mapMarker"
+          [position]="point.position"
+          [title]="point.title"
+          [options]="getMarkerOptions(point)"
+          (mapClick)="openPoint(point, marker)"
+        />
+        }
+
+        <map-info-window>
+          @if (selectedPoint(); as point) {
+          <div class="info-window">
+            <span class="info-type">{{ point.kindLabel }}</span>
+            <strong>{{ point.title }}</strong>
+            <p>{{ point.meta }}</p>
+
+            @if (point.address) {
+            <p>{{ point.address }}</p>
+            }
+
+            @if (point.startDate) {
+            <p>Start: {{ formatDate(point.startDate) }}</p>
+            }
+
+            @if (point.endDate) {
+            <p>End: {{ formatDate(point.endDate) }}</p>
+            }
+
+            @if (point.notes) {
+            <p>{{ point.notes }}</p>
+            }
+
+            <p>{{ point.position.lat.toFixed(6) }}, {{ point.position.lng.toFixed(6) }}</p>
+          </div>
+          }
+        </map-info-window>
+      </google-map>
+
+      @if (pathList().length > 0) {
+      <section class="path-panel">
+        <div class="path-panel-toolbar">
+          <button
+            type="button"
+            class="path-panel-toggle"
+            [attr.aria-expanded]="!pathsCollapsed()"
+            [attr.aria-label]="pathsCollapsed() ? 'Expand paths' : 'Collapse paths'"
+            (click)="togglePathsCollapsed()"
+          >
+            <span>Paths</span>
+            <span
+              class="path-panel-chevron pi"
+              [class.pi-chevron-down]="pathsCollapsed()"
+              [class.pi-chevron-up]="!pathsCollapsed()"
+              aria-hidden="true"
+            ></span>
+          </button>
+        </div>
+
+        @if (!pathsCollapsed()) {
+        <div class="path-panel-body">
+          <div class="path-list">
+            @for (pathItem of pathList(); track pathItem.id) {
+            <div class="path-toggle">
+              <p-checkbox
+                [binary]="true"
+                [inputId]="'path-toggle-' + pathItem.id"
+                [ngModel]="pathItem.visible"
+                (ngModelChange)="pathItem.id === 'itinerary' ? toggleItineraryPath($event) : toggleActivityPath(pathItem.id, $event)"
+              />
+              <label class="path-toggle-copy" [attr.for]="'path-toggle-' + pathItem.id">
+                <strong>{{ pathItem.title }}</strong>
+                <span>{{ pathItem.kindLabel }} · {{ pathItem.pointCount }} points · {{ pathItem.visible ? 'Shown' : 'Hidden' }}</span>
+              </label>
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </section>
+      }
+    </section>
+
+    @if (hasLocationIssues()) {
+    <section class="itinerary-fallback">
+      <div class="fallback-message">
+        <h2>Needs map data</h2>
+        <p>These itinerary parts or activities still need valid coordinates or a geocodable address.</p>
+      </div>
+
+      <div class="invalid-parts">
+        @for (item of invalidLocations(); track item.id) {
+        <article class="invalid-part-card">
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.entityLabel }}</p>
+          <p>{{ item.reason }}</p>
+
+          @if (item.address) {
+          <p>Address: {{ item.address }}</p>
+          }
+
+          @if (item.startDate) {
+          <p>Start: {{ formatDate(item.startDate) }}</p>
+          }
+        </article>
+        }
+      </div>
+    </section>
+    }
+    } @else {
+    <div class="map-message">
+      <h2>Map unavailable</h2>
+      <p>Check the Google Maps key and reload the page.</p>
+    </div>
+    }
+  </section>
+</div>

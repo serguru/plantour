@@ -1,0 +1,15 @@
+<div class="page-container">
+  <app-entities-header
+    entityIcon="pi pi-map"
+    title="Trip itinerary"
+    [delete]="deletePart.bind(this)"
+    entityName="itinerary part"
+    addUrl="add"
+    editUrl="edit/:id"
+    [menuItems]="menuItems()"
+  ></app-entities-header>
+
+  <app-entities-actions></app-entities-actions>
+
+  <app-entities [itemComponent]="itineraryItemComponent"></app-entities>
+</div>

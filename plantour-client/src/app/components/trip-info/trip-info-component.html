@@ -1,0 +1,62 @@
+<div class="page-container">
+
+    <app-form-header
+        icon="table"
+        title="Trip info"
+        [menuItems]="menuItems()"
+    ></app-form-header>
+
+
+    <div class="dahboard-content">
+
+        <div class="trip-select">
+            <p-select
+                style="width: 100%"
+                [options]="trips"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Select Trip"
+                [ngModel]="selectedTripId()"
+                (onChange)="onTripChange($event)"
+            >
+
+            </p-select>
+        </div>
+        <ul class="section">
+            @for (item of items; track item.id) {
+            <li
+                class="item"
+                [class.expanded]="item.expanded"
+            >
+                <button
+                    type="button"
+                    class="item-toggle"
+                    (click)="toggleItem(item)"
+                    [attr.aria-expanded]="item.expanded"
+                >
+                <div class="item-header">
+                    <div class="item-title-group">
+                        <i
+                            [class]="item.icon"
+                            class="item-icon"
+                        ></i>
+                        <span class="item-title">{{ item.title }}</span>
+                    </div>
+                    <i [class]="item.expanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+                </div>
+                </button>
+
+                @if (item.expanded) {
+                <div class="item-content">
+                    @if (item.component) {
+                    <ng-container *ngComponentOutlet="item.component; inputs: getEntityInputs()"></ng-container>
+                    } @else {
+                    <p>{{ item.description }}</p>
+                    }
+                </div>
+                }
+            </li>
+            }
+        </ul>
+    </div>
+</div>

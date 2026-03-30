@@ -25,6 +25,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<AiThing> AiThings { get; set; }
 
+    public virtual DbSet<AiTripPlan> AiTripPlans { get; set; }
+
     public virtual DbSet<ApiVisit> ApiVisits { get; set; }
 
     public virtual DbSet<CommunicationType> CommunicationTypes { get; set; }
@@ -43,7 +45,13 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Invitation> Invitations { get; set; }
 
+    public virtual DbSet<ItineraryPart> ItineraryParts { get; set; }
+
+    public virtual DbSet<ItineraryPartCategory> ItineraryPartCategories { get; set; }
+
     public virtual DbSet<Log> Logs { get; set; }
+
+    public virtual DbSet<PaymentMethod> PaymentMethods { get; set; }
 
     public virtual DbSet<Plan> Plans { get; set; }
 
@@ -71,7 +79,13 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Trip> Trips { get; set; }
 
+    public virtual DbSet<TripActivity> TripActivities { get; set; }
+
     public virtual DbSet<TripComment> TripComments { get; set; }
+
+    public virtual DbSet<TripNote> TripNotes { get; set; }
+
+    public virtual DbSet<TripSharedExpense> TripSharedExpenses { get; set; }
 
     public virtual DbSet<TripSharedThing> TripSharedThings { get; set; }
 
@@ -80,6 +94,8 @@ public partial class PlantourContext : DbContext
     public virtual DbSet<TripStatus> TripStatuses { get; set; }
 
     public virtual DbSet<TripUser> TripUsers { get; set; }
+
+    public virtual DbSet<TripUserExpense> TripUserExpenses { get; set; }
 
     public virtual DbSet<TripUserPackage> TripUserPackages { get; set; }
 
@@ -90,6 +106,8 @@ public partial class PlantourContext : DbContext
     public virtual DbSet<Unit> Units { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<UserKey> UserKeys { get; set; }
 
     public virtual DbSet<UserPackage> UserPackages { get; set; }
 
@@ -166,6 +184,16 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Prompt).WithMany(p => p.AiThings).HasConstraintName("ai_things_prompt_id_fkey");
         });
 
+        modelBuilder.Entity<AiTripPlan>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("ai_trip_plans_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasOne(d => d.User).WithMany(p => p.AiTripPlans).HasConstraintName("ai_trip_plans_user_id_fkey");
+        });
+
         modelBuilder.Entity<ApiVisit>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("api_visits_pkey");
@@ -228,6 +256,23 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.AdminParticipant).WithMany(p => p.Invitations).HasConstraintName("invitations_admin_participant_id_fkey");
         });
 
+        modelBuilder.Entity<ItineraryPart>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("itinerary_parts_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasOne(d => d.Trip).WithMany(p => p.ItineraryParts).HasConstraintName("itinerary_parts_trip_id_fkey");
+        });
+
+        modelBuilder.Entity<ItineraryPartCategory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("itinerary_part_categories_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
         modelBuilder.Entity<Log>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("logs_pkey");
@@ -243,6 +288,13 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.TimeStamp)
                 .HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)")
                 .HasComment("timestamptz when the log event was recorded");
+        });
+
+        modelBuilder.Entity<PaymentMethod>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("payment_methods_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
         modelBuilder.Entity<Plan>(entity =>
@@ -354,11 +406,32 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
+            entity.HasOne(d => d.Currency).WithMany(p => p.Trips)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("trips_currency_id_fkey");
+
             entity.HasOne(d => d.TripStatus).WithMany(p => p.Trips)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("trips_trip_status_id_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.Trips).HasConstraintName("trips_user_id_fkey");
+        });
+
+        modelBuilder.Entity<TripActivity>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("trip_activities_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.ItineraryPart).WithMany(p => p.TripActivities)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("trip_activities_itinerary_part_id_fkey");
+
+            entity.HasOne(d => d.Trip).WithMany(p => p.TripActivities).HasConstraintName("trip_activities_trip_id_fkey");
+
+            entity.HasOne(d => d.TripUser).WithMany(p => p.TripActivities)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("trip_activities_trip_user_id_fkey");
         });
 
         modelBuilder.Entity<TripComment>(entity =>
@@ -372,6 +445,39 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.TripUser).WithMany(p => p.TripComments)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("trip_comments_trip_user_id_fkey");
+        });
+
+        modelBuilder.Entity<TripNote>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("trip_notes_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasOne(d => d.TripActivity).WithMany(p => p.TripNotes)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("trip_notes_trip_activity_id_fkey");
+
+            entity.HasOne(d => d.TripUser).WithMany(p => p.TripNotes).HasConstraintName("trip_notes_trip_user_id_fkey");
+        });
+
+        modelBuilder.Entity<TripSharedExpense>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("trip_shared_expenses_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.AssignedExpense).WithMany(p => p.TripSharedExpenses)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("trip_shared_expenses_assigned_expense_id_fkey");
+
+            entity.HasOne(d => d.AssignedTo).WithMany(p => p.TripSharedExpenses)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("trip_shared_expenses_assigned_to_id_fkey");
+
+            entity.HasOne(d => d.Currency).WithMany(p => p.TripSharedExpenses).HasConstraintName("trip_shared_expenses_currency_id_fkey");
+
+            entity.HasOne(d => d.Trip).WithMany(p => p.TripSharedExpenses).HasConstraintName("trip_shared_expenses_trip_id_fkey");
         });
 
         modelBuilder.Entity<TripSharedThing>(entity =>
@@ -426,6 +532,21 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.Trip).WithMany(p => p.TripUsers).HasConstraintName("trip_users_trip_id_fkey");
         });
 
+        modelBuilder.Entity<TripUserExpense>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("trip_user_expenses_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.Currency).WithMany(p => p.TripUserExpenses).HasConstraintName("trip_user_expenses_currency_id_fkey");
+
+            entity.HasOne(d => d.Recipient).WithMany(p => p.TripUserExpenseRecipients)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("trip_user_expenses_recipient_id_fkey");
+
+            entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserExpenseTripUsers).HasConstraintName("trip_user_expenses_trip_user_id_fkey");
+        });
+
         modelBuilder.Entity<TripUserPackage>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("trip_user_packages_pkey");
@@ -474,6 +595,21 @@ public partial class PlantourContext : DbContext
             entity.HasOne(d => d.AccessType).WithMany(p => p.Users)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("users_access_type_id_fkey");
+
+            entity.HasOne(d => d.Currency).WithMany(p => p.Users)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("users_currency_id_fkey");
+        });
+
+        modelBuilder.Entity<UserKey>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("user_keys_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserKeys).HasConstraintName("user_keys_user_id_fkey");
         });
 
         modelBuilder.Entity<UserPackage>(entity =>

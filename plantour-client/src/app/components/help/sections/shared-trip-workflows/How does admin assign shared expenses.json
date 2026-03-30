@@ -1,0 +1,35 @@
+{
+  "slug": "how-does-admin-assign-shared-expenses",
+  "question": "How does admin assign shared expenses?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Assign or reassign one shared expense from its row",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to pick one participant directly on one shared-expense row.",
+        "items": [
+          "Open <strong>Dashboard</strong> > <strong>Trip Shared</strong> > <strong>Expenses</strong> for the selected trip.",
+          "If assignee selectors are hidden, open the page menu and choose <strong>Show Assignees</strong>.",
+          "Use the <strong>Select assignee</strong> dropdown on the shared-expense row and choose the participant who should handle it.",
+          "Plantour assigns the shared expense immediately. If that expense was already assigned, changing the assignee works as a reassignment.",
+          "If you clear the assignee dropdown, Plantour unassigns that shared expense."
+        ]
+      },
+      {
+        "title": "Assign or unassign many shared expenses at once",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want to work in bulk with one participant and many currently shown shared expenses.",
+        "items": [
+          "Open the actions bar in the page header.",
+          "Choose the <strong>Trip participant</strong> target and select the participant you want.",
+          "Set the deadline-days field if you want Plantour to calculate an assignment deadline for the shared expenses you are about to assign.",
+          "Filter the list first if you want to limit which shared expenses are currently shown.",
+          "Click the page-level plus button to assign all currently shown not-targeted shared expenses to that participant.",
+          "Click the page-level minus button to unassign the currently shown targeted shared expenses from that participant."
+        ],
+        "afterHtml": "The shared-expense list updates its assignment status text so you can see whether each row is awaiting assignment, assigned, accepted, or rejected. You can also use the page menu to <strong>Show Assignments</strong>, <strong>Hide Assignments</strong>, or download the expenses PDF."
+      }
+    ]
+  }
+}

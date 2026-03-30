@@ -1,0 +1,105 @@
+:host {
+  .trip-note-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .trip-note-row__title-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .trip-note-row__title {
+    font-weight: 700;
+    color: #18343a;
+    word-break: break-word;
+  }
+
+  .trip-note-row__mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #50646b;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .trip-note-row__mark input {
+    margin: 0;
+  }
+
+  .trip-note-row__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.3rem;
+  }
+
+  .trip-note-row__select {
+    min-width: 16rem;
+  }
+
+  .trip-note-row__body {
+    grid-column: 1 / -1;
+    padding-top: 0.5rem;
+  }
+
+  & ::ng-deep .trip-note-rendered-content p,
+  & ::ng-deep .trip-note-rendered-content h2,
+  & ::ng-deep .trip-note-rendered-content h3,
+  & ::ng-deep .trip-note-rendered-content ul,
+  & ::ng-deep .trip-note-rendered-content ol,
+  & ::ng-deep .trip-note-rendered-content blockquote {
+    margin: 0 0 0.85rem;
+  }
+
+  & ::ng-deep .trip-note-rendered-content img {
+    display: inline-block;
+    max-width: min(100%, 28rem);
+    height: auto;
+    vertical-align: top;
+    border-radius: 0.9rem;
+    border: 1px solid #d5dee2;
+  }
+
+  & ::ng-deep .trip-note-rendered-content p > img + img {
+    margin-left: 0.75rem;
+  }
+
+  & ::ng-deep .trip-note-rendered-content blockquote {
+    border-left: 4px solid #9ab7bc;
+    margin-left: 0;
+    padding-left: 0.85rem;
+    color: #4b6369;
+  }
+
+  & ::ng-deep .trip-note-rendered-content code {
+    background: #f1f5f6;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.3rem;
+  }
+
+  & ::ng-deep .trip-note-rendered-image {
+    margin: 0.75rem 0;
+  }
+
+  @media (max-width: 900px) {
+    .trip-note-row {
+      grid-template-columns: 1fr;
+    }
+
+    .trip-note-row__select {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .trip-note-row__title-row {
+      align-items: start;
+      flex-direction: column;
+    }
+  }
+}

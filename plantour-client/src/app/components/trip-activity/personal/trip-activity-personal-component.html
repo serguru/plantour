@@ -1,0 +1,18 @@
+<div class="page-container">
+  <app-entities-header
+    entityIcon="pi pi-user"
+    title="Personal trip activities"
+    [delete]="deleteTripActivity.bind(this)"
+    entityName="personal activity"
+    addUrl="add"
+    editUrl="edit/:id"
+    [menuItems]="menuItems()"
+  ></app-entities-header>
+
+  <app-entities-actions></app-entities-actions>
+
+  <app-entities
+    [itemComponent]="tripActivityItemComponent"
+    [itemMetaData]="itemMetaData"
+  ></app-entities>
+</div>

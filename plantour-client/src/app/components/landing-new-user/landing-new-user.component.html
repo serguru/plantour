@@ -1,5 +1,7 @@
+@if (showLandingContent()) {
 <div class="landing-container">
   <header class="hero">
+    <p class="hero-kicker">Plantour Travel Assistant</p>
     <div class="header-container">
       <h1 class="slogan">
         <span>Plan less.</span>
@@ -10,15 +12,27 @@
   </header>
 
   <section class="features-section">
-    <h2>Everything you need to plan a trip</h2>
+    <h2>Six reasons travelers pick Plantour</h2>
+    <p class="section-intro">
+      Plantour now covers the full travel workflow: planning, itineraries, maps, packing, collaboration, notes,
+      AI generation, and final reports in one mobile-first workspace.
+    </p>
     <div class="features-grid">
       @for (feature of featureList; track feature.title) {
-      <article class="feature-card">
-        <div class="icon-container">
-          <span [class]="'pi pi-' + feature.icon"></span>
-          <h3 class="feature-title">{{ feature.title }}</h3>
+      <article class="feature-card" [ngClass]="'tone-' + feature.tone">
+        <div class="feature-top">
+          <p class="feature-eyebrow">{{ feature.eyebrow }}</p>
+          <div class="feature-icon" aria-hidden="true">
+            <span [class]="'pi pi-' + feature.icon"></span>
+          </div>
         </div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
         <p class="feature-desc">{{ feature.description }}</p>
+        <ul class="feature-points">
+          @for (highlight of feature.highlights; track highlight) {
+          <li>{{ highlight }}</li>
+          }
+        </ul>
       </article>
       }
     </div>
@@ -28,11 +42,14 @@
     <div class="try-section">
       <div class="try-card">
         <button class="try-button" (click)="usersService.createTemporaryUser()">Open a sample trip</button>
-        <h3>No registration required</h3>
-        <h3>Start with a ready-made sample trip</h3>
+        <h3>Try the full Plantour workflow in guest mode</h3>
+        <p class="try-note">Open a ready-made sample trip and explore planning, itinerary, bags, shared work, notes, expenses, and AI tools without registration.</p>
       </div>
     </div>
   </section>
 
   <ng-container *ngComponentOutlet="plansPanelComponent"></ng-container>
 </div>
+} @else {
+<div class="landing-pending" aria-hidden="true"></div>
+}

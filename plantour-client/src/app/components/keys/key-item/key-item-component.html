@@ -1,0 +1,9 @@
+<div class="ic-2-item ellipsis-text">
+  <span>{{ entity.name }}</span>
+  @if (!entity.active) {
+  <span> (inactive)</span>
+  }
+  @if (maskedKey) {
+  <span> · {{ maskedKey }}</span>
+  }
+</div>

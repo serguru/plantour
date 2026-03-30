@@ -511,6 +511,10 @@ p-panel.list-actions-panel {
   display: none;
 }
 
+.pl-button.dashboard-button .button-label {
+  display: block;
+}
+
 @media (min-width: 860px) {
   .pl-button .button-label {
     display: block;

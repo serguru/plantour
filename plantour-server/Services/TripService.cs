@@ -7,6 +7,7 @@ using PlantourApi.Middleware;
 using PlantourApi.Models;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace plantour_server.Services;
 
@@ -79,7 +80,14 @@ public class TripService(
         var trip = _mapper.Map<Trip>(request);
         trip.Id = Guid.NewGuid();
         trip.UserId = _currentUser.UserId;
-        await _tripRepository.AddAsync(trip);
+        try
+        {
+            await _tripRepository.AddAsync(trip);
+        }
+        catch (DbUpdateException ex) when (IsTripDatesOverlapError(ex))
+        {
+            throw new CustomException("Trip dates overlap with another trip for this user", "TRIP_DATES_OVERLAP");
+        }
         TripDto tripDto = _mapper.Map<TripDto>(trip);
 
         TripUser tripUser = new()
@@ -214,5 +222,10 @@ public class TripService(
     }
 
 
+    private static bool IsTripDatesOverlapError(DbUpdateException ex)
+    {
+        var message = ex.GetBaseException().Message;
+        return message.Contains("Trip dates overlap with another trip for this user", StringComparison.OrdinalIgnoreCase);
+    }
 }
 

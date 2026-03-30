@@ -60,6 +60,7 @@ export class HelpAnswerComponent {
         description: page.description,
         canonicalUrl: this.buildAbsoluteUrl(this.pageUrl(page.id)),
         ogType: 'article',
+        robots: page.allowIndexing ? 'index,follow' : 'noindex,nofollow,noarchive,nosnippet',
         jsonLd: this.buildJsonLd(page, this.currentQuestion())
       });
     });
@@ -152,6 +153,8 @@ export class HelpAnswerComponent {
   private buildJsonLd(page: HelpPage, question: HelpQuestionDefinition | null): Record<string, unknown> {
     const canonicalUrl = this.buildAbsoluteUrl(this.pageUrl(page.id));
     const homeUrl = this.buildAbsoluteUrl(getHelpPageUrl(HELP_HOME_PAGE_ID));
+    const section = this.currentSection();
+    const sectionUrl = section ? this.buildAbsoluteUrl(getHelpPageUrl(HELP_HOME_PAGE_ID) + `#${section.id}`) : homeUrl;
     const answerText = question && question.answer.kind !== 'component'
       ? getHelpAnswerPlainText(question.answer)
       : page.description;
@@ -160,7 +163,32 @@ export class HelpAnswerComponent {
       '@context': 'https://schema.org',
       '@graph': [
         {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Help',
+              item: homeUrl
+            },
+            ...(section ? [{
+              '@type': 'ListItem',
+              position: 2,
+              name: section.title,
+              item: sectionUrl
+            }] : []),
+            {
+              '@type': 'ListItem',
+              position: section ? 3 : 2,
+              name: page.title,
+              item: canonicalUrl
+            }
+          ]
+        },
+        {
           '@type': 'FAQPage',
+          '@id': `${canonicalUrl}#faq`,
+          url: canonicalUrl,
           mainEntity: [
             {
               '@type': 'Question',
@@ -174,7 +202,7 @@ export class HelpAnswerComponent {
         },
         {
           '@type': 'WebPage',
-          '@id': canonicalUrl,
+          '@id': `${canonicalUrl}#webpage`,
           url: canonicalUrl,
           name: page.title,
           description: page.description,

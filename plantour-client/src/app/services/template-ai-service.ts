@@ -21,7 +21,6 @@ export interface AiPromptDto {
 export interface AiItemsRequest {
   tripId?: string;
   prompt: string;
-
 }
 
 @Injectable({

@@ -2,10 +2,11 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { TripService, CreateTripRequest, UpdateTripRequest, TripDto } from '../../../services/trip-service';
 import { FormControl, ReactiveFormsModule, Validators, FormGroup, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { combineLatest } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 
-import { LookupService, TripStatusDto } from '../../../services/lookup-service';
+import { CurrencyDto, LookupService, TripStatusDto } from '../../../services/lookup-service';
 import { MessagesService } from '../../../services/messages-service';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
@@ -30,9 +31,12 @@ import { dateRangeValidator } from '../../../helpers/date-range-validator';
     Select
 ],
   standalone: true,
-  templateUrl: './trip-form-component.html'
+  templateUrl: './trip-form-component.html',
+  styleUrl: './trip-form-component.scss'
 })
 export class TripFormComponent implements OnInit {
+  private readonly componentId = 'trips';
+  private readonly lastCurrencyIdKey = 'lastCurrencyId';
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -45,6 +49,7 @@ export class TripFormComponent implements OnInit {
   lookupService = inject(LookupService);
 
   tripStatuses: TripStatusDto[] = [];
+  currencies: CurrencyDto[] = [];
 
   mode: 'add' | 'edit' | 'view' = 'view';
   id: string | null = null;
@@ -74,15 +79,21 @@ export class TripFormComponent implements OnInit {
     this.initForm();
 
     if (this.isAddMode) {
-      this.lookupService.tripStatuses$.subscribe(statuses => {
+      combineLatest([this.lookupService.tripStatuses$, this.lookupService.currencies$]).subscribe(([statuses, currencies]) => {
         this.tripStatuses = statuses;
-        this.form.patchValue({ tripStatusId: this.tripStatuses.length > 0 ? this.tripStatuses[0].id : null });
+        this.currencies = currencies;
+        const defaultCurrency = this.getDefaultCurrency();
+        this.form.patchValue({
+          tripStatusId: this.tripStatuses.length > 0 ? this.tripStatuses[0].id : null,
+          currencyId: defaultCurrency?.id ?? null
+        });
       });
       return;
     }
 
-    this.lookupService.tripStatuses$.subscribe(statuses => {
+    combineLatest([this.lookupService.tripStatuses$, this.lookupService.currencies$]).subscribe(([statuses, currencies]) => {
       this.tripStatuses = statuses;
+      this.currencies = currencies;
       this.id = this.route.snapshot.paramMap.get('id');
       this.loadTrip();
     });
@@ -94,10 +105,28 @@ export class TripFormComponent implements OnInit {
     this.form = this.fb.group({
       name: new FormControl('', Validators.required),
       tripStatusId: new FormControl('', []),
+      currencyId: new FormControl('', Validators.required),
       notes: new FormControl('', []),
       startDate: new FormControl<string | null>(null, Validators.required),
       endDate: new FormControl<string | null>(null, Validators.required),
     },{ validators: dateRangeValidator });
+  }
+
+  private getDefaultCurrency(): CurrencyDto | null {
+    const savedCurrencyId = this.localStorageService.getComponentKey(this.componentId, this.lastCurrencyIdKey);
+    const savedCurrency = savedCurrencyId
+      ? this.currencies.find(currency => currency.id === savedCurrencyId)
+      : null;
+
+    if (savedCurrency) {
+      return savedCurrency;
+    }
+
+    return this.currencies.find(currency => currency.name === 'USD') ?? this.currencies[0] ?? null;
+  }
+
+  private persistLatestCurrency(currencyId: string | null | undefined): void {
+    this.localStorageService.setComponentKey(this.componentId, this.lastCurrencyIdKey, currencyId || null);
   }
 
   private loadTrip(): void {
@@ -109,6 +138,7 @@ export class TripFormComponent implements OnInit {
         this.form.patchValue({
           name: trip.name,
           tripStatusId: trip.tripStatusId,
+          currencyId: trip.currencyId,
           notes: trip.notes,
           startDate: trip.startDate,
           endDate: trip.endDate
@@ -139,6 +169,7 @@ export class TripFormComponent implements OnInit {
     const request: CreateTripRequest = {
       name: formValue.name?.trim(),
       tripStatusId: formValue.tripStatusId || null,
+      currencyId: formValue.currencyId || null,
       notes: formValue.notes?.trim() || null,
       startDate: formValue.startDate || null,
       endDate: formValue.endDate || null
@@ -146,7 +177,8 @@ export class TripFormComponent implements OnInit {
 
     this.service.add(request).subscribe({
       next: (trip: TripDto) => {
-        this.localStorageService.setComponentKey('trips', 'selectedId', trip.id);
+        this.persistLatestCurrency(request.currencyId);
+        this.localStorageService.setComponentKey(this.componentId, 'selectedId', trip.id);
         this.messagesService.showInfo('Trip added successfully');
         this.router.navigate(['/trips']);
       }
@@ -161,6 +193,7 @@ export class TripFormComponent implements OnInit {
       id: this.id,
       name: formValue.name?.trim(),
       tripStatusId: formValue.tripStatusId || null,
+      currencyId: formValue.currencyId || null,
       notes: formValue.notes?.trim() || null,
       startDate: formValue.startDate || null,
       endDate: formValue.endDate || null
@@ -168,7 +201,8 @@ export class TripFormComponent implements OnInit {
 
     this.service.update(request).subscribe({
       next: () => {
-        this.localStorageService.setComponentKey('trips', 'selectedId', this.id!);
+        this.persistLatestCurrency(request.currencyId);
+        this.localStorageService.setComponentKey(this.componentId, 'selectedId', this.id!);
         this.messagesService.showInfo('Trip updated successfully');
         this.router.navigate(['/trips']);
       }

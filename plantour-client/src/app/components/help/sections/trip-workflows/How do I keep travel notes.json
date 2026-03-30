@@ -1,0 +1,70 @@
+{
+  "slug": "keep-travel-notes",
+  "question": "How do I keep travel notes?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Open trip notes for the current trip",
+        "listTag": "ol",
+        "items": [
+          "Click <strong>Dashboard</strong> in the toolbar.",
+          "Open <strong>Trip personal</strong> > <strong>Notes</strong>.",
+          "Plantour opens the <strong>Trip notes</strong> page for the currently selected trip."
+        ],
+        "afterHtml": "If the wrong trip opens, select the correct trip first and then return to <strong>Notes</strong>."
+      },
+      {
+        "title": "Add, update, or delete a trip note",
+        "listTag": "ol",
+        "beforeHtml": "Use trip notes when you want to keep travel information, plans, reminders, or image-based references inside the selected trip.",
+        "items": [
+          "Use <strong>Add</strong> to create a new trip note.",
+          "Enter a required title.",
+          "Optionally choose an activity if you want to connect the note to one activity.",
+          "Enter note content in the editor. Plantour requires meaningful content before saving.",
+          "Click <strong>Submit</strong> to save the note.",
+          "Select a saved note and use <strong>Update</strong> to edit it, or <strong>Delete</strong> to remove it."
+        ]
+      },
+      {
+        "title": "How to insert your Dropbox images",
+        "listTag": "ol",
+        "beforeHtml": "Plantour can store private Dropbox image references inside trip notes, so you do not need to paste public shared Dropbox links.",
+        "items": [
+          "Open <strong>Add</strong> or <strong>Update</strong> for the note you want to edit.",
+          "Open the page menu in the note form header and choose <strong>Connect to Dropbox</strong>.",
+          "Complete the Dropbox popup authorization and return to Plantour. When the connection succeeds, the three dot menu item shows <strong>Disconnect from Dropbox</strong>.",
+          "Place the editor cursor where the image should be inserted.",
+          "Click the editor toolbar button <strong>Dropbox</strong>.",
+          "In the <strong>Choose Dropbox image</strong> dialog, open folders as needed, use <strong>Up</strong> to go to the parent folder, and use <strong>Refresh</strong> when you need to reload the current Dropbox location.",
+          "Click the image you want to insert. Plantour adds it to the editor and stores it as a private Dropbox reference.",
+          "Click <strong>Submit</strong> to save the note with the inserted image."
+        ],
+        "afterHtml": "If Dropbox is already connected, the page menu changes to <strong>Disconnect from Dropbox</strong>. You can still use the regular <strong>Image</strong> toolbar button when you want to insert an image from a public <strong>http://</strong> or <strong>https://</strong> URL instead."
+      },
+      {
+        "title": "Use the editor tools and adjust images",
+        "listTag": "ul",
+        "items": [
+          "The editor toolbar includes <strong>Undo</strong>, <strong>Redo</strong>, paragraph and heading styles, <strong>Bold</strong>, <strong>Italic</strong>, <strong>Underline</strong>, bullet lists, ordered lists, block quotes, links, images, Dropbox images, tables, <strong>Remove Format</strong>, and code formatting.",
+          "Use the paragraph or heading selector when you want to switch between normal text and note headings.",
+          "Use the link button to add a link and use <strong>Remove Format</strong> when pasted text keeps unwanted formatting.",
+          "To resize an image, click the image in the editor and drag its resize handles.",
+          "To move an image, select it and drag it to another place in the note, or cut and paste it where you want it.",
+          "When you reopen a note, Plantour restores the saved rich-text content and Dropbox image references in the editor."
+        ]
+      },
+      {
+        "title": "Review notes, connect them to activities, and export them",
+        "listTag": "ul",
+        "items": [
+          "Use the list filters such as <strong>Filter by Title</strong> and <strong>Activity</strong> when you want to narrow the notes list.",
+          "Use the page menu option <strong>Show Activity Select</strong> or <strong>Hide Activity Select</strong> when you want to show or hide the activity selector in the list.",
+          "Mark notes with <strong>Mark for PDF</strong> when you want to include them in an exported document.",
+          "Use <strong>Download Marked Notes PDF</strong> from the page menu when you want a PDF export of the marked notes only."
+        ]
+      }
+    ]
+  }
+}
