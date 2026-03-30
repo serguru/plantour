@@ -34,4 +34,11 @@ public class AiPromptRepository(PlantourContext context) : GenericRepository<AiP
             .ToListAsync();
     }
 
+    public async Task<int> CountCreatedSinceAsync(Guid userId, DateTime sinceUtc)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .CountAsync(x => x.UserId == userId && x.CreatedAt >= sinceUtc);
+    }
+
 }

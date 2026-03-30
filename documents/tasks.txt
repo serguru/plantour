@@ -748,6 +748,6 @@ Explore TinyMCE 7 and Cloudinary official documentation. Implement the following
 
 Do no code change for now just estimate if you can implement this
 
-
+Currently Plantour while limiting AI requests takes into account only requests for items recommendations. Add the necessary code to take into account AI requests to plan the entire trip as well
 
 
