@@ -750,5 +750,8 @@ Do no code change for now just estimate if you can implement this
 
 Currently Plantour while limiting AI requests takes into account only requests for items recommendations. Add the necessary code to take into account AI requests to plan the entire trip as well
 
-Revise trip-info component. It is outdated, because it is missing the resently added features: itineraries with parts, activites, expenses, notes etc. Explore the entire project. Find newly  
+Revise trip-info component. It is outdated, because it is missing the resently added features: itineraries with parts, activites, expenses and notes. Explore the entire project. Find newly added features and make sure you understand how they work. Redesign the trip-info component adding new features data there.
 
+
+
+Revise trip PDF report. It is outdated, because it is missing the resently added features: itineraries with parts, activites, expenses and notes. Use your experience on the project features from the prevoius task. Add new features into the report. Specifically add notes, with images if any. Make sure the right notes order: trip level notes first, then activities level ones, sorted by start date. Inside a trip or inside the activity sort notes by note_order or, if null, by start date. 
