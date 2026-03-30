@@ -10,6 +10,13 @@ export interface MenuConfig {
   action: () => void;
 }
 
+export interface HeaderButtonConfig {
+  label: string;
+  icon?: string;
+  action: () => void;
+  disabled?: boolean;
+}
+
 @Component({
   selector: 'app-form-header',
   imports: [
@@ -25,6 +32,7 @@ export class FormHeader {
 
   title = input<string>();
   icon = input<string>();
+  headerButtons = input<HeaderButtonConfig[]>([]);
   menuItems = input<MenuConfig[]>([]);
   helpPageId = input<string | null>(null);
 

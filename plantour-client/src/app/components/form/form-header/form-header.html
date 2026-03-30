@@ -7,6 +7,19 @@
         <h2 class="ellipsis-text">{{ title() }}</h2>
     </div>
     <div class="page-right">
+        @for(button of headerButtons(); track button.label) {
+            <button
+                class="pl-button"
+                type="button"
+                [disabled]="button.disabled"
+                (click)="button.action()"
+            >
+                @if (button.icon) {
+                    <span [class]="'pi pi-' + button.icon"></span>
+                }
+                <span class="button-label">{{ button.label }}</span>
+            </button>
+        }
         @if(resolvedMenuItems().length) {
             <button
                 class="pl-button"

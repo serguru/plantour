@@ -1,12 +1,58 @@
 <div class="trip-note-editor">
-  <div class="trip-note-editor__hint">
-    Plain text notes only. Existing rich formatting will be preserved until you edit and save the note.
-  </div>
-  <textarea
-    class="trip-note-editor__surface"
-    [readOnly]="readOnly"
-    [value]="textValue"
-    (input)="onTextInput(($any($event.target).value ?? '').toString())"
-    placeholder="Write your note here"
-  ></textarea>
+  @if (!isBrowser) {
+  <div class="trip-note-editor__fallback">The rich editor loads in the browser.</div>
+  } @else if (!editorReady) {
+  <div class="trip-note-editor__fallback">Loading editor...</div>
+  } @else {
+  <editor
+    [apiKey]="editorApiKey"
+    cloudChannel="7"
+    [disabled]="readOnly"
+    [init]="init"
+    [ngModel]="editorHtml"
+    (ngModelChange)="onEditorChange($event)"
+  ></editor>
+  }
 </div>
+
+<p-dialog
+  header="Choose Dropbox image"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [visible]="dropboxDialogVisible"
+  [style]="{ width: 'min(92vw, 56rem)' }"
+  styleClass="trip-note-editor__dialog"
+  (visibleChange)="dropboxDialogVisible = $event"
+>
+  <div class="trip-note-editor__browser-toolbar">
+    <button type="button" class="trip-note-editor__nav-button" [disabled]="dropboxBrowserLoading || dropboxParentPath === null" (click)="loadDropboxFolder(dropboxParentPath)">Up</button>
+    <div class="trip-note-editor__path">{{ dropboxCurrentPath || '/' }}</div>
+    <button type="button" class="trip-note-editor__nav-button" [disabled]="dropboxBrowserLoading" (click)="loadDropboxFolder(dropboxCurrentPath)">Refresh</button>
+  </div>
+
+  @if (dropboxBrowserLoading) {
+  <div class="trip-note-editor__browser-empty">Loading Dropbox files...</div>
+  } @else if (!hasDropboxEntries) {
+  <div class="trip-note-editor__browser-empty">No folders or supported images found in this Dropbox location.</div>
+  } @else {
+  <div class="trip-note-editor__browser-grid">
+    @for (entry of dropboxEntries; track trackDropboxEntry($index, entry)) {
+    <button type="button" class="trip-note-editor__browser-entry" (click)="onDropboxEntryClick(entry)">
+      <div class="trip-note-editor__browser-preview">
+        @if (!entry.isFolder && entry.previewUrl) {
+        <img [src]="entry.previewUrl" [alt]="entry.name" loading="lazy" referrerpolicy="no-referrer" />
+        } @else {
+        <span>{{ entry.isFolder ? 'Folder' : 'Image' }}</span>
+        }
+      </div>
+      <div class="trip-note-editor__browser-name">{{ entry.name }}</div>
+    </button>
+    }
+  </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <button type="button" class="trip-note-editor__nav-button trip-note-editor__nav-button--secondary" (click)="closeDropboxDialog()">Close</button>
+  </ng-template>
+</p-dialog>

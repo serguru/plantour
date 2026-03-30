@@ -1,5 +1,11 @@
 import { TripActivityDto } from '../../services/trip-activity-service';
 
+interface TripNoteHtmlEnvelope {
+  version: number;
+  format: 'tinymce-html';
+  html: string;
+}
+
 export interface TripNoteActivityOption {
   id: string;
   name: string;
@@ -30,6 +36,11 @@ export function normalizeTripNoteContentJson(contentJson: string | null | undefi
   }
 
   const parsed = parseTripNoteContentJson(contentJson);
+  if (isTripNoteHtmlEnvelope(parsed)) {
+    const html = normalizeTripNoteHtml(parsed.html);
+    return hasMeaningfulTripNoteHtml(html) ? JSON.stringify(buildTripNoteHtmlEnvelope(html)) : null;
+  }
+
   if (!parsed || !hasMeaningfulTripNoteNode(parsed)) {
     return null;
   }
@@ -39,7 +50,29 @@ export function normalizeTripNoteContentJson(contentJson: string | null | undefi
 
 export function hasMeaningfulTripNoteContentJson(contentJson: string | null | undefined): boolean {
   const parsed = parseTripNoteContentJson(contentJson);
+  if (isTripNoteHtmlEnvelope(parsed)) {
+    return hasMeaningfulTripNoteHtml(parsed.html);
+  }
+
   return !!parsed && hasMeaningfulTripNoteNode(parsed);
+}
+
+export function createTripNoteEditorContentJson(html: string | null | undefined): string | null {
+  const normalizedHtml = normalizeTripNoteHtml(html ?? '');
+  if (!hasMeaningfulTripNoteHtml(normalizedHtml)) {
+    return null;
+  }
+
+  return JSON.stringify(buildTripNoteHtmlEnvelope(normalizedHtml));
+}
+
+export function getTripNoteEditorHtml(contentJson: string | null | undefined): string {
+  const parsed = parseTripNoteContentJson(contentJson);
+  if (isTripNoteHtmlEnvelope(parsed)) {
+    return normalizeTripNoteHtml(parsed.html);
+  }
+
+  return renderTripNoteContentHtml(contentJson);
 }
 
 export function renderTripNoteContentHtml(
@@ -49,6 +82,10 @@ export function renderTripNoteContentHtml(
   const parsed = parseTripNoteContentJson(contentJson);
   if (!parsed) {
     return '';
+  }
+
+  if (isTripNoteHtmlEnvelope(parsed)) {
+    return enhanceTripNoteHtml(parsed.html);
   }
 
   return renderTripNoteNode(parsed, resolveImageUrl);
@@ -273,4 +310,49 @@ function escapeAttribute(value: string): string {
 
 function isImageUrl(value: string): boolean {
   return /\.(png|jpe?g|gif|webp|bmp|svg)(?:[?#].*)?$/i.test(value);
+}
+
+function isTripNoteHtmlEnvelope(value: any): value is TripNoteHtmlEnvelope {
+  return !!value && typeof value === 'object' && value.format === 'tinymce-html' && typeof value.html === 'string';
+}
+
+function buildTripNoteHtmlEnvelope(html: string): TripNoteHtmlEnvelope {
+  return {
+    version: 2,
+    format: 'tinymce-html',
+    html,
+  };
+}
+
+function normalizeTripNoteHtml(value: string): string {
+  return value.replace(/\r\n/g, '\n').trim();
+}
+
+function hasMeaningfulTripNoteHtml(value: string): boolean {
+  if (!value.trim()) {
+    return false;
+  }
+
+  if (/<img\b/i.test(value)) {
+    return true;
+  }
+
+  const textOnly = value
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return textOnly.length > 0;
+}
+
+function enhanceTripNoteHtml(value: string): string {
+  const normalized = normalizeTripNoteHtml(value);
+  if (!normalized) {
+    return '';
+  }
+
+  return normalized.replace(/<img\b(?![^>]*\bloading=)([^>]*)>/gi, '<img loading="lazy"$1>');
 }

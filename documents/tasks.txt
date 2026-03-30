@@ -740,9 +740,14 @@ Explore TinyMCE 7 and Cloudinary official documentation. Implement the following
 
 - rich text editor for trip notes
 - ability to embed image links into the note
-- crop, resize, aligning in text for images
+- crop, resize, align images in the note
 - non destructive editing, images are not stored in the db, stored only their links
-- user must autorize Plantour to access their private images
-- 
+- user must autorize Plantour to access their private images stored in Cloudinary
+- the stored in trip_notes as json notes does NOT contain actual images, only links to them
+- the app shows a list of notes (TripNotesComponent) in collapsible panels, a limited in size images are shown only if expanded.
+
+Do no code change for now just estimate if you can implement this
+
+
 
 

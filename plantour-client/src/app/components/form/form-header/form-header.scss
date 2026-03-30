@@ -77,3 +77,18 @@
     }
   }
 }
+
+:host {
+  .page-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    margin-left: auto;
+  }
+
+  .page-right .pl-button {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+}

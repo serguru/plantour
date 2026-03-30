@@ -6,42 +6,131 @@
     overflow: hidden;
   }
 
-  .trip-note-editor__hint {
-    padding: 0.85rem;
-    border-bottom: 1px solid var(--p-content-border-color, #d6dde3);
-    background: #f6f8fa;
-    color: #47636b;
-    font-size: 0.95rem;
+  .trip-note-editor__nav-button,
+  .trip-note-editor__browser-entry {
+    font: inherit;
   }
 
-  .trip-note-editor__surface {
+  .trip-note-editor__nav-button {
+    appearance: none;
+    border: 1px solid #89a1a8;
+    background: #ffffff;
+    color: #244047;
+    border-radius: 999px;
+    padding: 0.45rem 0.95rem;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .trip-note-editor__nav-button:hover {
+    background: #eef4f6;
+    border-color: #5d7f87;
+  }
+
+  .trip-note-editor__nav-button--secondary {
+    color: #4e6369;
+  }
+
+  .trip-note-editor__nav-button:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+
+  .trip-note-editor__fallback {
     min-height: 16rem;
     padding: 1rem;
-    width: 100%;
-    border: 0;
-    resize: vertical;
-    font: inherit;
     line-height: 1.5;
     color: #22313f;
     background: #fff;
-    outline: none;
-    box-sizing: border-box;
   }
 
-  .trip-note-editor__surface[readonly] {
-    color: #60737a;
+  .trip-note-editor__browser-toolbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1rem;
   }
 
-  .trip-note-editor__surface::placeholder {
-    color: #8a9aa3;
+  .trip-note-editor__path {
+    min-width: 0;
+    padding: 0.55rem 0.8rem;
+    background: #f6f8fa;
+    border-radius: 0.8rem;
+    color: #2b454c;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .trip-note-editor__surface:focus {
-    background: #fcfefe;
+  .trip-note-editor__browser-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+    gap: 0.85rem;
   }
 
-  .trip-note-editor__surface {
-    max-width: 100%;
-    white-space: pre-wrap;
+  .trip-note-editor__browser-entry {
+    appearance: none;
+    width: 100%;
+    border: 1px solid #d4dfe3;
+    border-radius: 1rem;
+    padding: 0.75rem;
+    text-align: left;
+    background: #fff;
+    cursor: pointer;
+    color: #20353b;
+  }
+
+  .trip-note-editor__browser-entry:hover {
+    border-color: #89a1a8;
+    background: #f9fbfc;
+  }
+
+  .trip-note-editor__browser-preview {
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 0.8rem;
+    background: #f1f5f6;
+    color: #4e6369;
+    margin-bottom: 0.6rem;
+  }
+
+  .trip-note-editor__browser-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .trip-note-editor__browser-name {
+    font-size: 0.92rem;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .trip-note-editor__browser-empty {
+    padding: 1.5rem 0.25rem;
+    text-align: center;
+    color: #4e6369;
+  }
+
+  & ::ng-deep .tox.tox-tinymce {
+    border: 0;
+    border-radius: 0;
+  }
+
+  & ::ng-deep .tox .tox-editor-header {
+    border-bottom: 1px solid var(--p-content-border-color, #d6dde3);
+  }
+
+  & ::ng-deep .tox .tox-edit-area__iframe {
+    background: #fff;
+  }
+
+  @media (max-width: 700px) {
+    .trip-note-editor__browser-toolbar {
+      grid-template-columns: 1fr;
+    }
   }
 }

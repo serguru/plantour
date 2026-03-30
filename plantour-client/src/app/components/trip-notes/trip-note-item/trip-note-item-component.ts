@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Select } from 'primeng/select';
 import { ComponentService } from '../../../services/component-service';
+import { TripNoteEditorService } from '../../../services/trip-note-editor-service';
 import { TripNoteDto } from '../../../services/trip-note-service';
 import { renderTripNoteContentHtml } from '../trip-note-utils';
 
@@ -18,12 +19,14 @@ export class TripNoteItemComponent implements OnChanges {
   @Input() itemMetaData: any | null = null;
 
   private readonly componentService = inject(ComponentService);
+  private readonly tripNoteEditorService = inject(TripNoteEditorService);
   private readonly selectedId = toSignal(this.componentService.selectedId$, { initialValue: null });
+  private renderVersion = 0;
 
   renderedHtml = '';
 
   ngOnChanges(): void {
-    this.renderedHtml = renderTripNoteContentHtml(this.entity.contentJson);
+    void this.updateRenderedHtml();
   }
 
   get isExpanded(): boolean {
@@ -58,5 +61,16 @@ export class TripNoteItemComponent implements OnChanges {
 
   onMarkedClick(event: Event): void {
     event.stopPropagation();
+  }
+
+  private async updateRenderedHtml(): Promise<void> {
+    const renderVersion = ++this.renderVersion;
+    const html = renderTripNoteContentHtml(this.entity.contentJson);
+    const hydratedHtml = await this.tripNoteEditorService.hydrateStoredHtml(html);
+    if (renderVersion !== this.renderVersion) {
+      return;
+    }
+
+    this.renderedHtml = hydratedHtml;
   }
 }

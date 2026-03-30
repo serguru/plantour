@@ -6,14 +6,14 @@ import { combineLatest, map } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
-import { FormHeader } from '../../form/form-header/form-header';
+import { FormHeader, HeaderButtonConfig, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
 import { MessagesService } from '../../../services/messages-service';
 import { LocalStorageService } from '../../../services/local-storage-service';
 import { TripActivityService } from '../../../services/trip-activity-service';
 import { CreateTripNoteRequest, TripNoteDto, TripNoteService, UpdateTripNoteRequest } from '../../../services/trip-note-service';
-import { TripNoteEditorComponent } from '../trip-note-editor/trip-note-editor-component';
+import { TripNoteEditorComponent, TripNoteEditorViewState } from '../trip-note-editor/trip-note-editor-component';
 import { buildTripNoteActivityOptions, hasMeaningfulTripNoteContentJson, normalizeTripNoteContentJson } from '../trip-note-utils';
 
 @Component({
@@ -33,6 +33,8 @@ import { buildTripNoteActivityOptions, hasMeaningfulTripNoteContentJson, normali
   styleUrl: './trip-note-form-component.scss',
 })
 export class TripNoteFormComponent implements OnInit {
+  private readonly componentId = 'trip-note-form';
+  private readonly controlsPanelCollapsedStorageKey = 'controlsPanelCollapsed';
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -49,6 +51,12 @@ export class TripNoteFormComponent implements OnInit {
   tripId: string | null = null;
   form!: FormGroup;
   contentJson: string | null = null;
+  controlsPanelCollapsed = false;
+  headerButtons: HeaderButtonConfig[] = [];
+  menuItems: MenuConfig[] = [];
+  dropboxStatusLabel = 'Disconnected';
+  dropboxStatusSummary = 'Loading Dropbox configuration...';
+  dropboxDisplayName: string | null = null;
 
   get isAddMode(): boolean {
     return this.mode === 'add';
@@ -59,6 +67,12 @@ export class TripNoteFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.controlsPanelCollapsed = this.localStorageService.getComponentBooleanKey(
+      this.componentId,
+      this.controlsPanelCollapsedStorageKey,
+      false
+    );
+
     this.tripId = this.route.snapshot.params['tripId'];
     if (!this.tripId) {
       throw new Error('Trip Id is required to create or edit a trip note');
@@ -173,6 +187,27 @@ export class TripNoteFormComponent implements OnInit {
   onCancel(event: Event): void {
     event.preventDefault();
     this.router.navigate([this.tripNotesUrl]);
+  }
+
+  toggleControlsPanel(): void {
+    this.controlsPanelCollapsed = !this.controlsPanelCollapsed;
+    this.localStorageService.setComponentKey(
+      this.componentId,
+      this.controlsPanelCollapsedStorageKey,
+      this.controlsPanelCollapsed
+    );
+  }
+
+  get controlsPanelToggleLabel(): string {
+    return this.controlsPanelCollapsed ? 'Show note details' : 'Hide note details';
+  }
+
+  onEditorViewStateChange(viewState: TripNoteEditorViewState): void {
+    this.headerButtons = viewState.headerButtons;
+    this.menuItems = viewState.menuItems;
+    this.dropboxStatusLabel = viewState.dropboxStatusLabel;
+    this.dropboxStatusSummary = viewState.dropboxStatusSummary;
+    this.dropboxDisplayName = viewState.dropboxDisplayName;
   }
 
   get tripNotesUrl(): string {

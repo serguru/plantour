@@ -210,6 +210,9 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     // Configure Gemini settings
     builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
 
+    // Configure Trip note editor settings
+    builder.Services.Configure<TripNoteEditorSettings>(builder.Configuration.GetSection("TripNoteEditorSettings"));
+
     var key = Encoding.UTF8.GetBytes(jwtConfig.SecretKey
         ?? throw new InvalidOperationException("JwtSettings:SecretKey is null or missing in configuration."));
 
@@ -521,6 +524,7 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddScoped<ITemplateService, TemplateService>();
     builder.Services.AddScoped<ITripCommentService, TripCommentService>();
     builder.Services.AddScoped<ITripNoteService, TripNoteService>();
+    builder.Services.AddScoped<ITripNoteEditorService, TripNoteEditorService>();
     builder.Services.AddScoped<IDocumentsService, DocumentsService>();
     builder.Services.AddScoped<IEmailService, EmailService>();
     builder.Services.AddScoped<IInvitationService, InvitationService>();
