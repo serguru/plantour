@@ -750,4 +750,5 @@ Do no code change for now just estimate if you can implement this
 
 Currently Plantour while limiting AI requests takes into account only requests for items recommendations. Add the necessary code to take into account AI requests to plan the entire trip as well
 
+Revise trip-info component. It is outdated, because it is missing the resently added features: itineraries with parts, activites, expenses, notes etc. Explore the entire project. Find newly  
 
