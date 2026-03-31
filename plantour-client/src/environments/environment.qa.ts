@@ -8,5 +8,5 @@ export const environment = {
   googleClientId: '823862645597-cttjtberusfv1itn7phk1uqa04n19nol.apps.googleusercontent.com',
   facebookAppId: '2076632839798115',
   turnstileSiteKey: '0x4AAAAAACyoFgfZ0bvLNGPQ',
-  version: '0.1.0'
+  version: '2.15.7'
 };
