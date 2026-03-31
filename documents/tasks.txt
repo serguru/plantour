@@ -828,3 +828,8 @@ Revise trip PDF report. It is outdated, because it is missing the resently added
 
 2) Add the global spinner timeout. Read it from settings with "global_spinner_timeout_sec" key. If the actual time spinner is shown on the screen exceeded the limit - remove spinner and show error "Spinner timeout exceeded".
 
+
+
+1) Explore the official Google AI documentation. It is possible that the AI returns not an expected answer but a message instead. Find out how to parse that message. Using messages service show it to a user if any.
+2) Make this for both prompts and trip plans
+3) Increase the AI count after the successful answer received.
