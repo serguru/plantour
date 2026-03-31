@@ -27,7 +27,7 @@ export class PaddleService {
   private async init() {
     const instance = await initializePaddle({
       environment: this.environment.environment === "production" ? 'production' : 'sandbox',
-      token: 'test_c4c0e48b001d35f302e3ef618a6',
+      token: this.environment.paddleKey,
       eventCallback: (event) => {
         const eventName = event?.name;
 
