@@ -200,7 +200,7 @@ export class TripsAiComponent {
       },
       error: error => {
         const errorMessage = getMessageFromError(error, 'AI trip planning failed');
-        this.messagesService.showError(errorMessage);
+        this.messagesService.showWarning(errorMessage);
       }
     });
   }
