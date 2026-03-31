@@ -430,57 +430,57 @@ create table admins_participants (
 );
 create unique index idx_admins_participants_admin_id_participant_id on admins_participants(admin_id, participant_id);
 
-create or replace function plantour.prevent_self_link_admins_participants_delete()
-returns trigger
-language plpgsql
-as $$
-begin
-    if old.admin_id = old.participant_id then
-        raise exception 'Admin as Participant cannot be deleted';
-    end if;
+-- create or replace function plantour.prevent_self_link_admins_participants_delete()
+-- returns trigger
+-- language plpgsql
+-- as $$
+-- begin
+--     if old.admin_id = old.participant_id then
+--         raise exception 'Admin as Participant cannot be deleted';
+--     end if;
 
-    return old;
-end;
-$$;
+--     return old;
+-- end;
+-- $$;
 
-create trigger trg_prevent_self_link_admins_participants_delete
-before delete on plantour.admins_participants
-for each row
-execute function plantour.prevent_self_link_admins_participants_delete();
+-- create trigger trg_prevent_self_link_admins_participants_delete
+-- before delete on plantour.admins_participants
+-- for each row
+-- execute function plantour.prevent_self_link_admins_participants_delete();
 
-create or replace function plantour.prevent_delete_admin_participant_assignments()
-returns trigger
-language plpgsql
-as $$
-begin
-    if exists (
-        select 1
-        from plantour.trip_users trip_user
-        where trip_user.admin_participant_id = old.id
-          and (
-              exists (
-                  select 1
-                  from plantour.trip_shared_things shared_thing
-                  where shared_thing.assigned_to_id = trip_user.id
-              )
-              or exists (
-                  select 1
-                  from plantour.trip_shared_todos shared_todo
-                  where shared_todo.assigned_to_id = trip_user.id
-              )
-          )
-    ) then
-        raise exception 'admins_participants row cannot be deleted while the participant has assigned shared things or shared todos';
-    end if;
+-- create or replace function plantour.prevent_delete_admin_participant_assignments()
+-- returns trigger
+-- language plpgsql
+-- as $$
+-- begin
+--     if exists (
+--         select 1
+--         from plantour.trip_users trip_user
+--         where trip_user.admin_participant_id = old.id
+--           and (
+--               exists (
+--                   select 1
+--                   from plantour.trip_shared_things shared_thing
+--                   where shared_thing.assigned_to_id = trip_user.id
+--               )
+--               or exists (
+--                   select 1
+--                   from plantour.trip_shared_todos shared_todo
+--                   where shared_todo.assigned_to_id = trip_user.id
+--               )
+--           )
+--     ) then
+--         raise exception 'admins_participants row cannot be deleted while the participant has assigned shared things or shared todos';
+--     end if;
 
-    return old;
-end;
-$$;
+--     return old;
+-- end;
+-- $$;
 
-create trigger trg_prevent_delete_admin_participant_assignments
-before delete on plantour.admins_participants
-for each row
-execute function plantour.prevent_delete_admin_participant_assignments();
+-- create trigger trg_prevent_delete_admin_participant_assignments
+-- before delete on plantour.admins_participants
+-- for each row
+-- execute function plantour.prevent_delete_admin_participant_assignments();
 
 -----------------------------------------------------------------------
 -- USER THINGS

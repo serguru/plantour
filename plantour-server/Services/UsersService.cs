@@ -764,6 +764,9 @@ public class UsersService(
             throw new CustomException("Tokens for temporary users cannot be refreshed", "REFRESH_TOKEN_FAILED");
         }
 // TODO: auto currency rate works?
+// TODO: go to the trip after AI created it
+// TODO: test trip delete after creation - error
+
         User? user = await _usersRepository.GetActiveByIdAsync(userId);
 
         if (user == null)
