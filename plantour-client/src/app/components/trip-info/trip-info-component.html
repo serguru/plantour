@@ -7,7 +7,7 @@
     ></app-form-header>
 
 
-    <div class="dahboard-content">
+    <div class="trip-info-content">
 
         <div class="trip-select">
             <p-select
@@ -22,41 +22,249 @@
 
             </p-select>
         </div>
-        <ul class="section">
-            @for (item of items; track item.id) {
-            <li
-                class="item"
-                [class.expanded]="item.expanded"
-            >
-                <button
-                    type="button"
-                    class="item-toggle"
-                    (click)="toggleItem(item)"
-                    [attr.aria-expanded]="item.expanded"
-                >
-                <div class="item-header">
-                    <div class="item-title-group">
-                        <i
-                            [class]="item.icon"
-                            class="item-icon"
-                        ></i>
-                        <span class="item-title">{{ item.title }}</span>
-                    </div>
-                    <i [class]="item.expanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-                </div>
-                </button>
 
-                @if (item.expanded) {
-                <div class="item-content">
-                    @if (item.component) {
-                    <ng-container *ngComponentOutlet="item.component; inputs: getEntityInputs()"></ng-container>
-                    } @else {
-                    <p>{{ item.description }}</p>
+        @if (loading()) {
+        <section class="empty-card">
+            <strong>Loading trip data...</strong>
+            <p>Plantour is collecting the latest trip overview, itinerary, activities, expenses, and notes.</p>
+        </section>
+        } @else if (tripInfoVm(); as vm) {
+        <section class="hero-card">
+            <div class="hero-main">
+                <div class="hero-copy">
+                    <div class="eyebrow-row">
+                        <span class="eyebrow">Trip overview</span>
+                        <span class="status-pill">{{ vm.status }}</span>
+                    </div>
+                    <h1>{{ vm.name }}</h1>
+                    <p class="hero-subtitle">{{ vm.dateRange }}</p>
+                    <p class="hero-detail">{{ vm.daysText }}</p>
+                    <div class="meta-row">
+                        <span class="meta-chip"><i class="pi pi-money-bill"></i>{{ vm.currencyText }}</span>
+                        <span class="meta-chip" [class.warn]="!vm.currentUserIncluded">
+                            <i class="pi" [class.pi-user]="vm.currentUserIncluded" [class.pi-lock]="!vm.currentUserIncluded"></i>
+                            {{ vm.inclusionText }}
+                        </span>
+                    </div>
+                    @if (vm.tripBrief) {
+                    <p class="trip-brief">{{ vm.tripBrief }}</p>
                     }
                 </div>
+
+                <div class="hero-actions">
+                    @for (link of vm.overviewLinks; track link.label) {
+                    @if (!link.disabled) {
+                    <a class="action-chip" [routerLink]="link.route">{{ link.label }}</a>
+                    } @else {
+                    <span class="action-chip disabled">{{ link.label }}</span>
+                    }
+                    }
+                </div>
+            </div>
+
+            <div class="stats-grid hero-stats">
+                @for (stat of vm.heroStats; track stat.label) {
+                <article class="stat-card" [class.accent]="stat.tone === 'accent'" [class.warn]="stat.tone === 'warn'">
+                    <span class="stat-label">{{ stat.label }}</span>
+                    <strong class="stat-value">{{ stat.value }}</strong>
+                    @if (stat.hint) {
+                    <span class="stat-hint">{{ stat.hint }}</span>
+                    }
+                </article>
                 }
-            </li>
-            }
-        </ul>
+            </div>
+        </section>
+
+        <div class="content-grid">
+            <section class="info-card">
+                <div class="card-header">
+                    <div>
+                        <p class="card-eyebrow">Planning</p>
+                        <h2>Itinerary and activities</h2>
+                    </div>
+                    <div class="card-links">
+                        @for (link of vm.planningLinks; track link.label) {
+                        @if (!link.disabled) {
+                        <a class="inline-link" [routerLink]="link.route">{{ link.label }}</a>
+                        } @else {
+                        <span class="inline-link disabled">{{ link.label }}</span>
+                        }
+                        }
+                    </div>
+                </div>
+
+                <div class="stats-grid compact-grid">
+                    @for (stat of vm.planningStats; track stat.label) {
+                    <article class="stat-card compact" [class.accent]="stat.tone === 'accent'" [class.warn]="stat.tone === 'warn'">
+                        <span class="stat-label">{{ stat.label }}</span>
+                        <strong class="stat-value">{{ stat.value }}</strong>
+                        @if (stat.hint) {
+                        <span class="stat-hint">{{ stat.hint }}</span>
+                        }
+                    </article>
+                    }
+                </div>
+            </section>
+
+            <section class="info-card">
+                <div class="card-header">
+                    <div>
+                        <p class="card-eyebrow">Money</p>
+                        <h2>Expenses and balances</h2>
+                    </div>
+                    <div class="card-links">
+                        @for (link of vm.moneyLinks; track link.label) {
+                        @if (!link.disabled) {
+                        <a class="inline-link" [routerLink]="link.route">{{ link.label }}</a>
+                        } @else {
+                        <span class="inline-link disabled">{{ link.label }}</span>
+                        }
+                        }
+                    </div>
+                </div>
+
+                <div class="stats-grid compact-grid">
+                    @for (stat of vm.moneyStats; track stat.label) {
+                    <article class="stat-card compact" [class.accent]="stat.tone === 'accent'" [class.warn]="stat.tone === 'warn'">
+                        <span class="stat-label">{{ stat.label }}</span>
+                        <strong class="stat-value">{{ stat.value }}</strong>
+                        @if (stat.hint) {
+                        <span class="stat-hint">{{ stat.hint }}</span>
+                        }
+                    </article>
+                    }
+                </div>
+            </section>
+
+            <section class="info-card">
+                <div class="card-header">
+                    <div>
+                        <p class="card-eyebrow">Personal</p>
+                        <h2>Your trip workload</h2>
+                    </div>
+                    <div class="card-links">
+                        @for (link of vm.personalLinks; track link.label) {
+                        @if (!link.disabled) {
+                        <a class="inline-link" [routerLink]="link.route">{{ link.label }}</a>
+                        } @else {
+                        <span class="inline-link disabled">{{ link.label }}</span>
+                        }
+                        }
+                    </div>
+                </div>
+
+                <div class="stats-grid compact-grid">
+                    @for (stat of vm.personalStats; track stat.label) {
+                    <article class="stat-card compact" [class.accent]="stat.tone === 'accent'" [class.warn]="stat.tone === 'warn'">
+                        <span class="stat-label">{{ stat.label }}</span>
+                        <strong class="stat-value">{{ stat.value }}</strong>
+                        @if (stat.hint) {
+                        <span class="stat-hint">{{ stat.hint }}</span>
+                        }
+                    </article>
+                    }
+                </div>
+            </section>
+
+            <section class="info-card">
+                <div class="card-header">
+                    <div>
+                        <p class="card-eyebrow">Group</p>
+                        <h2>Shared trip progress</h2>
+                    </div>
+                    <div class="card-links">
+                        @for (link of vm.groupLinks; track link.label) {
+                        @if (!link.disabled) {
+                        <a class="inline-link" [routerLink]="link.route">{{ link.label }}</a>
+                        } @else {
+                        <span class="inline-link disabled">{{ link.label }}</span>
+                        }
+                        }
+                    </div>
+                </div>
+
+                <div class="stats-grid compact-grid">
+                    @for (stat of vm.groupStats; track stat.label) {
+                    <article class="stat-card compact" [class.accent]="stat.tone === 'accent'" [class.warn]="stat.tone === 'warn'">
+                        <span class="stat-label">{{ stat.label }}</span>
+                        <strong class="stat-value">{{ stat.value }}</strong>
+                        @if (stat.hint) {
+                        <span class="stat-hint">{{ stat.hint }}</span>
+                        }
+                    </article>
+                    }
+                </div>
+            </section>
+
+            <section class="info-card wide-card">
+                <div class="card-header">
+                    <div>
+                        <p class="card-eyebrow">Preview</p>
+                        <h2>Upcoming itinerary parts</h2>
+                    </div>
+                    <a class="inline-link" [routerLink]="vm.planningLinks[0].route">Open itinerary</a>
+                </div>
+
+                @if (vm.itineraryPreview.length > 0) {
+                <div class="preview-list">
+                    @for (item of vm.itineraryPreview; track item.id) {
+                    <article class="preview-row">
+                        <div class="preview-main">
+                            <strong>{{ item.name }}</strong>
+                            <span class="preview-meta">{{ item.schedule }}</span>
+                            @if (item.address) {
+                            <span class="preview-meta">{{ item.address }}</span>
+                            }
+                        </div>
+                        <div class="preview-badges">
+                            <span class="preview-badge">Shared {{ item.publicActivities }}</span>
+                            <span class="preview-badge">Personal {{ item.personalActivities }}</span>
+                            <span class="preview-badge">Notes {{ item.noteCount }}</span>
+                        </div>
+                    </article>
+                    }
+                </div>
+                } @else {
+                <p class="empty-inline">No itinerary parts yet. Add itinerary stages to shape the trip route and connect activities to them.</p>
+                }
+            </section>
+
+            <section class="info-card wide-card">
+                <div class="card-header">
+                    <div>
+                        <p class="card-eyebrow">Preview</p>
+                        <h2>Recent notes</h2>
+                    </div>
+                    @if (vm.moneyLinks[2]; as notesLink) {
+                    @if (!notesLink.disabled) {
+                    <a class="inline-link" [routerLink]="notesLink.route">Open notes</a>
+                    } @else {
+                    <span class="inline-link disabled">Open notes</span>
+                    }
+                    }
+                </div>
+
+                @if (vm.recentNotes.length > 0) {
+                <div class="preview-list notes-list">
+                    @for (note of vm.recentNotes; track note.id) {
+                    <article class="preview-row">
+                        <div class="preview-main">
+                            <strong>{{ note.title }}</strong>
+                            <span class="preview-meta">{{ note.meta }}</span>
+                        </div>
+                    </article>
+                    }
+                </div>
+                } @else {
+                <p class="empty-inline">No trip notes yet. Notes can be linked to activities and exported as PDF later.</p>
+                }
+            </section>
+        </div>
+        } @else {
+        <section class="empty-card">
+            <strong>No trip selected.</strong>
+            <p>Select a trip to review its overview, itinerary, activities, expenses, and notes.</p>
+        </section>
+        }
     </div>
 </div>

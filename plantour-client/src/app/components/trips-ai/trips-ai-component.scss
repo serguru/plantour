@@ -8,8 +8,6 @@
   padding-bottom: 1.5rem;
 }
 
-.hero-card,
-.prompt-card,
 .card-block {
   margin: 0 1rem 1rem;
   border: 1px solid var(--secondary-border-color);
@@ -18,16 +16,6 @@
     linear-gradient(135deg, rgba(34, 122, 135, 0.08), rgba(255, 255, 255, 0.96)),
     #fff;
   box-shadow: 0 14px 36px rgba(23, 54, 64, 0.08);
-}
-
-.hero-card {
-  padding: 1.25rem;
-}
-
-.hero-copy {
-  max-width: 70ch;
-  line-height: 1.6;
-  margin-bottom: 0;
 }
 
 .eyebrow {
@@ -39,52 +27,65 @@
   font-weight: 700;
 }
 
-.prompt-card {
-  padding: 1rem;
+.prompt-entry {
+  margin: 0 1rem 1rem;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.prompt-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-
-.question-row {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
-  gap: 1rem;
-  align-items: start;
-  margin-bottom: 1rem;
-}
-
-textarea {
-  width: 100%;
-  min-height: 12rem;
-  resize: vertical;
-}
-
-.prompt-actions {
-  margin-top: 0.85rem;
+.prompt-row {
   display: flex;
   justify-content: space-between;
-  gap: 0.75rem;
-  align-items: flex-end;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.prompt-buttons,
+.prompt-row-2 {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.prompt-select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.currency-field {
+  display: flex;
+  flex: 0 0 16rem;
+  min-width: 12rem;
+}
+
+.currency-field :global(.w-full) {
+  width: 100%;
+}
+
+.prompt-actions-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.prompt-button {
+  flex-shrink: 0;
+}
+
+.prompt-actions-row app-button:last-child :global(.app-button-secondary) {
+  border-color: var(--secondary-border-color);
+}
+
 .preview-button-row,
 .dialog-actions {
   display: flex;
   gap: 0.75rem;
   align-items: center;
-}
-
-.link-button {
-  border: 0;
-  background: transparent;
-  color: var(--primary-color);
-  font-weight: 600;
-  cursor: pointer;
 }
 
 .results-grid,
@@ -243,9 +244,9 @@ li p {
     grid-template-columns: 1fr;
   }
 
-  .prompt-actions,
+  .prompt-toolbar,
+  .prompt-actions-row,
   .preview-actions,
-  .prompt-buttons,
   .preview-button-row,
   .dialog-actions {
     flex-direction: column;

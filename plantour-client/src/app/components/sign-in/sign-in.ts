@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, Inject, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { DOCUMENT, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -41,7 +41,7 @@ export class SignInComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
-  signInType: 'admin' | 'participant' = 'admin';
+  signInType = signal<'admin' | 'participant'>('admin');
   hasGoogleLogin = false;
   hasFacebookLogin = false;
   private googleButtonHostElement?: HTMLElement;
@@ -83,6 +83,10 @@ export class SignInComponent implements OnInit {
     });
   }
 
+  signInSignUp = computed<string>( () => {
+    return `Sign In ${this.isAdmin ? " / Sign Up" : ""}`;
+  })
+
   onRadioClick(_: Event): void {
     this.successMessage = '';
     this.errorMessage = '';
@@ -96,12 +100,12 @@ export class SignInComponent implements OnInit {
     const path = parts[0];
     const endsWithParticipant = path.endsWith('/participant');  
 
-    this.signInType = endsWithParticipant ? 'participant' : 'admin';
+    this.signInType.set(endsWithParticipant ? 'participant' : 'admin');
     this.applySeo();
 
     const queryParams = new URLSearchParams(parts[1]);
 
-    if (this.signInType === 'admin') {
+    if (this.signInType() === 'admin') {
       const email = queryParams.get('email');
       if (email) { 
         this.adminForm.patchValue({ email: email });
@@ -115,7 +119,7 @@ export class SignInComponent implements OnInit {
   }
 
   private applySeo(): void {
-    const isParticipant = this.signInType === 'participant';
+    const isParticipant = this.signInType() === 'participant';
     const title = isParticipant ? 'Participant Sign In | Plantour' : 'Sign In | Plantour';
     const description = isParticipant
       ? 'Join your Plantour trip workspace as a participant and collaborate on packing and travel tasks.'
@@ -140,7 +144,7 @@ export class SignInComponent implements OnInit {
   }
 
   get isAdmin(): boolean {
-    return this.signInType === 'admin';
+    return this.signInType() === 'admin';
   }
 
   get currentForm(): FormGroup {

@@ -115,7 +115,6 @@ public class UsersService(
 
         return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
     }
-
     public async Task SendParticipantInvitationAsync(Guid adminParticipantId)
     {
         _currentUser.RaiseIfNotAdmin();
@@ -154,8 +153,6 @@ public class UsersService(
             throw new CustomException("The user is not active");
         }
     }
-
-    // TODO: fix Google login
 
     public async Task<UserDto> LinkSocialProviderAsync(SocialSignInRequest request)
     {
@@ -766,10 +763,6 @@ public class UsersService(
         {
             throw new CustomException("Tokens for temporary users cannot be refreshed", "REFRESH_TOKEN_FAILED");
         }
-// TODO: revise AI questions limits
-// TODO: test AI requests limiting
-// TODO: ensure participants can generate trip level questions to AI but cannot create a trip
-// TODO: redesign Trip info
 // TODO: auto currency rate works?
         User? user = await _usersRepository.GetActiveByIdAsync(userId);
 

@@ -10,6 +10,7 @@ export interface TripNoteDto {
   tripActivityName?: string | null;
   title: string;
   contentJson?: string | null;
+  noteOrder?: number | null;
   createdAt?: string | null;
 }
 
@@ -18,6 +19,7 @@ export interface CreateTripNoteRequest {
   tripActivityId?: string | null;
   title: string;
   contentJson?: string | null;
+  noteOrder?: number | null;
 }
 
 export interface UpdateTripNoteRequest {
@@ -26,6 +28,7 @@ export interface UpdateTripNoteRequest {
   tripActivityId?: string | null;
   title: string;
   contentJson?: string | null;
+  noteOrder?: number | null;
 }
 
 @Injectable({

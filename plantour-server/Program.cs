@@ -36,7 +36,7 @@ QuestPDF.Settings.License = LicenseType.Community;
 
 // This switch prevents Npgsql from throwing when a DateTime with Kind=Utc is written to such columns.
 // It looks like this row is necessary for TickerQ to write timestamp fields
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", false);
 
 static string NormalizeAspNetEnvironmentName(string? raw)
 {
@@ -180,14 +180,6 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
             LocalCacheExpiration = TimeSpan.FromMinutes(5)
         };
     });
-
-// TODO: remove this once ready
-// var appsettingsFileName = $"appsettings.{env.EnvironmentName}.json";
-// var appsettingsFile = Path.Combine(AppContext.BaseDirectory, appsettingsFileName);
-// if (!File.Exists(appsettingsFile))
-//     appsettingsFile = Path.Combine("/etc/secrets", appsettingsFileName);
-// var appsettingsContent = File.Exists(appsettingsFile) ? File.ReadAllText(appsettingsFile) : "(appsettings file not found)";
-// Console.WriteLine(appsettingsContent);
 
     // Configure JWT settings
     IConfigurationSection? jwtSettings = builder.Configuration.GetSection("JwtSettings");
