@@ -758,7 +758,7 @@ public class UsersService(
         }
 
         bool isTemporary = temporary == "true";
-
+// TODO: add Gemini lite for prompts
         if (isTemporary)
         {
             throw new CustomException("Tokens for temporary users cannot be refreshed", "REFRESH_TOKEN_FAILED");
