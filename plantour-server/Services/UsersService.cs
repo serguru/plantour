@@ -766,6 +766,9 @@ public class UsersService(
 // TODO: auto currency rate works?
 // TODO: go to the trip after AI created it
 // TODO: test trip delete after creation - error
+// TODO: findout and process AI negative reaction
+// TODO: increase AI timer only after the successful response
+// TODO: test deletion of accepted items and expences
 
         User? user = await _usersRepository.GetActiveByIdAsync(userId);
 

@@ -124,6 +124,19 @@ public class TripSharedExpenseService(
             throw new CustomException("User does not have access to this trip");
         }
 
+        var entity = (await _tripSharedExpenseRepository.FindAsync(x => x.Id == id && x.TripId == tripId))
+            .FirstOrDefault();
+
+        if (entity == null)
+        {
+            throw new CustomException("Trip shared expense not found");
+        }
+
+        if (entity.AssignedExpenseId != null)
+        {
+            throw new CustomException("accepted shared expense cannot be deleted while assigned; unassign it first");
+        }
+
         await _tripSharedExpenseRepository.DeleteAsync(tripId, id);
     }
 

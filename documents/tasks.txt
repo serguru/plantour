@@ -823,3 +823,10 @@ Revise trip PDF report. It is outdated, because it is missing the resently added
 },
 "quotaValue": "20
 
+
+Add the global spinner timeout. Read it from settings with "global_spinner_timeout_sec" key. If the actual time spinner is shown on the screen exceeded the limit - remove spinner and show error "Spinner timeout exceeded".
+
+
+
+insert or update on table "ai_prompt_checks" violates foreign key constraint "ai_prompt_checks_id_fkey"
+

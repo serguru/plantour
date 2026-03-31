@@ -142,11 +142,26 @@ public class AdminsParticipantService(
     {
         _currentUser.RaiseIfNotAdmin();
 
-        var entityExists = await _adminsParticipantRepository.AnyAsync(x => x.Id == id && x.AdminId == _currentUser.AdminId);
+        AdminsParticipant? entity = (await _adminsParticipantRepository
+            .FindAsync(x => x.Id == id && x.AdminId == _currentUser.AdminId))
+            .FirstOrDefault();
 
-        if (!entityExists)
+        if (entity == null)
         {
             throw new CustomException("Admin participant not found or access denied");
+        }
+
+        if (entity.AdminId == entity.ParticipantId)
+        {
+            throw new CustomException("Admin as participant cannot be deleted");
+        }
+
+        bool hasAssignedSharedEntities = await _adminsParticipantRepository
+            .HasAssignedSharedEntitiesAsync(entity.Id);
+
+        if (hasAssignedSharedEntities)
+        {
+            throw new CustomException("Admin participant cannot be deleted while the participant has assigned shared things or shared todos");
         }
 
         await _adminsParticipantRepository.DeleteAsync(id);
