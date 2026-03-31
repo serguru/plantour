@@ -253,6 +253,7 @@ export class TripsAiComponent {
         this.currentTripService.updateCurrentTripId(result.tripId);
         this.currentTripService.refreshCurrentTrip();
         this.messagesService.showInfo(`Trip ${result.tripName} created in Planning mode`);
+        void this.router.navigate([`/trips/${result.tripId}/itinerary`]);
       },
       error: error => {
         if (error?.error?.code === 'TRIP_DATES_OVERLAP') {

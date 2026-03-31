@@ -12,4 +12,5 @@ values
     ('send_email_user_created', 'true',  'boolean'),
     ('app_version', '0.0.0',  'string'),
     ('exclude_paths_from_log', 'users/health-check;users/version;version',  'string'),
+    ('global_spinner_timeout_sec', '30',  'integer'),
     ('plantour_app_origin', 'https://plantour-client-qa.onrender.com',  'string');

@@ -260,5 +260,13 @@ public class UsersController : ControllerBase
                 string version = await _usersService.GetDbVersion();
                 return Ok(new { db_version = version });
         }
+
+        [HttpGet("client-settings")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ClientSettingsDto>> GetClientSettings()
+        {
+                var settings = await _usersService.GetClientSettingsAsync();
+                return Ok(settings);
+        }
 }
 

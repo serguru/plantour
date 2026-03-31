@@ -758,12 +758,12 @@ public class UsersService(
         }
 
         bool isTemporary = temporary == "true";
-
+// TODO: add Gemini lite for prompts
         if (isTemporary)
         {
             throw new CustomException("Tokens for temporary users cannot be refreshed", "REFRESH_TOKEN_FAILED");
         }
-// TODO: auto currency rate works?
+
         User? user = await _usersRepository.GetActiveByIdAsync(userId);
 
         if (user == null)
@@ -913,6 +913,25 @@ public class UsersService(
     {
         string version = (string)await _settingsRepository.GetSettingByKey("app_version");
         return version;
+    }
+
+    public async Task<ClientSettingsDto> GetClientSettingsAsync()
+    {
+        int timeoutSeconds = 30;
+
+        try
+        {
+            timeoutSeconds = (int)await _settingsRepository.GetSettingByKey("global_spinner_timeout_sec");
+        }
+        catch (CustomException)
+        {
+            timeoutSeconds = 30;
+        }
+
+        return new ClientSettingsDto
+        {
+            GlobalSpinnerTimeoutSec = timeoutSeconds
+        };
     }
 
 }

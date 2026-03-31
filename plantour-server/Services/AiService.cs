@@ -110,7 +110,7 @@ public class AiService : IAiService
         return itemPromptCount + tripPlanCount;
     }
 
-    private async Task CheckAccessAsync()
+    private async Task EnsureAiPromptLimitNotReachedAsync()
     {
         var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 70);
         var granted = rule!.Granted;
@@ -122,17 +122,63 @@ public class AiService : IAiService
         AiPromptCheck? check = await _aiPromptChecksRepository.GetByIdAsync(_currentUser.AdminId);
         if (check == null)
         {
-            check = new AiPromptCheck
-            {
-                Id = _currentUser.AdminId,
-                Count = 1,
-                Start = DateTime.UtcNow
-            };
-            await _aiPromptChecksRepository.AddAsync(check);
             return;
         }
 
         var now = DateTime.UtcNow;
+        if (check.Start > now)
+        {
+            throw new CustomException("Invalid prompt check record. Start time cannot be in the future.");
+        }
+
+        if (now - check.Start > TimeSpan.FromDays(1))
+        {
+            return;
+        }
+
+        var persistedCount = await GetPersistedAiPromptCountAsync(check.Start);
+        if (persistedCount > check.Count)
+        {
+            check.Count = persistedCount;
+            await _aiPromptChecksRepository.UpdateAsync(check);
+        }
+
+        int limit = rule.Value!.Value;
+
+        if (check.Count < limit)
+        {
+            return;
+        }
+
+        var s0 = $"You will be able to send more prompts after {check.Start.AddDays(1).ToLocalTime():f}.";
+
+        var s1 = $"You've reached the limit of {limit} AI prompts per day. {s0}";
+        var s2 = _currentUser.IsAdmin ? "\nPlease go to your profile page and upgrade your plan to remove this limit." : "\nPlease ask your administrator to upgrade the plan to remove this limit.";
+        throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+    }
+
+    private async Task SyncAiPromptCountAsync()
+    {
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 70);
+        var granted = rule!.Granted;
+        if (granted)
+        {
+            return;
+        }
+
+        var now = DateTime.UtcNow;
+        AiPromptCheck? check = await _aiPromptChecksRepository.GetByIdAsync(_currentUser.AdminId);
+        if (check == null)
+        {
+            await _aiPromptChecksRepository.AddAsync(new AiPromptCheck
+            {
+                Id = _currentUser.AdminId,
+                Count = 1,
+                Start = now
+            });
+            return;
+        }
+
         if (check.Start > now)
         {
             throw new CustomException("Invalid prompt check record. Start time cannot be in the future.");
@@ -147,26 +193,11 @@ public class AiService : IAiService
         }
 
         var persistedCount = await GetPersistedAiPromptCountAsync(check.Start);
-        if (persistedCount > check.Count)
+        if (check.Count != persistedCount)
         {
             check.Count = persistedCount;
-        }
-
-        int limit = rule.Value!.Value;
-
-        if (check.Count < limit)
-        {
-            check.Count += 1;
             await _aiPromptChecksRepository.UpdateAsync(check);
-            return;
         }
-
-
-        var s0 = $"You will be able to send more prompts after {check.Start.AddDays(1).ToLocalTime():f}.";
-
-        var s1 = $"You've reached the limit of {limit} AI prompts per day. {s0}";
-        var s2 = _currentUser.IsAdmin ? "\nPlease go to your profile page and upgrade your plan to remove this limit." : "\nPlease ask your administrator to upgrade the plan to remove this limit.";
-        throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
     }
     
     public async Task<IEnumerable<AiItemDto>> GetAllByPromptAsync(string prompt)
@@ -193,7 +224,7 @@ public class AiService : IAiService
             throw new CustomException("Gemini API key is not configured");
         }
 
-        await CheckAccessAsync();
+        await EnsureAiPromptLimitNotReachedAsync();
 
         var requestBody = new
         {
@@ -231,22 +262,20 @@ public class AiService : IAiService
 
         if (!response.IsSuccessStatusCode)
         {
-            var message = string.IsNullOrWhiteSpace(responseContent)
-                ? "Gemini request failed"
-                : responseContent;
+            var message = ExtractGeminiErrorMessage(responseContent) ?? "Gemini request failed";
             throw new CustomException(message);
         }
 
-        var textPayload = ExtractTextPayload(responseContent);
-        if (string.IsNullOrWhiteSpace(textPayload))
+        var geminiResponse = ExtractGeminiResponse(responseContent);
+        if (string.IsNullOrWhiteSpace(geminiResponse.TextPayload))
         {
-            return Array.Empty<AiItemDto>();
+            throw new CustomException(BuildGeminiUserMessage(geminiResponse, "Gemini returned an empty response"));
         }
 
         List<AiItemRaw>? raw_items;
         try
         {
-            raw_items = JsonSerializer.Deserialize<List<AiItemRaw>>(textPayload, _jsonOptions);
+            raw_items = JsonSerializer.Deserialize<List<AiItemRaw>>(geminiResponse.TextPayload, _jsonOptions);
 
             if (raw_items == null || raw_items.Count == 0)
             {
@@ -255,6 +284,12 @@ public class AiService : IAiService
         }
         catch (JsonException ex)
         {
+            var message = BuildGeminiUserMessage(geminiResponse);
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                throw new CustomException(message);
+            }
+
             throw new CustomException($"Failed to parse Gemini response: {ex.Message}");
         }
 
@@ -286,6 +321,7 @@ public class AiService : IAiService
         }
 
         await _aiRepository.AddRangeAsync(items);
+        await SyncAiPromptCountAsync();
         var result = _mapper.Map<IEnumerable<AiItemDto>>(items);
         return result;
     }
@@ -353,16 +389,29 @@ public class AiService : IAiService
         };
     }
 
-    private static string? ExtractTextPayload(string responseContent)
+    private static GeminiResponsePayload ExtractGeminiResponse(string responseContent)
     {
         try
         {
             using var document = JsonDocument.Parse(responseContent);
             var root = document.RootElement;
+            var result = new GeminiResponsePayload();
 
             if (root.TryGetProperty("candidates", out var candidates) && candidates.ValueKind == JsonValueKind.Array && candidates.GetArrayLength() > 0)
             {
                 var candidate = candidates[0];
+                var textParts = new List<string>();
+
+                if (candidate.TryGetProperty("finishReason", out var finishReason))
+                {
+                    result.FinishReason = finishReason.GetString();
+                }
+
+                if (candidate.TryGetProperty("finishMessage", out var finishMessage))
+                {
+                    result.FinishMessage = finishMessage.GetString();
+                }
+
                 if (candidate.TryGetProperty("content", out var content)
                     && content.TryGetProperty("parts", out var parts)
                     && parts.ValueKind == JsonValueKind.Array)
@@ -371,23 +420,109 @@ public class AiService : IAiService
                     {
                         if (part.TryGetProperty("text", out var text))
                         {
-                            return text.GetString();
+                            var partText = text.GetString();
+                            if (!string.IsNullOrWhiteSpace(partText))
+                            {
+                                textParts.Add(partText);
+                            }
                         }
+                    }
+
+                    if (textParts.Count > 0)
+                    {
+                        result.TextPayload = string.Join("\n", textParts);
                     }
                 }
             }
 
-            if (root.TryGetProperty("text", out var rootText))
+            if (root.TryGetProperty("promptFeedback", out var promptFeedback)
+                && promptFeedback.ValueKind == JsonValueKind.Object
+                && promptFeedback.TryGetProperty("blockReason", out var blockReason))
             {
-                return rootText.GetString();
+                result.PromptBlockReason = blockReason.GetString();
             }
+
+            if (string.IsNullOrWhiteSpace(result.TextPayload)
+                && root.TryGetProperty("text", out var rootText))
+            {
+                result.TextPayload = rootText.GetString();
+            }
+
+            return result;
         }
         catch
+        {
+            return new GeminiResponsePayload();
+        }
+    }
+
+    private static string BuildGeminiUserMessage(GeminiResponsePayload response, string? fallback = null)
+    {
+        if (!string.IsNullOrWhiteSpace(response.TextPayload) && !LooksLikeJson(response.TextPayload))
+        {
+            return response.TextPayload.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(response.FinishMessage))
+        {
+            return response.FinishMessage.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(response.PromptBlockReason))
+        {
+            return $"Gemini could not answer this request because the prompt was blocked ({response.PromptBlockReason}).";
+        }
+
+        if (!string.IsNullOrWhiteSpace(response.FinishReason)
+            && !string.Equals(response.FinishReason, "STOP", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"Gemini could not complete this request ({response.FinishReason}).";
+        }
+
+        return fallback ?? "Gemini returned an unexpected response.";
+    }
+
+    private static bool LooksLikeJson(string text)
+    {
+        var trimmed = text.TrimStart();
+        return trimmed.StartsWith("{", StringComparison.Ordinal) || trimmed.StartsWith("[", StringComparison.Ordinal);
+    }
+
+    private static string? ExtractGeminiErrorMessage(string responseContent)
+    {
+        if (string.IsNullOrWhiteSpace(responseContent))
         {
             return null;
         }
 
-        return null;
+        try
+        {
+            using var document = JsonDocument.Parse(responseContent);
+            var root = document.RootElement;
+
+            if (root.TryGetProperty("error", out var error)
+                && error.ValueKind == JsonValueKind.Object
+                && error.TryGetProperty("message", out var message))
+            {
+                return message.GetString();
+            }
+        }
+        catch
+        {
+        }
+
+        return responseContent.Trim();
+    }
+
+    private sealed class GeminiResponsePayload
+    {
+        public string? TextPayload { get; set; }
+
+        public string? FinishReason { get; set; }
+
+        public string? FinishMessage { get; set; }
+
+        public string? PromptBlockReason { get; set; }
     }
 
     public async Task<IEnumerable<AiItemDto>> GetAllForTripAsync(Guid tripId, string prompt)
@@ -631,21 +766,19 @@ public class AiService : IAiService
 
         if (!response.IsSuccessStatusCode)
         {
-            var message = string.IsNullOrWhiteSpace(responseContent)
-                ? "Gemini request failed"
-                : responseContent;
+            var message = ExtractGeminiErrorMessage(responseContent) ?? "Gemini request failed";
             throw new CustomException(message);
         }
 
-        var textPayload = ExtractTextPayload(responseContent);
-        if (string.IsNullOrWhiteSpace(textPayload))
+        var geminiResponse = ExtractGeminiResponse(responseContent);
+        if (string.IsNullOrWhiteSpace(geminiResponse.TextPayload))
         {
-            throw new CustomException("Gemini returned an empty trip plan");
+            throw new CustomException(BuildGeminiUserMessage(geminiResponse, "Gemini returned an empty trip plan"));
         }
 
         try
         {
-            var plan = JsonSerializer.Deserialize<TripAiPlanDto>(textPayload, _jsonOptions);
+            var plan = JsonSerializer.Deserialize<TripAiPlanDto>(geminiResponse.TextPayload, _jsonOptions);
             if (plan == null)
             {
                 throw new CustomException("Gemini returned an empty trip plan");
@@ -660,6 +793,12 @@ public class AiService : IAiService
         }
         catch (JsonException ex)
         {
+            var message = BuildGeminiUserMessage(geminiResponse);
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                throw new CustomException(message);
+            }
+
             throw new CustomException($"Failed to parse Gemini trip plan: {ex.Message}");
         }
     }
@@ -693,7 +832,7 @@ public class AiService : IAiService
             throw new CustomException("Gemini API key is not configured");
         }
 
-        await CheckAccessAsync();
+        await EnsureAiPromptLimitNotReachedAsync();
 
         var generatedPlan = await GenerateTripPlanAsync(normalizedQuestion, normalizedCurrencyText);
         var datesAdjusted = await ShiftPlanDatesToAvoidOverlapAsync(generatedPlan);
@@ -727,6 +866,8 @@ public class AiService : IAiService
 
             throw;
         }
+
+        await SyncAiPromptCountAsync();
 
         return (generatedPlan, false, datesAdjusted);
     }

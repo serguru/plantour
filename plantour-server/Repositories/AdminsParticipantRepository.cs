@@ -29,4 +29,22 @@ public class AdminsParticipantRepository(PlantourContext context) : GenericRepos
             .Where(predicate)
             .ToListAsync();
     }
+
+    public async Task<bool> HasAssignedSharedEntitiesAsync(Guid adminsParticipantId)
+    {
+        IQueryable<Guid> tripUserIds = _context.TripUsers
+            .Where(x => x.AdminParticipantId == adminsParticipantId)
+            .Select(x => x.Id);
+
+        bool hasAssignedSharedThings = await _context.TripSharedThings
+            .AnyAsync(x => x.AssignedToId.HasValue && tripUserIds.Contains(x.AssignedToId.Value));
+
+        if (hasAssignedSharedThings)
+        {
+            return true;
+        }
+
+        return await _context.TripSharedTodos
+            .AnyAsync(x => x.AssignedToId.HasValue && tripUserIds.Contains(x.AssignedToId.Value));
+    }
 }
