@@ -1,6 +1,8 @@
 import { Component, inject, OnDestroy, signal } from '@angular/core';
 
 import { distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { ClientSettingsService } from '../../services/client-settings-service';
+import { MessagesService } from '../../services/messages-service';
 import { LoadingService } from '../../services/loading-service';
 
 @Component({
@@ -10,7 +12,9 @@ import { LoadingService } from '../../services/loading-service';
   styleUrl: './loading-component.scss',
 })
 export class LoadingComponent implements OnDestroy {
-  private loadingService = inject(LoadingService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly clientSettingsService = inject(ClientSettingsService);
+  private readonly messagesService = inject(MessagesService);
   private destroy$ = new Subject<void>();
 
   // Controls whether the overlay is in the DOM
@@ -20,6 +24,7 @@ export class LoadingComponent implements OnDestroy {
 
   private showTimer: ReturnType<typeof setTimeout> | null = null;
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
+  private timeoutTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this.loadingService.loading$.pipe(
@@ -31,9 +36,12 @@ export class LoadingComponent implements OnDestroy {
           clearTimeout(this.hideTimer);
           this.hideTimer = null;
         }
+        this.clearTimeoutCountdown();
         // Show overlay after 200ms delay
         this.showTimer = setTimeout(() => {
+          this.showTimer = null;
           this.shown.set(true);
+          this.startTimeoutCountdown();
           // One tick after DOM render to trigger CSS transition
           setTimeout(() => this.visible.set(true), 10);
         }, 200);
@@ -43,10 +51,32 @@ export class LoadingComponent implements OnDestroy {
           this.showTimer = null;
         }
         // Fade out immediately, remove from DOM after 500ms
+        this.clearTimeoutCountdown();
         this.visible.set(false);
-        this.hideTimer = setTimeout(() => this.shown.set(false), 500);
+        this.hideTimer = setTimeout(() => {
+          this.hideTimer = null;
+          this.shown.set(false);
+        }, 500);
       }
     });
+  }
+
+  private startTimeoutCountdown(): void {
+    const timeoutMs = this.clientSettingsService.globalSpinnerTimeoutSec() * 1000;
+    this.timeoutTimer = setTimeout(() => {
+      this.timeoutTimer = null;
+      this.visible.set(false);
+      this.shown.set(false);
+      this.loadingService.reset();
+      this.messagesService.showError('Spinner timeout exceeded');
+    }, timeoutMs);
+  }
+
+  private clearTimeoutCountdown(): void {
+    if (this.timeoutTimer) {
+      clearTimeout(this.timeoutTimer);
+      this.timeoutTimer = null;
+    }
   }
 
   ngOnDestroy(): void {
@@ -54,5 +84,6 @@ export class LoadingComponent implements OnDestroy {
     this.destroy$.complete();
     if (this.showTimer) clearTimeout(this.showTimer);
     if (this.hideTimer) clearTimeout(this.hideTimer);
+    if (this.timeoutTimer) clearTimeout(this.timeoutTimer);
   }
 }

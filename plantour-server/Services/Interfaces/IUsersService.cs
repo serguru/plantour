@@ -33,6 +33,7 @@ public interface IUsersService
     Task SendParticipantInvitationAsync(Guid adminParticipantId);
 
     Task<string> GetDbVersion();
+    Task<ClientSettingsDto> GetClientSettingsAsync();
     
 
 }

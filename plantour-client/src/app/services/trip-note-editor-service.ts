@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, Observable, shareReplay } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
-import { LoadingService } from './loading-service';
 
 export interface TripNoteEditorConfig {
   tinyMceApiKey: string;
@@ -47,7 +46,6 @@ export class TripNoteEditorService {
 
   constructor(
     private readonly http: HttpClient,
-    private readonly loadingService: LoadingService,
     @Inject(ENVIRONMENT) private readonly environment: EnvironmentConfig
   ) {
     this.apiUrl = `${environment.api.baseUrl}/trip-note-editor`;
@@ -84,12 +82,7 @@ export class TripNoteEditorService {
   }
 
   async prepareDropboxConnect(frontendOrigin: string, frontendPath: string): Promise<TripNoteEditorDropboxConnectUrl> {
-    this.loadingService.start();
-    try {
-      return await firstValueFrom(this.createDropboxConnectUrl(frontendOrigin, frontendPath));
-    } finally {
-      this.loadingService.stop();
-    }
+    return await firstValueFrom(this.createDropboxConnectUrl(frontendOrigin, frontendPath));
   }
 
   async hydrateStoredHtml(html: string | null | undefined): Promise<string> {

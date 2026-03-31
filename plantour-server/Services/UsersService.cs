@@ -921,5 +921,24 @@ public class UsersService(
         return version;
     }
 
+    public async Task<ClientSettingsDto> GetClientSettingsAsync()
+    {
+        int timeoutSeconds = 30;
+
+        try
+        {
+            timeoutSeconds = (int)await _settingsRepository.GetSettingByKey("global_spinner_timeout_sec");
+        }
+        catch (CustomException)
+        {
+            timeoutSeconds = 30;
+        }
+
+        return new ClientSettingsDto
+        {
+            GlobalSpinnerTimeoutSec = timeoutSeconds
+        };
+    }
+
 }
 

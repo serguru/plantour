@@ -1,4 +1,4 @@
-import { ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideClientHydration } from '@angular/platform-browser';
@@ -12,6 +12,7 @@ import { ENVIRONMENT } from '../environment.token';
 import { environment } from '../environments/environment';
 import { httpInterceptor } from './interceptors/http-interceptor';
 import { GlobalErrorHandler } from './helpers/error-handler';
+import { ClientSettingsService } from './services/client-settings-service';
 
 
 export const appConfig: ApplicationConfig = {
@@ -34,6 +35,12 @@ export const appConfig: ApplicationConfig = {
       }
     }),
     MessageService,
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      deps: [ClientSettingsService],
+      useFactory: (clientSettingsService: ClientSettingsService) => () => clientSettingsService.load(),
+    },
     {
       provide: ErrorHandler,
       useClass: GlobalErrorHandler,
