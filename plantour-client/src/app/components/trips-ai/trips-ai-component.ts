@@ -16,7 +16,6 @@ import { LocalStorageService } from '../../services/local-storage-service';
 import { MessagesService } from '../../services/messages-service';
 import {
   TripAiCreateTripResponseDto,
-  TripAiPlanDto,
   TripAiPreviewResponseDto,
   TripsAiService,
 } from '../../services/trips-ai-service';
@@ -77,7 +76,15 @@ export class TripsAiComponent {
     return this.currencies().find(x => x.name.toLowerCase() === currencyText)?.id ?? this.selectedCurrencyId();
   });
   readonly createdTripId = computed(() => this.createResult()?.tripId ?? null);
-  readonly createdTripName = computed(() => this.createResult()?.tripName ?? this.preview()?.plan.title ?? 'Suggested trip');
+  readonly canShowPreview = computed(() => {
+    const question = this.prompt().trim();
+    if (!question) {
+      return false;
+    }
+
+    const previewQuestion = this.preview()?.question?.trim() ?? '';
+    return !previewQuestion || previewQuestion.toLowerCase() !== question.toLowerCase();
+  });
   readonly canCreateTrip = computed(() => this.usersService.isAdminSignal() && !!this.preview() && !!this.previewCurrencyId());
   readonly estimatedTripTotal = computed(() => {
     const plan = this.preview()?.plan;
@@ -264,10 +271,6 @@ export class TripsAiComponent {
     this.showDatesDialog.set(false);
     this.overrideStartDate.set(null);
     this.overrideEndDate.set(null);
-  }
-
-  setExamplePrompt(): void {
-    this.prompt.set('The 4 persons family with 2 children 8 and 12 years old want to have a trip to Japan for sightseeing for 7 days this summer, we live in Vancouver BC.');
   }
 
   openDatesDialog(): void {

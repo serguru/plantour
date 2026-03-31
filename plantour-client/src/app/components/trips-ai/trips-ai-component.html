@@ -5,33 +5,19 @@
     [menuItems]="menuItems()"
   ></app-form-header>
 
-  <section class="hero-card">
-    <div>
-      <p class="eyebrow">Suggested trip</p>
-      <h2>{{ createdTripName() }}</h2>
-      <p class="hero-copy">
-        Describe the destination, timing, travelers and activities. Plantour AI will suggest a full trip
-        plan first, cache that answer for reuse, and then let you create a new Planning trip from the preview.
-      </p>
-    </div>
-  </section>
+  <section class="prompt-entry">
+    <div class="prompt-toolbar">
+      <app-dropdown
+        class="prompt-select"
+        placeholder="Select or type a trip request"
+        emptyText="No previous questions"
+        [options]="prompts()"
+        [value]="prompt()"
+        (valueChange)="onPromptChanged($event)"
+        (optionSelected)="onPromptSelected($event)"
+      ></app-dropdown>
 
-  <section class="prompt-card">
-    <div class="question-row">
-      <div>
-        <label class="prompt-label">Previous questions</label>
-        <app-dropdown
-          placeholder="Select or type a trip request"
-          emptyText="No previous questions"
-          [options]="prompts()"
-          [value]="prompt()"
-          (valueChange)="onPromptChanged($event)"
-          (optionSelected)="onPromptSelected($event)"
-        ></app-dropdown>
-      </div>
-
-      <div class="form-field">
-        <label class="prompt-label" for="trip-ai-currency">Trip currency</label>
+      <div class="currency-field">
         <p-select
           id="trip-ai-currency"
           [options]="currencies()"
@@ -47,39 +33,31 @@
       </div>
     </div>
 
-    <label class="prompt-label" for="trip-ai-prompt">Trip request</label>
-    <textarea
-      id="trip-ai-prompt"
-      pTextarea
-      rows="8"
-      [ngModel]="prompt()"
-      (ngModelChange)="onPromptChanged($event)"
-      placeholder="Example: The 4 persons family with 2 children 8 and 12 years old want to have a trip to Japan for sightseeing for 7 days this summer, we live in Vancouver BC."
-    ></textarea>
+    <div class="prompt-actions-row">
+      <app-button
+        class="prompt-button"
+        label="Show preview"
+        icon="pi pi-sparkles"
+        [loading]="isPreviewLoading()"
+        [disabled]="!canShowPreview() || isPreviewLoading() || isCreateLoading()"
+        (click)="generatePreview()"
+      ></app-button>
 
-    <div class="prompt-actions">
-      <button
-        type="button"
-        class="link-button"
-        (click)="setExamplePrompt()"
-      >Use example</button>
+      <app-button
+        class="prompt-button"
+        label="Create trip"
+        icon="pi pi-plus"
+        [loading]="isCreateLoading()"
+        [disabled]="!canCreateTrip() || isPreviewLoading() || isCreateLoading()"
+        (click)="createTrip()"
+      ></app-button>
 
-      <div class="prompt-buttons">
-        <app-button
-          label="Reset"
-          severity="secondary"
-          [disabled]="isPreviewLoading() || isCreateLoading()"
-          (click)="reset()"
-        ></app-button>
-
-        <app-button
-          label="Show preview"
-          icon="pi pi-sparkles"
-          [loading]="isPreviewLoading()"
-          [disabled]="isPreviewLoading() || isCreateLoading()"
-          (click)="generatePreview()"
-        ></app-button>
-      </div>
+      <app-button
+        class="prompt-button"
+        label="Reset"
+        [disabled]="!canCreateTrip() || isPreviewLoading() || isCreateLoading()"
+        (click)="reset()"
+      ></app-button>
     </div>
   </section>
 
@@ -90,23 +68,6 @@
           <div>
             <p class="eyebrow">Suggested trip preview</p>
             <h3>{{ previewValue.plan.title || 'Suggested trip' }}</h3>
-          </div>
-
-          <div class="preview-button-row">
-            <app-button
-              label="Reset"
-              severity="secondary"
-              [disabled]="isPreviewLoading() || isCreateLoading()"
-              (click)="reset()"
-            ></app-button>
-
-            <app-button
-              label="Create trip"
-              icon="pi pi-plus"
-              [loading]="isCreateLoading()"
-              [disabled]="!canCreateTrip() || isPreviewLoading() || isCreateLoading()"
-              (click)="createTrip()"
-            ></app-button>
           </div>
         </div>
 
