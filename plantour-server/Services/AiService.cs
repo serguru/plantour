@@ -105,8 +105,8 @@ public class AiService : IAiService
 
     private async Task<int> GetPersistedAiPromptCountAsync(DateTime windowStartUtc)
     {
-        var itemPromptCount = await _aiPromptRepository.CountCreatedSinceAsync(_currentUser.UserId, windowStartUtc);
-        var tripPlanCount = await _aiTripPlanRepository.CountCreatedSinceAsync(_currentUser.UserId, windowStartUtc);
+        var itemPromptCount = await _aiPromptRepository.CountCreatedSinceAsync(_currentUser.AdminId, windowStartUtc);
+        var tripPlanCount = await _aiTripPlanRepository.CountCreatedSinceAsync(_currentUser.AdminId, windowStartUtc);
         return itemPromptCount + tripPlanCount;
     }
 
@@ -119,12 +119,12 @@ public class AiService : IAiService
             return;
         }
 
-        AiPromptCheck? check = await _aiPromptChecksRepository.GetByIdAsync(_currentUser.UserId);
+        AiPromptCheck? check = await _aiPromptChecksRepository.GetByIdAsync(_currentUser.AdminId);
         if (check == null)
         {
             check = new AiPromptCheck
             {
-                Id = _currentUser.UserId,
+                Id = _currentUser.AdminId,
                 Count = 1,
                 Start = DateTime.UtcNow
             };

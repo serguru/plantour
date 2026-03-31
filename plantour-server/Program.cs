@@ -36,7 +36,7 @@ QuestPDF.Settings.License = LicenseType.Community;
 
 // This switch prevents Npgsql from throwing when a DateTime with Kind=Utc is written to such columns.
 // It looks like this row is necessary for TickerQ to write timestamp fields
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", false);
 
 static string NormalizeAspNetEnvironmentName(string? raw)
 {
