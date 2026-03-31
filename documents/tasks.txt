@@ -828,6 +828,3 @@ Revise trip PDF report. It is outdated, because it is missing the resently added
 
 2) Add the global spinner timeout. Read it from settings with "global_spinner_timeout_sec" key. If the actual time spinner is shown on the screen exceeded the limit - remove spinner and show error "Spinner timeout exceeded".
 
-
-
-

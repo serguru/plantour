@@ -726,6 +726,14 @@ begin
         raise exception 'trip user cannot be deleted while assigned shared todos exist';
     end if;
 
+    if exists (
+        select 1
+        from plantour.trip_shared_expenses shared_expense
+        where shared_expense.assigned_to_id = old.id
+    ) then
+        raise exception 'trip user cannot be deleted while assigned shared expenses exist';
+    end if;
+
     return old;
 end;
 $$;
@@ -991,22 +999,44 @@ create table trip_shared_expenses (
     rejected boolean not null default false
 );
 
--- create or replace function plantour.prevent_delete_accepted_trip_shared_expense()
--- returns trigger
--- language plpgsql
--- as $$
--- begin
---     if old.assigned_expense_id is not null then
---         raise exception 'accepted shared expense cannot be deleted while assigned; unassign it first';
---     end if;
---     return old;
--- end;
--- $$;
+create or replace function plantour.prevent_delete_accepted_trip_shared_expense()
+returns trigger
+language plpgsql
+as $$
+begin
+    if old.assigned_expense_id is not null then
+        raise exception 'accepted shared expense cannot be deleted while assigned; unassign it first';
+    end if;
+    return old;
+end;
+$$;
 
--- create trigger trg_prevent_delete_accepted_trip_shared_expense
--- before delete on plantour.trip_shared_expenses
--- for each row
--- execute function plantour.prevent_delete_accepted_trip_shared_expense();
+create trigger trg_prevent_delete_accepted_trip_shared_expense
+before delete on plantour.trip_shared_expenses
+for each row
+execute function plantour.prevent_delete_accepted_trip_shared_expense();
+
+create or replace function plantour.prevent_delete_referenced_trip_user_expense()
+returns trigger
+language plpgsql
+as $$
+begin
+    if exists (
+        select 1
+        from plantour.trip_shared_expenses shared_expense
+        where shared_expense.assigned_expense_id = old.id
+    ) then
+        raise exception 'trip user expense cannot be deleted while referenced by a shared expense; unassign it first';
+    end if;
+
+    return old;
+end;
+$$;
+
+create trigger trg_prevent_delete_referenced_trip_user_expense
+before delete on plantour.trip_user_expenses
+for each row
+execute function plantour.prevent_delete_referenced_trip_user_expense();
 
 
 
