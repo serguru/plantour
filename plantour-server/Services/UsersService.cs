@@ -763,9 +763,6 @@ public class UsersService(
         {
             throw new CustomException("Tokens for temporary users cannot be refreshed", "REFRESH_TOKEN_FAILED");
         }
-// TODO: auto currency rate works?
-// TODO: findout and process AI negative reaction
-// TODO: increase AI timer only after the successful response
 
         User? user = await _usersRepository.GetActiveByIdAsync(userId);
 

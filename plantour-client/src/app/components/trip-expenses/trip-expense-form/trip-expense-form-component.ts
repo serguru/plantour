@@ -60,6 +60,8 @@ export class TripExpenseFormComponent implements OnInit {
   tripId: string | null = null;
   tripCurrencyId: string | null = null;
   private isHydratingForm = false;
+  private isAutofillingRate = false;
+  private hasUserEditedRate = false;
   form!: FormGroup;
 
   get isAddMode(): boolean {
@@ -78,6 +80,9 @@ export class TripExpenseFormComponent implements OnInit {
       throw new Error('Trip Id is required to create or edit a trip expense');
     }
 
+    this.mode = this.route.snapshot.data['mode'];
+    this.initForm();
+
     this.lookupRecipients$ = this.tripUserService.getAll(this.tripId).pipe(
       map((tripUsers) => {
         const currentUserId = this.usersService.getCurrentUserId();
@@ -94,11 +99,11 @@ export class TripExpenseFormComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((trip) => {
       this.tripCurrencyId = trip.currencyId;
-      this.autofillRateForCurrentCurrency(false);
+      if (this.isAddMode && !this.hasUserEditedRate) {
+        this.autofillRateForCurrentCurrency(false);
+      }
     });
 
-    this.mode = this.route.snapshot.data['mode'];
-    this.initForm();
     if (this.isAddMode) {
       return;
     }
@@ -128,7 +133,18 @@ export class TripExpenseFormComponent implements OnInit {
         return;
       }
 
+      this.hasUserEditedRate = false;
       this.autofillRateForCurrentCurrency(true);
+    });
+
+    this.form.get('rate')?.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      if (this.isHydratingForm || this.isAutofillingRate) {
+        return;
+      }
+
+      this.hasUserEditedRate = true;
     });
   }
 
@@ -163,7 +179,7 @@ export class TripExpenseFormComponent implements OnInit {
     }
 
     if (!currencyId || (this.tripCurrencyId && currencyId === this.tripCurrencyId)) {
-      rateControl.setValue(1, { emitEvent: false });
+      this.setRateControlValue(1);
       return;
     }
 
@@ -173,14 +189,14 @@ export class TripExpenseFormComponent implements OnInit {
           return;
         }
 
-        rateControl.setValue(rate, { emitEvent: false });
+        this.setRateControlValue(rate);
       },
       error: () => {
         if (this.form?.get('currencyId')?.value !== currencyId) {
           return;
         }
 
-        rateControl.setValue(null, { emitEvent: false });
+        this.setRateControlValue(null);
         rateControl.markAsTouched();
 
         if (showWarningOnFailure) {
@@ -188,6 +204,17 @@ export class TripExpenseFormComponent implements OnInit {
         }
       },
     });
+  }
+
+  private setRateControlValue(value: number | null): void {
+    const rateControl = this.form?.get('rate');
+    if (!rateControl) {
+      return;
+    }
+
+    this.isAutofillingRate = true;
+    rateControl.setValue(value, { emitEvent: false });
+    this.isAutofillingRate = false;
   }
 
   onSubmit(): void {
