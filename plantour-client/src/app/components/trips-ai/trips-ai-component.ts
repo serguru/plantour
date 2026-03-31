@@ -56,6 +56,7 @@ export class TripsAiComponent {
   readonly prompt = signal('');
   readonly prompts = signal<string[]>([]);
   readonly currencies = signal<CurrencyDto[]>([]);
+  readonly defaultCurrencyId = signal<string | null>(null);
   readonly selectedCurrencyId = signal<string | null>(null);
   readonly preview = signal<TripAiPreviewResponseDto | null>(null);
   readonly createResult = signal<TripAiCreateTripResponseDto | null>(null);
@@ -152,6 +153,7 @@ export class TripsAiComponent {
         this.currencies.set(currencies);
 
         const defaultCurrencyId = this.getDefaultCurrencyId(currencies);
+        this.defaultCurrencyId.set(defaultCurrencyId);
         if (defaultCurrencyId) {
           this.selectedCurrencyId.set(defaultCurrencyId);
         }
@@ -266,6 +268,7 @@ export class TripsAiComponent {
 
   reset(): void {
     this.prompt.set('');
+    this.selectedCurrencyId.set(this.defaultCurrencyId() ?? this.getDefaultCurrencyId(this.currencies()));
     this.preview.set(null);
     this.createResult.set(null);
     this.showDatesDialog.set(false);

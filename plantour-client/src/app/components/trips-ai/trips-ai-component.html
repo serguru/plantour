@@ -6,7 +6,7 @@
   ></app-form-header>
 
   <section class="prompt-entry">
-    <div class="prompt-toolbar">
+    <div class="prompt-row">
       <app-dropdown
         class="prompt-select"
         placeholder="Select or type a trip request"
@@ -17,7 +17,7 @@
         (optionSelected)="onPromptSelected($event)"
       ></app-dropdown>
 
-      <div class="currency-field">
+      <!-- <div class="currency-field"> -->
         <p-select
           id="trip-ai-currency"
           [options]="currencies()"
@@ -30,10 +30,10 @@
           styleClass="w-full"
           [editable]="false"
         ></p-select>
-      </div>
+      <!-- </div> -->
     </div>
 
-    <div class="prompt-actions-row">
+    <div class="prompt-row-2">
       <app-button
         class="prompt-button"
         label="Show preview"
