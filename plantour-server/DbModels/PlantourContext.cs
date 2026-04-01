@@ -97,6 +97,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<TripUserExpense> TripUserExpenses { get; set; }
 
+    public virtual DbSet<TripUserImprovement> TripUserImprovements { get; set; }
+
     public virtual DbSet<TripUserPackage> TripUserPackages { get; set; }
 
     public virtual DbSet<TripUserThing> TripUserThings { get; set; }
@@ -545,6 +547,15 @@ public partial class PlantourContext : DbContext
                 .HasConstraintName("trip_user_expenses_recipient_id_fkey");
 
             entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserExpenseTripUsers).HasConstraintName("trip_user_expenses_trip_user_id_fkey");
+        });
+
+        modelBuilder.Entity<TripUserImprovement>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("trip_user_improvements_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserImprovements).HasConstraintName("trip_user_improvements_trip_user_id_fkey");
         });
 
         modelBuilder.Entity<TripUserPackage>(entity =>

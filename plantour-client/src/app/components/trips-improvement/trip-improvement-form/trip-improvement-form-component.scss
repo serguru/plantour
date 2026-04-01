@@ -1,0 +1,28 @@
+:host {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.checkboxes-wrapper {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.checkbox-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox-container label {
+  margin: 0;
+  padding-bottom: 0;
+  cursor: pointer;
+}
+
+:host ::ng-deep .checkbox-container .p-checkbox {
+  display: inline-flex;
+  align-items: center;
+}

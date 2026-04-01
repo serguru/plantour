@@ -1,0 +1,32 @@
+<div class="container">
+    <amazon-link
+        class="ic-2-item ellipsis-text"
+        [item]="entity.name"
+        [linkText]="entity.name"
+    ></amazon-link>
+
+    <div class="ic-2-item ic-2-right ellipsis-text">
+        <span>Order {{ entity.improvementOrder }}</span>
+    </div>
+</div>
+<div class="checkboxes-wrapper">
+    <div class="checkbox-container">
+        <p-checkbox
+            [ngModel]="entity.finished === 'success'"
+            [binary]="true"
+            inputId="accepted"
+            (onChange)="handleAcceptedClick($event)"
+        ></p-checkbox>
+        <label for="accepted">Accepted</label>
+    </div>
+    <div class="checkbox-container">
+        <p-checkbox
+            [ngModel]="entity.finished === 'failure'"
+            [binary]="true"
+            inputId="rejected"
+            (onChange)="handleRejectedClick($event)"
+        ></p-checkbox>
+        <label for="rejected">Rejected</label>
+    </div>
+</div>
+<div class="smaller-text">{{ entity.reviewStatusText }}</div>

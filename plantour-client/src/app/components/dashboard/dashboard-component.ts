@@ -51,6 +51,7 @@ export class DashboardComponent {
     const tripId = trip?.id;
     const hasTrip = !!tripId;
     const isAuthenticated = this.usersService.isAuthenticatedSignal();
+    const extendedAiOnlyDisabled = !this.usersService.hasExtendedAiAllowedSignal();
     const currentUserIncluded = !!trip?.currentUserIncluded;
     const participantOnlyDisabled = !hasTrip || !trip?.currentUserIncluded;
     const participantOnlyDisabledReason = !hasTrip
@@ -198,6 +199,15 @@ export class DashboardComponent {
             route: tripId ? `/trips/${tripId}/trip-todos` : '/trips',
             disabled: participantOnlyDisabled,
             disabledReason: participantOnlyDisabledReason
+          },
+          {
+            id: 'trips-improvement',
+            title: 'Improvements',
+            description: 'Review personal trip improvements in the order you set.',
+            icon: 'pi pi-thumbs-up',
+            route: tripId ? `/trips/${tripId}/trips-improvement` : '/trips',
+            disabled: extendedAiOnlyDisabled || participantOnlyDisabled,
+            disabledReason: extendedAiOnlyDisabled ? 'Extend your plan to access' : participantOnlyDisabledReason
           },
           {
             id: 'trip-activities-personal',

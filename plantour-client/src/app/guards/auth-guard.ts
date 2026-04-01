@@ -46,11 +46,30 @@ export const adminOrParticipantGuard: CanActivateFn = (route, state) => {
   return usersService.currentUserOk$();
 };
 
+export const extendedAiAllowedGuard: CanActivateFn = (route, state) => {
+  const usersService = inject(UsersService);
+  const router = inject(Router);
+  const messagesService = inject(MessagesService);
+
+  if (!usersService.isAuthenticatedSignal()) {
+    router.navigate(['/sign-in']);
+    return false;
+  }
+
+  if (usersService.hasExtendedAiAllowedSignal()) {
+    return true;
+  }
+
+  messagesService.showWarning('Extend your plan to access');
+  router.navigate(['/dashboard']);
+  return false;
+};
+
 
 export const checkTripIdGuard: CanActivateFn = (route, state) => {
 
   const checkCurrentUserIncluded = (trip: TripDto, path: string): boolean => {
-    if (["trip-things", "trip-packs", "trip-todos", "trip-expenses", "trip-activities", "itinerary"].some(x => path.includes(x)) && !trip.currentUserIncluded) {
+    if (["trip-things", "trip-packs", "trip-todos", "trip-expenses", "trip-activities", "trips-improvement", "itinerary"].some(x => path.includes(x)) && !trip.currentUserIncluded) {
       messagesService.showWarning('Access to this page is restricted as you are not a participant of this trip');
       router.navigate(['/trips']);
       return false;

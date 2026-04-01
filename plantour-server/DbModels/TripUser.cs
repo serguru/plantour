@@ -66,6 +66,9 @@ public partial class TripUser
     public virtual ICollection<TripUserExpense> TripUserExpenseTripUsers { get; set; } = new List<TripUserExpense>();
 
     [InverseProperty("TripUser")]
+    public virtual ICollection<TripUserImprovement> TripUserImprovements { get; set; } = new List<TripUserImprovement>();
+
+    [InverseProperty("TripUser")]
     public virtual ICollection<TripUserPackage> TripUserPackages { get; set; } = new List<TripUserPackage>();
 
     [InverseProperty("TripUser")]
