@@ -16,24 +16,10 @@
   ></app-entities-actions>
 
   @if(showCalendarForDeadline()) {
-    <div class="container">
-      <label
-        for="deadlineDays"
-        class="font-bold block mb-2"
-      >Deadline in</label>
-      <p-inputNumber
-        [style]="{'width': '100px'}"
-        [(ngModel)]="deadlineDays"
-        (ngModelChange)="onModelChangeDays()"
-        fluid
-        [min]="1"
-        [max]="365"
-        [showButtons]="true"
-      />
-      @if (deadlineDays() && deadlineDays()! >= 1) {
-        <div>day{{deadlineDays() == 1 ? '' : 's'}}</div>
-      }
-    </div>
+    <app-deadline
+      [componentId]="componentId"
+      (deadlineAtChange)="onDeadlineAtChange($event)"
+    ></app-deadline>
   }
 
   <app-entities
