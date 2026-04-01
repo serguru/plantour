@@ -1,0 +1,24 @@
+{
+  "slug": "ai-trip-improvements",
+  "question": "How can AI help me improve my trip?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ol",
+        "beforeHtml": "Plantour AI can review an existing trip and suggest a better way to organize it. <a href='/sign-in'>Sign in</a>, open the <a href='/dashboard'>Dashboard</a>, and in the <strong>Artificial Intelligence</strong> section click <strong>AI trip improvements</strong>.",
+        "items": [
+          "Open the page for the current trip and read the short scope summary near the top.",
+          "Click <strong>Generate improvements</strong>.",
+          "If you already have saved improvements, confirm replacement when Plantour asks you.",
+          "Wait while Plantour reviews the trip data available to you and creates a new ordered list of suggestions.",
+          "After generation, Plantour opens the trip improvements page automatically.",
+          "Read each suggestion in order. The list can show route, timing, packing, todo, budget, or general planning ideas.",
+          "Mark a suggestion as accepted or rejected when you decide what to do with it.",
+          "Use the page menu to expand or collapse the whole list when you want a quicker review."
+        ],
+        "afterHtml": "Admins get suggestions for personal and shared trip data. Participants get suggestions only for their own trip data. The AI never replaces your real trip data directly. It saves a list of proposed improvements for you to review first."
+      }
+    ]
+  }
+}

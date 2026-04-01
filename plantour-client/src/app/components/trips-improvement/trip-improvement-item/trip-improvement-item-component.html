@@ -1,0 +1,48 @@
+<details
+    class="improvement-card"
+    [open]="isExpanded()"
+    (toggle)="onExpandedToggle($event)"
+>
+    <summary class="improvement-summary">
+        <div class="improvement-summary__main">
+            <div class="improvement-summary__title-row">
+                <div class="improvement-summary__title">{{ entity.name }}</div>
+                <p-badge
+                    class="improvement-summary__order-badge"
+                    [value]="orderBadgeValue"
+                    severity="secondary"
+                ></p-badge>
+            </div>
+        </div>
+        <span class="improvement-summary__arrow" aria-hidden="true"></span>
+    </summary>
+
+    <div class="improvement-body">
+        @if (entity.notes) {
+            <div class="improvement-body__section">
+                <p class="improvement-body__notes">{{ entity.notes }}</p>
+            </div>
+        }
+
+        <div class="checkboxes-wrapper">
+            <div class="checkbox-container">
+                <p-checkbox
+                    [ngModel]="entity.finished === 'success'"
+                    [binary]="true"
+                    [inputId]="'accepted-' + entity.id"
+                    (onChange)="handleAcceptedClick($event)"
+                ></p-checkbox>
+                <label [for]="'accepted-' + entity.id">Accepted</label>
+            </div>
+            <div class="checkbox-container">
+                <p-checkbox
+                    [ngModel]="entity.finished === 'failure'"
+                    [binary]="true"
+                    [inputId]="'rejected-' + entity.id"
+                    (onChange)="handleRejectedClick($event)"
+                ></p-checkbox>
+                <label [for]="'rejected-' + entity.id">Rejected</label>
+            </div>
+        </div>
+    </div>
+</details>

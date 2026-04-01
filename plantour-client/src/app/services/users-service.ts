@@ -174,6 +174,13 @@ export class UsersService {
     return result ?? null;
   });
 
+  hasExtendedAiAllowedSignal = computed<boolean>(() => {
+    const user = this._userSignal();
+    const rules = user?.access_rules ?? [];
+    const rule = rules.find(x => x.id === 60);
+    return !!rule?.granted;
+  });
+
   hasPaidPlanSignal = computed<boolean>(() => {
     const user = this._userSignal();
     if (!user) return false;
@@ -189,18 +196,49 @@ export class UsersService {
     this.apiUrl = environment.api.baseUrl;
   }
 
-  private getUserFromLocalStorage(): AccessToken | null {
-    const token = this.localStorageService.getItem(this.accessTokenKey);
-    if (!token) return null;
+  private normalizeAccessRules(value: AccessToken['access_rules'] | string | null | undefined): AccessRule[] {
+    const normalizeRule = (rule: any): AccessRule => ({
+      id: Number(rule?.id ?? rule?.Id ?? 0),
+      name: String(rule?.name ?? rule?.Name ?? ''),
+      notes: rule?.notes ?? rule?.Notes ?? null,
+      granted: Boolean(rule?.granted ?? rule?.Granted ?? false),
+      value: rule?.value ?? rule?.Value ?? null,
+    });
+
+    if (!value) {
+      return [];
+    }
+
+    if (Array.isArray(value)) {
+      return value.map(normalizeRule);
+    }
+
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed.map(normalizeRule) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    return [];
+  }
+
+  private decodeAccessToken(token: string): AccessToken | null {
     try {
-
       const decoded = jwtDecode<AccessToken>(token);
-      decoded.access_rules = JSON.parse(decoded.access_rules as unknown as string) as AccessRule[] || [];
-
+      decoded.access_rules = this.normalizeAccessRules(decoded.access_rules as AccessToken['access_rules'] | string);
       return decoded;
     } catch {
       return null;
     }
+  }
+
+  private getUserFromLocalStorage(): AccessToken | null {
+    const token = this.localStorageService.getItem(this.accessTokenKey);
+    if (!token) return null;
+    return this.decodeAccessToken(token);
   }
 
   private getRefreshTokenFromLocalStorage(): string | null {
@@ -239,10 +277,9 @@ export class UsersService {
   updateUser(token: string | null): void {
     let user: AccessToken | null = null;
     if (token) {
-      try {
-        user = jwtDecode<AccessToken>(token);
-      } catch (e) {
-        console.error("Token decoding failed", e);
+      user = this.decodeAccessToken(token);
+      if (!user) {
+        console.error("Token decoding failed");
       }
     }
     this._userSignal.set(user);

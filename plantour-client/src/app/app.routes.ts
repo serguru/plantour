@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { dashboardGuard, landingRedirectGuard } from './guards/landing-guard';
-import { adminOnlyGuard, adminOrParticipantGuard, checkTripIdGuard, publicGuard, signInGuard } from './guards/auth-guard';
+import { adminOnlyGuard, adminOrParticipantGuard, checkTripIdGuard, extendedAiAllowedGuard, publicGuard, signInGuard } from './guards/auth-guard';
 import { CleanupResolver } from './helpers/resolver';
 
 export const routes: Routes = [
@@ -286,6 +286,20 @@ export const routes: Routes = [
     data: { componentId: 'trip-packs' }
   },
   {
+    path: 'trips/:tripId/trips-improvement',
+    canActivate: [checkTripIdGuard, extendedAiAllowedGuard],
+    loadComponent: () => import('./components/trips-improvement/trips-improvement-component').then(m => m.TripsImprovementComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'trips-improvement' }
+  },
+  {
+    path: 'trips/:tripId/trips-ai-improvement',
+    canActivate: [checkTripIdGuard, extendedAiAllowedGuard],
+    loadComponent: () => import('./components/trips-ai-improvement/trips-ai-improvement-component').then(m => m.TripsAIImprovementComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { componentId: 'trips-ai-improvement' }
+  },
+  {
     path: 'trips/:tripId/trip-expenses',
     canActivate: [checkTripIdGuard],
     loadComponent: () => import('./components/trip-expenses/trip-expenses-component').then(m => m.TripExpensesComponent),
@@ -319,6 +333,20 @@ export const routes: Routes = [
     loadComponent: () => import('./components/trip-packs/trip-pack-form/trip-pack-form-component').then(m => m.TripPackFormComponent),
     resolve: {cleanup: CleanupResolver},
     data: { mode: 'edit', componentId: 'trip-pack-form' }
+  },
+  {
+    path: 'trips/:tripId/trips-improvement/add',
+    canActivate: [checkTripIdGuard, extendedAiAllowedGuard],
+    loadComponent: () => import('./components/trips-improvement/trip-improvement-form/trip-improvement-form-component').then(m => m.TripImprovementFormComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { mode: 'add', componentId: 'trip-improvement-form' }
+  },
+  {
+    path: 'trips/:tripId/trips-improvement/edit/:id',
+    canActivate: [checkTripIdGuard, extendedAiAllowedGuard],
+    loadComponent: () => import('./components/trips-improvement/trip-improvement-form/trip-improvement-form-component').then(m => m.TripImprovementFormComponent),
+    resolve: { cleanup: CleanupResolver },
+    data: { mode: 'edit', componentId: 'trip-improvement-form' }
   },
   {
     path: 'trips/:tripId/trip-participants',

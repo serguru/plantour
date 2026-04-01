@@ -182,6 +182,7 @@ export class PlansPanelComponent implements OnInit {
       { label: 'PDF Export', value: true },
       { label: 'AI Suggestions', value: `${plan.allowedAiPrompts && plan.allowedAiPrompts > 0 ? plan.allowedAiPrompts : 'Unlimited'} per day` },
       { label: 'Shared Items', value: true },
+      { label: 'Extended AI prompts', value: plan.extendedAiAllowed },
     ];
   }
 

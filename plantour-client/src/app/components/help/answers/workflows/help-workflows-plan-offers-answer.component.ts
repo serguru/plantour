@@ -66,11 +66,16 @@ export class HelpWorkflowsPlanOffersAnswerComponent implements OnInit {
       { label: 'Expenses per trip', values: plans.map((plan) => this.formatLimit(plan.allowedExpenses)) },
       { label: 'Itinerary parts per trip', values: plans.map((plan) => this.formatLimit(plan.allowedItineraryParts)) },
       { label: 'Activities per trip', values: plans.map((plan) => this.formatLimit(plan.allowedActivities)) },
-      { label: 'AI suggestions per day', values: plans.map((plan) => this.formatLimit(plan.allowedAiPrompts)) }
+      { label: 'AI suggestions per day', values: plans.map((plan) => this.formatLimit(plan.allowedAiPrompts)) },
+      { label: 'Extended AI prompts', values: plans.map((plan) => this.formatAvailability(plan.extendedAiAllowed)) }
     ];
   }
 
   private formatLimit(limit: number | null): string {
     return limit && limit > 0 ? `${limit}` : 'Unlimited';
+  }
+
+  private formatAvailability(value: boolean): string {
+    return value ? 'Included' : 'No';
   }
 }

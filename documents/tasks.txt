@@ -850,3 +850,13 @@ I've added these columns to the plans db table.
 
 Explore how the app enforces limits for items and participants per trip. Implement same logic foe newly added limits.
     
+
+Generate a new component TripsImprovementComponent. See TripUserImprovement DB class. Generate client and server side code similar to TripPacksComponent. Make default rows order by ImprovementOrder. As it is done for Shared Todos component add Accepted and Rejected checkboxes. Add a link to Dashboard's Trip Personal section. Do not add any Help sections for now.
+
+ Generate a new component TripsAIImprovementComponent. This component will generate a JSON object for the current trip and current user if the current user included into a trip and send it to the AI. See how the similar TripsAiComponent implemented. And Ai will read and analyse that trip and generate suggestions how that trip plan can be improved by optimizing the path, expenses  - wharever can be improved. If the current user is admin there should be improvements on the shared entities as well as for personal ones. For participants suggested improvements only on their enitities and nothing about shared ones. Put that improvements to trip_user_improvements db table. If old improvements for that trip user already exist ask for confirmation to delete them. Every impreovement must have 1) Short description  2) What to do 3) order. Make this component accessible same as TripsImprovementComponent.
+
+ Add a trigger to trip_user_improvements limiting a number of rows per trip with 100
+
+
+ Find the code enforcing AI prompts limiting. Currently AI items and AI trip planning are supported. Add AI Trip Improvements there . Implement a code which will add a log row any time the AI generated improvements. Use trip_user_improvements_log to count AI prompts and add them to AI items and AI trip planning counts.
+  

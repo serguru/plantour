@@ -253,6 +253,9 @@ export class TripsAiComponent {
         this.currentTripService.updateCurrentTripId(result.tripId);
         this.currentTripService.refreshCurrentTrip();
         this.messagesService.showInfo(`Trip ${result.tripName} created in Planning mode`);
+        if (result.limitsAppliedMessage) {
+          this.messagesService.showWarning(result.limitsAppliedMessage);
+        }
         void this.router.navigate([`/trips/${result.tripId}/itinerary`]);
       },
       error: error => {

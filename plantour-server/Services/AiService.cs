@@ -107,7 +107,14 @@ public class AiService : IAiService
     {
         var itemPromptCount = await _aiPromptRepository.CountCreatedSinceAsync(_currentUser.AdminId, windowStartUtc);
         var tripPlanCount = await _aiTripPlanRepository.CountCreatedSinceAsync(_currentUser.AdminId, windowStartUtc);
-        return itemPromptCount + tripPlanCount;
+        var tripImprovementCount = await _context.TripUserImprovementsLogs
+            .AsNoTracking()
+            .CountAsync(x =>
+                x.CreatedAt.HasValue &&
+                x.CreatedAt.Value >= windowStartUtc &&
+                x.TripUserImprovement.TripUser.AdminParticipant.AdminId == _currentUser.AdminId);
+
+        return itemPromptCount + tripPlanCount + tripImprovementCount;
     }
 
     private async Task EnsureAiPromptLimitNotReachedAsync()
@@ -199,7 +206,7 @@ public class AiService : IAiService
             await _aiPromptChecksRepository.UpdateAsync(check);
         }
     }
-    
+
     public async Task<IEnumerable<AiItemDto>> GetAllByPromptAsync(string prompt)
     {
         _currentUser.RaiseIfNotAuthenticated();
@@ -724,7 +731,169 @@ public class AiService : IAiService
             TripId = trip.Id,
             TripName = trip.Name,
             Plan = applied.Plan,
-            Applied = applied.Applied
+            Applied = applied.Applied,
+            LimitsAppliedMessage = applied.LimitsAppliedMessage
+        };
+    }
+
+    public async Task<GenerateTripAiImprovementsResponseDto> GenerateTripAiImprovementsAsync(GenerateTripAiImprovementsRequest request)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        EnsureExtendedAiAllowed();
+
+        if (request.TripId == Guid.Empty)
+        {
+            throw new CustomException("Trip is required");
+        }
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(request.TripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var trip = await _context.Trips
+            .AsNoTracking()
+            .Include(x => x.Currency)
+            .Include(x => x.TripStatus)
+            .FirstOrDefaultAsync(x => x.Id == request.TripId && x.UserId == _currentUser.AdminId);
+
+        if (trip == null)
+        {
+            throw new CustomException("Trip not found");
+        }
+
+        var tripUser = await _tripUserRepository.GetByTripIdAsync(_currentUser.AdminId, _currentUser.UserId, request.TripId);
+        if (tripUser == null)
+        {
+            throw new CustomException("Current user is not included in this trip");
+        }
+
+        var existingImprovements = await _context.TripUserImprovements
+            .AsNoTracking()
+            .Where(x => x.TripUserId == tripUser.Id)
+            .OrderBy(x => x.ImprovementOrder)
+            .ToListAsync();
+
+        if (existingImprovements.Count > 0 && !request.ReplaceExisting)
+        {
+            throw new CustomException("Trip improvements already exist. Confirm replacement to continue.", "CONFIRM_REPLACE");
+        }
+
+        var includeSharedEntities = _currentUser.IsAdmin;
+        var snapshot = await BuildTripImprovementSnapshotAsync(trip, tripUser, includeSharedEntities);
+
+        if (string.IsNullOrWhiteSpace(_settings.ApiKey))
+        {
+            throw new CustomException("Gemini API key is not configured");
+        }
+
+        await EnsureAiPromptLimitNotReachedAsync();
+
+        var generatedImprovements = await GenerateTripImprovementsFromAiAsync(snapshot, includeSharedEntities);
+        if (generatedImprovements.Count == 0)
+        {
+            throw new CustomException("Gemini returned no improvements");
+        }
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        var deletedExistingCount = 0;
+        var persistedImprovements = new List<TripUserImprovement>();
+        if (existingImprovements.Count > 0)
+        {
+            deletedExistingCount = existingImprovements.Count;
+
+            var existingImprovementIds = existingImprovements
+                .Select(x => x.Id)
+                .ToList();
+
+            var anchorImprovementId = await _context.TripUserImprovementsLogs
+                .AsNoTracking()
+                .Where(x => existingImprovementIds.Contains(x.TripUserImprovementId))
+                .OrderBy(x => x.CreatedAt)
+                .Select(x => (Guid?)x.TripUserImprovementId)
+                .FirstOrDefaultAsync()
+                ?? existingImprovements[0].Id;
+
+            var improvementsToDelete = existingImprovementIds
+                .Where(x => x != anchorImprovementId)
+                .ToList();
+
+            if (improvementsToDelete.Count > 0)
+            {
+                await _context.TripUserImprovements
+                    .Where(x => improvementsToDelete.Contains(x.Id))
+                    .ExecuteDeleteAsync();
+            }
+
+            var anchorImprovement = await _context.TripUserImprovements
+                .FirstAsync(x => x.Id == anchorImprovementId);
+
+            var firstGeneratedImprovement = generatedImprovements[0];
+            anchorImprovement.TripUserId = tripUser.Id;
+            anchorImprovement.Name = firstGeneratedImprovement.ShortDescription;
+            anchorImprovement.Notes = firstGeneratedImprovement.WhatToDo;
+            anchorImprovement.ImprovementOrder = firstGeneratedImprovement.Order;
+            anchorImprovement.Finished = null;
+
+            persistedImprovements.Add(anchorImprovement);
+
+            var additionalImprovements = generatedImprovements
+                .Skip(1)
+                .Select(item => new TripUserImprovement
+                {
+                    Id = Guid.NewGuid(),
+                    TripUserId = tripUser.Id,
+                    Name = item.ShortDescription,
+                    Notes = item.WhatToDo,
+                    ImprovementOrder = item.Order,
+                    Finished = null,
+                })
+                .ToList();
+
+            if (additionalImprovements.Count > 0)
+            {
+                await _context.TripUserImprovements.AddRangeAsync(additionalImprovements);
+                persistedImprovements.AddRange(additionalImprovements);
+            }
+        }
+        else
+        {
+            persistedImprovements = generatedImprovements
+                .Select(item => new TripUserImprovement
+                {
+                    Id = Guid.NewGuid(),
+                    TripUserId = tripUser.Id,
+                    Name = item.ShortDescription,
+                    Notes = item.WhatToDo,
+                    ImprovementOrder = item.Order,
+                    Finished = null,
+                })
+                .ToList();
+
+            await _context.TripUserImprovements.AddRangeAsync(persistedImprovements);
+        }
+
+        await _context.TripUserImprovementsLogs.AddAsync(new TripUserImprovementsLog
+        {
+            Id = Guid.NewGuid(),
+            TripUserImprovementId = persistedImprovements[0].Id,
+            CreatedAt = DateTime.UtcNow
+        });
+
+        await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        await SyncAiPromptCountAsync();
+
+        return new GenerateTripAiImprovementsResponseDto
+        {
+            Improvements = _mapper.Map<List<TripImprovementDto>>(persistedImprovements.OrderBy(x => x.ImprovementOrder).ToList()),
+            DeletedExistingCount = deletedExistingCount,
+            SharedEntitiesIncluded = includeSharedEntities,
+            ScopeSummary = includeSharedEntities
+                ? "AI analyzed your personal and shared trip data."
+                : "AI analyzed your personal trip data only."
         };
     }
 
@@ -803,6 +972,72 @@ public class AiService : IAiService
         }
     }
 
+    private async Task<List<TripAiGeneratedImprovementDto>> GenerateTripImprovementsFromAiAsync(TripImprovementSnapshotDto snapshot, bool includeSharedEntities)
+    {
+        var requestBody = new
+        {
+            contents = new[]
+            {
+                new
+                {
+                    role = "user",
+                    parts = new[]
+                    {
+                        new
+                        {
+                            text = BuildTripImprovementsPrompt(snapshot, includeSharedEntities)
+                        }
+                    }
+                }
+            },
+            generationConfig = new
+            {
+                responseMimeType = "application/json",
+                responseSchema = BuildTripImprovementsResponseSchema(),
+                temperature = 0.3
+            }
+        };
+
+        var requestUrl = $"models/{_settings.Model}:generateContent?key={_settings.ApiKey}";
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+        {
+            Content = new StringContent(JsonSerializer.Serialize(requestBody, _jsonOptions), Encoding.UTF8, "application/json")
+        };
+
+        using var response = await _httpClient.SendAsync(request);
+        var responseContent = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var message = ExtractGeminiErrorMessage(responseContent) ?? "Gemini request failed";
+            throw new CustomException(message);
+        }
+
+        var geminiResponse = ExtractGeminiResponse(responseContent);
+        if (string.IsNullOrWhiteSpace(geminiResponse.TextPayload))
+        {
+            throw new CustomException(BuildGeminiUserMessage(geminiResponse, "Gemini returned an empty improvements response"));
+        }
+
+        try
+        {
+            var responseDto = JsonSerializer.Deserialize<TripAiGeneratedImprovementsResponse>(geminiResponse.TextPayload, _jsonOptions);
+            var normalized = NormalizeGeneratedImprovements(responseDto?.Improvements ?? []);
+            return normalized;
+        }
+        catch (JsonException ex)
+        {
+            var message = BuildGeminiUserMessage(geminiResponse);
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                throw new CustomException(message);
+            }
+
+            throw new CustomException($"Failed to parse Gemini trip improvements: {ex.Message}");
+        }
+    }
+
     private async Task<(TripAiPlanDto Plan, bool FromCache, bool DatesAdjusted)> GetOrCreateTripPlanAsync(string question, string currencyText)
     {
         var normalizedQuestion = NormalizeQuestion(question);
@@ -875,6 +1110,7 @@ public class AiService : IAiService
     private async Task<TripAiApplyResponseDto> ApplyGeneratedTripPlanAsync(Trip trip, Guid tripUserId, string prompt, TripAiPlanDto plan)
     {
         var counts = new TripAiAppliedCountsDto();
+        var limitedEntitySummaries = new List<(string Label, int Planned, int Applied)>();
         var now = DateTime.UtcNow;
 
         await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -911,6 +1147,7 @@ public class AiService : IAiService
         var remainingItineraryPartCapacity = await GetRemainingCapacityAsync(
             100,
             () => _context.ItineraryParts.CountAsync(x => x.TripId == trip.Id));
+        var plannedItineraryParts = 0;
 
         for (var index = 0; index < plan.Itinerary.Count; index++)
         {
@@ -932,6 +1169,8 @@ public class AiService : IAiService
             var key = BuildItineraryKey(name, startDate);
             if (!itineraryLookup.TryGetValue(key, out var partEntity))
             {
+                plannedItineraryParts += 1;
+
                 if (remainingItineraryPartCapacity <= 0)
                 {
                     createdOrExistingParts.Add(new ItineraryPart { Id = Guid.Empty, TripId = trip.Id, Name = string.Empty, StartDate = now });
@@ -972,6 +1211,8 @@ public class AiService : IAiService
         var remainingPersonalActivityCapacity = await GetRemainingCapacityAsync(
             110,
             () => _context.TripActivities.CountAsync(x => x.TripUserId == tripUserId));
+        var plannedPublicActivities = 0;
+        var plannedPersonalActivities = 0;
 
         for (var index = 0; index < plan.Itinerary.Count; index++)
         {
@@ -994,16 +1235,19 @@ public class AiService : IAiService
         var remainingPersonalItemCapacity = await GetRemainingCapacityAsync(
             40,
             () => _context.TripUserThings.CountAsync(x => x.TripUserId == tripUserId));
+        var plannedPersonalItems = 0;
 
         foreach (var item in plan.PersonalItems)
         {
-            if (remainingPersonalItemCapacity <= 0)
-            {
-                break;
-            }
-
             var name = CleanRequired(item.Name);
             if (name == null || !personalThingNames.Add(name))
+            {
+                continue;
+            }
+
+            plannedPersonalItems += 1;
+
+            if (remainingPersonalItemCapacity <= 0)
             {
                 continue;
             }
@@ -1029,16 +1273,19 @@ public class AiService : IAiService
         var remainingSharedItemCapacity = await GetRemainingCapacityAsync(
             40,
             () => _context.TripSharedThings.CountAsync(x => x.TripId == trip.Id));
+        var plannedSharedItems = 0;
 
         foreach (var item in plan.SharedItems)
         {
-            if (remainingSharedItemCapacity <= 0)
-            {
-                break;
-            }
-
             var name = CleanRequired(item.Name);
             if (name == null || !sharedThingNames.Add(name))
+            {
+                continue;
+            }
+
+            plannedSharedItems += 1;
+
+            if (remainingSharedItemCapacity <= 0)
             {
                 continue;
             }
@@ -1069,16 +1316,19 @@ public class AiService : IAiService
         var remainingPersonalTodoCapacity = await GetRemainingCapacityAsync(
             80,
             () => _context.TripUserTodos.CountAsync(x => x.TripUserId == tripUserId));
+        var plannedPersonalTodos = 0;
 
         foreach (var todo in plan.PersonalTodos)
         {
-            if (remainingPersonalTodoCapacity <= 0)
-            {
-                break;
-            }
-
             var name = CleanRequired(todo.Name);
             if (name == null || !personalTodoNames.Add(name))
+            {
+                continue;
+            }
+
+            plannedPersonalTodos += 1;
+
+            if (remainingPersonalTodoCapacity <= 0)
             {
                 continue;
             }
@@ -1102,16 +1352,19 @@ public class AiService : IAiService
         var remainingSharedTodoCapacity = await GetRemainingCapacityAsync(
             80,
             () => _context.TripSharedTodos.CountAsync(x => x.TripId == trip.Id));
+        var plannedSharedTodos = 0;
 
         foreach (var todo in plan.SharedTodos)
         {
-            if (remainingSharedTodoCapacity <= 0)
-            {
-                break;
-            }
-
             var name = CleanRequired(todo.Name);
             if (name == null || !sharedTodoNames.Add(name))
+            {
+                continue;
+            }
+
+            plannedSharedTodos += 1;
+
+            if (remainingSharedTodoCapacity <= 0)
             {
                 continue;
             }
@@ -1141,14 +1394,10 @@ public class AiService : IAiService
         var remainingPersonalExpenseCapacity = await GetRemainingCapacityAsync(
             90,
             () => _context.TripUserExpenses.CountAsync(x => x.TripUserId == tripUserId));
+        var plannedPersonalExpenses = 0;
 
         foreach (var expense in plan.PersonalExpenses)
         {
-            if (remainingPersonalExpenseCapacity <= 0)
-            {
-                break;
-            }
-
             var name = CleanRequired(expense.Name);
             if (name == null || expense.Amount <= 0)
             {
@@ -1157,6 +1406,13 @@ public class AiService : IAiService
 
             var key = BuildExpenseKey(name, expense.Amount);
             if (!personalExpenseKeys.Add(key))
+            {
+                continue;
+            }
+
+            plannedPersonalExpenses += 1;
+
+            if (remainingPersonalExpenseCapacity <= 0)
             {
                 continue;
             }
@@ -1185,14 +1441,10 @@ public class AiService : IAiService
         var remainingSharedExpenseCapacity = await GetRemainingCapacityAsync(
             90,
             () => _context.TripSharedExpenses.CountAsync(x => x.TripId == trip.Id));
+        var plannedSharedExpenses = 0;
 
         foreach (var expense in plan.SharedExpenses)
         {
-            if (remainingSharedExpenseCapacity <= 0)
-            {
-                break;
-            }
-
             var name = CleanRequired(expense.Name);
             if (name == null || expense.Amount <= 0)
             {
@@ -1201,6 +1453,13 @@ public class AiService : IAiService
 
             var key = BuildExpenseKey(name, expense.Amount);
             if (!sharedExpenseKeys.Add(key))
+            {
+                continue;
+            }
+
+            plannedSharedExpenses += 1;
+
+            if (remainingSharedExpenseCapacity <= 0)
             {
                 continue;
             }
@@ -1225,13 +1484,22 @@ public class AiService : IAiService
             remainingSharedExpenseCapacity -= 1;
         }
 
+        AddLimitedEntitySummary(limitedEntitySummaries, "itinerary parts", plannedItineraryParts, counts.ItineraryPartsAdded);
+        AddLimitedEntitySummary(limitedEntitySummaries, "activities", plannedPublicActivities + plannedPersonalActivities, counts.PublicActivitiesAdded + counts.PersonalActivitiesAdded);
+        AddLimitedEntitySummary(limitedEntitySummaries, "items", plannedPersonalItems + plannedSharedItems, counts.PersonalItemsAdded + counts.SharedItemsAdded);
+        AddLimitedEntitySummary(limitedEntitySummaries, "todos", plannedPersonalTodos + plannedSharedTodos, counts.PersonalTodosAdded + counts.SharedTodosAdded);
+        AddLimitedEntitySummary(limitedEntitySummaries, "expenses", plannedPersonalExpenses + plannedSharedExpenses, counts.PersonalExpensesAdded + counts.SharedExpensesAdded);
+
+        var limitsAppliedMessage = BuildLimitsAppliedMessage(limitedEntitySummaries, !IsCurrentUserOnExpeditionPlan());
+
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
 
         return new TripAiApplyResponseDto
         {
             Plan = plan,
-            Applied = counts
+            Applied = counts,
+            LimitsAppliedMessage = limitsAppliedMessage
         };
 
         int AddActivities(IEnumerable<TripAiActivityDto> activities, ItineraryPart itineraryPart, Guid? activityTripUserId)
@@ -1241,18 +1509,6 @@ public class AiService : IAiService
 
             foreach (var activity in activities)
             {
-                if (isPublic)
-                {
-                    if (remainingPublicActivityCapacity <= 0)
-                    {
-                        break;
-                    }
-                }
-                else if (remainingPersonalActivityCapacity <= 0)
-                {
-                    break;
-                }
-
                 var name = CleanRequired(activity.Name);
                 if (name == null)
                 {
@@ -1270,6 +1526,23 @@ public class AiService : IAiService
                 if (!activityKeys.Add(key))
                 {
                     continue;
+                }
+
+                if (isPublic)
+                {
+                    plannedPublicActivities += 1;
+                    if (remainingPublicActivityCapacity <= 0)
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    plannedPersonalActivities += 1;
+                    if (remainingPersonalActivityCapacity <= 0)
+                    {
+                        continue;
+                    }
                 }
 
                 _context.TripActivities.Add(new TripActivity
@@ -1301,6 +1574,41 @@ public class AiService : IAiService
 
             return added;
         }
+    }
+
+    private static void AddLimitedEntitySummary(List<(string Label, int Planned, int Applied)> summaries, string label, int planned, int applied)
+    {
+        if (planned > applied)
+        {
+            summaries.Add((label, planned, applied));
+        }
+    }
+
+    private static string BuildLimitsAppliedMessage(IEnumerable<(string Label, int Planned, int Applied)> summaries, bool includeUpgradeAdvice)
+    {
+        var limitedEntities = summaries
+            .Where(x => x.Planned > x.Applied)
+            .Select(x => $"{x.Label} from {x.Planned} to {x.Applied}")
+            .ToList();
+
+        if (limitedEntities.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var message = $"Limits applied: {string.Join(", ", limitedEntities)}.";
+        if (!includeUpgradeAdvice)
+        {
+            return message;
+        }
+
+        return $"{message} Upgrade your plan to extend limits.";
+    }
+
+    private bool IsCurrentUserOnExpeditionPlan()
+    {
+        return !string.IsNullOrWhiteSpace(_currentUser.PriceName)
+            && _currentUser.PriceName.Contains("Expedition", StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task<int> GetRemainingCapacityAsync(int ruleId, Func<Task<int>> currentCountFactory)
@@ -1558,9 +1866,9 @@ public class AiService : IAiService
                "Return only JSON that matches the provided schema. Do not add markdown or commentary. " +
                "Use plain numeric estimated expense amounts without currency symbols. " +
                $"All expense estimates must be in {currencyText}. " +
+               "If appropriate, suggest shared items, todos and expenses, as well as personal ones." +
                "Create unique names inside each collection. " +
-               "Do not assign any shared items, shared todos, or shared expenses to participants. " +
-               "Put transportation and lodging details into the itinerary, including flights and hotel stays. " +
+               "Put transportation and lodging details into the itinerary, including flights, hotel stays and car rentals. " +
                "For each itinerary part, include both public and personal activities when useful. " +
                "General recommendations and assumptions should be concise and suitable to append into trip notes. " +
                $"Today is {DateTime.UtcNow:yyyy-MM-dd}. " +
@@ -1568,6 +1876,29 @@ public class AiService : IAiService
                "SuggestedStartDate and SuggestedEndDate must use yyyy-MM-dd. " +
                "All itinerary and activity datetimes must use ISO 8601. " +
                $"User request: {userPrompt}";
+    }
+
+    private static string BuildTripImprovementsPrompt(TripImprovementSnapshotDto snapshot, bool includeSharedEntities)
+    {
+        var scopeInstruction = includeSharedEntities
+            ? "The current user is an admin. You may suggest improvements for both the current user's personal trip data and shared/public trip data when relevant."
+            : "The current user is a participant. Suggest improvements only for the current user's personal data. Do not suggest changes to shared items, shared todos, shared expenses, itinerary parts, public activities, or anything owned by other users.";
+
+        var serializedSnapshot = JsonSerializer.Serialize(snapshot, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        return "You are a travel optimization assistant inside a trip planning application. " +
+               "Analyze the provided trip JSON and suggest practical improvements that can make the trip better. " +
+               "Focus on route efficiency, timing, packing, missing personal tasks, duplicated work, spending, payment clarity, and realistic preparation gaps. " +
+               "Return only JSON that matches the schema. Do not return markdown or commentary. " +
+               "Each improvement must be specific, concise, and actionable. " +
+               "shortDescription must be a short summary. " +
+               "whatToDo must explain the concrete action the user should take. " +
+               "order must be unique and start from 1. " +
+               "Prefer 3 to 12 high-value improvements. " +
+               "Do not invent missing facts. If data is missing, suggest a verification step instead of assuming. " +
+               scopeInstruction + " " +
+               $"Today is {DateTime.UtcNow:yyyy-MM-dd}. " +
+               $"Trip JSON: {serializedSnapshot}";
     }
 
     private static object BuildTripPlanResponseSchema()
@@ -1632,6 +1963,33 @@ public class AiService : IAiService
                 "personalExpenses",
                 "sharedExpenses"
             }
+        };
+    }
+
+    private static object BuildTripImprovementsResponseSchema()
+    {
+        return new
+        {
+            type = "object",
+            properties = new
+            {
+                improvements = new
+                {
+                    type = "array",
+                    items = new
+                    {
+                        type = "object",
+                        properties = new
+                        {
+                            shortDescription = new { type = "string" },
+                            whatToDo = new { type = "string" },
+                            order = new { type = "number" }
+                        },
+                        required = new[] { "shortDescription", "whatToDo", "order" }
+                    }
+                }
+            },
+            required = new[] { "improvements" }
         };
     }
 
@@ -1741,6 +2099,339 @@ public class AiService : IAiService
                 required = new[] { "category", "name", "paymentMethod", "amount", "notes" }
             }
         };
+    }
+
+    private void EnsureExtendedAiAllowed()
+    {
+        var rule = _currentUser.AccessRules?.FirstOrDefault(x => x.Id == 60);
+        if (rule?.Granted == true)
+        {
+            return;
+        }
+
+        throw new CustomException("Extend your plan to access");
+    }
+
+    private async Task<TripImprovementSnapshotDto> BuildTripImprovementSnapshotAsync(Trip trip, TripUser tripUser, bool includeSharedEntities)
+    {
+        var itineraryParts = await _context.ItineraryParts
+            .AsNoTracking()
+            .Where(x => x.TripId == trip.Id)
+            .OrderBy(x => x.StartDate)
+            .Select(x => new TripImprovementItineraryPartDto
+            {
+                Name = x.Name,
+                Category = x.Category,
+                Address = x.Address,
+                Notes = x.Notes,
+                StartDate = x.StartDate,
+                EndDate = x.EndDate,
+                PublicActivities = x.TripActivities
+                    .Where(a => a.TripUserId == null)
+                    .OrderBy(a => a.StartDate)
+                    .ThenBy(a => a.Name)
+                    .Select(a => new TripImprovementActivityDto
+                    {
+                        Activity = a.Activity,
+                        Name = a.Name,
+                        Notes = a.Notes,
+                        StartDate = a.StartDate,
+                        EndDate = a.EndDate,
+                        Address = a.Address,
+                    })
+                    .ToList(),
+                PersonalActivities = x.TripActivities
+                    .Where(a => a.TripUserId == tripUser.Id)
+                    .OrderBy(a => a.StartDate)
+                    .ThenBy(a => a.Name)
+                    .Select(a => new TripImprovementActivityDto
+                    {
+                        Activity = a.Activity,
+                        Name = a.Name,
+                        Notes = a.Notes,
+                        StartDate = a.StartDate,
+                        EndDate = a.EndDate,
+                        Address = a.Address,
+                    })
+                    .ToList()
+            })
+            .ToListAsync();
+
+        var personalActivitiesWithoutPart = await _context.TripActivities
+            .AsNoTracking()
+            .Where(x => x.TripId == trip.Id && x.TripUserId == tripUser.Id && x.ItineraryPartId == null)
+            .OrderBy(x => x.StartDate)
+            .ThenBy(x => x.Name)
+            .Select(x => new TripImprovementActivityDto
+            {
+                Activity = x.Activity,
+                Name = x.Name,
+                Notes = x.Notes,
+                StartDate = x.StartDate,
+                EndDate = x.EndDate,
+                Address = x.Address,
+            })
+            .ToListAsync();
+
+        var publicActivitiesWithoutPart = includeSharedEntities
+            ? await _context.TripActivities
+                .AsNoTracking()
+                .Where(x => x.TripId == trip.Id && x.TripUserId == null && x.ItineraryPartId == null)
+                .OrderBy(x => x.StartDate)
+                .ThenBy(x => x.Name)
+                .Select(x => new TripImprovementActivityDto
+                {
+                    Activity = x.Activity,
+                    Name = x.Name,
+                    Notes = x.Notes,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    Address = x.Address,
+                })
+                .ToListAsync()
+            : [];
+
+        var personalItems = await _context.TripUserThings
+            .AsNoTracking()
+            .Where(x => x.TripUserId == tripUser.Id)
+            .OrderBy(x => x.Name)
+            .Select(x => new TripImprovementThingDto
+            {
+                Category = x.Category,
+                Name = x.Name,
+                Units = x.Units,
+                Value = x.Value,
+                Notes = x.Notes,
+                BagName = x.TripUserPackage != null ? x.TripUserPackage.Name : null,
+                Finished = x.Finished,
+            })
+            .ToListAsync();
+
+        var personalTodos = await _context.TripUserTodos
+            .AsNoTracking()
+            .Where(x => x.TripUserId == tripUser.Id)
+            .OrderBy(x => x.Name)
+            .Select(x => new TripImprovementTodoDto
+            {
+                Category = x.Category,
+                Name = x.Name,
+                Notes = x.Notes,
+                Finished = x.Finished,
+            })
+            .ToListAsync();
+
+        var personalExpenseRows = await _context.TripUserExpenses
+            .AsNoTracking()
+            .Where(x => x.TripUserId == tripUser.Id)
+            .OrderBy(x => x.Name)
+            .Select(x => new
+            {
+                x.Name,
+                x.PaymentMethod,
+                Currency = x.Currency != null ? x.Currency.Name : null,
+                x.Rate,
+                x.Amount,
+                x.Notes,
+                RecipientFirstName = x.Recipient != null ? x.Recipient.AdminParticipant.Participant.FirstName : null,
+                RecipientLastName = x.Recipient != null ? x.Recipient.AdminParticipant.Participant.LastName : null,
+                x.Finished,
+            })
+            .ToListAsync();
+
+        var personalExpenses = personalExpenseRows
+            .Select(x => new TripImprovementExpenseDto
+            {
+                Name = x.Name,
+                PaymentMethod = x.PaymentMethod,
+                Currency = x.Currency,
+                Rate = x.Rate,
+                Amount = x.Amount,
+                Notes = x.Notes,
+                RecipientName = BuildFullName(x.RecipientFirstName, x.RecipientLastName),
+                Finished = x.Finished,
+            })
+            .ToList();
+
+        var personalNotes = await _context.TripNotes
+            .AsNoTracking()
+            .Where(x => x.TripUserId == tripUser.Id)
+            .OrderBy(x => x.NoteOrder)
+            .ThenBy(x => x.CreatedAt)
+            .Select(x => new TripImprovementNoteDto
+            {
+                Title = x.Title,
+                NoteOrder = x.NoteOrder,
+                ActivityName = x.TripActivity != null ? x.TripActivity.Name : null,
+            })
+            .ToListAsync();
+
+        var sharedItemRows = includeSharedEntities
+            ? await _context.TripSharedThings
+                .AsNoTracking()
+                .Where(x => x.TripId == trip.Id)
+                .OrderBy(x => x.Name)
+                .Select(x => new
+                {
+                    x.Category,
+                    x.Name,
+                    x.Units,
+                    x.Value,
+                    x.Notes,
+                    AssignedFirstName = x.AssignedTo != null ? x.AssignedTo.AdminParticipant.Participant.FirstName : null,
+                    AssignedLastName = x.AssignedTo != null ? x.AssignedTo.AdminParticipant.Participant.LastName : null,
+                    AssignedEntityName = x.AssignedThing != null ? x.AssignedThing.Name : null,
+                    x.Rejected,
+                })
+                .ToListAsync()
+            : [];
+
+        var sharedItems = sharedItemRows
+            .Select(x => new TripImprovementThingDto
+            {
+                Category = x.Category,
+                Name = x.Name,
+                Units = x.Units,
+                Value = x.Value,
+                Notes = x.Notes,
+                AssignedToName = BuildFullName(x.AssignedFirstName, x.AssignedLastName),
+                AssignedEntityName = x.AssignedEntityName,
+                Rejected = x.Rejected,
+            })
+            .ToList();
+
+        var sharedTodoRows = includeSharedEntities
+            ? await _context.TripSharedTodos
+                .AsNoTracking()
+                .Where(x => x.TripId == trip.Id)
+                .OrderBy(x => x.Name)
+                .Select(x => new
+                {
+                    x.Category,
+                    x.Name,
+                    x.Notes,
+                    AssignedFirstName = x.AssignedTo != null ? x.AssignedTo.AdminParticipant.Participant.FirstName : null,
+                    AssignedLastName = x.AssignedTo != null ? x.AssignedTo.AdminParticipant.Participant.LastName : null,
+                    AssignedEntityName = x.AssignedTodo != null ? x.AssignedTodo.Name : null,
+                    x.Rejected,
+                })
+                .ToListAsync()
+            : [];
+
+        var sharedTodos = sharedTodoRows
+            .Select(x => new TripImprovementTodoDto
+            {
+                Category = x.Category,
+                Name = x.Name,
+                Notes = x.Notes,
+                AssignedToName = BuildFullName(x.AssignedFirstName, x.AssignedLastName),
+                AssignedEntityName = x.AssignedEntityName,
+                Rejected = x.Rejected,
+            })
+            .ToList();
+
+        var sharedExpenseRows = includeSharedEntities
+            ? await _context.TripSharedExpenses
+                .AsNoTracking()
+                .Where(x => x.TripId == trip.Id)
+                .OrderBy(x => x.Name)
+                .Select(x => new
+                {
+                    x.Category,
+                    x.Name,
+                    x.PaymentMethod,
+                    Currency = x.Currency != null ? x.Currency.Name : null,
+                    x.Amount,
+                    x.Notes,
+                    AssignedFirstName = x.AssignedTo != null ? x.AssignedTo.AdminParticipant.Participant.FirstName : null,
+                    AssignedLastName = x.AssignedTo != null ? x.AssignedTo.AdminParticipant.Participant.LastName : null,
+                    AssignedEntityName = x.AssignedExpense != null ? x.AssignedExpense.Name : null,
+                    x.Rejected,
+                })
+                .ToListAsync()
+            : [];
+
+        var sharedExpenses = sharedExpenseRows
+            .Select(x => new TripImprovementExpenseDto
+            {
+                Category = x.Category,
+                Name = x.Name,
+                PaymentMethod = x.PaymentMethod,
+                Currency = x.Currency,
+                Amount = x.Amount,
+                Notes = x.Notes,
+                AssignedToName = BuildFullName(x.AssignedFirstName, x.AssignedLastName),
+                AssignedEntityName = x.AssignedEntityName,
+                Rejected = x.Rejected,
+            })
+            .ToList();
+
+        return new TripImprovementSnapshotDto
+        {
+            Trip = new TripImprovementTripDto
+            {
+                Name = trip.Name,
+                Status = trip.TripStatus?.Name,
+                Currency = trip.Currency?.Name,
+                StartDate = trip.StartDate,
+                EndDate = trip.EndDate,
+                Notes = trip.Notes,
+            },
+            CurrentUser = new TripImprovementCurrentUserDto
+            {
+                FullName = BuildFullName(_currentUser.FirstName, _currentUser.LastName),
+                Email = _currentUser.Email,
+                Role = _currentUser.Role?.ToString(),
+                TripUserNotes = tripUser.Notes,
+                PackagingComplete = tripUser.PackagingComplete,
+                NoPackWeightValue = tripUser.NopackWeightValue,
+                NoPackWeightUnit = tripUser.NopackWeightUnit,
+            },
+            ItineraryParts = itineraryParts,
+            PersonalActivitiesWithoutItinerary = personalActivitiesWithoutPart,
+            PublicActivitiesWithoutItinerary = publicActivitiesWithoutPart,
+            PersonalItems = personalItems,
+            SharedItems = sharedItems,
+            PersonalTodos = personalTodos,
+            SharedTodos = sharedTodos,
+            PersonalExpenses = personalExpenses,
+            SharedExpenses = sharedExpenses,
+            PersonalNotes = personalNotes,
+        };
+    }
+
+    private static List<TripAiGeneratedImprovementDto> NormalizeGeneratedImprovements(List<TripAiGeneratedImprovementDto> improvements)
+    {
+        var normalized = improvements
+            .Select(item => new TripAiGeneratedImprovementDto
+            {
+                ShortDescription = CleanRequired(item.ShortDescription) ?? string.Empty,
+                WhatToDo = CleanRequired(item.WhatToDo) ?? string.Empty,
+                Order = item.Order,
+            })
+            .Where(item => item.ShortDescription.Length > 0 && item.WhatToDo.Length > 0)
+            .OrderBy(item => item.Order <= 0 ? int.MaxValue : item.Order)
+            .ThenBy(item => item.ShortDescription, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var deduped = new List<TripAiGeneratedImprovementDto>();
+        var seenDescriptions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var item in normalized)
+        {
+            if (!seenDescriptions.Add(item.ShortDescription))
+            {
+                continue;
+            }
+
+            deduped.Add(item);
+        }
+
+        for (var index = 0; index < deduped.Count; index++)
+        {
+            deduped[index].Order = index + 1;
+        }
+
+        return deduped;
     }
 
     private static string BuildTripNotesSection(string prompt, TripAiPlanDto plan)
@@ -1857,5 +2548,134 @@ public class AiService : IAiService
         }
 
         return $"Category: {category}\n{notes}";
+    }
+
+    private static string BuildFullName(string? firstName, string? lastName)
+    {
+        var parts = new[] { CleanOptional(firstName), CleanOptional(lastName) }
+            .Where(x => x != null)
+            .Cast<string>()
+            .ToArray();
+
+        return parts.Length == 0 ? string.Empty : string.Join(" ", parts);
+    }
+
+    private sealed class TripAiGeneratedImprovementsResponse
+    {
+        public List<TripAiGeneratedImprovementDto> Improvements { get; set; } = [];
+    }
+
+    private sealed class TripAiGeneratedImprovementDto
+    {
+        public string ShortDescription { get; set; } = string.Empty;
+        public string WhatToDo { get; set; } = string.Empty;
+        public int Order { get; set; }
+    }
+
+    private sealed class TripImprovementSnapshotDto
+    {
+        public TripImprovementTripDto Trip { get; set; } = new();
+        public TripImprovementCurrentUserDto CurrentUser { get; set; } = new();
+        public List<TripImprovementItineraryPartDto> ItineraryParts { get; set; } = [];
+        public List<TripImprovementActivityDto> PersonalActivitiesWithoutItinerary { get; set; } = [];
+        public List<TripImprovementActivityDto> PublicActivitiesWithoutItinerary { get; set; } = [];
+        public List<TripImprovementThingDto> PersonalItems { get; set; } = [];
+        public List<TripImprovementThingDto> SharedItems { get; set; } = [];
+        public List<TripImprovementTodoDto> PersonalTodos { get; set; } = [];
+        public List<TripImprovementTodoDto> SharedTodos { get; set; } = [];
+        public List<TripImprovementExpenseDto> PersonalExpenses { get; set; } = [];
+        public List<TripImprovementExpenseDto> SharedExpenses { get; set; } = [];
+        public List<TripImprovementNoteDto> PersonalNotes { get; set; } = [];
+    }
+
+    private sealed class TripImprovementTripDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Status { get; set; }
+        public string? Currency { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    private sealed class TripImprovementCurrentUserDto
+    {
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string? Role { get; set; }
+        public string? TripUserNotes { get; set; }
+        public bool PackagingComplete { get; set; }
+        public decimal? NoPackWeightValue { get; set; }
+        public string? NoPackWeightUnit { get; set; }
+    }
+
+    private sealed class TripImprovementItineraryPartDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Category { get; set; }
+        public string? Address { get; set; }
+        public string? Notes { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public List<TripImprovementActivityDto> PublicActivities { get; set; } = [];
+        public List<TripImprovementActivityDto> PersonalActivities { get; set; } = [];
+    }
+
+    private sealed class TripImprovementActivityDto
+    {
+        public string? Activity { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Notes { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string? Address { get; set; }
+    }
+
+    private sealed class TripImprovementThingDto
+    {
+        public string? Category { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Units { get; set; }
+        public decimal? Value { get; set; }
+        public string? Notes { get; set; }
+        public string? BagName { get; set; }
+        public string? AssignedToName { get; set; }
+        public string? AssignedEntityName { get; set; }
+        public string? Finished { get; set; }
+        public bool? Rejected { get; set; }
+    }
+
+    private sealed class TripImprovementTodoDto
+    {
+        public string? Category { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Notes { get; set; }
+        public string? AssignedToName { get; set; }
+        public string? AssignedEntityName { get; set; }
+        public string? Finished { get; set; }
+        public bool? Rejected { get; set; }
+    }
+
+    private sealed class TripImprovementExpenseDto
+    {
+        public string? Category { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? PaymentMethod { get; set; }
+        public string? Currency { get; set; }
+        public decimal? Rate { get; set; }
+        public decimal Amount { get; set; }
+        public string? Notes { get; set; }
+        public string? RecipientName { get; set; }
+        public string? AssignedToName { get; set; }
+        public string? AssignedEntityName { get; set; }
+        public string? Finished { get; set; }
+        public bool? Rejected { get; set; }
+    }
+
+    private sealed class TripImprovementNoteDto
+    {
+        public string Title { get; set; } = string.Empty;
+        public int? NoteOrder { get; set; }
+        public string? ActivityName { get; set; }
     }
 }

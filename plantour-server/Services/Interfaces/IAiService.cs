@@ -14,4 +14,5 @@ public interface IAiService
     Task<TripAiPreviewResponseDto> GetTripPlanPreviewAsync(string question, string currencyText);
     Task<TripAiCreateTripResponseDto> CreateTripFromPlanAsync(CreateTripFromAiPlanRequest request);
     Task<TripAiApplyResponseDto> ApplyTripPlanAsync(Guid tripId, string prompt);
+    Task<GenerateTripAiImprovementsResponseDto> GenerateTripAiImprovementsAsync(GenerateTripAiImprovementsRequest request);
 }

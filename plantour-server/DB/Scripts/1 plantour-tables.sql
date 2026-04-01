@@ -324,12 +324,12 @@ allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activiti
 3,              3,                  3,                          6
 ),
 
-('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, 
+('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for regular travelers, families and small groups', true, 
 250,           5,                  20,                        false,
 100,           100,                20,                        100
 ),
 
-('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, 
+('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for advanced travelers, large groups and expeditions', true, 
 2500,           50,                 100,                      true,
 1000,           1000,               50,                       1000
 );
@@ -880,6 +880,80 @@ create table trip_user_todos (
     finished text null check (finished in ('success', 'failure') or finished is null)
 );
 create unique index idx_trip_user_todos_trip_user_id_name on trip_user_todos(trip_user_id, name);
+
+
+-----------------------------------------------------------------------
+-- TRIP USER IMPROVEMENTS
+-----------------------------------------------------------------------
+create table plantour.trip_user_improvements (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_user_id uuid not null references plantour.trip_users(id) on delete cascade,
+    name text not null,
+    notes text,
+    improvement_order integer not null check (improvement_order > 0),
+    finished text null check (finished in ('success', 'failure') or finished is null)
+);
+create unique index idx_trip_user_improvements_improvement_order on plantour.trip_user_improvements(trip_user_id, improvement_order);
+
+create or replace function plantour.limit_trip_user_improvements_per_trip()
+returns trigger
+language plpgsql
+as $$
+declare
+    new_trip_id uuid;
+    old_trip_id uuid;
+    existing_count integer;
+begin
+    select trip_user.trip_id
+    into new_trip_id
+    from plantour.trip_users trip_user
+    where trip_user.id = new.trip_user_id;
+
+    if tg_op = 'UPDATE' and old.trip_user_id is distinct from new.trip_user_id then
+        select trip_user.trip_id
+        into old_trip_id
+        from plantour.trip_users trip_user
+        where trip_user.id = old.trip_user_id;
+
+        perform 1
+        from plantour.trips
+        where id in (new_trip_id, old_trip_id)
+        order by id
+        for update;
+    else
+        perform 1
+        from plantour.trips
+        where id = new_trip_id
+        for update;
+    end if;
+
+    select count(*)
+    into existing_count
+    from plantour.trip_user_improvements improvement
+    join plantour.trip_users trip_user on trip_user.id = improvement.trip_user_id
+    where trip_user.trip_id = new_trip_id
+      and improvement.id is distinct from new.id;
+
+    if existing_count >= 100 then
+        raise exception 'trip cannot have more than 100 improvements';
+    end if;
+
+    return new;
+end;
+$$;
+
+create trigger trg_limit_trip_user_improvements_per_trip
+before insert or update of trip_user_id on plantour.trip_user_improvements
+for each row
+execute function plantour.limit_trip_user_improvements_per_trip();
+
+create table plantour.trip_user_improvements_log (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_user_improvement_id uuid not null references plantour.trip_user_improvements(id) on delete cascade,
+    created_at timestamptz default (now() at time zone 'utc')
+);
+
+
 
 -----------------------------------------------------------------------
 -- TRIP SHARED THINGS

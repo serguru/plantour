@@ -1,0 +1,18 @@
+<div class="page-container">
+    <app-entities-header
+        entityIcon="pi pi-thumbs-up"
+        title="Trip improvements"
+        [menuItems]="menuItems()"
+        [delete]="deleteTripImprovement.bind(this)"
+        entityName="improvement"
+        addUrl="add"
+        editUrl="edit/:id"
+    ></app-entities-header>
+
+    <app-entities-actions></app-entities-actions>
+
+    <app-entities
+        [itemComponent]="tripImprovementItemComponent"
+        [itemMetaData]="itemMetaData"
+    ></app-entities>
+</div>

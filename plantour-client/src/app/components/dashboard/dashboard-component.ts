@@ -51,6 +51,7 @@ export class DashboardComponent {
     const tripId = trip?.id;
     const hasTrip = !!tripId;
     const isAuthenticated = this.usersService.isAuthenticatedSignal();
+    const extendedAiOnlyDisabled = !this.usersService.hasExtendedAiAllowedSignal();
     const currentUserIncluded = !!trip?.currentUserIncluded;
     const participantOnlyDisabled = !hasTrip || !trip?.currentUserIncluded;
     const participantOnlyDisabledReason = !hasTrip
@@ -200,6 +201,15 @@ export class DashboardComponent {
             disabledReason: participantOnlyDisabledReason
           },
           {
+            id: 'trips-improvement',
+            title: 'Improvements',
+            description: 'Review personal trip improvements in the order you set.',
+            icon: 'pi pi-thumbs-up',
+            route: tripId ? `/trips/${tripId}/trips-improvement` : '/trips',
+            disabled: extendedAiOnlyDisabled || participantOnlyDisabled,
+            disabledReason: extendedAiOnlyDisabled ? 'Extend your plan to access' : participantOnlyDisabledReason
+          },
+          {
             id: 'trip-activities-personal',
             title: 'Activities',
             description: 'Keep your private activity plan for the trip.',
@@ -304,6 +314,15 @@ export class DashboardComponent {
             description: 'Generate and apply a full trip draft for any trip you choose on the page.',
             icon: 'pi pi-sparkles',
             route: '/trips-ai'
+          },
+          {
+            id: 'trips-ai-improvement',
+            title: 'AI improvements',
+            description: 'Ask AI to analyze the current trip and write an ordered improvement list.',
+            icon: 'pi pi-thumbs-up',
+            route: tripId ? `/trips/${tripId}/trips-ai-improvement` : '/trips',
+            disabled: extendedAiOnlyDisabled || participantOnlyDisabled,
+            disabledReason: extendedAiOnlyDisabled ? 'Extend your plan to access' : participantOnlyDisabledReason
           }
         ]
       },

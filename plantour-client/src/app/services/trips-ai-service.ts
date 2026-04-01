@@ -28,6 +28,7 @@ export interface ApplyTripAiPlanRequest {
 export interface TripAiApplyResponseDto {
   plan: TripAiPlanDto;
   applied: TripAiAppliedCountsDto;
+  limitsAppliedMessage: string;
 }
 
 export interface TripAiPreviewResponseDto {
@@ -42,6 +43,27 @@ export interface TripAiCreateTripResponseDto {
   tripName: string;
   plan: TripAiPlanDto;
   applied: TripAiAppliedCountsDto;
+  limitsAppliedMessage: string;
+}
+
+export interface GenerateTripAiImprovementsRequest {
+  tripId: string;
+  replaceExisting: boolean;
+}
+
+export interface TripAiGeneratedImprovementDto {
+  id: string;
+  name: string;
+  notes?: string | null;
+  improvementOrder: number;
+  finished?: string | null;
+}
+
+export interface GenerateTripAiImprovementsResponseDto {
+  improvements: TripAiGeneratedImprovementDto[];
+  deletedExistingCount: number;
+  sharedEntitiesIncluded: boolean;
+  scopeSummary: string;
 }
 
 export interface TripAiAppliedCountsDto {
@@ -147,5 +169,9 @@ export class TripsAiService {
 
   createTrip(request: CreateTripFromAiPlanRequest): Observable<TripAiCreateTripResponseDto> {
     return this.http.post<TripAiCreateTripResponseDto>(`${this.apiUrl}/trip-plan/create`, request);
+  }
+
+  generateTripImprovements(request: GenerateTripAiImprovementsRequest): Observable<GenerateTripAiImprovementsResponseDto> {
+    return this.http.post<GenerateTripAiImprovementsResponseDto>(`${this.apiUrl}/trip-improvements/generate`, request);
   }
 }
