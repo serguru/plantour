@@ -833,3 +833,20 @@ Revise trip PDF report. It is outdated, because it is missing the resently added
 1) Explore the official Google AI documentation. It is possible that the AI returns not an expected answer but a message instead. Find out how to parse that message. Using messages service show it to a user if any.
 2) Make this for both prompts and trip plans
 3) Increase the AI count after the successful answer received.
+
+I've added these columns to the plans db table. 
+
+    [Column("allowed_todos")]
+    public int? AllowedTodos { get; set; }
+
+    [Column("allowed_expenses")]
+    public int? AllowedExpenses { get; set; }
+
+    [Column("allowed_itinerary_parts")]
+    public int? AllowedItineraryParts { get; set; }
+
+    [Column("allowed_activities")]
+    public int? AllowedActivities { get; set; }
+
+Explore how the app enforces limits for items and participants per trip. Implement same logic foe newly added limits.
+    
