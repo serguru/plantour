@@ -4,7 +4,7 @@ export const HELP_HOME_PAGE_ID = 'help';
 
 export type HelpPageKind = 'home' | 'section' | 'answer' | 'search';
 export type HelpListTag = 'ul' | 'ol';
-export type HelpAnswerComponentKey = 'get-started-guest-access';
+export type HelpAnswerComponentKey = 'get-started-guest-access' | 'workflows-plan-offers';
 
 export interface HelpAnswerListSection {
   title?: string;

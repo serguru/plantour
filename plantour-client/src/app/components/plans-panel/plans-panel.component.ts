@@ -171,14 +171,14 @@ export class PlansPanelComponent implements OnInit {
     });
   }
 
+  plansHelpUrl(): string {
+    return '/help/get-started/plantour-plans';
+  }
+
   private featuresByPlan(plan: PlanDto): PlanFeature[] {
     return [
       { label: 'Max Items', value: this.formatPlanLimit(plan.allowedItems) },
       { label: 'Max Participants', value: this.formatPlanLimit(plan.allowedTravelers) },
-      { label: 'Max Todos', value: this.formatPlanLimit(plan.allowedTodos) },
-      { label: 'Max Expenses', value: this.formatPlanLimit(plan.allowedExpenses) },
-      { label: 'Max Itinerary Parts', value: this.formatPlanLimit(plan.allowedItineraryParts) },
-      { label: 'Max Activities', value: this.formatPlanLimit(plan.allowedActivities) },
       { label: 'PDF Export', value: true },
       { label: 'AI Suggestions', value: `${plan.allowedAiPrompts && plan.allowedAiPrompts > 0 ? plan.allowedAiPrompts : 'Unlimited'} per day` },
       { label: 'Shared Items', value: true },

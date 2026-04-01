@@ -7,6 +7,7 @@ import getStartedHowCanPlanturHelpMeSolveMyProblemsJsonQuestion from './sections
 import getStartedCanITryPlantourWithoutTheAccountCreationJsonQuestion from './sections/get-started/Can I try Plantour without the account creation.json';
 import getStartedHowDoINavigateThePagesJsonQuestion from './sections/get-started/How do I navigate the pages.json';
 import getStartedWhatAreMyFirstStepsWithPlantourJsonQuestion from './sections/get-started/What are my first steps with Plantour.json';
+import getStartedWhatPlansDoesPlantourOfferJsonQuestion from './sections/get-started/What plans does Plantour offer.json';
 import getStartedHowCanISwitchMyAccountFromTemporaryToRegularJsonQuestion from './sections/get-started/How can I switch my account from temporary to regular.json';
 import featuresWhatAreTheMainEntitiesThatPlantourOperatesWithJsonQuestion from './sections/features/What are the main entities that Plantour operates with.json';
 import featuresHowDoIFilterSortAndTargetEntitiesJsonQuestion from './sections/features/How do I filter, sort and target entities.json';
@@ -69,6 +70,7 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['get-started/Can I try Plantour without the account creation.json', getStartedCanITryPlantourWithoutTheAccountCreationJsonQuestion],
   ['get-started/How do I navigate the pages.json', getStartedHowDoINavigateThePagesJsonQuestion],
   ['get-started/What are my first steps with Plantour.json', getStartedWhatAreMyFirstStepsWithPlantourJsonQuestion],
+  ['get-started/What plans does Plantour offer.json', getStartedWhatPlansDoesPlantourOfferJsonQuestion],
   ['get-started/How can I switch my account from temporary to regular.json', getStartedHowCanISwitchMyAccountFromTemporaryToRegularJsonQuestion],
   ['features/What are the main entities that Plantour operates with.json', featuresWhatAreTheMainEntitiesThatPlantourOperatesWithJsonQuestion],
   ['features/How do I filter, sort and target entities.json', featuresHowDoIFilterSortAndTargetEntitiesJsonQuestion],

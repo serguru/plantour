@@ -325,13 +325,13 @@ allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activiti
 ),
 
 ('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, 
-250,           5,                  20,                         false,
-100,            100,                100,                        100
+250,           5,                  20,                        false,
+100,           100,                20,                        100
 ),
 
 ('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, 
-2500,           50,                 100,                        true,
-1000,           1000,               1000,                       1000
+2500,           50,                 100,                      true,
+1000,           1000,               50,                       1000
 );
 
 create table plantour.prices (
