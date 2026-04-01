@@ -107,7 +107,14 @@ public class AiService : IAiService
     {
         var itemPromptCount = await _aiPromptRepository.CountCreatedSinceAsync(_currentUser.AdminId, windowStartUtc);
         var tripPlanCount = await _aiTripPlanRepository.CountCreatedSinceAsync(_currentUser.AdminId, windowStartUtc);
-        return itemPromptCount + tripPlanCount;
+        var tripImprovementCount = await _context.TripUserImprovementsLogs
+            .AsNoTracking()
+            .CountAsync(x =>
+                x.CreatedAt.HasValue &&
+                x.CreatedAt.Value >= windowStartUtc &&
+                x.TripUserImprovement.TripUser.AdminParticipant.AdminId == _currentUser.AdminId);
+
+        return itemPromptCount + tripPlanCount + tripImprovementCount;
     }
 
     private async Task EnsureAiPromptLimitNotReachedAsync()
@@ -788,29 +795,92 @@ public class AiService : IAiService
             throw new CustomException("Gemini returned no improvements");
         }
 
-        var persistedImprovements = generatedImprovements
-            .Select(item => new TripUserImprovement
-            {
-                Id = Guid.NewGuid(),
-                TripUserId = tripUser.Id,
-                Name = item.ShortDescription,
-                Notes = item.WhatToDo,
-                ImprovementOrder = item.Order,
-                Finished = null,
-            })
-            .ToList();
-
         await using var transaction = await _context.Database.BeginTransactionAsync();
 
         var deletedExistingCount = 0;
+        var persistedImprovements = new List<TripUserImprovement>();
         if (existingImprovements.Count > 0)
         {
-            deletedExistingCount = await _context.TripUserImprovements
-                .Where(x => x.TripUserId == tripUser.Id)
-                .ExecuteDeleteAsync();
+            deletedExistingCount = existingImprovements.Count;
+
+            var existingImprovementIds = existingImprovements
+                .Select(x => x.Id)
+                .ToList();
+
+            var anchorImprovementId = await _context.TripUserImprovementsLogs
+                .AsNoTracking()
+                .Where(x => existingImprovementIds.Contains(x.TripUserImprovementId))
+                .OrderBy(x => x.CreatedAt)
+                .Select(x => (Guid?)x.TripUserImprovementId)
+                .FirstOrDefaultAsync()
+                ?? existingImprovements[0].Id;
+
+            var improvementsToDelete = existingImprovementIds
+                .Where(x => x != anchorImprovementId)
+                .ToList();
+
+            if (improvementsToDelete.Count > 0)
+            {
+                await _context.TripUserImprovements
+                    .Where(x => improvementsToDelete.Contains(x.Id))
+                    .ExecuteDeleteAsync();
+            }
+
+            var anchorImprovement = await _context.TripUserImprovements
+                .FirstAsync(x => x.Id == anchorImprovementId);
+
+            var firstGeneratedImprovement = generatedImprovements[0];
+            anchorImprovement.TripUserId = tripUser.Id;
+            anchorImprovement.Name = firstGeneratedImprovement.ShortDescription;
+            anchorImprovement.Notes = firstGeneratedImprovement.WhatToDo;
+            anchorImprovement.ImprovementOrder = firstGeneratedImprovement.Order;
+            anchorImprovement.Finished = null;
+
+            persistedImprovements.Add(anchorImprovement);
+
+            var additionalImprovements = generatedImprovements
+                .Skip(1)
+                .Select(item => new TripUserImprovement
+                {
+                    Id = Guid.NewGuid(),
+                    TripUserId = tripUser.Id,
+                    Name = item.ShortDescription,
+                    Notes = item.WhatToDo,
+                    ImprovementOrder = item.Order,
+                    Finished = null,
+                })
+                .ToList();
+
+            if (additionalImprovements.Count > 0)
+            {
+                await _context.TripUserImprovements.AddRangeAsync(additionalImprovements);
+                persistedImprovements.AddRange(additionalImprovements);
+            }
+        }
+        else
+        {
+            persistedImprovements = generatedImprovements
+                .Select(item => new TripUserImprovement
+                {
+                    Id = Guid.NewGuid(),
+                    TripUserId = tripUser.Id,
+                    Name = item.ShortDescription,
+                    Notes = item.WhatToDo,
+                    ImprovementOrder = item.Order,
+                    Finished = null,
+                })
+                .ToList();
+
+            await _context.TripUserImprovements.AddRangeAsync(persistedImprovements);
         }
 
-        await _context.TripUserImprovements.AddRangeAsync(persistedImprovements);
+        await _context.TripUserImprovementsLogs.AddAsync(new TripUserImprovementsLog
+        {
+            Id = Guid.NewGuid(),
+            TripUserImprovementId = persistedImprovements[0].Id,
+            CreatedAt = DateTime.UtcNow
+        });
+
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
 
@@ -818,7 +888,7 @@ public class AiService : IAiService
 
         return new GenerateTripAiImprovementsResponseDto
         {
-            Improvements = _mapper.Map<List<TripImprovementDto>>(persistedImprovements),
+            Improvements = _mapper.Map<List<TripImprovementDto>>(persistedImprovements.OrderBy(x => x.ImprovementOrder).ToList()),
             DeletedExistingCount = deletedExistingCount,
             SharedEntitiesIncluded = includeSharedEntities,
             ScopeSummary = includeSharedEntities
