@@ -99,6 +99,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<TripUserImprovement> TripUserImprovements { get; set; }
 
+    public virtual DbSet<TripUserImprovementsLog> TripUserImprovementsLogs { get; set; }
+
     public virtual DbSet<TripUserPackage> TripUserPackages { get; set; }
 
     public virtual DbSet<TripUserThing> TripUserThings { get; set; }
@@ -556,6 +558,16 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
             entity.HasOne(d => d.TripUser).WithMany(p => p.TripUserImprovements).HasConstraintName("trip_user_improvements_trip_user_id_fkey");
+        });
+
+        modelBuilder.Entity<TripUserImprovementsLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("trip_user_improvements_log_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasOne(d => d.TripUserImprovement).WithMany(p => p.TripUserImprovementsLogs).HasConstraintName("trip_user_improvements_log_trip_user_improvement_id_fkey");
         });
 
         modelBuilder.Entity<TripUserPackage>(entity =>

@@ -32,4 +32,7 @@ public partial class TripUserImprovement
     [ForeignKey("TripUserId")]
     [InverseProperty("TripUserImprovements")]
     public virtual TripUser TripUser { get; set; } = null!;
+
+    [InverseProperty("TripUserImprovement")]
+    public virtual ICollection<TripUserImprovementsLog> TripUserImprovementsLogs { get; set; } = new List<TripUserImprovementsLog>();
 }

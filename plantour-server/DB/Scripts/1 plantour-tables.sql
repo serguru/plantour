@@ -947,6 +947,13 @@ before insert or update of trip_user_id on plantour.trip_user_improvements
 for each row
 execute function plantour.limit_trip_user_improvements_per_trip();
 
+create table plantour.trip_user_improvements_log (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_user_improvement_id uuid not null references plantour.trip_user_improvements(id) on delete cascade,
+    created_at timestamptz default (now() at time zone 'utc')
+);
+
+
 
 -----------------------------------------------------------------------
 -- TRIP SHARED THINGS
