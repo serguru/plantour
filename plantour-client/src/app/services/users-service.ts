@@ -174,6 +174,14 @@ export class UsersService {
     return result ?? null;
   });
 
+  hasPaidPlanSignal = computed<boolean>(() => {
+    const user = this._userSignal();
+    if (!user) return false;
+
+    const subscriptionId = user.paddle_subscription_id?.trim();
+    return !!subscriptionId;
+  });
+
   constructor(
     private http: HttpClient,
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig

@@ -9,6 +9,7 @@
         "listTag": "ul",
         "items": [
           "The <strong>Manage Billing</strong> button is shown on the <strong>Profile</strong> page only for admins.",
+          "It is enabled only when the current admin account has an active paid plan.",
           "Temporary accounts do not get this button, so guest or temporary users cannot open billing management from there."
         ]
       },
@@ -35,7 +36,7 @@
         "listTag": "ul",
         "items": [
           "If Plantour cannot create the customer portal session, it shows a billing error message instead of redirecting you.",
-          "If you do not see the button at all, check whether you are signed in as an admin and whether the account is still temporary."
+          "If the button is disabled or missing, check whether you are signed in as an admin, whether the account is still temporary, and whether the admin account currently has a paid plan."
         ]
       }
     ]
