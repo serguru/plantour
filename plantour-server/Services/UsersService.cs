@@ -758,8 +758,6 @@ public class UsersService(
         }
 
         bool isTemporary = temporary == "true";
-// TODO: spinner is not killed when refreshing token error
-// TODO: remove outdated trip_user_improvements_log rows
         if (isTemporary)
         {
             throw new CustomException("Tokens for temporary users cannot be refreshed", "REFRESH_TOKEN_FAILED");

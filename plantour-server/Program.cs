@@ -145,7 +145,13 @@ var loggerConfiguration = new LoggerConfiguration()
         schemaName: "plantour",
         needAutoCreateTable: false
     )
-    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}");
+    .WriteTo.Logger(consoleLogger => consoleLogger
+        .Filter.ByExcluding(logEvent =>
+            logEvent.Properties.TryGetValue("SourceContext", out var sourceContext)
+            && sourceContext is ScalarValue { Value: string sourceContextValue }
+            && sourceContextValue.Contains("TickerQ", StringComparison.Ordinal)
+        )
+        .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"));
 
 foreach (var overrideSection in minimumLevelSection.GetSection("Override").GetChildren())
 {
