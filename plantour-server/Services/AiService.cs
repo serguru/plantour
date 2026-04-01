@@ -199,7 +199,7 @@ public class AiService : IAiService
             await _aiPromptChecksRepository.UpdateAsync(check);
         }
     }
-    
+
     public async Task<IEnumerable<AiItemDto>> GetAllByPromptAsync(string prompt)
     {
         _currentUser.RaiseIfNotAuthenticated();
@@ -724,7 +724,8 @@ public class AiService : IAiService
             TripId = trip.Id,
             TripName = trip.Name,
             Plan = applied.Plan,
-            Applied = applied.Applied
+            Applied = applied.Applied,
+            LimitsAppliedMessage = applied.LimitsAppliedMessage
         };
     }
 
@@ -875,6 +876,7 @@ public class AiService : IAiService
     private async Task<TripAiApplyResponseDto> ApplyGeneratedTripPlanAsync(Trip trip, Guid tripUserId, string prompt, TripAiPlanDto plan)
     {
         var counts = new TripAiAppliedCountsDto();
+        var limitedEntitySummaries = new List<(string Label, int Planned, int Applied)>();
         var now = DateTime.UtcNow;
 
         await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -911,6 +913,7 @@ public class AiService : IAiService
         var remainingItineraryPartCapacity = await GetRemainingCapacityAsync(
             100,
             () => _context.ItineraryParts.CountAsync(x => x.TripId == trip.Id));
+        var plannedItineraryParts = 0;
 
         for (var index = 0; index < plan.Itinerary.Count; index++)
         {
@@ -932,6 +935,8 @@ public class AiService : IAiService
             var key = BuildItineraryKey(name, startDate);
             if (!itineraryLookup.TryGetValue(key, out var partEntity))
             {
+                plannedItineraryParts += 1;
+
                 if (remainingItineraryPartCapacity <= 0)
                 {
                     createdOrExistingParts.Add(new ItineraryPart { Id = Guid.Empty, TripId = trip.Id, Name = string.Empty, StartDate = now });
@@ -972,6 +977,8 @@ public class AiService : IAiService
         var remainingPersonalActivityCapacity = await GetRemainingCapacityAsync(
             110,
             () => _context.TripActivities.CountAsync(x => x.TripUserId == tripUserId));
+        var plannedPublicActivities = 0;
+        var plannedPersonalActivities = 0;
 
         for (var index = 0; index < plan.Itinerary.Count; index++)
         {
@@ -994,16 +1001,19 @@ public class AiService : IAiService
         var remainingPersonalItemCapacity = await GetRemainingCapacityAsync(
             40,
             () => _context.TripUserThings.CountAsync(x => x.TripUserId == tripUserId));
+        var plannedPersonalItems = 0;
 
         foreach (var item in plan.PersonalItems)
         {
-            if (remainingPersonalItemCapacity <= 0)
-            {
-                break;
-            }
-
             var name = CleanRequired(item.Name);
             if (name == null || !personalThingNames.Add(name))
+            {
+                continue;
+            }
+
+            plannedPersonalItems += 1;
+
+            if (remainingPersonalItemCapacity <= 0)
             {
                 continue;
             }
@@ -1029,16 +1039,19 @@ public class AiService : IAiService
         var remainingSharedItemCapacity = await GetRemainingCapacityAsync(
             40,
             () => _context.TripSharedThings.CountAsync(x => x.TripId == trip.Id));
+        var plannedSharedItems = 0;
 
         foreach (var item in plan.SharedItems)
         {
-            if (remainingSharedItemCapacity <= 0)
-            {
-                break;
-            }
-
             var name = CleanRequired(item.Name);
             if (name == null || !sharedThingNames.Add(name))
+            {
+                continue;
+            }
+
+            plannedSharedItems += 1;
+
+            if (remainingSharedItemCapacity <= 0)
             {
                 continue;
             }
@@ -1069,16 +1082,19 @@ public class AiService : IAiService
         var remainingPersonalTodoCapacity = await GetRemainingCapacityAsync(
             80,
             () => _context.TripUserTodos.CountAsync(x => x.TripUserId == tripUserId));
+        var plannedPersonalTodos = 0;
 
         foreach (var todo in plan.PersonalTodos)
         {
-            if (remainingPersonalTodoCapacity <= 0)
-            {
-                break;
-            }
-
             var name = CleanRequired(todo.Name);
             if (name == null || !personalTodoNames.Add(name))
+            {
+                continue;
+            }
+
+            plannedPersonalTodos += 1;
+
+            if (remainingPersonalTodoCapacity <= 0)
             {
                 continue;
             }
@@ -1102,16 +1118,19 @@ public class AiService : IAiService
         var remainingSharedTodoCapacity = await GetRemainingCapacityAsync(
             80,
             () => _context.TripSharedTodos.CountAsync(x => x.TripId == trip.Id));
+        var plannedSharedTodos = 0;
 
         foreach (var todo in plan.SharedTodos)
         {
-            if (remainingSharedTodoCapacity <= 0)
-            {
-                break;
-            }
-
             var name = CleanRequired(todo.Name);
             if (name == null || !sharedTodoNames.Add(name))
+            {
+                continue;
+            }
+
+            plannedSharedTodos += 1;
+
+            if (remainingSharedTodoCapacity <= 0)
             {
                 continue;
             }
@@ -1141,14 +1160,10 @@ public class AiService : IAiService
         var remainingPersonalExpenseCapacity = await GetRemainingCapacityAsync(
             90,
             () => _context.TripUserExpenses.CountAsync(x => x.TripUserId == tripUserId));
+        var plannedPersonalExpenses = 0;
 
         foreach (var expense in plan.PersonalExpenses)
         {
-            if (remainingPersonalExpenseCapacity <= 0)
-            {
-                break;
-            }
-
             var name = CleanRequired(expense.Name);
             if (name == null || expense.Amount <= 0)
             {
@@ -1157,6 +1172,13 @@ public class AiService : IAiService
 
             var key = BuildExpenseKey(name, expense.Amount);
             if (!personalExpenseKeys.Add(key))
+            {
+                continue;
+            }
+
+            plannedPersonalExpenses += 1;
+
+            if (remainingPersonalExpenseCapacity <= 0)
             {
                 continue;
             }
@@ -1185,14 +1207,10 @@ public class AiService : IAiService
         var remainingSharedExpenseCapacity = await GetRemainingCapacityAsync(
             90,
             () => _context.TripSharedExpenses.CountAsync(x => x.TripId == trip.Id));
+        var plannedSharedExpenses = 0;
 
         foreach (var expense in plan.SharedExpenses)
         {
-            if (remainingSharedExpenseCapacity <= 0)
-            {
-                break;
-            }
-
             var name = CleanRequired(expense.Name);
             if (name == null || expense.Amount <= 0)
             {
@@ -1201,6 +1219,13 @@ public class AiService : IAiService
 
             var key = BuildExpenseKey(name, expense.Amount);
             if (!sharedExpenseKeys.Add(key))
+            {
+                continue;
+            }
+
+            plannedSharedExpenses += 1;
+
+            if (remainingSharedExpenseCapacity <= 0)
             {
                 continue;
             }
@@ -1225,13 +1250,22 @@ public class AiService : IAiService
             remainingSharedExpenseCapacity -= 1;
         }
 
+        AddLimitedEntitySummary(limitedEntitySummaries, "itinerary parts", plannedItineraryParts, counts.ItineraryPartsAdded);
+        AddLimitedEntitySummary(limitedEntitySummaries, "activities", plannedPublicActivities + plannedPersonalActivities, counts.PublicActivitiesAdded + counts.PersonalActivitiesAdded);
+        AddLimitedEntitySummary(limitedEntitySummaries, "items", plannedPersonalItems + plannedSharedItems, counts.PersonalItemsAdded + counts.SharedItemsAdded);
+        AddLimitedEntitySummary(limitedEntitySummaries, "todos", plannedPersonalTodos + plannedSharedTodos, counts.PersonalTodosAdded + counts.SharedTodosAdded);
+        AddLimitedEntitySummary(limitedEntitySummaries, "expenses", plannedPersonalExpenses + plannedSharedExpenses, counts.PersonalExpensesAdded + counts.SharedExpensesAdded);
+
+        var limitsAppliedMessage = BuildLimitsAppliedMessage(limitedEntitySummaries, !IsCurrentUserOnExpeditionPlan());
+
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
 
         return new TripAiApplyResponseDto
         {
             Plan = plan,
-            Applied = counts
+            Applied = counts,
+            LimitsAppliedMessage = limitsAppliedMessage
         };
 
         int AddActivities(IEnumerable<TripAiActivityDto> activities, ItineraryPart itineraryPart, Guid? activityTripUserId)
@@ -1241,18 +1275,6 @@ public class AiService : IAiService
 
             foreach (var activity in activities)
             {
-                if (isPublic)
-                {
-                    if (remainingPublicActivityCapacity <= 0)
-                    {
-                        break;
-                    }
-                }
-                else if (remainingPersonalActivityCapacity <= 0)
-                {
-                    break;
-                }
-
                 var name = CleanRequired(activity.Name);
                 if (name == null)
                 {
@@ -1270,6 +1292,23 @@ public class AiService : IAiService
                 if (!activityKeys.Add(key))
                 {
                     continue;
+                }
+
+                if (isPublic)
+                {
+                    plannedPublicActivities += 1;
+                    if (remainingPublicActivityCapacity <= 0)
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    plannedPersonalActivities += 1;
+                    if (remainingPersonalActivityCapacity <= 0)
+                    {
+                        continue;
+                    }
                 }
 
                 _context.TripActivities.Add(new TripActivity
@@ -1301,6 +1340,41 @@ public class AiService : IAiService
 
             return added;
         }
+    }
+
+    private static void AddLimitedEntitySummary(List<(string Label, int Planned, int Applied)> summaries, string label, int planned, int applied)
+    {
+        if (planned > applied)
+        {
+            summaries.Add((label, planned, applied));
+        }
+    }
+
+    private static string BuildLimitsAppliedMessage(IEnumerable<(string Label, int Planned, int Applied)> summaries, bool includeUpgradeAdvice)
+    {
+        var limitedEntities = summaries
+            .Where(x => x.Planned > x.Applied)
+            .Select(x => $"{x.Label} from {x.Planned} to {x.Applied}")
+            .ToList();
+
+        if (limitedEntities.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var message = $"Limits applied: {string.Join(", ", limitedEntities)}.";
+        if (!includeUpgradeAdvice)
+        {
+            return message;
+        }
+
+        return $"{message} Upgrade your plan to extend limits.";
+    }
+
+    private bool IsCurrentUserOnExpeditionPlan()
+    {
+        return !string.IsNullOrWhiteSpace(_currentUser.PriceName)
+            && _currentUser.PriceName.Contains("Expedition", StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task<int> GetRemainingCapacityAsync(int ruleId, Func<Task<int>> currentCountFactory)
@@ -1558,9 +1632,9 @@ public class AiService : IAiService
                "Return only JSON that matches the provided schema. Do not add markdown or commentary. " +
                "Use plain numeric estimated expense amounts without currency symbols. " +
                $"All expense estimates must be in {currencyText}. " +
+               "If appropriate, suggest shared items, todos and expenses, as well as personal ones." +
                "Create unique names inside each collection. " +
-               "Do not assign any shared items, shared todos, or shared expenses to participants. " +
-               "Put transportation and lodging details into the itinerary, including flights and hotel stays. " +
+               "Put transportation and lodging details into the itinerary, including flights, hotel stays and car rentals. " +
                "For each itinerary part, include both public and personal activities when useful. " +
                "General recommendations and assumptions should be concise and suitable to append into trip notes. " +
                $"Today is {DateTime.UtcNow:yyyy-MM-dd}. " +

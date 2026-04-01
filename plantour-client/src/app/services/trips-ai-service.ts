@@ -28,6 +28,7 @@ export interface ApplyTripAiPlanRequest {
 export interface TripAiApplyResponseDto {
   plan: TripAiPlanDto;
   applied: TripAiAppliedCountsDto;
+  limitsAppliedMessage: string;
 }
 
 export interface TripAiPreviewResponseDto {
@@ -42,6 +43,7 @@ export interface TripAiCreateTripResponseDto {
   tripName: string;
   plan: TripAiPlanDto;
   applied: TripAiAppliedCountsDto;
+  limitsAppliedMessage: string;
 }
 
 export interface TripAiAppliedCountsDto {
