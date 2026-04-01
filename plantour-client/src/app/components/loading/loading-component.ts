@@ -68,7 +68,7 @@ export class LoadingComponent implements OnDestroy {
       this.visible.set(false);
       this.shown.set(false);
       this.loadingService.reset();
-      this.messagesService.showError('Spinner timeout exceeded');
+      this.messagesService.showWarning('Spinner timeout exceeded');
     }, timeoutMs);
   }
 

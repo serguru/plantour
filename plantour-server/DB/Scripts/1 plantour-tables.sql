@@ -952,6 +952,7 @@ create table plantour.trip_user_improvements_log (
     trip_user_improvement_id uuid not null references plantour.trip_user_improvements(id) on delete cascade,
     created_at timestamptz default (now() at time zone 'utc')
 );
+create index idx_trip_user_improvements_log_created_at on trip_user_improvements_log(created_at);
 
 
 

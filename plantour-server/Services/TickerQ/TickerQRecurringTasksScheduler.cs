@@ -37,7 +37,11 @@ public class TickerQRecurringTasksScheduler : IHostedService
             new RecurringCronTask(
                 TickerQMaintenanceTasks.DeleteOldErrorLogsFunction,
                 CronPreset.DailyAt01_20Utc.ToExpression(),
-                "Daily cleanup of old error logs (01:20 UTC)")
+                "Daily cleanup of old error logs (01:20 UTC)"),
+            new RecurringCronTask(
+                TickerQMaintenanceTasks.DeleteOldTripUserImprovementsLogFunction,
+                CronPreset.DailyAt01_30Utc.ToExpression(),
+                "Daily cleanup of old trip user improvements log rows (01:30 UTC)")
         };
 
         await ResetRecurringCronTickersAsync(recurringTasks, cancellationToken);

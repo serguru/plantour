@@ -8,6 +8,7 @@ public class TickerQMaintenanceTasks
     public const string DeleteExpiredRefreshTokensFunction = "Plantour_DeleteExpiredRefreshTokens";
     public const string DeleteOldAIPromptsFunction = "Plantour_DeleteOldAIPrompts";
     public const string DeleteOldErrorLogsFunction = "Plantour_DeleteOldErrorLogs";
+    public const string DeleteOldTripUserImprovementsLogFunction = "Plantour_DeleteOldTripUserImprovementsLog";
 
     private readonly ISchedulerService _schedulerService;
     private readonly ILogger<TickerQMaintenanceTasks> _logger;
@@ -39,5 +40,12 @@ public class TickerQMaintenanceTasks
     {
         await _schedulerService.DeleteOldErrorLogsAsync();
         _logger.LogInformation("TickerQ maintenance executed: {Function}", DeleteOldErrorLogsFunction);
+    }
+
+    [TickerFunction(DeleteOldTripUserImprovementsLogFunction)]
+    public async Task DeleteOldTripUserImprovementsLogAsync(TickerFunctionContext context, CancellationToken cancellationToken)
+    {
+        await _schedulerService.DeleteOldTripUserImprovementsLogAsync();
+        _logger.LogInformation("TickerQ maintenance executed: {Function}", DeleteOldTripUserImprovementsLogFunction);
     }
 }
