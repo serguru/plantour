@@ -42,6 +42,18 @@ public partial class Plan
     [Column("extended_ai_allowed")]
     public bool ExtendedAiAllowed { get; set; }
 
+    [Column("allowed_todos")]
+    public int? AllowedTodos { get; set; }
+
+    [Column("allowed_expenses")]
+    public int? AllowedExpenses { get; set; }
+
+    [Column("allowed_itinerary_parts")]
+    public int? AllowedItineraryParts { get; set; }
+
+    [Column("allowed_activities")]
+    public int? AllowedActivities { get; set; }
+
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 

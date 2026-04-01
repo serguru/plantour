@@ -198,7 +198,8 @@
             <app-button
                 [label]="'Manage Billing'"
                 [icon]="'pi pi-receipt'"
-                [loading]="isUpdatingProfile()"
+                [disabled]="!hasPaidPlan() || isOpeningPortal()"
+                [loading]="isOpeningPortal()"
                 (click)="onManageBillingClick()"
             />
             }

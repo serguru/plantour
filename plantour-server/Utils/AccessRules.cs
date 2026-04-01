@@ -89,6 +89,34 @@ public class AccessRules
             Name = "Can send prompts to the AI over a limit"
         };  
         AddRuleWithValidation(rule);
+
+        rule = new AccessRule()
+        {
+            Id = 80,
+            Name = "Can add a dictionary/trip todo over a limit"
+        };
+        AddRuleWithValidation(rule);
+
+        rule = new AccessRule()
+        {
+            Id = 90,
+            Name = "Can add a trip expense over a limit"
+        };
+        AddRuleWithValidation(rule);
+
+        rule = new AccessRule()
+        {
+            Id = 100,
+            Name = "Can add an itinerary part over a limit"
+        };
+        AddRuleWithValidation(rule);
+
+        rule = new AccessRule()
+        {
+            Id = 110,
+            Name = "Can add a trip activity over a limit"
+        };
+        AddRuleWithValidation(rule);
     }
 
     public AccessRule this[int index]

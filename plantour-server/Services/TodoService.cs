@@ -88,6 +88,7 @@ public class TodoService(
             throw new CustomException("Todo with the same name already exists");
         }
 
+        await CheckAccessAsync(1);
         var entity = _mapper.Map<UserTodo>(request);
         entity.Id = Guid.NewGuid();
         entity.UserId = _currentUser.UserId;
@@ -135,5 +136,27 @@ public class TodoService(
             Name = c.Name,
             Notes = c.Notes
         });
+    }
+
+    private async Task CheckAccessAsync(int addQty)
+    {
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 80);
+        if (rule == null || rule.Granted)
+        {
+            return;
+        }
+
+        int limit = rule.Value ?? 0;
+
+        var s1 = $"You've reached the limit of {limit} todos you can add to your trip.";
+
+        var s2 = _currentUser.IsAdmin ? "Please go to your profile page and upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
+
+
+        var currentCount = await _todoRepository.CountAsync(_currentUser.AdminId);
+        if (currentCount + addQty > limit)
+        {
+            throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+        }
     }
 }

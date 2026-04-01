@@ -27,6 +27,28 @@ public class TripExpenseService(
     private readonly IMapper _mapper = mapper;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 
+    private async Task CheckAccessAsync(Guid tripId, int addQty)
+    {
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 90);
+        if (rule == null || rule.Granted)
+        {
+            return;
+        }
+
+        int limit = rule.Value ?? 0;
+
+        var s1 = $"You've reached the limit of {limit} expenses you can add to your trip.";
+
+        var s2 = _currentUser.IsAdmin ? "Please go to your profile page and upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
+
+
+        var currentCount = await _tripUserExpenseRepository.CountAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
+        if (currentCount + addQty > limit)
+        {
+            throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+        }
+    }
+
     public async Task<IEnumerable<TripExpenseDto>> GetAllAsync(Guid tripId)
     {
         _currentUser.RaiseIfNotAuthenticated();
@@ -78,6 +100,7 @@ public class TripExpenseService(
 
         var (trip, tripUser) = await ValidateAndGetTripContextAsync(request.TripId);
         await ValidateRecipientAsync(request.TripId, tripUser.Id, request.RecipientId);
+        await CheckAccessAsync(request.TripId, 1);
 
         var entity = _mapper.Map<TripUserExpense>(request);
         entity.Id = Guid.NewGuid();

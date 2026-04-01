@@ -303,14 +303,36 @@ create table plantour.plans (
     public boolean,
     allowed_items int,
     allowed_travelers int,
+
     allowed_AI_prompts int, -- per day
     extended_AI_allowed boolean not null default false,
+
+    allowed_todos int,
+    allowed_expenses int,
+    allowed_itinerary_parts int,
+    allowed_activities int,
+
     created_at timestamptz not null default (now() at time zone 'utc')
 );
-insert into plantour.plans (name, paddle_product_id, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
-('Starter', null, 'For small trips and light packers', true, 10, 2, 5, false),
-('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, null, 5, 20, false),
-('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, null, 50, 100, true);
+
+insert into plantour.plans (name, paddle_product_id, notes, public, 
+allowed_items,  allowed_travelers,  allowed_AI_prompts,         extended_AI_allowed,
+allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activities) values
+
+('Starter', null, 'For small trips and light packers', true, 
+10,             2,                  5,                          false, 
+3,              3,                  3,                          6
+),
+
+('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, 
+250,           5,                  20,                        false,
+100,           100,                20,                        100
+),
+
+('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, 
+2500,           50,                 100,                      true,
+1000,           1000,               50,                       1000
+);
 
 create table plantour.prices (
     id uuid primary key default gen_random_uuid(),

@@ -43,6 +43,14 @@ public class AccessRulesService : IAccessRulesService
         a.GetById(60).Granted = false; // Can send extended prompts to the AI
         a.GetById(70).Granted = false; // Can send prompts to the AI over a limit
         a.GetById(70).Value = plan!.AllowedAiPrompts; // Get allowed AI prompts from the Starter plan
+        a.GetById(80).Granted = false; // Can add a dictionary/trip todo over a limit
+        a.GetById(80).Value = plan!.AllowedTodos; // Get allowed todos from the Starter plan
+        a.GetById(90).Granted = false; // Can add a trip expense over a limit
+        a.GetById(90).Value = plan!.AllowedExpenses; // Get allowed expenses from the Starter plan
+        a.GetById(100).Granted = false; // Can add itinerary parts over a limit
+        a.GetById(100).Value = plan!.AllowedItineraryParts; // Get allowed itinerary parts from the Starter plan
+        a.GetById(110).Granted = false; // Can add trip activities over a limit
+        a.GetById(110).Value = plan!.AllowedActivities; // Get allowed activities from the Starter plan
 
         result.AccessRulesObject = a;
         result.UserObject = user;
@@ -78,6 +86,14 @@ public class AccessRulesService : IAccessRulesService
         a.GetById(60).Granted = plan!.ExtendedAiAllowed; // Can send extended prompts to the AI
         a.GetById(70).Granted = plan!.AllowedAiPrompts == null; // Can send prompts to the AI over a limit
         a.GetById(70).Value = plan!.AllowedAiPrompts == null ? null : plan.AllowedAiPrompts; // Get allowed AI prompts from the plan
+        a.GetById(80).Granted = plan!.AllowedTodos == null; // Can add a dictionary/trip todo over a limit
+        a.GetById(80).Value = plan!.AllowedTodos == null ? null : plan.AllowedTodos; // Get allowed todos from the plan
+        a.GetById(90).Granted = plan!.AllowedExpenses == null; // Can add a trip expense over a limit
+        a.GetById(90).Value = plan!.AllowedExpenses == null ? null : plan.AllowedExpenses; // Get allowed expenses from the plan
+        a.GetById(100).Granted = plan!.AllowedItineraryParts == null; // Can add itinerary parts over a limit
+        a.GetById(100).Value = plan!.AllowedItineraryParts == null ? null : plan.AllowedItineraryParts; // Get allowed itinerary parts from the plan
+        a.GetById(110).Granted = plan!.AllowedActivities == null; // Can add trip activities over a limit
+        a.GetById(110).Value = plan!.AllowedActivities == null ? null : plan.AllowedActivities; // Get allowed activities from the plan
 
         return a;
     }

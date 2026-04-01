@@ -66,6 +66,8 @@ export class ProfileComponent implements OnInit {
   
   planPeriod = this.usersService.planPeriodSignal;
 
+  hasPaidPlan = this.usersService.hasPaidPlanSignal;
+
   
 
   fullName = computed(() => {
@@ -428,10 +430,12 @@ export class ProfileComponent implements OnInit {
   onChoosePlanClick(): void {
     this.router.navigate(['/plans']);
   }
+
   onManageBillingClick(): void {
-    if (this.isTemporary()) {
+    if (this.isTemporary() || !this.hasPaidPlan()) {
       return;
     }
+
     this.onOpenCustomerPortal();
   }
 

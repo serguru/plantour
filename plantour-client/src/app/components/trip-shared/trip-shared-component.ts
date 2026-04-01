@@ -3,6 +3,7 @@ import { MultipleIdsRequest } from '../../services/crud-service';
 import { TripSharedDto, TripSharedService } from '../../services/trip-shared-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TripSharedItemComponent } from './trip-shared-item/trip-shared-item-component';
+import { DeadlineComponent } from '../deadline/deadline-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
@@ -14,9 +15,7 @@ import { Condition, DynamicQueryService, Target, TargetCondition } from '../../s
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { TripUserDto, TripUserService } from '../../services/trip-user-service';
-import { findDuplicates, formatDate, getDaysDifference, getFullName, getFutureDate, getNowDaysUtc } from '../../helpers/utils';
-import { FormsModule } from '@angular/forms';
-import { InputNumber } from "primeng/inputnumber";
+import { findDuplicates, formatDate, getDaysDifference, getFullName } from '../../helpers/utils';
 import { MessagesService } from '../../services/messages-service';
 import { UsersService } from '../../services/users-service';
 import { AssignmentStatus } from '../../helpers/enums';
@@ -25,11 +24,10 @@ import { AssignmentStatus } from '../../helpers/enums';
   selector: 'app-trip-shared',
   standalone: true,
   imports: [
+    DeadlineComponent,
     EntitiesComponent,
     EntitiesHeader,
-    EntitiesActionsComponent,
-    FormsModule,
-    InputNumber
+    EntitiesActionsComponent
   ],
   templateUrl: './trip-shared-component.html',
   styleUrl: './trip-shared-component.scss'
@@ -41,19 +39,7 @@ export class TripSharedComponent implements OnInit {
 
   formatDate = formatDate;
 
-  deadlineDays = signal<number>(1);
-
-  onModelChangeDays(): void {
-    this.localStorageService.setComponentKey(this.componentId, 'deadlineDays', this.deadlineDays());
-  }
-
-  featureDate = computed<string>(() => {
-    const days = this.deadlineDays();
-    if (days === null) {
-      return '';
-    }
-    return formatDate(getFutureDate(days));
-  });
+  deadlineAt = signal<Date | null>(null);
 
   messagesService = inject(MessagesService);
   tripService = inject(TripService);
@@ -193,6 +179,10 @@ export class TripSharedComponent implements OnInit {
     toggleReject: this.toggleRejectClick.bind(this)
   }
 
+  onDeadlineAtChange(value: Date | null): void {
+    this.deadlineAt.set(value ? new Date(value) : null);
+  }
+
 
   generateStatusData = (sharedThing: TripSharedDto, usersLookup) => {
 
@@ -330,9 +320,18 @@ export class TripSharedComponent implements OnInit {
 
     const assignmentsVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'assignmentsVisible', true);
     this.assignmentsVisible.set(assignmentsVisible);
+  }
 
-    const deadlineDays = this.localStorageService.getComponentKey(this.componentId, 'deadlineDays');
-    this.deadlineDays.set(deadlineDays ? Number(deadlineDays) : 3);
+  private getDeadlineAtIso(): string {
+    const deadline = this.deadlineAt();
+    if (!deadline) {
+      throw new Error('Deadline date is not set');
+    }
+    if (deadline.getTime() <= Date.now()) {
+      throw new Error('Deadline date must be in the future');
+    }
+
+    return deadline.toISOString();
   }
 
 
@@ -410,18 +409,11 @@ export class TripSharedComponent implements OnInit {
       throw new Error('No not targeted ids available');
     }
 
-    if (!this.deadlineDays() || this.deadlineDays()! < 0 || this.deadlineDays()! > 365) {
-      throw new Error('Deadline days is not set or invalid');
-    }
-
-    
-    const deadlineAt = getNowDaysUtc(new Date(), this.deadlineDays());
-
     const transport = {
       collectionId: this.tripId!,
       ids: ids,
       id: targetId,
-      deadlineAt: deadlineAt
+      deadlineAt: this.getDeadlineAtIso()
     }
 
     this.tripSharedService.assign(transport).pipe(
@@ -495,12 +487,11 @@ export class TripSharedComponent implements OnInit {
 
   assignOrUnassign(entity: TripSharedDto, assigneeId: string | null, reassignAllowed: boolean = true): void {
 
-    const deadlineAt = getNowDaysUtc(new Date(), this.deadlineDays());
     const transport = {
       collectionId: this.tripId!,
       ids: [entity.id],
       id: assigneeId || entity.assignedToId,
-      deadlineAt: deadlineAt
+      deadlineAt: this.getDeadlineAtIso()
     }
 
     if (!transport.id) {

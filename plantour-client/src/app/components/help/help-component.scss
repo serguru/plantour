@@ -243,6 +243,86 @@
   gap: 0.8rem;
 }
 
+.help-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.help-plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 40rem;
+}
+
+.help-plan-table th,
+.help-plan-table td {
+  border: 1px solid rgba(36, 91, 100, 0.12);
+  padding: 0.8rem 0.9rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.help-plan-table thead th {
+  background: rgba(28, 102, 112, 0.08);
+  color: #17383d;
+}
+
+.help-plan-table tbody th {
+  color: #244e55;
+  font-weight: 600;
+  background: rgba(28, 102, 112, 0.03);
+}
+
+@media (max-width: 720px) {
+  .help-plan-table {
+    min-width: 0;
+  }
+
+  .help-plan-table thead {
+    display: none;
+  }
+
+  .help-plan-table,
+  .help-plan-table tbody,
+  .help-plan-table tr,
+  .help-plan-table th,
+  .help-plan-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .help-plan-table tr {
+    border: 1px solid rgba(36, 91, 100, 0.12);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 0.9rem;
+    background: white;
+  }
+
+  .help-plan-table th,
+  .help-plan-table td {
+    border: none;
+    border-bottom: 1px solid rgba(36, 91, 100, 0.1);
+    padding: 0.75rem 0.9rem;
+  }
+
+  .help-plan-table tr > :last-child {
+    border-bottom: none;
+  }
+
+  .help-plan-table th::before,
+  .help-plan-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #55767b;
+    margin-bottom: 0.28rem;
+  }
+}
+
 .help-question-card {
   display: grid;
   gap: 0.25rem;

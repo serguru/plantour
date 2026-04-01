@@ -1,0 +1,8 @@
+{
+  "slug": "plantour-plans",
+  "question": "What plans does Plantour offer?",
+  "answer": {
+    "kind": "component",
+    "componentKey": "workflows-plan-offers"
+  }
+}

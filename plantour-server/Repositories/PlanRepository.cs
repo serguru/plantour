@@ -35,6 +35,10 @@ public class PlanRepository : GenericRepository<Plan>
         public bool? Public { get; init; }
         public int? AllowedItems { get; init; }
         public int? AllowedTravelers { get; init; }
+        public int? AllowedTodos { get; init; }
+        public int? AllowedExpenses { get; init; }
+        public int? AllowedItineraryParts { get; init; }
+        public int? AllowedActivities { get; init; }
         public int? AllowedAiPrompts { get; init; }
         public bool ExtendedAiAllowed { get; init; }
         public DateTime CreatedAt { get; init; }
@@ -58,6 +62,10 @@ public class PlanRepository : GenericRepository<Plan>
             Public = item.Public,
             AllowedItems = item.AllowedItems,
             AllowedTravelers = item.AllowedTravelers,
+            AllowedTodos = item.AllowedTodos,
+            AllowedExpenses = item.AllowedExpenses,
+            AllowedItineraryParts = item.AllowedItineraryParts,
+            AllowedActivities = item.AllowedActivities,
             AllowedAiPrompts = item.AllowedAiPrompts,
             ExtendedAiAllowed = item.ExtendedAiAllowed,
             CreatedAt = item.CreatedAt,
@@ -99,6 +107,10 @@ public class PlanRepository : GenericRepository<Plan>
                     Public = p.Public,
                     AllowedItems = p.AllowedItems,
                     AllowedTravelers = p.AllowedTravelers,
+                    AllowedTodos = p.AllowedTodos,
+                    AllowedExpenses = p.AllowedExpenses,
+                    AllowedItineraryParts = p.AllowedItineraryParts,
+                    AllowedActivities = p.AllowedActivities,
                     AllowedAiPrompts = p.AllowedAiPrompts,
                     ExtendedAiAllowed = p.ExtendedAiAllowed,
                     CreatedAt = p.CreatedAt,
@@ -156,6 +168,10 @@ public class PlanRepository : GenericRepository<Plan>
             Public = dbPlan.Public,
             AllowedItems = dbPlan.AllowedItems,
             AllowedTravelers = dbPlan.AllowedTravelers,
+            AllowedTodos = dbPlan.AllowedTodos,
+            AllowedExpenses = dbPlan.AllowedExpenses,
+            AllowedItineraryParts = dbPlan.AllowedItineraryParts,
+            AllowedActivities = dbPlan.AllowedActivities,
             AllowedAiPrompts = dbPlan.AllowedAiPrompts,
             ExtendedAiAllowed = dbPlan.ExtendedAiAllowed,
             CreatedAt = dbPlan.CreatedAt
@@ -195,6 +211,10 @@ public class PlanRepository : GenericRepository<Plan>
             Public = dbPlan.Public,
             AllowedItems = dbPlan.AllowedItems,
             AllowedTravelers = dbPlan.AllowedTravelers,
+            AllowedTodos = dbPlan.AllowedTodos,
+            AllowedExpenses = dbPlan.AllowedExpenses,
+            AllowedItineraryParts = dbPlan.AllowedItineraryParts,
+            AllowedActivities = dbPlan.AllowedActivities,
             AllowedAiPrompts = dbPlan.AllowedAiPrompts,
             ExtendedAiAllowed = dbPlan.ExtendedAiAllowed,
             CreatedAt = dbPlan.CreatedAt

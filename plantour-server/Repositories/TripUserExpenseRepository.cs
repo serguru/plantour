@@ -85,6 +85,15 @@ public class TripUserExpenseRepository(PlantourContext context) : GenericReposit
             .ToListAsync();
     }
 
+    public async Task<int> CountAsync(Guid adminId, Guid userId, Guid tripId)
+    {
+        return await _dbSet.CountAsync(x =>
+            x.TripUser.Trip.Id == tripId &&
+            x.TripUser.Trip.UserId == adminId &&
+            x.TripUser.AdminParticipant.AdminId == adminId &&
+            x.TripUser.AdminParticipant.ParticipantId == userId);
+    }
+
     public async Task<bool> AnyByIdAsync(Guid adminId, Guid userId, Guid tripId, Guid id)
     {
         return await _dbSet.AnyAsync(x =>

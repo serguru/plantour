@@ -27,9 +27,32 @@ public class TripTodoService(
     private readonly UsersRepository _usersRepository = usersRepository;
     private readonly ISharedAssignmentNotificationService _sharedAssignmentNotificationService = sharedAssignmentNotificationService;
 
+    private async Task CheckAccessAsync(Guid tripId, int addQty)
+    {
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 80);
+        if (rule == null || rule.Granted)
+        {
+            return;
+        }
+
+        int limit = rule.Value ?? 0;
+
+        var s1 = $"You've reached the limit of {limit} todos you can add to your trip.";
+
+        var s2 = _currentUser.IsAdmin ? "Please go to your profile page and upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
+
+
+        var currentCount = await _tripUserTodoRepository.CountAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
+        if (currentCount + addQty > limit)
+        {
+            throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+        }
+    }
+
     public async Task<int> InsertTripUserTodosAsync(Guid tripId, Guid[] ids)
     {
         _currentUser.RaiseIfNotAuthenticated();
+        await CheckAccessAsync(tripId, ids.Length);
         return await _dicTripRepository.InsertTripUserTodosAsync(_currentUser.AdminId, _currentUser.UserId, tripId, ids);
     }
 
@@ -81,6 +104,7 @@ public class TripTodoService(
             throw new CustomException("Todo with the same name already exists");
         }
 
+        await CheckAccessAsync(request.TripId, 1);
         var entity = _mapper.Map<TripUserTodo>(request);
         entity.Id = Guid.NewGuid();
         entity.TripUserId = tripUser.Id;
