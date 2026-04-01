@@ -5,7 +5,8 @@ import { UsersService } from '../services/users-service';
 import { LoadingService } from '../services/loading-service';
 
 let isRefreshing = false;
-const refreshTokenSubject = new BehaviorSubject<any>(null);
+let refreshTokenError: HttpErrorResponse | null = null;
+const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 const addTokenHeader = (request: HttpRequest<any>, token: string) => {
     return request.clone({
@@ -16,17 +17,21 @@ const addTokenHeader = (request: HttpRequest<any>, token: string) => {
 const handle401Error = (request: HttpRequest<any>, next: HttpHandlerFn, usersService: UsersService) => {
     if (!isRefreshing) {
         isRefreshing = true;
+        refreshTokenError = null;
         refreshTokenSubject.next(null);
 
         return usersService.refreshTokens().pipe(
-            switchMap((tokenResponse: any) => {
+            switchMap((tokenResponse) => {
                 isRefreshing = false;
+                refreshTokenError = null;
                 refreshTokenSubject.next(tokenResponse.accessToken);
                 // Retry the original request with the new token
                 return next(addTokenHeader(request, tokenResponse.accessToken));
             }),
-            catchError((err) => {
+            catchError((err: HttpErrorResponse) => {
                 isRefreshing = false;
+                refreshTokenError = err;
+                refreshTokenSubject.next(null);
                 // If refresh fails, user must log in again
                 usersService.signOut();
                 return throwError(() => err);
@@ -35,9 +40,15 @@ const handle401Error = (request: HttpRequest<any>, next: HttpHandlerFn, usersSer
     } else {
         // If a refresh is already in progress, wait until it's done
         return refreshTokenSubject.pipe(
-            filter(token => token !== null),
+            filter(token => token !== null || refreshTokenError !== null),
             take(1),
-            switchMap(token => next(addTokenHeader(request, token)))
+            switchMap(token => {
+                if (refreshTokenError) {
+                    return throwError(() => refreshTokenError);
+                }
+
+                return next(addTokenHeader(request, token!));
+            })
         );
     }
 }
