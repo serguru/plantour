@@ -1,0 +1,79 @@
+<div class="page-container trips-ai-improvement-page">
+  <app-form-header
+    icon="sparkles"
+    title="AI trip improvements"
+    [menuItems]="menuItems()"
+  ></app-form-header>
+
+  <section class="card-block intro-card">
+    <p class="eyebrow">Current trip</p>
+    <h2>{{ tripTitle() }}</h2>
+    <p>{{ scopeSummary() }}</p>
+
+    <div class="facts-grid">
+      <div>
+        <span>Role</span>
+        <strong>{{ usersService.isAdminSignal() ? 'Admin' : 'Participant' }}</strong>
+      </div>
+      <div>
+        <span>Saved improvements</span>
+        <strong>{{ existingImprovementsCount() }}</strong>
+      </div>
+      <div>
+        <span>Shared data in scope</span>
+        <strong>{{ usersService.isAdminSignal() ? 'Yes' : 'No' }}</strong>
+      </div>
+    </div>
+
+    <p class="secondary-text">
+      The AI will review the trip data available to you and write a fresh ordered list of improvement suggestions.
+      @if (existingImprovementsCount() > 0) {
+        Existing improvements will be replaced only after your confirmation.
+      }
+    </p>
+
+    <div class="actions-row">
+      <app-button
+        label="Generate improvements"
+        icon="pi pi-sparkles"
+        [loading]="isGenerating()"
+        [disabled]="isGenerating()"
+        (click)="generate()"
+      ></app-button>
+
+      <app-button
+        label="Open improvements"
+        [disabled]="isGenerating()"
+        (click)="openImprovements()"
+      ></app-button>
+    </div>
+  </section>
+
+  @if (result(); as generated) {
+    <section class="card-block result-card">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Generated result</p>
+          <h3>{{ generated.improvements.length }} improvements saved</h3>
+        </div>
+        @if (generated.deletedExistingCount > 0) {
+          <span class="badge">Replaced {{ generated.deletedExistingCount }}</span>
+        }
+      </div>
+
+      <ol class="improvements-list">
+        @for (improvement of generated.improvements; track improvement.id) {
+          <li>
+            <div class="improvement-head">
+              <strong>{{ improvement.name }}</strong>
+              <span>Order {{ improvement.improvementOrder }}</span>
+            </div>
+            @if (improvement.notes) {
+              <p>{{ improvement.notes }}</p>
+            }
+          </li>
+        }
+      </ol>
+    </section>
+  }
+</div>

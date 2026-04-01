@@ -895,6 +895,58 @@ create table plantour.trip_user_improvements (
 );
 create unique index idx_trip_user_improvements_improvement_order on plantour.trip_user_improvements(trip_user_id, improvement_order);
 
+create or replace function plantour.limit_trip_user_improvements_per_trip()
+returns trigger
+language plpgsql
+as $$
+declare
+    new_trip_id uuid;
+    old_trip_id uuid;
+    existing_count integer;
+begin
+    select trip_user.trip_id
+    into new_trip_id
+    from plantour.trip_users trip_user
+    where trip_user.id = new.trip_user_id;
+
+    if tg_op = 'UPDATE' and old.trip_user_id is distinct from new.trip_user_id then
+        select trip_user.trip_id
+        into old_trip_id
+        from plantour.trip_users trip_user
+        where trip_user.id = old.trip_user_id;
+
+        perform 1
+        from plantour.trips
+        where id in (new_trip_id, old_trip_id)
+        order by id
+        for update;
+    else
+        perform 1
+        from plantour.trips
+        where id = new_trip_id
+        for update;
+    end if;
+
+    select count(*)
+    into existing_count
+    from plantour.trip_user_improvements improvement
+    join plantour.trip_users trip_user on trip_user.id = improvement.trip_user_id
+    where trip_user.trip_id = new_trip_id
+      and improvement.id is distinct from new.id;
+
+    if existing_count >= 100 then
+        raise exception 'trip cannot have more than 100 improvements';
+    end if;
+
+    return new;
+end;
+$$;
+
+create trigger trg_limit_trip_user_improvements_per_trip
+before insert or update of trip_user_id on plantour.trip_user_improvements
+for each row
+execute function plantour.limit_trip_user_improvements_per_trip();
+
 
 -----------------------------------------------------------------------
 -- TRIP SHARED THINGS

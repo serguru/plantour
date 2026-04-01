@@ -2,6 +2,7 @@
     <app-entities-header
         entityIcon="pi pi-thumbs-up"
         title="Trip improvements"
+        [menuItems]="menuItems()"
         [delete]="deleteTripImprovement.bind(this)"
         entityName="improvement"
         addUrl="add"

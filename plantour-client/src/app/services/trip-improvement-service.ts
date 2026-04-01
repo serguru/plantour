@@ -9,6 +9,7 @@ export interface TripImprovementDto {
   notes?: string | null;
   improvementOrder: number;
   finished?: string | null;
+  finishedLookup?: string | null;
   reviewStatusText?: string | null;
 }
 

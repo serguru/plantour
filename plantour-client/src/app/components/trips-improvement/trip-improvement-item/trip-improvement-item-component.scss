@@ -4,7 +4,88 @@
     gap: 1rem;
 }
 
-.container {
+.improvement-card {
+    border: 1px solid var(--secondary-border-color);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    overflow: hidden;
+}
+
+.improvement-summary {
+    list-style: none;
+    cursor: pointer;
     display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+}
+
+.improvement-summary::-webkit-details-marker {
+    display: none;
+}
+
+.improvement-summary__main {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.improvement-summary__title-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+}
+
+.improvement-summary__order-badge,
+.smaller-text,
+.improvement-body__label {
+    color: var(--secondary-text-color);
+}
+
+.improvement-body__notes {
+    margin: 0.35rem 0 0;
+    white-space: pre-wrap;
+}
+
+.improvement-summary__order-badge {
+    flex-shrink: 0;
+}
+
+.improvement-summary__arrow::before {
+    font-family: 'primeicons';
+    content: '\e930';
+}
+
+.improvement-card[open] .improvement-summary__arrow::before {
+    content: '\e931';
+}
+
+.improvement-body {
+    padding: 0 1rem 1rem;
+}
+
+.improvement-body__section {
+    padding-top: 0.25rem;
+}
+
+.checkboxes-wrapper {
+    display: flex;
+    gap: 1rem;
     flex-wrap: wrap;
+    padding-top: 0.75rem;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+@media (max-width: 720px) {
+    .improvement-summary,
+    .improvement-summary__title-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }

@@ -1,0 +1,10 @@
+{
+  "id": "ai-features",
+  "title": "AI Features",
+  "summary": "AI tools for items, full trip planning, and trip improvements",
+  "questions": [
+    "How to ask AI for item recommendations.json",
+    "How to ask AI for full trip generation.json",
+    "How can AI help me improve my trip.json"
+  ]
+}
