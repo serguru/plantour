@@ -18,6 +18,28 @@ public class ItineraryPartService(
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly IMapper _mapper = mapper;
 
+    private async Task CheckAccessAsync(Guid tripId, int addQty)
+    {
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 100);
+        if (rule == null || rule.Granted)
+        {
+            return;
+        }
+
+        int limit = rule.Value ?? 0;
+
+        var s1 = $"You've reached the limit of {limit} itinerary parts you can add to your trip.";
+
+        var s2 = _currentUser.IsAdmin ? "Please go to your profile page and upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
+
+
+        var currentCount = await _itineraryPartRepository.CountAsync(tripId);
+        if (currentCount + addQty > limit)
+        {
+            throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+        }
+    }
+
     public async Task<IEnumerable<ItineraryPartDto>> GetAllAsync(Guid tripId)
     {
         _currentUser.RaiseIfNotAuthenticated();
@@ -50,6 +72,7 @@ public class ItineraryPartService(
 
         await EnsureTripAccessAsync(request.TripId);
         await EnsureUniqueAsync(request.TripId, request.Name, request.StartDate, null);
+        await CheckAccessAsync(request.TripId, 1);
 
         var entity = _mapper.Map<ItineraryPart>(request);
         entity.Id = Guid.NewGuid();

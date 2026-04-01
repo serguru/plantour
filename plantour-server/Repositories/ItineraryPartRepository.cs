@@ -44,4 +44,9 @@ public class ItineraryPartRepository(PlantourContext context) : GenericRepositor
                     tu.AdminParticipant.AdminId == adminId &&
                     tu.AdminParticipant.ParticipantId == userId));
     }
+
+    public async Task<int> CountAsync(Guid tripId)
+    {
+        return await _dbSet.CountAsync(x => x.TripId == tripId);
+    }
 }

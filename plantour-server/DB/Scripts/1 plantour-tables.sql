@@ -315,21 +315,23 @@ create table plantour.plans (
     created_at timestamptz not null default (now() at time zone 'utc')
 );
 
+insert into plantour.plans (name, paddle_product_id, notes, public, 
+allowed_items,  allowed_travelers,  allowed_AI_prompts,         extended_AI_allowed,
+allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activities) values
 
-
-
-insert into plantour.plans (name, paddle_product_id, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed,
-allowed_todos, allowed_expenses, allowed_itinerary_parts, allowed_activities) values
-('Starter', null, 'For small trips and light packers', true, 10, 2, 5, false,
-3, 3, 3, 3
+('Starter', null, 'For small trips and light packers', true, 
+10,             2,                  5,                          false, 
+3,              3,                  3,                          6
 ),
 
-('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, null, 5, 20, false,
-null, null, null, null
+('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, 
+250,           5,                  20,                         false,
+100,            100,                100,                        100
 ),
 
-('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, null, 50, 100, true,
-null, null, null, null
+('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, 
+2500,           50,                 100,                        true,
+1000,           1000,               1000,                       1000
 );
 
 create table plantour.prices (

@@ -759,6 +759,7 @@ public class UsersService(
 
         bool isTemporary = temporary == "true";
 // TODO: add Gemini lite for prompts
+// TODO: spinner is not killed when refreshing token error
         if (isTemporary)
         {
             throw new CustomException("Tokens for temporary users cannot be refreshed", "REFRESH_TOKEN_FAILED");

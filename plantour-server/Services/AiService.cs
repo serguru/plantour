@@ -908,6 +908,9 @@ public class AiService : IAiService
             StringComparer.OrdinalIgnoreCase);
 
         var createdOrExistingParts = new List<ItineraryPart>();
+        var remainingItineraryPartCapacity = await GetRemainingCapacityAsync(
+            100,
+            () => _context.ItineraryParts.CountAsync(x => x.TripId == trip.Id));
 
         for (var index = 0; index < plan.Itinerary.Count; index++)
         {
@@ -929,6 +932,12 @@ public class AiService : IAiService
             var key = BuildItineraryKey(name, startDate);
             if (!itineraryLookup.TryGetValue(key, out var partEntity))
             {
+                if (remainingItineraryPartCapacity <= 0)
+                {
+                    createdOrExistingParts.Add(new ItineraryPart { Id = Guid.Empty, TripId = trip.Id, Name = string.Empty, StartDate = now });
+                    continue;
+                }
+
                 partEntity = new ItineraryPart
                 {
                     Id = Guid.NewGuid(),
@@ -947,6 +956,7 @@ public class AiService : IAiService
                 _context.ItineraryParts.Add(partEntity);
                 itineraryLookup[key] = partEntity;
                 counts.ItineraryPartsAdded += 1;
+                remainingItineraryPartCapacity -= 1;
             }
 
             createdOrExistingParts.Add(partEntity);
@@ -956,6 +966,12 @@ public class AiService : IAiService
             .Where(x => x.TripId == trip.Id && (x.TripUserId == null || x.TripUserId == tripUserId))
             .ToListAsync();
         var activityKeys = new HashSet<string>(existingActivities.Select(BuildActivityKey), StringComparer.OrdinalIgnoreCase);
+        var remainingPublicActivityCapacity = await GetRemainingCapacityAsync(
+            110,
+            () => _context.TripActivities.CountAsync(x => x.TripId == trip.Id && x.TripUserId == null));
+        var remainingPersonalActivityCapacity = await GetRemainingCapacityAsync(
+            110,
+            () => _context.TripActivities.CountAsync(x => x.TripUserId == tripUserId));
 
         for (var index = 0; index < plan.Itinerary.Count; index++)
         {
@@ -975,7 +991,8 @@ public class AiService : IAiService
             .Where(x => x.TripUserId == tripUserId)
             .Select(x => x.Name)
             .ToListAsync(), StringComparer.OrdinalIgnoreCase);
-        var remainingPersonalItemCapacity = await GetRemainingItemCapacityAsync(
+        var remainingPersonalItemCapacity = await GetRemainingCapacityAsync(
+            40,
             () => _context.TripUserThings.CountAsync(x => x.TripUserId == tripUserId));
 
         foreach (var item in plan.PersonalItems)
@@ -1009,7 +1026,8 @@ public class AiService : IAiService
             .Where(x => x.TripId == trip.Id)
             .Select(x => x.Name)
             .ToListAsync(), StringComparer.OrdinalIgnoreCase);
-        var remainingSharedItemCapacity = await GetRemainingItemCapacityAsync(
+        var remainingSharedItemCapacity = await GetRemainingCapacityAsync(
+            40,
             () => _context.TripSharedThings.CountAsync(x => x.TripId == trip.Id));
 
         foreach (var item in plan.SharedItems)
@@ -1048,9 +1066,17 @@ public class AiService : IAiService
             .Where(x => x.TripUserId == tripUserId)
             .Select(x => x.Name)
             .ToListAsync(), StringComparer.OrdinalIgnoreCase);
+        var remainingPersonalTodoCapacity = await GetRemainingCapacityAsync(
+            80,
+            () => _context.TripUserTodos.CountAsync(x => x.TripUserId == tripUserId));
 
         foreach (var todo in plan.PersonalTodos)
         {
+            if (remainingPersonalTodoCapacity <= 0)
+            {
+                break;
+            }
+
             var name = CleanRequired(todo.Name);
             if (name == null || !personalTodoNames.Add(name))
             {
@@ -1066,15 +1092,24 @@ public class AiService : IAiService
                 Notes = CleanOptional(todo.Notes)
             });
             counts.PersonalTodosAdded += 1;
+            remainingPersonalTodoCapacity -= 1;
         }
 
         var sharedTodoNames = new HashSet<string>(await _context.TripSharedTodos
             .Where(x => x.TripId == trip.Id)
             .Select(x => x.Name)
             .ToListAsync(), StringComparer.OrdinalIgnoreCase);
+        var remainingSharedTodoCapacity = await GetRemainingCapacityAsync(
+            80,
+            () => _context.TripSharedTodos.CountAsync(x => x.TripId == trip.Id));
 
         foreach (var todo in plan.SharedTodos)
         {
+            if (remainingSharedTodoCapacity <= 0)
+            {
+                break;
+            }
+
             var name = CleanRequired(todo.Name);
             if (name == null || !sharedTodoNames.Add(name))
             {
@@ -1095,6 +1130,7 @@ public class AiService : IAiService
                 Rejected = false
             });
             counts.SharedTodosAdded += 1;
+            remainingSharedTodoCapacity -= 1;
         }
 
         var personalExpenseKeys = new HashSet<string>((await _context.TripUserExpenses
@@ -1102,9 +1138,17 @@ public class AiService : IAiService
             .Select(x => new { x.Name, x.Amount })
             .ToListAsync())
             .Select(x => BuildExpenseKey(x.Name, x.Amount)), StringComparer.OrdinalIgnoreCase);
+        var remainingPersonalExpenseCapacity = await GetRemainingCapacityAsync(
+            90,
+            () => _context.TripUserExpenses.CountAsync(x => x.TripUserId == tripUserId));
 
         foreach (var expense in plan.PersonalExpenses)
         {
+            if (remainingPersonalExpenseCapacity <= 0)
+            {
+                break;
+            }
+
             var name = CleanRequired(expense.Name);
             if (name == null || expense.Amount <= 0)
             {
@@ -1130,6 +1174,7 @@ public class AiService : IAiService
                 Notes = BuildExpenseNotes(expense)
             });
             counts.PersonalExpensesAdded += 1;
+            remainingPersonalExpenseCapacity -= 1;
         }
 
         var sharedExpenseKeys = new HashSet<string>((await _context.TripSharedExpenses
@@ -1137,9 +1182,17 @@ public class AiService : IAiService
             .Select(x => new { x.Name, x.Amount })
             .ToListAsync())
             .Select(x => BuildExpenseKey(x.Name, x.Amount)), StringComparer.OrdinalIgnoreCase);
+        var remainingSharedExpenseCapacity = await GetRemainingCapacityAsync(
+            90,
+            () => _context.TripSharedExpenses.CountAsync(x => x.TripId == trip.Id));
 
         foreach (var expense in plan.SharedExpenses)
         {
+            if (remainingSharedExpenseCapacity <= 0)
+            {
+                break;
+            }
+
             var name = CleanRequired(expense.Name);
             if (name == null || expense.Amount <= 0)
             {
@@ -1169,6 +1222,7 @@ public class AiService : IAiService
                 Rejected = false
             });
             counts.SharedExpensesAdded += 1;
+            remainingSharedExpenseCapacity -= 1;
         }
 
         await _context.SaveChangesAsync();
@@ -1183,9 +1237,22 @@ public class AiService : IAiService
         int AddActivities(IEnumerable<TripAiActivityDto> activities, ItineraryPart itineraryPart, Guid? activityTripUserId)
         {
             var added = 0;
+            var isPublic = activityTripUserId == null;
 
             foreach (var activity in activities)
             {
+                if (isPublic)
+                {
+                    if (remainingPublicActivityCapacity <= 0)
+                    {
+                        break;
+                    }
+                }
+                else if (remainingPersonalActivityCapacity <= 0)
+                {
+                    break;
+                }
+
                 var name = CleanRequired(activity.Name);
                 if (name == null)
                 {
@@ -1221,15 +1288,24 @@ public class AiService : IAiService
                     Longitude = NormalizeLongitude(activity.Longitude)
                 });
                 added += 1;
+
+                if (isPublic)
+                {
+                    remainingPublicActivityCapacity -= 1;
+                }
+                else
+                {
+                    remainingPersonalActivityCapacity -= 1;
+                }
             }
 
             return added;
         }
     }
 
-    private async Task<int> GetRemainingItemCapacityAsync(Func<Task<int>> currentCountFactory)
+    private async Task<int> GetRemainingCapacityAsync(int ruleId, Func<Task<int>> currentCountFactory)
     {
-        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 40);
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == ruleId);
         if (rule == null || rule.Granted)
         {
             return int.MaxValue;
