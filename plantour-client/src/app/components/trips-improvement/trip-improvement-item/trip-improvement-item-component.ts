@@ -3,11 +3,10 @@ import { FormsModule } from '@angular/forms';
 import { BadgeModule } from 'primeng/badge';
 import { Checkbox, CheckboxChangeEvent } from 'primeng/checkbox';
 import { TripImprovementDto } from '../../../services/trip-improvement-service';
-import { AmazonLinkComponent } from '../../amazon-link/amazon-link-component';
 
 @Component({
   selector: 'app-trip-improvement-item-component',
-  imports: [Checkbox, FormsModule, AmazonLinkComponent, BadgeModule],
+  imports: [Checkbox, FormsModule, BadgeModule],
   templateUrl: './trip-improvement-item-component.html',
   styleUrl: './trip-improvement-item-component.scss',
 })

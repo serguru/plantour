@@ -43,6 +43,15 @@
     color: var(--secondary-text-color);
 }
 
+.improvement-summary__title {
+    display: block;
+    min-width: 0;
+    flex: 1 1 auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .improvement-body__notes {
     margin: 0.35rem 0 0;
     white-space: pre-wrap;

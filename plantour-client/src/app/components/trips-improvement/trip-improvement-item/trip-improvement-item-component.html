@@ -6,11 +6,7 @@
     <summary class="improvement-summary">
         <div class="improvement-summary__main">
             <div class="improvement-summary__title-row">
-                <amazon-link
-                    class="ellipsis-text"
-                    [item]="entity.name"
-                    [linkText]="entity.name"
-                ></amazon-link>
+                <div class="improvement-summary__title">{{ entity.name }}</div>
                 <p-badge
                     class="improvement-summary__order-badge"
                     [value]="orderBadgeValue"
@@ -24,7 +20,6 @@
     <div class="improvement-body">
         @if (entity.notes) {
             <div class="improvement-body__section">
-                <div class="improvement-body__label">What to do</div>
                 <p class="improvement-body__notes">{{ entity.notes }}</p>
             </div>
         }
@@ -49,7 +44,5 @@
                 <label [for]="'rejected-' + entity.id">Rejected</label>
             </div>
         </div>
-
-        <div class="smaller-text">{{ entity.reviewStatusText }}</div>
     </div>
 </details>
