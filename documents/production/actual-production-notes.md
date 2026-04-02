@@ -6,3 +6,5 @@ postgres://user:password@dpg-cn78abc123-a.oregon-postgres.render.com:5432/my_db
 Then your Host name/address is:
 dpg-cn78abc123-a.oregon-postgres.render.com
 
+Google AI now on the paid Tier1
+

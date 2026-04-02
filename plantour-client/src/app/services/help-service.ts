@@ -8,7 +8,6 @@ const COMPONENT_HELP_PAGE_IDS: Readonly<Record<string, string>> = {
   dashboard: 'help/workflows/trip-info',
   'trip-info': 'help/workflows/trip-info',
   'trips-ai': 'help/ai-features/ai-full-trip-generation',
-  'trips-ai-improvement': 'help/ai-features/ai-trip-improvements',
   'sign-in': 'help/get-started/first-steps',
   'signin-token': 'help/get-started/first-steps',
   'public-templates': 'help/features/item-templates',
@@ -81,7 +80,6 @@ const ROUTE_HELP_PAGE_MATCHERS: ReadonlyArray<{ pattern: RegExp; pageId: string 
   { pattern: /^\/trips\/[^/]+\/trip-things(?:\/.*)?$/, pageId: 'help/trip-workflows/what-can-i-do-with-trip-items' },
   { pattern: /^\/trips\/[^/]+\/trip-participants(?:\/.*)?$/, pageId: 'help/workflows/invite-travelers' },
   { pattern: /^\/trips\/[^/]+\/trip-todos(?:\/.*)?$/, pageId: 'help/trip-workflows/work-with-trip-todos' },
-  { pattern: /^\/trips\/[^/]+\/trips-ai-improvement(?:\/.*)?$/, pageId: 'help/ai-features/ai-trip-improvements' },
   { pattern: /^\/trips\/[^/]+\/trip-comments(?:\/.*)?$/, pageId: 'help/trip-workflows/work-with-trip-comments' },
   { pattern: /^\/trips(?:\/trip\/[^/]+)?$/, pageId: 'help/trip-workflows/work-with-trips' },
   { pattern: /^\/trips\/(add|edit\/[^/]+|view\/[^/]+)$/, pageId: 'help/trip-workflows/work-with-trips' }

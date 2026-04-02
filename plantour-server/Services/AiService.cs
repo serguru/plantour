@@ -774,11 +774,6 @@ public class AiService : IAiService
             .OrderBy(x => x.ImprovementOrder)
             .ToListAsync();
 
-        if (existingImprovements.Count > 0 && !request.ReplaceExisting)
-        {
-            throw new CustomException("Trip improvements already exist. Confirm replacement to continue.", "CONFIRM_REPLACE");
-        }
-
         var includeSharedEntities = _currentUser.IsAdmin;
         var snapshot = await BuildTripImprovementSnapshotAsync(trip, tripUser, includeSharedEntities);
 
@@ -795,11 +790,20 @@ public class AiService : IAiService
             throw new CustomException("Gemini returned no improvements");
         }
 
+        if (existingImprovements.Count > 0 && !request.ReplaceExisting)
+        {
+            var maxExistingOrder = existingImprovements.Max(x => x.ImprovementOrder);
+            foreach (var generatedImprovement in generatedImprovements)
+            {
+                generatedImprovement.Order += maxExistingOrder;
+            }
+        }
+
         await using var transaction = await _context.Database.BeginTransactionAsync();
 
         var deletedExistingCount = 0;
         var persistedImprovements = new List<TripUserImprovement>();
-        if (existingImprovements.Count > 0)
+        if (existingImprovements.Count > 0 && request.ReplaceExisting)
         {
             deletedExistingCount = existingImprovements.Count;
 
@@ -856,6 +860,22 @@ public class AiService : IAiService
                 await _context.TripUserImprovements.AddRangeAsync(additionalImprovements);
                 persistedImprovements.AddRange(additionalImprovements);
             }
+        }
+        else if (existingImprovements.Count > 0)
+        {
+            persistedImprovements = generatedImprovements
+                .Select(item => new TripUserImprovement
+                {
+                    Id = Guid.NewGuid(),
+                    TripUserId = tripUser.Id,
+                    Name = item.ShortDescription,
+                    Notes = item.WhatToDo,
+                    ImprovementOrder = item.Order,
+                    Finished = null,
+                })
+                .ToList();
+
+            await _context.TripUserImprovements.AddRangeAsync(persistedImprovements);
         }
         else
         {
