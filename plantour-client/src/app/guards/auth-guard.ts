@@ -5,7 +5,7 @@ import { MessagesService } from '../services/messages-service';
 import { isGuid } from '../helpers/utils';
 import { TripDto, TripService } from '../services/trip-service';
 import { AppService } from '../services/app-service';
-import { catchError, map, tap, throwError } from 'rxjs';
+import { catchError, map, take, tap, throwError } from 'rxjs';
 import { CurrentTripService } from '../services/current-trip-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -63,6 +63,24 @@ export const extendedAiAllowedGuard: CanActivateFn = (route, state) => {
   messagesService.showWarning('Extend your plan to access');
   router.navigate(['/dashboard']);
   return false;
+};
+
+export const currentTripRequiredGuard: CanActivateFn = (route, state) => {
+  const router = inject(Router);
+  const messagesService = inject(MessagesService);
+  const currentTripService = inject(CurrentTripService);
+
+  return currentTripService.currentTripDto$.pipe(
+    take(1),
+    map((trip) => {
+      if (trip?.id) {
+        return true;
+      }
+
+      messagesService.showWarning('Select a current trip first.');
+      return router.createUrlTree(['/dashboard']);
+    })
+  );
 };
 
 

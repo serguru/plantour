@@ -133,7 +133,9 @@ export class DashboardComponent {
             title: 'Trip info',
             description: 'Review quick trip summary panels for you and other users.',
             icon: 'pi pi-info-circle',
-            route: '/trip-info'
+            route: '/trip-info',
+            disabled: !hasTrip,
+            disabledReason: 'Select a trip first.'
           },
           {
             id: 'trip-itinerary',

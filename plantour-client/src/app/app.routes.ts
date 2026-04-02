@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { dashboardGuard, landingRedirectGuard } from './guards/landing-guard';
-import { adminOnlyGuard, adminOrParticipantGuard, checkTripIdGuard, extendedAiAllowedGuard, publicGuard, signInGuard } from './guards/auth-guard';
+import { adminOnlyGuard, adminOrParticipantGuard, checkTripIdGuard, currentTripRequiredGuard, extendedAiAllowedGuard, publicGuard, signInGuard } from './guards/auth-guard';
 import { CleanupResolver } from './helpers/resolver';
 
 export const routes: Routes = [
@@ -46,7 +46,7 @@ export const routes: Routes = [
   },
   {
     path: 'trip-info',
-    canActivate: [dashboardGuard],
+    canActivate: [dashboardGuard, currentTripRequiredGuard],
     loadComponent: () => import('./components/trip-info/trip-info-component').then(m => m.TripInfoComponent),
     resolve: { cleanup: CleanupResolver },
     data: { componentId: 'trip-info' }
