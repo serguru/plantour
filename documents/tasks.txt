@@ -864,3 +864,7 @@ Generate a new component TripsImprovementComponent. See TripUserImprovement DB c
 
 See Trip Info component. Remove trip select from there. Make it working with the current app trip as other trip related components work.
 
+
+
+I have a Plantour web app deployed to Render. It is under Maintenance mode. I need to access it privatly via the tunnel connection. Also I need the other person from their computer to access it via the tunnel connection. Generate step by step instructions how to do that and put them into tunnel.md.
+ 
