@@ -303,14 +303,36 @@ create table plantour.plans (
     public boolean,
     allowed_items int,
     allowed_travelers int,
+
     allowed_AI_prompts int, -- per day
     extended_AI_allowed boolean not null default false,
+
+    allowed_todos int,
+    allowed_expenses int,
+    allowed_itinerary_parts int,
+    allowed_activities int,
+
     created_at timestamptz not null default (now() at time zone 'utc')
 );
-insert into plantour.plans (name, paddle_product_id, notes, public, allowed_items,allowed_travelers,allowed_AI_prompts,extended_AI_allowed) values
-('Starter', null, 'For small trips and light packers', true, 10, 2, 5, false),
-('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for families and small groups', true, null, 5, 20, false),
-('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for large groups and expeditions', true, null, 50, 100, true);
+
+insert into plantour.plans (name, paddle_product_id, notes, public, 
+allowed_items,  allowed_travelers,  allowed_AI_prompts,         extended_AI_allowed,
+allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activities) values
+
+('Starter', null, 'For small trips and light packers', true, 
+10,             2,                  5,                          false, 
+3,              3,                  3,                          6
+),
+
+('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for regular travelers, families and small groups', true, 
+250,           5,                  20,                        false,
+100,           500,                20,                        100
+),
+
+('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for advanced travelers, large groups and expeditions', true, 
+2500,           50,                 100,                      true,
+1000,           5000,               50,                       1000
+);
 
 create table plantour.prices (
     id uuid primary key default gen_random_uuid(),
@@ -430,57 +452,57 @@ create table admins_participants (
 );
 create unique index idx_admins_participants_admin_id_participant_id on admins_participants(admin_id, participant_id);
 
-create or replace function plantour.prevent_self_link_admins_participants_delete()
-returns trigger
-language plpgsql
-as $$
-begin
-    if old.admin_id = old.participant_id then
-        raise exception 'Admin as Participant cannot be deleted';
-    end if;
+-- create or replace function plantour.prevent_self_link_admins_participants_delete()
+-- returns trigger
+-- language plpgsql
+-- as $$
+-- begin
+--     if old.admin_id = old.participant_id then
+--         raise exception 'Admin as Participant cannot be deleted';
+--     end if;
 
-    return old;
-end;
-$$;
+--     return old;
+-- end;
+-- $$;
 
-create trigger trg_prevent_self_link_admins_participants_delete
-before delete on plantour.admins_participants
-for each row
-execute function plantour.prevent_self_link_admins_participants_delete();
+-- create trigger trg_prevent_self_link_admins_participants_delete
+-- before delete on plantour.admins_participants
+-- for each row
+-- execute function plantour.prevent_self_link_admins_participants_delete();
 
-create or replace function plantour.prevent_delete_admin_participant_assignments()
-returns trigger
-language plpgsql
-as $$
-begin
-    if exists (
-        select 1
-        from plantour.trip_users trip_user
-        where trip_user.admin_participant_id = old.id
-          and (
-              exists (
-                  select 1
-                  from plantour.trip_shared_things shared_thing
-                  where shared_thing.assigned_to_id = trip_user.id
-              )
-              or exists (
-                  select 1
-                  from plantour.trip_shared_todos shared_todo
-                  where shared_todo.assigned_to_id = trip_user.id
-              )
-          )
-    ) then
-        raise exception 'admins_participants row cannot be deleted while the participant has assigned shared things or shared todos';
-    end if;
+-- create or replace function plantour.prevent_delete_admin_participant_assignments()
+-- returns trigger
+-- language plpgsql
+-- as $$
+-- begin
+--     if exists (
+--         select 1
+--         from plantour.trip_users trip_user
+--         where trip_user.admin_participant_id = old.id
+--           and (
+--               exists (
+--                   select 1
+--                   from plantour.trip_shared_things shared_thing
+--                   where shared_thing.assigned_to_id = trip_user.id
+--               )
+--               or exists (
+--                   select 1
+--                   from plantour.trip_shared_todos shared_todo
+--                   where shared_todo.assigned_to_id = trip_user.id
+--               )
+--           )
+--     ) then
+--         raise exception 'admins_participants row cannot be deleted while the participant has assigned shared things or shared todos';
+--     end if;
 
-    return old;
-end;
-$$;
+--     return old;
+-- end;
+-- $$;
 
-create trigger trg_prevent_delete_admin_participant_assignments
-before delete on plantour.admins_participants
-for each row
-execute function plantour.prevent_delete_admin_participant_assignments();
+-- create trigger trg_prevent_delete_admin_participant_assignments
+-- before delete on plantour.admins_participants
+-- for each row
+-- execute function plantour.prevent_delete_admin_participant_assignments();
 
 -----------------------------------------------------------------------
 -- USER THINGS
@@ -726,6 +748,14 @@ begin
         raise exception 'trip user cannot be deleted while assigned shared todos exist';
     end if;
 
+    if exists (
+        select 1
+        from plantour.trip_shared_expenses shared_expense
+        where shared_expense.assigned_to_id = old.id
+    ) then
+        raise exception 'trip user cannot be deleted while assigned shared expenses exist';
+    end if;
+
     return old;
 end;
 $$;
@@ -850,6 +880,81 @@ create table trip_user_todos (
     finished text null check (finished in ('success', 'failure') or finished is null)
 );
 create unique index idx_trip_user_todos_trip_user_id_name on trip_user_todos(trip_user_id, name);
+
+
+-----------------------------------------------------------------------
+-- TRIP USER IMPROVEMENTS
+-----------------------------------------------------------------------
+create table plantour.trip_user_improvements (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_user_id uuid not null references plantour.trip_users(id) on delete cascade,
+    name text not null,
+    notes text,
+    improvement_order integer not null check (improvement_order > 0),
+    finished text null check (finished in ('success', 'failure') or finished is null)
+);
+create unique index idx_trip_user_improvements_improvement_order on plantour.trip_user_improvements(trip_user_id, improvement_order);
+
+create or replace function plantour.limit_trip_user_improvements_per_trip()
+returns trigger
+language plpgsql
+as $$
+declare
+    new_trip_id uuid;
+    old_trip_id uuid;
+    existing_count integer;
+begin
+    select trip_user.trip_id
+    into new_trip_id
+    from plantour.trip_users trip_user
+    where trip_user.id = new.trip_user_id;
+
+    if tg_op = 'UPDATE' and old.trip_user_id is distinct from new.trip_user_id then
+        select trip_user.trip_id
+        into old_trip_id
+        from plantour.trip_users trip_user
+        where trip_user.id = old.trip_user_id;
+
+        perform 1
+        from plantour.trips
+        where id in (new_trip_id, old_trip_id)
+        order by id
+        for update;
+    else
+        perform 1
+        from plantour.trips
+        where id = new_trip_id
+        for update;
+    end if;
+
+    select count(*)
+    into existing_count
+    from plantour.trip_user_improvements improvement
+    join plantour.trip_users trip_user on trip_user.id = improvement.trip_user_id
+    where trip_user.trip_id = new_trip_id
+      and improvement.id is distinct from new.id;
+
+    if existing_count >= 100 then
+        raise exception 'trip cannot have more than 100 improvements';
+    end if;
+
+    return new;
+end;
+$$;
+
+create trigger trg_limit_trip_user_improvements_per_trip
+before insert or update of trip_user_id on plantour.trip_user_improvements
+for each row
+execute function plantour.limit_trip_user_improvements_per_trip();
+
+create table plantour.trip_user_improvements_log (
+    id uuid not null primary key default gen_random_uuid(),
+    trip_user_improvement_id uuid not null references plantour.trip_user_improvements(id) on delete cascade,
+    created_at timestamptz default (now() at time zone 'utc')
+);
+create index idx_trip_user_improvements_log_created_at on trip_user_improvements_log(created_at);
+
+
 
 -----------------------------------------------------------------------
 -- TRIP SHARED THINGS
@@ -1015,8 +1120,8 @@ as $$
 begin
     if exists (
         select 1
-        from plantour.trip_user_expenses a
-        where a.assigned_expense_id = old.id
+        from plantour.trip_shared_expenses shared_expense
+        where shared_expense.assigned_expense_id = old.id
     ) then
         raise exception 'trip user expense cannot be deleted while referenced by a shared expense; unassign it first';
     end if;
@@ -1029,6 +1134,7 @@ create trigger trg_prevent_delete_referenced_trip_user_expense
 before delete on plantour.trip_user_expenses
 for each row
 execute function plantour.prevent_delete_referenced_trip_user_expense();
+
 
 
 ----------------------------------------------------------------------

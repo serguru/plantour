@@ -750,4 +750,117 @@ Do no code change for now just estimate if you can implement this
 
 Currently Plantour while limiting AI requests takes into account only requests for items recommendations. Add the necessary code to take into account AI requests to plan the entire trip as well
 
+Revise trip-info component. It is outdated, because it is missing the resently added features: itineraries with parts, activites, expenses and notes. Explore the entire project. Find newly added features and make sure you understand how they work. Redesign the trip-info component adding new features data there.
+
+
+
+Revise trip PDF report. It is outdated, because it is missing the resently added features: itineraries with parts, activites, expenses and notes. Use your experience on the project features from the prevoius task on trip-info component. Add new features into the report. Specifically add notes, with images if any. If notes contain an image to be downloaded from Dropbox try to download them. If no access - add a string "No Dropbox access to xxx.yyy image". Similar for public images if you cannot download it. Make sure the right notes order: trip level notes first, then activities level ones, sorted by start date. Inside a trip or inside the activity sort notes by note_order or, if null, by start date. 
+
+
+
+{
+"error": {
+"code": 429,
+"message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 19.191202268s.",
+"status": "RESOURCE_EXHAUSTED",
+"details": [
+{
+"@type": "type.googleapis.com/google.rpc.Help",
+"links": [
+{
+"description": "Learn more about Gemini API quotas",
+"url": "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+]
+},
+{
+"@type": "type.googleapis.com/google.rpc.QuotaFailure",
+"violations": [
+{
+"quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",
+"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",
+"quotaDimensions": {
+"location": "global",
+"model": "gemini-2.5-flash"
+},
+"quotaValue": "20"
+}
+]
+},
+{
+"@type": "type.googleapis.com/google.rpc.RetryInfo",
+"retryDelay": "19s"
+}
+]
+}
+}
+
+
+
+"error": {
+"code": 429,
+"message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 8.30147436s.",
+"status": "RESOURCE_EXHAUSTED",
+"details": [
+{
+"@type": "type.googleapis.com/google.rpc.Help",
+"links": [
+{
+"description": "Learn more about Gemini API quotas",
+"url": "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+]
+},
+{
+"@type": "type.googleapis.com/google.rpc.QuotaFailure",
+"violations": [
+{
+"quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",
+"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",
+"quotaDimensions": {
+"location": "global",
+"model": "gemini-2.5-flash"
+},
+"quotaValue": "20
+
+
+1) The global spinner simetimes hangs. Find the reason and fix it.
+
+2) Add the global spinner timeout. Read it from settings with "global_spinner_timeout_sec" key. If the actual time spinner is shown on the screen exceeded the limit - remove spinner and show error "Spinner timeout exceeded".
+
+
+
+1) Explore the official Google AI documentation. It is possible that the AI returns not an expected answer but a message instead. Find out how to parse that message. Using messages service show it to a user if any.
+2) Make this for both prompts and trip plans
+3) Increase the AI count after the successful answer received.
+
+I've added these columns to the plans db table. 
+
+    [Column("allowed_todos")]
+    public int? AllowedTodos { get; set; }
+
+    [Column("allowed_expenses")]
+    public int? AllowedExpenses { get; set; }
+
+    [Column("allowed_itinerary_parts")]
+    public int? AllowedItineraryParts { get; set; }
+
+    [Column("allowed_activities")]
+    public int? AllowedActivities { get; set; }
+
+Explore how the app enforces limits for items and participants per trip. Implement same logic foe newly added limits.
+    
+
+Generate a new component TripsImprovementComponent. See TripUserImprovement DB class. Generate client and server side code similar to TripPacksComponent. Make default rows order by ImprovementOrder. As it is done for Shared Todos component add Accepted and Rejected checkboxes. Add a link to Dashboard's Trip Personal section. Do not add any Help sections for now.
+
+ Generate a new component TripsAIImprovementComponent. This component will generate a JSON object for the current trip and current user if the current user included into a trip and send it to the AI. See how the similar TripsAiComponent implemented. And Ai will read and analyse that trip and generate suggestions how that trip plan can be improved by optimizing the path, expenses  - wharever can be improved. If the current user is admin there should be improvements on the shared entities as well as for personal ones. For participants suggested improvements only on their enitities and nothing about shared ones. Put that improvements to trip_user_improvements db table. If old improvements for that trip user already exist ask for confirmation to delete them. Every impreovement must have 1) Short description  2) What to do 3) order. Make this component accessible same as TripsImprovementComponent.
+
+ Add a trigger to trip_user_improvements limiting a number of rows per trip with 100
+
+
+ Find the code enforcing AI prompts limiting. Currently AI items and AI trip planning are supported. Add AI Trip Improvements there . Implement a code which will add a log row any time the AI generated improvements. Use trip_user_improvements_log to count AI prompts and add them to AI items and AI trip planning counts.
+  
+<meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes">
+
+See Trip Info component. Remove trip select from there. Make it working with the current app trip as other trip related components work.
 

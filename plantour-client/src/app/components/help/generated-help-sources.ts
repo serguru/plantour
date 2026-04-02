@@ -1,11 +1,14 @@
 import getStartedSectionManifest from './sections/get-started/section.json';
 import featuresSectionManifest from './sections/features/section.json';
+import aiFeaturesSectionManifest from './sections/ai-features/section.json';
 import workflowsSectionManifest from './sections/workflows/section.json';
 import tripWorkflowsSectionManifest from './sections/trip-workflows/section.json';
 import sharedTripWorkflowsSectionManifest from './sections/shared-trip-workflows/section.json';
 import getStartedHowCanPlanturHelpMeSolveMyProblemsJsonQuestion from './sections/get-started/How can Plantur help me solve my problems.json';
 import getStartedCanITryPlantourWithoutTheAccountCreationJsonQuestion from './sections/get-started/Can I try Plantour without the account creation.json';
+import getStartedHowDoINavigateThePagesJsonQuestion from './sections/get-started/How do I navigate the pages.json';
 import getStartedWhatAreMyFirstStepsWithPlantourJsonQuestion from './sections/get-started/What are my first steps with Plantour.json';
+import getStartedWhatPlansDoesPlantourOfferJsonQuestion from './sections/get-started/What plans does Plantour offer.json';
 import getStartedHowCanISwitchMyAccountFromTemporaryToRegularJsonQuestion from './sections/get-started/How can I switch my account from temporary to regular.json';
 import featuresWhatAreTheMainEntitiesThatPlantourOperatesWithJsonQuestion from './sections/features/What are the main entities that Plantour operates with.json';
 import featuresHowDoIFilterSortAndTargetEntitiesJsonQuestion from './sections/features/How do I filter, sort and target entities.json';
@@ -16,8 +19,9 @@ import featuresWhereCanISeeAndUpdateMyProfileDataJsonQuestion from './sections/f
 import featuresHowDoIAddUpdateOrDeleteEntitiesJsonQuestion from './sections/features/How do I add update or delete entities.json';
 import featuresWhatAreDictionariesJsonQuestion from './sections/features/What are dictionaries.json';
 import featuresWhatAreItemTemplatesJsonQuestion from './sections/features/What are item templates.json';
-import featuresHowToAskAIForItemRecommendationsJsonQuestion from './sections/features/How to ask AI for item recommendations.json';
-import featuresHowToAskAIForFullTripGenerationJsonQuestion from './sections/features/How to ask AI for full trip generation.json';
+import aiFeaturesHowToAskAIForItemRecommendationsJsonQuestion from './sections/ai-features/How to ask AI for item recommendations.json';
+import aiFeaturesHowToAskAIForFullTripGenerationJsonQuestion from './sections/ai-features/How to ask AI for full trip generation.json';
+import aiFeaturesHowCanAIHelpMeImproveMyTripJsonQuestion from './sections/ai-features/How can AI help me improve my trip.json';
 import workflowsWhatIsMainPlantourWorkflowJsonQuestion from './sections/workflows/What is main Plantour workflow.json';
 import workflowsHowDoIInviteTravelersJsonQuestion from './sections/workflows/How do I invite travelers.json';
 import workflowsHowDoIManageMyBillingJsonQuestion from './sections/workflows/How do I manage my billing.json';
@@ -39,6 +43,7 @@ import tripWorkflowsHowDoIManageTripExpensesJsonQuestion from './sections/trip-w
 import tripWorkflowsHowDoIKeepTravelNotesJsonQuestion from './sections/trip-workflows/How do I keep travel notes.json';
 import tripWorkflowsHowDoIWorkWithTripCommentsJsonQuestion from './sections/trip-workflows/How do I work with trip comments.json';
 import tripWorkflowsHowCanISeeTheTripOnTheMapJsonQuestion from './sections/trip-workflows/How can I see the trip on the map.json';
+import tripWorkflowsHowCanIPlanMyTripImprovementsJsonQuestion from './sections/trip-workflows/How can I plan my trip improvements.json';
 import sharedTripWorkflowsHowDoesAdminAddUpdateAndDeleteSharedItemsJsonQuestion from './sections/shared-trip-workflows/How does admin add, update and delete shared items.json';
 import sharedTripWorkflowsHowDoesAdminAssignSharedItemsJsonQuestion from './sections/shared-trip-workflows/How does admin assign shared items.json';
 import sharedTripWorkflowsHowCanAParticipantReactOnTheSharedItemAssignmentJsonQuestion from './sections/shared-trip-workflows/How can a participant react on the shared item assignment.json';
@@ -58,6 +63,7 @@ import sharedTripWorkflowsWhatCanAParticipantDoAfterAcceptingTheExpenseAssignmen
 export const GENERATED_SECTION_MANIFEST_ENTRIES: [string, unknown][] = [
   ['get-started', getStartedSectionManifest],
   ['features', featuresSectionManifest],
+  ['ai-features', aiFeaturesSectionManifest],
   ['workflows', workflowsSectionManifest],
   ['trip-workflows', tripWorkflowsSectionManifest],
   ['shared-trip-workflows', sharedTripWorkflowsSectionManifest]
@@ -66,7 +72,9 @@ export const GENERATED_SECTION_MANIFEST_ENTRIES: [string, unknown][] = [
 export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['get-started/How can Plantur help me solve my problems.json', getStartedHowCanPlanturHelpMeSolveMyProblemsJsonQuestion],
   ['get-started/Can I try Plantour without the account creation.json', getStartedCanITryPlantourWithoutTheAccountCreationJsonQuestion],
+  ['get-started/How do I navigate the pages.json', getStartedHowDoINavigateThePagesJsonQuestion],
   ['get-started/What are my first steps with Plantour.json', getStartedWhatAreMyFirstStepsWithPlantourJsonQuestion],
+  ['get-started/What plans does Plantour offer.json', getStartedWhatPlansDoesPlantourOfferJsonQuestion],
   ['get-started/How can I switch my account from temporary to regular.json', getStartedHowCanISwitchMyAccountFromTemporaryToRegularJsonQuestion],
   ['features/What are the main entities that Plantour operates with.json', featuresWhatAreTheMainEntitiesThatPlantourOperatesWithJsonQuestion],
   ['features/How do I filter, sort and target entities.json', featuresHowDoIFilterSortAndTargetEntitiesJsonQuestion],
@@ -77,8 +85,9 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['features/How do I add update or delete entities.json', featuresHowDoIAddUpdateOrDeleteEntitiesJsonQuestion],
   ['features/What are dictionaries.json', featuresWhatAreDictionariesJsonQuestion],
   ['features/What are item templates.json', featuresWhatAreItemTemplatesJsonQuestion],
-  ['features/How to ask AI for item recommendations.json', featuresHowToAskAIForItemRecommendationsJsonQuestion],
-  ['features/How to ask AI for full trip generation.json', featuresHowToAskAIForFullTripGenerationJsonQuestion],
+  ['ai-features/How to ask AI for item recommendations.json', aiFeaturesHowToAskAIForItemRecommendationsJsonQuestion],
+  ['ai-features/How to ask AI for full trip generation.json', aiFeaturesHowToAskAIForFullTripGenerationJsonQuestion],
+  ['ai-features/How can AI help me improve my trip.json', aiFeaturesHowCanAIHelpMeImproveMyTripJsonQuestion],
   ['workflows/What is main Plantour workflow.json', workflowsWhatIsMainPlantourWorkflowJsonQuestion],
   ['workflows/How do I invite travelers.json', workflowsHowDoIInviteTravelersJsonQuestion],
   ['workflows/How do I manage my billing.json', workflowsHowDoIManageMyBillingJsonQuestion],
@@ -100,6 +109,7 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['trip-workflows/How do I keep travel notes.json', tripWorkflowsHowDoIKeepTravelNotesJsonQuestion],
   ['trip-workflows/How do I work with trip comments.json', tripWorkflowsHowDoIWorkWithTripCommentsJsonQuestion],
   ['trip-workflows/How can I see the trip on the map.json', tripWorkflowsHowCanISeeTheTripOnTheMapJsonQuestion],
+  ['trip-workflows/How can I plan my trip improvements.json', tripWorkflowsHowCanIPlanMyTripImprovementsJsonQuestion],
   ['shared-trip-workflows/How does admin add, update and delete shared items.json', sharedTripWorkflowsHowDoesAdminAddUpdateAndDeleteSharedItemsJsonQuestion],
   ['shared-trip-workflows/How does admin assign shared items.json', sharedTripWorkflowsHowDoesAdminAssignSharedItemsJsonQuestion],
   ['shared-trip-workflows/How can a participant react on the shared item assignment.json', sharedTripWorkflowsHowCanAParticipantReactOnTheSharedItemAssignmentJsonQuestion],

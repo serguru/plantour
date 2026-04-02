@@ -13,11 +13,8 @@
           "Click \"Ask AI\".",
           "Review the suggested items in the list.",
           "Decide where you wish copy recommended items: to a list of trip`s own things, trip`s shared things (admins only) or the items dictionary.",
-
           "Open the dropdown to the left and choose \"Trips or items dic\". Then choose a target in the dropdown list. You can send results to your Items Dictionary or to one of your trips. Admins can also choose to copy to Shared or Own trip item list by clicking a corresponding radio button.",
-
-          "Click a button located to the item right, to add or remove that item. ",
-
+          "Click a button located to the item right, to add or remove that item.",
           "Use filtering by Name or Categories and sorting by Name to see only limited item list. Use button to the right if the target dropdown to add or remove only shown in the list, i.e. filtered, items."
         ],
         "afterHtml": "Plantour remembers recent prompts and shows them again later, so repeated requests are faster. If you only want to browse ready-made templates without signing in, use <a href='/packing-list-generator/templates'>Public Templates</a> from the toolbar`s more menu instead."

@@ -167,6 +167,7 @@ export class TripNotesComponent implements OnInit {
       tripActivityId,
       title: entity.title,
       contentJson: entity.contentJson ?? null,
+      noteOrder: entity.noteOrder ?? null,
     };
 
     this.tripNoteService.update(request).pipe(

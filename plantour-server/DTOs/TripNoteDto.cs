@@ -7,6 +7,7 @@ public class TripNoteDto
     public Guid? TripActivityId { get; set; }
     public string Title { get; set; } = null!;
     public string? ContentJson { get; set; }
+    public int? NoteOrder { get; set; }
     public DateTime? CreatedAt { get; set; }
     public string? TripActivityName { get; set; }
 }
@@ -17,6 +18,7 @@ public class CreateTripNoteRequest
     public Guid? TripActivityId { get; set; }
     public string Title { get; set; } = null!;
     public string? ContentJson { get; set; }
+    public int? NoteOrder { get; set; }
 }
 
 public class UpdateTripNoteRequest
@@ -26,4 +28,5 @@ public class UpdateTripNoteRequest
     public Guid? TripActivityId { get; set; }
     public string Title { get; set; } = null!;
     public string? ContentJson { get; set; }
+    public int? NoteOrder { get; set; }
 }

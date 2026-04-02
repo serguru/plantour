@@ -9,6 +9,7 @@ export interface EnvironmentConfig {
   googleClientId?: string;
   facebookAppId?: string;
   turnstileSiteKey?: string;
+  paddleKey: string;
   version: string;
 }
 

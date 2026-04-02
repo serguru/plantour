@@ -87,4 +87,12 @@ public class TemplateAiController(IAiService service) : ControllerBase
         return Ok(dto);
     }
 
+    [HttpPost("trip-improvements/generate")]
+    [AdminOrParticipant]
+    public async Task<ActionResult<GenerateTripAiImprovementsResponseDto>> GenerateTripImprovements([FromBody] GenerateTripAiImprovementsRequest request)
+    {
+        var dto = await _service.GenerateTripAiImprovementsAsync(request);
+        return Ok(dto);
+    }
+
 }

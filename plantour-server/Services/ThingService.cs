@@ -198,7 +198,7 @@ public class ThingService(
         var s2 = _currentUser.IsAdmin ? "Please go to your profile page and upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
 
 
-        var currentCount = await _thingRepository.CountAsync(_currentUser.UserId);
+        var currentCount = await _thingRepository.CountAsync(_currentUser.AdminId);
         if (currentCount + addQty > limit)
         {
             throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");

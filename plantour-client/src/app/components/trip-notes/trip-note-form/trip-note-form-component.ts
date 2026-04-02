@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest, map } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
+import { InputNumber } from 'primeng/inputnumber';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader, HeaderButtonConfig, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
@@ -23,6 +24,7 @@ interface TripNoteFormDropboxDraft {
   id: string | null;
   title: string;
   tripActivityId: string | null;
+  noteOrder: number | null;
   contentJson: string | null;
   controlsPanelCollapsed: boolean;
 }
@@ -35,6 +37,7 @@ interface TripNoteFormDropboxDraft {
     InputTextModule,
     ReactiveFormsModule,
     Select,
+    InputNumber,
     AutoFocusDirective,
     FormHeader,
     FormActions,
@@ -120,6 +123,7 @@ export class TripNoteFormComponent implements OnInit {
     this.form = this.fb.group({
       title: new FormControl('', Validators.required),
       tripActivityId: new FormControl<string | null>(null),
+      noteOrder: new FormControl<number | null>(null, Validators.min(0)),
     });
   }
 
@@ -133,6 +137,7 @@ export class TripNoteFormComponent implements OnInit {
         this.form.patchValue({
           title: note.title,
           tripActivityId: note.tripActivityId ?? null,
+          noteOrder: note.noteOrder ?? null,
         });
         this.contentJson = note.contentJson ?? null;
       },
@@ -166,6 +171,7 @@ export class TripNoteFormComponent implements OnInit {
       tripActivityId: formValue.tripActivityId || null,
       title: formValue.title.trim(),
       contentJson: normalizeTripNoteContentJson(this.contentJson),
+      noteOrder: formValue.noteOrder ?? null,
     };
 
     this.tripNoteService.add(request).subscribe({
@@ -189,6 +195,7 @@ export class TripNoteFormComponent implements OnInit {
       tripActivityId: formValue.tripActivityId || null,
       title: formValue.title.trim(),
       contentJson: normalizeTripNoteContentJson(this.contentJson),
+      noteOrder: formValue.noteOrder ?? null,
     };
 
     this.tripNoteService.update(request).subscribe({
@@ -261,6 +268,7 @@ export class TripNoteFormComponent implements OnInit {
       id: this.id,
       title: formValue.title ?? '',
       tripActivityId: formValue.tripActivityId ?? null,
+      noteOrder: formValue.noteOrder ?? null,
       contentJson: this.contentJson,
       controlsPanelCollapsed: this.controlsPanelCollapsed,
     };
@@ -284,6 +292,7 @@ export class TripNoteFormComponent implements OnInit {
     this.form.patchValue({
       title: draft.title,
       tripActivityId: draft.tripActivityId,
+      noteOrder: draft.noteOrder,
     });
     this.contentJson = draft.contentJson;
     return true;

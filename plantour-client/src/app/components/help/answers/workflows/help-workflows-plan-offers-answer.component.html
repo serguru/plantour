@@ -1,0 +1,60 @@
+@if (loaded) {
+<section class="help-section">
+  <p>
+    Plantour currently offers three plans. Starter is the free option for small trips, Family is designed for regular travelers and small groups, and Expedition is intended for larger teams and heavier trip-planning workflows.
+  </p>
+</section>
+
+<section class="help-section">
+  <div class="help-table-wrapper">
+    <table class="help-plan-table">
+      <thead>
+        <tr>
+          <th scope="col">Plan</th>
+          <th scope="col">Description</th>
+          <th scope="col">Pricing</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (plan of plans; track plan.id) {
+        <tr>
+          <th scope="row" data-label="Plan">{{ plan.name }}</th>
+          <td data-label="Description">{{ plan.notes || 'No description available.' }}</td>
+          <td data-label="Pricing">{{ priceSummary(plan) }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="help-section">
+  <p class="help-list-caption">Current plan limits:</p>
+  <div class="help-table-wrapper">
+    <table class="help-plan-table">
+      <thead>
+        <tr>
+          <th scope="col">Limit</th>
+          @for (plan of plans; track plan.id) {
+          <th scope="col">{{ plan.name }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of limitRows; track row.label) {
+        <tr>
+          <th scope="row" data-label="Limit">{{ row.label }}</th>
+          @for (value of row.values; track $index) {
+          <td [attr.data-label]="plans[$index].name">{{ value }}</td>
+          }
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+} @else {
+<section class="help-section">
+  <p>Loading current plans and limits...</p>
+</section>
+}

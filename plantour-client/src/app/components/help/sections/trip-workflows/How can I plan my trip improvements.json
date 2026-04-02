@@ -1,0 +1,25 @@
+{
+  "slug": "plan-trip-improvements",
+  "question": "How can I plan my trip improvements?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "listTag": "ol",
+        "beforeHtml": "Use trip improvements when you want to keep a clear list of changes that can make your trip better. You can fill and edit this list manually, or ask Plantour AI to suggest ideas in the same place. Make sure you have a <a href='/help/trip-workflows/current-trip-set-unset-show-hide'>current trip</a> selected, then go to the trip improvements list.",
+        "items": [
+          "Review the current list and read the suggestions in order.",
+          "Use <strong>Ask AI</strong> in the header when you want Plantour to generate suggestions for the current trip.",
+          "If improvements already exist, choose whether to delete them first or keep them and append the new AI suggestions after the last order number.",
+          "Use <strong>Add</strong> when you want to create a new improvement manually.",
+          "On the form, write a short title that explains the idea clearly.",
+          "In the details field, describe what should be done and what to check next.",
+          "Set the order number so the most important improvement appears first.",
+          "Save the row and return to the list to continue planning.",
+          "Mark improvements as accepted or rejected after you review them."
+        ],
+        "afterHtml": "The list page, the AI action, and the add or edit form all work with the same planning flow: collect ideas, decide their priority, save them in order, and then track your decision from the list."
+      }
+    ]
+  }
+}

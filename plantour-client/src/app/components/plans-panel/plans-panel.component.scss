@@ -221,3 +221,25 @@ $line: #e1eaec;
 .plans-title {
   font-weight: 500;
 }
+
+.plans-help-link-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 1rem 0 0;
+}
+
+.plans-help-caption {
+  color: $ink-soft;
+}
+
+.plans-help-link {
+  color: $primary-deep;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

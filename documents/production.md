@@ -1,7 +1,8 @@
 - check robots.txt and noindex tag
 
 
-TODO: remove 
+What to do: 
+remove 
 file robots.txt 
 <meta name="robots" content="noindex, nofollow"> and
 X-Robots-Tag: noindex, nofollow from server response

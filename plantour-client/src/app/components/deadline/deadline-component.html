@@ -1,0 +1,19 @@
+<div class="container">
+  <label
+    for="deadlineAt"
+    class="font-bold block mb-2"
+  >{{ label() }}</label>
+
+  <p-datepicker
+    inputId="deadlineAt"
+    [ngModel]="deadlineAt()"
+    (ngModelChange)="onDeadlineAtChange($event)"
+    [showTime]="true"
+    hourFormat="12"
+    [readonlyInput]="false"
+    placeholder="mm/dd/yyyy hh:mm am"
+    [showIcon]="true"
+    appendTo="body"
+    fluid
+  ></p-datepicker>
+</div>

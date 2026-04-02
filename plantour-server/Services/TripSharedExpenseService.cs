@@ -36,6 +36,28 @@ public class TripSharedExpenseService(
     private readonly UsersRepository _usersRepository = usersRepository;
     private readonly ISharedAssignmentNotificationService _sharedAssignmentNotificationService = sharedAssignmentNotificationService;
 
+    private async Task CheckAccessAsync(Guid tripId, int addQty)
+    {
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 90);
+        if (rule == null || rule.Granted)
+        {
+            return;
+        }
+
+        int limit = rule.Value ?? 0;
+
+        var s1 = $"You've reached the limit of {limit} shared expenses you can add to your trip.";
+
+        var s2 = _currentUser.IsAdmin ? "Please go to your profile page and upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
+
+
+        var currentCount = await _tripSharedExpenseRepository.CountAsync(tripId);
+        if (currentCount + addQty > limit)
+        {
+            throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+        }
+    }
+
     public async Task<IEnumerable<TripSharedExpenseDto>> GetAllFullAsync(Guid tripId)
     {
         _currentUser.RaiseIfNotAuthenticated();
@@ -81,6 +103,7 @@ public class TripSharedExpenseService(
 
         _ = await ValidateAndGetTripAsync(request.TripId);
         await ValidateAssigneeAsync(request.TripId, request.AssignedToId);
+        await CheckAccessAsync(request.TripId, 1);
 
         var entity = _mapper.Map<TripSharedExpense>(request);
         entity.Id = Guid.NewGuid();
@@ -122,6 +145,19 @@ public class TripSharedExpenseService(
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
             throw new CustomException("User does not have access to this trip");
+        }
+
+        var entity = (await _tripSharedExpenseRepository.FindAsync(x => x.Id == id && x.TripId == tripId))
+            .FirstOrDefault();
+
+        if (entity == null)
+        {
+            throw new CustomException("Trip shared expense not found");
+        }
+
+        if (entity.AssignedExpenseId != null)
+        {
+            throw new CustomException("accepted shared expense cannot be deleted while assigned; unassign it first");
         }
 
         await _tripSharedExpenseRepository.DeleteAsync(tripId, id);

@@ -7,7 +7,7 @@ export type { HelpBreadcrumb, HelpPage } from '../components/help/help-content';
 const COMPONENT_HELP_PAGE_IDS: Readonly<Record<string, string>> = {
   dashboard: 'help/workflows/trip-info',
   'trip-info': 'help/workflows/trip-info',
-  'trips-ai': 'help/features/ai-full-trip-generation',
+  'trips-ai': 'help/ai-features/ai-full-trip-generation',
   'sign-in': 'help/get-started/first-steps',
   'signin-token': 'help/get-started/first-steps',
   'public-templates': 'help/features/item-templates',
@@ -29,6 +29,8 @@ const COMPONENT_HELP_PAGE_IDS: Readonly<Record<string, string>> = {
   'trip-itinerary-map': 'help/trip-workflows/see-trip-on-map',
   'trip-packs': 'help/trip-workflows/how-do-i-work-with-trip-bags',
   'trip-pack-form': 'help/trip-workflows/how-do-i-work-with-trip-bags',
+  'trips-improvement': 'help/trip-workflows/plan-trip-improvements',
+  'trip-improvement-form': 'help/trip-workflows/plan-trip-improvements',
   'trip-expenses': 'help/trip-workflows/manage-trip-expenses',
   'trip-expense-form': 'help/trip-workflows/manage-trip-expenses',
   'trip-users': 'help/workflows/invite-travelers',
@@ -55,7 +57,7 @@ const COMPONENT_HELP_PAGE_IDS: Readonly<Record<string, string>> = {
   terms: 'help/workflows/contact-plantour-administration',
   profile: 'help/features/profile-data',
   templates: 'help/features/item-templates',
-  'templates-ai': 'help/features/ai-item-recommendations',
+  'templates-ai': 'help/ai-features/ai-item-recommendations',
   checkout: 'help/workflows/manage-billing',
   plans: 'help/workflows/manage-billing',
   search: 'help/features/search-for-something',
@@ -64,7 +66,7 @@ const COMPONENT_HELP_PAGE_IDS: Readonly<Record<string, string>> = {
 const ROUTE_HELP_PAGE_MATCHERS: ReadonlyArray<{ pattern: RegExp; pageId: string }> = [
   { pattern: /^\/dashboard(?:\/.*)?$/, pageId: 'help/workflows/trip-info' },
   { pattern: /^\/packing-list-generator\/templates(?:\/.*)?$/, pageId: 'help/features/item-templates' },
-  { pattern: /^\/templates-ai(?:\/.*)?$/, pageId: 'help/features/ai-item-recommendations' },
+  { pattern: /^\/templates-ai(?:\/.*)?$/, pageId: 'help/ai-features/ai-item-recommendations' },
   { pattern: /^\/templates(?:\/.*)?$/, pageId: 'help/features/item-templates' },
   { pattern: /^\/profile(?:\/.*)?$/, pageId: 'help/features/profile-data' },
   { pattern: /^\/travelers(?:\/.*)?$/, pageId: 'help/workflows/invite-travelers' },
@@ -74,6 +76,7 @@ const ROUTE_HELP_PAGE_MATCHERS: ReadonlyArray<{ pattern: RegExp; pageId: string 
   { pattern: /^\/trips\/[^/]+\/trip-shared-todos(?:\/.*)?$/, pageId: 'help/shared-trip-workflows/how-does-admin-add-update-and-delete-shared-todos' },
   { pattern: /^\/trips\/[^/]+\/trip-shared(?:\/.*)?$/, pageId: 'help/shared-trip-workflows/how-does-admin-add-update-and-delete-shared-items' },
   { pattern: /^\/trips\/[^/]+\/trip-packs(?:\/.*)?$/, pageId: 'help/trip-workflows/how-do-i-work-with-trip-bags' },
+  { pattern: /^\/trips\/[^/]+\/trips-improvement(?:\/.*)?$/, pageId: 'help/trip-workflows/plan-trip-improvements' },
   { pattern: /^\/trips\/[^/]+\/trip-things(?:\/.*)?$/, pageId: 'help/trip-workflows/what-can-i-do-with-trip-items' },
   { pattern: /^\/trips\/[^/]+\/trip-participants(?:\/.*)?$/, pageId: 'help/workflows/invite-travelers' },
   { pattern: /^\/trips\/[^/]+\/trip-todos(?:\/.*)?$/, pageId: 'help/trip-workflows/work-with-trip-todos' },
@@ -81,6 +84,7 @@ const ROUTE_HELP_PAGE_MATCHERS: ReadonlyArray<{ pattern: RegExp; pageId: string 
   { pattern: /^\/trips(?:\/trip\/[^/]+)?$/, pageId: 'help/trip-workflows/work-with-trips' },
   { pattern: /^\/trips\/(add|edit\/[^/]+|view\/[^/]+)$/, pageId: 'help/trip-workflows/work-with-trips' }
 ];
+
 
 @Injectable({ providedIn: 'root' })
 export class HelpService {

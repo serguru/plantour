@@ -19,6 +19,7 @@ public class SchedulerService(
     IOptions<JwtSettings> jwtSettings,
     RefreshTokenRepository refreshTokenRepository,
     LogsRepository logsRepository,
+    PlantourContext plantourContext,
     IMapper mapper,
     ICheckAccessService checkAccessService,
     IConfiguration configuration,
@@ -36,6 +37,7 @@ public class SchedulerService(
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly IConfiguration _configuration = configuration;
+    private readonly PlantourContext _plantourContext = plantourContext;
     private readonly RefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly LogsRepository _logsRepository = logsRepository;
     private readonly AiPromptRepository _aiPromptRepository = aiPromptRepository;
@@ -58,6 +60,15 @@ public class SchedulerService(
     public async Task DeleteOldErrorLogsAsync()
     {
         await _logsRepository.DeleteRangeAsync(x => x.TimeStamp < DateTime.UtcNow.AddDays(-7) && x.Level != null && x.Level.ToLower() == "error");
+    }
+
+    public async Task DeleteOldTripUserImprovementsLogAsync()
+    {
+        var cutoffUtc = DateTime.UtcNow.AddDays(-1);
+
+        await _plantourContext.TripUserImprovementsLogs
+            .Where(x => x.CreatedAt.HasValue && x.CreatedAt.Value < cutoffUtc)
+            .ExecuteDeleteAsync();
     }
 
     public async Task ScheduleOrRunDowngradePlanPriceAsync(string oldPlanPrice, string newPlanPrice)

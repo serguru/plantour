@@ -34,6 +34,7 @@ public class TripAiCreateTripResponseDto
     public string TripName { get; set; } = string.Empty;
     public TripAiPlanDto Plan { get; set; } = new();
     public TripAiAppliedCountsDto Applied { get; set; } = new();
+    public string LimitsAppliedMessage { get; set; } = string.Empty;
 }
 
 public class ApplyTripAiPlanRequest
@@ -46,6 +47,7 @@ public class TripAiApplyResponseDto
 {
     public TripAiPlanDto Plan { get; set; } = new();
     public TripAiAppliedCountsDto Applied { get; set; } = new();
+    public string LimitsAppliedMessage { get; set; } = string.Empty;
 }
 
 public class TripAiAppliedCountsDto

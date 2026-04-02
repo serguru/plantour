@@ -2,10 +2,16 @@
   <div class="trip-note-row__main">
     <div class="trip-note-row__title-row">
       <span class="trip-note-row__title">{{ entity.title }}</span>
-      <label class="trip-note-row__mark" (click)="onMarkedClick($event)">
-        <input type="checkbox" [checked]="marked" (change)="onMarkedChange($event)" />
-        <span>Mark for PDF</span>
-      </label>
+      <div class="trip-note-row__mark" (click)="onMarkedClick($event)">
+        <p-checkbox
+          [ngModel]="marked"
+          [ngModelOptions]="{ standalone: true }"
+          [binary]="true"
+          [inputId]="'mark-pdf-' + entity.id"
+          (onChange)="onMarkedChange($event)"
+        ></p-checkbox>
+        <label [for]="'mark-pdf-' + entity.id">Mark for PDF</label>
+      </div>
     </div>
 
     @if (createdAtText || entity.tripActivityName) {

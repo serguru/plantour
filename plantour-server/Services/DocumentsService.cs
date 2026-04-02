@@ -2,6 +2,7 @@ using HtmlAgilityPack;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using System.IO;
 using System.Text;
 using System.Text.Json;
 using plantour_server.DTOs;
@@ -20,6 +21,8 @@ public class DocumentsService : IDocumentsService
 
     private readonly ITripService _tripService;
     private readonly ITripUserService _tripUserService;
+    private readonly IItineraryPartService _itineraryPartService;
+    private readonly ITripActivityService _tripActivityService;
     private readonly ITripPackageService _tripPackageService;
     private readonly ITripThingService _tripThingService;
     private readonly ITripTodoService _tripTodoService;
@@ -38,6 +41,8 @@ public class DocumentsService : IDocumentsService
     public DocumentsService(
         ITripService tripService,
         ITripUserService tripUserService,
+        IItineraryPartService itineraryPartService,
+        ITripActivityService tripActivityService,
         ITripPackageService tripPackageService,
         ITripThingService tripThingService,
         ITripTodoService tripTodoService,
@@ -52,6 +57,8 @@ public class DocumentsService : IDocumentsService
     {
         _tripService = tripService;
         _tripUserService = tripUserService;
+        _itineraryPartService = itineraryPartService;
+        _tripActivityService = tripActivityService;
         _tripPackageService = tripPackageService;
         _tripThingService = tripThingService;
         _tripTodoService = tripTodoService;
@@ -79,12 +86,34 @@ public class DocumentsService : IDocumentsService
         }
 
         var participants = (await _tripUserService.GetAllAsync(tripId)).ToList();
+        var itineraryParts = (await _itineraryPartService.GetAllAsync(tripId))
+            .OrderBy(x => x.StartDate)
+            .ThenBy(x => x.Name)
+            .ToList();
+        var publicActivities = (await _tripActivityService.GetAllPublicAsync(tripId))
+            .OrderBy(x => x.StartDate ?? DateTime.MaxValue)
+            .ThenBy(x => x.Name)
+            .ToList();
+        var personalActivities = (await _tripActivityService.GetAllPersonalAsync(tripId))
+            .OrderBy(x => x.StartDate ?? DateTime.MaxValue)
+            .ThenBy(x => x.Name)
+            .ToList();
 
         var packages = (await _tripPackageService.GetAllAsync(tripId)).ToList();
 
         var allThings = (await _tripThingService.GetAllAsync(tripId)).ToList();
         var allTodos = (await _tripTodoService.GetAllAsync(tripId)).ToList();
         var sharedTodos = (await _tripSharedTodoService.GetAllFullAsync(tripId)).ToList();
+        var personalExpenses = (await _tripExpenseService.GetAllForTripAsync(tripId)).ToList();
+        var sharedExpenses = (await _tripSharedExpenseService.GetAllFullAsync(tripId)).ToList();
+        var tripNotes = (await _tripNoteRepository.GetAllAsync(_currentUser.AdminId, _currentUser.UserId, tripId)).ToList();
+        var noteBlocks = tripNotes.ToDictionary(x => x.Id, x => ParseTripNoteBlocks(x.ContentJson));
+        var noteImageAssets = await DownloadImagesAsync(
+            noteBlocks.Values
+                .SelectMany(x => x)
+                .SelectMany(GetImageUrls)
+                .Distinct(StringComparer.OrdinalIgnoreCase));
+        var itineraryLookup = itineraryParts.ToDictionary(x => x.Id);
 
         var document = Document.Create(container =>
         {
@@ -124,6 +153,26 @@ public class DocumentsService : IDocumentsService
                             RenderParticipants(column, participants);
                         }
 
+                        if (itineraryParts.Any())
+                        {
+                            RenderItineraryParts(column, itineraryParts);
+                        }
+
+                        if (publicActivities.Any() || personalActivities.Any())
+                        {
+                            RenderActivities(column, publicActivities, personalActivities, itineraryLookup);
+                        }
+
+                        if (personalExpenses.Any())
+                        {
+                            RenderPersonalExpenses(column, personalExpenses, trip.Currency ?? string.Empty);
+                        }
+
+                        if (sharedExpenses.Any())
+                        {
+                            RenderSharedExpenses(column, sharedExpenses, trip.Currency ?? string.Empty);
+                        }
+
                         // Секция 3: Упаковки и вещи
                         if (packages.Any())
                         {
@@ -133,6 +182,11 @@ public class DocumentsService : IDocumentsService
                         if (allTodos.Any() || sharedTodos.Any())
                         {
                             RenderTodos(column, allTodos, sharedTodos);
+                        }
+
+                        if (tripNotes.Any())
+                        {
+                            RenderTripNotesSection(column, tripNotes, noteBlocks, noteImageAssets);
                         }
                     });
 
@@ -489,6 +543,263 @@ public class DocumentsService : IDocumentsService
                 }
             });
         }
+    }
+
+    private void RenderItineraryParts(ColumnDescriptor column, List<ItineraryPartDto> itineraryParts)
+    {
+        column.Item().PaddingTop(10)
+            .Text("Itinerary")
+            .SemiBold()
+            .FontSize(16)
+            .FontColor(primaryColor);
+
+        foreach (var part in itineraryParts.OrderBy(x => x.StartDate).ThenBy(x => x.Name))
+        {
+            column.Item().PaddingTop(8).Column(partColumn =>
+            {
+                partColumn.Spacing(4);
+
+                partColumn.Item().Background(Colors.Grey.Lighten3)
+                    .Padding(8)
+                    .Text(text =>
+                    {
+                        text.Span(part.Name).SemiBold().FontSize(13);
+                        if (!string.IsNullOrWhiteSpace(part.Category))
+                        {
+                            text.Span($" ({part.Category})").FontColor(Colors.Grey.Darken1);
+                        }
+                    });
+
+                partColumn.Item().PaddingLeft(10).Text(FormatDateTimeRange(part.StartDate, part.EndDate));
+
+                if (!string.IsNullOrWhiteSpace(part.Address))
+                {
+                    partColumn.Item().PaddingLeft(10).Text($"Address: {part.Address}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(part.Notes))
+                {
+                    partColumn.Item().PaddingLeft(10).Text($"Notes: {part.Notes}");
+                }
+            });
+        }
+    }
+
+    private void RenderActivities(
+        ColumnDescriptor column,
+        List<TripActivityDto> publicActivities,
+        List<TripActivityDto> personalActivities,
+        IReadOnlyDictionary<Guid, ItineraryPartDto> itineraryLookup)
+    {
+        column.Item().PaddingTop(10)
+            .Text("Activities")
+            .SemiBold()
+            .FontSize(16)
+            .FontColor(primaryColor);
+
+        if (publicActivities.Any())
+        {
+            RenderActivityTable(column, "Public Activities", publicActivities, itineraryLookup);
+        }
+
+        if (personalActivities.Any())
+        {
+            RenderActivityTable(column, "Personal Activities", personalActivities, itineraryLookup);
+        }
+    }
+
+    private void RenderActivityTable(
+        ColumnDescriptor column,
+        string title,
+        List<TripActivityDto> activities,
+        IReadOnlyDictionary<Guid, ItineraryPartDto> itineraryLookup)
+    {
+        column.Item().PaddingTop(5).Text(title).SemiBold().FontSize(13);
+
+        column.Item().PaddingTop(3).Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(4);
+            });
+
+            table.Header(header =>
+            {
+                header.Cell().Element(ExpenseCellStyle).Text("Activity").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Itinerary").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Schedule").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Details").SemiBold();
+            });
+
+            foreach (var activity in activities.OrderBy(x => x.StartDate ?? DateTime.MaxValue).ThenBy(x => x.Name))
+            {
+                var itineraryName = activity.ItineraryPartId.HasValue && itineraryLookup.TryGetValue(activity.ItineraryPartId.Value, out var itineraryPart)
+                    ? itineraryPart.Name
+                    : "-";
+
+                var activityLabel = string.IsNullOrWhiteSpace(activity.Activity)
+                    ? activity.Name
+                    : $"{activity.Name} ({activity.Activity})";
+
+                var details = new List<string>();
+                if (!string.IsNullOrWhiteSpace(activity.Address))
+                {
+                    details.Add($"Address: {activity.Address}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(activity.Notes))
+                {
+                    details.Add($"Notes: {activity.Notes}");
+                }
+
+                table.Cell().Element(ExpenseCellStyle).Text(activityLabel);
+                table.Cell().Element(ExpenseCellStyle).Text(itineraryName);
+                table.Cell().Element(ExpenseCellStyle).Text(FormatDateTimeRange(activity.StartDate, activity.EndDate));
+                table.Cell().Element(ExpenseCellStyle).Text(details.Count == 0 ? "-" : string.Join("\n", details));
+            }
+        });
+    }
+
+    private void RenderTripNotesSection(
+        ColumnDescriptor column,
+        IReadOnlyList<plantour_server.DbModels.TripNote> notes,
+        IReadOnlyDictionary<Guid, List<TripNotePdfBlock>> noteBlocks,
+        IReadOnlyDictionary<string, TripNotePdfImageAsset> imageAssets)
+    {
+        column.Item().PaddingTop(10)
+            .Text("Notes")
+            .SemiBold()
+            .FontSize(16)
+            .FontColor(primaryColor);
+
+        var tripLevelNotes = OrderTripNotes(notes.Where(x => !x.TripActivityId.HasValue)).ToList();
+        if (tripLevelNotes.Any())
+        {
+            column.Item().PaddingTop(5).Text("Trip Notes").SemiBold().FontSize(13);
+
+            foreach (var note in tripLevelNotes)
+            {
+                RenderTripReportNote(column, note, noteBlocks, imageAssets);
+            }
+        }
+
+        var activityGroups = notes
+            .Where(x => x.TripActivityId.HasValue && x.TripActivity != null)
+            .GroupBy(x => x.TripActivityId!.Value)
+            .Select(group => new TripNoteActivityGroup(group.First().TripActivity!, OrderTripNotes(group).ToList()))
+            .OrderBy(x => x.Activity.StartDate ?? DateTime.MaxValue)
+            .ThenBy(x => x.Activity.Name)
+            .ToList();
+
+        if (!activityGroups.Any())
+        {
+            return;
+        }
+
+        column.Item().PaddingTop(8).Text("Activity Notes").SemiBold().FontSize(13);
+
+        foreach (var group in activityGroups)
+        {
+            column.Item().PaddingTop(8).Column(activityColumn =>
+            {
+                activityColumn.Spacing(4);
+
+                activityColumn.Item().Background(Colors.Grey.Lighten3)
+                    .Padding(8)
+                    .Text(group.Activity.Name)
+                    .SemiBold()
+                    .FontSize(12)
+                    .FontColor(primaryColor);
+
+                activityColumn.Item().PaddingLeft(10).Text(FormatDateTimeRange(group.Activity.StartDate, group.Activity.EndDate));
+
+                if (!string.IsNullOrWhiteSpace(group.Activity.Address))
+                {
+                    activityColumn.Item().PaddingLeft(10).Text($"Address: {group.Activity.Address}");
+                }
+
+                foreach (var note in group.Notes)
+                {
+                    RenderTripReportNote(activityColumn, note, noteBlocks, imageAssets);
+                }
+            });
+        }
+    }
+
+    private void RenderTripReportNote(
+        ColumnDescriptor column,
+        plantour_server.DbModels.TripNote note,
+        IReadOnlyDictionary<Guid, List<TripNotePdfBlock>> noteBlocks,
+        IReadOnlyDictionary<string, TripNotePdfImageAsset> imageAssets)
+    {
+        column.Item().PaddingTop(6).Column(noteColumn =>
+        {
+            noteColumn.Spacing(4);
+            noteColumn.Item().Text(note.Title).SemiBold().FontSize(12);
+
+            var metaParts = new List<string>();
+            if (note.NoteOrder.HasValue)
+            {
+                metaParts.Add($"Order: {note.NoteOrder.Value}");
+            }
+
+            if (note.CreatedAt.HasValue)
+            {
+                metaParts.Add($"Created: {note.CreatedAt.Value:dd.MM.yyyy HH:mm}");
+            }
+
+            if (metaParts.Count > 0)
+            {
+                noteColumn.Item().Text(string.Join(" · ", metaParts)).FontSize(9).FontColor(Colors.Grey.Darken1);
+            }
+
+            var blocks = noteBlocks.TryGetValue(note.Id, out var parsedBlocks) ? parsedBlocks : [];
+            if (blocks.Count == 0)
+            {
+                noteColumn.Item().Text("No note content").Italic().FontColor(Colors.Grey.Medium);
+            }
+            else
+            {
+                foreach (var block in blocks)
+                {
+                    RenderTripNoteBlock(noteColumn, block, imageAssets, 0);
+                }
+            }
+
+            noteColumn.Item().PaddingTop(6).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+        });
+    }
+
+    private static IEnumerable<plantour_server.DbModels.TripNote> OrderTripNotes(IEnumerable<plantour_server.DbModels.TripNote> notes)
+    {
+        return notes
+            .OrderBy(x => x.NoteOrder.HasValue ? 0 : 1)
+            .ThenBy(x => x.NoteOrder ?? int.MaxValue)
+            .ThenBy(x => x.CreatedAt ?? DateTime.MaxValue)
+            .ThenBy(x => x.Title);
+    }
+
+    private static string FormatDateTimeRange(DateTime? startDate, DateTime? endDate)
+    {
+        if (!startDate.HasValue && !endDate.HasValue)
+        {
+            return "No schedule";
+        }
+
+        if (startDate.HasValue && endDate.HasValue)
+        {
+            return $"{startDate.Value:dd.MM.yyyy HH:mm} - {endDate.Value:dd.MM.yyyy HH:mm}";
+        }
+
+        if (startDate.HasValue)
+        {
+            return $"Starts: {startDate.Value:dd.MM.yyyy HH:mm}";
+        }
+
+        return $"Ends: {endDate!.Value:dd.MM.yyyy HH:mm}";
     }
 
     public async Task<byte[]> GenerateTripExpensesReportPdfAsync(Guid tripId)
@@ -1040,7 +1351,7 @@ public class DocumentsService : IDocumentsService
             x => x.Key,
             x => x.Value.SelectMany(GetImageUrls).Distinct(StringComparer.OrdinalIgnoreCase).ToList());
 
-        var imageBytes = await DownloadImagesAsync(imageUrlMap.SelectMany(x => x.Value).Distinct(StringComparer.OrdinalIgnoreCase));
+        var imageAssets = await DownloadImagesAsync(imageUrlMap.SelectMany(x => x.Value).Distinct(StringComparer.OrdinalIgnoreCase));
 
         var document = Document.Create(container =>
         {
@@ -1071,44 +1382,115 @@ public class DocumentsService : IDocumentsService
                     {
                         column.Spacing(18);
 
-                        foreach (var note in notes)
+                        var tripLevelNotes = OrderTripNotes(notes.Where(x => !x.TripActivityId.HasValue)).ToList();
+                        if (tripLevelNotes.Any())
                         {
-                            column.Item().Column(noteColumn =>
+                            column.Item().Text("Trip Notes").SemiBold().FontSize(16).FontColor(primaryColor);
+
+                            foreach (var note in tripLevelNotes)
                             {
-                                noteColumn.Spacing(6);
-                                noteColumn.Item().Text(note.Title).SemiBold().FontSize(16).FontColor(primaryColor);
+                                column.Item().Column(noteColumn =>
+                                {
+                                    noteColumn.Spacing(6);
+                                    noteColumn.Item().Text(note.Title).SemiBold().FontSize(16).FontColor(primaryColor);
 
-                                var metaParts = new List<string>();
-                                if (note.TripActivity != null)
-                                {
-                                    metaParts.Add($"Activity: {note.TripActivity.Name}");
-                                }
-
-                                if (note.CreatedAt.HasValue)
-                                {
-                                    metaParts.Add($"Created: {note.CreatedAt.Value:dd.MM.yyyy HH:mm}");
-                                }
-
-                                if (metaParts.Count > 0)
-                                {
-                                    noteColumn.Item().Text(string.Join(" · ", metaParts)).FontSize(9).FontColor(Colors.Grey.Darken1);
-                                }
-
-                                var blocks = noteBlocks[note.Id];
-                                if (blocks.Count == 0)
-                                {
-                                    noteColumn.Item().Text("No note content").Italic().FontColor(Colors.Grey.Medium);
-                                }
-                                else
-                                {
-                                    foreach (var block in blocks)
+                                    var metaParts = new List<string>();
+                                    if (note.NoteOrder.HasValue)
                                     {
-                                        RenderTripNoteBlock(noteColumn, block, imageBytes, 0);
+                                        metaParts.Add($"Order: {note.NoteOrder.Value}");
                                     }
-                                }
 
-                                noteColumn.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
-                            });
+                                    if (note.CreatedAt.HasValue)
+                                    {
+                                        metaParts.Add($"Created: {note.CreatedAt.Value:dd.MM.yyyy HH:mm}");
+                                    }
+
+                                    if (metaParts.Count > 0)
+                                    {
+                                        noteColumn.Item().Text(string.Join(" · ", metaParts)).FontSize(9).FontColor(Colors.Grey.Darken1);
+                                    }
+
+                                    var blocks = noteBlocks[note.Id];
+                                    if (blocks.Count == 0)
+                                    {
+                                        noteColumn.Item().Text("No note content").Italic().FontColor(Colors.Grey.Medium);
+                                    }
+                                    else
+                                    {
+                                        foreach (var block in blocks)
+                                        {
+                                            RenderTripNoteBlock(noteColumn, block, imageAssets, 0);
+                                        }
+                                    }
+
+                                    noteColumn.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                                });
+                            }
+                        }
+
+                        var activityGroups = notes
+                            .Where(x => x.TripActivityId.HasValue && x.TripActivity != null)
+                            .GroupBy(x => x.TripActivityId!.Value)
+                            .Select(group => new TripNoteActivityGroup(group.First().TripActivity!, OrderTripNotes(group).ToList()))
+                            .OrderBy(x => x.Activity.StartDate ?? DateTime.MaxValue)
+                            .ThenBy(x => x.Activity.Name)
+                            .ToList();
+
+                        if (activityGroups.Any())
+                        {
+                            column.Item().Text("Activity Notes").SemiBold().FontSize(16).FontColor(primaryColor);
+
+                            foreach (var group in activityGroups)
+                            {
+                                column.Item().Column(activityColumn =>
+                                {
+                                    activityColumn.Spacing(6);
+                                    activityColumn.Item().Text(group.Activity.Name).SemiBold().FontSize(14).FontColor(primaryColor);
+                                    activityColumn.Item().Text(FormatDateTimeRange(group.Activity.StartDate, group.Activity.EndDate))
+                                        .FontSize(9)
+                                        .FontColor(Colors.Grey.Darken1);
+
+                                    foreach (var note in group.Notes)
+                                    {
+                                        activityColumn.Item().Column(noteColumn =>
+                                        {
+                                            noteColumn.Spacing(6);
+                                            noteColumn.Item().Text(note.Title).SemiBold().FontSize(16).FontColor(primaryColor);
+
+                                            var metaParts = new List<string>();
+                                            if (note.NoteOrder.HasValue)
+                                            {
+                                                metaParts.Add($"Order: {note.NoteOrder.Value}");
+                                            }
+
+                                            if (note.CreatedAt.HasValue)
+                                            {
+                                                metaParts.Add($"Created: {note.CreatedAt.Value:dd.MM.yyyy HH:mm}");
+                                            }
+
+                                            if (metaParts.Count > 0)
+                                            {
+                                                noteColumn.Item().Text(string.Join(" · ", metaParts)).FontSize(9).FontColor(Colors.Grey.Darken1);
+                                            }
+
+                                            var blocks = noteBlocks[note.Id];
+                                            if (blocks.Count == 0)
+                                            {
+                                                noteColumn.Item().Text("No note content").Italic().FontColor(Colors.Grey.Medium);
+                                            }
+                                            else
+                                            {
+                                                foreach (var block in blocks)
+                                                {
+                                                    RenderTripNoteBlock(noteColumn, block, imageAssets, 0);
+                                                }
+                                            }
+
+                                            noteColumn.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                                        });
+                                    }
+                                });
+                            }
                         }
                     });
 
@@ -1887,20 +2269,34 @@ public class DocumentsService : IDocumentsService
         }
     }
 
-    private async Task<Dictionary<string, byte[]>> DownloadImagesAsync(IEnumerable<string> urls)
+    private async Task<Dictionary<string, TripNotePdfImageAsset>> DownloadImagesAsync(IEnumerable<string> urls)
     {
         var client = _httpClientFactory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(15);
 
-        var result = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
+        var result = new Dictionary<string, TripNotePdfImageAsset>(StringComparer.OrdinalIgnoreCase);
         var distinctUrls = urls.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         var dropboxReferenceMap = await ResolveDropboxReferenceUrlsAsync(distinctUrls);
 
         foreach (var originalUrl in distinctUrls)
         {
-            var resolvedUrl = dropboxReferenceMap.TryGetValue(originalUrl, out var dropboxUrl) ? dropboxUrl : originalUrl;
+            var isDropboxImage = IsDropboxImageUrl(originalUrl);
+            string resolvedUrl;
+            if (isDropboxImage)
+            {
+                if (!dropboxReferenceMap.TryGetValue(originalUrl, out resolvedUrl!))
+                {
+                    result[originalUrl] = new TripNotePdfImageAsset(ErrorMessage: BuildImageAccessFailureMessage(originalUrl));
+                    continue;
+                }
+            }
+            else
+            {
+                resolvedUrl = originalUrl;
+            }
             if (!IsSupportedImageUrl(resolvedUrl))
             {
+                result[originalUrl] = new TripNotePdfImageAsset(ErrorMessage: BuildImageAccessFailureMessage(originalUrl));
                 continue;
             }
 
@@ -1909,12 +2305,16 @@ public class DocumentsService : IDocumentsService
                 var bytes = await client.GetByteArrayAsync(resolvedUrl);
                 if (bytes.Length > 0)
                 {
-                    result[originalUrl] = bytes;
+                    result[originalUrl] = new TripNotePdfImageAsset(Bytes: bytes);
+                }
+                else
+                {
+                    result[originalUrl] = new TripNotePdfImageAsset(ErrorMessage: BuildImageAccessFailureMessage(originalUrl));
                 }
             }
             catch
             {
-                // Ignore image download failures and keep the rest of the PDF renderable.
+                result[originalUrl] = new TripNotePdfImageAsset(ErrorMessage: BuildImageAccessFailureMessage(originalUrl));
             }
         }
 
@@ -1952,6 +2352,54 @@ public class DocumentsService : IDocumentsService
             || path.EndsWith(".webp", StringComparison.OrdinalIgnoreCase)
             || path.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase)
             || path.EndsWith(".svg", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsDropboxImageUrl(string? value)
+    {
+        if (IsDropboxReference(value))
+        {
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(value) || !Uri.TryCreate(value, UriKind.Absolute, out var uri))
+        {
+            return false;
+        }
+
+        return uri.Host.EndsWith("dropboxusercontent.com", StringComparison.OrdinalIgnoreCase)
+            || uri.Host.EndsWith("dropbox.com", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string BuildImageAccessFailureMessage(string originalUrl)
+    {
+        var imageName = GetImageDisplayName(originalUrl);
+        return IsDropboxImageUrl(originalUrl)
+            ? $"No Dropbox access to {imageName} image"
+            : $"No public access to {imageName} image";
+    }
+
+    private static string GetImageDisplayName(string originalUrl)
+    {
+        var dropboxPath = ParseDropboxReference(originalUrl);
+        if (!string.IsNullOrWhiteSpace(dropboxPath))
+        {
+            var dropboxFileName = Path.GetFileName(dropboxPath);
+            if (!string.IsNullOrWhiteSpace(dropboxFileName))
+            {
+                return dropboxFileName;
+            }
+        }
+
+        if (Uri.TryCreate(originalUrl, UriKind.Absolute, out var uri))
+        {
+            var fileName = Path.GetFileName(uri.AbsolutePath);
+            if (!string.IsNullOrWhiteSpace(fileName))
+            {
+                return Uri.UnescapeDataString(fileName);
+            }
+        }
+
+        return "unknown";
     }
 
     private async Task<Dictionary<string, string>> ResolveDropboxReferenceUrlsAsync(IEnumerable<string> urls)
@@ -2007,7 +2455,7 @@ public class DocumentsService : IDocumentsService
         }
     }
 
-    private static void RenderTripNoteBlock(ColumnDescriptor column, TripNotePdfBlock block, IReadOnlyDictionary<string, byte[]> imageBytes, int indent)
+    private static void RenderTripNoteBlock(ColumnDescriptor column, TripNotePdfBlock block, IReadOnlyDictionary<string, TripNotePdfImageAsset> imageAssets, int indent)
     {
         switch (block.Type)
         {
@@ -2027,7 +2475,7 @@ public class DocumentsService : IDocumentsService
                     inner.Spacing(4);
                     foreach (var child in block.Children ?? [])
                     {
-                        RenderTripNoteBlock(inner, child, imageBytes, 0);
+                        RenderTripNoteBlock(inner, child, imageAssets, 0);
                     }
                 });
                 return;
@@ -2036,61 +2484,68 @@ public class DocumentsService : IDocumentsService
                 {
                     foreach (var child in block.Children ?? [])
                     {
-                        RenderTripNoteBlock(inner, child, imageBytes, 0);
+                        RenderTripNoteBlock(inner, child, imageAssets, 0);
                     }
                 });
                 return;
             case "bulletList":
-                RenderTripNoteList(column, block.Children ?? [], imageBytes, indent, false);
+                RenderTripNoteList(column, block.Children ?? [], imageAssets, indent, false);
                 return;
             case "orderedList":
-                RenderTripNoteList(column, block.Children ?? [], imageBytes, indent, true);
+                RenderTripNoteList(column, block.Children ?? [], imageAssets, indent, true);
                 return;
             case "table":
-                RenderTripNoteTable(column, block.TableRows ?? [], imageBytes, indent);
+                RenderTripNoteTable(column, block.TableRows ?? [], imageAssets, indent);
                 return;
             case "imageRow":
-                RenderTripNoteImageRow(column, block.Children ?? [], imageBytes, indent);
+                RenderTripNoteImageRow(column, block.Children ?? [], imageAssets, indent);
                 return;
             case "image":
-                if (!string.IsNullOrWhiteSpace(block.Url) && imageBytes.TryGetValue(block.Url, out var bytes))
+                if (!string.IsNullOrWhiteSpace(block.Url) && imageAssets.TryGetValue(block.Url, out var asset))
                 {
-                    var imageContainer = column.Item().PaddingLeft(indent).PaddingTop(4);
-                    float? widthPoints = block.WidthPoints.HasValue ? ClampTripNoteImageDimension(block.WidthPoints.Value, attributeIsWidth: true) : (float?)null;
-                    float? heightPoints = block.HeightPoints.HasValue ? ClampTripNoteImageDimension(block.HeightPoints.Value, attributeIsWidth: false) : (float?)null;
+                    if (asset.Bytes != null && asset.Bytes.Length > 0)
+                    {
+                        var imageContainer = column.Item().PaddingLeft(indent).PaddingTop(4);
+                        float? widthPoints = block.WidthPoints.HasValue ? ClampTripNoteImageDimension(block.WidthPoints.Value, attributeIsWidth: true) : (float?)null;
+                        float? heightPoints = block.HeightPoints.HasValue ? ClampTripNoteImageDimension(block.HeightPoints.Value, attributeIsWidth: false) : (float?)null;
 
-                    if (widthPoints.HasValue)
-                    {
-                        imageContainer = imageContainer.Width(widthPoints.Value);
-                    }
+                        if (widthPoints.HasValue)
+                        {
+                            imageContainer = imageContainer.Width(widthPoints.Value);
+                        }
 
-                    if (heightPoints.HasValue)
-                    {
-                        imageContainer = imageContainer.Height(heightPoints.Value);
-                    }
+                        if (heightPoints.HasValue)
+                        {
+                            imageContainer = imageContainer.Height(heightPoints.Value);
+                        }
 
-                    var image = imageContainer.Image(bytes);
-                    if (widthPoints.HasValue && heightPoints.HasValue)
-                    {
-                        image.FitArea();
+                        var image = imageContainer.Image(asset.Bytes);
+                        if (widthPoints.HasValue && heightPoints.HasValue)
+                        {
+                            image.FitArea();
+                        }
+                        else if (heightPoints.HasValue)
+                        {
+                            image.FitHeight();
+                        }
+                        else
+                        {
+                            image.FitWidth();
+                        }
                     }
-                    else if (heightPoints.HasValue)
+                    else if (!string.IsNullOrWhiteSpace(asset.ErrorMessage))
                     {
-                        image.FitHeight();
-                    }
-                    else
-                    {
-                        image.FitWidth();
+                        RenderTripNoteImageFailure(column, asset.ErrorMessage, indent);
                     }
                 }
                 return;
         }
     }
 
-    private static void RenderTripNoteImageRow(ColumnDescriptor column, IReadOnlyList<TripNotePdfBlock> images, IReadOnlyDictionary<string, byte[]> imageBytes, int indent)
+    private static void RenderTripNoteImageRow(ColumnDescriptor column, IReadOnlyList<TripNotePdfBlock> images, IReadOnlyDictionary<string, TripNotePdfImageAsset> imageAssets, int indent)
     {
         var renderableImages = images
-            .Where(x => x.Type == "image" && !string.IsNullOrWhiteSpace(x.Url) && imageBytes.ContainsKey(x.Url))
+            .Where(x => x.Type == "image" && !string.IsNullOrWhiteSpace(x.Url) && imageAssets.ContainsKey(x.Url))
             .ToList();
 
         if (renderableImages.Count == 0)
@@ -2104,9 +2559,19 @@ public class DocumentsService : IDocumentsService
 
             foreach (var imageBlock in renderableImages)
             {
-                var bytes = imageBytes[imageBlock.Url!];
+                var asset = imageAssets[imageBlock.Url!];
                 var widthPoints = imageBlock.WidthPoints.HasValue ? ClampTripNoteImageDimension(imageBlock.WidthPoints.Value, attributeIsWidth: true) : (float?)null;
                 var heightPoints = imageBlock.HeightPoints.HasValue ? ClampTripNoteImageDimension(imageBlock.HeightPoints.Value, attributeIsWidth: false) : (float?)null;
+
+                if (asset.Bytes == null || asset.Bytes.Length == 0)
+                {
+                    if (!string.IsNullOrWhiteSpace(asset.ErrorMessage))
+                    {
+                        row.AutoItem().Text(asset.ErrorMessage).FontColor(Colors.Grey.Darken1).Italic();
+                    }
+
+                    continue;
+                }
 
                 var item = widthPoints.HasValue
                     ? row.ConstantItem(widthPoints.Value)
@@ -2123,7 +2588,7 @@ public class DocumentsService : IDocumentsService
                     imageContainer = imageContainer.Height(heightPoints.Value);
                 }
 
-                var image = imageContainer.Image(bytes);
+                var image = imageContainer.Image(asset.Bytes);
                 if (widthPoints.HasValue && heightPoints.HasValue)
                 {
                     image.FitArea();
@@ -2140,7 +2605,12 @@ public class DocumentsService : IDocumentsService
         });
     }
 
-    private static void RenderTripNoteTable(ColumnDescriptor column, IReadOnlyList<TripNotePdfTableRow> rows, IReadOnlyDictionary<string, byte[]> imageBytes, int indent)
+    private static void RenderTripNoteImageFailure(ColumnDescriptor column, string message, int indent)
+    {
+        column.Item().PaddingLeft(indent).PaddingTop(4).Text(message).FontColor(Colors.Grey.Darken1).Italic();
+    }
+
+    private static void RenderTripNoteTable(ColumnDescriptor column, IReadOnlyList<TripNotePdfTableRow> rows, IReadOnlyDictionary<string, TripNotePdfImageAsset> imageAssets, int indent)
     {
         if (rows.Count == 0)
         {
@@ -2192,7 +2662,7 @@ public class DocumentsService : IDocumentsService
 
                             foreach (var block in cell.Blocks)
                             {
-                                RenderTripNoteBlock(inner, block, imageBytes, 0);
+                                RenderTripNoteBlock(inner, block, imageAssets, 0);
                             }
                         });
                 }
@@ -2215,7 +2685,7 @@ public class DocumentsService : IDocumentsService
         return styled;
     }
 
-    private static void RenderTripNoteList(ColumnDescriptor column, IReadOnlyList<TripNotePdfBlock> items, IReadOnlyDictionary<string, byte[]> imageBytes, int indent, bool ordered)
+    private static void RenderTripNoteList(ColumnDescriptor column, IReadOnlyList<TripNotePdfBlock> items, IReadOnlyDictionary<string, TripNotePdfImageAsset> imageAssets, int indent, bool ordered)
     {
         for (var index = 0; index < items.Count; index++)
         {
@@ -2238,7 +2708,7 @@ public class DocumentsService : IDocumentsService
 
                 foreach (var child in childBlocks.Skip(1))
                 {
-                    RenderTripNoteBlock(column, child, imageBytes, indent + 18);
+                    RenderTripNoteBlock(column, child, imageAssets, indent + 18);
                 }
 
                 continue;
@@ -2247,7 +2717,7 @@ public class DocumentsService : IDocumentsService
             column.Item().PaddingLeft(indent).Text(ordered ? $"{index + 1}." : "•").SemiBold();
             foreach (var child in childBlocks)
             {
-                RenderTripNoteBlock(column, child, imageBytes, indent + 18);
+                RenderTripNoteBlock(column, child, imageAssets, indent + 18);
             }
         }
     }
@@ -2326,9 +2796,17 @@ public class DocumentsService : IDocumentsService
         bool Code = false,
         string? LinkUrl = null);
 
+    private sealed record TripNotePdfImageAsset(
+        byte[]? Bytes = null,
+        string? ErrorMessage = null);
+
     private sealed record InlineParseResult(
         List<TripNotePdfInline> Inlines,
         List<TripNotePdfBlock> ImageBlocks);
+
+    private sealed record TripNoteActivityGroup(
+        plantour_server.DbModels.TripActivity Activity,
+        IReadOnlyList<plantour_server.DbModels.TripNote> Notes);
 
     private sealed record HtmlInlineStyle(
         bool Bold = false,

@@ -23,9 +23,13 @@ export interface PlanDto
     active?: boolean;
     createdAt: string;
 
-    allowedItems: number;
-    allowedTravelers: number;
-    allowedAiPrompts: number;
+    allowedItems: number | null;
+    allowedTravelers: number | null;
+    allowedTodos: number | null;
+    allowedExpenses: number | null;
+    allowedItineraryParts: number | null;
+    allowedActivities: number | null;
+    allowedAiPrompts: number | null;
     extendedAiAllowed: boolean;
 
     prices: PriceDto[];

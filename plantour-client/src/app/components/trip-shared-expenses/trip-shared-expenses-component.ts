@@ -1,9 +1,8 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { InputNumber } from 'primeng/inputnumber';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map, switchMap, tap } from 'rxjs';
+import { DeadlineComponent } from '../deadline/deadline-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
@@ -16,7 +15,7 @@ import { Condition, DynamicQueryService, Target, TargetCondition } from '../../s
 import { MultipleIdsRequest } from '../../services/crud-service';
 import { DocumentsService } from '../../services/documents-service';
 import { AssignmentStatus } from '../../helpers/enums';
-import { findDuplicates, formatDate, getDaysDifference, getFullName, getNowDaysUtc } from '../../helpers/utils';
+import { findDuplicates, formatDate, getDaysDifference, getFullName } from '../../helpers/utils';
 import { TripSharedExpenseDto, TripSharedExpenseService } from '../../services/trip-shared-expense-service';
 import { TripSharedExpenseItemComponent } from './trip-shared-expense-item/trip-shared-expense-item-component';
 
@@ -24,11 +23,10 @@ import { TripSharedExpenseItemComponent } from './trip-shared-expense-item/trip-
   selector: 'app-trip-shared-expenses',
   standalone: true,
   imports: [
+    DeadlineComponent,
     EntitiesComponent,
     EntitiesHeader,
     EntitiesActionsComponent,
-    FormsModule,
-    InputNumber,
   ],
   templateUrl: './trip-shared-expenses-component.html',
   styleUrl: './trip-shared-expenses-component.scss',
@@ -59,7 +57,7 @@ export class TripSharedExpensesComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private tripId: string | null = null;
 
-  deadlineDays = signal<number>(3);
+  deadlineAt = signal<Date | null>(null);
   assigneesVisible = signal<boolean>(true);
   assignmentsVisible = signal<boolean>(true);
 
@@ -177,6 +175,10 @@ export class TripSharedExpensesComponent implements OnInit {
 
   lookup: any[] = [];
 
+  onDeadlineAtChange(value: Date | null): void {
+    this.deadlineAt.set(value ? new Date(value) : null);
+  }
+
   ngOnInit(): void {
     this.componentService.updateComponentId(this.componentId);
 
@@ -214,10 +216,6 @@ export class TripSharedExpensesComponent implements OnInit {
     ).subscribe((expenses) => this.componentService.updateEntities(expenses || []));
   }
 
-  onModelChangeDays(): void {
-    this.localStorageService.setComponentKey(this.componentId, 'deadlineDays', this.deadlineDays());
-  }
-
   initSavedFeatures(items: TripSharedExpenseDto[]) {
     const actionsVisible = !!this.localStorageService.getComponentKey(this.componentId, 'entitiesActionsVisible');
     this.componentService.updateEntitiesActionsVisible(actionsVisible);
@@ -233,9 +231,18 @@ export class TripSharedExpensesComponent implements OnInit {
 
     const assignmentsVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'assignmentsVisible', true);
     this.assignmentsVisible.set(assignmentsVisible);
+  }
 
-    const deadlineDays = this.localStorageService.getComponentKey(this.componentId, 'deadlineDays');
-    this.deadlineDays.set(deadlineDays ? Number(deadlineDays) : 3);
+  private getDeadlineAtIso(): string {
+    const deadline = this.deadlineAt();
+    if (!deadline) {
+      throw new Error('Deadline date is not set');
+    }
+    if (deadline.getTime() <= Date.now()) {
+      throw new Error('Deadline date must be in the future');
+    }
+
+    return deadline.toISOString();
   }
 
   initTargetLookup(users: TripUserDto[] | null): any[] {
@@ -354,15 +361,11 @@ export class TripSharedExpensesComponent implements OnInit {
     if (!ids || ids.length === 0) {
       throw new Error('No not targeted ids available');
     }
-    if (!this.deadlineDays() || this.deadlineDays()! < 0 || this.deadlineDays()! > 365) {
-      throw new Error('Deadline days is not set or invalid');
-    }
-
     const transport = {
       collectionId: this.tripId!,
       ids,
       id: targetId,
-      deadlineAt: getNowDaysUtc(new Date(), this.deadlineDays()),
+      deadlineAt: this.getDeadlineAtIso(),
     };
 
     this.tripSharedExpenseService.assign(transport).pipe(
@@ -429,7 +432,7 @@ export class TripSharedExpensesComponent implements OnInit {
       collectionId: this.tripId!,
       ids: [entity.id],
       id: assigneeId || entity.assignedToId,
-      deadlineAt: getNowDaysUtc(new Date(), this.deadlineDays()),
+      deadlineAt: this.getDeadlineAtIso(),
     };
 
     if (!transport.id) {

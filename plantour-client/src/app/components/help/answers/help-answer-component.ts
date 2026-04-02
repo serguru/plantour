@@ -17,6 +17,7 @@ import {
 import { HelpListAnswerComponent } from './list-answer-component';
 import { HelpParagraphAnswerComponent } from './paragraph-answer-component';
 import { HelpGetStartedGuestAccessAnswerComponent } from './get-started/help-get-started-guest-access-answer.component';
+import { HelpWorkflowsPlanOffersAnswerComponent } from './workflows/help-workflows-plan-offers-answer.component';
 
 interface HelpAnswerRenderSpec {
   component: Type<unknown>;
@@ -107,6 +108,10 @@ export class HelpAnswerComponent {
     if (question.answer.kind === 'component') {
       if (question.answer.componentKey === 'get-started-guest-access') {
         return { component: HelpGetStartedGuestAccessAnswerComponent };
+      }
+
+      if (question.answer.componentKey === 'workflows-plan-offers') {
+        return { component: HelpWorkflowsPlanOffersAnswerComponent };
       }
 
       return null;

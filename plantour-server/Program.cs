@@ -36,7 +36,7 @@ QuestPDF.Settings.License = LicenseType.Community;
 
 // This switch prevents Npgsql from throwing when a DateTime with Kind=Utc is written to such columns.
 // It looks like this row is necessary for TickerQ to write timestamp fields
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", false);
 
 static string NormalizeAspNetEnvironmentName(string? raw)
 {
@@ -145,7 +145,13 @@ var loggerConfiguration = new LoggerConfiguration()
         schemaName: "plantour",
         needAutoCreateTable: false
     )
-    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}");
+    .WriteTo.Logger(consoleLogger => consoleLogger
+        .Filter.ByExcluding(logEvent =>
+            logEvent.Properties.TryGetValue("SourceContext", out var sourceContext)
+            && sourceContext is ScalarValue { Value: string sourceContextValue }
+            && sourceContextValue.Contains("TickerQ", StringComparison.Ordinal)
+        )
+        .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"));
 
 foreach (var overrideSection in minimumLevelSection.GetSection("Override").GetChildren())
 {
@@ -180,14 +186,6 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
             LocalCacheExpiration = TimeSpan.FromMinutes(5)
         };
     });
-
-// TODO: remove this once ready
-// var appsettingsFileName = $"appsettings.{env.EnvironmentName}.json";
-// var appsettingsFile = Path.Combine(AppContext.BaseDirectory, appsettingsFileName);
-// if (!File.Exists(appsettingsFile))
-//     appsettingsFile = Path.Combine("/etc/secrets", appsettingsFileName);
-// var appsettingsContent = File.Exists(appsettingsFile) ? File.ReadAllText(appsettingsFile) : "(appsettings file not found)";
-// Console.WriteLine(appsettingsContent);
 
     // Configure JWT settings
     IConfigurationSection? jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -511,6 +509,7 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddScoped<ITripUserService, TripUserService>();
     builder.Services.AddScoped<ITripThingService, TripThingService>();
     builder.Services.AddScoped<ITripTodoService, TripTodoService>();
+    builder.Services.AddScoped<ITripImprovementService, TripImprovementService>();
     builder.Services.AddScoped<IItineraryPartService, ItineraryPartService>();
         builder.Services.AddScoped<ITripActivityService, TripActivityService>();
     builder.Services.AddScoped<ITripExpenseService, TripExpenseService>();
@@ -565,6 +564,7 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
     builder.Services.AddScoped<plantour_server.Repositories.TripUserRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripThingRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripTodoRepository>();
+    builder.Services.AddScoped<plantour_server.Repositories.TripImprovementRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.ItineraryPartRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripUserExpenseRepository>();
     builder.Services.AddScoped<plantour_server.Repositories.TripPackRepository>();

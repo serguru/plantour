@@ -11,4 +11,5 @@ values
     ('support_email', 'support@plantour.app',  'string'),
     ('send_email_user_created', 'true',  'boolean'),
     ('app_version', '2.15.7',  'string'),
+    ('global_spinner_timeout_sec', '30',  'integer'),
     ('plantour_app_origin', 'https://plantour.app',  'string');

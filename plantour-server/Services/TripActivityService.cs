@@ -24,6 +24,31 @@ public class TripActivityService
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
 
+    private async Task CheckAccessAsync(Guid tripId, int addQty, bool isPublic)
+    {
+        var rule = _currentUser.AccessRules!.FirstOrDefault(x => x.Id == 110);
+        if (rule == null || rule.Granted)
+        {
+            return;
+        }
+
+        int limit = rule.Value ?? 0;
+
+        var subject = isPublic ? "public activities" : "activities";
+        var s1 = $"You've reached the limit of {limit} {subject} you can add to your trip.";
+
+        var s2 = _currentUser.IsAdmin ? "Please go to your profile page and upgrade your plan to remove this limit." : "Please ask your administrator to upgrade the plan to remove this limit.";
+
+        var currentCount = isPublic
+            ? await _tripActivityRepository.CountPublicAsync(tripId)
+            : await _tripActivityRepository.CountPersonalAsync(_currentUser.AdminId, _currentUser.UserId, tripId);
+
+        if (currentCount + addQty > limit)
+        {
+            throw new CustomException($"{s1} {s2}", "PLAN_LIMIT_REACHED");
+        }
+    }
+
     private async Task CheckItineraryPart(Guid tripId, Guid? itineraryPartId)
     {
         if (itineraryPartId == null)
@@ -59,6 +84,7 @@ public class TripActivityService
         }
 
         await CheckItineraryPart(request.TripId, request.ItineraryPartId);
+        await CheckAccessAsync(request.TripId, 1, false);
 
         var entity = _mapper.Map<TripActivity>(request);
         entity.Id = Guid.NewGuid();
@@ -76,6 +102,7 @@ public class TripActivityService
         }
 
         await CheckItineraryPart(request.TripId, request.ItineraryPartId);
+        await CheckAccessAsync(request.TripId, 1, true);
 
         var entity = _mapper.Map<TripActivity>(request);
         entity.Id = Guid.NewGuid();

@@ -3,7 +3,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 1rem;
-    align-items: start;
+    align-items: center;
   }
 
   .trip-note-row__title-row {
@@ -28,8 +28,8 @@
     white-space: nowrap;
   }
 
-  .trip-note-row__mark input {
-    margin: 0;
+  .trip-note-row__mark label {
+    cursor: pointer;
   }
 
   .trip-note-row__meta {
@@ -41,6 +41,10 @@
 
   .trip-note-row__select {
     min-width: 16rem;
+  }
+
+  .trip-note-row__right {
+    align-self: center;
   }
 
   .trip-note-row__body {
