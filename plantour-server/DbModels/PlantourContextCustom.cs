@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace plantour_server.DbModels;
 
@@ -12,14 +13,32 @@ public partial class PlantourContext
         {
             foreach (var property in entityType.GetProperties())
             {
-                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                if (property.ClrType == typeof(DateTime))
                 {
-                    property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>(
-                        v => v.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(v, DateTimeKind.Utc) : v.ToUniversalTime(),
-                        v => v
+                    property.SetValueConverter(new ValueConverter<DateTime, DateTime>(
+                        v => NormalizeDateTimeToUtc(v),
+                        v => NormalizeDateTimeToUtc(v)
+                    ));
+                }
+
+                if (property.ClrType == typeof(DateTime?))
+                {
+                    property.SetValueConverter(new ValueConverter<DateTime?, DateTime?>(
+                        v => v.HasValue ? NormalizeDateTimeToUtc(v.Value) : v,
+                        v => v.HasValue ? NormalizeDateTimeToUtc(v.Value) : v
                     ));
                 }
             }
         }
+    }
+
+    private static DateTime NormalizeDateTimeToUtc(DateTime value)
+    {
+        return value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+        };
     }
 }
