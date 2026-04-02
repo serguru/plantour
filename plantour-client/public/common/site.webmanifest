@@ -1,7 +1,8 @@
 {
   "name": "Plantour - Plan less. Travel more.",
   "short_name": "Plantour",
-  "description": "One place for your packing lists, todos, and shared group details.",
+  "description": "Your assistant for planning trips, traveling smarter, and keeping everyone and everything in sync.",
+
   "icons": [
     {
       "src": "/favicon-16x16.png",
