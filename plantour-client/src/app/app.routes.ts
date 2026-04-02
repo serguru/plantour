@@ -293,13 +293,6 @@ export const routes: Routes = [
     data: { componentId: 'trips-improvement' }
   },
   {
-    path: 'trips/:tripId/trips-ai-improvement',
-    canActivate: [checkTripIdGuard, extendedAiAllowedGuard],
-    loadComponent: () => import('./components/trips-ai-improvement/trips-ai-improvement-component').then(m => m.TripsAIImprovementComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'trips-ai-improvement' }
-  },
-  {
     path: 'trips/:tripId/trip-expenses',
     canActivate: [checkTripIdGuard],
     loadComponent: () => import('./components/trip-expenses/trip-expenses-component').then(m => m.TripExpensesComponent),

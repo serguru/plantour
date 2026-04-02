@@ -861,3 +861,6 @@ Generate a new component TripsImprovementComponent. See TripUserImprovement DB c
  Find the code enforcing AI prompts limiting. Currently AI items and AI trip planning are supported. Add AI Trip Improvements there . Implement a code which will add a log row any time the AI generated improvements. Use trip_user_improvements_log to count AI prompts and add them to AI items and AI trip planning counts.
   
 <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes">
+
+See Trip Info component. Remove trip select from there. Make it working with the current app trip as other trip related components work.
+
