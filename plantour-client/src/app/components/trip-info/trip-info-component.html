@@ -9,20 +9,6 @@
 
     <div class="trip-info-content">
 
-        <div class="trip-select">
-            <p-select
-                style="width: 100%"
-                [options]="trips"
-                optionLabel="name"
-                optionValue="id"
-                placeholder="Select Trip"
-                [ngModel]="selectedTripId()"
-                (onChange)="onTripChange($event)"
-            >
-
-            </p-select>
-        </div>
-
         @if (loading()) {
         <section class="empty-card">
             <strong>Loading trip data...</strong>
@@ -263,7 +249,7 @@
         } @else {
         <section class="empty-card">
             <strong>No trip selected.</strong>
-            <p>Select a trip to review its overview, itinerary, activities, expenses, and notes.</p>
+            <p>Select a current trip in Plantour to review its overview, itinerary, activities, expenses, and notes.</p>
         </section>
         }
     </div>

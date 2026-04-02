@@ -1,10 +1,8 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BehaviorSubject, catchError, combineLatest, distinctUntilChanged, finalize, map, of, switchMap } from 'rxjs';
+import { catchError, combineLatest, distinctUntilChanged, finalize, map, of, switchMap } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Select } from 'primeng/select';
 import { TripDto, TripService } from '../../services/trip-service';
-import { FormsModule } from '@angular/forms';
 import { MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { FormHeader } from '../form/form-header/form-header';
 import { CurrentTripService } from '../../services/current-trip-service';
@@ -94,15 +92,13 @@ interface LoadedTripInfo {
   standalone: true,
   imports: [
     CommonModule,
-    Select,
-    FormsModule,
     FormHeader,
     RouterLink
   ],
   templateUrl: './trip-info-component.html',
   styleUrls: ['./trip-info-component.scss']
 })
-export class TripInfoComponent implements OnInit {
+export class TripInfoComponent {
   componentId = 'trip-info';
 
   menuItems = computed<MenuConfig[]>(() => []);
@@ -117,15 +113,13 @@ export class TripInfoComponent implements OnInit {
   tripNoteService = inject(TripNoteService);
   tripUserService = inject(TripUserService);
 
-  trips: TripDto[] = [];
   loading = signal(false);
 
-  selectedTripIdSubject = new BehaviorSubject<string | null>(null);
-  selectedTripId$ = this.selectedTripIdSubject.asObservable().pipe(distinctUntilChanged());
-  selectedTripId = toSignal(this.selectedTripId$, { initialValue: null });
+  currentTripId$ = this.currentTripService.currentTripId$.pipe(distinctUntilChanged());
+  currentTripId = toSignal(this.currentTripId$, { initialValue: this.currentTripService.currentTripIdSignal() ?? null });
 
   tripInfoVm = toSignal(
-    this.selectedTripId$.pipe(
+    this.currentTripId$.pipe(
       switchMap((tripId) => {
         this.loading.set(true);
 
@@ -154,30 +148,6 @@ export class TripInfoComponent implements OnInit {
     ),
     { initialValue: null }
   );
-
-  onTripChange(event: any) {
-    this.selectedTripIdSubject.next(event.value);
-    this.currentTripService.updateCurrentTripId(event.value);
-  }
-
-  ngOnInit(): void {
-    this.tripService.getAll().subscribe(trips => {
-      this.trips = trips?.sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1)) || [];
-      if (this.trips.length == 0) {
-        return;
-      }
-      const currentTripId = this.currentTripService.currentTripIdSignal();
-      if (currentTripId) {
-        const trip = trips.find(x => x.id == currentTripId);
-        if (trip) {
-          this.selectedTripIdSubject.next(trip.id);
-          return;
-        }
-      }
-      this.selectedTripIdSubject.next(this.trips[0].id);
-      this.currentTripService.updateCurrentTripId(this.trips[0].id);
-    });
-  }
 
   private tripToEmptyArray<T>(source: import('rxjs').Observable<T[]>): import('rxjs').Observable<T[]> {
     return source.pipe(catchError(() => of([])));

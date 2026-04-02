@@ -863,3 +863,4 @@ Generate a new component TripsImprovementComponent. See TripUserImprovement DB c
 <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes">
 
 See Trip Info component. Remove trip select from there. Make it working with the current app trip as other trip related components work.
+
