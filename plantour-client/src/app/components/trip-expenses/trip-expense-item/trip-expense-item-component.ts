@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { formatDate, mapStatusToClass } from '../../../helpers/utils';
+import { mapStatusToClass } from '../../../helpers/utils';
 import { AmazonLinkComponent } from '../../amazon-link/amazon-link-component';
 import { TripExpenseDto } from '../../../services/trip-expense-service';
 
@@ -27,11 +27,7 @@ export class TripExpenseItemComponent {
   }
 
   get secondaryText(): string | null {
-    const values = [this.entity.paymentMethod, this.entity.recipientFullName].filter(Boolean);
+    const values = [this.entity.paymentMethod, this.entity.recipientFullName, this.entity.shared ? 'Shared payment' : null].filter(Boolean);
     return values.length > 0 ? values.join(' · ') : null;
-  }
-
-  get assignmentDateText(): string | null {
-    return this.entity.assignedAt ? `Assigned ${formatDate(this.entity.assignedAt)}` : null;
   }
 }

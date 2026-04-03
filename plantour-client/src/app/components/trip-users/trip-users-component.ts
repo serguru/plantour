@@ -12,6 +12,8 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CurrentTripService } from '../../services/current-trip-service';
 import { switchMap, tap } from 'rxjs';
 import { UsersService } from '../../services/users-service';
+import { AssignmentStatus } from '../../helpers/enums';
+import { formatDate } from '../../helpers/utils';
 
 @Component({
   selector: 'app-trip-participants',
@@ -37,6 +39,7 @@ export class TripUsersComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private tripId: string | null = null;
+  private currentTripUserId: string | null = null;
 
   usersService = inject(UsersService);
   isReadOnly = this.usersService.isParticipantSignal;
@@ -57,6 +60,14 @@ export class TripUsersComponent implements OnInit {
         label: 'Filter by Name',
         filterText: '',
         comparisonType: 'contains',
+        icon: 'filter'
+      },
+      {
+        kind: 'filter',
+        property: 'sharedAssignmentStatusName',
+        label: 'Shared Assignment Status',
+        filterText: '',
+        comparisonType: 'exact',
         icon: 'filter'
       }
     ];
@@ -79,6 +90,12 @@ export class TripUsersComponent implements OnInit {
 
   itemMetaData: any = {
     lowerTextVisible: this.lowerTextVisible,
+    toggleAcceptSharedAssignment: this.toggleAcceptSharedAssignment.bind(this),
+    toggleRejectSharedAssignment: this.toggleRejectSharedAssignment.bind(this),
+  }
+
+  private get currentUserId(): string | null {
+    return this.usersService.getCurrentUserId();
   }
 
   ngOnInit(): void {
@@ -96,6 +113,10 @@ export class TripUsersComponent implements OnInit {
 
 
     this.tripUsersService.getAll(this.tripId!).pipe(
+      tap((tripUsers: TripUserDto[]) => {
+        this.currentTripUserId = tripUsers.find((tripUser) => tripUser.userId === this.currentUserId)?.id ?? null;
+        tripUsers.forEach((tripUser) => this.generateSharedAssignmentData(tripUser));
+      }),
       tap((p: TripUserDto[]) => {
         this.initSavedFeatures(p);
       }),
@@ -136,12 +157,85 @@ export class TripUsersComponent implements OnInit {
       switchMap(_ =>
         this.tripUsersService.getAll(this.tripId!)
       ),
+      tap((tripUsers) => {
+        this.currentTripUserId = tripUsers.find((tripUser) => tripUser.userId === this.currentUserId)?.id ?? null;
+        tripUsers.forEach((tripUser) => this.generateSharedAssignmentData(tripUser));
+      }),
       tap(_ => {
         this.currentTripService.refreshCurrentTrip();
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((tripUsers) => {
       this.componentService.updateEntities(tripUsers);
+    });
+  }
+
+  private generateSharedAssignmentData(tripUser: TripUserDto): void {
+    tripUser.currentUserCanManageSharedAssignment = tripUser.id === this.currentTripUserId && tripUser.sharedAmount > 0;
+
+    if (tripUser.sharedAmount <= 0) {
+      tripUser.sharedAssignmentStatus = AssignmentStatus.NotAssigned;
+      tripUser.sharedAssignmentStatusName = 'Not Assigned';
+      tripUser.sharedAssignmentStatusText = 'No shared amount assigned';
+      return;
+    }
+
+    if (tripUser.accept === 'accepted') {
+      tripUser.sharedAssignmentStatus = AssignmentStatus.FinishedSuccess;
+      tripUser.sharedAssignmentStatusName = 'Accepted';
+      tripUser.sharedAssignmentStatusText = tripUser.assignedDeadline
+        ? `Accepted. Deadline ${formatDate(tripUser.assignedDeadline)}.`
+        : 'Accepted.';
+      return;
+    }
+
+    if (tripUser.accept === 'rejected') {
+      tripUser.sharedAssignmentStatus = AssignmentStatus.FinishedFailure;
+      tripUser.sharedAssignmentStatusName = 'Rejected';
+      tripUser.sharedAssignmentStatusText = tripUser.assignedDeadline
+        ? `Rejected. Deadline ${formatDate(tripUser.assignedDeadline)}.`
+        : 'Rejected.';
+      return;
+    }
+
+    tripUser.sharedAssignmentStatus = AssignmentStatus.AssignedNotFinished;
+    tripUser.sharedAssignmentStatusName = 'Pending';
+    tripUser.sharedAssignmentStatusText = tripUser.assignedDeadline
+      ? `Pending response. Deadline ${formatDate(tripUser.assignedDeadline)}.`
+      : 'Pending response.';
+  }
+
+  private toggleAcceptSharedAssignment(tripUser: TripUserDto): void {
+    this.tripUsersService.toggleAcceptSharedAssignment({
+      id: tripUser.id,
+      tripId: this.tripId!,
+    }).pipe(
+      switchMap(() => this.tripUsersService.getAll(this.tripId!)),
+      tap((tripUsers) => {
+        this.currentTripUserId = tripUsers.find((item) => item.userId === this.currentUserId)?.id ?? null;
+        tripUsers.forEach((item) => this.generateSharedAssignmentData(item));
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((tripUsers) => {
+      this.componentService.updateEntities(tripUsers);
+      this.currentTripService.refreshCurrentTrip();
+    });
+  }
+
+  private toggleRejectSharedAssignment(tripUser: TripUserDto): void {
+    this.tripUsersService.toggleRejectSharedAssignment({
+      id: tripUser.id,
+      tripId: this.tripId!,
+    }).pipe(
+      switchMap(() => this.tripUsersService.getAll(this.tripId!)),
+      tap((tripUsers) => {
+        this.currentTripUserId = tripUsers.find((item) => item.userId === this.currentUserId)?.id ?? null;
+        tripUsers.forEach((item) => this.generateSharedAssignmentData(item));
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((tripUsers) => {
+      this.componentService.updateEntities(tripUsers);
+      this.currentTripService.refreshCurrentTrip();
     });
   }
 

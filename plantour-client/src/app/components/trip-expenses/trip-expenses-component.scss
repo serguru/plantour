@@ -3,3 +3,92 @@
 	overflow-y: auto;
 	overflow-x: hidden;
 }
+
+.shared-panel {
+	margin: 0 1rem 1rem;
+	border: 1px solid #d6e3e6;
+	border-radius: 1rem;
+	background: #f7fbfb;
+	overflow: hidden;
+}
+
+.shared-panel summary {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 1.2rem;
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.shared-panel-content {
+	padding: 0 1.2rem 1rem;
+}
+
+.shared-panel-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
+.shared-panel-label {
+	display: block;
+	font-size: 0.8rem;
+	color: #5f7478;
+	margin-bottom: 0.25rem;
+}
+
+.shared-panel-text {
+	margin: 0;
+	color: #3d5155;
+	font-size: 0.92rem;
+}
+
+.admin-panel .shared-panel-content {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.shared-participant-row {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	padding-top: 0.75rem;
+	border-top: 1px solid #dfeaec;
+}
+
+.shared-participant-row:first-child {
+	padding-top: 0;
+	border-top: 0;
+}
+
+.shared-participant-row p {
+	margin: 0.25rem 0 0;
+	font-size: 0.9rem;
+	color: #5f7478;
+}
+
+.shared-participant-values {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 0.75rem;
+	font-size: 0.9rem;
+	color: #27464b;
+}
+
+@media (max-width: 768px) {
+	.shared-panel-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.shared-participant-row {
+		flex-direction: column;
+	}
+
+	.shared-participant-values {
+		justify-content: flex-start;
+	}
+}

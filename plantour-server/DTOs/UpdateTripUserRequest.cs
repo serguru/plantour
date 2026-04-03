@@ -14,6 +14,8 @@ public class UpdateTripUserRequest
     public Guid AdminParticipantId { get; set; }
 
     public bool PackagingComplete { get; set; }
+    public decimal SharedAmount { get; set; }
+    public DateTime? AssignedDeadline { get; set; }
     public decimal? NopackWeightValue { get; set; }
     public string? NopackWeightUnit { get; set; }
 

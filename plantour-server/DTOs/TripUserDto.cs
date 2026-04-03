@@ -24,6 +24,12 @@ public class TripUserDto
     public int TotalSharedThings { get; set; }
     public int TotalSharedTodos { get; set; }
     public bool PackagingComplete { get; set; }
+    public decimal SharedAmount { get; set; }
+    public decimal SharedPaidAmount { get; set; }
+    public decimal SharedRemainingAmount { get; set; }
+    public DateTime? AssignedAt { get; set; }
+    public DateTime? AssignedDeadline { get; set; }
+    public string? Accept { get; set; }
 
     public decimal? NopackWeightValue { get; set; }
     public string? NopackWeightUnit { get; set; }

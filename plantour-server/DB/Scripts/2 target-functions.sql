@@ -318,8 +318,8 @@ begin
     -- Exception will be raised if trip not found or not owned by admin
     perform plantour.get_trip_id(p_admin_id, p_trip_id);
 
-    insert into plantour.trip_users (trip_id, admin_participant_id)
-    select p_trip_id, b.id
+    insert into plantour.trip_users (trip_id, admin_participant_id, shared_amount)
+    select p_trip_id, b.id, 0
     from plantour.admins_participants b
     left join plantour.trip_users c on b.id = c.admin_participant_id and c.trip_id = p_trip_id
     where

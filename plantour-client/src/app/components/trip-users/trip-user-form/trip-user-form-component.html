@@ -148,6 +148,33 @@
         ></textarea>
       </div>
 
+      <div class="form-row two-columns">
+        <div class="form-field">
+          <label for="sharedAmount">Shared amount</label>
+          <p-inputnumber
+            inputId="sharedAmount"
+            formControlName="sharedAmount"
+            [placeholder]="isViewMode ? '' : 'Enter shared amount'"
+            mode="decimal"
+            locale="en-US"
+            [min]="0"
+            [maxFractionDigits]="2"
+            [readonly]="isViewMode"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="assignedDeadline">Shared deadline</label>
+          <input
+            pInputText
+            id="assignedDeadline"
+            type="datetime-local"
+            formControlName="assignedDeadline"
+            [readonly]="isViewMode"
+          />
+        </div>
+      </div>
+
       <app-form-actions
         [onCancel]="onCancel.bind(this)"
         cancelLabel="To trips"

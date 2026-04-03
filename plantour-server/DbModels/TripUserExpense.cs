@@ -39,6 +39,9 @@ public partial class TripUserExpense
     [Column("notes")]
     public string? Notes { get; set; }
 
+    [Column("shared")]
+    public bool Shared { get; set; }
+
     [Column("finished_at")]
     public DateTime? FinishedAt { get; set; }
 
@@ -52,9 +55,6 @@ public partial class TripUserExpense
     [ForeignKey("RecipientId")]
     [InverseProperty("TripUserExpenseRecipients")]
     public virtual TripUser? Recipient { get; set; }
-
-    [InverseProperty("AssignedExpense")]
-    public virtual ICollection<TripSharedExpense> TripSharedExpenses { get; set; } = new List<TripSharedExpense>();
 
     [ForeignKey("TripUserId")]
     [InverseProperty("TripUserExpenseTripUsers")]

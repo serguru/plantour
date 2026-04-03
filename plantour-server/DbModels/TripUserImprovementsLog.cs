@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.DbModels;
 
 [Table("trip_user_improvements_log", Schema = "plantour")]
+[Index("CreatedAt", Name = "idx_trip_user_improvements_log_created_at")]
 public partial class TripUserImprovementsLog
 {
     [Key]

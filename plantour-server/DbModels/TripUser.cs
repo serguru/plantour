@@ -33,6 +33,19 @@ public partial class TripUser
     [Column("nopack_weight_unit")]
     public string? NopackWeightUnit { get; set; }
 
+    [Column("shared_amount")]
+    [Precision(19, 2)]
+    public decimal SharedAmount { get; set; }
+
+    [Column("assigned_at")]
+    public DateTime? AssignedAt { get; set; }
+
+    [Column("assigned_deadline")]
+    public DateTime? AssignedDeadline { get; set; }
+
+    [Column("accept")]
+    public string? Accept { get; set; }
+
     [ForeignKey("AdminParticipantId")]
     [InverseProperty("TripUsers")]
     public virtual AdminsParticipant AdminParticipant { get; set; } = null!;
@@ -49,9 +62,6 @@ public partial class TripUser
 
     [InverseProperty("TripUser")]
     public virtual ICollection<TripNote> TripNotes { get; set; } = new List<TripNote>();
-
-    [InverseProperty("AssignedTo")]
-    public virtual ICollection<TripSharedExpense> TripSharedExpenses { get; set; } = new List<TripSharedExpense>();
 
     [InverseProperty("AssignedTo")]
     public virtual ICollection<TripSharedThing> TripSharedThings { get; set; } = new List<TripSharedThing>();

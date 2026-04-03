@@ -471,16 +471,6 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            entity.HasOne(d => d.AssignedExpense).WithMany(p => p.TripSharedExpenses)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("trip_shared_expenses_assigned_expense_id_fkey");
-
-            entity.HasOne(d => d.AssignedTo).WithMany(p => p.TripSharedExpenses)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("trip_shared_expenses_assigned_to_id_fkey");
-
-            entity.HasOne(d => d.Currency).WithMany(p => p.TripSharedExpenses).HasConstraintName("trip_shared_expenses_currency_id_fkey");
-
             entity.HasOne(d => d.Trip).WithMany(p => p.TripSharedExpenses).HasConstraintName("trip_shared_expenses_trip_id_fkey");
         });
 

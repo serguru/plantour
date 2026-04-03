@@ -20,6 +20,14 @@ public class TripExpenseController(ITripExpenseService service) : ControllerBase
         return Ok(dtos);
     }
 
+    [HttpGet("trip/{tripId}/all")]
+    [AdminOnly]
+    public async Task<ActionResult<IEnumerable<TripExpenseDto>>> GetAllForTrip(Guid tripId)
+    {
+        var dtos = await _service.GetAllForTripAsync(tripId);
+        return Ok(dtos);
+    }
+
     [HttpGet("{tripId}/{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult<TripExpenseDto>> GetById(Guid tripId, Guid id)

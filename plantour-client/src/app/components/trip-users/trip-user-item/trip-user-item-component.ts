@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { TripUserDto } from '../../../services/trip-user-service';
-import { capitalizeFirstLetter, isNumber } from '../../../helpers/utils';
+import { capitalizeFirstLetter, isNumber, mapStatusToClass } from '../../../helpers/utils';
 
 @Component({
   selector: 'app-trip-participant-item-component',
@@ -11,6 +11,10 @@ import { capitalizeFirstLetter, isNumber } from '../../../helpers/utils';
 export class TripUserItemComponent {
   @Input() entity: TripUserDto = {} as TripUserDto;
   @Input() itemMetaData: any | null = null;
+
+  get statusToClassMap() {
+    return mapStatusToClass(this.entity.sharedAssignmentStatus || null);
+  }
 
   get lowerText(): string {
 
@@ -32,6 +36,9 @@ export class TripUserItemComponent {
     array.push(`bags: ${this.entity.totalPacks}`);
     array.push(`items: ${this.entity.totalThings}`);
     array.push(`shared items: ${this.entity.totalSharedThings}`);
+    array.push(`shared assigned: ${this.entity.sharedAmount ?? 0}`);
+    array.push(`shared paid: ${this.entity.sharedPaidAmount ?? 0}`);
+    array.push(`shared remaining: ${this.entity.sharedRemainingAmount ?? 0}`);
 
     if (array.length == 0) {
       return '';
@@ -50,6 +57,16 @@ export class TripUserItemComponent {
     return '';
   }
 
+  onAcceptClick(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.itemMetaData?.toggleAcceptSharedAssignment?.(this.entity);
+  }
 
+  onRejectClick(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.itemMetaData?.toggleRejectSharedAssignment?.(this.entity);
+  }
 
 }

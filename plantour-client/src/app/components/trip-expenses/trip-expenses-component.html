@@ -9,6 +9,60 @@
     [menuItems]="menuItems()"
   ></app-entities-header>
 
+  @if (currentUserSharedSummary(); as summary) {
+    <details class="shared-panel" open>
+      <summary>
+        <span>My shared balance</span>
+        <strong>{{ summary.sharedRemainingAmount | number:'1.0-2' }}</strong>
+      </summary>
+
+      <div class="shared-panel-content">
+        <div class="shared-panel-grid">
+          <div>
+            <span class="shared-panel-label">Assigned</span>
+            <strong>{{ summary.sharedAmount | number:'1.0-2' }}</strong>
+          </div>
+          <div>
+            <span class="shared-panel-label">Paid</span>
+            <strong>{{ summary.sharedPaidAmount | number:'1.0-2' }}</strong>
+          </div>
+          <div>
+            <span class="shared-panel-label">Remaining</span>
+            <strong>{{ summary.sharedRemainingAmount | number:'1.0-2' }}</strong>
+          </div>
+        </div>
+
+        <p class="shared-panel-text">{{ sharedStatusText(summary) }}</p>
+      </div>
+    </details>
+  }
+
+  @if (isAdmin() && allSharedSummaries().length > 0) {
+    <details class="shared-panel admin-panel">
+      <summary>
+        <span>All participants shared balances</span>
+        <strong>{{ allSharedSummaries().length }}</strong>
+      </summary>
+
+      <div class="shared-panel-content">
+        @for (summary of allSharedSummaries(); track summary.tripUserId) {
+          <div class="shared-participant-row">
+            <div>
+              <strong>{{ summary.participantName }}</strong>
+              <p>{{ sharedStatusText(summary) }}</p>
+            </div>
+
+            <div class="shared-participant-values">
+              <span>Assigned {{ summary.sharedAmount | number:'1.0-2' }}</span>
+              <span>Paid {{ summary.sharedPaidAmount | number:'1.0-2' }}</span>
+              <span>Remaining {{ summary.sharedRemainingAmount | number:'1.0-2' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </details>
+  }
+
   <app-entities-actions></app-entities-actions>
 
   <app-entities

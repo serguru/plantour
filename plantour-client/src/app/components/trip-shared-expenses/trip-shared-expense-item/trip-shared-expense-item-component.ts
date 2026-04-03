@@ -1,64 +1,24 @@
-import { Component, inject, Input } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Select } from 'primeng/select';
-import { Checkbox } from 'primeng/checkbox';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ComponentService } from '../../../services/component-service';
-import { UsersService } from '../../../services/users-service';
-import { mapStatusToClass } from '../../../helpers/utils';
+import { Component, Input } from '@angular/core';
 import { AmazonLinkComponent } from '../../amazon-link/amazon-link-component';
 import { TripSharedExpenseDto } from '../../../services/trip-shared-expense-service';
 
 @Component({
   selector: 'app-trip-shared-expense-item-component',
-  imports: [Select, FormsModule, Checkbox, AmazonLinkComponent],
+  imports: [AmazonLinkComponent],
   templateUrl: './trip-shared-expense-item-component.html',
   styleUrl: './trip-shared-expense-item-component.scss',
 })
 export class TripSharedExpenseItemComponent {
   @Input() entity: TripSharedExpenseDto = {} as TripSharedExpenseDto;
-  @Input() itemMetaData: any | null = null;
-
-  usersService = inject(UsersService);
-  isAdminSignal = this.usersService.isAdminSignal;
-
-  componentService = inject(ComponentService);
-  targetCondition = toSignal(this.componentService.targetCondition$, { initialValue: null });
-
-  get statusToClassMap() {
-    return mapStatusToClass(this.entity.assignmentStatus || null);
-  }
+  @Input() itemMetaData: { tripCurrencyAbbreviation?: string | null } | null = null;
 
   get amountText(): string {
-    const effectiveCurrency = this.entity.effectiveCurrency || '';
-    const source = `${this.entity.amount} ${effectiveCurrency}`.trim();
-    const converted = this.entity.amountInTripCurrency != null ? ` (${this.entity.amountInTripCurrency} trip currency)` : '';
-    return `${source}${converted}`;
+    const amount = Number.isInteger(this.entity.amount) ? this.entity.amount.toString() : this.entity.amount.toFixed(2);
+    const currency = this.itemMetaData?.tripCurrencyAbbreviation?.trim();
+    return currency ? `${currency} ${amount}` : amount;
   }
 
-  handleAcceptedClick(event: Event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.itemMetaData.toggleAccept(this.entity);
-  }
-
-  handleRejectedClick(event: Event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.itemMetaData.toggleReject(this.entity);
-  }
-
-  onAssigneeChange(id: string | null) {
-    if (!this.isAdminSignal()) {
-      return;
-    }
-    if (!this.itemMetaData?.assignOrUnassign) {
-      return;
-    }
-    this.itemMetaData.assignOrUnassign(this.entity, id, true);
-  }
-
-  onAssigneeClick(event: Event) {
-    event.stopPropagation();
+  get categoryText(): string | null {
+    return this.entity.category || null;
   }
 }

@@ -195,10 +195,12 @@ export class TripInfoComponent {
 
     const tripCurrency = trip?.currency || 'trip currency';
     const personalExpenseTotal = data.personalExpenses.reduce((sum, expense) => sum + (expense.amountInTripCurrency || 0), 0);
-    const sharedExpenseTotal = data.sharedExpenses.reduce((sum, expense) => sum + (expense.amountInTripCurrency ?? expense.amount ?? 0), 0);
-    const sharedExpensesAssigned = data.sharedExpenses.filter((expense) => !!expense.assignedToId).length;
-    const sharedExpensesPending = data.sharedExpenses.filter((expense) => !!expense.assignedToId && !expense.assignedExpenseId && !expense.rejected).length;
-    const sharedExpensesRejected = data.sharedExpenses.filter((expense) => !!expense.rejected).length;
+    const sharedExpenseTotal = data.sharedExpenses.reduce((sum, expense) => sum + (expense.amount ?? 0), 0);
+    const totalSharedAssigned = data.participants.reduce((sum, participant) => sum + (participant.sharedAmount || 0), 0);
+    const totalSharedPaid = data.participants.reduce((sum, participant) => sum + (participant.sharedPaidAmount || 0), 0);
+    const totalSharedRemaining = data.participants.reduce((sum, participant) => sum + (participant.sharedRemainingAmount || 0), 0);
+    const sharedAssignmentsPending = data.participants.filter((participant) => participant.sharedAmount > 0 && !participant.accept).length;
+    const sharedAssignmentsRejected = data.participants.filter((participant) => participant.accept === 'rejected').length;
 
     const currentUserIncluded = trip?.currentUserIncluded ?? dashboardTrip?.currentUserIncluded ?? false;
     const routes = {
@@ -299,26 +301,37 @@ export class TripInfoComponent {
           tone: 'accent',
         },
         {
-          label: 'Assigned shared',
-          value: this.formatInteger(sharedExpensesAssigned),
-          hint: 'Shared expenses already assigned to participants.',
+          label: 'Shared assigned',
+          value: this.formatAmount(totalSharedAssigned, tripCurrency),
+          hint: 'Total shared amount assigned across participants.',
         },
         {
-          label: 'Pending shared',
-          value: this.formatInteger(sharedExpensesPending),
-          hint: 'Assigned but not accepted or completed yet.',
-          tone: sharedExpensesPending > 0 ? 'warn' : 'default',
+          label: 'Shared paid',
+          value: this.formatAmount(totalSharedPaid, tripCurrency),
+          hint: 'Payments recorded through personal expenses marked as shared.',
         },
         {
-          label: 'Rejected shared',
-          value: this.formatInteger(sharedExpensesRejected),
-          hint: 'Shared expenses rejected by the assignee.',
-          tone: sharedExpensesRejected > 0 ? 'warn' : 'default',
+          label: 'Shared remaining',
+          value: this.formatAmount(totalSharedRemaining, tripCurrency),
+          hint: 'Assigned amount that still needs to be paid.',
+          tone: totalSharedRemaining > 0 ? 'warn' : 'default',
         },
         {
           label: 'All expenses',
           value: this.formatInteger(totalExpenseCount),
           hint: 'Personal and shared spending together.',
+        },
+        {
+          label: 'Awaiting response',
+          value: this.formatInteger(sharedAssignmentsPending),
+          hint: 'Participants with a shared assignment still pending acceptance.',
+          tone: sharedAssignmentsPending > 0 ? 'warn' : 'default',
+        },
+        {
+          label: 'Rejected assignments',
+          value: this.formatInteger(sharedAssignmentsRejected),
+          hint: 'Participants who have rejected their current shared assignment.',
+          tone: sharedAssignmentsRejected > 0 ? 'warn' : 'default',
         },
       ],
       personalStats: [

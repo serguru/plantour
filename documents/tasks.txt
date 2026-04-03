@@ -868,3 +868,7 @@ See Trip Info component. Remove trip select from there. Make it working with the
 
 I have a Plantour web app deployed to Render. It is under Maintenance mode. I need to access it privatly via the tunnel connection. Also I need the other person from their computer to access it via the tunnel connection. Generate step by step instructions how to do that and put them into tunnel.md.
  
+
+ We are changing the current expences logic. The trip_shared_expenses table has lost a number of fields fields and now it cannot reference trip_user_expenses table. Now it is just a flat list of shared expenses in trip's currency. And trip_users has a number of new fields to support the user's shared amout assignmets. And trip_user_expenses now has "shared" field. The logic is: an admin assigns shared amounts to trip's users with optional deadline. The user cannot update amount and deadline but they can accept or refuse that assignment. And to pay the assigned amount they should add your personal expenses with shared = true.
+
+Align the existing code with these changes. Allow users Accept or Refuse assignments to them similar to how it is done for Finished field for Shared Items. Add a collapsible panel to the list of personal trip expenses showing how much the user owe on their shared expenses. Same panel for all the trip users visible to the admin only. Update Trip info and pdf reports logic. Do not forget to update AI trip plan logic.

@@ -9,15 +9,7 @@ public class TripSharedExpenseRepository(PlantourContext context) : GenericRepos
     {
         return await _dbSet
             .AsNoTracking()
-            .Include(x => x.AssignedTo)
-                .ThenInclude(x => x != null ? x.AdminParticipant.Participant : null)
-            .Include(x => x.AssignedTo)
-                .ThenInclude(x => x != null ? x.AdminParticipant.Admin : null)
-            .Include(x => x.AssignedExpense)
-                .ThenInclude(x => x != null ? x.Currency : null)
-            .Include(x => x.Currency)
             .Include(x => x.Trip)
-                .ThenInclude(x => x.Currency)
             .Where(x => x.TripId == tripId)
             .ToListAsync();
     }
@@ -32,15 +24,7 @@ public class TripSharedExpenseRepository(PlantourContext context) : GenericRepos
 
         return await _dbSet
             .AsNoTracking()
-            .Include(x => x.AssignedTo)
-                .ThenInclude(x => x != null ? x.AdminParticipant.Participant : null)
-            .Include(x => x.AssignedTo)
-                .ThenInclude(x => x != null ? x.AdminParticipant.Admin : null)
-            .Include(x => x.AssignedExpense)
-                .ThenInclude(x => x != null ? x.Currency : null)
-            .Include(x => x.Currency)
             .Include(x => x.Trip)
-                .ThenInclude(x => x.Currency)
             .Where(x => x.TripId == tripId && idsList.Contains(x.Id))
             .ToListAsync();
     }
@@ -50,35 +34,10 @@ public class TripSharedExpenseRepository(PlantourContext context) : GenericRepos
         return await _dbSet.CountAsync(x => x.TripId == tripId);
     }
 
-    public async Task<IEnumerable<TripSharedExpense>> GetAllFullForAssigneeAsync(Guid tripId, Guid assigneeId)
-    {
-        return await _dbSet
-            .AsNoTracking()
-            .Include(x => x.AssignedTo)
-                .ThenInclude(x => x != null ? x.AdminParticipant.Participant : null)
-            .Include(x => x.AssignedTo)
-                .ThenInclude(x => x != null ? x.AdminParticipant.Admin : null)
-            .Include(x => x.AssignedExpense)
-                .ThenInclude(x => x != null ? x.Currency : null)
-            .Include(x => x.Currency)
-            .Include(x => x.Trip)
-                .ThenInclude(x => x.Currency)
-            .Where(x => x.TripId == tripId && (!x.AssignedToId.HasValue || x.AssignedToId == assigneeId))
-            .ToListAsync();
-    }
-
     public async Task<TripSharedExpense?> GetByIdFullAsync(Guid tripId, Guid id)
     {
         return await _dbSet
-            .Include(x => x.AssignedTo)
-                .ThenInclude(x => x != null ? x.AdminParticipant.Participant : null)
-            .Include(x => x.AssignedTo)
-                .ThenInclude(x => x != null ? x.AdminParticipant.Admin : null)
-            .Include(x => x.AssignedExpense)
-                .ThenInclude(x => x != null ? x.Currency : null)
-            .Include(x => x.Currency)
             .Include(x => x.Trip)
-                .ThenInclude(x => x.Currency)
             .FirstOrDefaultAsync(x => x.TripId == tripId && x.Id == id);
     }
 
