@@ -178,7 +178,7 @@ public class TripUserService(
         entity.SharedAmount = 0;
         entity.AssignedAt = null;
         entity.AssignedDeadline = null;
-        entity.Accept = null;
+        entity.Rejected = false;
         await _tripUserRepository.AddAsync(entity);
         await NotifyTripParticipantAddedAsync(request.TripId, new[] { request.AdminParticipantId });
         return _mapper.Map<TripUserDto>(entity);
@@ -219,12 +219,12 @@ public class TripUserService(
         {
             entity.AssignedAt = null;
             entity.AssignedDeadline = null;
-            entity.Accept = null;
+            entity.Rejected = false;
         }
         else if (assignmentChanged)
         {
             entity.AssignedAt = DateTime.UtcNow;
-            entity.Accept = null;
+            entity.Rejected = false;
         }
 
         await _tripUserRepository.UpdateAsync(entity);
@@ -233,30 +233,6 @@ public class TripUserService(
         {
             await NotifyExpenseAssignmentChangedAsync(entity, previousSharedAmount, previousAssignedDeadline);
         }
-    }
-
-    public async Task ToggleAcceptSharedAssignmentAsync(Guid tripId, Guid id)
-    {
-        _currentUser.RaiseIfNotAuthenticated();
-
-        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
-        {
-            throw new CustomException("User does not have access to this trip");
-        }
-        
-        var entity = await _tripUserRepository.GetByIdForAllAsync(_currentUser.AdminId, tripId, id);
-        if (entity == null)
-        {
-            throw new CustomException("Trip user not found or access denied");
-        }
-
-        if (entity.SharedAmount <= 0)
-        {
-            throw new CustomException("No shared amount assignment found for this participant");
-        }
-
-        entity.Accept = entity.Accept == "accepted" ? null : "accepted";
-        await _tripUserRepository.UpdateAsync(entity);
     }
 
     public async Task ToggleRejectSharedAssignmentAsync(Guid tripId, Guid id)
@@ -273,17 +249,18 @@ public class TripUserService(
         {
             throw new CustomException("Trip user not found or access denied");
         }
+// TODO: make the inline emails in the UI as short as possible
 
         if (entity.SharedAmount <= 0)
         {
             throw new CustomException("No shared amount assignment found for this participant");
         }
 
-        var shouldNotifyRejected = entity.Accept != "rejected";
-        entity.Accept = entity.Accept == "rejected" ? null : "rejected";
+        var shouldNotifyRejected = !entity.Rejected;
+        entity.Rejected = !entity.Rejected;
         await _tripUserRepository.UpdateAsync(entity);
 
-        if (shouldNotifyRejected && entity.Accept == "rejected")
+        if (shouldNotifyRejected && entity.Rejected)
         {
             await NotifyAdminAboutRejectedExpenseAssignmentAsync(entity);
         }
@@ -343,7 +320,7 @@ public class TripUserService(
             var participant = participants[index];
             participant.SharedAmount = decimal.Round(participant.SharedAmount + increments[index], 2, MidpointRounding.AwayFromZero);
             participant.AssignedAt = assignedAt;
-            participant.Accept = null;
+            participant.Rejected = false;
         }
 
         await _tripUserRepository.SaveChangesAsync();

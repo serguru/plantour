@@ -19,7 +19,6 @@ interface TripSharedExpensesOverview {
   total: number;
   assigned: number;
   waitingForAssignment: number;
-  accepted: number;
   rejected: number;
   paid: number;
   waitingForPayment: number;
@@ -193,11 +192,8 @@ export class TripSharedExpensesComponent implements OnInit {
     const total = expenses.reduce((sum, item) => sum + (item.amount || 0), 0);
     const assigned = participants.reduce((sum, item) => sum + (item.sharedAmount || 0), 0);
     const waitingForAssignment = Math.max(total - assigned, 0);
-    const accepted = participants
-      .filter((item) => item.accept === 'accepted')
-      .reduce((sum, item) => sum + (item.sharedAmount || 0), 0);
     const rejected = participants
-      .filter((item) => item.accept === 'rejected')
+      .filter((item) => item.rejected)
       .reduce((sum, item) => sum + (item.sharedAmount || 0), 0);
     const paid = participants.reduce((sum, item) => sum + (item.sharedPaidAmount || 0), 0);
     const waitingForPayment = Math.max(assigned - paid, 0);
@@ -206,7 +202,6 @@ export class TripSharedExpensesComponent implements OnInit {
       total,
       assigned,
       waitingForAssignment,
-      accepted,
       rejected,
       paid,
       waitingForPayment,

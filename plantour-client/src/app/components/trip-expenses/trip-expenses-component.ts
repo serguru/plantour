@@ -25,7 +25,7 @@ interface SharedBalanceSummary {
   sharedAmount: number;
   sharedPaidAmount: number;
   sharedRemainingAmount: number;
-  accept?: string | null;
+  rejected: boolean;
   assignedDeadline?: string | null;
 }
 
@@ -240,23 +240,17 @@ export class TripExpensesComponent implements OnInit {
       return 'No shared amount assigned';
     }
 
-    if (summary.accept === 'accepted') {
-      return summary.assignedDeadline
-        ? `Accepted. Deadline ${formatDate(summary.assignedDeadline)}`
-        : 'Accepted';
-    }
-
-    if (summary.accept === 'rejected') {
+    if (summary.rejected) {
       return summary.assignedDeadline
         ? `Rejected. Deadline ${formatDate(summary.assignedDeadline)}`
         : 'Rejected';
     }
 
     if (summary.assignedDeadline) {
-      return `Pending response. Deadline ${formatDate(summary.assignedDeadline)}`;
+      return `Assigned. Deadline ${formatDate(summary.assignedDeadline)}`;
     }
 
-    return 'Pending response';
+    return 'Assigned';
   }
 
   onOverviewToggle(event: Event): void {
@@ -285,7 +279,7 @@ export class TripExpensesComponent implements OnInit {
         sharedAmount: participant.sharedAmount || 0,
         sharedPaidAmount: participant.sharedPaidAmount || 0,
         sharedRemainingAmount: participant.sharedRemainingAmount || 0,
-        accept: participant.accept,
+        rejected: !!participant.rejected,
         assignedDeadline: participant.assignedDeadline,
       }))
       .filter((participant) => participant.sharedAmount > 0 || participant.sharedPaidAmount > 0)

@@ -19,16 +19,27 @@
     [href]="'mailto:'+entity.email"
 >{{entity.email}}</a>
 
-@if (entity.sharedAssignmentStatusText) {
+@if (showEditableAssignmentStatusText) {
 <div class="smaller-text" [class]="statusToClassMap">{{entity.sharedAssignmentStatusText}}</div>
 }
 
-@if (entity.currentUserCanManageSharedAssignment) {
+@if (canEditRejected) {
 <div class="trip-user-actions">
-    <button type="button" class="trip-user-action" (click)="onAcceptClick($event)">Accept</button>
-    <button type="button" class="trip-user-action trip-user-action-secondary" (click)="onRejectClick($event)">Reject</button>
+        <p-checkbox
+            [ngModel]="!!entity.rejected"
+            [ngModelOptions]="{ standalone: true }"
+            [binary]="true"
+            [inputId]="'rejected-trip-user-' + entity.id"
+            (onChange)="onRejectedChange($event)"
+            (click)="onRejectedClick($event)"
+        ></p-checkbox>
+    <label [for]="'rejected-trip-user-' + entity.id" (click)="onRejectedClick($event)">Rejected</label>
 </div>
 }
+
+    @if (showRejectedText) {
+    <div class="trip-user-rejected-text">Rejected</div>
+    }
 
 @if (lowerText.length && itemMetaData!.lowerTextVisible()) {
 <div class="smaller-text">{{lowerText}}</div>

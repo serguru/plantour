@@ -80,14 +80,6 @@ public class TripUserController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("toggle-accept-shared-assignment")]
-    [AdminOrParticipant]
-    public async Task<ActionResult> ToggleAcceptSharedAssignment([FromBody] IdTripIdRequest request)
-    {
-        await _service.ToggleAcceptSharedAssignmentAsync(request.TripId, request.Id);
-        return Ok();
-    }
-
     [HttpPut("toggle-reject-shared-assignment")]
     [AdminOrParticipant]
     public async Task<ActionResult> ToggleRejectSharedAssignment([FromBody] IdTripIdRequest request)

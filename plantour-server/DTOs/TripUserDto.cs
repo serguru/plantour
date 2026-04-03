@@ -29,7 +29,7 @@ public class TripUserDto
     public decimal SharedRemainingAmount { get; set; }
     public DateTime? AssignedAt { get; set; }
     public DateTime? AssignedDeadline { get; set; }
-    public string? Accept { get; set; }
+    public bool Rejected { get; set; }
 
     public decimal? NopackWeightValue { get; set; }
     public string? NopackWeightUnit { get; set; }

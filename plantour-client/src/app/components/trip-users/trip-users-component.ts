@@ -128,7 +128,6 @@ export class TripUsersComponent implements OnInit {
 
   itemMetaData: any = {
     lowerTextVisible: this.lowerTextVisible,
-    toggleAcceptSharedAssignment: this.toggleAcceptSharedAssignment.bind(this),
     toggleRejectSharedAssignment: this.toggleRejectSharedAssignment.bind(this),
     markingEnabled: () => !this.isReadOnly(),
     isMarked: (id: string) => this.markedTripUserIds().includes(id),
@@ -204,16 +203,7 @@ export class TripUsersComponent implements OnInit {
       return;
     }
 
-    if (tripUser.accept === 'accepted') {
-      tripUser.sharedAssignmentStatus = AssignmentStatus.FinishedSuccess;
-      tripUser.sharedAssignmentStatusName = 'Accepted';
-      tripUser.sharedAssignmentStatusText = tripUser.assignedDeadline
-        ? `Accepted. Deadline ${formatDate(tripUser.assignedDeadline)}.`
-        : 'Accepted.';
-      return;
-    }
-
-    if (tripUser.accept === 'rejected') {
+    if (tripUser.rejected) {
       tripUser.sharedAssignmentStatus = AssignmentStatus.FinishedFailure;
       tripUser.sharedAssignmentStatusName = 'Rejected';
       tripUser.sharedAssignmentStatusText = tripUser.assignedDeadline
@@ -223,22 +213,10 @@ export class TripUsersComponent implements OnInit {
     }
 
     tripUser.sharedAssignmentStatus = AssignmentStatus.AssignedNotFinished;
-    tripUser.sharedAssignmentStatusName = 'Pending';
+    tripUser.sharedAssignmentStatusName = 'Assigned';
     tripUser.sharedAssignmentStatusText = tripUser.assignedDeadline
-      ? `Pending response. Deadline ${formatDate(tripUser.assignedDeadline)}.`
-      : 'Pending response.';
-  }
-
-  private toggleAcceptSharedAssignment(tripUser: TripUserDto): void {
-    this.tripUsersService.toggleAcceptSharedAssignment({
-      id: tripUser.id,
-      tripId: this.tripId!,
-    }).pipe(
-      switchMap(() => this.loadData()),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(() => {
-      this.currentTripService.refreshCurrentTrip();
-    });
+      ? `Assigned. Deadline ${formatDate(tripUser.assignedDeadline)}.`
+      : 'Assigned.';
   }
 
   private toggleRejectSharedAssignment(tripUser: TripUserDto): void {

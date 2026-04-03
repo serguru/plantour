@@ -63,16 +63,26 @@ export class TripUserItemComponent {
     return !!this.itemMetaData?.isMarked?.(this.entity.id);
   }
 
-  onAcceptClick(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.itemMetaData?.toggleAcceptSharedAssignment?.(this.entity);
+  get canEditRejected(): boolean {
+    return !!this.entity.currentUserCanManageSharedAssignment;
   }
 
-  onRejectClick(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
+  get showRejectedText(): boolean {
+    return !this.canEditRejected && !!this.entity.rejected;
+  }
+
+  get showEditableAssignmentStatusText(): boolean {
+    return this.canEditRejected && !this.entity.rejected && !!this.entity.sharedAssignmentStatusText;
+  }
+
+  onRejectedChange(event: CheckboxChangeEvent): void {
+    event.originalEvent?.preventDefault();
+    event.originalEvent?.stopPropagation();
     this.itemMetaData?.toggleRejectSharedAssignment?.(this.entity);
+  }
+
+  onRejectedClick(event: Event): void {
+    event.stopPropagation();
   }
 
   onMarkedChange(event: CheckboxChangeEvent): void {

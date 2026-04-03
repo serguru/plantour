@@ -892,3 +892,5 @@ Warn the user that all the assignee will receive an email notification. Do not f
 Add a description of this new Auto assign feature to "How does admin assign shared expenses" Help question
 
 
+The text "accept" field in table trip_users was replaced with a boolean "rejected" field. Scan the project for the code which uses that "accept" field and redesign it to use the "rejected" field. Use a checkbox in the inline html template insted of a button. Remove "Accepted" from the summary.
+

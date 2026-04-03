@@ -13,22 +13,15 @@
 }
 
 .trip-user-actions {
-    display: flex;
-    gap: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     width: 100%;
     margin-top: 0.35rem;
 }
 
-.trip-user-action {
-    border: 1px solid #2f7c87;
-    background: #2f7c87;
-    color: #fff;
-    border-radius: 999px;
-    padding: 0.3rem 0.8rem;
-    cursor: pointer;
-}
-
-.trip-user-action-secondary {
-    background: transparent;
-    color: #2f7c87;
+.trip-user-rejected-text {
+    width: 100%;
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
 }

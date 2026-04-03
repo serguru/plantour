@@ -54,7 +54,7 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
                 );
     }
 
-    public async Task<TripUser?> GetByIdAsync(Guid adminId, Guid adminParticipantId, Guid tripId, Guid id)
+    public async Task<TripUser?> GetByIdAsync(Guid adminId, Guid userId, Guid tripId, Guid id)
     {
         return await _dbSet
             .Include(x => x.Trip)
@@ -68,7 +68,7 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
             .Include(x => x.TripSharedTodos)
             .FirstOrDefaultAsync(x =>
             x.Id == id &&
-            x.AdminParticipantId == adminParticipantId &&
+            x.AdminParticipant.ParticipantId == userId &&
             x.AdminParticipant.AdminId == adminId &&
             x.TripId == tripId
             );

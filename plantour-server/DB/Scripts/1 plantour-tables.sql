@@ -728,7 +728,7 @@ create table trip_users (
     shared_amount decimal(19,2) not null default 0 check (shared_amount >= 0),
     assigned_at timestamptz null,
     assigned_deadline timestamptz null,
-    accept text null check (accept in ('accepted', 'rejected') or accept is null)
+    rejected boolean not null default false
 );
 create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, admin_participant_id);
 
