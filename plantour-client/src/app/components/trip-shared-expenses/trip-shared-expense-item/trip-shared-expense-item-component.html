@@ -1,71 +1,19 @@
 <div class="container">
-  <div class="ic-2-item ellipsis-text">
+  <div class="expense-copy">
     <amazon-link
+      class="ic-2-item ellipsis-text"
       [item]="entity.name"
       [linkText]="entity.name"
     ></amazon-link>
-    <span class="smaller-text">{{ amountText }}</span>
-  </div>
 
-  <div class="ic-2-item ic-2-right">
-    @if(!targetCondition() && itemMetaData?.assigneesVisible() && isAdminSignal()) {
-      <p-select
-        class="ic-2-select"
-        [options]="itemMetaData.assignees"
-        optionLabel="name"
-        optionValue="id"
-        [ngModel]="entity.assignedToId"
-        [placeholder]="'Select assignee'"
-        [ngModelOptions]="{ standalone: true }"
-        [showClear]="true"
-        appendTo="body"
-        (onChange)="onAssigneeChange($event.value)"
-        (onClick)="onAssigneeClick($event)"
-      ></p-select>
-    } @else if(entity.category) {
-      <span class="ic-2-item ic-2-right ellipsis-text">
-        <div class="category">
-          <amazon-link
-            class="ic-2-item ellipsis-text"
-            [item]="entity.category"
-            [linkText]="entity.category"
-          ></amazon-link>
-        </div>
-      </span>
+    @if (categoryText) {
+      <div class="smaller-text category-text">{{ categoryText }}</div>
+    }
+
+    @if (entity.notes) {
+      <div class="smaller-text">{{ entity.notes }}</div>
     }
   </div>
+
+  <div class="ic-2-item ic-2-right amount-text">{{ amountText }}</div>
 </div>
-@if (itemMetaData?.assignmentsVisible()) {
-  @if(entity.currentUserCanAcceptOrReject) {
-    <div class="checkboxes-wrapper">
-      <div class="checkbox-container">
-        <p-checkbox
-          [ngModel]="!!entity.assignedExpenseId"
-          [binary]="true"
-          inputId="accepted"
-          (click)="handleAcceptedClick($event)"
-        ></p-checkbox>
-        <label
-          for="accepted"
-          (click)="handleAcceptedClick($event)"
-        >Accepted</label>
-      </div>
-      <div class="checkbox-container">
-        <p-checkbox
-          [ngModel]="!!entity.rejected"
-          [binary]="true"
-          inputId="rejected"
-          (click)="handleRejectedClick($event)"
-        ></p-checkbox>
-        <label
-          for="rejected"
-          (click)="handleRejectedClick($event)"
-        >Rejected</label>
-      </div>
-    </div>
-  }
-  <div
-    class="smaller-text"
-    [class]="statusToClassMap"
-  >{{entity.assignmentStatusText}}</div>
-}

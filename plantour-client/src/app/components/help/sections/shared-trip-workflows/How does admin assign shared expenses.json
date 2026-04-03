@@ -5,30 +5,27 @@
     "kind": "list",
     "sections": [
       {
-        "title": "Assign or reassign one shared expense from its row",
+        "title": "Assign shared responsibility through trip participants",
         "listTag": "ol",
-        "beforeHtml": "Use this when you want to pick one participant directly on one shared-expense row.",
+        "beforeHtml": "Shared expenses are no longer assigned from individual expense rows. Admins assign shared responsibility by setting each participant`s shared amount and optional deadline.",
         "items": [
-          "Open <strong>Dashboard</strong> > <strong>Trip Shared</strong> > <strong>Expenses</strong> for the selected trip.",
-          "If assignee selectors are hidden, open the page menu and choose <strong>Show Assignees</strong>.",
-          "Use the <strong>Select assignee</strong> dropdown on the shared-expense row and choose the participant who should handle it.",
-          "Plantour assigns the shared expense immediately. If that expense was already assigned, changing the assignee works as a reassignment.",
-          "If you clear the assignee dropdown, Plantour unassigns that shared expense."
+          "Open <strong>Dashboard</strong> > <strong>Trip personal</strong> > <strong>Participants</strong> for the selected trip.",
+          "Select the participant you want to update and open <strong>Update</strong>.",
+          "Enter the participant`s <strong>Shared amount</strong> and, if needed, set a <strong>Shared deadline</strong>.",
+          "Submit the form. Plantour saves that participant`s shared assignment immediately.",
+          "Set the shared amount back to 0 if you want to remove the participant`s current shared assignment."
         ]
       },
       {
-        "title": "Assign or unassign many shared expenses at once",
-        "listTag": "ol",
-        "beforeHtml": "Use this when you want to work in bulk with one participant and many currently shown shared expenses.",
+        "title": "Use shared expenses and participants together",
+        "listTag": "ul",
         "items": [
-          "Open the actions bar in the page header.",
-          "Choose the <strong>Trip participant</strong> target and select the participant you want.",
-          "Set the deadline-days field if you want Plantour to calculate an assignment deadline for the shared expenses you are about to assign.",
-          "Filter the list first if you want to limit which shared expenses are currently shown.",
-          "Click the page-level plus button to assign all currently shown not-targeted shared expenses to that participant.",
-          "Click the page-level minus button to unassign the currently shown targeted shared expenses from that participant."
+          "Use the <strong>Trip shared expenses</strong> page to maintain the trip-level list of shared costs.",
+          "Use the <strong>Trip participants</strong> page to decide how much of that shared cost is assigned to each participant.",
+          "The shared-expenses overview shows whether the trip-level total and participant assignments stay in sync.",
+          "Trip info and reports summarize the shared assigned, paid, remaining, pending, and rejected values across participants."
         ],
-        "afterHtml": "The shared-expense list updates its assignment status text so you can see whether each row is awaiting assignment, assigned, accepted, or rejected. You can also use the page menu to <strong>Show Assignments</strong>, <strong>Hide Assignments</strong>, or download the expenses PDF."
+        "afterHtml": "Participants do not accept or reject shared expenses on the shared-expenses page. They respond to their assigned shared amount from the <strong>Trip participants</strong> page and then record shared payments on the personal <strong>Trip expenses</strong> page."
       }
     ]
   }

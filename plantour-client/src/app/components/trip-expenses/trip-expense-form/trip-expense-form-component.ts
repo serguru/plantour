@@ -8,6 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Select } from 'primeng/select';
 import { InputNumber } from 'primeng/inputnumber';
+import { Checkbox } from 'primeng/checkbox';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
 import { FormActions } from '../../form/form-actions/form-actions';
@@ -33,6 +34,7 @@ import { CreateTripExpenseRequest, TripExpenseDto, TripExpenseService, UpdateTri
     FormActions,
     Select,
     InputNumber,
+    Checkbox,
   ],
   templateUrl: './trip-expense-form-component.html',
   styleUrl: './trip-expense-form-component.scss',
@@ -122,6 +124,7 @@ export class TripExpenseFormComponent implements OnInit {
       rate: new FormControl<number | null>(1, [Validators.required, Validators.min(0.00000001)]),
       paymentMethod: new FormControl<string | null>(null),
       amount: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
+      shared: new FormControl(false),
       recipientId: new FormControl<string | null>(null),
       notes: new FormControl(''),
     });
@@ -162,6 +165,7 @@ export class TripExpenseFormComponent implements OnInit {
           rate: expense.rate ?? expense.effectiveRate ?? 1,
           paymentMethod: expense.paymentMethod ?? null,
           amount: expense.amount,
+          shared: expense.shared,
           recipientId: expense.recipientId,
           notes: expense.notes,
         });
@@ -241,6 +245,7 @@ export class TripExpenseFormComponent implements OnInit {
       rate: formValue.rate,
       paymentMethod: formValue.paymentMethod?.trim?.() || formValue.paymentMethod || null,
       amount: formValue.amount,
+      shared: !!formValue.shared,
       recipientId: formValue.recipientId || null,
       notes: formValue.notes?.trim() || null,
     };
@@ -268,6 +273,7 @@ export class TripExpenseFormComponent implements OnInit {
       rate: formValue.rate,
       paymentMethod: formValue.paymentMethod?.trim?.() || formValue.paymentMethod || null,
       amount: formValue.amount,
+      shared: !!formValue.shared,
       recipientId: formValue.recipientId || null,
       notes: formValue.notes?.trim() || null,
     };

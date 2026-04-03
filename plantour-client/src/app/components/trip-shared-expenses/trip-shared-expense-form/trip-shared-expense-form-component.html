@@ -31,40 +31,6 @@
 
       <div class="form-row two-columns">
         <div class="form-field">
-          <label for="currencyId">Currency</label>
-          <p-select
-            id="currencyId"
-            formControlName="currencyId"
-            [options]="lookupCurrencies$ | async"
-            optionLabel="name"
-            optionValue="id"
-            [placeholder]="!isViewMode ? 'Use trip currency' : ''"
-            styleClass="w-full"
-            [showClear]="!isViewMode"
-            appendTo="body"
-          ></p-select>
-        </div>
-
-        <div class="form-field">
-          <label for="paymentMethod">Payment method</label>
-          <p-select
-            id="paymentMethod"
-            formControlName="paymentMethod"
-            [options]="lookupPaymentMethods$ | async"
-            optionLabel="name"
-            optionValue="name"
-            [placeholder]="!isViewMode ? 'Enter payment method (optional)' : ''"
-            styleClass="w-full"
-            [editable]="true"
-            [readonly]="isViewMode"
-            [showClear]="!isViewMode"
-            appendTo="body"
-          ></p-select>
-        </div>
-      </div>
-
-      <div class="form-row two-columns">
-        <div class="form-field">
           <label for="amount">Amount<span class="required">*</span></label>
           <p-inputnumber
             inputId="amount"

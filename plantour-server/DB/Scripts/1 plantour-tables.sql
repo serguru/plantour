@@ -723,7 +723,12 @@ create table trip_users (
     packaging_complete boolean not null default false,  
     notes text,
     nopack_weight_value decimal(10,3) check(nopack_weight_value > 0),
-    nopack_weight_unit text
+    nopack_weight_unit text,
+
+    shared_amount decimal(19,2) not null default 0 check (shared_amount >= 0),
+    assigned_at timestamptz null,
+    assigned_deadline timestamptz null,
+    accept text null check (accept in ('accepted', 'rejected') or accept is null)
 );
 create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, admin_participant_id);
 
@@ -746,14 +751,6 @@ begin
         where shared_todo.assigned_to_id = old.id
     ) then
         raise exception 'trip user cannot be deleted while assigned shared todos exist';
-    end if;
-
-    if exists (
-        select 1
-        from plantour.trip_shared_expenses shared_expense
-        where shared_expense.assigned_to_id = old.id
-    ) then
-        raise exception 'trip user cannot be deleted while assigned shared expenses exist';
     end if;
 
     return old;
@@ -820,7 +817,7 @@ create table trip_user_expenses (
     amount decimal(19,2) not null check (amount > 0),
     recipient_id uuid null references trip_users(id) on delete cascade,
     notes text,
-
+    shared boolean not null default false,
     finished_at timestamptz,
     finished text null check (finished in ('success', 'failure') or finished is null)
 
@@ -1084,56 +1081,9 @@ create table trip_shared_expenses (
     trip_id uuid not null references trips(id) on delete cascade,
     category text,
     name text not null,
-    payment_method text,
-    currency_id uuid null references currencies(id),
     amount decimal(19,2) not null check (amount > 0),
-    notes text,
-
-    assigned_to_id uuid null references trip_users(id) on delete set null,
-    assigned_expense_id uuid null references trip_user_expenses(id) on delete set null,
-    assigned_at timestamptz null,
-    assigned_deadline timestamptz null,
-    rejected boolean not null default false
+    notes text
 );
-
-create or replace function plantour.prevent_delete_accepted_trip_shared_expense()
-returns trigger
-language plpgsql
-as $$
-begin
-    if old.assigned_expense_id is not null then
-        raise exception 'accepted shared expense cannot be deleted while assigned; unassign it first';
-    end if;
-    return old;
-end;
-$$;
-
-create trigger trg_prevent_delete_accepted_trip_shared_expense
-before delete on plantour.trip_shared_expenses
-for each row
-execute function plantour.prevent_delete_accepted_trip_shared_expense();
-
-create or replace function plantour.prevent_delete_referenced_trip_user_expense()
-returns trigger
-language plpgsql
-as $$
-begin
-    if exists (
-        select 1
-        from plantour.trip_shared_expenses shared_expense
-        where shared_expense.assigned_expense_id = old.id
-    ) then
-        raise exception 'trip user expense cannot be deleted while referenced by a shared expense; unassign it first';
-    end if;
-
-    return old;
-end;
-$$;
-
-create trigger trg_prevent_delete_referenced_trip_user_expense
-before delete on plantour.trip_user_expenses
-for each row
-execute function plantour.prevent_delete_referenced_trip_user_expense();
 
 
 

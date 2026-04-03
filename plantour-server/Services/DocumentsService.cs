@@ -287,10 +287,11 @@ public class DocumentsService : IDocumentsService
         {
             table.ColumnsDefinition(columns =>
             {
-                columns.RelativeColumn(3);
                 columns.RelativeColumn(2);
-                // columns.ConstantColumn(80);
-                // columns.ConstantColumn(80);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
             });
 
             // Заголовок
@@ -298,8 +299,9 @@ public class DocumentsService : IDocumentsService
             {
                 header.Cell().Element(HeaderStyle).Text("Name");
                 header.Cell().Element(HeaderStyle).Text("Email");
-                // header.Cell().Element(HeaderStyle).AlignCenter().Text("Bags");
-                // header.Cell().Element(HeaderStyle).AlignCenter().Text("Items");
+                header.Cell().Element(HeaderStyle).Text("Shared Assigned");
+                header.Cell().Element(HeaderStyle).Text("Paid / Remaining");
+                header.Cell().Element(HeaderStyle).Text("Status");
 
                 static IContainer HeaderStyle(IContainer container)
                 {
@@ -319,8 +321,9 @@ public class DocumentsService : IDocumentsService
 
                 table.Cell().Element(CellStyle).Text(fullName);
                 table.Cell().Element(CellStyle).Text(participant.Email);
-                // table.Cell().Element(CellStyle).AlignCenter().Text(participant.TotalPacks.ToString());
-                // table.Cell().Element(CellStyle).AlignCenter().Text(participant.TotalThings.ToString());
+                table.Cell().Element(CellStyle).Text(participant.SharedAmount.ToString("0.00"));
+                table.Cell().Element(CellStyle).Text($"{participant.SharedPaidAmount:0.00} / {participant.SharedRemainingAmount:0.00}");
+                table.Cell().Element(CellStyle).Text(GetSharedAssignmentStatus(participant));
 
                 static IContainer CellStyle(IContainer container)
                 {
@@ -822,7 +825,8 @@ public class DocumentsService : IDocumentsService
         var summaryByParticipant = participants.ToDictionary(x => x.Id, x => new ExpenseParticipantSummary
         {
             TripUserId = x.Id,
-            ParticipantName = GetParticipantName(x.FirstName, x.LastName, x.Email)
+            ParticipantName = GetParticipantName(x.FirstName, x.LastName, x.Email),
+            SharedShare = decimal.Round(x.SharedAmount, 2)
         });
 
         foreach (var expense in personalExpenses)
@@ -844,22 +848,13 @@ public class DocumentsService : IDocumentsService
                 continue;
             }
 
-            if (expense.TripSharedExpenseId.HasValue)
+            if (expense.Shared)
             {
                 summary.SharedPaid += amount;
                 continue;
             }
 
             summary.PersonalTotal += amount;
-        }
-
-        var participantIds = participants.Select(x => x.Id).ToList();
-        foreach (var acceptedSharedExpense in personalExpenses.Where(x => x.TripSharedExpenseId.HasValue && participantIds.Count > 0))
-        {
-            foreach (var split in SplitAmount(acceptedSharedExpense.AmountInTripCurrency, participantIds))
-            {
-                summaryByParticipant[split.TripUserId].SharedShare += split.Amount;
-            }
         }
 
         var summaries = summaryByParticipant.Values
@@ -1025,8 +1020,8 @@ public class DocumentsService : IDocumentsService
             {
                 var type = expense.RecipientId.HasValue
                     ? $"Transfer to {GetParticipantName(expense.RecipientFirstName, expense.RecipientLastName, expense.RecipientEmail)}"
-                    : expense.TripSharedExpenseId.HasValue
-                        ? "Accepted shared expense"
+                    : expense.Shared
+                        ? "Shared payment"
                         : "Personal expense";
 
                 table.Cell().Element(ExpenseCellStyle).Text(GetParticipantName(expense.UserFirstName, expense.UserLastName, expense.UserEmail));
@@ -1055,38 +1050,23 @@ public class DocumentsService : IDocumentsService
                 columns.RelativeColumn(3);
                 columns.RelativeColumn(2);
                 columns.RelativeColumn(2);
-                columns.RelativeColumn(3);
-                columns.RelativeColumn(3);
+                columns.RelativeColumn(4);
             });
 
             table.Header(header =>
             {
                 header.Cell().Element(ExpenseCellStyle).Text("Expense").SemiBold();
-                header.Cell().Element(ExpenseCellStyle).Text("Original").SemiBold();
-                header.Cell().Element(ExpenseCellStyle).Text(string.IsNullOrWhiteSpace(tripCurrency) ? "Trip" : tripCurrency).SemiBold();
-                header.Cell().Element(ExpenseCellStyle).Text("Assignee").SemiBold();
-                header.Cell().Element(ExpenseCellStyle).Text("Status").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Category").SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text(string.IsNullOrWhiteSpace(tripCurrency) ? "Amount" : tripCurrency).SemiBold();
+                header.Cell().Element(ExpenseCellStyle).Text("Notes").SemiBold();
             });
 
             foreach (var expense in sharedExpenses.OrderBy(x => x.Name))
             {
-                var assignee = expense.AssignedToId.HasValue
-                    ? GetParticipantName(expense.AssigneeFirstName, expense.AssigneeLastName, expense.AssigneeEmail)
-                    : "-";
-
-                var status = expense.AssignedExpenseId.HasValue
-                    ? "Accepted"
-                    : expense.Rejected
-                        ? "Rejected"
-                        : expense.AssignedToId.HasValue
-                            ? "Assigned"
-                            : "Awaiting assignment";
-
                 table.Cell().Element(ExpenseCellStyle).Text(expense.Name);
-                table.Cell().Element(ExpenseCellStyle).Text($"{expense.Amount:0.00} {expense.EffectiveCurrency}");
-                table.Cell().Element(ExpenseCellStyle).Text(expense.AmountInTripCurrency?.ToString("0.00") ?? "-");
-                table.Cell().Element(ExpenseCellStyle).Text(assignee);
-                table.Cell().Element(ExpenseCellStyle).Text(status);
+                table.Cell().Element(ExpenseCellStyle).Text(expense.Category ?? "-");
+                table.Cell().Element(ExpenseCellStyle).Text(expense.Amount.ToString("0.00"));
+                table.Cell().Element(ExpenseCellStyle).Text(expense.Notes ?? "-");
             }
         });
     }
@@ -1102,20 +1082,20 @@ public class DocumentsService : IDocumentsService
         return string.IsNullOrWhiteSpace(name) ? (email ?? "Unknown") : name;
     }
 
-    private static List<ExpenseSplitAmount> SplitAmount(decimal totalAmount, List<Guid> participantIds)
+    private static string GetSharedAssignmentStatus(TripUserDto participant)
     {
-        var totalCents = (int)decimal.Round(totalAmount * 100m, MidpointRounding.AwayFromZero);
-        var baseCents = totalCents / participantIds.Count;
-        var remainder = totalCents % participantIds.Count;
-        var result = new List<ExpenseSplitAmount>(participantIds.Count);
-
-        for (var index = 0; index < participantIds.Count; index++)
+        if (participant.SharedAmount <= 0)
         {
-            var cents = baseCents + (index < remainder ? 1 : 0);
-            result.Add(new ExpenseSplitAmount(participantIds[index], cents / 100m));
+            return "Not assigned";
         }
 
-        return result;
+        return participant.Accept switch
+        {
+            "accepted" => "Accepted",
+            "rejected" => "Rejected",
+            _ when participant.AssignedDeadline.HasValue => $"Pending until {participant.AssignedDeadline.Value:dd.MM.yyyy}",
+            _ => "Pending"
+        };
     }
 
     private static List<ExpenseSettlementLine> BuildSettlements(List<ExpenseParticipantSummary> summaries)
@@ -1174,12 +1154,6 @@ public class DocumentsService : IDocumentsService
         public decimal SharedPaid { get; set; }
         public decimal SharedShare { get; set; }
         public decimal NetBalance { get; set; }
-    }
-
-    private sealed class ExpenseSplitAmount(Guid tripUserId, decimal amount)
-    {
-        public Guid TripUserId { get; } = tripUserId;
-        public decimal Amount { get; } = amount;
     }
 
     private sealed class ExpenseBalanceNode(string participantName, decimal amount)

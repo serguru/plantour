@@ -196,6 +196,7 @@ public class TemporaryUserService : ITemporaryUserService
             Id = Guid.NewGuid(),
             TripId = pastTrip.Id,
             AdminParticipantId = adminParticipant.Id,
+            SharedAmount = 0,
             Notes = "Demo participant"
         };
         await _tripUserRepository.AddAsync(pastTripUser);
@@ -205,6 +206,7 @@ public class TemporaryUserService : ITemporaryUserService
             Id = Guid.NewGuid(),
             TripId = activeTrip.Id,
             AdminParticipantId = adminParticipant.Id,
+            SharedAmount = 0,
             Notes = "Demo participant"
         };
         await _tripUserRepository.AddAsync(activeTripUser);

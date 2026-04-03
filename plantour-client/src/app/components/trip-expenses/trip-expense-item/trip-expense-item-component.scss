@@ -1,0 +1,28 @@
+:host {
+	display: block;
+	width: 100%;
+}
+
+.container {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+	width: 100%;
+}
+
+.expense-copy {
+	min-width: 0;
+	flex: 1 1 auto;
+}
+
+.amount-text {
+	flex: 0 0 auto;
+	text-align: right;
+	white-space: nowrap;
+	margin-left: auto;
+}
+
+.meta-text {
+	margin-top: 0.2rem;
+}

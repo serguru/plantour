@@ -343,8 +343,7 @@ public class AiService : IAiService
 
     private static string BuildPrompt(string userPrompt)
     {
-        return "You are a travel assistant. Generate a concise packing list based on the user's trip description. " +
-               "Return only JSON that matches the provided schema. Do not add extra keys or commentary. Item names must be unique" +
+        return "You are a travel assistant. Generate a complete list of things a user might need on a trip based on the trip description. If the user has provided details such as trip itinerary, duration, weather, season, gender, age, and priorities, consider them. Return only JSON that matches the provided schema. Do not add additional keys or comments. Item names must be unique. " +
                $"User request: {userPrompt}";
     }
 
@@ -1490,15 +1489,8 @@ public class AiService : IAiService
                 TripId = trip.Id,
                 Category = CleanOptional(expense.Category),
                 Name = name,
-                PaymentMethod = CleanOptional(expense.PaymentMethod),
-                CurrencyId = trip.CurrencyId,
                 Amount = expense.Amount,
-                Notes = BuildExpenseNotes(expense),
-                AssignedToId = null,
-                AssignedExpenseId = null,
-                AssignedAt = null,
-                AssignedDeadline = null,
-                Rejected = false
+                Notes = BuildExpenseNotes(expense)
             });
             counts.SharedExpensesAdded += 1;
             remainingSharedExpenseCapacity -= 1;
@@ -1883,6 +1875,9 @@ public class AiService : IAiService
     {
         return "You are a travel planner inside a trip management application. " +
                "Generate a complete, practical trip plan from the user's description. " +
+
+                "If the user has provided details such as trip itinerary, duration, weather, season, gender, age, and priorities, consider them." +
+
                "Return only JSON that matches the provided schema. Do not add markdown or commentary. " +
                "Use plain numeric estimated expense amounts without currency symbols. " +
                $"All expense estimates must be in {currencyText}. " +
@@ -1964,7 +1959,7 @@ public class AiService : IAiService
                 personalTodos = BuildTripTodosSchema(),
                 sharedTodos = BuildTripTodosSchema(),
                 personalExpenses = BuildTripExpensesSchema(),
-                sharedExpenses = BuildTripExpensesSchema()
+                sharedExpenses = BuildTripSharedExpensesSchema()
             },
             required = new[]
             {
@@ -2121,6 +2116,26 @@ public class AiService : IAiService
         };
     }
 
+    private static object BuildTripSharedExpensesSchema()
+    {
+        return new
+        {
+            type = "array",
+            items = new
+            {
+                type = "object",
+                properties = new
+                {
+                    category = new { type = "string" },
+                    name = new { type = "string" },
+                    amount = new { type = "number" },
+                    notes = new { type = "string" }
+                },
+                required = new[] { "category", "name", "amount", "notes" }
+            }
+        };
+    }
+
     private void EnsureExtendedAiAllowed()
     {
         var rule = _currentUser.AccessRules?.FirstOrDefault(x => x.Id == 60);
@@ -2254,6 +2269,7 @@ public class AiService : IAiService
                 x.Notes,
                 RecipientFirstName = x.Recipient != null ? x.Recipient.AdminParticipant.Participant.FirstName : null,
                 RecipientLastName = x.Recipient != null ? x.Recipient.AdminParticipant.Participant.LastName : null,
+                x.Shared,
                 x.Finished,
             })
             .ToListAsync();
@@ -2268,6 +2284,7 @@ public class AiService : IAiService
                 Amount = x.Amount,
                 Notes = x.Notes,
                 RecipientName = BuildFullName(x.RecipientFirstName, x.RecipientLastName),
+                Shared = x.Shared,
                 Finished = x.Finished,
             })
             .ToList();
@@ -2358,14 +2375,8 @@ public class AiService : IAiService
                 {
                     x.Category,
                     x.Name,
-                    x.PaymentMethod,
-                    Currency = x.Currency != null ? x.Currency.Name : null,
                     x.Amount,
                     x.Notes,
-                    AssignedFirstName = x.AssignedTo != null ? x.AssignedTo.AdminParticipant.Participant.FirstName : null,
-                    AssignedLastName = x.AssignedTo != null ? x.AssignedTo.AdminParticipant.Participant.LastName : null,
-                    AssignedEntityName = x.AssignedExpense != null ? x.AssignedExpense.Name : null,
-                    x.Rejected,
                 })
                 .ToListAsync()
             : [];
@@ -2375,15 +2386,15 @@ public class AiService : IAiService
             {
                 Category = x.Category,
                 Name = x.Name,
-                PaymentMethod = x.PaymentMethod,
-                Currency = x.Currency,
                 Amount = x.Amount,
                 Notes = x.Notes,
-                AssignedToName = BuildFullName(x.AssignedFirstName, x.AssignedLastName),
-                AssignedEntityName = x.AssignedEntityName,
-                Rejected = x.Rejected,
+                Shared = true,
             })
             .ToList();
+
+        var sharedPaidAmount = tripUser.TripUserExpenseTripUsers
+            .Where(x => x.Shared)
+            .Sum(x => x.Amount);
 
         return new TripImprovementSnapshotDto
         {
@@ -2405,6 +2416,11 @@ public class AiService : IAiService
                 PackagingComplete = tripUser.PackagingComplete,
                 NoPackWeightValue = tripUser.NopackWeightValue,
                 NoPackWeightUnit = tripUser.NopackWeightUnit,
+                SharedAmount = tripUser.SharedAmount,
+                SharedPaidAmount = sharedPaidAmount,
+                SharedRemainingAmount = Math.Max(tripUser.SharedAmount - sharedPaidAmount, 0),
+                SharedAssignmentAccepted = tripUser.Accept,
+                SharedAssignmentDeadline = tripUser.AssignedDeadline,
             },
             ItineraryParts = itineraryParts,
             PersonalActivitiesWithoutItinerary = personalActivitiesWithoutPart,
@@ -2627,6 +2643,11 @@ public class AiService : IAiService
         public bool PackagingComplete { get; set; }
         public decimal? NoPackWeightValue { get; set; }
         public string? NoPackWeightUnit { get; set; }
+        public decimal SharedAmount { get; set; }
+        public decimal SharedPaidAmount { get; set; }
+        public decimal SharedRemainingAmount { get; set; }
+        public string? SharedAssignmentAccepted { get; set; }
+        public DateTime? SharedAssignmentDeadline { get; set; }
     }
 
     private sealed class TripImprovementItineraryPartDto
@@ -2688,6 +2709,7 @@ public class AiService : IAiService
         public string? RecipientName { get; set; }
         public string? AssignedToName { get; set; }
         public string? AssignedEntityName { get; set; }
+        public bool Shared { get; set; }
         public string? Finished { get; set; }
         public bool? Rejected { get; set; }
     }

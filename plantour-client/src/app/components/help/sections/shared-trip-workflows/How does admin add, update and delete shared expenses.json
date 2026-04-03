@@ -7,12 +7,12 @@
       {
         "title": "Add a shared expense",
         "listTag": "ol",
-        "beforeHtml": "Use this when the cost belongs to the group and should later be assigned to one participant for acceptance.",
+        "beforeHtml": "Use this when the cost belongs to the group and should appear in the trip-level shared-expenses list.",
         "items": [
           "Click <strong>Dashboard</strong> in the toolbar.",
           "Open the <strong>Trip Shared</strong> section and click <strong>Expenses</strong>.",
           "Click <strong>Add</strong>. The <strong>Add Trip Shared Expense</strong> form opens.",
-          "Enter the required name and amount. You can also fill currency, payment method, category, and notes.",
+          "Enter the required name and amount. You can also fill category and notes.",
           "Click <strong>Submit</strong>.",
           "Plantour saves the shared expense and returns you to the <strong>Trip shared expenses</strong> list."
         ]
@@ -25,11 +25,11 @@
           "Open <strong>Dashboard</strong> > <strong>Trip Shared</strong> > <strong>Expenses</strong>.",
           "Select the shared expense you want to change.",
           "Click <strong>Update</strong>. The <strong>Edit Trip Shared Expense</strong> form opens.",
-          "Change fields such as name, amount, currency, payment method, category, or notes.",
+          "Change fields such as name, amount, category, or notes.",
           "Click <strong>Submit</strong>.",
           "Plantour saves the shared expense and returns you to the list."
         ],
-        "afterHtml": "Changing who is responsible for a shared expense is handled on the list itself, not inside the add or update form. For that workflow, continue with <a href='/help/shared-trip-workflows/how-does-admin-assign-shared-expenses'>How does admin assign shared expenses?</a>."
+        "afterHtml": "Shared expenses are trip-level cost entries. Assigning responsibility is handled on <strong>Trip participants</strong> through participant shared amounts and deadlines, not on individual shared-expense rows."
       },
       {
         "title": "Delete a shared expense",
@@ -41,7 +41,16 @@
           "Click <strong>Delete</strong> and confirm the action.",
           "Plantour removes the shared expense from that trip."
         ],
-        "afterHtml": "If the expense was already assigned or accepted, review its assignment state first so you do not remove a cost that someone is actively handling."
+        "afterHtml": "Review the overview panel first so you understand how deleting a shared expense changes the trip-level totals, assigned amounts, and payment progress."
+      },
+      {
+        "title": "Review the shared-expenses overview",
+        "listTag": "ul",
+        "items": [
+          "Use the collapsible overview panel at the top of the page when you want to review trip-level shared expense totals and assignment payment progress.",
+          "The panel shows shared expenses total, assigned, accepted, rejected, paid, and waiting for payment.",
+          "Collapse the panel when you want more room for the expense list. Plantour remembers its open or closed state."
+        ]
       }
     ]
   }

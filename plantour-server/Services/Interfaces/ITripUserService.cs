@@ -10,6 +10,8 @@ public interface ITripUserService
     Task<TripUserDto> AddAsync(CreateTripUserRequest request);
     Task UpdateAsync(UpdateTripUserRequest request);
     Task DeleteAsync(Guid tripId, Guid id);
+    Task ToggleAcceptSharedAssignmentAsync(Guid tripId, Guid id);
+    Task ToggleRejectSharedAssignmentAsync(Guid tripId, Guid id);
     Task<int> InsertTripUsersAsync(Guid tripId, Guid[] packageIds);
     Task<int> DeleteTripUsersAsync(Guid tripId, Guid[] packageIds);
 }

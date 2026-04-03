@@ -22,7 +22,5 @@ public class TripExpenseDto
     public string? UserFirstName { get; set; }
     public string? UserLastName { get; set; }
     public string? Notes { get; set; }
-    public Guid? TripSharedExpenseId { get; set; }
-    public DateTime? AssignedAt { get; set; }
-    public DateTime? AssignedDeadline { get; set; }
+    public bool Shared { get; set; }
 }

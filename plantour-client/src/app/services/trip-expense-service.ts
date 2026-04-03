@@ -25,9 +25,7 @@ export interface TripExpenseDto {
   userFirstName?: string | null;
   userLastName?: string | null;
   notes?: string | null;
-  tripSharedExpenseId?: string | null;
-  assignedAt?: string | null;
-  assignedDeadline?: string | null;
+  shared: boolean;
   recipientFullName?: string | null;
   assignmentStatusText?: string | null;
   assignmentStatusName?: string | null;
@@ -43,6 +41,7 @@ export interface CreateTripExpenseRequest {
   amount: number;
   recipientId?: string | null;
   notes?: string | null;
+  shared: boolean;
 }
 
 export interface UpdateTripExpenseRequest {
@@ -55,6 +54,7 @@ export interface UpdateTripExpenseRequest {
   amount: number;
   recipientId?: string | null;
   notes?: string | null;
+  shared: boolean;
 }
 
 @Injectable({
@@ -72,6 +72,10 @@ export class TripExpenseService {
 
   getAll(tripId: string): Observable<TripExpenseDto[]> {
     return this.http.get<TripExpenseDto[]>(`${this.apiUrl}/trip/${tripId}`);
+  }
+
+  getAllForTrip(tripId: string): Observable<TripExpenseDto[]> {
+    return this.http.get<TripExpenseDto[]>(`${this.apiUrl}/trip/${tripId}/all`);
   }
 
   getById(id: string, tripId: string): Observable<TripExpenseDto> {

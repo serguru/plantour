@@ -10,10 +10,12 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
     {
         return await _dbSet
             .AsNoTracking()
+            .Include(x => x.Trip)
             .Include(x => x.AdminParticipant.Participant)
             .Include(x => x.TripUserPackages)
             .Include(x => x.TripUserThings)
             .Include(x => x.TripUserTodos)
+            .Include(x => x.TripUserExpenseTripUsers)
             .Include(x => x.TripSharedThings)
             .Include(x => x.TripSharedTodos)
             .FirstOrDefaultAsync(x =>
@@ -27,10 +29,12 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
     public async Task<TripUser?> GetByIdAsync(Guid adminId, Guid userId, Guid tripId, Guid id)
     {
         return await _dbSet
+            .Include(x => x.Trip)
             .Include(x => x.AdminParticipant.Participant)
             .Include(x => x.TripUserPackages)
             .Include(x => x.TripUserThings)
             .Include(x => x.TripUserTodos)
+            .Include(x => x.TripUserExpenseTripUsers)
             .Include(x => x.TripSharedThings)
             .Include(x => x.TripSharedTodos)
             .FirstOrDefaultAsync(x =>
@@ -44,10 +48,12 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
     public async Task<TripUser?> GetByIdForAllAsync(Guid adminId, Guid tripId, Guid id)
     {
         return await _dbSet
+            .Include(x => x.Trip)
             .Include(x => x.AdminParticipant.Participant)
             .Include(x => x.TripUserPackages)
             .Include(x => x.TripUserThings)
             .Include(x => x.TripUserTodos)
+            .Include(x => x.TripUserExpenseTripUsers)
             .Include(x => x.TripSharedThings)
             .Include(x => x.TripSharedTodos)
             .FirstOrDefaultAsync(x =>
@@ -71,10 +77,12 @@ public class TripUserRepository(PlantourContext context) : GenericRepository<Tri
     {
         return await _dbSet
             .AsNoTracking()
+            .Include(x => x.Trip)
             .Include(x => x.AdminParticipant.Participant)
             .Include(x => x.TripUserPackages)
             .Include(x => x.TripUserThings)
             .Include(x => x.TripUserTodos)
+            .Include(x => x.TripUserExpenseTripUsers)
             .Include(x => x.TripSharedThings)
             .Include(x => x.TripSharedTodos)
             .Where(x => x.TripId == tripId && x.AdminParticipant.AdminId == adminId)
