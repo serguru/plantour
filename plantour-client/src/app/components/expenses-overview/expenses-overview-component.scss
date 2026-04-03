@@ -1,0 +1,105 @@
+:host {
+  display: block;
+}
+
+.shared-expenses-overview {
+  margin: 0 1rem 1rem;
+  border-radius: 22px;
+  background: white;
+  border: 1px solid rgba(36, 91, 100, 0.12);
+  overflow: hidden;
+}
+
+.shared-expenses-overview summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+  list-style: none;
+  padding: 1.2rem;
+}
+
+.shared-expenses-overview summary::-webkit-details-marker {
+  display: none;
+}
+
+.help-faq-section__heading {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.help-section-card__title {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  color: #17383d;
+}
+
+.help-faq-section__summary {
+  color: #55767b;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.help-faq-section__arrow {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-right: 2px solid #41676d;
+  border-bottom: 2px solid #41676d;
+  transform: rotate(45deg);
+  transition: transform 0.18s ease;
+}
+
+.shared-expenses-overview[open] .help-faq-section__arrow {
+  transform: rotate(225deg);
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  padding: 0 1.2rem 1.2rem;
+}
+
+.overview-summary-text {
+  padding: 0 1.2rem 1rem;
+}
+
+.overview-stat-card {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: #f7fbfb;
+  border: 1px solid rgba(36, 91, 100, 0.1);
+}
+
+.overview-stat-card--warn {
+  background: #fff8ef;
+  border-color: rgba(191, 120, 24, 0.18);
+}
+
+.overview-stat-label {
+  font-size: 0.82rem;
+  color: #5b777d;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.overview-stat-value {
+  font-size: 1.05rem;
+  color: #17383d;
+}
+
+@media (max-width: 900px) {
+  .overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -2,6 +2,7 @@ import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angula
 import { TripUserDto, TripUserService } from '../../services/trip-user-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TripUserItemComponent } from './trip-user-item/trip-user-item-component';
+import { ExpensesOverviewComponent } from '../expenses-overview/expenses-overview-component';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
@@ -16,11 +17,13 @@ import { AssignmentStatus } from '../../helpers/enums';
 import { formatDate } from '../../helpers/utils';
 import { MessagesService } from '../../services/messages-service';
 import { TripSharedExpenseDto, TripSharedExpenseService } from '../../services/trip-shared-expense-service';
+import { TripService } from '../../services/trip-service';
 
 @Component({
   selector: 'app-trip-participants',
   standalone: true,
   imports: [
+    ExpensesOverviewComponent,
     EntitiesComponent,
     EntitiesHeader,
     EntitiesActionsComponent
@@ -38,6 +41,7 @@ export class TripUsersComponent implements OnInit {
   dynamicQueryService = inject(DynamicQueryService);
   currentTripService = inject(CurrentTripService);
   tripSharedExpenseService = inject(TripSharedExpenseService);
+  tripService = inject(TripService);
   messagesService = inject(MessagesService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -49,6 +53,8 @@ export class TripUsersComponent implements OnInit {
   isReadOnly = this.usersService.isParticipantSignal;
   tripUsers = signal<TripUserDto[]>([]);
   tripSharedExpenses = signal<TripSharedExpenseDto[]>([]);
+  tripCurrencyAbbreviation: string | null = null;
+  overviewLoaded = signal(false);
   markedTripUserIds = signal<string[]>([]);
 
   conditions: Condition[] =
@@ -235,12 +241,15 @@ export class TripUsersComponent implements OnInit {
     return combineLatest([
       this.tripUsersService.getAll(this.tripId!),
       this.tripSharedExpenseService.getAll(this.tripId!),
+      this.tripService.getById(this.tripId!),
     ]).pipe(
-      tap(([tripUsers, sharedExpenses]) => {
+      tap(([tripUsers, sharedExpenses, trip]) => {
         this.currentTripUserId = tripUsers.find((tripUser) => tripUser.userId === this.currentUserId)?.id ?? null;
         tripUsers.forEach((tripUser) => this.generateSharedAssignmentData(tripUser));
         this.tripUsers.set(tripUsers);
         this.tripSharedExpenses.set(sharedExpenses);
+        this.tripCurrencyAbbreviation = trip.currency;
+        this.overviewLoaded.set(true);
         this.componentService.updateEntities(tripUsers || []);
         this.pruneMarkedTripUsers(tripUsers);
 

@@ -45,7 +45,7 @@
           "Click <strong>Submit</strong>.",
           "Plantour adds that traveler to the selected trip as a participant. The person can now access that trip by signing in with the access code from the invitation email."
         ],
-        "afterHtml": "A useful mental model is: <strong>Travelers</strong> is your reusable people dictionary, while <strong>Trip Participants</strong> is the list of which of those people are included in one specific trip."
+        "afterHtml": "A useful mental model is: <strong>Travelers</strong> is your reusable people dictionary, while <strong>Trip Participants</strong> is the list of which of those people are included in one specific trip. If you want the full participants workflow, read <a href='/help/trip-workflows/work-with-trip-participants'>How do I work with trip participants?</a>."
       },
       {
         "title": "Delete a traveler carefully",

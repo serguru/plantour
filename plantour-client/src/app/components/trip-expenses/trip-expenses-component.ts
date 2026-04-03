@@ -25,6 +25,7 @@ interface SharedBalanceSummary {
   sharedAmount: number;
   sharedPaidAmount: number;
   sharedRemainingAmount: number;
+  sharedOverpaidAmount: number;
   rejected: boolean;
   assignedDeadline?: string | null;
 }
@@ -253,6 +254,14 @@ export class TripExpensesComponent implements OnInit {
     return 'Assigned';
   }
 
+  sharedOverpaidText(summary: SharedBalanceSummary): string | null {
+    if (summary.sharedOverpaidAmount <= 0) {
+      return null;
+    }
+
+    return `You paid ${this.formatAmount(summary.sharedOverpaidAmount)} more than your assigned shared amount.`;
+  }
+
   onOverviewToggle(event: Event): void {
     const details = event.target as HTMLDetailsElement | null;
     const expanded = !!details?.open;
@@ -272,16 +281,24 @@ export class TripExpensesComponent implements OnInit {
 
   private updateSharedSummaries(participants: TripUserDto[]): void {
     const summaries = participants
-      .map((participant) => ({
-        tripUserId: participant.id,
-        userId: participant.userId,
-        participantName: participant.fullName || participant.email,
-        sharedAmount: participant.sharedAmount || 0,
-        sharedPaidAmount: participant.sharedPaidAmount || 0,
-        sharedRemainingAmount: participant.sharedRemainingAmount || 0,
-        rejected: !!participant.rejected,
-        assignedDeadline: participant.assignedDeadline,
-      }))
+      .map((participant) => {
+        const sharedAmount = participant.sharedAmount || 0;
+        const sharedPaidAmount = participant.sharedPaidAmount || 0;
+        const sharedRemainingAmount = Math.max(sharedAmount - sharedPaidAmount, 0);
+        const sharedOverpaidAmount = Math.max(sharedPaidAmount - sharedAmount, 0);
+
+        return {
+          tripUserId: participant.id,
+          userId: participant.userId,
+          participantName: participant.fullName || participant.email,
+          sharedAmount,
+          sharedPaidAmount,
+          sharedRemainingAmount,
+          sharedOverpaidAmount,
+          rejected: !!participant.rejected,
+          assignedDeadline: participant.assignedDeadline,
+        };
+      })
       .filter((participant) => participant.sharedAmount > 0 || participant.sharedPaidAmount > 0)
       .sort((left, right) => left.participantName.localeCompare(right.participantName));
 

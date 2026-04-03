@@ -193,7 +193,7 @@ public class TripUserService(
             throw new CustomException("User does not have access to this trip");
         }
 
-        var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, request.AdminParticipantId, request.TripId, request.Id);
+        var entity = await _tripUserRepository.GetByIdForAllAsync(_currentUser.AdminId, request.TripId, request.Id);
         if (entity == null)
         {
             throw new CustomException("Trip User does not exist for this trip");

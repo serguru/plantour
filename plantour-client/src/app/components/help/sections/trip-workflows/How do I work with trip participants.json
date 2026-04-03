@@ -1,0 +1,71 @@
+{
+  "slug": "work-with-trip-participants",
+  "question": "How do I work with trip participants?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Open trip participants for the selected trip",
+        "listTag": "ol",
+        "items": [
+          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Select the trip you want to work in.",
+          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Participants</strong>.",
+          "Plantour opens the <strong>Trip participants</strong> page for that trip and shows the shared-expenses overview at the top of the page."
+        ],
+        "afterHtml": "If the wrong trip opens, change the selected trip first and then return to <strong>Participants</strong>."
+      },
+      {
+        "title": "Add, update, or delete participants as an admin",
+        "listTag": "ol",
+        "beforeHtml": "Admin actions on this page work with trip participants, not with the reusable <a href='/travelers'>Travelers</a> dictionary. A traveler must already exist before that person can be added to the trip here.",
+        "items": [
+          "Use <strong>Add</strong> to open the participant form. In add mode, Plantour shows only travelers who are already in your traveler list and are not yet participants of the selected trip.",
+          "Select the traveler, then review the read-only contact fields that Plantour fills from that traveler record.",
+          "Optionally set participant-specific fields such as <strong>Packaging Complete</strong>, <strong>No-pack Weight</strong>, <strong>No-pack Unit</strong>, and <strong>Notes</strong>.",
+          "Submit the form. Plantour adds that traveler to the selected trip as a participant.",
+          "To change an existing participant, select the participant and use <strong>Update</strong>. Plantour opens the same participant form for editing.",
+          "In update mode, adjust participant fields such as notes, packaging state, no-pack weight, shared amount, or shared deadline, then submit.",
+          "To remove a participant from the trip, select the participant and use <strong>Delete</strong>. Plantour deletes that trip participant record from the selected trip."
+        ]
+      },
+      {
+        "title": "What participants can do there",
+        "listTag": "ul",
+        "items": [
+          "Participants can open the <strong>Trip participants</strong> page for trips they can access and review the participant list and the shared-expenses overview.",
+          "Participants cannot open the admin <strong>Add</strong>, <strong>Update</strong>, or <strong>Delete</strong> flows for trip participants.",
+          "Participants can open the participant form only in <strong>view</strong> mode.",
+          "When a participant has a shared amount assigned on that participant`s own row, Plantour shows a <strong>Rejected</strong> checkbox there so that participant can reject or un-reject that shared expense assignment.",
+          "Participants do not edit trip-level shared totals from this page. They review their assignment here and track their own payments from <strong>Trip expenses</strong>."
+        ]
+      },
+      {
+        "title": "Assign shared expenses from trip participants as an admin",
+        "listTag": "ol",
+        "beforeHtml": "Shared expenses are assigned from the participant record on this page, not from individual shared-expense rows.",
+        "items": [
+          "Open <strong>Trip participants</strong> for the selected trip.",
+          "Select the participant you want to assign and open <strong>Update</strong>.",
+          "Enter the participant`s <strong>Shared amount</strong> and, if needed, set a <strong>Shared deadline</strong>.",
+          "Submit the form. Plantour saves the assignment immediately.",
+          "Set <strong>Shared amount</strong> back to 0 when you want to remove that participant`s current shared assignment.",
+          "If you want to split the still-unassigned shared-expense amount across several participants, mark the needed participants in the list, open the page menu, and choose <strong>Auto assign shared expenses</strong>.",
+          "Review the confirmation dialog. Plantour shows the total shared-expense amount, the already assigned amount, the amount that will be assigned now, and how the split is distributed across the marked participants.",
+          "Confirm with <strong>Assign</strong>. Plantour increases the marked participants` shared assignments and keeps the split exact to the cent."
+        ]
+      },
+      {
+        "title": "Use the upper shared-expenses overview panel",
+        "listTag": "ul",
+        "items": [
+          "Use the collapsible panel at the top of the page when you want the full trip-level picture without leaving <strong>Trip participants</strong>.",
+          "The panel shows these totals: <strong>Shared expenses total</strong>, <strong>Assigned</strong>, <strong>Waiting for assignment</strong>, <strong>Paid</strong>, <strong>Waiting for payment</strong>, and <strong>Rejected</strong>.",
+          "Use that panel together with participant rows when you want to compare the trip-wide shared-expense total against the amounts assigned to participants and the amounts already paid.",
+          "Use <strong>Trip shared expenses</strong> to maintain the trip-level shared-expense rows themselves, and use <strong>Trip participants</strong> to distribute those totals across participants."
+        ],
+        "afterHtml": "The same overview concept is also available on <strong>Trip shared expenses</strong>, so you can compare the trip total and participant assignment progress from either page."
+      }
+    ]
+  }
+}

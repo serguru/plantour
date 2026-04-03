@@ -35,10 +35,14 @@
             <strong class="shared-panel-value">{{ formatAmount(summary.sharedPaidAmount) }}</strong>
           </article>
           <article class="shared-panel-stat-card shared-panel-stat-card--warn">
-            <span class="shared-panel-label">Remaining</span>
-            <strong class="shared-panel-value">{{ formatAmount(summary.sharedRemainingAmount) }}</strong>
+            <span class="shared-panel-label">{{ summary.sharedOverpaidAmount > 0 ? 'Overpaid' : 'Remaining' }}</span>
+            <strong class="shared-panel-value">{{ formatAmount(summary.sharedOverpaidAmount > 0 ? summary.sharedOverpaidAmount : summary.sharedRemainingAmount) }}</strong>
           </article>
         </div>
+
+        @if (sharedOverpaidText(summary); as overpaidText) {
+          <p class="shared-panel-message">{{ overpaidText }}</p>
+        }
 
         <p class="shared-panel-text">{{ sharedStatusText(summary) }}</p>
       </div>

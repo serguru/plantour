@@ -6,17 +6,16 @@
     "sections": [
       {
         "listTag": "ol",
-        "beforeHtml": "A participant reacts to the shared amount assigned to them from the <strong>Trip participants</strong> page. The reaction controls appear only on the current participant`s own row when a shared amount is assigned.",
+        "beforeHtml": "A participant reviews their assigned shared amount from the <strong>Trip participants</strong> page. The control appears only on the current participant`s own row when a shared amount is assigned.",
         "items": [
           "Open <strong>Dashboard</strong> > <strong>Trip personal</strong> > <strong>Participants</strong> for the selected trip.",
           "Find your own participant row. Plantour shows the shared assignment status there, including the deadline when one is set.",
-          "Click <strong>Accept</strong> if you agree to take responsibility for your assigned shared amount.",
-          "Click <strong>Reject</strong> if you do not want to take responsibility for that assigned amount.",
-          "After you accept, Plantour keeps that shared amount assigned to you and tracks the balance through your personal shared payments.",
-          "After you reject, Plantour marks your current shared assignment as rejected so the admin can review and update it.",
-          "Plantour notifies the admin when you accept or reject the assignment."
+          "Leave the assignment active when you plan to pay your share. Your shared payment progress is then tracked from personal <strong>Trip expenses</strong>.",
+          "Turn on the <strong>Rejected</strong> checkbox if you do not want to keep that assigned shared amount.",
+          "When <strong>Rejected</strong> is checked, Plantour marks your current shared assignment as rejected so the admin can review and update it.",
+          "When <strong>Rejected</strong> is cleared again, the assignment becomes active and can be tracked through your personal shared payments."
         ],
-        "afterHtml": "Accepting is the bridge from shared assignment to personal payment tracking. After acceptance, continue with <a href='/help/shared-trip-workflows/what-can-a-participant-do-after-accepting-the-expense-assignment'>What can a participant do after accepting the expense assignment?</a>."
+        "afterHtml": "Keep the assignment active when you want to pay against it. Then continue with <a href='/help/shared-trip-workflows/what-can-a-participant-do-after-accepting-the-expense-assignment'>How does a participant track an assigned shared balance?</a>."
       }
     ]
   }
