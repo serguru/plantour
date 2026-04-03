@@ -122,11 +122,6 @@ public class TripExpenseService(
             throw new CustomException("Trip expense not found or access denied");
         }
 
-        if (request.RecipientId != null && entity.TripSharedExpenses.Any())
-        {
-            throw new CustomException("An accepted shared expense cannot also have a recipient.");
-        }
-
         await ValidateRecipientAsync(request.TripId, tripUser.Id, request.RecipientId);
 
         _mapper.Map(request, entity);

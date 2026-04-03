@@ -103,15 +103,7 @@ public class TripUserService(
 
         var dtos = _mapper.Map<IEnumerable<TripUserDto>>(entities);
 
-        dtos = dtos.Select((dto, index) =>
-        {
-            dto.TotalPacks = entities.ElementAt(index).TripUserPackages?.Count ?? 0;
-            dto.TotalThings = entities.ElementAt(index).TripUserThings?.Count ?? 0;
-            dto.TotalTodos = entities.ElementAt(index).TripUserTodos?.Count ?? 0;
-            dto.TotalSharedThings = entities.ElementAt(index).TripSharedThings?.Count ?? 0;
-            dto.TotalSharedTodos = entities.ElementAt(index).TripSharedTodos?.Count ?? 0;
-            return dto;
-        });
+        dtos = dtos.Select((dto, index) => PopulateTripUserStats(dto, entities.ElementAt(index)));
 
         return dtos;
     }
@@ -130,13 +122,8 @@ public class TripUserService(
             return null;
         }
 
-        TripUserDto dto = _mapper.Map<TripUserDto>(entity);
-        dto.TotalPacks = entity.TripUserPackages?.Count ?? 0;
-        dto.TotalThings = entity.TripUserThings?.Count ?? 0;
-        dto.TotalTodos = entity.TripUserTodos?.Count ?? 0;
-        dto.TotalSharedThings = entity.TripSharedThings?.Count ?? 0;
-        dto.TotalSharedTodos = entity.TripSharedTodos?.Count ?? 0;
-        return dto;
+        var dto = _mapper.Map<TripUserDto>(entity);
+        return PopulateTripUserStats(dto, entity);
     }
 
     public async Task<TripUserDto?> GetByIdForAllAsync(Guid tripId, Guid id)
@@ -153,13 +140,8 @@ public class TripUserService(
             return null;
         }
 
-        TripUserDto dto = _mapper.Map<TripUserDto>(entity);
-        dto.TotalPacks = entity.TripUserPackages?.Count ?? 0;
-        dto.TotalThings = entity.TripUserThings?.Count ?? 0;
-        dto.TotalTodos = entity.TripUserTodos?.Count ?? 0;
-        dto.TotalSharedThings = entity.TripSharedThings?.Count ?? 0;
-        dto.TotalSharedTodos = entity.TripSharedTodos?.Count ?? 0;
-        return dto;
+        var dto = _mapper.Map<TripUserDto>(entity);
+        return PopulateTripUserStats(dto, entity);
     }
 
     public async Task<TripUserDto> AddAsync(CreateTripUserRequest request)
@@ -188,6 +170,10 @@ public class TripUserService(
         await CheckAccessAsync(request.TripId, 1);
         var entity = _mapper.Map<TripUser>(request);
         entity.Id = Guid.NewGuid();
+        entity.SharedAmount = 0;
+        entity.AssignedAt = null;
+        entity.AssignedDeadline = null;
+        entity.Accept = null;
         await _tripUserRepository.AddAsync(entity);
         await NotifyTripParticipantAddedAsync(request.TripId, new[] { request.AdminParticipantId });
         return _mapper.Map<TripUserDto>(entity);
@@ -213,7 +199,75 @@ public class TripUserService(
             throw new CustomException("Changing AdminParticipantId is not allowed");
         }
 
+        var assignmentChanged = entity.SharedAmount != request.SharedAmount || entity.AssignedDeadline != request.AssignedDeadline;
+
         _mapper.Map(request, entity);
+
+        if (entity.SharedAmount < 0)
+        {
+            throw new CustomException("Shared amount cannot be negative");
+        }
+
+        if (entity.SharedAmount == 0)
+        {
+            entity.AssignedAt = null;
+            entity.AssignedDeadline = null;
+            entity.Accept = null;
+        }
+        else if (assignmentChanged)
+        {
+            entity.AssignedAt = DateTime.UtcNow;
+            entity.Accept = null;
+        }
+
+        await _tripUserRepository.UpdateAsync(entity);
+    }
+
+    public async Task ToggleAcceptSharedAssignmentAsync(Guid tripId, Guid id)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
+        if (entity == null)
+        {
+            throw new CustomException("Trip user not found or access denied");
+        }
+
+        if (entity.SharedAmount <= 0)
+        {
+            throw new CustomException("No shared amount assignment found for this participant");
+        }
+
+        entity.Accept = entity.Accept == "accepted" ? null : "accepted";
+        await _tripUserRepository.UpdateAsync(entity);
+    }
+
+    public async Task ToggleRejectSharedAssignmentAsync(Guid tripId, Guid id)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
+        if (entity == null)
+        {
+            throw new CustomException("Trip user not found or access denied");
+        }
+
+        if (entity.SharedAmount <= 0)
+        {
+            throw new CustomException("No shared amount assignment found for this participant");
+        }
+
+        entity.Accept = entity.Accept == "rejected" ? null : "rejected";
         await _tripUserRepository.UpdateAsync(entity);
     }
 
@@ -292,5 +346,22 @@ public class TripUserService(
     {
         var fullName = Misc.GenerateFullName(firstName, lastName);
         return string.IsNullOrWhiteSpace(fullName) ? email : fullName;
+    }
+
+    private static TripUserDto PopulateTripUserStats(TripUserDto dto, TripUser entity)
+    {
+        dto.TotalPacks = entity.TripUserPackages?.Count ?? 0;
+        dto.TotalThings = entity.TripUserThings?.Count ?? 0;
+        dto.TotalTodos = entity.TripUserTodos?.Count ?? 0;
+        dto.TotalSharedThings = entity.TripSharedThings?.Count ?? 0;
+        dto.TotalSharedTodos = entity.TripSharedTodos?.Count ?? 0;
+
+        var sharedPaidAmount = entity.TripUserExpenseTripUsers?
+            .Where(x => x.Shared)
+            .Sum(x => decimal.Round(x.Amount * (x.Rate ?? 1m), 2)) ?? 0m;
+
+        dto.SharedPaidAmount = decimal.Round(sharedPaidAmount, 2);
+        dto.SharedRemainingAmount = decimal.Round(Math.Max(dto.SharedAmount - dto.SharedPaidAmount, 0), 2);
+        return dto;
     }
 }

@@ -6,17 +6,17 @@
     "sections": [
       {
         "listTag": "ol",
-        "beforeHtml": "A participant reacts on assigned shared expenses directly in the <strong>Trip shared expenses</strong> list. The reaction controls appear only when the current participant is the assigned person for that row.",
+        "beforeHtml": "A participant reacts to the shared amount assigned to them from the <strong>Trip participants</strong> page. The reaction controls appear only on the current participant`s own row when a shared amount is assigned.",
         "items": [
-          "Open <strong>Dashboard</strong> > <strong>Trip Shared</strong> > <strong>Expenses</strong> for the selected trip.",
-          "Find a row assigned to you. Plantour shows <strong>Accepted</strong> and <strong>Rejected</strong> checkboxes only on rows you are allowed to react to.",
-          "Click <strong>Accepted</strong> if you agree to take responsibility for that shared expense. Plantour then creates a corresponding personal trip expense for you.",
-          "Click <strong>Rejected</strong> if you do not want to take responsibility for that shared expense. Plantour marks the assignment as rejected.",
-          "If you uncheck <strong>Accepted</strong>, Plantour removes the personal accepted expense that was created for you.",
-          "If you reject an expense that you had already accepted, Plantour clears the accepted link and removes the personal accepted expense from your trip expenses.",
+          "Open <strong>Dashboard</strong> > <strong>Trip personal</strong> > <strong>Participants</strong> for the selected trip.",
+          "Find your own participant row. Plantour shows the shared assignment status there, including the deadline when one is set.",
+          "Click <strong>Accept</strong> if you agree to take responsibility for your assigned shared amount.",
+          "Click <strong>Reject</strong> if you do not want to take responsibility for that assigned amount.",
+          "After you accept, Plantour keeps that shared amount assigned to you and tracks the balance through your personal shared payments.",
+          "After you reject, Plantour marks your current shared assignment as rejected so the admin can review and update it.",
           "Plantour notifies the admin when you accept or reject the assignment."
         ],
-        "afterHtml": "Accepting is the bridge from the shared-cost page to your own personal expense list. After acceptance, continue with <a href='/help/shared-trip-workflows/what-can-a-participant-do-after-accepting-the-expense-assignment'>What can a participant do after accepting the expense assignment?</a>."
+        "afterHtml": "Accepting is the bridge from shared assignment to personal payment tracking. After acceptance, continue with <a href='/help/shared-trip-workflows/what-can-a-participant-do-after-accepting-the-expense-assignment'>What can a participant do after accepting the expense assignment?</a>."
       }
     ]
   }

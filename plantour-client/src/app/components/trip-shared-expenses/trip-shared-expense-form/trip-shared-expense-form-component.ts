@@ -2,10 +2,8 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LookupService } from '../../../services/lookup-service';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { Select } from 'primeng/select';
 import { InputNumber } from 'primeng/inputnumber';
 import { AutoFocusDirective } from '../../../helpers/auto-focus-directive';
 import { FormHeader, MenuConfig } from '../../form/form-header/form-header';
@@ -13,7 +11,6 @@ import { FormActions } from '../../form/form-actions/form-actions';
 import { capitalizeFirstLetter } from '../../../helpers/utils';
 import { LocalStorageService } from '../../../services/local-storage-service';
 import { MessagesService } from '../../../services/messages-service';
-import { TripService } from '../../../services/trip-service';
 import { CreateTripSharedExpenseRequest, TripSharedExpenseDto, TripSharedExpenseService, UpdateTripSharedExpenseRequest } from '../../../services/trip-shared-expense-service';
 
 @Component({
@@ -27,7 +24,6 @@ import { CreateTripSharedExpenseRequest, TripSharedExpenseDto, TripSharedExpense
     AutoFocusDirective,
     FormHeader,
     FormActions,
-    Select,
     InputNumber,
   ],
   templateUrl: './trip-shared-expense-form-component.html',
@@ -41,10 +37,6 @@ export class TripSharedExpenseFormComponent implements OnInit {
   service = inject(TripSharedExpenseService);
   messagesService = inject(MessagesService);
   localStorageService = inject(LocalStorageService);
-  lookupService = inject(LookupService);
-
-  lookupCurrencies$ = this.lookupService.currencies$;
-  lookupPaymentMethods$ = this.lookupService.paymentMethods$;
 
   mode: 'add' | 'edit' | 'view' = 'view';
   id: string | null = null;
@@ -86,8 +78,6 @@ export class TripSharedExpenseFormComponent implements OnInit {
   private initForm(): void {
     this.form = this.fb.group({
       name: new FormControl('', Validators.required),
-      currencyId: new FormControl<string | null>(null),
-      paymentMethod: new FormControl<string | null>(null),
       amount: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
       category: new FormControl(''),
       notes: new FormControl(''),
@@ -103,8 +93,6 @@ export class TripSharedExpenseFormComponent implements OnInit {
       next: (expense: TripSharedExpenseDto) => {
         this.form.patchValue({
           name: expense.name,
-          currencyId: expense.currencyId,
-          paymentMethod: expense.paymentMethod ?? null,
           amount: expense.amount,
           category: expense.category,
           notes: expense.notes,
@@ -132,8 +120,6 @@ export class TripSharedExpenseFormComponent implements OnInit {
       tripId: this.tripId!,
       name: formValue.name.trim(),
       category: formValue.category?.trim() || null,
-      paymentMethod: formValue.paymentMethod?.trim?.() || formValue.paymentMethod || null,
-      currencyId: formValue.currencyId || null,
       amount: formValue.amount,
       notes: formValue.notes?.trim() || null,
     };
@@ -158,8 +144,6 @@ export class TripSharedExpenseFormComponent implements OnInit {
       tripId: this.tripId!,
       name: formValue.name.trim(),
       category: formValue.category?.trim() || null,
-      paymentMethod: formValue.paymentMethod?.trim?.() || formValue.paymentMethod || null,
-      currencyId: formValue.currencyId || null,
       amount: formValue.amount,
       notes: formValue.notes?.trim() || null,
     };

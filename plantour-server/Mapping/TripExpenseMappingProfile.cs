@@ -19,10 +19,7 @@ public class TripExpenseMappingProfile : Profile
             .ForMember(dest => dest.RecipientLastName, opt => opt.MapFrom(src => src.Recipient != null ? src.Recipient.AdminParticipant.Participant.LastName : null))
             .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.TripUser.AdminParticipant.Participant.Email))
             .ForMember(dest => dest.UserFirstName, opt => opt.MapFrom(src => src.TripUser.AdminParticipant.Participant.FirstName))
-            .ForMember(dest => dest.UserLastName, opt => opt.MapFrom(src => src.TripUser.AdminParticipant.Participant.LastName))
-            .ForMember(dest => dest.TripSharedExpenseId, opt => opt.MapFrom(src => src.TripSharedExpenses.Count > 0 ? src.TripSharedExpenses.First().Id : (Guid?)null))
-            .ForMember(dest => dest.AssignedAt, opt => opt.MapFrom(src => src.TripSharedExpenses.Count > 0 ? src.TripSharedExpenses.First().AssignedAt : null))
-            .ForMember(dest => dest.AssignedDeadline, opt => opt.MapFrom(src => src.TripSharedExpenses.Count > 0 ? src.TripSharedExpenses.First().AssignedDeadline : null));
+            .ForMember(dest => dest.UserLastName, opt => opt.MapFrom(src => src.TripUser.AdminParticipant.Participant.LastName));
 
         CreateMap<CreateTripExpenseRequest, TripUserExpense>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -32,8 +29,7 @@ public class TripExpenseMappingProfile : Profile
             .ForMember(dest => dest.FinishedAt, opt => opt.Ignore())
             .ForMember(dest => dest.TripUser, opt => opt.Ignore())
             .ForMember(dest => dest.Currency, opt => opt.Ignore())
-            .ForMember(dest => dest.Recipient, opt => opt.Ignore())
-            .ForMember(dest => dest.TripSharedExpenses, opt => opt.Ignore());
+            .ForMember(dest => dest.Recipient, opt => opt.Ignore());
 
         CreateMap<UpdateTripExpenseRequest, TripUserExpense>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -43,7 +39,6 @@ public class TripExpenseMappingProfile : Profile
             .ForMember(dest => dest.FinishedAt, opt => opt.Ignore())
             .ForMember(dest => dest.TripUser, opt => opt.Ignore())
             .ForMember(dest => dest.Currency, opt => opt.Ignore())
-            .ForMember(dest => dest.Recipient, opt => opt.Ignore())
-            .ForMember(dest => dest.TripSharedExpenses, opt => opt.Ignore());
+            .ForMember(dest => dest.Recipient, opt => opt.Ignore());
     }
 }

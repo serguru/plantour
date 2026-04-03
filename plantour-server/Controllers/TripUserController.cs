@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using plantour_server.Attributes;
 using plantour_server.DTOs;
 using plantour_server.Services;
+using PlantourApi.Middleware;
 
 namespace plantour_server.Controllers;
 
@@ -77,6 +78,22 @@ public class TripUserController : ControllerBase
     {
         await _service.UpdateAsync(request);
         return NoContent();
+    }
+
+    [HttpPut("toggle-accept-shared-assignment")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> ToggleAcceptSharedAssignment([FromBody] IdTripIdRequest request)
+    {
+        await _service.ToggleAcceptSharedAssignmentAsync(request.TripId, request.Id);
+        return Ok();
+    }
+
+    [HttpPut("toggle-reject-shared-assignment")]
+    [AdminOrParticipant]
+    public async Task<ActionResult> ToggleRejectSharedAssignment([FromBody] IdTripIdRequest request)
+    {
+        await _service.ToggleRejectSharedAssignmentAsync(request.TripId, request.Id);
+        return Ok();
     }
 
     [HttpDelete("trip/{tripId}/user/{id}")]

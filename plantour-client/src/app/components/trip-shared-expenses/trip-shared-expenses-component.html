@@ -10,21 +10,52 @@
     [menuItems]="menuItems()"
   ></app-entities-header>
 
-  <app-entities-actions
-    [onAddTargetClick]="onAddTargetClick.bind(this)"
-    [onDeleteTargetClick]="onDeleteTargetClick.bind(this)"
-  ></app-entities-actions>
+  @if (overview(); as overviewData) {
+    <details
+      class="shared-expenses-overview help-page-card help-section-card help-faq-section"
+      [open]="summaryPanelExpanded()"
+      (toggle)="onOverviewToggle($event)"
+    >
+      <summary>
+        <div class="help-faq-section__heading">
+          <span class="help-section-card__title">Shared expenses overview</span>
+        </div>
+        <span class="help-faq-section__arrow" aria-hidden="true"></span>
+      </summary>
 
-  @if(showCalendarForDeadline()) {
-    <app-deadline
-      [componentId]="componentId"
-      (deadlineAtChange)="onDeadlineAtChange($event)"
-    ></app-deadline>
+      <p class="help-faq-section__summary overview-summary-text">Trip-level shared expense totals and assignment payment progress.</p>
+
+      <div class="overview-grid">
+        <article class="overview-stat-card">
+          <span class="overview-stat-label">Shared expenses total</span>
+          <strong class="overview-stat-value">{{ formatAmount(overviewData.total) }}</strong>
+        </article>
+        <article class="overview-stat-card">
+          <span class="overview-stat-label">Assigned</span>
+          <strong class="overview-stat-value">{{ formatAmount(overviewData.assigned) }}</strong>
+        </article>
+        <article class="overview-stat-card">
+          <span class="overview-stat-label">Accepted</span>
+          <strong class="overview-stat-value">{{ formatAmount(overviewData.accepted) }}</strong>
+        </article>
+        <article class="overview-stat-card">
+          <span class="overview-stat-label">Rejected</span>
+          <strong class="overview-stat-value">{{ formatAmount(overviewData.rejected) }}</strong>
+        </article>
+        <article class="overview-stat-card">
+          <span class="overview-stat-label">Paid</span>
+          <strong class="overview-stat-value">{{ formatAmount(overviewData.paid) }}</strong>
+        </article>
+        <article class="overview-stat-card overview-stat-card--warn">
+          <span class="overview-stat-label">Waiting for payment</span>
+          <strong class="overview-stat-value">{{ formatAmount(overviewData.waitingForPayment) }}</strong>
+        </article>
+      </div>
+    </details>
   }
 
   <app-entities
     [itemComponent]="tripSharedExpenseItemComponent"
-    [targetEntityClick]="targetEntityButtonClick.bind(this)"
     [itemMetaData]="itemMetaData"
   ></app-entities>
 </div>

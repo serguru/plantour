@@ -9,6 +9,42 @@
     [menuItems]="menuItems()"
   ></app-entities-header>
 
+  @if (currentUserSharedSummary(); as summary) {
+    <details
+      class="shared-panel help-page-card help-section-card help-faq-section"
+      [open]="summaryPanelExpanded()"
+      (toggle)="onOverviewToggle($event)"
+    >
+      <summary>
+        <div class="help-faq-section__heading">
+          <span class="help-section-card__title">My shared balance</span>
+        </div>
+        <span class="help-faq-section__arrow" aria-hidden="true"></span>
+      </summary>
+
+      <p class="help-faq-section__summary overview-summary-text">Your assigned, paid, and remaining shared balance for this trip.</p>
+
+      <div class="shared-panel-content">
+        <div class="shared-panel-grid">
+          <article class="shared-panel-stat-card">
+            <span class="shared-panel-label">Assigned</span>
+            <strong class="shared-panel-value">{{ formatAmount(summary.sharedAmount) }}</strong>
+          </article>
+          <article class="shared-panel-stat-card">
+            <span class="shared-panel-label">Paid</span>
+            <strong class="shared-panel-value">{{ formatAmount(summary.sharedPaidAmount) }}</strong>
+          </article>
+          <article class="shared-panel-stat-card shared-panel-stat-card--warn">
+            <span class="shared-panel-label">Remaining</span>
+            <strong class="shared-panel-value">{{ formatAmount(summary.sharedRemainingAmount) }}</strong>
+          </article>
+        </div>
+
+        <p class="shared-panel-text">{{ sharedStatusText(summary) }}</p>
+      </div>
+    </details>
+  }
+
   <app-entities-actions></app-entities-actions>
 
   <app-entities

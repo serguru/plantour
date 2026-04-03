@@ -4,6 +4,7 @@ import { Observable, tap } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { MultipleIdsRequest } from './crud-service';
 import { findDuplicates, getFullName } from '../helpers/utils';
+import { AssignmentStatus } from '../helpers/enums';
 
 export interface TripUserDto {
   id: string;
@@ -26,6 +27,16 @@ export interface TripUserDto {
   totalTodos?: number;
   totalSharedThings?: number;
   totalSharedTodos?: number;
+  sharedAmount: number;
+  sharedPaidAmount: number;
+  sharedRemainingAmount: number;
+  assignedAt?: string | null;
+  assignedDeadline?: string | null;
+  accept?: string | null;
+  sharedAssignmentStatusText?: string | null;
+  sharedAssignmentStatusName?: string | null;
+  sharedAssignmentStatus?: AssignmentStatus | null;
+  currentUserCanManageSharedAssignment?: boolean;
 }
 
 export interface CreateTripUserRequest {
@@ -45,6 +56,13 @@ export interface UpdateTripUserRequest {
   packagingComplete: boolean;
   nopackWeightValue?: number | null;
   nopackWeightUnit?: string | null;
+  sharedAmount: number;
+  assignedDeadline?: string | null;
+}
+
+export interface IdTripIdRequest {
+  id: string;
+  tripId: string;
 }
 
 @Injectable({
@@ -101,6 +119,14 @@ export class TripUserService {
 
   update(request: UpdateTripUserRequest): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}`, request);
+  }
+
+  toggleAcceptSharedAssignment(request: IdTripIdRequest): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/toggle-accept-shared-assignment`, request);
+  }
+
+  toggleRejectSharedAssignment(request: IdTripIdRequest): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/toggle-reject-shared-assignment`, request);
   }
 
   delete(tripId: string, id: string): Observable<void> {

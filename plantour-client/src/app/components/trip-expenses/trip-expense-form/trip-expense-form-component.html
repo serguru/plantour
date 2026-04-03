@@ -100,6 +100,17 @@
       </div>
 
       <div class="form-field">
+        <div class="container">
+          <p-checkbox
+            formControlName="shared"
+            [binary]="true"
+            inputId="shared"
+          />
+          <label for="shared"> Shared payment </label>
+        </div>
+      </div>
+
+      <div class="form-field">
         <label for="recipientId">Recipient</label>
         <p-select
           id="recipientId"

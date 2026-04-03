@@ -161,7 +161,9 @@ export class TripUserFormComponent implements OnInit {
       phone: [''],
       packagingComplete: [false],
       nopackWeightValue: [null],
-      nopackWeightUnit: ['']
+      nopackWeightUnit: [''],
+      sharedAmount: [0],
+      assignedDeadline: ['']
     },);
   }
 
@@ -180,6 +182,8 @@ export class TripUserFormComponent implements OnInit {
           packagingComplete: user.packagingComplete,
           nopackWeightValue: user.nopackWeightValue,
           nopackWeightUnit: user.nopackWeightUnit,
+          sharedAmount: user.sharedAmount,
+          assignedDeadline: this.toDateTimeLocalValue(user.assignedDeadline),
         });
       }
     });
@@ -237,7 +241,9 @@ export class TripUserFormComponent implements OnInit {
       notes: formValue.notes?.trim() || undefined,
       packagingComplete: formValue.packagingComplete,
       nopackWeightValue: formValue.nopackWeightValue || undefined,
-      nopackWeightUnit: formValue.nopackWeightUnit?.trim() || undefined
+      nopackWeightUnit: formValue.nopackWeightUnit?.trim() || undefined,
+      sharedAmount: formValue.sharedAmount || 0,
+      assignedDeadline: this.toIsoOrUndefined(formValue.assignedDeadline)
     };
 
     this.service.update(request).subscribe({
@@ -257,6 +263,30 @@ export class TripUserFormComponent implements OnInit {
   get tripUsersUrl(): string {
     const url = `/trips/${this.tripId}/trip-participants`;
     return url;
+  }
+
+  private toDateTimeLocalValue(value?: string | null): string {
+    if (!value) {
+      return '';
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - offset * 60000);
+    return localDate.toISOString().slice(0, 16);
+  }
+
+  private toIsoOrUndefined(value?: string | null): string | undefined {
+    if (!value) {
+      return undefined;
+    }
+
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
   }
 }
 

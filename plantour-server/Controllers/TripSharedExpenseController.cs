@@ -20,14 +20,6 @@ public class TripSharedExpenseController(ITripSharedExpenseService service) : Co
         return Ok(dtos);
     }
 
-    [HttpGet("trip/{tripId}/assignee/{assigneeId}")]
-    [AdminOrParticipant]
-    public async Task<ActionResult<IEnumerable<TripSharedExpenseDto>>> GetAllForAssignee(Guid tripId, Guid assigneeId)
-    {
-        var dtos = await _service.GetAllForAssigneeAsync(tripId, assigneeId);
-        return Ok(dtos);
-    }
-
     [HttpGet("{tripId}/{id}")]
     [AdminOrParticipant]
     public async Task<ActionResult<TripSharedExpenseDto>> GetById(Guid tripId, Guid id)
@@ -58,37 +50,5 @@ public class TripSharedExpenseController(ITripSharedExpenseService service) : Co
     {
         await _service.DeleteAsync(tripId, id);
         return NoContent();
-    }
-
-    [HttpPut("assign-trip-shared-expenses")]
-    [AdminOnly]
-    public async Task<ActionResult> AssignTripSharedExpenses([FromBody] MultipleIdsAssignRequest request)
-    {
-        var updated = await _service.AssignTripSharedExpensesAsync(request);
-        return Ok(new { updatedCount = updated });
-    }
-
-    [HttpPut("unassign-trip-shared-expenses")]
-    [AdminOnly]
-    public async Task<ActionResult> UnassignTripSharedExpenses([FromBody] MultipleIdsAssignRequest request)
-    {
-        var updated = await _service.UnassignTripSharedExpensesAsync(request.CollectionId, request.Ids);
-        return Ok(new { updatedCount = updated });
-    }
-
-    [HttpPut("toggle-accept-trip-shared-expenses")]
-    [AdminOrParticipant]
-    public async Task<ActionResult> ToggleAcceptAssignmentAsync([FromBody] IdTripIdRequest request)
-    {
-        await _service.ToggleAcceptAssignmentAsync(request.TripId, request.Id);
-        return Ok();
-    }
-
-    [HttpPut("toggle-reject-trip-shared-expenses")]
-    [AdminOrParticipant]
-    public async Task<ActionResult> ToggleRejectAssignmentAsync([FromBody] IdTripIdRequest request)
-    {
-        await _service.ToggleRejectAssignmentAsync(request.TripId, request.Id);
-        return Ok();
     }
 }

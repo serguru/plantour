@@ -23,6 +23,8 @@ public class CreateTripExpenseRequest : IValidatableObject
 
     public Guid? RecipientId { get; set; }
 
+    public bool Shared { get; set; }
+
     public string? Notes { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
