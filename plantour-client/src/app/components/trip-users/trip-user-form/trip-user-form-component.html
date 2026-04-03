@@ -52,48 +52,52 @@
         }
       </div>
 
-      <div class="form-field">
-        <label for="email">Email</label>
-        <input
-          pInputText
-          id="email"
-          type="email"
-          formControlName="email"
-          [readonly]="true"
-        />
+      <div class="form-row two-columns">
+        <div class="form-field">
+          <label for="firstName">First Name</label>
+          <input
+            pInputText
+            id="firstName"
+            type="text"
+            formControlName="firstName"
+            [readonly]="true"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="lastName">Last Name</label>
+          <input
+            pInputText
+            id="lastName"
+            type="text"
+            formControlName="lastName"
+            [readonly]="true"
+          />
+        </div>
       </div>
 
-      <div class="form-field">
-        <label for="firstName">First Name</label>
-        <input
-          pInputText
-          id="firstName"
-          type="text"
-          formControlName="firstName"
-          [readonly]="true"
-        />
-      </div>
+      <div class="form-row two-columns">
+        <div class="form-field">
+          <label for="email">Email</label>
+          <input
+            pInputText
+            id="email"
+            type="email"
+            formControlName="email"
+            [readonly]="true"
+          />
+        </div>
 
-      <div class="form-field">
-        <label for="lastName">Last Name</label>
-        <input
-          pInputText
-          id="lastName"
-          type="text"
-          formControlName="lastName"
-          [readonly]="true"
-        />
-      </div>
-
-      <div class="form-field">
-        <label for="phone">Phone</label>
-        <input
-          pInputText
-          id="phone"
-          type="tel"
-          formControlName="phone"
-          [readonly]="true"
-        />
+        <div class="form-field">
+          <label for="phone">Phone</label>
+          <input
+            pInputText
+            id="phone"
+            type="tel"
+            formControlName="phone"
+            [readonly]="true"
+          />
+        </div>
       </div>
 
       <div class="form-field">
@@ -108,44 +112,34 @@
         </div>
       </div>
 
-      <div class="form-field">
-        <label for="nopackWeightValue">No-pack Weight</label>
-        <p-inputnumber
-          inputId="nopackWeightValue"
-          formControlName="nopackWeightValue"
-          [placeholder]="isViewMode ? '' : 'Enter weight (optional)'"
-          mode="decimal"
-          locale="en-US"
-          [min]="0"
-          [maxFractionDigits]="3"
-          [readonly]="isViewMode"
-        />
-      </div>
+      <div class="form-row two-columns">
+        <div class="form-field">
+          <label for="nopackWeightValue">No-pack Weight</label>
+          <p-inputnumber
+            inputId="nopackWeightValue"
+            formControlName="nopackWeightValue"
+            [placeholder]="isViewMode ? '' : 'Enter weight (optional)'"
+            mode="decimal"
+            locale="en-US"
+            [min]="0"
+            [maxFractionDigits]="3"
+            [readonly]="isViewMode"
+          />
+        </div>
 
-      <div class="form-field">
-        <label for="nopackWeightUnit">No-pack Unit</label>
-        <p-select
-          id="nopackWeightUnit"
-          formControlName="nopackWeightUnit"
-          [options]="lookupUnits$ | async"
-          [placeholder]="isViewMode ? '' : 'Select unit (optional)'"
-          [showClear]="true"
-          styleClass="w-full"
-          [editable]="true"
-          [readonly]="isViewMode"
-        ></p-select>
-      </div>
-
-      <div class="form-field">
-        <label for="notes">Notes</label>
-        <textarea
-          pTextarea
-          id="notes"
-          formControlName="notes"
-          rows="5"
-          [placeholder]="isAddMode ? 'Enter notes (optional)' : ''"
-          [readonly]="isViewMode"
-        ></textarea>
+        <div class="form-field">
+          <label for="nopackWeightUnit">No-pack Unit</label>
+          <p-select
+            id="nopackWeightUnit"
+            formControlName="nopackWeightUnit"
+            [options]="lookupUnits$ | async"
+            [placeholder]="isViewMode ? '' : 'Select unit (optional)'"
+            [showClear]="true"
+            styleClass="w-full"
+            [editable]="true"
+            [readonly]="isViewMode"
+          ></p-select>
+        </div>
       </div>
 
       <div class="form-row two-columns">
@@ -173,6 +167,18 @@
             [readonly]="isViewMode"
           />
         </div>
+      </div>
+
+      <div class="form-field">
+        <label for="notes">Notes</label>
+        <textarea
+          pTextarea
+          id="notes"
+          formControlName="notes"
+          rows="5"
+          [placeholder]="isAddMode ? 'Enter notes (optional)' : ''"
+          [readonly]="isViewMode"
+        ></textarea>
       </div>
 
       <app-form-actions

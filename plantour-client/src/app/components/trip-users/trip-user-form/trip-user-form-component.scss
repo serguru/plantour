@@ -3,3 +3,16 @@
   overflow-y: auto;
   overflow-x: hidden;
 }
+
+.form-row.two-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .form-row.two-columns {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
