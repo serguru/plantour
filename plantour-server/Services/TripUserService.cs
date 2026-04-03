@@ -1,3 +1,4 @@
+using System.Globalization;
 using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
@@ -11,6 +12,7 @@ namespace plantour_server.Services;
 
 public class TripUserService(
     TripUserRepository tripUserRepository,
+    UsersRepository usersRepository,
     ICheckAccessService checkAccessService,
     DicTripRepository dicTripRepository,
     AdminsParticipantRepository adminsParticipantRepository,
@@ -22,6 +24,7 @@ public class TripUserService(
     ILogger<TripUserService> logger) : ITripUserService
 {
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
+    private readonly UsersRepository _usersRepository = usersRepository;
     private readonly IMapper _mapper = mapper;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
@@ -199,6 +202,8 @@ public class TripUserService(
             throw new CustomException("Changing AdminParticipantId is not allowed");
         }
 
+        var previousSharedAmount = entity.SharedAmount;
+        var previousAssignedDeadline = entity.AssignedDeadline;
         var assignmentChanged = entity.SharedAmount != request.SharedAmount || entity.AssignedDeadline != request.AssignedDeadline;
 
         _mapper.Map(request, entity);
@@ -221,6 +226,11 @@ public class TripUserService(
         }
 
         await _tripUserRepository.UpdateAsync(entity);
+
+        if (assignmentChanged)
+        {
+            await NotifyExpenseAssignmentChangedAsync(entity, previousSharedAmount, previousAssignedDeadline);
+        }
     }
 
     public async Task ToggleAcceptSharedAssignmentAsync(Guid tripId, Guid id)
@@ -267,8 +277,14 @@ public class TripUserService(
             throw new CustomException("No shared amount assignment found for this participant");
         }
 
+        var shouldNotifyRejected = entity.Accept != "rejected";
         entity.Accept = entity.Accept == "rejected" ? null : "rejected";
         await _tripUserRepository.UpdateAsync(entity);
+
+        if (shouldNotifyRejected && entity.Accept == "rejected")
+        {
+            await NotifyAdminAboutRejectedExpenseAssignmentAsync(entity);
+        }
     }
 
     public async Task DeleteAsync(Guid tripId, Guid id)
@@ -340,6 +356,150 @@ public class TripUserService(
                     participant.Id);
             }
         }
+    }
+
+    private async Task NotifyExpenseAssignmentChangedAsync(TripUser entity, decimal previousSharedAmount, DateTime? previousAssignedDeadline)
+    {
+        var participant = entity.AdminParticipant?.Participant;
+        if (participant == null
+            || participant.Temporary
+            || string.IsNullOrWhiteSpace(participant.Email)
+            || string.IsNullOrWhiteSpace(entity.Trip?.Name))
+        {
+            return;
+        }
+
+        if (string.Equals(participant.Email, _currentUser.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var baseUrl = await GetBaseUrlSafeAsync();
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            return;
+        }
+
+        try
+        {
+            var recipientName = GetDisplayName(participant.FirstName, participant.LastName, participant.Email);
+            var adminName = GetDisplayName(_currentUser.FirstName, _currentUser.LastName, _currentUser.Email);
+
+            await _emailService.SendParticipantAssignmentChangesEmailAsync(new ParticipantAssignmentChangesEmailRequest(
+                participant.Email,
+                recipientName,
+                adminName,
+                entity.Trip.Name,
+                "expense assignments",
+                GetExpenseAssignmentActionLabel(previousSharedAmount, entity.SharedAmount),
+                BuildExpenseAssignmentSummary(entity, previousSharedAmount, previousAssignedDeadline),
+                entity.AssignedDeadline,
+                $"{baseUrl}/trips/{entity.TripId}/trip-participants"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to send expense assignment notification email for trip {TripId} and trip user {TripUserId}", entity.TripId, entity.Id);
+        }
+    }
+
+    private async Task NotifyAdminAboutRejectedExpenseAssignmentAsync(TripUser entity)
+    {
+        var participant = entity.AdminParticipant?.Participant;
+        if (participant == null || string.IsNullOrWhiteSpace(participant.Email) || string.IsNullOrWhiteSpace(entity.Trip?.Name))
+        {
+            return;
+        }
+
+        var admin = await _usersRepository.GetActiveByIdAsync(_currentUser.AdminId);
+        if (admin == null || string.IsNullOrWhiteSpace(admin.Email))
+        {
+            return;
+        }
+
+        if (string.Equals(admin.Email, participant.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var baseUrl = await GetBaseUrlSafeAsync();
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            return;
+        }
+
+        try
+        {
+            var adminName = GetDisplayName(admin.FirstName, admin.LastName, admin.Email);
+            var participantName = GetDisplayName(participant.FirstName, participant.LastName, participant.Email);
+
+            await _emailService.SendAdminParticipantActionEmailAsync(new AdminParticipantActionEmailRequest(
+                admin.Email,
+                adminName,
+                participantName,
+                entity.Trip.Name,
+                "expense assignment",
+                $"shared amount {FormatSharedAmount(entity.SharedAmount)}",
+                "refused",
+                $"{baseUrl}/trips/{entity.TripId}/trip-participants"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to send admin expense rejection email for trip {TripId} and trip user {TripUserId}", entity.TripId, entity.Id);
+        }
+    }
+
+    private async Task<string> GetBaseUrlSafeAsync()
+    {
+        var baseUrlValue = await _settingsRepository.GetSettingByKey("plantour_app_origin");
+        return baseUrlValue?.ToString()?.TrimEnd('/') ?? string.Empty;
+    }
+
+    private static string GetExpenseAssignmentActionLabel(decimal previousSharedAmount, decimal currentSharedAmount)
+    {
+        if (previousSharedAmount <= 0 && currentSharedAmount > 0)
+        {
+            return "Assigned";
+        }
+
+        if (previousSharedAmount > 0 && currentSharedAmount <= 0)
+        {
+            return "Unassigned";
+        }
+
+        return "Updated";
+    }
+
+    private static IReadOnlyList<string> BuildExpenseAssignmentSummary(TripUser entity, decimal previousSharedAmount, DateTime? previousAssignedDeadline)
+    {
+        var items = new List<string>();
+
+        if (entity.SharedAmount > 0)
+        {
+            items.Add($"Shared amount: {FormatSharedAmount(entity.SharedAmount)}");
+        }
+        else
+        {
+            items.Add("Shared expense responsibility removed.");
+        }
+
+        if (previousSharedAmount > 0 && entity.SharedAmount > 0 && previousSharedAmount != entity.SharedAmount)
+        {
+            items.Add($"Previous amount: {FormatSharedAmount(previousSharedAmount)}");
+        }
+
+        if (previousAssignedDeadline != entity.AssignedDeadline)
+        {
+            items.Add(entity.AssignedDeadline.HasValue
+                ? $"Deadline updated to {entity.AssignedDeadline.Value:yyyy-MM-dd HH:mm} UTC"
+                : "Deadline removed.");
+        }
+
+        return items;
+    }
+
+    private static string FormatSharedAmount(decimal value)
+    {
+        return value.ToString("0.##", CultureInfo.InvariantCulture);
     }
 
     private static string GetDisplayName(string? firstName, string? lastName, string email)
