@@ -12,6 +12,7 @@ namespace plantour_server.Services;
 
 public class TripUserService(
     TripUserRepository tripUserRepository,
+    TripSharedExpenseRepository tripSharedExpenseRepository,
     UsersRepository usersRepository,
     ICheckAccessService checkAccessService,
     DicTripRepository dicTripRepository,
@@ -24,6 +25,7 @@ public class TripUserService(
     ILogger<TripUserService> logger) : ITripUserService
 {
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
+    private readonly TripSharedExpenseRepository _tripSharedExpenseRepository = tripSharedExpenseRepository;
     private readonly UsersRepository _usersRepository = usersRepository;
     private readonly IMapper _mapper = mapper;
     private readonly DicTripRepository _dicTripRepository = dicTripRepository;
@@ -287,6 +289,83 @@ public class TripUserService(
         }
     }
 
+    public async Task<AutoAssignSharedExpensesResponse> AutoAssignSharedExpensesAsync(AutoAssignSharedExpensesRequest request)
+    {
+        _currentUser.RaiseIfNotAdmin();
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(request.TripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var selectedIds = request.TripUserIds.Distinct().ToArray();
+        if (selectedIds.Length == 0)
+        {
+            throw new CustomException("Select at least one participant");
+        }
+
+        var trip = await _tripRepository.GetByIdAsync(request.TripId);
+        if (trip == null || trip.UserId != _currentUser.AdminId)
+        {
+            throw new CustomException("Trip not found");
+        }
+
+        var participants = await _tripUserRepository.GetByIdsForUpdateAsync(_currentUser.AdminId, request.TripId, selectedIds);
+
+        if (participants.Count != selectedIds.Length)
+        {
+            throw new CustomException("One or more selected participants were not found");
+        }
+
+        var totalAmount = decimal.Round(
+            (await _tripSharedExpenseRepository.GetAllFullAsync(request.TripId)).Sum(x => x.Amount),
+            2,
+            MidpointRounding.AwayFromZero);
+
+        var alreadyAssignedAmount = decimal.Round(
+            (await _tripUserRepository.GetAllAsync(_currentUser.AdminId, request.TripId)).Sum(x => x.SharedAmount),
+            2,
+            MidpointRounding.AwayFromZero);
+
+        var amountToAssign = decimal.Round(totalAmount - alreadyAssignedAmount, 2, MidpointRounding.AwayFromZero);
+        if (amountToAssign <= 0)
+        {
+            throw new CustomException("Nothing to assign");
+        }
+
+        var increments = SplitAmount(amountToAssign, participants.Count);
+        var previousAmounts = participants.ToDictionary(x => x.Id, x => x.SharedAmount);
+        var previousDeadlines = participants.ToDictionary(x => x.Id, x => x.AssignedDeadline);
+        var assignedAt = DateTime.UtcNow;
+
+        for (var index = 0; index < participants.Count; index++)
+        {
+            var participant = participants[index];
+            participant.SharedAmount = decimal.Round(participant.SharedAmount + increments[index], 2, MidpointRounding.AwayFromZero);
+            participant.AssignedAt = assignedAt;
+            participant.Accept = null;
+        }
+
+        await _tripUserRepository.SaveChangesAsync();
+
+        foreach (var participant in participants)
+        {
+            await NotifyExpenseAssignmentChangedAsync(
+                participant,
+                previousAmounts[participant.Id],
+                previousDeadlines[participant.Id]);
+        }
+
+        return new AutoAssignSharedExpensesResponse
+        {
+            TotalAmount = totalAmount,
+            AlreadyAssignedAmount = alreadyAssignedAmount,
+            AssignedAmount = amountToAssign,
+            PerParticipantAmount = increments.Min(),
+            ParticipantsCount = participants.Count,
+        };
+    }
+
     public async Task DeleteAsync(Guid tripId, Guid id)
     {
         _currentUser.RaiseIfNotAdmin();
@@ -515,6 +594,27 @@ public class TripUserService(
     {
         var fullName = Misc.GenerateFullName(firstName, lastName);
         return string.IsNullOrWhiteSpace(fullName) ? email : fullName;
+    }
+
+    private static decimal[] SplitAmount(decimal totalAmount, int participantsCount)
+    {
+        if (participantsCount <= 0)
+        {
+            return [];
+        }
+
+        var totalCents = (int)decimal.Round(totalAmount * 100m, 0, MidpointRounding.AwayFromZero);
+        var baseCents = totalCents / participantsCount;
+        var remainder = totalCents % participantsCount;
+        var result = new decimal[participantsCount];
+
+        for (var index = 0; index < participantsCount; index++)
+        {
+            var cents = baseCents + (index >= participantsCount - remainder ? 1 : 0);
+            result[index] = cents / 100m;
+        }
+
+        return result;
     }
 
     private static TripUserDto PopulateTripUserStats(TripUserDto dto, TripUser entity)

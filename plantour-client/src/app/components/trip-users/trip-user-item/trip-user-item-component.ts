@@ -1,10 +1,12 @@
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Checkbox, CheckboxChangeEvent } from 'primeng/checkbox';
 import { TripUserDto } from '../../../services/trip-user-service';
 import { capitalizeFirstLetter, isNumber, mapStatusToClass } from '../../../helpers/utils';
 
 @Component({
   selector: 'app-trip-participant-item-component',
-  imports: [],
+  imports: [FormsModule, Checkbox],
   templateUrl: './trip-user-item-component.html',
   styleUrl: './trip-user-item-component.scss',
 })
@@ -57,6 +59,10 @@ export class TripUserItemComponent {
     return '';
   }
 
+  get marked(): boolean {
+    return !!this.itemMetaData?.isMarked?.(this.entity.id);
+  }
+
   onAcceptClick(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
@@ -67,6 +73,15 @@ export class TripUserItemComponent {
     event.preventDefault();
     event.stopPropagation();
     this.itemMetaData?.toggleRejectSharedAssignment?.(this.entity);
+  }
+
+  onMarkedChange(event: CheckboxChangeEvent): void {
+    event.originalEvent?.stopPropagation();
+    this.itemMetaData?.toggleMarked?.(this.entity.id, !!event.checked);
+  }
+
+  onMarkedClick(event: Event): void {
+    event.stopPropagation();
   }
 
 }

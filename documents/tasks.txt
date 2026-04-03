@@ -883,3 +883,12 @@ Mediterranean multi countries trip 3 weeks culture, beaches and culinary next su
 
 Trip User does not exist for this trip
 
+
+Let's build a feature which will help admins to assign shared expenses. In the Trip users add a menu item "Auto assign shared expenses" visible only for admins. Add an ability to temporary mark participants (see how "Mark for PDF" implemented in Notes) for admins only as well. If no participants marked "Auto assign shared expenses" must be disabled. Add menu items "Mark all" and "Unmark all", these menu items must be disabled if nothing to do and vidible only for admins. 
+When a user clicks on "Auto assign shared expenses" show them a dialog. Calculate an amount to be asigned as "all expenses minus assigned expenses". If it is 0 or negative - notify a user that nothing to do. Otherwise divide that amount with accuracy to 2 decimal digits (becaues it is money). Show the message like The total amount XXX, already assigned YYY, will be assigned ZZZ, for every participant NNN will be added to their assignment. If a participant already have an asiignment add this one to already existing. Make sure a sum of assignments is sharp equal to the common amount to assign. So if you slit a dollar for the three participants it will be "0.33", "0.33" and "0.34".
+Warn the user that all the assignee will receive an email notification. Do not forget to implement send emails to all the assignees. The dialog must have the Cancel (default) and Assign buttons.
+
+
+Add a description of this new Auto assign feature to "How does admin assign shared expenses" Help question
+
+

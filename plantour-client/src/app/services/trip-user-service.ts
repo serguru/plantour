@@ -65,6 +65,19 @@ export interface IdTripIdRequest {
   tripId: string;
 }
 
+export interface AutoAssignSharedExpensesRequest {
+  tripId: string;
+  tripUserIds: string[];
+}
+
+export interface AutoAssignSharedExpensesResponse {
+  totalAmount: number;
+  alreadyAssignedAmount: number;
+  assignedAmount: number;
+  perParticipantAmount: number;
+  participantsCount: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -127,6 +140,10 @@ export class TripUserService {
 
   toggleRejectSharedAssignment(request: IdTripIdRequest): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/toggle-reject-shared-assignment`, request);
+  }
+
+  autoAssignSharedExpenses(request: AutoAssignSharedExpensesRequest): Observable<AutoAssignSharedExpensesResponse> {
+    return this.http.post<AutoAssignSharedExpensesResponse>(`${this.apiUrl}/auto-assign-shared-expenses`, request);
   }
 
   delete(tripId: string, id: string): Observable<void> {

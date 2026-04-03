@@ -96,6 +96,14 @@ public class TripUserController : ControllerBase
         return Ok();
     }
 
+    [HttpPost("auto-assign-shared-expenses")]
+    [AdminOnly]
+    public async Task<ActionResult<AutoAssignSharedExpensesResponse>> AutoAssignSharedExpenses([FromBody] AutoAssignSharedExpensesRequest request)
+    {
+        var response = await _service.AutoAssignSharedExpensesAsync(request);
+        return Ok(response);
+    }
+
     [HttpDelete("trip/{tripId}/user/{id}")]
     [AdminOnly]
     public async Task<ActionResult> Delete(Guid tripId, Guid id)

@@ -18,6 +18,7 @@ import { TripSharedExpenseItemComponent } from './trip-shared-expense-item/trip-
 interface TripSharedExpensesOverview {
   total: number;
   assigned: number;
+  waitingForAssignment: number;
   accepted: number;
   rejected: number;
   paid: number;
@@ -191,6 +192,7 @@ export class TripSharedExpensesComponent implements OnInit {
   private buildOverview(expenses: TripSharedExpenseDto[], participants: TripUserDto[]): TripSharedExpensesOverview {
     const total = expenses.reduce((sum, item) => sum + (item.amount || 0), 0);
     const assigned = participants.reduce((sum, item) => sum + (item.sharedAmount || 0), 0);
+    const waitingForAssignment = Math.max(total - assigned, 0);
     const accepted = participants
       .filter((item) => item.accept === 'accepted')
       .reduce((sum, item) => sum + (item.sharedAmount || 0), 0);
@@ -198,13 +200,12 @@ export class TripSharedExpensesComponent implements OnInit {
       .filter((item) => item.accept === 'rejected')
       .reduce((sum, item) => sum + (item.sharedAmount || 0), 0);
     const paid = participants.reduce((sum, item) => sum + (item.sharedPaidAmount || 0), 0);
-    const waitingForPayment = participants
-      .filter((item) => item.accept === 'accepted')
-      .reduce((sum, item) => sum + (item.sharedRemainingAmount || 0), 0);
+    const waitingForPayment = Math.max(assigned - paid, 0);
 
     return {
       total,
       assigned,
+      waitingForAssignment,
       accepted,
       rejected,
       paid,

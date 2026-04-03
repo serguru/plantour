@@ -35,12 +35,8 @@
           <strong class="overview-stat-value">{{ formatAmount(overviewData.assigned) }}</strong>
         </article>
         <article class="overview-stat-card">
-          <span class="overview-stat-label">Accepted</span>
-          <strong class="overview-stat-value">{{ formatAmount(overviewData.accepted) }}</strong>
-        </article>
-        <article class="overview-stat-card">
-          <span class="overview-stat-label">Rejected</span>
-          <strong class="overview-stat-value">{{ formatAmount(overviewData.rejected) }}</strong>
+          <span class="overview-stat-label">Waiting for assignment</span>
+          <strong class="overview-stat-value">{{ formatAmount(overviewData.waitingForAssignment) }}</strong>
         </article>
         <article class="overview-stat-card">
           <span class="overview-stat-label">Paid</span>
@@ -49,6 +45,14 @@
         <article class="overview-stat-card overview-stat-card--warn">
           <span class="overview-stat-label">Waiting for payment</span>
           <strong class="overview-stat-value">{{ formatAmount(overviewData.waitingForPayment) }}</strong>
+        </article>
+        <article class="overview-stat-card">
+          <span class="overview-stat-label">Accepted</span>
+          <strong class="overview-stat-value">{{ formatAmount(overviewData.accepted) }}</strong>
+        </article>
+        <article class="overview-stat-card">
+          <span class="overview-stat-label">Rejected</span>
+          <strong class="overview-stat-value">{{ formatAmount(overviewData.rejected) }}</strong>
         </article>
       </div>
     </details>

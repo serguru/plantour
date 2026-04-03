@@ -2,6 +2,18 @@
     class="ic-2-item ellipsis-text"
     [innerHTML]="entity.fullName"
 ></span>
+@if (itemMetaData?.markingEnabled?.()) {
+<div class="trip-user-mark" (click)="onMarkedClick($event)">
+    <p-checkbox
+      [ngModel]="marked"
+      [ngModelOptions]="{ standalone: true }"
+      [binary]="true"
+      [inputId]="'mark-trip-user-' + entity.id"
+      (onChange)="onMarkedChange($event)"
+    ></p-checkbox>
+    <label [for]="'mark-trip-user-' + entity.id">Mark</label>
+</div>
+}
 <a
     class="ic-2-item ic-2-right ellipsis-text"
     [href]="'mailto:'+entity.email"

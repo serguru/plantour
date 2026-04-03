@@ -48,7 +48,8 @@
         "listTag": "ul",
         "items": [
           "Use the collapsible overview panel at the top of the page when you want to review trip-level shared expense totals and assignment payment progress.",
-          "The panel shows shared expenses total, assigned, accepted, rejected, paid, and waiting for payment.",
+          "The panel shows shared expenses total, assigned, waiting for assignment, paid, waiting for payment, accepted, and rejected.",
+          "Waiting for assignment is calculated as shared expenses total minus assigned. Waiting for payment is calculated as assigned minus paid.",
           "Collapse the panel when you want more room for the expense list. Plantour remembers its open or closed state."
         ]
       }
