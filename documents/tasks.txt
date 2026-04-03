@@ -872,3 +872,14 @@ I have a Plantour web app deployed to Render. It is under Maintenance mode. I ne
  We are changing the current expences logic. The trip_shared_expenses table has lost a number of fields fields and now it cannot reference trip_user_expenses table. Now it is just a flat list of shared expenses in trip's currency. And trip_users has a number of new fields to support the user's shared amout assignmets. And trip_user_expenses now has "shared" field. The logic is: an admin assigns shared amounts to trip's users with optional deadline. The user cannot update amount and deadline but they can accept or refuse that assignment. And to pay the assigned amount they should add your personal expenses with shared = true.
 
 Align the existing code with these changes. Allow users Accept or Refuse assignments to them similar to how it is done for Finished field for Shared Items. Add a collapsible panel to the list of personal trip expenses showing how much the user owe on their shared expenses. Same panel for all the trip users visible to the admin only. Update Trip info and pdf reports logic. Do not forget to update AI trip plan logic.
+
+
+insert or update on table "ai_prompts" violates foreign key constraint "ai_prompts_user_id_fkey"
+
+Mediterranean multi countries trip 3 weeks culture, beaches and culinary next summer. Family 2 adults and 2 children 10 an 16 years old. Roundtrip from Vancouver BC,.
+
+
+
+
+Trip User does not exist for this trip
+

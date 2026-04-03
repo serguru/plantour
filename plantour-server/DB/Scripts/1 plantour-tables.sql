@@ -319,7 +319,7 @@ insert into plantour.plans (name, paddle_product_id, notes, public,
 allowed_items,  allowed_travelers,  allowed_AI_prompts,         extended_AI_allowed,
 allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activities) values
 
-('Starter', null, 'For small trips and light packers', true, 
+('Starter', null, 'Suitable for short and easy trips alone or in pairs', true, 
 10,             2,                  5,                          false, 
 3,              3,                  3,                          6
 ),
