@@ -11,23 +11,24 @@ import { TripExpenseDto } from '../../../services/trip-expense-service';
 })
 export class TripExpenseItemComponent {
   @Input() entity: TripExpenseDto = {} as TripExpenseDto;
-  @Input() itemMetaData: any | null = null;
+  @Input() itemMetaData: { assignmentsVisible?: () => boolean } | null = null;
 
   get statusToClassMap() {
     return mapStatusToClass(this.entity.assignmentStatus || null);
   }
 
   get amountText(): string {
-    const effectiveCurrency = this.entity.effectiveCurrency || '';
-    const source = `${this.entity.amount} ${effectiveCurrency}`.trim();
-    const converted = this.entity.amountInTripCurrency !== this.entity.amount || this.entity.currencyId
-      ? ` (${this.entity.amountInTripCurrency} trip currency)`
-      : '';
-    return `${source}${converted}`;
+    const amount = Number.isInteger(this.entity.amount) ? this.entity.amount.toString() : this.entity.amount.toFixed(2);
+    const currency = this.entity.effectiveCurrency?.trim();
+    return currency ? `${currency} ${amount}` : amount;
   }
 
   get secondaryText(): string | null {
     const values = [this.entity.paymentMethod, this.entity.recipientFullName, this.entity.shared ? 'Shared payment' : null].filter(Boolean);
     return values.length > 0 ? values.join(' · ') : null;
+  }
+
+  get notesText(): string | null {
+    return this.entity.notes || null;
   }
 }

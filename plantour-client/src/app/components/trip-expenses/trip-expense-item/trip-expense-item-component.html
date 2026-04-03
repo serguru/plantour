@@ -1,17 +1,21 @@
 <div class="container">
-  <amazon-link
-    class="ic-2-item ellipsis-text"
-    [item]="entity.name"
-    [linkText]="entity.name"
-  ></amazon-link>
+  <div class="expense-copy">
+    <amazon-link
+      class="ic-2-item ellipsis-text"
+      [item]="entity.name"
+      [linkText]="entity.name"
+    ></amazon-link>
 
-  <span class="ic-2-item ellipsis-text">{{ amountText }}</span>
-
-  <div class="ic-2-item ic-2-right">
     @if (secondaryText) {
-      <span class="ic-2-item ic-2-right ellipsis-text">{{ secondaryText }}</span>
+      <div class="smaller-text meta-text">{{ secondaryText }}</div>
+    }
+
+    @if (notesText) {
+      <div class="smaller-text">{{ notesText }}</div>
     }
   </div>
+
+  <div class="ic-2-item ic-2-right amount-text">{{ amountText }}</div>
 </div>
 @if (itemMetaData?.assignmentsVisible()) {
   <div

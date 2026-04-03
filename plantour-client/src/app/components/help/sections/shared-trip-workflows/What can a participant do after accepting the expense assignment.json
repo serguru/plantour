@@ -6,15 +6,16 @@
     "sections": [
       {
         "listTag": "ol",
-        "beforeHtml": "After acceptance, the shared expense becomes part of the participant`s personal trip work. Plantour creates a corresponding row in that participant`s <strong>Trip Expenses</strong> list.",
+        "beforeHtml": "After acceptance, the participant keeps responsibility for their assigned shared amount. Personal <strong>Trip Expenses</strong> then becomes the place where shared payments are recorded against that balance.",
         "items": [
           "Open <strong>Dashboard</strong> > <strong>Trip personal</strong> > <strong>Expenses</strong> for the selected trip.",
-          "Find the accepted expense in your personal trip expenses. Plantour shows assignment status text there so you can see that it came from a shared-expense assignment.",
-          "Open that personal expense when you want to review or adjust its normal expense details, such as payment method, amount, notes, or recipient.",
-          "Use the personal expense entry as part of your normal trip-cost tracking and PDF export workflow.",
-          "If you no longer want to keep responsibility for that accepted shared expense, return to <strong>Trip Shared</strong> > <strong>Expenses</strong> and clear <strong>Accepted</strong> or mark <strong>Rejected</strong>."
+          "Open the collapsible <strong>My shared balance</strong> panel to review your assigned, paid, and remaining shared balance.",
+          "Add or update personal expenses with <strong>Shared payment</strong> turned on when you want those expenses to count toward the shared balance.",
+          "Use payment method, recipient, amount, notes, currency, and rate the same way you use them on normal personal expenses.",
+          "Review the expense status text when you want to distinguish shared payments from personal expenses and money transfers.",
+          "Return to <strong>Trip personal</strong> > <strong>Participants</strong> if you need to review the shared assignment status or use <strong>Reject</strong> on your own participant row."
         ],
-        "afterHtml": "The shared-expense page is where assignment is accepted or rejected. The personal <strong>Trip Expenses</strong> page is where the accepted shared cost becomes part of your own trip expense list."
+        "afterHtml": "The <strong>Trip participants</strong> page is where the shared assignment is accepted or rejected. The personal <strong>Trip Expenses</strong> page is where payments toward that accepted shared balance are tracked."
       }
     ]
   }

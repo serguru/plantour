@@ -17,12 +17,22 @@
       {
         "title": "Add, update, or delete trip expenses",
         "listTag": "ol",
-        "beforeHtml": "Use this page for your own trip expenses. An expense can include a name, amount, currency, rate, payment method, optional recipient, and notes.",
+        "beforeHtml": "Use this page for your own trip expenses and for recording payments toward your assigned shared balance. An expense can include a name, amount, currency, rate, payment method, an optional recipient, notes, and the <strong>Shared payment</strong> flag.",
         "items": [
           "Use <strong>Add</strong> to create a new trip expense.",
           "Select an expense and use <strong>Update</strong> to edit it.",
           "Select an expense and use <strong>Delete</strong> if you want to remove it from the trip.",
           "After saving, Plantour returns you to the expenses list and keeps the saved expense selected."
+        ]
+      },
+      {
+        "title": "Track your shared balance on this page",
+        "listTag": "ul",
+        "items": [
+          "If you have a shared amount assigned, the top of the page shows a collapsible <strong>My shared balance</strong> panel.",
+          "Open that panel when you want to review your assigned, paid, and remaining shared balance for the trip.",
+          "Create or update personal expenses with <strong>Shared payment</strong> turned on when you want that expense to count toward the shared balance.",
+          "The panel updates the shared-payment progress for your trip expenses."
         ]
       },
       {
@@ -32,7 +42,8 @@
           "If the expense uses the same currency as the trip, the rate stays at 1.",
           "If you choose a different currency, Plantour tries to fill the rate automatically. If that fails, enter the rate manually.",
           "Use <strong>Payment Method</strong> when you want to record how the expense was paid.",
-          "Use the recipient field when the expense represents a money transfer to another participant."
+          "Use the recipient field when the expense represents a money transfer to another participant.",
+          "A shared payment can also have a recipient when you need both pieces of information on the same expense."
         ]
       },
       {

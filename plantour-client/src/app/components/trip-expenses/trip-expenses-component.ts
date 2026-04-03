@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -13,6 +13,7 @@ import { DocumentsService } from '../../services/documents-service';
 import { AssignmentStatus } from '../../helpers/enums';
 import { formatDate } from '../../helpers/utils';
 import { TripExpenseDto, TripExpenseService } from '../../services/trip-expense-service';
+import { TripService } from '../../services/trip-service';
 import { TripUserDto, TripUserService } from '../../services/trip-user-service';
 import { UsersService } from '../../services/users-service';
 import { TripExpenseItemComponent } from './trip-expense-item/trip-expense-item-component';
@@ -48,6 +49,7 @@ export class TripExpensesComponent implements OnInit {
   documentsService = inject(DocumentsService);
   localStorageService = inject(LocalStorageService);
   dynamicQueryService = inject(DynamicQueryService);
+  tripService = inject(TripService);
   tripUserService = inject(TripUserService);
   usersService = inject(UsersService);
 
@@ -57,8 +59,12 @@ export class TripExpensesComponent implements OnInit {
 
   isAdmin = this.usersService.isAdminSignal;
   assignmentsVisible = signal<boolean>(true);
+  itemMetaData: { assignmentsVisible: WritableSignal<boolean>; tripCurrencyAbbreviation: string | null } = {
+    assignmentsVisible: this.assignmentsVisible,
+    tripCurrencyAbbreviation: null,
+  };
+  summaryPanelExpanded = signal<boolean>(true);
   currentUserSharedSummary = signal<SharedBalanceSummary | null>(null);
-  allSharedSummaries = signal<SharedBalanceSummary[]>([]);
 
   menuItems = computed<MenuConfig[]>(() => [
     {
@@ -128,10 +134,6 @@ export class TripExpensesComponent implements OnInit {
     },
   ];
 
-  itemMetaData: any = {
-    assignmentsVisible: this.assignmentsVisible,
-  };
-
   ngOnInit(): void {
     this.componentService.updateComponentId(this.componentId);
 
@@ -141,13 +143,18 @@ export class TripExpensesComponent implements OnInit {
     }
 
     this.initConditions(this.componentId);
+    this.summaryPanelExpanded.set(
+      this.localStorageService.getComponentBooleanKey(this.componentId, 'overviewExpanded', true)
+    );
 
     combineLatest([
       this.tripExpenseService.getAll(this.tripId),
+      this.tripService.getById(this.tripId),
       this.tripUserService.getAll(this.tripId),
     ]).pipe(
-      map(([expenses, participants]) => {
+      map(([expenses, trip, participants]) => {
         expenses.forEach((expense) => this.generateMessagesData(expense));
+        this.itemMetaData.tripCurrencyAbbreviation = trip.currency;
         this.updateSharedSummaries(participants);
         return expenses;
       }),
@@ -252,6 +259,23 @@ export class TripExpensesComponent implements OnInit {
     return 'Pending response';
   }
 
+  onOverviewToggle(event: Event): void {
+    const details = event.target as HTMLDetailsElement | null;
+    const expanded = !!details?.open;
+    this.summaryPanelExpanded.set(expanded);
+    this.localStorageService.setComponentKey(this.componentId, 'overviewExpanded', expanded);
+  }
+
+  formatAmount(value: number): string {
+    const currency = this.itemMetaData.tripCurrencyAbbreviation?.trim();
+    const amount = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: value % 1 === 0 ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+
+    return currency ? `${currency} ${amount}` : amount;
+  }
+
   private updateSharedSummaries(participants: TripUserDto[]): void {
     const summaries = participants
       .map((participant) => ({
@@ -269,7 +293,6 @@ export class TripExpensesComponent implements OnInit {
 
     const currentUserId = this.usersService.getCurrentUserId();
     this.currentUserSharedSummary.set(summaries.find((participant) => participant.userId === currentUserId) ?? null);
-    this.allSharedSummaries.set(summaries);
   }
 
   private downloadExpensesPdf(): void {
