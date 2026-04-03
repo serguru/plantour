@@ -148,7 +148,7 @@
           <p-inputnumber
             inputId="sharedAmount"
             formControlName="sharedAmount"
-            [placeholder]="isViewMode ? '' : 'Enter shared amount'"
+            [placeholder]="isViewMode ? '' : 'Enter shared amount (optional)'"
             mode="decimal"
             locale="en-US"
             [min]="0"
@@ -159,13 +159,17 @@
 
         <div class="form-field">
           <label for="assignedDeadline">Shared deadline</label>
-          <input
-            pInputText
-            id="assignedDeadline"
-            type="datetime-local"
+          <p-datepicker
+            inputId="assignedDeadline"
             formControlName="assignedDeadline"
-            [readonly]="isViewMode"
-          />
+            [showTime]="true"
+            hourFormat="12"
+            [readonlyInput]="isViewMode"
+            [showIcon]="!isViewMode"
+            [placeholder]="isViewMode ? '' : 'Select shared deadline (optional)'"
+            appendTo="body"
+            styleClass="w-full"
+          ></p-datepicker>
         </div>
       </div>
 
@@ -183,7 +187,7 @@
 
       <app-form-actions
         [onCancel]="onCancel.bind(this)"
-        cancelLabel="To trips"
+          cancelLabel="To trip participants"
         cancelIcon="chevron-left"
         [cancelDisabled]="false"
         [onSubmit]="!isViewMode ? onSubmit.bind(this) : null"

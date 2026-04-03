@@ -191,7 +191,7 @@ public class TripUserService(
             throw new CustomException("User does not have access to this trip");
         }
 
-        var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, request.TripId, request.Id);
+        var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, request.AdminParticipantId, request.TripId, request.Id);
         if (entity == null)
         {
             throw new CustomException("Trip User does not exist for this trip");
@@ -241,8 +241,8 @@ public class TripUserService(
         {
             throw new CustomException("User does not have access to this trip");
         }
-
-        var entity = await _tripUserRepository.GetByIdAsync(_currentUser.AdminId, _currentUser.UserId, tripId, id);
+        
+        var entity = await _tripUserRepository.GetByIdForAllAsync(_currentUser.AdminId, tripId, id);
         if (entity == null)
         {
             throw new CustomException("Trip user not found or access denied");
@@ -431,6 +431,7 @@ public class TripUserService(
         {
             var adminName = GetDisplayName(admin.FirstName, admin.LastName, admin.Email);
             var participantName = GetDisplayName(participant.FirstName, participant.LastName, participant.Email);
+            var tripCurrencyName = GetTripCurrencyName(entity);
 
             await _emailService.SendAdminParticipantActionEmailAsync(new AdminParticipantActionEmailRequest(
                 admin.Email,
@@ -438,7 +439,7 @@ public class TripUserService(
                 participantName,
                 entity.Trip.Name,
                 "expense assignment",
-                $"shared amount {FormatSharedAmount(entity.SharedAmount)}",
+                $"shared amount {FormatSharedAmount(entity.SharedAmount, tripCurrencyName)}",
                 "refused",
                 $"{baseUrl}/trips/{entity.TripId}/trip-participants"));
         }
@@ -472,10 +473,11 @@ public class TripUserService(
     private static IReadOnlyList<string> BuildExpenseAssignmentSummary(TripUser entity, decimal previousSharedAmount, DateTime? previousAssignedDeadline)
     {
         var items = new List<string>();
+        var tripCurrencyName = GetTripCurrencyName(entity);
 
         if (entity.SharedAmount > 0)
         {
-            items.Add($"Shared amount: {FormatSharedAmount(entity.SharedAmount)}");
+            items.Add($"Shared amount: {FormatSharedAmount(entity.SharedAmount, tripCurrencyName)}");
         }
         else
         {
@@ -484,7 +486,7 @@ public class TripUserService(
 
         if (previousSharedAmount > 0 && entity.SharedAmount > 0 && previousSharedAmount != entity.SharedAmount)
         {
-            items.Add($"Previous amount: {FormatSharedAmount(previousSharedAmount)}");
+            items.Add($"Previous amount: {FormatSharedAmount(previousSharedAmount, tripCurrencyName)}");
         }
 
         if (previousAssignedDeadline != entity.AssignedDeadline)
@@ -497,9 +499,16 @@ public class TripUserService(
         return items;
     }
 
-    private static string FormatSharedAmount(decimal value)
+    private static string FormatSharedAmount(decimal value, string currencyName)
     {
-        return value.ToString("0.##", CultureInfo.InvariantCulture);
+        return $"{currencyName} {value.ToString("0.##", CultureInfo.InvariantCulture)}";
+    }
+
+    private static string GetTripCurrencyName(TripUser entity)
+    {
+        return string.IsNullOrWhiteSpace(entity.Trip?.Currency?.Name)
+            ? "trip currency"
+            : entity.Trip.Currency.Name;
     }
 
     private static string GetDisplayName(string? firstName, string? lastName, string email)
