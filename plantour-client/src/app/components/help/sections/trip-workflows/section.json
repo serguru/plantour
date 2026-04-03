@@ -5,6 +5,7 @@
   "questions": [
     "How do I work with trips.json",
     "Why is current trip and how to set/unset and show/hide it.json",
+    "How do I work with trip participants.json",
     "How do I work with the trip itinerary.json",
     "How do I work with trip activities.json",
     "How do I work with trip todos.json",

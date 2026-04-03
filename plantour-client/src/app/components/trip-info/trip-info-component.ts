@@ -199,8 +199,8 @@ export class TripInfoComponent {
     const totalSharedAssigned = data.participants.reduce((sum, participant) => sum + (participant.sharedAmount || 0), 0);
     const totalSharedPaid = data.participants.reduce((sum, participant) => sum + (participant.sharedPaidAmount || 0), 0);
     const totalSharedRemaining = data.participants.reduce((sum, participant) => sum + (participant.sharedRemainingAmount || 0), 0);
-    const sharedAssignmentsPending = data.participants.filter((participant) => participant.sharedAmount > 0 && !participant.accept).length;
-    const sharedAssignmentsRejected = data.participants.filter((participant) => participant.accept === 'rejected').length;
+    const sharedAssignmentsActive = data.participants.filter((participant) => participant.sharedAmount > 0 && !participant.rejected).length;
+    const sharedAssignmentsRejected = data.participants.filter((participant) => participant.rejected).length;
 
     const currentUserIncluded = trip?.currentUserIncluded ?? dashboardTrip?.currentUserIncluded ?? false;
     const routes = {
@@ -322,10 +322,10 @@ export class TripInfoComponent {
           hint: 'Personal and shared spending together.',
         },
         {
-          label: 'Awaiting response',
-          value: this.formatInteger(sharedAssignmentsPending),
-          hint: 'Participants with a shared assignment still pending acceptance.',
-          tone: sharedAssignmentsPending > 0 ? 'warn' : 'default',
+          label: 'Active assignments',
+          value: this.formatInteger(sharedAssignmentsActive),
+          hint: 'Participants with a current shared assignment that is not rejected.',
+          tone: sharedAssignmentsActive > 0 ? 'accent' : 'default',
         },
         {
           label: 'Rejected assignments',

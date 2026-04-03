@@ -33,6 +33,7 @@ import workflowsHowDoIWorkWithKeysJsonQuestion from './sections/workflows/How do
 import workflowsHowDoIUseDashboardJsonQuestion from './sections/workflows/How do I use dashboard.json';
 import tripWorkflowsHowDoIWorkWithTripsJsonQuestion from './sections/trip-workflows/How do I work with trips.json';
 import tripWorkflowsWhyIsCurrentTripAndHowToSetUnsetAndShowHideItJsonQuestion from './sections/trip-workflows/Why is current trip and how to set/unset and show/hide it.json';
+import tripWorkflowsHowDoIWorkWithTripParticipantsJsonQuestion from './sections/trip-workflows/How do I work with trip participants.json';
 import tripWorkflowsHowDoIWorkWithTheTripItineraryJsonQuestion from './sections/trip-workflows/How do I work with the trip itinerary.json';
 import tripWorkflowsHowDoIWorkWithTripActivitiesJsonQuestion from './sections/trip-workflows/How do I work with trip activities.json';
 import tripWorkflowsHowDoIWorkWithTripTodosJsonQuestion from './sections/trip-workflows/How do I work with trip todos.json';
@@ -99,6 +100,7 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['workflows/How do I use dashboard.json', workflowsHowDoIUseDashboardJsonQuestion],
   ['trip-workflows/How do I work with trips.json', tripWorkflowsHowDoIWorkWithTripsJsonQuestion],
   ['trip-workflows/Why is current trip and how to set/unset and show/hide it.json', tripWorkflowsWhyIsCurrentTripAndHowToSetUnsetAndShowHideItJsonQuestion],
+  ['trip-workflows/How do I work with trip participants.json', tripWorkflowsHowDoIWorkWithTripParticipantsJsonQuestion],
   ['trip-workflows/How do I work with the trip itinerary.json', tripWorkflowsHowDoIWorkWithTheTripItineraryJsonQuestion],
   ['trip-workflows/How do I work with trip activities.json', tripWorkflowsHowDoIWorkWithTripActivitiesJsonQuestion],
   ['trip-workflows/How do I work with trip todos.json', tripWorkflowsHowDoIWorkWithTripTodosJsonQuestion],

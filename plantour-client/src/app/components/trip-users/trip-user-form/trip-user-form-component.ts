@@ -21,6 +21,7 @@ import { AdminsParticipantDto, AdminsParticipantService } from '../../../service
 import { combineLatest, map, Observable, of, tap } from 'rxjs';
 import { Checkbox } from 'primeng/checkbox';
 import { CurrentTripService } from '../../../services/current-trip-service';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-trip-participants-form-component',
@@ -35,7 +36,8 @@ import { CurrentTripService } from '../../../services/current-trip-service';
     FormActions,
     Select,
     InputNumber,
-    Checkbox
+    Checkbox,
+    DatePicker
   ],
   templateUrl: './trip-user-form-component.html',
   styleUrl: './trip-user-form-component.scss',
@@ -162,8 +164,8 @@ export class TripUserFormComponent implements OnInit {
       packagingComplete: [false],
       nopackWeightValue: [null],
       nopackWeightUnit: [''],
-      sharedAmount: [0],
-      assignedDeadline: ['']
+      sharedAmount: [null],
+      assignedDeadline: [null]
     },);
   }
 
@@ -182,8 +184,8 @@ export class TripUserFormComponent implements OnInit {
           packagingComplete: user.packagingComplete,
           nopackWeightValue: user.nopackWeightValue,
           nopackWeightUnit: user.nopackWeightUnit,
-          sharedAmount: user.sharedAmount,
-          assignedDeadline: this.toDateTimeLocalValue(user.assignedDeadline),
+          sharedAmount: user.sharedAmount > 0 ? user.sharedAmount : null,
+          assignedDeadline: this.toDateValue(user.assignedDeadline),
         });
       }
     });
@@ -242,7 +244,7 @@ export class TripUserFormComponent implements OnInit {
       packagingComplete: formValue.packagingComplete,
       nopackWeightValue: formValue.nopackWeightValue || undefined,
       nopackWeightUnit: formValue.nopackWeightUnit?.trim() || undefined,
-      sharedAmount: formValue.sharedAmount || 0,
+      sharedAmount: formValue.sharedAmount ?? 0,
       assignedDeadline: this.toIsoOrUndefined(formValue.assignedDeadline)
     };
 
@@ -265,19 +267,17 @@ export class TripUserFormComponent implements OnInit {
     return url;
   }
 
-  private toDateTimeLocalValue(value?: string | null): string {
+  private toDateValue(value?: string | null): Date | null {
     if (!value) {
-      return '';
+      return null;
     }
 
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {
-      return '';
+      return null;
     }
 
-    const offset = date.getTimezoneOffset();
-    const localDate = new Date(date.getTime() - offset * 60000);
-    return localDate.toISOString().slice(0, 16);
+    return date;
   }
 
   private toIsoOrUndefined(value?: string | null): string | undefined {

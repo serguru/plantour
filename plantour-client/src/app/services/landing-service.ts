@@ -56,6 +56,4 @@ export class LandingService {
   getLandingData(): Observable<LandingDto> {
     return this.http.get<LandingDto>(`${this.apiUrl}/users/landing`);
   }
-  
-  
 }

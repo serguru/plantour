@@ -30,10 +30,12 @@
         "listTag": "ul",
         "items": [
           "If you have a shared amount assigned, the top of the page shows a collapsible <strong>My shared balance</strong> panel.",
-          "Open that panel when you want to review your assigned, paid, and remaining shared balance for the trip.",
+          "Open that panel when you want to review your assigned, paid, remaining, or overpaid shared balance for the trip.",
           "Create or update personal expenses with <strong>Shared payment</strong> turned on when you want that expense to count toward the shared balance.",
-          "The panel updates the shared-payment progress for your trip expenses."
-        ]
+          "The panel updates the shared-payment progress for your trip expenses.",
+          "Use this panel only for your own shared balance. For trip-level shared totals and assignment progress, use the expenses overview shown on <strong>Trip shared expenses</strong> and <strong>Trip participants</strong>."
+        ],
+        "afterHtml": "<strong>My shared balance</strong> belongs to your personal <strong>Trip expenses</strong> page. The trip-level shared overview is shown on the shared-expenses and participants pages instead."
       },
       {
         "title": "Work with currencies, rates, and recipients",

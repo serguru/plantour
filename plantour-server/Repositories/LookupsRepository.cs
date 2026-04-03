@@ -24,8 +24,7 @@ public class LookupsRepository
     {
         return await _context.Currencies
             .AsNoTracking()
-            .OrderBy(x => x.Name == "USD" ? 0 : 1)
-            .ThenBy(x => x.Name)
+            .OrderBy(x => x.Name)
             .ToListAsync();
     }
 

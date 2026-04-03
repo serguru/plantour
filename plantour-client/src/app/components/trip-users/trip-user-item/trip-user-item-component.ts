@@ -1,10 +1,12 @@
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Checkbox, CheckboxChangeEvent } from 'primeng/checkbox';
 import { TripUserDto } from '../../../services/trip-user-service';
 import { capitalizeFirstLetter, isNumber, mapStatusToClass } from '../../../helpers/utils';
 
 @Component({
   selector: 'app-trip-participant-item-component',
-  imports: [],
+  imports: [FormsModule, Checkbox],
   templateUrl: './trip-user-item-component.html',
   styleUrl: './trip-user-item-component.scss',
 })
@@ -57,16 +59,39 @@ export class TripUserItemComponent {
     return '';
   }
 
-  onAcceptClick(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.itemMetaData?.toggleAcceptSharedAssignment?.(this.entity);
+  get marked(): boolean {
+    return !!this.itemMetaData?.isMarked?.(this.entity.id);
   }
 
-  onRejectClick(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
+  get canEditRejected(): boolean {
+    return !!this.entity.currentUserCanManageSharedAssignment;
+  }
+
+  get showRejectedText(): boolean {
+    return !this.canEditRejected && !!this.entity.rejected;
+  }
+
+  get showEditableAssignmentStatusText(): boolean {
+    return this.canEditRejected && !this.entity.rejected && !!this.entity.sharedAssignmentStatusText;
+  }
+
+  onRejectedChange(event: CheckboxChangeEvent): void {
+    event.originalEvent?.preventDefault();
+    event.originalEvent?.stopPropagation();
     this.itemMetaData?.toggleRejectSharedAssignment?.(this.entity);
+  }
+
+  onRejectedClick(event: Event): void {
+    event.stopPropagation();
+  }
+
+  onMarkedChange(event: CheckboxChangeEvent): void {
+    event.originalEvent?.stopPropagation();
+    this.itemMetaData?.toggleMarked?.(this.entity.id, !!event.checked);
+  }
+
+  onMarkedClick(event: Event): void {
+    event.stopPropagation();
   }
 
 }

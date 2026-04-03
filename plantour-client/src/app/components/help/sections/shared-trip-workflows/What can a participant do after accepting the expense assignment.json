@@ -1,21 +1,21 @@
 {
   "slug": "what-can-a-participant-do-after-accepting-the-expense-assignment",
-  "question": "What can a participant do after accepting the expense assignment?",
+  "question": "How does a participant track an assigned shared balance?",
   "answer": {
     "kind": "list",
     "sections": [
       {
         "listTag": "ol",
-        "beforeHtml": "After acceptance, the participant keeps responsibility for their assigned shared amount. Personal <strong>Trip Expenses</strong> then becomes the place where shared payments are recorded against that balance.",
+        "beforeHtml": "When your shared assignment stays active, personal <strong>Trip expenses</strong> becomes the place where shared payments are recorded against that balance.",
         "items": [
           "Open <strong>Dashboard</strong> > <strong>Trip personal</strong> > <strong>Expenses</strong> for the selected trip.",
-          "Open the collapsible <strong>My shared balance</strong> panel to review your assigned, paid, and remaining shared balance.",
+          "Open the collapsible <strong>My shared balance</strong> panel to review your assigned, paid, remaining, or overpaid shared balance.",
           "Add or update personal expenses with <strong>Shared payment</strong> turned on when you want those expenses to count toward the shared balance.",
           "Use payment method, recipient, amount, notes, currency, and rate the same way you use them on normal personal expenses.",
           "Review the expense status text when you want to distinguish shared payments from personal expenses and money transfers.",
-          "Return to <strong>Trip personal</strong> > <strong>Participants</strong> if you need to review the shared assignment status or use <strong>Reject</strong> on your own participant row."
+          "Return to <strong>Trip personal</strong> > <strong>Participants</strong> if you need to review the assignment status or change the <strong>Rejected</strong> state on your own participant row."
         ],
-        "afterHtml": "The <strong>Trip participants</strong> page is where the shared assignment is accepted or rejected. The personal <strong>Trip Expenses</strong> page is where payments toward that accepted shared balance are tracked."
+        "afterHtml": "<strong>My shared balance</strong> tracks one participant`s own shared assignment. The trip-level expenses overview on <strong>Trip shared expenses</strong> and <strong>Trip participants</strong> tracks the whole trip instead."
       }
     ]
   }

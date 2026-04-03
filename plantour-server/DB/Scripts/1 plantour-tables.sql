@@ -319,7 +319,7 @@ insert into plantour.plans (name, paddle_product_id, notes, public,
 allowed_items,  allowed_travelers,  allowed_AI_prompts,         extended_AI_allowed,
 allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activities) values
 
-('Starter', null, 'For small trips and light packers', true, 
+('Starter', null, 'Suitable for short and easy trips alone or in pairs', true, 
 10,             2,                  5,                          false, 
 3,              3,                  3,                          6
 ),
@@ -728,7 +728,7 @@ create table trip_users (
     shared_amount decimal(19,2) not null default 0 check (shared_amount >= 0),
     assigned_at timestamptz null,
     assigned_deadline timestamptz null,
-    accept text null check (accept in ('accepted', 'rejected') or accept is null)
+    rejected boolean not null default false
 );
 create unique index idx_trip_users_trip_id_user_id on trip_users(trip_id, admin_participant_id);
 

@@ -1,3 +1,4 @@
+begin;
 insert into plantour.settings (key, value, value_type)
 values 
     ('user_entities_logging_days', '16', 'integer'),
@@ -13,3 +14,4 @@ values
     ('app_version', '2.15.7',  'string'),
     ('global_spinner_timeout_sec', '30',  'integer'),
     ('plantour_app_origin', 'https://plantour.app',  'string');
+commit;

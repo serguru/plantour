@@ -17,15 +17,28 @@
         ]
       },
       {
-        "title": "Use shared expenses and participants together",
+        "title": "Auto assign shared expenses for marked participants",
+        "listTag": "ol",
+        "beforeHtml": "Use this when you want Plantour to split the still-unassigned part of the shared-expense total across selected participants.",
+        "items": [
+          "Open <strong>Dashboard</strong> > <strong>Trip personal</strong> > <strong>Participants</strong>.",
+          "Mark the participants who should receive the next shared-expense assignment. Use <strong>Mark all</strong> or <strong>Unmark all</strong> from the page menu when that is faster.",
+          "Open the page menu and click <strong>Auto assign shared expenses</strong>.",
+          "Review the dialog preview. Plantour shows the total shared-expense amount, how much is already assigned, how much will be assigned now, and how the amount is split across the marked participants.",
+          "Click <strong>Assign</strong> to apply the split. Plantour increases existing shared assignments when needed and keeps the money split exact to the cent.",
+          "Plantour warns that all assignees will receive an email notification before you confirm."
+        ]
+      },
+      {
+        "title": "Use Expenses Overview with shared expenses and participants",
         "listTag": "ul",
         "items": [
           "Use the <strong>Trip shared expenses</strong> page to maintain the trip-level list of shared costs.",
           "Use the <strong>Trip participants</strong> page to decide how much of that shared cost is assigned to each participant.",
-          "The shared-expenses overview shows whether the trip-level total and participant assignments stay in sync.",
+          "Use the collapsible expenses overview on both pages to see whether the trip-level total and participant assignments stay in sync.",
           "Trip info and reports summarize the shared assigned, paid, remaining, pending, and rejected values across participants."
         ],
-        "afterHtml": "Participants do not accept or reject shared expenses on the shared-expenses page. They respond to their assigned shared amount from the <strong>Trip participants</strong> page and then record shared payments on the personal <strong>Trip expenses</strong> page."
+        "afterHtml": "Participants do not manage trip-level shared totals from the shared-expenses page. They review their assignment on <strong>Trip participants</strong> and track payments from <strong>My shared balance</strong> on the personal <strong>Trip expenses</strong> page."
       }
     ]
   }
