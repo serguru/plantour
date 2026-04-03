@@ -36,105 +36,112 @@
         }
       </div>
 
-      <div class="form-field">
-        <label for="tripStatusId">Status</label>
-        <p-select
-          id="tripStatusId"
-          formControlName="tripStatusId"
-          [options]="tripStatuses"
-          optionLabel="name"
-          optionValue="id"
-          [placeholder]="!isReadOnlyMode ? 'Select status (optional)' : ''"
-          [readonly]="isReadOnlyMode"
-          [showClear]="false"
-          styleClass="w-full"
-          [editable]="false"
-        ></p-select>
-      </div>
+      <div class="form-row two-columns">
+        <div class="form-field">
+          <label for="tripStatusId">Status</label>
+          <p-select
+            id="tripStatusId"
+            formControlName="tripStatusId"
+            [options]="tripStatuses"
+            optionLabel="name"
+            optionValue="id"
+            [placeholder]="!isReadOnlyMode ? 'Select status (optional)' : ''"
+            [readonly]="isReadOnlyMode"
+            [showClear]="false"
+            styleClass="w-full"
+            [editable]="false"
+          ></p-select>
+        </div>
 
-      <div class="form-field">
-        <label for="currencyId">Currency<span class="required">*</span></label>
-        <p-select
-          id="currencyId"
-          formControlName="currencyId"
-          [options]="currencies"
-          optionLabel="name"
-          optionValue="id"
-          [placeholder]="!isReadOnlyMode ? 'Select currency' : ''"
-          [readonly]="isReadOnlyMode"
-          [showClear]="false"
-          styleClass="w-full"
-          [editable]="false"
-        ></p-select>
-        @if (form.get('currencyId')?.invalid && (form.get('currencyId')?.touched || form.get('currencyId')?.dirty)) {
-        @if (form.get('currencyId')?.errors?.['required']) {
-        <small class="error-message">
-          Currency is required
-        </small>
-        }
-        }
+        <div class="form-field">
+          <label for="currencyId">Currency<span class="required">*</span></label>
+          <p-select
+            id="currencyId"
+            formControlName="currencyId"
+            [options]="currencies"
+            optionLabel="name"
+            optionValue="id"
+            [placeholder]="!isReadOnlyMode ? 'Select currency' : ''"
+            [readonly]="isReadOnlyMode"
+            [showClear]="false"
+            styleClass="w-full"
+            [editable]="false"
+            appendTo="body"
+          ></p-select>
+          @if (form.get('currencyId')?.invalid && (form.get('currencyId')?.touched || form.get('currencyId')?.dirty)) {
+          @if (form.get('currencyId')?.errors?.['required']) {
+          <small class="error-message">
+            Currency is required
+          </small>
+          }
+          }
+        </div>
       </div>
 
       @if (isReadOnlyMode) {
-      <div class="form-field">
-        <label for="startDate">Start date</label>
-        <input
-          pInputText
-          id="startDate"
-          type="text"
-          formControlName="startDate"
-          [readonly]="true"
-        />
-      </div>
-      <div class="form-field">
-        <label for="endDate">End date</label>
-        <input
-          pInputText
-          id="endDate"
-          type="text"
-          formControlName="startDate"
-          [readonly]="true"
-        />
+      <div class="form-row two-columns">
+        <div class="form-field">
+          <label for="startDate">Start date</label>
+          <input
+            pInputText
+            id="startDate"
+            type="text"
+            formControlName="startDate"
+            [readonly]="true"
+          />
+        </div>
+        <div class="form-field">
+          <label for="endDate">End date</label>
+          <input
+            pInputText
+            id="endDate"
+            type="text"
+            formControlName="startDate"
+            [readonly]="true"
+          />
+        </div>
       </div>
       } @else {
-      <div class="form-field">
-        <label for="startDate">Start date<span class="required">*</span></label>
-        <p-datepicker
-          id="startDate"
-          formControlName="startDate"
-          dateFormat="yy-mm-dd"
-          dataType="string"
-          [showIcon]="true"
-          styleClass="w-full"
-          appendTo="body"
-        ></p-datepicker>
-        @if (form.get('startDate')?.invalid && (form.get('startDate')?.touched || form.get('startDate')?.dirty)) {
-        @if (form.get('startDate')?.errors?.['required']) {
-        <small class="error-message">
-          Start date is required
-        </small>
-        }
-        }
-      </div>
+      <div class="form-row two-columns">
+        <div class="form-field">
+          <label for="startDate">Start date<span class="required">*</span></label>
+          <p-datepicker
+            id="startDate"
+            formControlName="startDate"
+            dateFormat="yy-mm-dd"
+            dataType="string"
+            [showIcon]="true"
+            styleClass="w-full"
+            appendTo="body"
+          ></p-datepicker>
+          @if (form.get('startDate')?.invalid && (form.get('startDate')?.touched || form.get('startDate')?.dirty)) {
+          @if (form.get('startDate')?.errors?.['required']) {
+          <small class="error-message">
+            Start date is required
+          </small>
+          }
+          }
+        </div>
 
-      <div class="form-field">
-        <label for="endDate">End date<span class="required">*</span></label>
-        <p-datepicker
-          id="endDate"
-          formControlName="endDate"
-          dateFormat="yy-mm-dd"
-          dataType="string"
-          [showIcon]="true"
-          styleClass="w-full"
-          appendTo="body"
-        ></p-datepicker>
-        @if (form.get('endDate')?.invalid && (form.get('endDate')?.touched || form.get('endDate')?.dirty)) {
-        @if (form.get('endDate')?.errors?.['required']) {
-        <small class="error-message">
-          End date is required
-        </small>
-        }
-        }
+        <div class="form-field">
+          <label for="endDate">End date<span class="required">*</span></label>
+          <p-datepicker
+            id="endDate"
+            formControlName="endDate"
+            dateFormat="yy-mm-dd"
+            dataType="string"
+            [showIcon]="true"
+            styleClass="w-full"
+            appendTo="body"
+          ></p-datepicker>
+          @if (form.get('endDate')?.invalid && (form.get('endDate')?.touched || form.get('endDate')?.dirty)) {
+          @if (form.get('endDate')?.errors?.['required']) {
+          <small class="error-message">
+            End date is required
+          </small>
+          }
+          }
+        </div>
       </div>
       }
 
