@@ -179,9 +179,9 @@ export class PlansPanelComponent implements OnInit {
     return [
       { label: 'Max Items', value: this.formatPlanLimit(plan.allowedItems) },
       { label: 'Max Participants', value: this.formatPlanLimit(plan.allowedTravelers) },
-      { label: 'PDF Export', value: true },
+      // { label: 'PDF Export', value: true },
       { label: 'AI Suggestions', value: `${plan.allowedAiPrompts && plan.allowedAiPrompts > 0 ? plan.allowedAiPrompts : 'Unlimited'} per day` },
-      { label: 'Shared Items', value: true },
+      // { label: 'Shared Items', value: true },
       { label: 'Extended AI prompts', value: plan.extendedAiAllowed },
     ];
   }
@@ -198,7 +198,7 @@ export class PlansPanelComponent implements OnInit {
           this.starter =
           {
             name: 'Starter',
-            description: 'For small trips and light packers',
+            description: 'Suitable for short and easy trips alone or in pairs',
             monthlyPrice: '0',
             monthlyPriceName: "Free",
             monthlyButtonText: 'Join Free',

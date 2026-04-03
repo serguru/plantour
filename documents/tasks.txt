@@ -872,3 +872,25 @@ I have a Plantour web app deployed to Render. It is under Maintenance mode. I ne
  We are changing the current expences logic. The trip_shared_expenses table has lost a number of fields fields and now it cannot reference trip_user_expenses table. Now it is just a flat list of shared expenses in trip's currency. And trip_users has a number of new fields to support the user's shared amout assignmets. And trip_user_expenses now has "shared" field. The logic is: an admin assigns shared amounts to trip's users with optional deadline. The user cannot update amount and deadline but they can accept or refuse that assignment. And to pay the assigned amount they should add your personal expenses with shared = true.
 
 Align the existing code with these changes. Allow users Accept or Refuse assignments to them similar to how it is done for Finished field for Shared Items. Add a collapsible panel to the list of personal trip expenses showing how much the user owe on their shared expenses. Same panel for all the trip users visible to the admin only. Update Trip info and pdf reports logic. Do not forget to update AI trip plan logic.
+
+
+insert or update on table "ai_prompts" violates foreign key constraint "ai_prompts_user_id_fkey"
+
+Mediterranean multi countries trip 3 weeks culture, beaches and culinary next summer. Family 2 adults and 2 children 10 an 16 years old. Roundtrip from Vancouver BC,.
+
+
+
+
+Trip User does not exist for this trip
+
+
+Let's build a feature which will help admins to assign shared expenses. In the Trip users add a menu item "Auto assign shared expenses" visible only for admins. Add an ability to temporary mark participants (see how "Mark for PDF" implemented in Notes) for admins only as well. If no participants marked "Auto assign shared expenses" must be disabled. Add menu items "Mark all" and "Unmark all", these menu items must be disabled if nothing to do and vidible only for admins. 
+When a user clicks on "Auto assign shared expenses" show them a dialog. Calculate an amount to be asigned as "all expenses minus assigned expenses". If it is 0 or negative - notify a user that nothing to do. Otherwise divide that amount with accuracy to 2 decimal digits (becaues it is money). Show the message like The total amount XXX, already assigned YYY, will be assigned ZZZ, for every participant NNN will be added to their assignment. If a participant already have an asiignment add this one to already existing. Make sure a sum of assignments is sharp equal to the common amount to assign. So if you slit a dollar for the three participants it will be "0.33", "0.33" and "0.34".
+Warn the user that all the assignee will receive an email notification. Do not forget to implement send emails to all the assignees. The dialog must have the Cancel (default) and Assign buttons.
+
+
+Add a description of this new Auto assign feature to "How does admin assign shared expenses" Help question
+
+
+The text "accept" field in table trip_users was replaced with a boolean "rejected" field. Scan the project for the code which uses that "accept" field and redesign it to use the "rejected" field. Use a checkbox in the inline html template insted of a button. Remove "Accepted" from the summary.
+

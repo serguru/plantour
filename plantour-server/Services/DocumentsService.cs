@@ -1089,13 +1089,14 @@ public class DocumentsService : IDocumentsService
             return "Not assigned";
         }
 
-        return participant.Accept switch
+        if (participant.Rejected)
         {
-            "accepted" => "Accepted",
-            "rejected" => "Rejected",
-            _ when participant.AssignedDeadline.HasValue => $"Pending until {participant.AssignedDeadline.Value:dd.MM.yyyy}",
-            _ => "Pending"
-        };
+            return "Rejected";
+        }
+
+        return participant.AssignedDeadline.HasValue
+            ? $"Assigned until {participant.AssignedDeadline.Value:dd.MM.yyyy}"
+            : "Assigned";
     }
 
     private static List<ExpenseSettlementLine> BuildSettlements(List<ExpenseParticipantSummary> summaries)

@@ -44,13 +44,16 @@
         "afterHtml": "Review the overview panel first so you understand how deleting a shared expense changes the trip-level totals, assigned amounts, and payment progress."
       },
       {
-        "title": "Review the shared-expenses overview",
+        "title": "Review the expenses overview",
         "listTag": "ul",
         "items": [
-          "Use the collapsible overview panel at the top of the page when you want to review trip-level shared expense totals and assignment payment progress.",
-          "The panel shows shared expenses total, assigned, accepted, rejected, paid, and waiting for payment.",
+          "Use the collapsible expenses overview at the top of the page when you want to review trip-level shared expense totals and assignment payment progress.",
+          "The panel shows shared expenses total, assigned, waiting for assignment, paid, waiting for payment, and rejected.",
+          "Waiting for assignment is calculated as shared expenses total minus assigned. Waiting for payment is calculated as assigned minus paid.",
+          "The same expenses overview is also shown on <strong>Trip participants</strong>, so admins can compare trip-level totals and participant assignments without leaving that page.",
           "Collapse the panel when you want more room for the expense list. Plantour remembers its open or closed state."
-        ]
+        ],
+        "afterHtml": "This overview is for shared-expense totals across the trip. Use <strong>My shared balance</strong> on personal <strong>Trip expenses</strong> when you want to track one participant`s own assigned and paid balance."
       }
     ]
   }

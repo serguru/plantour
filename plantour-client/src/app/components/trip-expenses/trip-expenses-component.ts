@@ -25,7 +25,8 @@ interface SharedBalanceSummary {
   sharedAmount: number;
   sharedPaidAmount: number;
   sharedRemainingAmount: number;
-  accept?: string | null;
+  sharedOverpaidAmount: number;
+  rejected: boolean;
   assignedDeadline?: string | null;
 }
 
@@ -240,23 +241,25 @@ export class TripExpensesComponent implements OnInit {
       return 'No shared amount assigned';
     }
 
-    if (summary.accept === 'accepted') {
-      return summary.assignedDeadline
-        ? `Accepted. Deadline ${formatDate(summary.assignedDeadline)}`
-        : 'Accepted';
-    }
-
-    if (summary.accept === 'rejected') {
+    if (summary.rejected) {
       return summary.assignedDeadline
         ? `Rejected. Deadline ${formatDate(summary.assignedDeadline)}`
         : 'Rejected';
     }
 
     if (summary.assignedDeadline) {
-      return `Pending response. Deadline ${formatDate(summary.assignedDeadline)}`;
+      return `Assigned. Deadline ${formatDate(summary.assignedDeadline)}`;
     }
 
-    return 'Pending response';
+    return 'Assigned';
+  }
+
+  sharedOverpaidText(summary: SharedBalanceSummary): string | null {
+    if (summary.sharedOverpaidAmount <= 0) {
+      return null;
+    }
+
+    return `You paid ${this.formatAmount(summary.sharedOverpaidAmount)} more than your assigned shared amount.`;
   }
 
   onOverviewToggle(event: Event): void {
@@ -278,16 +281,24 @@ export class TripExpensesComponent implements OnInit {
 
   private updateSharedSummaries(participants: TripUserDto[]): void {
     const summaries = participants
-      .map((participant) => ({
-        tripUserId: participant.id,
-        userId: participant.userId,
-        participantName: participant.fullName || participant.email,
-        sharedAmount: participant.sharedAmount || 0,
-        sharedPaidAmount: participant.sharedPaidAmount || 0,
-        sharedRemainingAmount: participant.sharedRemainingAmount || 0,
-        accept: participant.accept,
-        assignedDeadline: participant.assignedDeadline,
-      }))
+      .map((participant) => {
+        const sharedAmount = participant.sharedAmount || 0;
+        const sharedPaidAmount = participant.sharedPaidAmount || 0;
+        const sharedRemainingAmount = Math.max(sharedAmount - sharedPaidAmount, 0);
+        const sharedOverpaidAmount = Math.max(sharedPaidAmount - sharedAmount, 0);
+
+        return {
+          tripUserId: participant.id,
+          userId: participant.userId,
+          participantName: participant.fullName || participant.email,
+          sharedAmount,
+          sharedPaidAmount,
+          sharedRemainingAmount,
+          sharedOverpaidAmount,
+          rejected: !!participant.rejected,
+          assignedDeadline: participant.assignedDeadline,
+        };
+      })
       .filter((participant) => participant.sharedAmount > 0 || participant.sharedPaidAmount > 0)
       .sort((left, right) => left.participantName.localeCompare(right.participantName));
 

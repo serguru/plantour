@@ -65,6 +65,7 @@ export interface LookupsResponse {
 export class LookupService {
   private apiUrl: string;
   private lookups: LookupsResponse | null = null;
+  private readonly prioritizedCurrencyNames = ['USD', 'EUR'];
 
   constructor(
     private http: HttpClient,
@@ -115,7 +116,7 @@ export class LookupService {
     return new Observable((observer) => {
       this.loadLookupsIfNeeded().subscribe({
         next: (lookups) => {
-          observer.next(lookups.currencies);
+          observer.next(this.prioritizeCurrencies(lookups.currencies));
           observer.complete();
         },
         error: (err) => observer.error(err),
@@ -124,6 +125,22 @@ export class LookupService {
   }
 
   currencies$ = this.getCurrencies();
+
+  private prioritizeCurrencies(currencies: CurrencyDto[]): CurrencyDto[] {
+    const prioritized = this.prioritizedCurrencyNames
+      .map(name => currencies.find(currency => currency.name === name))
+      .filter((currency): currency is CurrencyDto => !!currency);
+
+    const naturalCurrencies = currencies.filter((currency, index, allCurrencies) => {
+      if (!this.prioritizedCurrencyNames.includes(currency.name)) {
+        return true;
+      }
+
+      return allCurrencies.findIndex(item => item.name === currency.name) === index;
+    });
+
+    return [...prioritized, ...naturalCurrencies];
+  }
 
   getItineraryPartCategories(): Observable<ItineraryPartCategoryDto[]> {
     return new Observable((observer) => {

@@ -1,8 +1,8 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, switchMap, tap } from 'rxjs';
+import { ExpensesOverviewComponent } from '../expenses-overview/expenses-overview-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { ComponentService } from '../../services/component-service';
@@ -15,20 +15,11 @@ import { TripService } from '../../services/trip-service';
 import { TripUserDto, TripUserService } from '../../services/trip-user-service';
 import { TripSharedExpenseItemComponent } from './trip-shared-expense-item/trip-shared-expense-item-component';
 
-interface TripSharedExpensesOverview {
-  total: number;
-  assigned: number;
-  accepted: number;
-  rejected: number;
-  paid: number;
-  waitingForPayment: number;
-}
-
 @Component({
   selector: 'app-trip-shared-expenses',
   standalone: true,
   imports: [
-    CommonModule,
+    ExpensesOverviewComponent,
     EntitiesComponent,
     EntitiesHeader,
   ],
@@ -53,8 +44,9 @@ export class TripSharedExpensesComponent implements OnInit {
   itemMetaData: { tripCurrencyAbbreviation: string | null } = {
     tripCurrencyAbbreviation: null,
   };
-  summaryPanelExpanded = signal<boolean>(true);
-  overview = signal<TripSharedExpensesOverview | null>(null);
+  tripSharedExpenses = signal<TripSharedExpenseDto[] | null>(null);
+  tripUsers = signal<TripUserDto[] | null>(null);
+  overviewLoaded = signal(false);
 
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
@@ -106,9 +98,6 @@ export class TripSharedExpensesComponent implements OnInit {
     }
 
     this.initConditions(this.componentId);
-    this.summaryPanelExpanded.set(
-      this.localStorageService.getComponentBooleanKey(this.componentId, 'overviewExpanded', true)
-    );
 
     combineLatest([
       this.tripSharedExpenseService.getAll(this.tripId),
@@ -117,7 +106,9 @@ export class TripSharedExpensesComponent implements OnInit {
     ]).pipe(
       tap(([expenses, trip, participants]) => {
         this.itemMetaData.tripCurrencyAbbreviation = trip.currency;
-        this.overview.set(this.buildOverview(expenses, participants));
+        this.tripSharedExpenses.set(expenses);
+        this.tripUsers.set(participants);
+        this.overviewLoaded.set(true);
         this.initSavedFeatures(expenses);
       }),
       takeUntilDestroyed(this.destroyRef)
@@ -169,46 +160,5 @@ export class TripSharedExpensesComponent implements OnInit {
       link.click();
       window.URL.revokeObjectURL(url);
     });
-  }
-
-  onOverviewToggle(event: Event): void {
-    const details = event.target as HTMLDetailsElement | null;
-    const expanded = !!details?.open;
-    this.summaryPanelExpanded.set(expanded);
-    this.localStorageService.setComponentKey(this.componentId, 'overviewExpanded', expanded);
-  }
-
-  formatAmount(value: number): string {
-    const currency = this.itemMetaData.tripCurrencyAbbreviation?.trim();
-    const amount = new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: value % 1 === 0 ? 0 : 2,
-      maximumFractionDigits: 2,
-    }).format(value);
-
-    return currency ? `${currency} ${amount}` : amount;
-  }
-
-  private buildOverview(expenses: TripSharedExpenseDto[], participants: TripUserDto[]): TripSharedExpensesOverview {
-    const total = expenses.reduce((sum, item) => sum + (item.amount || 0), 0);
-    const assigned = participants.reduce((sum, item) => sum + (item.sharedAmount || 0), 0);
-    const accepted = participants
-      .filter((item) => item.accept === 'accepted')
-      .reduce((sum, item) => sum + (item.sharedAmount || 0), 0);
-    const rejected = participants
-      .filter((item) => item.accept === 'rejected')
-      .reduce((sum, item) => sum + (item.sharedAmount || 0), 0);
-    const paid = participants.reduce((sum, item) => sum + (item.sharedPaidAmount || 0), 0);
-    const waitingForPayment = participants
-      .filter((item) => item.accept === 'accepted')
-      .reduce((sum, item) => sum + (item.sharedRemainingAmount || 0), 0);
-
-    return {
-      total,
-      assigned,
-      accepted,
-      rejected,
-      paid,
-      waitingForPayment,
-    };
   }
 }

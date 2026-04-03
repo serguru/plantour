@@ -80,20 +80,20 @@ public class TripUserController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("toggle-accept-shared-assignment")]
-    [AdminOrParticipant]
-    public async Task<ActionResult> ToggleAcceptSharedAssignment([FromBody] IdTripIdRequest request)
-    {
-        await _service.ToggleAcceptSharedAssignmentAsync(request.TripId, request.Id);
-        return Ok();
-    }
-
     [HttpPut("toggle-reject-shared-assignment")]
     [AdminOrParticipant]
     public async Task<ActionResult> ToggleRejectSharedAssignment([FromBody] IdTripIdRequest request)
     {
         await _service.ToggleRejectSharedAssignmentAsync(request.TripId, request.Id);
         return Ok();
+    }
+
+    [HttpPost("auto-assign-shared-expenses")]
+    [AdminOnly]
+    public async Task<ActionResult<AutoAssignSharedExpensesResponse>> AutoAssignSharedExpenses([FromBody] AutoAssignSharedExpensesRequest request)
+    {
+        var response = await _service.AutoAssignSharedExpensesAsync(request);
+        return Ok(response);
     }
 
     [HttpDelete("trip/{tripId}/user/{id}")]

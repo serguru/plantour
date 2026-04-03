@@ -1,3 +1,4 @@
+begin;
 insert into plantour.settings (key, value, value_type)
 values 
     ('user_entities_logging_days', '16', 'integer'),
@@ -14,3 +15,4 @@ values
     ('exclude_paths_from_log', 'users/health-check;users/version;version',  'string'),
     ('global_spinner_timeout_sec', '30',  'integer'),
     ('plantour_app_origin', 'https://plantour-client-production.onrender.com',  'string');
+commit;

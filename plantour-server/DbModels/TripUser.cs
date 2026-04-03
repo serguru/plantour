@@ -43,8 +43,8 @@ public partial class TripUser
     [Column("assigned_deadline")]
     public DateTime? AssignedDeadline { get; set; }
 
-    [Column("accept")]
-    public string? Accept { get; set; }
+    [Column("rejected")]
+    public bool Rejected { get; set; }
 
     [ForeignKey("AdminParticipantId")]
     [InverseProperty("TripUsers")]

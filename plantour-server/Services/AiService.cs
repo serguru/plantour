@@ -2419,7 +2419,7 @@ public class AiService : IAiService
                 SharedAmount = tripUser.SharedAmount,
                 SharedPaidAmount = sharedPaidAmount,
                 SharedRemainingAmount = Math.Max(tripUser.SharedAmount - sharedPaidAmount, 0),
-                SharedAssignmentAccepted = tripUser.Accept,
+                SharedAssignmentRejected = tripUser.Rejected,
                 SharedAssignmentDeadline = tripUser.AssignedDeadline,
             },
             ItineraryParts = itineraryParts,
@@ -2646,7 +2646,7 @@ public class AiService : IAiService
         public decimal SharedAmount { get; set; }
         public decimal SharedPaidAmount { get; set; }
         public decimal SharedRemainingAmount { get; set; }
-        public string? SharedAssignmentAccepted { get; set; }
+        public bool SharedAssignmentRejected { get; set; }
         public DateTime? SharedAssignmentDeadline { get; set; }
     }
 

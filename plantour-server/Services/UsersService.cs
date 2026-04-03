@@ -749,7 +749,7 @@ public class UsersService(
 
             adminId = admin.Id;
         }
-
+// TODO: check plans explanations, include individuals
 
         string? temporary = data.FirstOrDefault(kv => kv.Key == "temporary").Value;
         if (string.IsNullOrWhiteSpace(temporary))

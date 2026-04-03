@@ -32,7 +32,7 @@ export interface TripUserDto {
   sharedRemainingAmount: number;
   assignedAt?: string | null;
   assignedDeadline?: string | null;
-  accept?: string | null;
+  rejected: boolean;
   sharedAssignmentStatusText?: string | null;
   sharedAssignmentStatusName?: string | null;
   sharedAssignmentStatus?: AssignmentStatus | null;
@@ -63,6 +63,19 @@ export interface UpdateTripUserRequest {
 export interface IdTripIdRequest {
   id: string;
   tripId: string;
+}
+
+export interface AutoAssignSharedExpensesRequest {
+  tripId: string;
+  tripUserIds: string[];
+}
+
+export interface AutoAssignSharedExpensesResponse {
+  totalAmount: number;
+  alreadyAssignedAmount: number;
+  assignedAmount: number;
+  perParticipantAmount: number;
+  participantsCount: number;
 }
 
 @Injectable({
@@ -121,12 +134,12 @@ export class TripUserService {
     return this.http.put<void>(`${this.apiUrl}`, request);
   }
 
-  toggleAcceptSharedAssignment(request: IdTripIdRequest): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/toggle-accept-shared-assignment`, request);
-  }
-
   toggleRejectSharedAssignment(request: IdTripIdRequest): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/toggle-reject-shared-assignment`, request);
+  }
+
+  autoAssignSharedExpenses(request: AutoAssignSharedExpensesRequest): Observable<AutoAssignSharedExpensesResponse> {
+    return this.http.post<AutoAssignSharedExpensesResponse>(`${this.apiUrl}/auto-assign-shared-expenses`, request);
   }
 
   delete(tripId: string, id: string): Observable<void> {

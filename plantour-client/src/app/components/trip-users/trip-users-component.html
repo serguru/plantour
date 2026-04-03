@@ -10,6 +10,14 @@
         [menuItems]="menuItems()"
     ></app-entities-header>
 
+    <app-expenses-overview
+        [componentId]="componentId"
+        [tripSharedExpenses]="tripSharedExpenses()"
+        [participants]="tripUsers()"
+        [tripCurrencyAbbreviation]="tripCurrencyAbbreviation"
+        [loaded]="overviewLoaded()"
+    ></app-expenses-overview>
+
     <app-entities-actions
     ></app-entities-actions>
     <app-entities

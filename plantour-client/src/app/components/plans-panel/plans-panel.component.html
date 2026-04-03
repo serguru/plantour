@@ -46,7 +46,7 @@
 
     <ul class="plan-features">
       @for (feat of starter.features; track feat.label) {
-      <li [class.disabled]="feat.value === false">
+      <li>
         <span class="feat-label">{{ feat.label }}</span>
         <span
           class="feat-value"
@@ -55,7 +55,7 @@
           @if (feat.value === true) {
           Included
           } @else if (feat.value === false) {
-          —
+          Not included
           } @else {
           {{ feat.value }}
           }
@@ -136,7 +136,7 @@
 
     <ul class="plan-features">
       @for (feat of family.features; track feat.label) {
-      <li [class.disabled]="feat.value === false">
+      <li>
         <span class="feat-label">{{ feat.label }}</span>
         <span
           class="feat-value"
@@ -145,7 +145,7 @@
           @if (feat.value === true) {
           Included
           } @else if (feat.value === false) {
-          —
+          Not included
           } @else {
           {{ feat.value }}
           }
@@ -224,7 +224,7 @@
 
     <ul class="plan-features">
       @for (feat of expedition.features; track feat.label) {
-      <li [class.disabled]="feat.value === false">
+      <li>
         <span class="feat-label">{{ feat.label }}</span>
         <span
           class="feat-value"
@@ -233,7 +233,7 @@
           @if (feat.value === true) {
           Included
           } @else if (feat.value === false) {
-          —
+          Not included
           } @else {
           {{ feat.value }}
           }
