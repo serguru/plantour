@@ -894,3 +894,29 @@ Add a description of this new Auto assign feature to "How does admin assign shar
 
 The text "accept" field in table trip_users was replaced with a boolean "rejected" field. Scan the project for the code which uses that "accept" field and redesign it to use the "rejected" field. Use a checkbox in the inline html template insted of a button. Remove "Accepted" from the summary.
 
+
+Explore the internet to get the comprehencive information on the current hosting providers market.
+Estimate them by these criteria:
+
+- Docker (for .Net API)
+- GitHub deployment
+- Maintenance mode with working service and private access to it
+- Managed Postgres
+- At least 2 gb ram / 1 cpu on the server 
+- Angular SSR support
+- Protection from hacker attacks
+- Actually, not formally, working support
+- Reputation of the reliable business partner
+- predictable prices
+- friendly and fast support with tickets system
+- proximity to North America
+- exclude offers with virtual machine approach where I have to do ewverything myself
+
+Generate a side by side comparison. Do not include Google, Oracle, Amazon, Microsoft, Render, Hetzner there. Include at least 8 offers. Put the result into providers.md file.
+
+
+
+
+https://p01--plantour-production-api--lk6ygl5ks8dh.code.run/users/health-check
+
+

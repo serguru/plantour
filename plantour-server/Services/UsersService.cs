@@ -750,6 +750,10 @@ public class UsersService(
             adminId = admin.Id;
         }
 // TODO: check plans explanations, include individuals
+// TODO: why Plantour is som slow in Pred Prod?
+// TODO: format weights in TripInfo
+// TODO: implement redyiness progress instead of packing progress
+// TODO: add Finished to ToDos, Items and Expenses
 
         string? temporary = data.FirstOrDefault(kv => kv.Key == "temporary").Value;
         if (string.IsNullOrWhiteSpace(temporary))
