@@ -16,7 +16,7 @@ const RENDER_HEALTH_CHECK_PATH = '/health';
 const RENDER_HEALTH_CHECK_BODY = 'OK';
 
 const app = express();
-const _allowedHosts = ['localhost', '127.0.0.1', '::1'];
+const _allowedHosts = ['localhost', '127.0.0.1', '::1', '*.code.run'];
 try {
   const envHostname = new URL(environment.clientUrl).hostname;
   if (envHostname) _allowedHosts.push(envHostname);
