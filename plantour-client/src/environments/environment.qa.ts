@@ -2,9 +2,9 @@ export const environment = {
   environment: "qa",
   // Put QA API endpoints and feature flags here
   api: {
-    baseUrl: 'https://api.5.78.41.141.sslip.io'
+    baseUrl: 'http://5.78.41.141:8081'
   },
-  clientUrl: 'https://5.78.41.141.sslip.io',
+  clientUrl: 'http://5.78.41.141:8081',
   googleClientId: '823862645597-cttjtberusfv1itn7phk1uqa04n19nol.apps.googleusercontent.com',
   facebookAppId: '2076632839798115',
   turnstileSiteKey: '0x4AAAAAACyoFgfZ0bvLNGPQ',
