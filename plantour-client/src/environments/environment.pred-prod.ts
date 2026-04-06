@@ -4,7 +4,7 @@ export const environment = {
     baseUrl: 'https://p01--plantour-production-server--lk6ygl5ks8dh.code.run'
     
   },
-  clientUrl: 'https://p01--plantour-production-client--lk6ygl5ks8dh.code.run/',
+  clientUrl: 'https://p01--plantour-production-client--lk6ygl5ks8dh.code.run',
   googleClientId: '823862645597-cttjtberusfv1itn7phk1uqa04n19nol.apps.googleusercontent.com',
   facebookAppId: '2076632839798115',
   turnstileSiteKey: '0x4AAAAAACyoFgfZ0bvLNGPQ',
