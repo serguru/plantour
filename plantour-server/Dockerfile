@@ -4,6 +4,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 10000
+ENV PORT=10000
+ENV ASPNETCORE_HTTP_PORTS=10000
 
 
 # This stage is used to build the service project
