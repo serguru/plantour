@@ -10,7 +10,7 @@
         "items": [
           "Use the question field at the top of the page to type a new trip request or reuse one of the previous questions from the dropdown list.",
           "Choose the trip currency from the currency dropdown beside the question field.",
-          "Click <strong>Show preview</strong> to generate or reload the suggested trip plan. The button becomes available again when you change the question or clear the current result.",
+          "Click <strong>Ask AI</strong> to generate or reload the suggested trip plan. The button becomes available again when you change the question or clear the current result.",
           "Review the generated preview. Plantour can suggest the trip title, summary, recommended dates, assumptions, itinerary parts, public activities, personal activities, personal items, shared items, personal todos, shared todos, personal expenses, shared expenses, and general recommendations.",
           "If the preview looks right and you are an admin, click <strong>Create trip</strong>. Plantour creates a new trip in <strong>Planning</strong> mode from that preview.",
           "Use <strong>Reset</strong> if you want to clear the current question and preview and restore the default currency selection.",
