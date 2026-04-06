@@ -2,9 +2,12 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 COPY . .
-RUN npm run build
+
+# Pass a build environment argument (defaults to production)
+ARG BUILD_ENV=QA
+RUN npm run build:${BUILD_ENV}
 
 # Stage 2: Serve the SSR app with Node.js
 FROM node:20-alpine
