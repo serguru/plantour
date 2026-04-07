@@ -77,6 +77,7 @@ export class DashboardService {
     }
 
     getDashboardTripDto(tripId: string): Observable<DashboardTripDto> {
+        if (!tripId) return of(null as any);
         return this.http.get<DashboardTripDto>(`${this.apiUrl}/trip/${tripId}`);
     }
 

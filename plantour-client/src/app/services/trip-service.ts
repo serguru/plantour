@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, shareReplay } from 'rxjs';
+import { Observable, shareReplay, of } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { get } from 'https';
 
@@ -78,6 +78,7 @@ export class TripService {
   }
 
   getById(id: string): Observable<TripDto> {
+    if (!id) return of(null as any);
     return this.http.get<TripDto>(`${this.apiUrl}/${id}`);
   }
 
