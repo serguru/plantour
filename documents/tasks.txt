@@ -924,3 +924,24 @@ https://p01--plantour-production-api--lk6ygl5ks8dh.code.run/users/health-check
 
 
 
+I have a web app deployed to Northflank. It requires an extended timeout, up to 100s. However the Northflank after 15s these two errors
+
+================================================
+trips-ai:1 Access to fetch at 'https://qaapi.plantour.app/t=emplateai/trip-plan/preview' from origin 'https://qa.plantour.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+
+polyfills-DOYHMSTV.js:2  POST https://qaapi.plantour.app/templateai/trip-plan/preview net::ERR_FAILED 504 (Gateway Timeout)
+================================================
+
+And I tried to setup a custom timeout 100s for the domain as Northflank required but nothing changed. How can I fix this?
+
+
+The app sends to AI three types of requests: items prompt, trip plan and trip estimate. Those requests are long and the Northflank interrupts them in about 15 seconds. Explore the existing code. Implement the solution which will send the response to the client immediately after sending a request to the AI, but the spinner will still be shown. And the client will send requests "Is the AI response received?" every 3 seconds. Once the response received the client will take it and stop the spinner.
+
+No, this approach is too complicated. Rollback it or reuse it. I need this:
+
+Client send an AI request to the Backend
+Backend sends a request to the AI and returns ok 200 to the client immediately.
+Client and Backend wait for the AI response, clients sends periodical requests "Is the AI responded?"
+Once the response received the backend stores it in the db for that user
+Another client's request sees that there is a new response in the db and retrieves it.
+For the AI prompts and AI trip plans the DB tables already exist. For the trip estimation there is log table, just add a json field there to store the AI response

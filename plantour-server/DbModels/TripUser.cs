@@ -46,6 +46,9 @@ public partial class TripUser
     [Column("rejected")]
     public bool Rejected { get; set; }
 
+    [Column("improvements", TypeName = "json")]
+    public string? Improvements { get; set; }
+
     [ForeignKey("AdminParticipantId")]
     [InverseProperty("TripUsers")]
     public virtual AdminsParticipant AdminParticipant { get; set; } = null!;
