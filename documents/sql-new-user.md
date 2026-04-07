@@ -2,7 +2,7 @@ This file contains instructions on how to create a Postgres pgAdmin server conne
 
 - Have already registered server created using the provider instructions
 - Right click on Login/Group roles and enter app_reader/xxx
-- A new server app_reader user is created
+- A new server app_reader user is created -> Set "Can login"
 Neon app_reader/Binary_0909
 - Right click on the db, select Properties/Security/+ and add app_reader with "connect"
 - Right click on the schema, select Properties/Security/+ and add app_reader with "usage"
