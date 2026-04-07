@@ -4,6 +4,13 @@ namespace plantour_server.Services;
 
 public interface IAiService
 {
+    Task<AiAsyncStartResponseDto> StartItemsRequestAsync(AiItemsAsyncRequest request);
+    Task<AiItemsAsyncStatusResponseDto> GetItemsRequestStatusAsync(AiItemsAsyncRequest request);
+    Task<AiAsyncStartResponseDto> StartTripPlanPreviewRequestAsync(TripAiPreviewRequest request);
+    Task<TripPlanAsyncStatusResponseDto> GetTripPlanPreviewStatusAsync(TripAiPreviewRequest request);
+    Task<AiAsyncStartResponseDto> StartTripEstimateRequestAsync(TripEstimateAsyncRequest request);
+    Task<TripEstimateAsyncStatusResponseDto> GetTripEstimateStatusAsync(TripEstimateAsyncRequest request);
+
     Task<IEnumerable<AiPromptDto>> GetLatestPrompts();
     Task<IEnumerable<TripAiQuestionDto>> GetLatestTripPlanQuestionsAsync();
     Task<IEnumerable<AiItemDto>> GetAllByPromptAsync(string prompt);

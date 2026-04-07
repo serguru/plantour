@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, timer, throwError } from 'rxjs';
+import { catchError, filter, finalize, map, switchMap, take } from 'rxjs/operators';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
+import { LoadingService } from './loading-service';
 
 export interface TripAiQuestionDto {
   question: string;
@@ -64,6 +66,25 @@ export interface GenerateTripAiImprovementsResponseDto {
   deletedExistingCount: number;
   sharedEntitiesIncluded: boolean;
   scopeSummary: string;
+}
+
+interface AiAsyncStartResponseDto {
+  requestId: string;
+  status: 'pending' | 'completed' | 'failed';
+}
+
+interface TripPlanAsyncStatusResponseDto {
+  requestId: string;
+  status: 'pending' | 'completed' | 'failed';
+  errorMessage?: string;
+  result?: TripAiPreviewResponseDto;
+}
+
+interface TripEstimateAsyncStatusResponseDto {
+  requestId: string;
+  status: 'pending' | 'completed' | 'failed';
+  errorMessage?: string;
+  result?: GenerateTripAiImprovementsResponseDto;
 }
 
 export interface TripAiAppliedCountsDto {
@@ -147,9 +168,12 @@ export interface TripAiExpenseDto {
 })
 export class TripsAiService {
   private readonly apiUrl: string;
+  private readonly pollIntervalMs = 1500;
+  private readonly pollTimeoutMs = 120000;
 
   constructor(
     private readonly http: HttpClient,
+    private readonly loadingService: LoadingService,
     @Inject(ENVIRONMENT) private readonly environment: EnvironmentConfig
   ) {
     this.apiUrl = `${environment.api.baseUrl}/templateai`;
@@ -164,7 +188,38 @@ export class TripsAiService {
   }
 
   getPreview(request: TripAiPreviewRequest): Observable<TripAiPreviewResponseDto> {
-    return this.http.post<TripAiPreviewResponseDto>(`${this.apiUrl}/trip-plan/preview`, request);
+    const startUrl = `${this.apiUrl}/trip-plan/preview/start`;
+    const statusUrl = `${this.apiUrl}/trip-plan/preview/status`;
+    const startTime = Date.now();
+
+    this.loadingService.start();
+
+    return this.http.post<AiAsyncStartResponseDto>(startUrl, request).pipe(
+      switchMap(() => timer(0, this.pollIntervalMs).pipe(
+        switchMap(() => this.http.post<TripPlanAsyncStatusResponseDto>(statusUrl, request)),
+        map(status => {
+          if (status.status === 'failed') {
+            throw new Error(status.errorMessage || 'AI trip planning failed');
+          }
+
+          if (Date.now() - startTime > this.pollTimeoutMs) {
+            throw new Error('AI trip planning timeout exceeded');
+          }
+
+          return status;
+        }),
+        filter(status => status.status === 'completed'),
+        take(1),
+        map(status => {
+          if (!status.result) {
+            throw new Error('AI trip planning returned no result');
+          }
+          return status.result;
+        })
+      )),
+      catchError(error => throwError(() => error)),
+      finalize(() => this.loadingService.stop())
+    );
   }
 
   createTrip(request: CreateTripFromAiPlanRequest): Observable<TripAiCreateTripResponseDto> {
@@ -172,6 +227,37 @@ export class TripsAiService {
   }
 
   generateTripImprovements(request: GenerateTripAiImprovementsRequest): Observable<GenerateTripAiImprovementsResponseDto> {
-    return this.http.post<GenerateTripAiImprovementsResponseDto>(`${this.apiUrl}/trip-improvements/generate`, request);
+    const startUrl = `${this.apiUrl}/trip-estimate/start`;
+    const statusUrl = `${this.apiUrl}/trip-estimate/status`;
+    const startTime = Date.now();
+
+    this.loadingService.start();
+
+    return this.http.post<AiAsyncStartResponseDto>(startUrl, request).pipe(
+      switchMap(() => timer(0, this.pollIntervalMs).pipe(
+        switchMap(() => this.http.post<TripEstimateAsyncStatusResponseDto>(statusUrl, request)),
+        map(status => {
+          if (status.status === 'failed') {
+            throw new Error(status.errorMessage || 'AI trip improvements failed');
+          }
+
+          if (Date.now() - startTime > this.pollTimeoutMs) {
+            throw new Error('AI trip improvements timeout exceeded');
+          }
+
+          return status;
+        }),
+        filter(status => status.status === 'completed'),
+        take(1),
+        map(status => {
+          if (!status.result) {
+            throw new Error('AI trip improvements returned no result');
+          }
+          return status.result;
+        })
+      )),
+      catchError(error => throwError(() => error)),
+      finalize(() => this.loadingService.stop())
+    );
   }
 }
