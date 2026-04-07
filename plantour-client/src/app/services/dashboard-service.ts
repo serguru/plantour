@@ -82,10 +82,12 @@ export class DashboardService {
     }
 
     getDashboardUserTripDto(tripId: string): Observable<DashboardUserTripDto> {
+        if (!tripId) return of(null as any);
         return this.http.get<DashboardUserTripDto>(`${this.apiUrl}/user-trip/${tripId}`);
     }
 
     getDashboardAllUsersTripDto(tripId: string): Observable<DashboardAllUsersTripDto> {
+        if (!tripId) return of(null as any);
         return this.http.get<DashboardAllUsersTripDto>(`${this.apiUrl}/all-users-trip/${tripId}`);
     }
 

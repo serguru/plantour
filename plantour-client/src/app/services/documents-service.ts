@@ -17,24 +17,28 @@ export class DocumentsService {
   }
 
   getTripReportPdf(tripId: string): Observable<Blob> {
+    if (!tripId) return new Observable<Blob>();
     return this.http.get(`${this.apiUrl}/trip/${tripId}`, {
       responseType: 'blob'
     });
   }
 
   getTripExpensesReportPdf(tripId: string): Observable<Blob> {
+    if (!tripId) return new Observable<Blob>();
     return this.http.get(`${this.apiUrl}/trip/${tripId}/expenses`, {
       responseType: 'blob'
     });
   }
 
   getPackingListPdf(tripId: string, tripPackId: string): Observable<Blob> {
+    if (!tripId) return new Observable<Blob>();
     return this.http.get(`${this.apiUrl}/trip/${tripId}/package/${tripPackId}/packing-list`, {
       responseType: 'blob'
     });
   }
 
   getTripNotesPdf(tripId: string, ids: string[]): Observable<Blob> {
+    if (!tripId) return new Observable<Blob>();
     return this.http.post(`${this.apiUrl}/trip/${tripId}/notes/pdf`, { ids }, {
       responseType: 'blob'
     });
