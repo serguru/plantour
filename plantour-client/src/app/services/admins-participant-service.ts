@@ -1,6 +1,6 @@
 import { Injectable, Inject, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, of } from 'rxjs';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { SignUpParticipantRequest } from '../models/auth.models';
 import { UsersService } from './users-service';
@@ -68,6 +68,7 @@ export class AdminsParticipantService {
   }
 
   getAllForTrip(tripId: string): Observable<AdminsParticipantDto[]> {
+    if (!tripId) return of([]);
     return this.http.get<AdminsParticipantDto[]>(`${this.apiUrl}/trip/${tripId}`).pipe(
       tap(users => {
         this.setFullNames(users);
