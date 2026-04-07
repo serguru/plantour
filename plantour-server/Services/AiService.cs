@@ -2,6 +2,8 @@ using System.Net.Http.Headers;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using System.Collections.Concurrent;
+using System.Security.Cryptography;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -18,6 +20,10 @@ namespace plantour_server.Services;
 
 public class AiService : IAiService
 {
+    private static readonly ConcurrentDictionary<string, byte> RunningJobs = new(StringComparer.Ordinal);
+    private static readonly ConcurrentDictionary<string, string> FailedJobs = new(StringComparer.Ordinal);
+    private static readonly ConcurrentDictionary<string, TripAiPreviewResponseDto> CompletedTripPlanJobs = new(StringComparer.Ordinal);
+
     private readonly HttpClient _httpClient;
     private readonly GeminiSettings _settings;
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
@@ -34,6 +40,7 @@ public class AiService : IAiService
     private readonly TripThingRepository _tripThingRepository;
     private readonly TripSharedRepository _tripSharedRepository;
     private readonly PlantourContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
 
 
@@ -51,6 +58,7 @@ public class AiService : IAiService
         TripThingRepository tripThingRepository,
         AiPromptChecksRepository aiPromptChecksRepository,
         PlantourContext context,
+        IHttpContextAccessor httpContextAccessor,
 
         IMapper mapper,
         HttpCurrentUser httpCurrentUser)
@@ -70,6 +78,7 @@ public class AiService : IAiService
         _tripThingRepository = tripThingRepository;
         _aiPromptChecksRepository = aiPromptChecksRepository;
         _context = context;
+        _httpContextAccessor = httpContextAccessor;
 
         if (!string.IsNullOrWhiteSpace(_settings.ApiBaseUrl))
         {
@@ -80,6 +89,406 @@ public class AiService : IAiService
         {
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
+    }
+
+    public async Task<AiAsyncStartResponseDto> StartItemsRequestAsync(AiItemsAsyncRequest request)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        var normalizedPrompt = (request.Prompt ?? string.Empty).Trim();
+        var requestId = BuildItemsRequestId(_currentUser.UserId, normalizedPrompt);
+
+        var existingStatus = await GetItemsRequestStatusAsync(request);
+        if (existingStatus.Status == "completed")
+        {
+            return new AiAsyncStartResponseDto { RequestId = requestId, Status = "completed" };
+        }
+
+        if (string.IsNullOrWhiteSpace(normalizedPrompt))
+        {
+            return new AiAsyncStartResponseDto { RequestId = requestId, Status = "completed" };
+        }
+
+        if (string.IsNullOrWhiteSpace(_settings.ApiKey))
+        {
+            throw new CustomException("Gemini API key is not configured");
+        }
+
+        await EnsureAiPromptLimitNotReachedAsync();
+
+        if (RunningJobs.TryAdd(requestId, 0))
+        {
+            ScheduleBackgroundJob(requestId, async () =>
+            {
+                await GetAllByPromptAsync(normalizedPrompt);
+            });
+        }
+
+        return new AiAsyncStartResponseDto { RequestId = requestId, Status = "pending" };
+    }
+
+    public async Task<AiItemsAsyncStatusResponseDto> GetItemsRequestStatusAsync(AiItemsAsyncRequest request)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        var normalizedPrompt = (request.Prompt ?? string.Empty).Trim();
+        var requestId = BuildItemsRequestId(_currentUser.UserId, normalizedPrompt);
+
+        if (string.IsNullOrWhiteSpace(normalizedPrompt))
+        {
+            return new AiItemsAsyncStatusResponseDto
+            {
+                RequestId = requestId,
+                Status = "completed",
+                Items = []
+            };
+        }
+
+        var promptEntity = await _aiPromptRepository.GetByPromptAsync(_currentUser.UserId, normalizedPrompt);
+        if (promptEntity != null)
+        {
+            var items = await _aiRepository.FindAsync(x => x.PromptId == promptEntity.Id);
+            var mappedItems = _mapper.Map<List<AiItemDto>>(items);
+            await ApplyItemsTargetingAsync(mappedItems, request.TargetMode, request.TripId);
+
+            return new AiItemsAsyncStatusResponseDto
+            {
+                RequestId = requestId,
+                Status = "completed",
+                Items = mappedItems
+            };
+        }
+
+        if (FailedJobs.TryGetValue(requestId, out var errorMessage))
+        {
+            return new AiItemsAsyncStatusResponseDto
+            {
+                RequestId = requestId,
+                Status = "failed",
+                ErrorMessage = errorMessage,
+                Items = []
+            };
+        }
+
+        return new AiItemsAsyncStatusResponseDto
+        {
+            RequestId = requestId,
+            Status = "pending",
+            Items = []
+        };
+    }
+
+    public async Task<AiAsyncStartResponseDto> StartTripPlanPreviewRequestAsync(TripAiPreviewRequest request)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        var normalizedQuestion = NormalizeQuestion(request.Question);
+        var requestId = BuildTripPlanRequestId(_currentUser.UserId, normalizedQuestion);
+
+        var existingStatus = await GetTripPlanPreviewStatusAsync(request);
+        if (existingStatus.Status == "completed")
+        {
+            return new AiAsyncStartResponseDto { RequestId = requestId, Status = "completed" };
+        }
+
+        if (string.IsNullOrWhiteSpace(_settings.ApiKey))
+        {
+            throw new CustomException("Gemini API key is not configured");
+        }
+
+        await EnsureAiPromptLimitNotReachedAsync();
+
+        if (RunningJobs.TryAdd(requestId, 0))
+        {
+            var currencyText = request.CurrencyText;
+            ScheduleBackgroundJob(requestId, async () =>
+            {
+                var preview = await GetTripPlanPreviewAsync(normalizedQuestion, currencyText);
+                CompletedTripPlanJobs[requestId] = preview;
+            });
+        }
+
+        return new AiAsyncStartResponseDto { RequestId = requestId, Status = "pending" };
+    }
+
+    public async Task<TripPlanAsyncStatusResponseDto> GetTripPlanPreviewStatusAsync(TripAiPreviewRequest request)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        var normalizedQuestion = NormalizeQuestion(request.Question);
+        var requestId = BuildTripPlanRequestId(_currentUser.UserId, normalizedQuestion);
+        var normalizedCurrencyText = NormalizeCurrencyText(request.CurrencyText);
+
+        if (CompletedTripPlanJobs.TryGetValue(requestId, out var freshPreview))
+        {
+            return new TripPlanAsyncStatusResponseDto
+            {
+                RequestId = requestId,
+                Status = "completed",
+                Result = new TripAiPreviewResponseDto
+                {
+                    Question = freshPreview.Question,
+                    Plan = ClonePlan(freshPreview.Plan),
+                    FromCache = false,
+                    DatesAdjusted = freshPreview.DatesAdjusted
+                }
+            };
+        }
+
+        var stored = await _aiTripPlanRepository.GetByQuestionAsync(_currentUser.UserId, normalizedQuestion);
+        if (stored != null)
+        {
+            var plan = JsonSerializer.Deserialize<TripAiPlanDto>(stored.Plan, _jsonOptions)
+                ?? throw new CustomException("Stored AI trip plan is empty");
+            NormalizeTripPlan(plan);
+
+            if (string.IsNullOrWhiteSpace(plan.CurrencyText) && !string.IsNullOrWhiteSpace(normalizedCurrencyText))
+            {
+                plan.CurrencyText = normalizedCurrencyText;
+            }
+
+            return new TripPlanAsyncStatusResponseDto
+            {
+                RequestId = requestId,
+                Status = "completed",
+                Result = new TripAiPreviewResponseDto
+                {
+                    Question = normalizedQuestion,
+                    Plan = ClonePlan(plan),
+                    FromCache = true,
+                    DatesAdjusted = false
+                }
+            };
+        }
+
+        if (FailedJobs.TryGetValue(requestId, out var errorMessage))
+        {
+            return new TripPlanAsyncStatusResponseDto
+            {
+                RequestId = requestId,
+                Status = "failed",
+                ErrorMessage = errorMessage,
+            };
+        }
+
+        return new TripPlanAsyncStatusResponseDto
+        {
+            RequestId = requestId,
+            Status = "pending"
+        };
+    }
+
+    public async Task<AiAsyncStartResponseDto> StartTripEstimateRequestAsync(TripEstimateAsyncRequest request)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+
+        var requestId = BuildTripEstimateRequestId(_currentUser.AdminId, _currentUser.UserId, request.TripId);
+
+        if (request.TripId == Guid.Empty)
+        {
+            throw new CustomException("Trip is required");
+        }
+
+        if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(request.TripId))
+        {
+            throw new CustomException("User does not have access to this trip");
+        }
+
+        var existingStatus = await GetTripEstimateStatusAsync(request);
+        if (existingStatus.Status == "completed" && !request.ReplaceExisting)
+        {
+            return new AiAsyncStartResponseDto { RequestId = requestId, Status = "completed" };
+        }
+
+        EnsureExtendedAiAllowed();
+
+        if (request.ReplaceExisting)
+        {
+            var tripUserToReset = await _context.TripUsers
+                .FirstOrDefaultAsync(x =>
+                    x.TripId == request.TripId &&
+                    x.AdminParticipant.AdminId == _currentUser.AdminId &&
+                    x.AdminParticipant.ParticipantId == _currentUser.UserId);
+
+            if (tripUserToReset != null)
+            {
+                tripUserToReset.Improvements = null;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        await EnsureAiPromptLimitNotReachedAsync();
+
+        if (RunningJobs.TryAdd(requestId, 0))
+        {
+            ScheduleBackgroundJob(requestId, async () =>
+            {
+                await GenerateTripAiImprovementsAsync(new GenerateTripAiImprovementsRequest
+                {
+                    TripId = request.TripId,
+                    ReplaceExisting = request.ReplaceExisting
+                });
+            });
+        }
+
+        return new AiAsyncStartResponseDto { RequestId = requestId, Status = "pending" };
+    }
+
+    public async Task<TripEstimateAsyncStatusResponseDto> GetTripEstimateStatusAsync(TripEstimateAsyncRequest request)
+    {
+        _currentUser.RaiseIfNotAuthenticated();
+        var requestId = BuildTripEstimateRequestId(_currentUser.AdminId, _currentUser.UserId, request.TripId);
+
+        if (request.TripId == Guid.Empty)
+        {
+            throw new CustomException("Trip is required");
+        }
+
+        var tripUser = await _context.TripUsers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x =>
+                x.TripId == request.TripId &&
+                x.AdminParticipant.AdminId == _currentUser.AdminId &&
+                x.AdminParticipant.ParticipantId == _currentUser.UserId);
+
+        if (tripUser == null)
+        {
+            throw new CustomException("Current user is not included in this trip");
+        }
+
+        if (!string.IsNullOrWhiteSpace(tripUser.Improvements))
+        {
+            try
+            {
+                var result = JsonSerializer.Deserialize<GenerateTripAiImprovementsResponseDto>(tripUser.Improvements, _jsonOptions);
+                if (result != null)
+                {
+                    return new TripEstimateAsyncStatusResponseDto
+                    {
+                        RequestId = requestId,
+                        Status = "completed",
+                        Result = result
+                    };
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        if (FailedJobs.TryGetValue(requestId, out var errorMessage))
+        {
+            return new TripEstimateAsyncStatusResponseDto
+            {
+                RequestId = requestId,
+                Status = "failed",
+                ErrorMessage = errorMessage
+            };
+        }
+
+        return new TripEstimateAsyncStatusResponseDto
+        {
+            RequestId = requestId,
+            Status = "pending"
+        };
+    }
+
+    private void ScheduleBackgroundJob(string requestId, Func<Task> action)
+    {
+        var httpContext = _httpContextAccessor.HttpContext;
+
+        if (httpContext != null)
+        {
+            httpContext.Response.OnCompleted(async () =>
+            {
+                await RunBackgroundJobAsync(requestId, action);
+            });
+            return;
+        }
+
+        _ = Task.Run(async () => await RunBackgroundJobAsync(requestId, action));
+    }
+
+    private static async Task RunBackgroundJobAsync(string requestId, Func<Task> action)
+    {
+        try
+        {
+            await action();
+            FailedJobs.TryRemove(requestId, out _);
+        }
+        catch (Exception ex)
+        {
+            FailedJobs[requestId] = ex is CustomException customException
+                ? customException.Message
+                : "AI request failed";
+            CompletedTripPlanJobs.TryRemove(requestId, out _);
+        }
+        finally
+        {
+            RunningJobs.TryRemove(requestId, out _);
+        }
+    }
+
+    private async Task ApplyItemsTargetingAsync(List<AiItemDto> items, string? targetMode, Guid? tripId)
+    {
+        if (items.Count == 0)
+        {
+            return;
+        }
+
+        var normalizedTarget = (targetMode ?? "all").Trim().ToLowerInvariant();
+        var targetNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        if (normalizedTarget == "trip" || normalizedTarget == "trip-shared")
+        {
+            if (!tripId.HasValue || tripId.Value == Guid.Empty)
+            {
+                return;
+            }
+
+            if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId.Value))
+            {
+                throw new CustomException("User does not have access to this trip");
+            }
+
+            if (normalizedTarget == "trip")
+            {
+                var tripThings = await _tripThingRepository.GetAllAsync(_currentUser.AdminId, _currentUser.UserId, tripId.Value);
+                targetNames = new HashSet<string>(tripThings.Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
+            }
+            else
+            {
+                _currentUser.RaiseIfNotAdmin();
+                var tripSharedThings = await _tripSharedRepository.GetAllFullAsync(tripId.Value);
+                targetNames = new HashSet<string>(tripSharedThings.Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
+            }
+        }
+        else if (normalizedTarget == "dic")
+        {
+            var userThings = await _thingsRepository.FindAsync(x => x.UserId == _currentUser.UserId);
+            targetNames = new HashSet<string>(userThings.Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
+        }
+
+        foreach (var item in items)
+        {
+            item.IsTargeted = targetNames.Contains(item.Name);
+        }
+    }
+
+    private static string BuildItemsRequestId(Guid userId, string prompt)
+        => BuildRequestId("items", userId.ToString("N"), prompt.Trim().ToLowerInvariant());
+
+    private static string BuildTripPlanRequestId(Guid userId, string question)
+        => BuildRequestId("trip-plan", userId.ToString("N"), question.Trim().ToLowerInvariant());
+
+    private static string BuildTripEstimateRequestId(Guid adminId, Guid userId, Guid tripId)
+        => BuildRequestId("trip-estimate", adminId.ToString("N"), userId.ToString("N"), tripId.ToString("N"));
+
+    private static string BuildRequestId(params string[] values)
+    {
+        var raw = string.Join('|', values);
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(raw));
+        return Convert.ToHexString(bytes);
     }
 
     public async Task<IEnumerable<AiPromptDto>> GetLatestPrompts()
@@ -903,9 +1312,7 @@ public class AiService : IAiService
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
 
-        await SyncAiPromptCountAsync();
-
-        return new GenerateTripAiImprovementsResponseDto
+        var responseDto = new GenerateTripAiImprovementsResponseDto
         {
             Improvements = _mapper.Map<List<TripImprovementDto>>(persistedImprovements.OrderBy(x => x.ImprovementOrder).ToList()),
             DeletedExistingCount = deletedExistingCount,
@@ -914,6 +1321,18 @@ public class AiService : IAiService
                 ? "AI analyzed your personal and shared trip data."
                 : "AI analyzed your personal trip data only."
         };
+
+        var trackedTripUser = await _context.TripUsers
+            .FirstOrDefaultAsync(x => x.Id == tripUser.Id);
+        if (trackedTripUser != null)
+        {
+            trackedTripUser.Improvements = JsonSerializer.Serialize(responseDto, _jsonOptions);
+            await _context.SaveChangesAsync();
+        }
+
+        await SyncAiPromptCountAsync();
+
+        return responseDto;
     }
 
     private async Task<TripAiPlanDto> GenerateTripPlanAsync(string prompt, string currencyText)
