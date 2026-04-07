@@ -947,3 +947,7 @@ I need this:
 
 For the AI prompts and AI trip plans the DB tables exist. For the trip estimation use the trip_users.improvements json field.
 
+I need a comprehensive plan for a Turkey history, nature and culinary trip, 5 cities, 10 days, 4 adults, this spring, by car
+
+
+
