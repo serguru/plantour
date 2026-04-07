@@ -1,7 +1,7 @@
 export const environment = {
   environment: "pred-prod",
   api: {
-    baseUrl: 'https://p01--plantour-production-server--lk6ygl5ks8dh.code.run'
+    baseUrl: 'https://qaapi.plantour.app'
     
   },
   clientUrl: 'https://qa.plantour.app',
