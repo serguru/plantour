@@ -2,9 +2,9 @@ export const environment = {
   environment: "qa",
   // Put QA API endpoints and feature flags here
   api: {
-    baseUrl: 'https://qaapi.plantour.app'
+    baseUrl: 'https://plantour-server-qa.onrender.com'
   },
-  clientUrl: 'https://qa.plantour.app',
+  clientUrl: 'https://plantour-client-qa.onrender.com',
   googleClientId: '918703665460-7vpm4ecriksjt5lv6fqhkvvbmqi92h0l.apps.googleusercontent.com',
   facebookAppId: '2076632839798115',
   turnstileSiteKey: '0x4AAAAAACyoFgfZ0bvLNGPQ',
