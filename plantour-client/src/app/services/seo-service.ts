@@ -36,7 +36,7 @@ export class SeoService {
       "name='robots'",
     );
 
-    const canonicalUrl = config.canonicalUrl;
+    const canonicalUrl = this.normalizeCanonicalUrl(config.canonicalUrl);
     if (canonicalUrl) {
       this.setCanonical(canonicalUrl);
     }
@@ -98,8 +98,10 @@ export class SeoService {
   }
 
   private requestOrigin(): string | null {
-    const protocol = this.request?.headers?.get('x-forwarded-proto');
-    const host = this.request?.headers?.get('x-forwarded-host') ?? this.request?.headers?.get('host');
+    const protocol = this.firstForwardedValue(this.request?.headers?.get('x-forwarded-proto'));
+    const host = this.firstForwardedValue(
+      this.request?.headers?.get('x-forwarded-host') ?? this.request?.headers?.get('host'),
+    );
     if (protocol && host) {
       return `${protocol}://${host}`;
     }
@@ -113,6 +115,54 @@ export class SeoService {
     } catch {
       return null;
     }
+  }
+
+  private normalizeCanonicalUrl(url: string | undefined): string | undefined {
+    if (!url) {
+      return undefined;
+    }
+
+    const absolute = this.toAbsoluteUrl(url);
+
+    try {
+      const canonical = new URL(absolute);
+      const requestOrigin = this.requestOrigin();
+
+      if (requestOrigin) {
+        try {
+          const origin = new URL(requestOrigin);
+          canonical.protocol = origin.protocol;
+          canonical.host = origin.host;
+        } catch {
+          // Keep canonical origin as-is when request origin is invalid.
+        }
+      }
+
+      canonical.hash = '';
+      canonical.pathname = this.normalizePathname(canonical.pathname);
+
+      return canonical.toString();
+    } catch {
+      return absolute;
+    }
+  }
+
+  private normalizePathname(pathname: string): string {
+    const normalized = pathname.replace(/\/+/g, '/');
+    if (!normalized || normalized === '/') {
+      return '/';
+    }
+
+    return normalized.replace(/\/+$/, '');
+  }
+
+  private firstForwardedValue(value: string | null | undefined): string | undefined {
+    if (!value) {
+      return undefined;
+    }
+
+    const first = value.split(',')[0]?.trim();
+    return first || undefined;
   }
 
   private setCanonical(url: string): void {
