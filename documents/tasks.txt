@@ -1005,3 +1005,16 @@ Fill SocialAuthSettings.GoogleClientSecret in environment/appsettings.
 Ensure SocialAuthSettings.GoogleOAuthDefaultReturnUrl is correct per environment.
 In Google Cloud Console OAuth client, add authorized redirect URIs for each API host:
 /users/admin/social/google/oauth/callback on dev/qa/prod API domains.
+
+
+protectedFacebookOAuthToken
+
+CfDJ8HnnjKhhnhRAh5Y7B5OOgzll_vgoH_BbZSFB5PXeg8nP1rOHjPLRlmds7fSCLMYcpigES1CtxKbVwt6ycHj4edLHKktP2bTQ3pQUcNyCiP361nO4HI613dEW6iXyJL9s5d7epvG9tS0EKxfBKSdXNFXghcewcBiwSXPEVFxu_sqwETprG5RZQlLDsNIGrcNcXb63Z-28Qrsinov117vsSIzCf2DlH7cCH2Dt-Y8Ww1ZUB_1FFwdtaLUR9qfi9ax6ryA-ggFsTzUTny-su8y1SM6yl53OVn4K_H5uLJNOrI6kv7KY27FLBavsElMrl36E-YRpPnWzJyH-vmmtiHF4HI9bzN20pB8471wBANrF7NKQEHmN1L9zdJz4VS4G6pzzgVgJjPXwJRZwM4j-pcM74kfjjPqRZEfCZ4PsBU9oENSarfkfc1sJ_YsKVxenZgNBya-cIfhMVaa-6JBZglYoNPZA-nhxWaiLYn47k9m50EMh4HBPKTbHymGJ9gNmwUhfyiQeKgv6eUOumogw9ObCpM1Q18YHY8WsbTakJZSvaP48s71AS0Ue2q368L59vdNq7A#_=_
+
+Message 
+
+The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.
+
+
+An error occurred during a cryptographic operation. Refer to the inner exception for more information.
+

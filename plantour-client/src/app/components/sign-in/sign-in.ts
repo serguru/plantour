@@ -16,7 +16,6 @@ import { PasswordModule } from 'primeng/password';
 import { SignInResponse } from '../../models/auth.models';
 import { getMessageFromError } from '../../helpers/utils';
 import { SeoService } from '../../services/seo-service';
-import { SocialAuthService as PlantourSocialAuthService } from '../../services/social-auth-service';
 
 @Component({
   selector: 'app-sign-in',
@@ -47,7 +46,6 @@ export class SignInComponent implements OnInit {
 
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
-  private plantourSocialAuthService = inject(PlantourSocialAuthService);
   private botProtectionService = inject(BotProtectionService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -84,9 +82,10 @@ export class SignInComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const currentUrl = this.router.url; 
+    const currentUrl = this.router.url;
+    const urlWithoutFragment = currentUrl.split('#')[0];
 
-    const parts = currentUrl.split('?');
+    const parts = urlWithoutFragment.split('?');
     const path = parts[0];
     const endsWithParticipant = path.endsWith('/participant');  
 
@@ -106,9 +105,19 @@ export class SignInComponent implements OnInit {
         this.errorMessage = googleOAuthError;
       }
 
+      const facebookOAuthError = queryParams.get('facebookOAuthError');
+      if (facebookOAuthError) {
+        this.errorMessage = facebookOAuthError;
+      }
+
       const googleOAuthToken = queryParams.get('googleOAuthToken');
       if (googleOAuthToken) {
         void this.completeGoogleOAuthSignIn(googleOAuthToken);
+      }
+
+      const facebookOAuthToken = queryParams.get('facebookOAuthToken');
+      if (facebookOAuthToken) {
+        void this.completeFacebookOAuthSignIn(facebookOAuthToken);
       }
     }
   }
@@ -305,10 +314,24 @@ export class SignInComponent implements OnInit {
   }
 
   async onSignInWithFacebook(): Promise<void> {
-    const facebookAppId = this.environment.facebookAppId;
-
-    if (!this.hasFacebookLogin || !facebookAppId) {
+    if (!this.hasFacebookLogin || !this.isAdmin || this.isLoading) {
       this.messagesService.showWarning('Facebook Login', 'Facebook App ID is not configured.');
+      return;
+    }
+
+    const path = this.router.url.split('?')[0] || '/sign-in';
+    const returnUrl = this.toAbsoluteUrl(path);
+    const startUrl = this.usersService.getFacebookOAuthStartUrl(returnUrl);
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    window.location.href = startUrl;
+  }
+
+  private async completeFacebookOAuthSignIn(facebookOAuthToken: string): Promise<void> {
+    if (!facebookOAuthToken) {
       return;
     }
 
@@ -316,94 +339,9 @@ export class SignInComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    try {
-      await this.plantourSocialAuthService.loadFacebookSdk(facebookAppId);
-      const accessToken = await this.plantourSocialAuthService.loginWithFacebook();
-      await this.completeFacebookSignIn(accessToken, 'Facebook');
-    } catch (error: any) {
-      this.isLoading = false;
-
-      if (this.isFacebookLoginCancelled(error)) {
-        return;
-      }
-
-      const errorMsg = this.getFacebookLoginErrorMessage(error);
-      this.errorMessage = errorMsg;
-      this.messagesService.showError('Sign In Failed', errorMsg);
-    }
-  }
-
-  private isFacebookLoginCancelled(error: any): boolean {
-    const rawMessage = typeof error === 'string'
-      ? error
-      : error?.message || '';
-
-    if (!rawMessage) {
-      return false;
-    }
-
-    const normalizedMessage = rawMessage.toLowerCase();
-
-    return normalizedMessage.includes('cancel')
-      || normalizedMessage.includes('cancell')
-      || normalizedMessage.includes('popup_closed_by_user')
-      || normalizedMessage.includes('closed by user')
-      || normalizedMessage.includes('user closed')
-      || normalizedMessage.includes('closed before completing');
-  }
-
-  private getFacebookLoginErrorMessage(error: any): string {
-    const rawMessage = typeof error === 'string'
-      ? error
-      : error?.message || '';
-
-    if (rawMessage.includes('JSSDK Option is Not Toggled')) {
-      return 'Facebook Login is not fully configured for this site. In Meta for Developers enable Login with the JavaScript SDK and add the QA domain to Allowed Domains for the JavaScript SDK.';
-    }
-
-    if (rawMessage.includes('Given URL is not allowed by the Application configuration')) {
-      return 'Facebook Login is not configured for this site URL. Add the QA site URL and domain in the Meta Facebook Login settings.';
-    }
-
-    return rawMessage || 'Facebook sign in failed. Please try again.';
-  }
-
-  private async completeFacebookSignIn(token: string, providerName: string): Promise<void> {
-    if (!token) {
-      this.isLoading = false;
-      this.errorMessage = `${providerName} authentication token was not returned.`;
-      this.messagesService.showError('Sign In Failed', this.errorMessage);
-      return;
-    }
-
-    this.isLoading = true;
-
-    try {
-      await this.signInWithFacebook(token);
-    } catch (error: any) {
-      this.isLoading = false;
-      const errorMsg = error?.message || `${providerName} sign in failed. Please try again.`;
-      this.errorMessage = errorMsg;
-      this.messagesService.showError('Sign In Failed', errorMsg);
-    }
-  }
-
-  private async signInWithFacebook(token: string): Promise<void> {
-    let botProtectionToken: string | null = null;
-
-    try {
-      botProtectionToken = await this.botProtectionService.getToken('facebook_social_signin');
-    } catch (error: any) {
-      this.isLoading = false;
-      const errorMsg = error?.message || 'Human verification failed. Please try again.';
-      this.errorMessage = errorMsg;
-      this.messagesService.showError('Sign In Failed', errorMsg);
-      return;
-    }
-
-    this.usersService.adminFacebookSignIn(token, botProtectionToken).pipe(
+    this.usersService.completeFacebookOAuthSignIn(facebookOAuthToken).pipe(
       catchError((error) => {
-        const errorMsg = error.error?.message || 'Social sign in failed. Please try again.';
+        const errorMsg = error?.error?.message || 'Facebook sign in failed. Please try again.';
         this.errorMessage = errorMsg;
         this.messagesService.showError('Sign In Failed', errorMsg);
         return EMPTY;

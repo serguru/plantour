@@ -73,27 +73,21 @@
     <div class="buttons">
 
       @if (hasGoogleLogin) {
-      <button
-        type="button"
-        class="social-button social-button-google"
+      <app-button
+        label="Google"
+        icon="pi pi-google"
         [disabled]="isLoading"
         (click)="onSignInWithGoogle()"
-      >
-        <span class="social-button-icon social-button-icon-google">G</span>
-        <span>Continue with Google</span>
-      </button>
-        }
+      />
+      }
 
       @if (hasFacebookLogin) {
-      <button
-        type="button"
-        class="social-button social-button-facebook"
+      <app-button
+        label="Facebook"
+        icon="pi pi-facebook"
         [disabled]="isLoading"
         (click)="onSignInWithFacebook()"
-      >
-        <span class="social-button-icon pi pi-facebook"></span>
-        <span>Continue with Facebook</span>
-      </button>
+      />
       }
 
     </div>
