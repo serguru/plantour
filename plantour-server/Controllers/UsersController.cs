@@ -64,6 +64,35 @@ public class UsersController : ControllerBase
                 return Ok(response);
         }
 
+        [HttpGet("admin/social/google/oauth/start")]
+        [AllowAnonymous]
+        [EnableRateLimiting("admin-social-signin")]
+        public IActionResult StartGoogleOAuth([FromQuery] string? returnUrl)
+        {
+                var callbackUrl = $"{Request.Scheme}://{Request.Host}/users/admin/social/google/oauth/callback";
+                var authorizeUrl = _usersService.BuildGoogleOAuthAuthorizeUrl(callbackUrl, returnUrl);
+                return Redirect(authorizeUrl);
+        }
+
+        [HttpGet("admin/social/google/oauth/callback")]
+        [AllowAnonymous]
+        [EnableRateLimiting("admin-social-signin")]
+        public async Task<IActionResult> GoogleOAuthCallback([FromQuery] string? code, [FromQuery] string? state, [FromQuery] string? error)
+        {
+                var callbackUrl = $"{Request.Scheme}://{Request.Host}/users/admin/social/google/oauth/callback";
+                var redirectUrl = await _usersService.HandleGoogleOAuthCallbackAsync(callbackUrl, code, state, error);
+                return Redirect(redirectUrl);
+        }
+
+        [HttpPost("admin/social/google/oauth/complete")]
+        [AllowAnonymous]
+        [EnableRateLimiting("admin-social-signin")]
+        public async Task<ActionResult<AuthResponse>> CompleteGoogleOAuth([FromBody] GoogleOAuthCompleteRequest request)
+        {
+                var response = await _usersService.CompleteGoogleOAuthSignInAsync(request.Token);
+                return Ok(response);
+        }
+
         #endregion
 
         #region Participant Endpoints

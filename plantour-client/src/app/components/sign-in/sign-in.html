@@ -73,10 +73,15 @@
     <div class="buttons">
 
       @if (hasGoogleLogin) {
-        <div
-          #googleButtonHost
-          class="google-button-overlay1"
-        ></div>
+      <button
+        type="button"
+        class="social-button social-button-google"
+        [disabled]="isLoading"
+        (click)="onSignInWithGoogle()"
+      >
+        <span class="social-button-icon social-button-icon-google">G</span>
+        <span>Continue with Google</span>
+      </button>
         }
 
       @if (hasFacebookLogin) {

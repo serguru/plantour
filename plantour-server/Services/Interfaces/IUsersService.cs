@@ -8,6 +8,9 @@ public interface IUsersService
     Task<SignInResponse> SendSignInEmailAdminAsync(SignInRequest request);
     Task<AuthResponse> SignInAdminSocialAsync(SocialSignInRequest request);
     Task<AuthResponse> SignInAdminTokenAsync(string token);
+    string BuildGoogleOAuthAuthorizeUrl(string callbackUrl, string? returnUrl);
+    Task<string> HandleGoogleOAuthCallbackAsync(string callbackUrl, string? code, string? state, string? error);
+    Task<AuthResponse> CompleteGoogleOAuthSignInAsync(string protectedGoogleOAuthToken);
 
 
     // Participant authentication

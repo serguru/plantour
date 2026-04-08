@@ -54,6 +54,24 @@
     min-width: 220px;
 }
 
+.social-button-google {
+    min-width: 220px;
+}
+
+.social-button-icon-google {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid #dadce0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1a73e8;
+    background: #fff;
+}
+
 .instruction {
     padding: 0.5rem 1rem;
 }

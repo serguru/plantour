@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 
 declare global {
   interface Window {
-    google?: any;
     fbAsyncInit?: () => void;
     FB?: any;
   }
@@ -12,75 +11,8 @@ declare global {
   providedIn: 'root'
 })
 export class SocialAuthService {
-  private googleSdkPromise?: Promise<void>;
   private facebookSdkPromise?: Promise<void>;
-  private googleClientId?: string;
   private facebookAppId?: string;
-  private googleCredentialHandler?: (idToken: string) => void;
-
-  loadGoogleSdk(): Promise<void> {
-    if (window.google?.accounts?.id) {
-      return Promise.resolve();
-    }
-
-    if (this.googleSdkPromise) {
-      return this.googleSdkPromise;
-    }
-
-    this.googleSdkPromise = new Promise<void>((resolve, reject) => {
-      const existing = document.querySelector('script[data-social-sdk="google"]') as HTMLScriptElement | null;
-      if (existing) {
-        existing.addEventListener('load', () => resolve(), { once: true });
-        existing.addEventListener('error', () => reject(new Error('Failed to load Google SDK')), { once: true });
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.dataset['socialSdk'] = 'google';
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load Google SDK'));
-      document.head.appendChild(script);
-    });
-
-    return this.googleSdkPromise;
-  }
-
-  renderGoogleButton(container: HTMLElement, clientId: string, onCredential: (idToken: string) => void): void {
-    if (!window.google?.accounts?.id) {
-      throw new Error('Google SDK is not initialized');
-    }
-
-    this.googleCredentialHandler = onCredential;
-
-    if (this.googleClientId !== clientId) {
-      this.googleClientId = clientId;
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        use_fedcm_for_button: true,
-        callback: (response: { credential?: string }) => {
-          if (response?.credential) {
-            this.googleCredentialHandler?.(response.credential);
-          }
-        }
-      });
-    }
-
-    container.innerHTML = '';
-    const buttonWidth = Math.round(container.getBoundingClientRect().width) || 200;
-
-    window.google.accounts.id.renderButton(container, {
-      type: 'standard',
-      shape: 'rectangular',
-      theme: 'outline',
-      text: 'continue_with',
-      size: 'large',
-      logo_alignment: 'left',
-      width: buttonWidth
-    });
-  }
 
   loadFacebookSdk(appId: string): Promise<void> {
     if (window.FB?.login && this.facebookAppId === appId) {
@@ -166,8 +98,6 @@ export class SocialAuthService {
   }
 
   signOut(): void {
-    window.google?.accounts?.id?.disableAutoSelect?.();
-
     const facebookStatus = window.FB?.getLoginStatus;
     if (!facebookStatus) {
       return;

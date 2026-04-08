@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, Inject, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, Inject, inject, OnInit, signal } from '@angular/core';
 import { DOCUMENT, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -44,7 +44,6 @@ export class SignInComponent implements OnInit {
   signInType = signal<'admin' | 'participant'>('admin');
   hasGoogleLogin = false;
   hasFacebookLogin = false;
-  private googleButtonHostElement?: HTMLElement;
 
   private usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
@@ -55,15 +54,6 @@ export class SignInComponent implements OnInit {
   private location = inject(Location);
   private seoService = inject(SeoService);
   private document = inject(DOCUMENT);
-
-  @ViewChild('googleButtonHost')
-  set googleButtonHost(elementRef: ElementRef<HTMLElement> | undefined) {
-    this.googleButtonHostElement = elementRef?.nativeElement;
-
-    if (this.googleButtonHostElement) {
-      void this.initializeGoogleButton();
-    }
-  }
 
   constructor(
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
@@ -109,6 +99,16 @@ export class SignInComponent implements OnInit {
       const email = queryParams.get('email');
       if (email) { 
         this.adminForm.patchValue({ email: email });
+      }
+
+      const googleOAuthError = queryParams.get('googleOAuthError');
+      if (googleOAuthError) {
+        this.errorMessage = googleOAuthError;
+      }
+
+      const googleOAuthToken = queryParams.get('googleOAuthToken');
+      if (googleOAuthToken) {
+        void this.completeGoogleOAuthSignIn(googleOAuthToken);
       }
     }
   }
@@ -242,29 +242,49 @@ export class SignInComponent implements OnInit {
     this.router.navigate(['']);
   }
 
-  private async initializeGoogleButton(): Promise<void> {
-    if (!this.hasGoogleLogin || !this.isAdmin || this.isLoading || !this.googleButtonHostElement || !this.environment.googleClientId) {
+  onSignInWithGoogle(): void {
+    if (!this.hasGoogleLogin || !this.isAdmin || this.isLoading) {
       return;
     }
 
-    try {
-      await this.plantourSocialAuthService.loadGoogleSdk();
-      this.plantourSocialAuthService.renderGoogleButton(
-        this.googleButtonHostElement,
-        this.environment.googleClientId,
-        this.onGoogleCredential
-      );
-    } catch (error) {
-      console.error('Google Identity Services initialization failed', error);
-    }
-  }
+    const path = this.router.url.split('?')[0] || '/sign-in';
+    const returnUrl = this.toAbsoluteUrl(path);
+    const startUrl = this.usersService.getGoogleOAuthStartUrl(returnUrl);
 
-  private onGoogleCredential = (idToken: string): void => {
+    this.isLoading = true;
     this.errorMessage = '';
     this.successMessage = '';
+
+    window.location.href = startUrl;
+  }
+
+  private async completeGoogleOAuthSignIn(googleOAuthToken: string): Promise<void> {
+    if (!googleOAuthToken) {
+      return;
+    }
+
     this.isLoading = true;
-    void this.signInWithSocial('google', idToken);
-  };
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.usersService.completeGoogleOAuthSignIn(googleOAuthToken, null).pipe(
+      catchError((error) => {
+        const errorMsg = error?.error?.message || 'Google sign in failed. Please try again.';
+        this.errorMessage = errorMsg;
+        this.messagesService.showError('Sign In Failed', errorMsg);
+        return EMPTY;
+      }),
+      finalize(() => {
+        this.isLoading = false;
+      })
+    ).subscribe({
+      next: (response) => {
+        const message = response?.message || 'Welcome to Plantour';
+        this.messagesService.showInfo('Sign In Successful', message);
+        this.router.navigate(['/dashboard']);
+      }
+    });
+  }
 
   getFieldError(fieldName: string): string {
     const field = this.currentForm.get(fieldName);
@@ -299,7 +319,7 @@ export class SignInComponent implements OnInit {
     try {
       await this.plantourSocialAuthService.loadFacebookSdk(facebookAppId);
       const accessToken = await this.plantourSocialAuthService.loginWithFacebook();
-      await this.completeSocialSignIn('facebook', accessToken, 'Facebook');
+      await this.completeFacebookSignIn(accessToken, 'Facebook');
     } catch (error: any) {
       this.isLoading = false;
 
@@ -348,11 +368,7 @@ export class SignInComponent implements OnInit {
     return rawMessage || 'Facebook sign in failed. Please try again.';
   }
 
-  private async completeSocialSignIn(
-    provider: 'facebook',
-    token: string,
-    providerName: string
-  ): Promise<void> {
+  private async completeFacebookSignIn(token: string, providerName: string): Promise<void> {
     if (!token) {
       this.isLoading = false;
       this.errorMessage = `${providerName} authentication token was not returned.`;
@@ -363,7 +379,7 @@ export class SignInComponent implements OnInit {
     this.isLoading = true;
 
     try {
-      await this.signInWithSocial(provider, token);
+      await this.signInWithFacebook(token);
     } catch (error: any) {
       this.isLoading = false;
       const errorMsg = error?.message || `${providerName} sign in failed. Please try again.`;
@@ -372,11 +388,11 @@ export class SignInComponent implements OnInit {
     }
   }
 
-  private async signInWithSocial(provider: 'google' | 'facebook', token: string): Promise<void> {
+  private async signInWithFacebook(token: string): Promise<void> {
     let botProtectionToken: string | null = null;
 
     try {
-      botProtectionToken = await this.botProtectionService.getToken(`${provider}_social_signin`);
+      botProtectionToken = await this.botProtectionService.getToken('facebook_social_signin');
     } catch (error: any) {
       this.isLoading = false;
       const errorMsg = error?.message || 'Human verification failed. Please try again.';
@@ -385,7 +401,7 @@ export class SignInComponent implements OnInit {
       return;
     }
 
-    this.usersService.socialSignIn(provider, token, botProtectionToken).pipe(
+    this.usersService.adminFacebookSignIn(token, botProtectionToken).pipe(
       catchError((error) => {
         const errorMsg = error.error?.message || 'Social sign in failed. Please try again.';
         this.errorMessage = errorMsg;
