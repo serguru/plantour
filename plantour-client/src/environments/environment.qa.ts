@@ -2,13 +2,22 @@ export const environment = {
   environment: "qa",
   // Put QA API endpoints and feature flags here
   api: {
-    baseUrl: 'https://p01--plantour-production-server--lk6ygl5ks8dh.code.run'
+    baseUrl: 'https://qaapi.plantour.app'
   },
-  clientUrl: 'https://p01--plantour-production-client--lk6ygl5ks8dh.code.run/',
-  googleClientId: '823862645597-cttjtberusfv1itn7phk1uqa04n19nol.apps.googleusercontent.com',
+  clientUrl: 'https://qa.plantour.app',
+  googleClientId: '918703665460-7vpm4ecriksjt5lv6fqhkvvbmqi92h0l.apps.googleusercontent.com',
   facebookAppId: '2076632839798115',
   turnstileSiteKey: '0x4AAAAAACyoFgfZ0bvLNGPQ',
   version: '2.15.7',
-  googleMapsApiKey: "AIzaSyBhYxg_0ULXq6ypIGXrl8wGWc0VyO68pPI",
-  paddleKey: "test_c4c0e48b001d35f302e3ef618a6"
+  paddleKey: "test_c4c0e48b001d35f302e3ef618a6",
+  map: {
+    apiKey: 'AIzaSyBhYxg_0ULXq6ypIGXrl8wGWc0VyO68pPI',
+    mapId: 'DEMO_MAP_ID',
+    language: 'en',
+    region: 'CA',
+    defaultCenter: {
+      lat: 50,
+      lng: -35,
+    },
+  }
 };

@@ -300,19 +300,30 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
 
     private Uri GetRequestBaseUri()
     {
-        var scheme = Request.Headers["X-Forwarded-Proto"].FirstOrDefault();
+        var scheme = FirstForwardedValue(Request.Headers["X-Forwarded-Proto"].FirstOrDefault());
         if (string.IsNullOrWhiteSpace(scheme))
         {
             scheme = Request.Scheme;
         }
 
-        var host = Request.Headers["X-Forwarded-Host"].FirstOrDefault();
+        var host = FirstForwardedValue(Request.Headers["X-Forwarded-Host"].FirstOrDefault());
         if (string.IsNullOrWhiteSpace(host))
         {
             host = Request.Host.Value;
         }
 
         return new Uri($"{scheme}://{host}");
+    }
+
+    private static string? FirstForwardedValue(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var first = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).FirstOrDefault();
+        return string.IsNullOrWhiteSpace(first) ? null : first;
     }
 
     private static string ToAbsoluteUrl(Uri requestBase, string url)

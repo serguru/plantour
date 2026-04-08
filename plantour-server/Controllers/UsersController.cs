@@ -10,6 +10,8 @@ using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Controllers;
 
+// TODO: resolve an issue with cookies: do I need to show cookies consent dialog?
+
 [ApiController]
 [Route("[controller]")]
 public class UsersController : ControllerBase
@@ -245,6 +247,7 @@ public class UsersController : ControllerBase
                 await _usersService.SendParticipantInvitationAsync(request.AdminParticipantId);
                 return Ok();
         }
+        // TODO: why do I need Dropbox production?
 
         [HttpGet("health-check")]
         [AllowAnonymous]

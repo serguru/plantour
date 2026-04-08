@@ -6,9 +6,10 @@ RUN npm ci
 COPY . .
 
 # Pass a build environment argument (defaults to production)
-ARG BUILD_ENV=qa
+#ARG BUILD_ENV=
 # Convert BUILD_ENV to lowercase to ensure it matches npm scripts (e.g. QA vs qa)
-RUN npm run build:$(echo ${BUILD_ENV} | tr '[:upper:]' '[:lower:]')
+#RUN npm run build:$(echo ${BUILD_ENV} | tr '[:upper:]' '[:lower:]')
+RUN npm run build:production
 
 # Stage 2: Serve the SSR app with Node.js
 FROM node:20-alpine

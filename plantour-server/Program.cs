@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-//using plantour_server.Authorization;
 using plantour_server.Models;
 using plantour_server.Services.Interfaces;
 using plantour_server.DbModels;
@@ -34,30 +33,10 @@ using System.Threading.RateLimiting;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
+
 // This switch prevents Npgsql from throwing when a DateTime with Kind=Utc is written to such columns.
 // It looks like this row is necessary for TickerQ to write timestamp fields
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
-static string NormalizeAspNetEnvironmentName(string? raw)
-{
-    if (string.IsNullOrWhiteSpace(raw))
-    {
-        return Environments.Production;
-    }
-
-    return raw.Trim().ToLowerInvariant() switch
-    {
-        "dev" => Environments.Development,
-        "development" => Environments.Development,
-        "qa" => "QA",
-        "pred-prod" => "Pred-Prod",
-        "predprod" => "Pred-Prod",
-        "preprod" => "Pred-Prod",
-        "production" => Environments.Production,
-        "prod" => Environments.Production,
-        _ => raw.Trim()
-    };
-}
 
 static string GetRateLimitPartitionKey(HttpContext context)
 {
@@ -80,13 +59,20 @@ var rawEnvironmentName =
     Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
     ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
 
+var envs = new List<string> { "Development", "QA", "Production" };
+
+if (String.IsNullOrWhiteSpace(rawEnvironmentName) || !envs.Contains(rawEnvironmentName))
+{
+    throw new CustomException($"No environment specified. Must be {string.Join(',', envs)}.");
+}
+
 var aspNetUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
 var renderPort = Environment.GetEnvironmentVariable("PORT");
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args,
-    EnvironmentName = NormalizeAspNetEnvironmentName(rawEnvironmentName)
+    EnvironmentName = rawEnvironmentName
 });
 
 var env = builder.Environment;
@@ -95,7 +81,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders =
         ForwardedHeaders.XForwardedFor |
-        ForwardedHeaders.XForwardedProto;
+        ForwardedHeaders.XForwardedProto |
+        ForwardedHeaders.XForwardedHost;
 
     // Trust all proxies (required in container/cloud environments)
     options.RequireHeaderSymmetry = false;
@@ -165,521 +152,509 @@ Serilog.Log.Logger = loggerConfiguration.CreateLogger();
 
 // try
 // {
-    Serilog.Log.Information("Starting Plantour API application");
+Serilog.Log.Information("Starting Plantour API application");
 
-    builder.Host.UseSerilog();
+builder.Host.UseSerilog();
 
-    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-    builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
-    // Add services to the container
-    builder.Services.AddControllers();
-    builder.Services.AddHttpContextAccessor();
-    builder.Services.AddDataProtection();
-    builder.Services.AddHybridCache(options =>
+// Add services to the container
+builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddDataProtection();
+builder.Services.AddHybridCache(options =>
+{
+    options.MaximumPayloadBytes = 1024 * 1024;
+    options.MaximumKeyLength = 1024;
+    options.DefaultEntryOptions = new HybridCacheEntryOptions
     {
-        options.MaximumPayloadBytes = 1024 * 1024;
-        options.MaximumKeyLength = 1024;
-        options.DefaultEntryOptions = new HybridCacheEntryOptions
+        Expiration = TimeSpan.FromMinutes(10),
+        LocalCacheExpiration = TimeSpan.FromMinutes(5)
+    };
+});
+
+// Configure JWT settings
+IConfigurationSection? jwtSettings = builder.Configuration.GetSection("JwtSettings");
+builder.Services.Configure<JwtSettings>(jwtSettings);
+var jwtConfig = jwtSettings.Get<JwtSettings>()
+    ?? throw new InvalidOperationException(
+        $"JwtSettings configuration section is missing. " +
+        $"ASPNETCORE_ENVIRONMENT='{env.EnvironmentName}'. " +
+        $"Ensure the correct appsettings file is present and ASPNETCORE_ENVIRONMENT is set correctly.");
+
+// Configure Social auth settings
+builder.Services.Configure<SocialAuthSettings>(builder.Configuration.GetSection("SocialAuthSettings"));
+
+// Configure Turnstile settings
+builder.Services.Configure<TurnstileSettings>(builder.Configuration.GetSection("TurnstileSettings"));
+
+// Configure Brevo settings
+builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("BrevoSettings"));
+
+// Configure Gemini settings
+builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
+
+// Configure Trip note editor settings
+builder.Services.Configure<TripNoteEditorSettings>(builder.Configuration.GetSection("TripNoteEditorSettings"));
+
+var key = Encoding.UTF8.GetBytes(jwtConfig.SecretKey
+    ?? throw new InvalidOperationException("JwtSettings:SecretKey is null or missing in configuration."));
+
+var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+
+// Set the timezone to UTC programmatically
+dataSourceBuilder.ConnectionStringBuilder.Timezone = "UTC";
+
+// 2. Build the DataSource
+var dataSource = dataSourceBuilder.Build();
+
+// Configure PostgreSQL connection
+// builder.Services.AddDbContext<PlantourContext>(options =>
+//     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddDbContext<PlantourContext>(options =>
+    options.UseNpgsql(dataSource));
+
+builder.Services.AddTickerQ(options =>
+{
+    options.AddOperationalStore(efOptions =>
+    {
+        efOptions.UseTickerQDbContext<TickerQOperationalDbContext>(dbOptions =>
         {
-            Expiration = TimeSpan.FromMinutes(10),
-            LocalCacheExpiration = TimeSpan.FromMinutes(5)
-        };
+            dbOptions.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+        }, schema: "plantour");
     });
 
-    // Configure JWT settings
-    IConfigurationSection? jwtSettings = builder.Configuration.GetSection("JwtSettings");
-    builder.Services.Configure<JwtSettings>(jwtSettings);
-    var jwtConfig = jwtSettings.Get<JwtSettings>()
-        ?? throw new InvalidOperationException(
-            $"JwtSettings configuration section is missing. " +
-            $"ASPNETCORE_ENVIRONMENT='{env.EnvironmentName}'. " +
-            $"Ensure the correct appsettings file is present and ASPNETCORE_ENVIRONMENT is set correctly.");
-
-    // Configure Social auth settings
-    builder.Services.Configure<SocialAuthSettings>(builder.Configuration.GetSection("SocialAuthSettings"));
-
-    // Configure Turnstile settings
-    builder.Services.Configure<TurnstileSettings>(builder.Configuration.GetSection("TurnstileSettings"));
-
-    // Configure Brevo settings
-    builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("BrevoSettings"));
-
-    // Configure Gemini settings
-    builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
-
-    // Configure Trip note editor settings
-    builder.Services.Configure<TripNoteEditorSettings>(builder.Configuration.GetSection("TripNoteEditorSettings"));
-
-    var key = Encoding.UTF8.GetBytes(jwtConfig.SecretKey
-        ?? throw new InvalidOperationException("JwtSettings:SecretKey is null or missing in configuration."));
-
-    var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
-
-    // Set the timezone to UTC programmatically
-    dataSourceBuilder.ConnectionStringBuilder.Timezone = "UTC";
-
-    // 2. Build the DataSource
-    var dataSource = dataSourceBuilder.Build();
-
-    // Configure PostgreSQL connection
-    // builder.Services.AddDbContext<PlantourContext>(options =>
-    //     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-    builder.Services.AddDbContext<PlantourContext>(options =>
-        options.UseNpgsql(dataSource));
-
-    builder.Services.AddTickerQ(options =>
+    options.AddDashboard(dashboardOptions =>
     {
-        options.AddOperationalStore(efOptions =>
+        dashboardOptions.SetBasePath("/tickerq/dashboard");
+
+        if (!env.IsDevelopment())
         {
-            efOptions.UseTickerQDbContext<TickerQOperationalDbContext>(dbOptions =>
+            var dashboardUsername = builder.Configuration["TickerQ:DashboardAuth:Username"];
+            var dashboardPassword = builder.Configuration["TickerQ:DashboardAuth:Password"];
+
+            if (string.IsNullOrWhiteSpace(dashboardUsername) || string.IsNullOrWhiteSpace(dashboardPassword))
             {
-                dbOptions.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-            }, schema: "plantour");
-        });
-
-        options.AddDashboard(dashboardOptions =>
-        {
-            dashboardOptions.SetBasePath("/tickerq/dashboard");
-
-            if (!env.IsDevelopment())
-            {
-                var dashboardUsername = builder.Configuration["TickerQ:DashboardAuth:Username"];
-                var dashboardPassword = builder.Configuration["TickerQ:DashboardAuth:Password"];
-
-                if (string.IsNullOrWhiteSpace(dashboardUsername) || string.IsNullOrWhiteSpace(dashboardPassword))
-                {
-                    throw new InvalidOperationException(
-                        "TickerQ dashboard auth is required outside Development. Set TickerQ:DashboardAuth:Username and TickerQ:DashboardAuth:Password.");
-                }
-
-                dashboardOptions.WithBasicAuth(dashboardUsername, dashboardPassword);
+                throw new InvalidOperationException(
+                    "TickerQ dashboard auth is required outside Development. Set TickerQ:DashboardAuth:Username and TickerQ:DashboardAuth:Password.");
             }
-        });
+
+            dashboardOptions.WithBasicAuth(dashboardUsername, dashboardPassword);
+        }
     });
+});
 
 
-    builder.Services.AddSingleton<TickerQRecurringTasksScheduler>();
+builder.Services.AddSingleton<TickerQRecurringTasksScheduler>();
 
-    // Configure JWT Authentication
-    builder.Services.AddAuthentication(options =>
+// Configure JWT Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.MapInboundClaims = false; // Prevent default claim type mapping
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtConfig.Issuer,
+        ValidateAudience = true,
+        ValidAudience = jwtConfig.Audience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+        NameClaimType = ClaimTypes.NameIdentifier,
+        RoleClaimType = ClaimTypes.Role
+    };
+    options.Events = new JwtBearerEvents
     {
-        options.RequireHttpsMetadata = false;
-        options.SaveToken = true;
-        options.MapInboundClaims = false; // Prevent default claim type mapping
-        options.TokenValidationParameters = new TokenValidationParameters
+
+        // 3. Срабатывает, если валидация провалилась (истек срок, неверная подпись и т.д.)
+        OnAuthenticationFailed = context =>
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateIssuer = true,
-            ValidIssuer = jwtConfig.Issuer,
-            ValidateAudience = true,
-            ValidAudience = jwtConfig.Audience,
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero,
-            NameClaimType = ClaimTypes.NameIdentifier,
-            RoleClaimType = ClaimTypes.Role
-        };
-        options.Events = new JwtBearerEvents
+            return Task.CompletedTask;
+        },
+
+        OnForbidden = context =>
         {
+            return Task.CompletedTask;
+        },
 
-            // 3. Срабатывает, если валидация провалилась (истек срок, неверная подпись и т.д.)
-            OnAuthenticationFailed = context =>
+        OnMessageReceived = context =>
+        {
+            //var accessToken = context.Request.Query["access_token"];
+            // if (!string.IsNullOrEmpty(accessToken)) context.Token = accessToken;
+            return Task.CompletedTask;
+        },
+
+        // 2. Срабатывает ПОСЛЕ успешной валидации (здесь можно добавить свои проверки)
+        OnTokenValidated = context =>
+        {
+            // Достаем email из уже расшифрованных claims
+            var emailClaim = context.Principal?.FindFirst(PlantourClaims.Email);
+
+            if (emailClaim == null || string.IsNullOrEmpty(emailClaim.Value))
             {
-                return Task.CompletedTask;
-            },
+                // Сообщаем системе, что токен нам не подходит
+                context.Fail("Email claim is missing");
+            }
 
-            OnForbidden = context =>
+            return Task.CompletedTask;
+        },
+
+        OnChallenge = async context =>
+        {
+            context.HandleResponse();
+
+            string errorCode = "WRONG_TOKEN";
+
+            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
             {
-                return Task.CompletedTask;
-            },
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+                var handler = new JwtSecurityTokenHandler();
 
-            OnMessageReceived = context =>
-            {
-                //var accessToken = context.Request.Query["access_token"];
-                // if (!string.IsNullOrEmpty(accessToken)) context.Token = accessToken;
-                return Task.CompletedTask;
-            },
-
-            // 2. Срабатывает ПОСЛЕ успешной валидации (здесь можно добавить свои проверки)
-            OnTokenValidated = context =>
-            {
-                // Достаем email из уже расшифрованных claims
-                var emailClaim = context.Principal?.FindFirst(PlantourClaims.Email);
-
-                if (emailClaim == null || string.IsNullOrEmpty(emailClaim.Value))
+                if (handler.CanReadToken(token))
                 {
-                    // Сообщаем системе, что токен нам не подходит
-                    context.Fail("Email claim is missing");
-                }
-
-                return Task.CompletedTask;
-            },
-
-            OnChallenge = async context =>
-            {
-                context.HandleResponse();
-
-                string errorCode = "WRONG_TOKEN";
-
-                var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
-
-                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
-                {
-                    var token = authHeader.Substring("Bearer ".Length).Trim();
-                    var handler = new JwtSecurityTokenHandler();
-
-                    if (handler.CanReadToken(token))
+                    try
                     {
-                        try
-                        {
-                            var jwtToken = handler.ReadJwtToken(token);
-                            var role = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.Role)?.Value;
+                        var jwtToken = handler.ReadJwtToken(token);
+                        var role = jwtToken.Claims.FirstOrDefault(c => c.Type == PlantourClaims.Role)?.Value;
 
-                            errorCode = role switch
-                            {
-                                //                            PlantourRoles.Admin => "WRONG_ADMIN_TOKEN",
-                                PlantourRoles.Participant => "WRONG_PARTICIPANT_TOKEN",
-                                _ => "WRONG_TOKEN"
-                            };
-                        }
-                        catch
+                        errorCode = role switch
                         {
-                            //WRONG_TOKEN
-                        }
+                            //                            PlantourRoles.Admin => "WRONG_ADMIN_TOKEN",
+                            PlantourRoles.Participant => "WRONG_PARTICIPANT_TOKEN",
+                            _ => "WRONG_TOKEN"
+                        };
+                    }
+                    catch
+                    {
+                        //WRONG_TOKEN
                     }
                 }
-
-                await ErrorResponse.WriteErrorResponse(
-                    context.HttpContext,
-                    StatusCodes.Status401Unauthorized,
-                    errorCode,
-                    "Sign-in required"
-                );
             }
-        };
-    });
 
-
-
-    // Configure Authorization
-    builder.Services.AddAuthorization(options =>
-    {
-        options.AddPolicy("AdminOnly", policy =>
-            policy.Requirements.Add(new UserRoleRequirement(UserRole.Admin)));
-
-        options.AddPolicy("ParticipantOnly", policy =>
-            policy.Requirements.Add(new UserRoleRequirement(UserRole.Participant)));
-
-        options.AddPolicy("AdminOrParticipant", policy =>
-            policy.Requirements.Add(new UserRoleRequirement(UserRole.Admin, UserRole.Participant)));
-
-        // options.AddPolicy("Public", policy =>
-        //     policy.Requirements.Add(new UserRoleRequirement(null, UserRole.Participant, UserRole.Admin)));
-    });
-
-    // Register authorization handlers
-    builder.Services.AddSingleton<IAuthorizationHandler, UserRoleHandler>();
-
-    // Register AutoMapper
-    builder.Services.AddAutoMapper(_ => { }, typeof(Program).Assembly);
-
-    builder.Services.AddRateLimiter(options =>
-    {
-        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-        options.OnRejected = async (context, cancellationToken) =>
-        {
             await ErrorResponse.WriteErrorResponse(
                 context.HttpContext,
-                StatusCodes.Status429TooManyRequests,
-                "TOO_MANY_REQUESTS",
-                "Too many requests. Please try again later.");
-        };
+                StatusCodes.Status401Unauthorized,
+                errorCode,
+                "Sign-in required"
+            );
+        }
+    };
+});
 
-        options.AddPolicy("admin-signin-email", httpContext =>
-            RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: GetRateLimitPartitionKey(httpContext),
-                factory: _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = 5,
-                    Window = TimeSpan.FromMinutes(10),
-                    QueueLimit = 0,
-                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                    AutoReplenishment = true
-                }));
 
-        options.AddPolicy("admin-signin-token", httpContext =>
-            RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: GetRateLimitPartitionKey(httpContext),
-                factory: _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = 12,
-                    Window = TimeSpan.FromMinutes(10),
-                    QueueLimit = 0,
-                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                    AutoReplenishment = true
-                }));
 
-        options.AddPolicy("admin-social-signin", httpContext =>
-            RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: GetRateLimitPartitionKey(httpContext),
-                factory: _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = 8,
-                    Window = TimeSpan.FromMinutes(10),
-                    QueueLimit = 0,
-                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                    AutoReplenishment = true
-                }));
+// Configure Authorization
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.Requirements.Add(new UserRoleRequirement(UserRole.Admin)));
 
-        options.AddPolicy("participant-signin", httpContext =>
-            RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: GetRateLimitPartitionKey(httpContext),
-                factory: _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = 10,
-                    Window = TimeSpan.FromMinutes(10),
-                    QueueLimit = 0,
-                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                    AutoReplenishment = true
-                }));
+    options.AddPolicy("ParticipantOnly", policy =>
+        policy.Requirements.Add(new UserRoleRequirement(UserRole.Participant)));
 
-        options.AddPolicy("temporary-user-create", httpContext =>
-            RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: GetRateLimitPartitionKey(httpContext),
-                factory: _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = 3,
-                    Window = TimeSpan.FromHours(1),
-                    QueueLimit = 0,
-                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                    AutoReplenishment = true
-                }));
+    options.AddPolicy("AdminOrParticipant", policy =>
+        policy.Requirements.Add(new UserRoleRequirement(UserRole.Admin, UserRole.Participant)));
 
-        options.AddPolicy("contact-submit", httpContext =>
-            RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: GetRateLimitPartitionKey(httpContext),
-                factory: _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = 5,
-                    Window = TimeSpan.FromMinutes(10),
-                    QueueLimit = 0,
-                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                    AutoReplenishment = true
-                }));
+    // options.AddPolicy("Public", policy =>
+    //     policy.Requirements.Add(new UserRoleRequirement(null, UserRole.Participant, UserRole.Admin)));
+});
 
-        options.AddPolicy("refresh-token", httpContext =>
-            RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: GetRateLimitPartitionKey(httpContext),
-                factory: _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = 30,
-                    Window = TimeSpan.FromMinutes(5),
-                    QueueLimit = 0,
-                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                    AutoReplenishment = true
-                }));
+// Register authorization handlers
+builder.Services.AddSingleton<IAuthorizationHandler, UserRoleHandler>();
 
-        options.AddPolicy("is-user-temporary", httpContext =>
-            RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: GetRateLimitPartitionKey(httpContext),
-                factory: _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = 20,
-                    Window = TimeSpan.FromMinutes(5),
-                    QueueLimit = 0,
-                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                    AutoReplenishment = true
-                }));
-    });
+// Register AutoMapper
+builder.Services.AddAutoMapper(_ => { }, typeof(Program).Assembly);
 
-    // Register services
-    builder.Services.AddScoped<IUsersService, UsersService>();
-    builder.Services.AddScoped<IKeyService, KeyService>();
-    builder.Services.AddScoped<IPackageService, PackService>();
-    builder.Services.AddScoped<IThingService, ThingService>();
-    builder.Services.AddScoped<ITodoService, TodoService>();
-    builder.Services.AddScoped<ITripService, TripService>();
-    builder.Services.AddScoped<ITripUserService, TripUserService>();
-    builder.Services.AddScoped<ITripThingService, TripThingService>();
-    builder.Services.AddScoped<ITripTodoService, TripTodoService>();
-    builder.Services.AddScoped<ITripImprovementService, TripImprovementService>();
-    builder.Services.AddScoped<IItineraryPartService, ItineraryPartService>();
-        builder.Services.AddScoped<ITripActivityService, TripActivityService>();
-    builder.Services.AddScoped<ITripExpenseService, TripExpenseService>();
-    builder.Services.AddScoped<ITripPackageService, TripPackageService>();
-    builder.Services.AddScoped<ILookupsService, LookupsService>();
-    builder.Services.AddScoped<IAdminsParticipantService, AdminsParticipantService>();
-    builder.Services.AddScoped<ITripSharedService, TripSharedService>();
-    builder.Services.AddScoped<ITripSharedTodoService, TripSharedTodoService>();
-    builder.Services.AddScoped<ITripSharedExpenseService, TripSharedExpenseService>();
-    builder.Services.AddScoped<ICheckAccessService, CheckAccessService>();
-    builder.Services.AddScoped<ITemplateService, TemplateService>();
-    builder.Services.AddScoped<ITripCommentService, TripCommentService>();
-    builder.Services.AddScoped<ITripNoteService, TripNoteService>();
-    builder.Services.AddScoped<ITripNoteEditorService, TripNoteEditorService>();
-    builder.Services.AddScoped<IDocumentsService, DocumentsService>();
-    builder.Services.AddScoped<IEmailService, EmailService>();
-    builder.Services.AddScoped<IInvitationService, InvitationService>();
-    builder.Services.AddScoped<IPublicTemplatesService, PublicTemplatesService>();
-    builder.Services.AddScoped<ITemporaryUserService, TemporaryUserService>();
-    builder.Services.AddScoped<ITokenService, TokenService>();
-    builder.Services.AddScoped<ISignInEmailService, SignInEmailService>();
-    builder.Services.AddScoped<ISharedAssignmentNotificationService, SharedAssignmentNotificationService>();
-    builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
-    builder.Services.AddScoped<IDashboardService, DashboardService>();
-    builder.Services.AddScoped<IPaddleService, PaddleService>();
-    builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
-    builder.Services.AddScoped<ISchedulerService, SchedulerService>();
-    builder.Services.AddScoped<AccessCodeGenerator>();
-    builder.Services.AddHttpClient<IBotProtectionService, BotProtectionService>();
-    builder.Services.AddHttpClient<IExpenseCurrencyRateService, ExpenseCurrencyRateService>();
-
-    builder.Services.AddHttpClient<IBrevoEmailClient, BrevoEmailClient>();
-    builder.Services.AddHttpClient<IAiService, AiService>();
-
-    // Register repositories
-    builder.Services.AddScoped<plantour_server.Repositories.KeyRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.PackRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.ThingRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TodoRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TodoCategoryRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.CommunicationTypeRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.UnitRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripStatusRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.ActivityRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.GenderRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TemperatureRangeRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.AgeRangeRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.PlanRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.AccessTypeRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripUserRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripThingRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripTodoRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripImprovementRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.ItineraryPartRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripUserExpenseRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripPackRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.LookupsRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.UsersRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.InvitationsRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.DicTripRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripSharedRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripSharedTodoRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripSharedExpenseRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.CurrencyRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripNoteRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.LogsRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.AiTripPlanRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.AiPromptChecksRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.RefreshTokenRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TimeTickerRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.UserSettingsRepository>();
-    builder.Services.AddScoped<plantour_server.Repositories.TripActivityRepository>();
-
-    builder.Services.AddScoped<HttpCurrentUser>();
-
-    // Configure CORS for Angular client
-    builder.Services.AddCors(options =>
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, cancellationToken) =>
     {
-        options.AddPolicy("AllowOrigins", policy =>
-        {
-            if (builder.Environment.IsDevelopment())
+        await ErrorResponse.WriteErrorResponse(
+            context.HttpContext,
+            StatusCodes.Status429TooManyRequests,
+            "TOO_MANY_REQUESTS",
+            "Too many requests. Please try again later.");
+    };
+
+    options.AddPolicy("admin-signin-email", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetRateLimitPartitionKey(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
             {
-                // Allow all origins in development
-                policy.AllowAnyOrigin()
-                      .AllowAnyMethod()
-                      .AllowAnyHeader();
-            }
-            else
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                AutoReplenishment = true
+            }));
+
+    options.AddPolicy("admin-signin-token", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetRateLimitPartitionKey(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
             {
-                //Use configured origins in production
-                var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>();
+                PermitLimit = 12,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                AutoReplenishment = true
+            }));
 
-                if (allowedOrigins == null || !allowedOrigins.Any())
-                {
-                    throw new CustomException("No origins allowed in a CORS policy");
-                }
+    options.AddPolicy("admin-social-signin", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetRateLimitPartitionKey(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 8,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                AutoReplenishment = true
+            }));
 
-                policy.WithOrigins(allowedOrigins)
-                      .AllowAnyMethod()
-                      .AllowAnyHeader()
-                      .AllowCredentials();
-            }
-        });
-    });
+    options.AddPolicy("participant-signin", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetRateLimitPartitionKey(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                AutoReplenishment = true
+            }));
 
-    // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-    builder.Services.AddOpenApi();
+    options.AddPolicy("temporary-user-create", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetRateLimitPartitionKey(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromHours(1),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                AutoReplenishment = true
+            }));
 
-    var app = builder.Build();
+    options.AddPolicy("contact-submit", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetRateLimitPartitionKey(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                AutoReplenishment = true
+            }));
 
-    app.UseForwardedHeaders();
+    options.AddPolicy("refresh-token", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetRateLimitPartitionKey(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 30,
+                Window = TimeSpan.FromMinutes(5),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                AutoReplenishment = true
+            }));
 
-    if (!app.Environment.IsProduction())
+    options.AddPolicy("is-user-temporary", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetRateLimitPartitionKey(httpContext),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 20,
+                Window = TimeSpan.FromMinutes(5),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                AutoReplenishment = true
+            }));
+});
+
+// Register services
+builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IKeyService, KeyService>();
+builder.Services.AddScoped<IPackageService, PackService>();
+builder.Services.AddScoped<IThingService, ThingService>();
+builder.Services.AddScoped<ITodoService, TodoService>();
+builder.Services.AddScoped<ITripService, TripService>();
+builder.Services.AddScoped<ITripUserService, TripUserService>();
+builder.Services.AddScoped<ITripThingService, TripThingService>();
+builder.Services.AddScoped<ITripTodoService, TripTodoService>();
+builder.Services.AddScoped<ITripImprovementService, TripImprovementService>();
+builder.Services.AddScoped<IItineraryPartService, ItineraryPartService>();
+builder.Services.AddScoped<ITripActivityService, TripActivityService>();
+builder.Services.AddScoped<ITripExpenseService, TripExpenseService>();
+builder.Services.AddScoped<ITripPackageService, TripPackageService>();
+builder.Services.AddScoped<ILookupsService, LookupsService>();
+builder.Services.AddScoped<IAdminsParticipantService, AdminsParticipantService>();
+builder.Services.AddScoped<ITripSharedService, TripSharedService>();
+builder.Services.AddScoped<ITripSharedTodoService, TripSharedTodoService>();
+builder.Services.AddScoped<ITripSharedExpenseService, TripSharedExpenseService>();
+builder.Services.AddScoped<ICheckAccessService, CheckAccessService>();
+builder.Services.AddScoped<ITemplateService, TemplateService>();
+builder.Services.AddScoped<ITripCommentService, TripCommentService>();
+builder.Services.AddScoped<ITripNoteService, TripNoteService>();
+builder.Services.AddScoped<ITripNoteEditorService, TripNoteEditorService>();
+builder.Services.AddScoped<IDocumentsService, DocumentsService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IInvitationService, InvitationService>();
+builder.Services.AddScoped<IPublicTemplatesService, PublicTemplatesService>();
+builder.Services.AddScoped<ITemporaryUserService, TemporaryUserService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ISignInEmailService, SignInEmailService>();
+builder.Services.AddScoped<ISharedAssignmentNotificationService, SharedAssignmentNotificationService>();
+builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IPaddleService, PaddleService>();
+builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
+builder.Services.AddScoped<ISchedulerService, SchedulerService>();
+builder.Services.AddScoped<AccessCodeGenerator>();
+builder.Services.AddHttpClient<IBotProtectionService, BotProtectionService>();
+builder.Services.AddHttpClient<IExpenseCurrencyRateService, ExpenseCurrencyRateService>();
+
+builder.Services.AddHttpClient<IBrevoEmailClient, BrevoEmailClient>();
+builder.Services.AddHttpClient<IAiService, AiService>();
+
+// Register repositories
+builder.Services.AddScoped<plantour_server.Repositories.KeyRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.PackRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.ThingRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TodoRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.ThingCategoryRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TodoCategoryRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.CommunicationTypeRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.UnitRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripStatusRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.ActivityRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.GenderRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TemperatureRangeRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.AgeRangeRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.PlanRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.AccessTypeRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripUserRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripThingRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripTodoRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripImprovementRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.ItineraryPartRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripUserExpenseRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripPackRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.LookupsRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.AdminsParticipantRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.UsersRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.InvitationsRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.DicTripRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripSharedRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripSharedTodoRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripSharedExpenseRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.CurrencyRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripNoteRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.LogsRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.AiTripPlanRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.SettingsRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.AiPromptChecksRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.RefreshTokenRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TimeTickerRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.UserSettingsRepository>();
+builder.Services.AddScoped<plantour_server.Repositories.TripActivityRepository>();
+
+builder.Services.AddScoped<HttpCurrentUser>();
+
+// Configure CORS for Angular client
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigins", policy =>
     {
-        app.Use(async (context, next) =>
+        if (builder.Environment.IsDevelopment())
         {
-            context.Response.Headers.Append("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
-            await next();
-        });
-    }
+            // Allow all origins in development
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        }
+        else
+        {
+            //Use configured origins in production
+            var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>();
 
-    //app.UseMiddleware<ExceptionHandlingMiddleware>();
-    app.UseExceptionHandler();
+            if (allowedOrigins == null || !allowedOrigins.Any())
+            {
+                throw new CustomException("No origins allowed in a CORS policy");
+            }
 
-    // Configure the HTTP request pipeline
-    if (app.Environment.IsDevelopment())
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        }
+    });
+});
+
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+app.UseForwardedHeaders();
+
+if (!app.Environment.IsProduction())
+{
+    app.Use(async (context, next) =>
     {
-        app.MapOpenApi();
-    }
+        context.Response.Headers.Append("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
+        await next();
+    });
+}
 
-    // Only redirect to HTTPS in production
-    if (!app.Environment.IsDevelopment())
-    {
-        app.UseHttpsRedirection();
-    }
+//app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseExceptionHandler();
 
-    app.UseCors("AllowOrigins");
+// Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
 
-    app.UseRateLimiter();
-    app.UseAuthentication();
-    app.UseMiddleware<CurrentUserMiddleware>();
-    app.UseMiddleware<ApiVisitLoggingMiddleware>();
-    app.UseAuthorization();
-    app.UseTickerQ();
+// Only redirect to HTTPS in production
+if (!app.Environment.IsDevelopment())
+{
+   app.UseHttpsRedirection();
+}
 
-    using var cronSyncScope = app.Services.CreateScope();
-    var recurringTasksScheduler = cronSyncScope.ServiceProvider.GetRequiredService<TickerQRecurringTasksScheduler>();
-    await recurringTasksScheduler.StartAsync(CancellationToken.None);
+app.UseCors("AllowOrigins");
 
-    app.MapControllers();
+app.UseRateLimiter();
+app.UseAuthentication();
+app.UseMiddleware<CurrentUserMiddleware>();
+app.UseMiddleware<ApiVisitLoggingMiddleware>();
+app.UseAuthorization();
+app.UseTickerQ();
 
-    app.Run();
-// }
-// catch (Exception ex)
-// {
-//     Serilog.Log.Fatal(ex, "Application terminated unexpectedly");
-// }
-// finally
-// {
-//     Serilog.Log.CloseAndFlush();
-// }
+using var cronSyncScope = app.Services.CreateScope();
+var recurringTasksScheduler = cronSyncScope.ServiceProvider.GetRequiredService<TickerQRecurringTasksScheduler>();
+await recurringTasksScheduler.StartAsync(CancellationToken.None);
 
+app.MapControllers();
 
-
+app.Run();

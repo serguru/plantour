@@ -11,6 +11,16 @@ export interface EnvironmentConfig {
   turnstileSiteKey?: string;
   paddleKey: string;
   version: string;
+  map: {
+    apiKey: string;
+    mapId: string;
+    language: string;
+    region: string;
+    defaultCenter: {
+      lat: number;
+      lng: number;
+    },
+  };
 }
 
 export const ENVIRONMENT = new InjectionToken<EnvironmentConfig>('environment');

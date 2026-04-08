@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, OnInit, PLATFORM_ID, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, Inject, OnInit, PLATFORM_ID, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { GoogleMap, MapInfoWindow, MapMarker, MapPolyline } from '@angular/google-maps';
@@ -7,10 +7,10 @@ import { importLibrary, setOptions } from '@googlemaps/js-api-loader';
 import { Checkbox } from 'primeng/checkbox';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { EntitiesHeader, HeaderButtonConfig, MenuConfig } from '../../entities/entities-header-component/entities-header-component';
-import { mapsConfig } from './maps.config';
 import { ItineraryPartDto, ItineraryService } from '../../../services/itinerary-service';
 import { TripActivityDto, TripActivityService } from '../../../services/trip-activity-service';
 import { TripDto, TripService } from '../../../services/trip-service';
+import { ENVIRONMENT, EnvironmentConfig } from '../../../../environment.token';
 
 type MapPointKind = 'itinerary' | 'personal' | 'shared';
 
@@ -121,6 +121,19 @@ const COUNTRY_NAME_TO_CODE: Record<string, string> = {
 export class MapComponent implements OnInit {
   @ViewChild(GoogleMap) private googleMap?: GoogleMap;
   @ViewChild(MapInfoWindow) private infoWindow?: MapInfoWindow;
+  
+  mapsConfig: any = null;
+
+  protected readonly mapsApiKeyConfigured: any = null;
+  protected readonly mapCenter: any = null;
+
+  constructor(
+    @Inject(ENVIRONMENT) private environment: EnvironmentConfig
+  ) {
+    this.mapsConfig = environment.map;
+    this.mapsApiKeyConfigured = this.mapsConfig.apiKey.trim().length > 0;
+    this.mapCenter = signal<google.maps.LatLngLiteral>(this.mapsConfig.defaultCenter);
+  }
 
   private readonly platformId = inject(PLATFORM_ID);
   private readonly route = inject(ActivatedRoute);
@@ -131,7 +144,6 @@ export class MapComponent implements OnInit {
   private geocoder: google.maps.Geocoder | null = null;
 
   protected readonly isBrowser = isPlatformBrowser(this.platformId);
-  protected readonly mapsApiKeyConfigured = mapsConfig.apiKey.trim().length > 0;
   protected readonly apiReady = signal(false);
   protected readonly loading = signal(false);
   protected readonly loadError = signal('');
@@ -146,7 +158,7 @@ export class MapComponent implements OnInit {
   protected readonly hiddenActivityPathIds = signal<string[]>([]);
   protected readonly pathsCollapsed = signal(false);
 
-  protected readonly mapCenter = signal<google.maps.LatLngLiteral>(mapsConfig.defaultCenter);
+  
   protected readonly zoom = signal(2);
   protected readonly itineraryPolylineOptions: google.maps.PolylineOptions = {
     strokeColor: '#0b6e4f',
@@ -158,7 +170,7 @@ export class MapComponent implements OnInit {
   protected readonly mapOptions = computed<google.maps.MapOptions>(() => ({
     center: this.mapCenter(),
     zoom: this.zoom(),
-    mapId: mapsConfig.mapId,
+    mapId: this.mapsConfig.mapId,
     mapTypeControl: true,
     streetViewControl: true,
     fullscreenControl: true,
@@ -388,11 +400,11 @@ export class MapComponent implements OnInit {
     }
 
     setOptions({
-      key: mapsConfig.apiKey,
+      key: this.mapsConfig.apiKey,
       v: 'weekly',
-      language: mapsConfig.language,
+      language: this.mapsConfig.language,
       authReferrerPolicy: 'origin',
-      mapIds: [mapsConfig.mapId],
+      mapIds: [this.mapsConfig.mapId],
     });
 
     await Promise.all([importLibrary('maps'), importLibrary('marker'), importLibrary('geocoding')]);

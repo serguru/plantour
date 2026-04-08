@@ -16,7 +16,7 @@ const RENDER_HEALTH_CHECK_PATH = '/health';
 const RENDER_HEALTH_CHECK_BODY = 'OK';
 
 const app = express();
-const _allowedHosts = ['localhost', '127.0.0.1', '::1', '*.code.run'];
+const _allowedHosts = ['localhost', '127.0.0.1', '::1', '*.code.run', '*.plantour.app', 'plantour.app'];
 try {
   const envHostname = new URL(environment.clientUrl).hostname;
   if (envHostname) _allowedHosts.push(envHostname);
@@ -42,8 +42,10 @@ function isAuthPage(path: string): boolean {
 function resolveBaseUrl(req?: express.Request): string {
   const forwardedProtoHeader = req?.headers['x-forwarded-proto'];
   const forwardedHostHeader = req?.headers['x-forwarded-host'];
-  const forwardedProto = Array.isArray(forwardedProtoHeader) ? forwardedProtoHeader[0] : forwardedProtoHeader;
-  const forwardedHost = Array.isArray(forwardedHostHeader) ? forwardedHostHeader[0] : forwardedHostHeader;
+  const forwardedProtoRaw = Array.isArray(forwardedProtoHeader) ? forwardedProtoHeader[0] : forwardedProtoHeader;
+  const forwardedHostRaw = Array.isArray(forwardedHostHeader) ? forwardedHostHeader[0] : forwardedHostHeader;
+  const forwardedProto = forwardedProtoRaw?.split(',')[0]?.trim();
+  const forwardedHost = forwardedHostRaw?.split(',')[0]?.trim();
 
   if (forwardedProto && forwardedHost) {
     return `${forwardedProto}://${forwardedHost}`;

@@ -541,6 +541,8 @@ public class UsersService(
         return new SocialIdentity(payload.Email, payload.Subject, payload.GivenName, payload.FamilyName);
     }
 
+    // TODO: Immediately after prodaction launch go to Google Search Console, verify ownership of the domain, and submit your sitemap.xml. This tells the bots the "gate is open."
+
     private async Task<SocialIdentity> VerifyFacebookTokenAsync(string? facebookAccessToken)
     {
         if (string.IsNullOrWhiteSpace(_socialAuthSettings.FacebookAppId) || string.IsNullOrWhiteSpace(_socialAuthSettings.FacebookAppSecret))

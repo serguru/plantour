@@ -77,14 +77,17 @@ export class DashboardService {
     }
 
     getDashboardTripDto(tripId: string): Observable<DashboardTripDto> {
+        if (!tripId) return of(null as any);
         return this.http.get<DashboardTripDto>(`${this.apiUrl}/trip/${tripId}`);
     }
 
     getDashboardUserTripDto(tripId: string): Observable<DashboardUserTripDto> {
+        if (!tripId) return of(null as any);
         return this.http.get<DashboardUserTripDto>(`${this.apiUrl}/user-trip/${tripId}`);
     }
 
     getDashboardAllUsersTripDto(tripId: string): Observable<DashboardAllUsersTripDto> {
+        if (!tripId) return of(null as any);
         return this.http.get<DashboardAllUsersTripDto>(`${this.apiUrl}/all-users-trip/${tripId}`);
     }
 
