@@ -1018,3 +1018,31 @@ The input is not a valid Base-64 string as it contains a non-base 64 character, 
 
 An error occurred during a cryptographic operation. Refer to the inner exception for more information.
 
+
+
+(() => {
+  const proto = Document.prototype;
+  const d = Object.getOwnPropertyDescriptor(proto, 'cookie');
+  if (!d || !d.set || !d.get) {
+    console.warn('Could not hook document.cookie');
+    return;
+  }
+
+  Object.defineProperty(proto, 'cookie', {
+    configurable: true,
+    enumerable: d.enumerable,
+    get() {
+      return d.get.call(this);
+    },
+    set(value) {
+      console.trace('Cookie write attempt:', value);
+      return d.set.call(this, value);
+    },
+  });
+
+  console.log('Cookie write tracing enabled');
+})();
+
+I do not want to go that way and ask users for their consent. I want to find a solution to technically protect my domain from writing any cookies. For example, if the Google map cannot work without cookies then replace it with the other library. Or, if possible, turn on the "cokieless" mode. To implement this idea I need a guard which will intercept attempts to write cookies and send the error to the backend to store it in  the log, explaining what happened. For the sources of cookies which are not interceptable the guard has to monitor stored cookies, delete them and send error to the log as well. If a third party JS code writes the cookies but works normally after that cookie killed by the gurad - do not send errors to the log for that particular source, just kill cookies. 
+
+Is this idea feasible?

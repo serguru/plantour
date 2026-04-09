@@ -387,7 +387,7 @@ public class UsersService(
         }
 
         string facebookAccessToken;
-
+// TODO: what is Facebook social login "test mode"?
         try
         {
             facebookAccessToken = _facebookOAuthTokenProtector.Unprotect(normalizedProtectedToken);
