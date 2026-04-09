@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using plantour_server.Attributes;
@@ -22,8 +23,9 @@ public class UsersController : ControllerBase
         private readonly IContactSubmissionService _contactSubmissionService;
         private readonly ISchedulerService _schedulerService;
         private readonly IBotProtectionService _botProtectionService;
+        private readonly IWebHostEnvironment _environment;
 
-        public UsersController(IUsersService usersService, ITemporaryUserService temporaryUserService, IPaddleService paddleService, IContactSubmissionService contactSubmissionService, ISchedulerService schedulerService, IBotProtectionService botProtectionService)
+        public UsersController(IUsersService usersService, ITemporaryUserService temporaryUserService, IPaddleService paddleService, IContactSubmissionService contactSubmissionService, ISchedulerService schedulerService, IBotProtectionService botProtectionService, IWebHostEnvironment environment)
         {
                 _usersService = usersService;
                 _temporaryUserService = temporaryUserService;
@@ -31,6 +33,7 @@ public class UsersController : ControllerBase
                 _contactSubmissionService = contactSubmissionService;
                 _schedulerService = schedulerService;
                 _botProtectionService = botProtectionService;
+                _environment = environment;
         }
 
         #region Admin Endpoints
@@ -69,7 +72,7 @@ public class UsersController : ControllerBase
         [EnableRateLimiting("admin-social-signin")]
         public IActionResult StartGoogleOAuth([FromQuery] string? returnUrl)
         {
-                var callbackUrl = $"{Request.Scheme}://{Request.Host}/users/admin/social/google/oauth/callback";
+                var callbackUrl = BuildAbsoluteUrl("/users/admin/social/google/oauth/callback");
                 var authorizeUrl = _usersService.BuildGoogleOAuthAuthorizeUrl(callbackUrl, returnUrl);
                 return Redirect(authorizeUrl);
         }
@@ -79,7 +82,7 @@ public class UsersController : ControllerBase
         [EnableRateLimiting("admin-social-signin")]
         public async Task<IActionResult> GoogleOAuthCallback([FromQuery] string? code, [FromQuery] string? state, [FromQuery] string? error)
         {
-                var callbackUrl = $"{Request.Scheme}://{Request.Host}/users/admin/social/google/oauth/callback";
+                var callbackUrl = BuildAbsoluteUrl("/users/admin/social/google/oauth/callback");
                 var redirectUrl = await _usersService.HandleGoogleOAuthCallbackAsync(callbackUrl, code, state, error);
                 return Redirect(redirectUrl);
         }
@@ -98,7 +101,7 @@ public class UsersController : ControllerBase
         [EnableRateLimiting("admin-social-signin")]
         public IActionResult StartFacebookOAuth([FromQuery] string? returnUrl)
         {
-                var callbackUrl = $"{Request.Scheme}://{Request.Host}/users/admin/social/facebook/oauth/callback";
+                var callbackUrl = BuildAbsoluteUrl("/users/admin/social/facebook/oauth/callback");
                 var authorizeUrl = _usersService.BuildFacebookOAuthAuthorizeUrl(callbackUrl, returnUrl);
                 return Redirect(authorizeUrl);
         }
@@ -113,7 +116,7 @@ public class UsersController : ControllerBase
                 [FromQuery(Name = "error_reason")] string? errorReason,
                 [FromQuery(Name = "error_description")] string? errorDescription)
         {
-                var callbackUrl = $"{Request.Scheme}://{Request.Host}/users/admin/social/facebook/oauth/callback";
+                var callbackUrl = BuildAbsoluteUrl("/users/admin/social/facebook/oauth/callback");
                 var redirectUrl = await _usersService.HandleFacebookOAuthCallbackAsync(callbackUrl, code, state, error, errorReason, errorDescription);
                 return Redirect(redirectUrl);
         }
@@ -239,6 +242,17 @@ public class UsersController : ControllerBase
         {
                 var profile = await _usersService.GetLandingAsync();
                 return Ok(profile);
+        }
+
+        private string BuildAbsoluteUrl(string path)
+        {
+                var scheme = Request.Scheme;
+                if (_environment.IsProduction() && !string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+                {
+                        scheme = Uri.UriSchemeHttps;
+                }
+
+                return $"{scheme}://{Request.Host}{path}";
         }
 
         [HttpPut("downgrade-plan-price/schedule")]

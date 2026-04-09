@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using plantour_server.DbModels;
@@ -20,7 +21,8 @@ public class TripNoteEditorService(
     KeyRepository keyRepository,
     IHttpClientFactory httpClientFactory,
     IHttpContextAccessor httpContextAccessor,
-    IDataProtectionProvider dataProtectionProvider) : ITripNoteEditorService
+    IDataProtectionProvider dataProtectionProvider,
+    IWebHostEnvironment environment) : ITripNoteEditorService
 {
     private const string DropboxAuthUrl = "https://www.dropbox.com/oauth2/authorize";
     private const string DropboxTokenUrl = "https://api.dropboxapi.com/oauth2/token";
@@ -46,6 +48,7 @@ public class TripNoteEditorService(
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IDataProtector _stateProtector = dataProtectionProvider.CreateProtector(StateProtectorPurpose);
+    private readonly IWebHostEnvironment _environment = environment;
 
     public async Task<TripNoteEditorConfigDto> GetConfigAsync()
     {
@@ -463,7 +466,13 @@ public class TripNoteEditorService(
         var request = _httpContextAccessor.HttpContext?.Request
             ?? throw new CustomException("HTTP request context is unavailable.");
 
-        return $"{request.Scheme}://{request.Host}/trip-note-editor/dropbox/callback";
+        var scheme = request.Scheme;
+        if (_environment.IsProduction() && !string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            scheme = Uri.UriSchemeHttps;
+        }
+
+        return $"{scheme}://{request.Host}/trip-note-editor/dropbox/callback";
     }
 
     private DropboxStatePayload UnprotectState(string? state)

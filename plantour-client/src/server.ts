@@ -47,12 +47,31 @@ function resolveBaseUrl(req?: express.Request): string {
   const forwardedProto = forwardedProtoRaw?.split(',')[0]?.trim();
   const forwardedHost = forwardedHostRaw?.split(',')[0]?.trim();
 
-  if (forwardedProto && forwardedHost) {
-    return `${forwardedProto}://${forwardedHost}`;
+  let scheme = forwardedProto || req?.protocol;
+  let host = forwardedHost || req?.get('host') || undefined;
+
+  if (!host) {
+    try {
+      host = new URL(environment.clientUrl).host;
+    } catch {
+      host = undefined;
+    }
   }
 
-  if (req?.protocol && req.get('host')) {
-    return `${req.protocol}://${req.get('host')}`;
+  if (!scheme) {
+    try {
+      scheme = new URL(environment.clientUrl).protocol.replace(':', '');
+    } catch {
+      scheme = undefined;
+    }
+  }
+
+  if (environment.environment === 'production' && scheme === 'http') {
+    scheme = 'https';
+  }
+
+  if (scheme && host) {
+    return `${scheme}://${host}`;
   }
 
   return environment.clientUrl.replace(/\/+$/, '');
