@@ -951,3 +951,98 @@ I need a comprehensive plan for a Turkey history, nature and culinary trip, 5 ci
 
 
 
+
+Short answer to your question:
+- Yes, there is an API way without using the visible Google button UI.
+- But there are two different families of Google flows, and they are not equivalent by design.
+
+What official Google docs say:
+1. GIS authentication flow (Sign in with Google)
+- Official authentication UI is Sign in with Google button, One Tap, auto sign-in.
+- This flow returns an ID token for signing into your app.
+- Docs explicitly separate this from authorization APIs.
+
+2. Google Authorization API (OAuth code/token model)
+- This is for obtaining code/access tokens to call Google APIs.
+- Google docs explicitly say authentication moment and authorization moment are separate.
+- This is the path Google points to when you need more customized integration.
+
+3. Cookies and FedCM
+- Google docs state FedCM is the privacy-preserving replacement path and that with FedCM enabled, browser-mediated sign-in can work without third-party cookies.
+- JS reference also states GIS uses cookies for certain UX state features (for example disableAutoSelect, state_cookie_domain behavior).
+- So yes, GIS can involve cookie/state behavior; FedCM reduces dependency on third-party cookies, but does not mean no cookies anywhere at all.
+
+Direct answer for your legal concern:
+- If your requirement is “do not use the Google button UI”, you can use a custom button that starts OAuth 2.0 Authorization Code flow (server-side), including OpenID scopes, then map identity to your user account. This is the API-style route.
+- If your requirement is “do not allow Google to write anything on my domain”, avoid GIS JS integration and use direct OAuth redirect flow from your backend. Google will still use cookies on Google domains during sign-in, but you can avoid GIS-managed state behavior in your page context.
+- If your requirement is “keep current UX and improve privacy posture”, your current use_fedcm_for_button setting is aligned with Google’s recommended direction.
+
+Important nuance:
+- You asked “same result as Google button.” Functional result (user authenticated with Google identity) is achievable via OAuth code flow.
+- Product/UX result is not exactly identical, because GIS button/One Tap behavior is a distinct Google-managed authentication UX.
+
+Official references used:
+- https://developers.google.com/identity/gsi/web/guides/overview
+- https://developers.google.com/identity/gsi/web/guides/display-button
+- https://developers.google.com/identity/gsi/web/reference/js-reference
+- https://developers.google.com/identity/gsi/web/guides/fedcm-migration
+- https://developers.google.com/identity/gsi/web/guides/supported-browsers#third-party_cookies
+- https://developers.google.com/identity/oauth2/web/guides/use-code-model
+
+I am not a lawyer, so this is technical guidance only. For compliance decisions, your counsel should decide whether your specific cookie behavior requires consent in your target jurisdictions.
+
+Is this scenario possible:
+
+1) User clicks a regular button (not a "Google button"!) and Plantour redirects the user to the certain Google page
+2) On that page which is not in my domain user selects their Google account to enter Plabtour with
+3) Google redirects back to the Plantour sign in page with the authorization data
+4) My sign in page reads that data and signing the user in
+
+
+ Required setup before this works:
+
+Fill SocialAuthSettings.GoogleClientSecret in environment/appsettings.
+Ensure SocialAuthSettings.GoogleOAuthDefaultReturnUrl is correct per environment.
+In Google Cloud Console OAuth client, add authorized redirect URIs for each API host:
+/users/admin/social/google/oauth/callback on dev/qa/prod API domains.
+
+
+protectedFacebookOAuthToken
+
+CfDJ8HnnjKhhnhRAh5Y7B5OOgzll_vgoH_BbZSFB5PXeg8nP1rOHjPLRlmds7fSCLMYcpigES1CtxKbVwt6ycHj4edLHKktP2bTQ3pQUcNyCiP361nO4HI613dEW6iXyJL9s5d7epvG9tS0EKxfBKSdXNFXghcewcBiwSXPEVFxu_sqwETprG5RZQlLDsNIGrcNcXb63Z-28Qrsinov117vsSIzCf2DlH7cCH2Dt-Y8Ww1ZUB_1FFwdtaLUR9qfi9ax6ryA-ggFsTzUTny-su8y1SM6yl53OVn4K_H5uLJNOrI6kv7KY27FLBavsElMrl36E-YRpPnWzJyH-vmmtiHF4HI9bzN20pB8471wBANrF7NKQEHmN1L9zdJz4VS4G6pzzgVgJjPXwJRZwM4j-pcM74kfjjPqRZEfCZ4PsBU9oENSarfkfc1sJ_YsKVxenZgNBya-cIfhMVaa-6JBZglYoNPZA-nhxWaiLYn47k9m50EMh4HBPKTbHymGJ9gNmwUhfyiQeKgv6eUOumogw9ObCpM1Q18YHY8WsbTakJZSvaP48s71AS0Ue2q368L59vdNq7A#_=_
+
+Message 
+
+The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.
+
+
+An error occurred during a cryptographic operation. Refer to the inner exception for more information.
+
+
+
+(() => {
+  const proto = Document.prototype;
+  const d = Object.getOwnPropertyDescriptor(proto, 'cookie');
+  if (!d || !d.set || !d.get) {
+    console.warn('Could not hook document.cookie');
+    return;
+  }
+
+  Object.defineProperty(proto, 'cookie', {
+    configurable: true,
+    enumerable: d.enumerable,
+    get() {
+      return d.get.call(this);
+    },
+    set(value) {
+      console.trace('Cookie write attempt:', value);
+      return d.set.call(this, value);
+    },
+  });
+
+  console.log('Cookie write tracing enabled');
+})();
+
+I do not want to go that way and ask users for their consent. I want to find a solution to technically protect my domain from writing any cookies. For example, if the Google map cannot work without cookies then replace it with the other library. Or, if possible, turn on the "cokieless" mode. To implement this idea I need a guard which will intercept attempts to write cookies and send the error to the backend to store it in  the log, explaining what happened. For the sources of cookies which are not interceptable the guard has to monitor stored cookies, delete them and send error to the log as well. If a third party JS code writes the cookies but works normally after that cookie killed by the gurad - do not send errors to the log for that particular source, just kill cookies. 
+
+Is this idea feasible?

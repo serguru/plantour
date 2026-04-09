@@ -19,6 +19,8 @@ using plantour_server.Services.Interfaces;
 using plantour_server.Services.TickerQ;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.Extensions;
 
 namespace plantour_server.Services;
 
@@ -44,7 +46,8 @@ public class UsersService(
     TimeTickerRepository timeTickerRepository,
     IPaddleService paddleService,
     ISignInEmailService signInEmailService,
-    IOptions<SocialAuthSettings> socialAuthSettings) : IUsersService
+    IOptions<SocialAuthSettings> socialAuthSettings,
+    IDataProtectionProvider dataProtectionProvider) : IUsersService
 {
     private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
     private readonly UsersRepository _usersRepository = usersRepository;
@@ -67,6 +70,10 @@ public class UsersService(
     private readonly IConfiguration _configuration = configuration;
     private readonly IWebHostEnvironment _environment = environment;
     private readonly ISignInEmailService _signInEmailService = signInEmailService;
+    private readonly ITimeLimitedDataProtector _googleOAuthStateProtector = dataProtectionProvider.CreateProtector("Plantour.GoogleOAuthState").ToTimeLimitedDataProtector();
+    private readonly ITimeLimitedDataProtector _googleOAuthTokenProtector = dataProtectionProvider.CreateProtector("Plantour.GoogleOAuthToken").ToTimeLimitedDataProtector();
+    private readonly ITimeLimitedDataProtector _facebookOAuthStateProtector = dataProtectionProvider.CreateProtector("Plantour.FacebookOAuthState").ToTimeLimitedDataProtector();
+    private readonly ITimeLimitedDataProtector _facebookOAuthTokenProtector = dataProtectionProvider.CreateProtector("Plantour.FacebookOAuthToken").ToTimeLimitedDataProtector();
     #region Admin Authentication
 
     public async Task<SignInResponse> SendSignInEmailAdminAsync(SignInRequest request)
@@ -80,7 +87,6 @@ public class UsersService(
 
         return provider switch
         {
-            "google" => await SignInWithGoogleAsync(request.GoogleIdToken),
             "facebook" => await SignInWithFacebookAsync(request.FacebookAccessToken),
             _ => throw new CustomException("Unsupported social provider")
         };
@@ -114,6 +120,284 @@ public class UsersService(
         EnsureActiveUser(user);
 
         return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
+    }
+
+    public string BuildGoogleOAuthAuthorizeUrl(string callbackUrl, string? returnUrl)
+    {
+        if (string.IsNullOrWhiteSpace(_socialAuthSettings.GoogleClientId) || string.IsNullOrWhiteSpace(_socialAuthSettings.GoogleClientSecret))
+        {
+            throw new CustomException("Google OAuth login is not configured on server");
+        }
+
+        if (string.IsNullOrWhiteSpace(callbackUrl))
+        {
+            throw new CustomException("Google OAuth callback URL is required");
+        }
+
+        string resolvedReturnUrl = ResolveGoogleReturnUrl(returnUrl);
+
+        var statePayload = new GoogleOAuthStatePayload
+        {
+            ReturnUrl = resolvedReturnUrl,
+            CallbackUrl = callbackUrl,
+            Nonce = Guid.NewGuid().ToString("N")
+        };
+
+        string serializedState = JsonSerializer.Serialize(statePayload);
+        string protectedState = _googleOAuthStateProtector.Protect(serializedState, TimeSpan.FromMinutes(10));
+
+        var query = new Dictionary<string, string>
+        {
+            ["client_id"] = _socialAuthSettings.GoogleClientId,
+            ["redirect_uri"] = callbackUrl,
+            ["response_type"] = "code",
+            ["scope"] = "openid email profile",
+            ["state"] = protectedState,
+            ["prompt"] = "select_account"
+        };
+
+        string queryString = string.Join("&", query.Select(pair => $"{pair.Key}={Uri.EscapeDataString(pair.Value)}"));
+        return $"https://accounts.google.com/o/oauth2/v2/auth?{queryString}";
+    }
+
+    public async Task<string> HandleGoogleOAuthCallbackAsync(string callbackUrl, string? code, string? state, string? error)
+    {
+        string returnUrl = ResolveGoogleReturnUrl(null);
+        GoogleOAuthStatePayload? statePayload = null;
+
+        if (!string.IsNullOrWhiteSpace(state))
+        {
+            try
+            {
+                string unprotectedState = _googleOAuthStateProtector.Unprotect(state);
+                statePayload = JsonSerializer.Deserialize<GoogleOAuthStatePayload>(unprotectedState);
+                if (!string.IsNullOrWhiteSpace(statePayload?.ReturnUrl))
+                {
+                    returnUrl = ResolveGoogleReturnUrl(statePayload.ReturnUrl);
+                }
+            }
+            catch
+            {
+                return BuildGoogleOAuthRedirectErrorUrl(returnUrl, "Google state validation failed");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(error))
+        {
+            return BuildGoogleOAuthRedirectErrorUrl(returnUrl, $"Google authentication failed: {error}");
+        }
+
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return BuildGoogleOAuthRedirectErrorUrl(returnUrl, "Google authorization code is missing");
+        }
+
+        if (statePayload == null || string.IsNullOrWhiteSpace(statePayload.CallbackUrl) || !string.Equals(statePayload.CallbackUrl, callbackUrl, StringComparison.Ordinal))
+        {
+            return BuildGoogleOAuthRedirectErrorUrl(returnUrl, "Google callback validation failed");
+        }
+
+        GoogleTokenResponse tokenResponse;
+
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient();
+            var form = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["code"] = code,
+                ["client_id"] = _socialAuthSettings.GoogleClientId,
+                ["client_secret"] = _socialAuthSettings.GoogleClientSecret,
+                ["redirect_uri"] = callbackUrl,
+                ["grant_type"] = "authorization_code"
+            });
+
+            var response = await httpClient.PostAsync("https://oauth2.googleapis.com/token", form);
+            if (!response.IsSuccessStatusCode)
+            {
+                string responseBody = await response.Content.ReadAsStringAsync();
+                string details = ExtractGoogleTokenExchangeError(responseBody);
+                return BuildGoogleOAuthRedirectErrorUrl(returnUrl, $"Google token exchange failed: {details}");
+            }
+
+            tokenResponse = await response.Content.ReadFromJsonAsync<GoogleTokenResponse>()
+                ?? throw new CustomException("Google token response is empty");
+        }
+        catch
+        {
+            return BuildGoogleOAuthRedirectErrorUrl(returnUrl, "Google token exchange failed");
+        }
+
+        if (string.IsNullOrWhiteSpace(tokenResponse.IdToken))
+        {
+            return BuildGoogleOAuthRedirectErrorUrl(returnUrl, "Google ID token is missing");
+        }
+
+        string protectedToken = _googleOAuthTokenProtector.Protect(tokenResponse.IdToken, TimeSpan.FromMinutes(2));
+
+        return AppendQueryParameter(returnUrl, "googleOAuthToken", protectedToken);
+    }
+
+    public async Task<AuthResponse> CompleteGoogleOAuthSignInAsync(string protectedGoogleOAuthToken)
+    {
+        var normalizedProtectedToken = NormalizeProtectedOAuthToken(protectedGoogleOAuthToken);
+
+        if (string.IsNullOrWhiteSpace(normalizedProtectedToken))
+        {
+            throw new CustomException("Google OAuth token is required");
+        }
+
+        string googleIdToken;
+
+        try
+        {
+            googleIdToken = _googleOAuthTokenProtector.Unprotect(normalizedProtectedToken);
+        }
+        catch
+        {
+            throw new UnauthorizedException("Google OAuth token is invalid or expired", "NO_ACCESS");
+        }
+
+        return await SignInWithGoogleAsync(googleIdToken);
+    }
+
+    public string BuildFacebookOAuthAuthorizeUrl(string callbackUrl, string? returnUrl)
+    {
+        if (string.IsNullOrWhiteSpace(_socialAuthSettings.FacebookAppId) || string.IsNullOrWhiteSpace(_socialAuthSettings.FacebookAppSecret))
+        {
+            throw new CustomException("Facebook OAuth login is not configured on server");
+        }
+
+        if (string.IsNullOrWhiteSpace(callbackUrl))
+        {
+            throw new CustomException("Facebook OAuth callback URL is required");
+        }
+
+        string resolvedReturnUrl = ResolveFacebookReturnUrl(returnUrl);
+
+        var statePayload = new FacebookOAuthStatePayload
+        {
+            ReturnUrl = resolvedReturnUrl,
+            CallbackUrl = callbackUrl,
+            Nonce = Guid.NewGuid().ToString("N")
+        };
+
+        string serializedState = JsonSerializer.Serialize(statePayload);
+        string protectedState = _facebookOAuthStateProtector.Protect(serializedState, TimeSpan.FromMinutes(10));
+
+        var query = new Dictionary<string, string>
+        {
+            ["client_id"] = _socialAuthSettings.FacebookAppId,
+            ["redirect_uri"] = callbackUrl,
+            ["response_type"] = "code",
+            ["scope"] = "email,public_profile",
+            ["state"] = protectedState
+        };
+
+        string queryString = string.Join("&", query.Select(pair => $"{pair.Key}={Uri.EscapeDataString(pair.Value)}"));
+        return $"https://www.facebook.com/v23.0/dialog/oauth?{queryString}";
+    }
+
+    public async Task<string> HandleFacebookOAuthCallbackAsync(string callbackUrl, string? code, string? state, string? error, string? errorReason, string? errorDescription)
+    {
+        string returnUrl = ResolveFacebookReturnUrl(null);
+        FacebookOAuthStatePayload? statePayload = null;
+
+        if (!string.IsNullOrWhiteSpace(state))
+        {
+            try
+            {
+                string unprotectedState = _facebookOAuthStateProtector.Unprotect(state);
+                statePayload = JsonSerializer.Deserialize<FacebookOAuthStatePayload>(unprotectedState);
+                if (!string.IsNullOrWhiteSpace(statePayload?.ReturnUrl))
+                {
+                    returnUrl = ResolveFacebookReturnUrl(statePayload.ReturnUrl);
+                }
+            }
+            catch
+            {
+                return BuildFacebookOAuthRedirectErrorUrl(returnUrl, "Facebook state validation failed");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(error) || !string.IsNullOrWhiteSpace(errorReason) || !string.IsNullOrWhiteSpace(errorDescription))
+        {
+            string details = string.Join("; ", new[] { error, errorReason, errorDescription }.Where(v => !string.IsNullOrWhiteSpace(v)));
+            return BuildFacebookOAuthRedirectErrorUrl(returnUrl, $"Facebook authentication failed: {details}");
+        }
+
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return BuildFacebookOAuthRedirectErrorUrl(returnUrl, "Facebook authorization code is missing");
+        }
+
+        if (statePayload == null || string.IsNullOrWhiteSpace(statePayload.CallbackUrl) || !string.Equals(statePayload.CallbackUrl, callbackUrl, StringComparison.Ordinal))
+        {
+            return BuildFacebookOAuthRedirectErrorUrl(returnUrl, "Facebook callback validation failed");
+        }
+
+        FacebookOAuthTokenResponse tokenResponse;
+
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient();
+
+            var query = new Dictionary<string, string>
+            {
+                ["client_id"] = _socialAuthSettings.FacebookAppId,
+                ["client_secret"] = _socialAuthSettings.FacebookAppSecret,
+                ["redirect_uri"] = callbackUrl,
+                ["code"] = code
+            };
+
+            string queryString = string.Join("&", query.Select(pair => $"{pair.Key}={Uri.EscapeDataString(pair.Value)}"));
+            var response = await httpClient.GetAsync($"https://graph.facebook.com/v23.0/oauth/access_token?{queryString}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string responseBody = await response.Content.ReadAsStringAsync();
+                string details = ExtractFacebookTokenExchangeError(responseBody);
+                return BuildFacebookOAuthRedirectErrorUrl(returnUrl, $"Facebook token exchange failed: {details}");
+            }
+
+            tokenResponse = await response.Content.ReadFromJsonAsync<FacebookOAuthTokenResponse>()
+                ?? throw new CustomException("Facebook token response is empty");
+        }
+        catch
+        {
+            return BuildFacebookOAuthRedirectErrorUrl(returnUrl, "Facebook token exchange failed");
+        }
+
+        if (string.IsNullOrWhiteSpace(tokenResponse.AccessToken))
+        {
+            return BuildFacebookOAuthRedirectErrorUrl(returnUrl, "Facebook access token is missing");
+        }
+
+        string protectedToken = _facebookOAuthTokenProtector.Protect(tokenResponse.AccessToken, TimeSpan.FromMinutes(2));
+
+        return AppendQueryParameter(returnUrl, "facebookOAuthToken", protectedToken);
+    }
+
+    public async Task<AuthResponse> CompleteFacebookOAuthSignInAsync(string protectedFacebookOAuthToken)
+    {
+        var normalizedProtectedToken = NormalizeProtectedOAuthToken(protectedFacebookOAuthToken);
+
+        if (string.IsNullOrWhiteSpace(normalizedProtectedToken))
+        {
+            throw new CustomException("Facebook OAuth token is required");
+        }
+
+        string facebookAccessToken;
+// TODO: what is Facebook social login "test mode"?
+        try
+        {
+            facebookAccessToken = _facebookOAuthTokenProtector.Unprotect(normalizedProtectedToken);
+        }
+        catch
+        {
+            throw new CustomException("Facebook OAuth token is invalid or expired", "NO_ACCESS");
+        }
+
+        return await SignInWithFacebookAsync(facebookAccessToken);
     }
     public async Task SendParticipantInvitationAsync(Guid adminParticipantId)
     {
@@ -708,6 +992,218 @@ public class UsersService(
 
         [JsonPropertyName("last_name")]
         public string? LastName { get; set; }
+    }
+
+    private sealed class GoogleTokenResponse
+    {
+        [JsonPropertyName("id_token")]
+        public string? IdToken { get; set; }
+    }
+
+    private sealed class GoogleTokenErrorResponse
+    {
+        [JsonPropertyName("error")]
+        public string? Error { get; set; }
+
+        [JsonPropertyName("error_description")]
+        public string? ErrorDescription { get; set; }
+    }
+
+    private sealed class FacebookOAuthTokenResponse
+    {
+        [JsonPropertyName("access_token")]
+        public string? AccessToken { get; set; }
+    }
+
+    private sealed class FacebookTokenErrorResponse
+    {
+        [JsonPropertyName("error")]
+        public FacebookTokenErrorData? Error { get; set; }
+    }
+
+    private sealed class FacebookTokenErrorData
+    {
+        [JsonPropertyName("message")]
+        public string? Message { get; set; }
+
+        [JsonPropertyName("type")]
+        public string? Type { get; set; }
+
+        [JsonPropertyName("code")]
+        public int? Code { get; set; }
+    }
+
+    private sealed class GoogleOAuthStatePayload
+    {
+        public string ReturnUrl { get; set; } = string.Empty;
+        public string CallbackUrl { get; set; } = string.Empty;
+        public string Nonce { get; set; } = string.Empty;
+    }
+
+    private sealed class FacebookOAuthStatePayload
+    {
+        public string ReturnUrl { get; set; } = string.Empty;
+        public string CallbackUrl { get; set; } = string.Empty;
+        public string Nonce { get; set; } = string.Empty;
+    }
+
+    private string ResolveFacebookReturnUrl(string? returnUrl)
+    {
+        return ResolveGoogleReturnUrl(returnUrl);
+    }
+
+    private string ResolveGoogleReturnUrl(string? returnUrl)
+    {
+        var candidate = string.IsNullOrWhiteSpace(returnUrl)
+            ? _socialAuthSettings.GoogleOAuthDefaultReturnUrl
+            : returnUrl;
+
+        if (string.IsNullOrWhiteSpace(candidate))
+        {
+            throw new CustomException("Google OAuth return URL is not configured");
+        }
+
+        if (!Uri.TryCreate(candidate, UriKind.Absolute, out var parsed) || (parsed.Scheme != Uri.UriSchemeHttps && parsed.Scheme != Uri.UriSchemeHttp))
+        {
+            throw new CustomException("Google OAuth return URL is invalid");
+        }
+
+        var allowedOrigins = _configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+        var allowedHosts = allowedOrigins
+            .Select(origin =>
+            {
+                if (Uri.TryCreate(origin, UriKind.Absolute, out var allowedUri))
+                {
+                    return allowedUri.Host;
+                }
+
+                return string.Empty;
+            })
+            .Where(host => !string.IsNullOrWhiteSpace(host))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (!allowedHosts.Contains(parsed.Host))
+        {
+            throw new CustomException("Google OAuth return URL host is not allowed");
+        }
+
+        return parsed.ToString();
+    }
+
+    private static string BuildGoogleOAuthRedirectErrorUrl(string returnUrl, string message)
+    {
+        return AppendQueryParameter(returnUrl, "googleOAuthError", message);
+    }
+
+    private static string BuildFacebookOAuthRedirectErrorUrl(string returnUrl, string message)
+    {
+        return AppendQueryParameter(returnUrl, "facebookOAuthError", message);
+    }
+
+    private static string ExtractGoogleTokenExchangeError(string responseBody)
+    {
+        if (string.IsNullOrWhiteSpace(responseBody))
+        {
+            return "Unknown error";
+        }
+
+        try
+        {
+            var parsed = JsonSerializer.Deserialize<GoogleTokenErrorResponse>(responseBody);
+            if (parsed != null)
+            {
+                string error = parsed.Error?.Trim() ?? string.Empty;
+                string description = parsed.ErrorDescription?.Trim() ?? string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(error) && !string.IsNullOrWhiteSpace(description))
+                {
+                    return $"{error} - {description}";
+                }
+
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    return error;
+                }
+
+                if (!string.IsNullOrWhiteSpace(description))
+                {
+                    return description;
+                }
+            }
+        }
+        catch
+        {
+            // Ignore parsing issues and return raw body below.
+        }
+
+        return responseBody;
+    }
+
+    private static string ExtractFacebookTokenExchangeError(string responseBody)
+    {
+        if (string.IsNullOrWhiteSpace(responseBody))
+        {
+            return "Unknown error";
+        }
+
+        try
+        {
+            var parsed = JsonSerializer.Deserialize<FacebookTokenErrorResponse>(responseBody);
+            var error = parsed?.Error;
+            if (error != null)
+            {
+                var parts = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(error.Type))
+                {
+                    parts.Add(error.Type.Trim());
+                }
+
+                if (error.Code.HasValue)
+                {
+                    parts.Add($"code {error.Code.Value}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(error.Message))
+                {
+                    parts.Add(error.Message.Trim());
+                }
+
+                if (parts.Count > 0)
+                {
+                    return string.Join(" - ", parts);
+                }
+            }
+        }
+        catch
+        {
+            // Ignore parsing issues and return raw body below.
+        }
+
+        return responseBody;
+    }
+
+    private static string AppendQueryParameter(string url, string name, string value)
+    {
+        var separator = url.Contains('?') ? "&" : "?";
+        return $"{url}{separator}{name}={Uri.EscapeDataString(value)}";
+    }
+
+    private static string NormalizeProtectedOAuthToken(string? token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return string.Empty;
+        }
+
+        string trimmed = token.Trim();
+        int fragmentIndex = trimmed.IndexOf('#');
+        if (fragmentIndex >= 0)
+        {
+            trimmed = trimmed[..fragmentIndex];
+        }
+
+        return trimmed;
     }
 
     public async Task<AuthResponseDto> RefreshTokenAsync(TokenRequestDto request)

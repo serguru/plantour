@@ -230,6 +230,8 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
 
   private buildEditorInit(): Record<string, unknown> {
     return {
+      base_url: '/assets/tinymce',
+      suffix: '.min',
       min_height: 294,
       autoresize_bottom_margin: 24,
       menubar: false,
@@ -240,7 +242,7 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
       convert_urls: false,
       relative_urls: false,
       remove_script_host: false,
-      plugins: 'autolink autoresize charmap code image link lists paste table visualblocks',
+      plugins: 'autolink autoresize charmap code image link lists table visualblocks',
       toolbar:
         'dropboximage | blocks | bold italic underline | bullist numlist blockquote | link image undo redo | table | removeformat code',
       block_formats: 'Paragraph=p;Heading 2=h2;Heading 3=h3;Heading 4=h4',

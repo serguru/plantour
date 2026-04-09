@@ -1,9 +1,9 @@
 export const environment = {
   environment: "development",
   api: {
-    baseUrl: 'http://192.168.4.34:5217'
+    baseUrl: 'http://localhost:5217'
   },
-  clientUrl: 'http://192.168.4.34:4203',
+  clientUrl: 'http://localhost:4203',
   googleClientId: '918703665460-7vpm4ecriksjt5lv6fqhkvvbmqi92h0l.apps.googleusercontent.com',
   facebookAppId: '2076632839798115',
   turnstileSiteKey: '0x4AAAAAACyoFgfZ0bvLNGPQ',
@@ -20,3 +20,5 @@ export const environment = {
     },
   }
 };
+
+
