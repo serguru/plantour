@@ -126,6 +126,8 @@ app.use((req, res, next) => {
   next();
 });
 
+
+// TODO: remove RENDER_HEALTH_CHECK_PATH
 // Render sends GET requests to the configured health-check path and expects a fast 2xx/3xx response.
 app.get(RENDER_HEALTH_CHECK_PATH, (_req, res) => {
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');

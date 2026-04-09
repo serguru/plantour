@@ -29,7 +29,6 @@ import workflowsHowCanISendAMessageToThePlantourAdministrationJsonQuestion from 
 import workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion from './sections/workflows/How do I work with my items dictionary.json';
 import workflowsHowDoIWorkWithMyBagsDictionaryJsonQuestion from './sections/workflows/How do I work with my bags dictionary.json';
 import workflowsHowDoIWorkWithMyTodosDictionaryJsonQuestion from './sections/workflows/How do I work with my todos dictionary.json';
-import workflowsHowDoIWorkWithKeysJsonQuestion from './sections/workflows/How do I work with keys.json';
 import workflowsHowDoIUseDashboardJsonQuestion from './sections/workflows/How do I use dashboard.json';
 import tripWorkflowsHowDoIWorkWithTripsJsonQuestion from './sections/trip-workflows/How do I work with trips.json';
 import tripWorkflowsWhyIsCurrentTripAndHowToSetUnsetAndShowHideItJsonQuestion from './sections/trip-workflows/Why is current trip and how to set/unset and show/hide it.json';
@@ -96,7 +95,6 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['workflows/How do I work with my items dictionary.json', workflowsHowDoIWorkWithMyItemsDictionaryJsonQuestion],
   ['workflows/How do I work with my bags dictionary.json', workflowsHowDoIWorkWithMyBagsDictionaryJsonQuestion],
   ['workflows/How do I work with my todos dictionary.json', workflowsHowDoIWorkWithMyTodosDictionaryJsonQuestion],
-  ['workflows/How do I work with keys.json', workflowsHowDoIWorkWithKeysJsonQuestion],
   ['workflows/How do I use dashboard.json', workflowsHowDoIUseDashboardJsonQuestion],
   ['trip-workflows/How do I work with trips.json', tripWorkflowsHowDoIWorkWithTripsJsonQuestion],
   ['trip-workflows/Why is current trip and how to set/unset and show/hide it.json', tripWorkflowsWhyIsCurrentTripAndHowToSetUnsetAndShowHideItJsonQuestion],
