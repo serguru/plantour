@@ -491,7 +491,6 @@ builder.Services.AddRateLimiter(options =>
 
 // Register services
 builder.Services.AddScoped<IUsersService, UsersService>();
-builder.Services.AddScoped<IKeyService, KeyService>();
 builder.Services.AddScoped<IPackageService, PackService>();
 builder.Services.AddScoped<IThingService, ThingService>();
 builder.Services.AddScoped<ITodoService, TodoService>();

@@ -20,8 +20,6 @@ const COMPONENT_HELP_PAGE_IDS: Readonly<Record<string, string>> = {
   'traveler-form': 'help/workflows/invite-travelers',
   packs: 'help/workflows/work-with-my-bags-dictionary',
   'pack-form': 'help/workflows/work-with-my-bags-dictionary',
-  keys: 'help/workflows/work-with-keys',
-  'key-form': 'help/workflows/work-with-keys',
   trips: 'help/trip-workflows/work-with-trips',
   'trip-form': 'help/trip-workflows/work-with-trips',
   'trip-itinerary': 'help/trip-workflows/work-with-trip-itinerary',
