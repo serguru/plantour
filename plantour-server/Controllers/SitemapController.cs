@@ -301,6 +301,12 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
     private Uri GetRequestBaseUri()
     {
         var scheme = Request.Scheme;
+        if (!string.Equals(scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            scheme = environment.IsProduction() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
+        }
+
         if (environment.IsProduction() && !string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
         {
             scheme = Uri.UriSchemeHttps;
@@ -317,7 +323,9 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
 
     private static string ToAbsoluteUrl(Uri requestBase, string url)
     {
-        if (Uri.TryCreate(url, UriKind.Absolute, out var absolute))
+        if (Uri.TryCreate(url, UriKind.Absolute, out var absolute)
+            && (string.Equals(absolute.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(absolute.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)))
         {
             return absolute.ToString();
         }
