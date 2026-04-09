@@ -5,7 +5,6 @@ import { TripService } from './trip-service';
 import { ThingService } from './thing-service';
 import { TodoService } from './todo-service';
 import { PackageService } from './package-service';
-import { KeyService } from './key-service';
 import { AdminsParticipantService } from './admins-participant-service';
 import { TemplateService } from './template-service';
 import { UsersService } from './users-service';
@@ -37,7 +36,6 @@ export class SearchService {
   private readonly thingService = inject(ThingService);
   private readonly todoService = inject(TodoService);
   private readonly packageService = inject(PackageService);
-  private readonly keyService = inject(KeyService);
   private readonly adminsParticipantService = inject(AdminsParticipantService);
   private readonly templateService = inject(TemplateService);
   private readonly usersService = inject(UsersService);
@@ -175,12 +173,11 @@ export class SearchService {
       ? this.tripService.getAll()
       : this.tripService.getAllWhereParticipant();
 
-    const [trips, things, todos, packs, keys, travelers, templates] = await Promise.all([
+    const [trips, things, todos, packs, travelers, templates] = await Promise.all([
       firstValueFrom(tripsObs).catch(() => [] as any[]),
       firstValueFrom(this.thingService.getAll()).catch(() => [] as any[]),
       firstValueFrom(this.todoService.getAll()).catch(() => [] as any[]),
       firstValueFrom(this.packageService.getAll()).catch(() => [] as any[]),
-      firstValueFrom(this.keyService.getAll()).catch(() => [] as any[]),
       firstValueFrom(this.adminsParticipantService.getAll()).catch(() => [] as any[]),
       firstValueFrom(this.templateService.getAll()).catch(() => [] as any[]),
     ]);
@@ -229,18 +226,6 @@ export class SearchService {
         fullText,
         displayText: pack.name + (pack.notes ? ' — ' + pack.notes : ''),
         route: ['/packs'], componentId: 'packs',
-      });
-      this.index!.add(id, fullText.toLowerCase());
-    }
-
-    for (const key of keys ?? []) {
-      const fullText = [key.name, key.notes, key.active ? 'active' : 'inactive'].filter(Boolean).join(' ');
-      const id = ++this.counter;
-      this.items.set(id, {
-        id, entityId: key.id, category: 'Key',
-        fullText,
-        displayText: key.name + (key.notes ? ' — ' + key.notes : '') + (key.active ? '' : ' · inactive'),
-        route: ['/keys'], componentId: 'keys',
       });
       this.index!.add(id, fullText.toLowerCase());
     }

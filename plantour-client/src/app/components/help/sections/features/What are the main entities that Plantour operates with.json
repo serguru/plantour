@@ -16,7 +16,6 @@
           "<a href=\"/dashboard\">Dashboard</a> is the main overview page of Plantour. It serves as a starting point for navigation and can also lead users to public pages such as plan selection. The Dashboard for registered users allows to select a trip and see trip summary data. The Dashboard for public users shows general Plantour information and allows plan selection.",
           "<a href=\"/items\">Item</a> is any specific piece of gear, clothing, or personal essential packed to meet a particular need or handle a specific situation during the trip.",
           "<strong>Itinerary part</strong> is a scheduled trip stop or travel segment in the itinerary. It can include timing, address, notes, and map-related data.",
-          "<a href=\"/keys\">Key</a> is a private saved key record that you can store in your dictionary and mark as active when needed.",
           "<strong>Map</strong> is the trip map view where itinerary parts and trip activities are shown together on one map.",
           "<strong>Packing list</strong> is the list of items packed into a specific trip bag. Plantour can generate and download it as a PDF so it can be printed or used during travel.",
           "<strong>Participant</strong> is a Traveler included into a trip.",
