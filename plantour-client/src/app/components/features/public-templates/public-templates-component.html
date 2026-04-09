@@ -83,18 +83,13 @@
         <article
           class="template-row"
           (click)="goToTemplate(group)"
+          (keydown.enter)="goToTemplate(group)"
+          (keydown.space)="goToTemplate(group)"
           tabindex="0"
           role="button"
         >
           <div class="row-main">
-            <!-- <h3 [innerHTML]="highlightText(group.templateName)"></h3> -->
-            <h3>
-              <amazon-link
-                class="ic-2-item ellipsis-text"
-                [item]="group.templateName"
-                [linkText]="highlightTextU(group.templateName)"
-              ></amazon-link>
-            </h3>
+            <h3 [innerHTML]="highlightText(group.templateName)"></h3>
             <div class="row-meta">
               <span
                 class="activity"
@@ -109,15 +104,7 @@
             </div>
             <div class="row-tags">
               @for (tag of group.categories; track tag) {
-              <!-- <span class="tag">{{ tag }}</span> -->
-
-              <amazon-link
-                class="tag"
-                [item]="tag"
-                [linkText]="tag"
-              ></amazon-link>
-
-
+              <span class="tag">{{ tag }}</span>
               }
             </div>
           </div>
@@ -139,8 +126,14 @@
         <div class="cta-actions">
           <button
             class="btn primary"
+            type="button"
             (click)="goToGuestAccess()"
-          >Try no account needed</button>
+          >Open a sample trip</button>
+          <button
+            class="btn ghost"
+            type="button"
+            (click)="goToSignIn()"
+          >Create an account</button>
         </div>
       </div>
     </section>

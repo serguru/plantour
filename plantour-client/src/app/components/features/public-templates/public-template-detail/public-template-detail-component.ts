@@ -1,7 +1,7 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { REQUEST } from '@angular/core';
 import { PublicTemplateThingDto, PublicTemplatesService } from '../../../../services/public-templates-service';
 import { catchError, of, timeout } from 'rxjs';
@@ -9,7 +9,6 @@ import { FormsModule } from '@angular/forms';
 import { PopoverModule } from 'primeng/popover';
 import { Select } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
-import { AmazonLinkComponent } from '../../../amazon-link/amazon-link-component';
 import { SeoService } from '../../../../services/seo-service';
 import { UsersService } from '../../../../services/users-service';
 
@@ -24,13 +23,14 @@ interface DetailFilterOption {
 @Component({
   selector: 'app-public-template-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, PopoverModule, Select, InputTextModule, AmazonLinkComponent],
+  imports: [CommonModule, RouterModule, FormsModule, PopoverModule, Select, InputTextModule],
   templateUrl: './public-template-detail-component.html',
   styleUrl: './public-template-detail-component.scss'
 })
 export class PublicTemplateDetailComponent implements OnInit {
   private publicTemplatesService = inject(PublicTemplatesService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private document = inject(DOCUMENT);
   private sanitizer = inject(DomSanitizer);
   private request = inject(REQUEST, { optional: true });
@@ -244,7 +244,11 @@ export class PublicTemplateDetailComponent implements OnInit {
   }
 
   goToGuestAccess(): void {
-    this.usersService.createTemporaryUser()
+    void this.usersService.createTemporaryUser();
+  }
+
+  goToSignIn(): void {
+    void this.router.navigate(['/sign-in']);
   }
 
   private normalize(value?: string | null): string {

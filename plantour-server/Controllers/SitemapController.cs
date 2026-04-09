@@ -7,11 +7,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using plantour_server.DbModels;
+using Microsoft.Extensions.Configuration;
 
 namespace plantour_server.Controllers;
 
 [ApiExplorerSettings(IgnoreApi = true)]
-public class SitemapController(PlantourContext context, IWebHostEnvironment environment) : ControllerBase
+public class SitemapController(PlantourContext context, IWebHostEnvironment environment, IConfiguration configuration) : ControllerBase
 {
     private const string SitemapNamespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
     private static readonly JsonSerializerOptions HelpJsonOptions = new()
@@ -300,7 +301,24 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
 
     private Uri GetRequestBaseUri()
     {
+        var configuredBaseUrl = configuration["SignInEmail:BaseUrl"];
+        if (TryCreateHttpBaseUri(configuredBaseUrl, out var configuredBaseUri))
+        {
+            if (environment.IsProduction() && !string.Equals(configuredBaseUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+            {
+                return new Uri($"{Uri.UriSchemeHttps}://{configuredBaseUri.Authority}");
+            }
+
+            return configuredBaseUri;
+        }
+
         var scheme = Request.Scheme;
+        if (!string.Equals(scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            scheme = environment.IsProduction() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
+        }
+
         if (environment.IsProduction() && !string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
         {
             scheme = Uri.UriSchemeHttps;
@@ -315,9 +333,30 @@ public class SitemapController(PlantourContext context, IWebHostEnvironment envi
         return new Uri($"{scheme}://{host}");
     }
 
+    private static bool TryCreateHttpBaseUri(string? value, out Uri uri)
+    {
+        uri = default!;
+
+        if (string.IsNullOrWhiteSpace(value) || !Uri.TryCreate(value.Trim(), UriKind.Absolute, out var candidate))
+        {
+            return false;
+        }
+
+        if (!string.Equals(candidate.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(candidate.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        uri = new Uri($"{candidate.Scheme}://{candidate.Authority}");
+        return true;
+    }
+
     private static string ToAbsoluteUrl(Uri requestBase, string url)
     {
-        if (Uri.TryCreate(url, UriKind.Absolute, out var absolute))
+        if (Uri.TryCreate(url, UriKind.Absolute, out var absolute)
+            && (string.Equals(absolute.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(absolute.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)))
         {
             return absolute.ToString();
         }
