@@ -95,6 +95,7 @@ export class SignInComponent implements OnInit {
     this.applySeo();
 
     const queryParams = new URLSearchParams(parts[1]);
+    let shouldCleanOAuthQueryParams = false;
 
     if (this.signInType() === 'admin') {
       const email = queryParams.get('email');
@@ -105,21 +106,36 @@ export class SignInComponent implements OnInit {
       const googleOAuthError = queryParams.get('googleOAuthError');
       if (googleOAuthError) {
         this.errorMessage = googleOAuthError;
+        shouldCleanOAuthQueryParams = true;
       }
 
       const facebookOAuthError = queryParams.get('facebookOAuthError');
       if (facebookOAuthError) {
         this.errorMessage = facebookOAuthError;
+        shouldCleanOAuthQueryParams = true;
       }
 
       const googleOAuthToken = queryParams.get('googleOAuthToken');
       if (googleOAuthToken) {
+        shouldCleanOAuthQueryParams = true;
         void this.completeGoogleOAuthSignIn(googleOAuthToken);
       }
 
       const facebookOAuthToken = queryParams.get('facebookOAuthToken');
       if (facebookOAuthToken) {
+        shouldCleanOAuthQueryParams = true;
         void this.completeFacebookOAuthSignIn(facebookOAuthToken);
+      }
+
+      if (shouldCleanOAuthQueryParams) {
+        queryParams.delete('googleOAuthError');
+        queryParams.delete('facebookOAuthError');
+        queryParams.delete('googleOAuthToken');
+        queryParams.delete('facebookOAuthToken');
+
+        const remaining = queryParams.toString();
+        const cleanedUrl = remaining ? `${path}?${remaining}` : path;
+        window.history.replaceState(null, '', cleanedUrl);
       }
     }
   }
