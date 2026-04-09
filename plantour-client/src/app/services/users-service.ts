@@ -333,12 +333,36 @@ export class UsersService {
       );
   }
 
-  socialSignIn(provider: 'google' | 'facebook', token: string, botProtectionToken?: string | null): Observable<AuthResponse> {
-    const payload = provider === 'google'
-      ? { provider, googleIdToken: token, botProtectionToken }
-      : { provider, facebookAccessToken: token, botProtectionToken };
+  adminFacebookSignIn(token: string, botProtectionToken?: string | null): Observable<AuthResponse> {
+    const payload = { provider: 'facebook', facebookAccessToken: token, botProtectionToken };
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/users/admin/social/signin`, payload)
+      .pipe(
+        tap((r: AuthResponse) => {
+          this.applyAuthResponse(r);
+        })
+      );
+  }
+
+  getGoogleOAuthStartUrl(returnUrl: string): string {
+    return `${this.apiUrl}/users/admin/social/google/oauth/start?returnUrl=${encodeURIComponent(returnUrl)}`;
+  }
+
+  getFacebookOAuthStartUrl(returnUrl: string): string {
+    return `${this.apiUrl}/users/admin/social/facebook/oauth/start?returnUrl=${encodeURIComponent(returnUrl)}`;
+  }
+
+  completeGoogleOAuthSignIn(token: string, botProtectionToken?: string | null): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/users/admin/social/google/oauth/complete`, { token, botProtectionToken })
+      .pipe(
+        tap((r: AuthResponse) => {
+          this.applyAuthResponse(r);
+        })
+      );
+  }
+
+  completeFacebookOAuthSignIn(token: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/users/admin/social/facebook/oauth/complete`, { token })
       .pipe(
         tap((r: AuthResponse) => {
           this.applyAuthResponse(r);

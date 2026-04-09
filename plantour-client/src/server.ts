@@ -42,8 +42,10 @@ function isAuthPage(path: string): boolean {
 function resolveBaseUrl(req?: express.Request): string {
   const forwardedProtoHeader = req?.headers['x-forwarded-proto'];
   const forwardedHostHeader = req?.headers['x-forwarded-host'];
-  const forwardedProto = Array.isArray(forwardedProtoHeader) ? forwardedProtoHeader[0] : forwardedProtoHeader;
-  const forwardedHost = Array.isArray(forwardedHostHeader) ? forwardedHostHeader[0] : forwardedHostHeader;
+  const forwardedProtoRaw = Array.isArray(forwardedProtoHeader) ? forwardedProtoHeader[0] : forwardedProtoHeader;
+  const forwardedHostRaw = Array.isArray(forwardedHostHeader) ? forwardedHostHeader[0] : forwardedHostHeader;
+  const forwardedProto = forwardedProtoRaw?.split(',')[0]?.trim();
+  const forwardedHost = forwardedHostRaw?.split(',')[0]?.trim();
 
   if (forwardedProto && forwardedHost) {
     return `${forwardedProto}://${forwardedHost}`;

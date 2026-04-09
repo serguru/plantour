@@ -12,7 +12,7 @@
             "stopAtEntry": false,
             "justMyCode": true,
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "dev"
+                "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "serverReadyAction": {
                 "action": "openExternally",

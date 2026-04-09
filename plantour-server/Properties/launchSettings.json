@@ -5,7 +5,7 @@
       "launchBrowser": true,
       "launchUrl": "users/health-check",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "dev",
+        "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_URLS": "http://0.0.0.0:5217"
       },
       "dotnetRunMessages": true,
@@ -16,7 +16,7 @@
       "launchBrowser": true,
       "launchUrl": "users/health-check",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "dev",
+        "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_URLS": "http://0.0.0.0:5217;https://localhost:7095"
       },
       "dotnetRunMessages": true,
