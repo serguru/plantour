@@ -17,7 +17,6 @@ import { REQUEST } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { EntitiesHeader, MenuConfig } from '../../entities/entities-header-component/entities-header-component';
 import { SeoService } from '../../../services/seo-service';
-import { AmazonLinkComponent } from '../../amazon-link/amazon-link-component';
 import { UsersService } from '../../../services/users-service';
 
 type FilterKey = 'search' | 'activity' | 'age' | 'temperature' | 'category';
@@ -45,7 +44,7 @@ interface TemplateGroup {
 @Component({
   selector: 'app-public-templates',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, Select, InputTextModule, ButtonModule, EntitiesHeader, AmazonLinkComponent],
+  imports: [CommonModule, RouterModule, FormsModule, Select, InputTextModule, ButtonModule, EntitiesHeader],
   templateUrl: './public-templates-component.html',
   styleUrl: './public-templates-component.scss'
 })
@@ -239,7 +238,11 @@ export class PublicTemplatesComponent implements OnInit {
   }
 
   goToGuestAccess(): void {
-    this.usersService.createTemporaryUser()
+    void this.usersService.createTemporaryUser();
+  }
+
+  goToSignIn(): void {
+    void this.router.navigate(['/sign-in']);
   }
 
   getLookupOptions() {
