@@ -243,7 +243,7 @@ public class UsersController : ControllerBase
                 var profile = await _usersService.GetLandingAsync();
                 return Ok(profile);
         }
-
+// TODO: Facebook ligin does not work in propduction
         private string BuildAbsoluteUrl(string path)
         {
                 var scheme = Request.Scheme;
