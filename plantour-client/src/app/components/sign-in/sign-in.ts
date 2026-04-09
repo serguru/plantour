@@ -1,4 +1,4 @@
-import { Component, computed, Inject, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, HostListener, Inject, inject, OnInit, signal } from '@angular/core';
 import { DOCUMENT, Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -82,6 +82,8 @@ export class SignInComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.isLoading = false;
+
     const currentUrl = this.router.url;
     const urlWithoutFragment = currentUrl.split('#')[0];
 
@@ -119,6 +121,13 @@ export class SignInComponent implements OnInit {
       if (facebookOAuthToken) {
         void this.completeFacebookOAuthSignIn(facebookOAuthToken);
       }
+    }
+  }
+
+  @HostListener('window:pageshow', ['$event'])
+  onPageShow(event: PageTransitionEvent): void {
+    if (event.persisted) {
+      this.isLoading = false;
     }
   }
 

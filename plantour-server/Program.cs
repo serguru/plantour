@@ -85,6 +85,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
         ForwardedHeaders.XForwardedHost;
 
     // Trust all proxies (required in container/cloud environments)
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+    options.ForwardLimit = null;
     options.RequireHeaderSymmetry = false;
 });
 
