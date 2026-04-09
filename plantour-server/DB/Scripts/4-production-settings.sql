@@ -14,4 +14,59 @@ values
     ('app_version', '2.15.7',  'string'),
     ('global_spinner_timeout_sec', '30',  'integer'),
     ('plantour_app_origin', 'https://plantour.app',  'string');
+
+insert into plantour.plans (name, paddle_product_id, notes, public, 
+allowed_items,  allowed_travelers,  allowed_AI_prompts,         extended_AI_allowed,
+allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activities) values
+
+('Starter', null, 'Suitable for short and easy trips alone or in pairs', true, 
+10,             2,                  5,                          false, 
+3,              3,                  3,                          6
+),
+
+('Family', 'pro_01knt1j27bva8fws4dnj1vjdz0', 'Perfect for regular travelers, families and small groups', true, 
+250,           5,                  20,                        false,
+100,           500,                20,                        100
+),
+
+('Expedition', 'pro_01knt195pq0ng14qp6a4q9f7x0', 'Ideal for advanced travelers, large groups and expeditions', true, 
+2500,           50,                 100,                      true,
+1000,           5000,               50,                       1000
+);
+
+
+insert into plantour.prices (paddle_price_id,plan_id,name,value_cents) values
+(
+    null,
+    (select id from plantour.plans where name = 'Starter'),
+    'Starter Free',
+    0
+),
+(
+    'pri_01knt1pdmcqqq4p0rg1ghprxbs',
+    (select id from plantour.plans where name = 'Family'),
+    'Family Monthly',
+    1299
+),
+(
+    'pri_01knt1fx1rz3wyqgeg2x232ecx',
+    (select id from plantour.plans where name = 'Expedition'),
+    'Expedition Monthly',
+    4499
+),
+(
+    'pri_01knt1n4qn4nd6cb20cr3hhsnr',
+    (select id from plantour.plans where name = 'Family'),
+    'Family Yearly',
+    11999
+),
+(
+    'pri_01knt1dgwepd90w5jgxm8xn3tg',
+    (select id from plantour.plans where name = 'Expedition'),
+    'Expedition Yearly',
+    39999
+);
+
+
+
 commit;
