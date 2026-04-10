@@ -37,6 +37,7 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
   private readonly messagesService = inject(MessagesService);
 
   @Input() contentJson: string | null = null;
+  @Input() openDropboxRequestId = 0;
   @Input() readOnly = false;
   @Output() contentJsonChange = new EventEmitter<string | null>();
   @Output() connectDropboxRequested = new EventEmitter<void>();
@@ -60,6 +61,7 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
   private editorInstance: any | null = null;
   private lastEmittedContentJson: string | null = null;
   private hydrationVersion = 0;
+  private lastHandledDropboxOpenRequestId = 0;
 
   ngOnInit(): void {
     this.editorHtml = getTripNoteEditorHtml(this.contentJson);
@@ -71,6 +73,7 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
 
     this.loadConfig();
     void this.hydrateEditorHtmlFromInput();
+    this.tryHandlePendingDropboxOpenRequest();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -90,6 +93,10 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
     if (changes['readOnly'] && this.editorReady) {
       this.init = this.buildEditorInit();
       this.emitViewState();
+    }
+
+    if (changes['openDropboxRequestId']) {
+      this.tryHandlePendingDropboxOpenRequest();
     }
   }
 
@@ -282,6 +289,8 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
           if (onLoaded) {
             await onLoaded();
           }
+
+          this.tryHandlePendingDropboxOpenRequest();
         },
         error: () => {
           this.messagesService.showError('Trip note editor configuration could not be loaded');
@@ -347,6 +356,27 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
       this.zone.run(() => {
         this.connectDropboxRequested.emit();
       });
+    });
+  }
+
+  private tryHandlePendingDropboxOpenRequest(): void {
+    if (!this.isBrowser || !this.editorReady) {
+      return;
+    }
+
+    if (this.openDropboxRequestId <= this.lastHandledDropboxOpenRequestId) {
+      return;
+    }
+
+    this.lastHandledDropboxOpenRequestId = this.openDropboxRequestId;
+    this.loadConfig(true, async () => {
+      if (!this.dropboxConnected) {
+        this.messagesService.showWarning('Dropbox is not connected. Connect it again to insert images.');
+        return;
+      }
+
+      this.dropboxDialogVisible = true;
+      this.loadDropboxFolder(this.dropboxCurrentPath);
     });
   }
 }
