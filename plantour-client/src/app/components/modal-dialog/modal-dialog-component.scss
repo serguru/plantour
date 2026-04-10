@@ -6,12 +6,13 @@
 }
 
 .dialog-content {
-  padding: 0.5rem 0;
+  padding: 0.45rem 0 0.2rem;
 }
 
 .dialog-message {
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--primary-text-color) 90%, white);
 }
 
 .email-field {
@@ -20,26 +21,28 @@
 
 .email-input {
   width: 100%;
-  padding: 0.55rem 0.65rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  padding: 0.62rem 0.72rem;
+  border: 1px solid var(--secondary-border-color);
+  border-radius: 10px;
   font: inherit;
+  background: #ffffff;
+  color: var(--primary-text-color);
   outline: none;
 }
 
 .email-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, white);
 }
 
 .email-input-invalid {
-  border-color: #dc2626;
+  border-color: var(--error-color);
 }
 
 .email-error {
   display: block;
   margin-top: 0.35rem;
-  color: #dc2626;
+  color: var(--error-color);
   font-size: 0.8rem;
 }
 
@@ -58,7 +61,7 @@
 .email-submit-error {
   display: block;
   margin-bottom: 0.35rem;
-  color: #dc2626;
+  color: var(--error-color);
   font-size: 0.8rem;
 }
 
@@ -69,4 +72,8 @@
 
 .footer-spacer {
   flex: 1 1 auto;
+}
+
+.header-color {
+  color: white !important;
 }

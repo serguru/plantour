@@ -97,7 +97,7 @@ export class TripUsersComponent implements OnInit {
     if (!this.isReadOnly()) {
       items.push(
         {
-          label: 'Auto assign shared expenses',
+          label: 'Auto assign shared expenses...',
           icon: 'wallet',
           disabled: markedIds.length === 0,
           action: () => {

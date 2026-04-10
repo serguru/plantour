@@ -1,12 +1,13 @@
 .alert {
   padding: 1rem;
-  border-radius: 6px;
+  border-radius: 12px;
   font-size: 0.9rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   border-width: 1px;
   border-style: solid;
+  box-shadow: 0 8px 22px rgba(20, 43, 50, 0.08);
   i {
     font-size: 1.25rem;
     flex-shrink: 0;
@@ -17,17 +18,20 @@
 }
 
 .error {
-  background: var(--error-background-color);
+  background: linear-gradient(145deg, #fff3f1 0%, var(--error-background-color) 100%);
   color: var(--error-color);
   border-color: var(--error-color);
+  border-left-width: 6px;
 }
 .warning {
-  background: var(--warning-background-color);
+  background: linear-gradient(145deg, #fffbe7 0%, var(--warning-background-color) 100%);
   color: var(--warning-color);
   border-color: var(--warning-color);
+  border-left-width: 6px;
 }
 .info {
-  background: var(--info-background-color);
+  background: linear-gradient(145deg, #e9f9fc 0%, var(--info-background-color) 100%);
   color: var(--info-color);
   border-color: var(--info-color);
+  border-left-width: 6px;
 }

@@ -1,5 +1,6 @@
 <p-dialog
   [(visible)]="visible"
+  styleClass="plantour-dialog plantour-system-dialog"
   [modal]="true"
   [dismissableMask]="false"
   [closable]="true"
@@ -7,7 +8,7 @@
   [draggable]="false"
   [resizable]="false"
   [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
-  [style]="{ width: '400px', maxWidth: '95vw' }"
+  [style]="{ width: '400px', maxWidth: '95vw'}"
   (onHide)="onDialogHide()"
   [focusOnShow]="false"
   (onShow)="onDialogShow()"
