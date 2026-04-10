@@ -40,9 +40,11 @@ export class TripSharedExpensesComponent implements OnInit {
   usersService = inject(UsersService);
 
   isParticipant = this.usersService.isParticipantSignal;
+  lowerTextVisible = signal<boolean>(true);
 
-  itemMetaData: { tripCurrencyAbbreviation: string | null } = {
+  itemMetaData: { tripCurrencyAbbreviation: string | null; lowerTextVisible: () => boolean } = {
     tripCurrencyAbbreviation: null,
+    lowerTextVisible: this.lowerTextVisible,
   };
   tripSharedExpenses = signal<TripSharedExpenseDto[] | null>(null);
   tripUsers = signal<TripUserDto[] | null>(null);
@@ -54,6 +56,14 @@ export class TripSharedExpensesComponent implements OnInit {
 
   menuItems = computed<MenuConfig[]>(() => {
     return [
+      {
+        label: `${this.lowerTextVisible() ? 'Hide' : 'Show'} Lower Text`,
+        icon: 'check',
+        action: () => {
+          this.lowerTextVisible.set(!this.lowerTextVisible());
+          this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
+        },
+      },
       {
         label: 'Download Expenses PDF',
         icon: 'document',
@@ -124,6 +134,9 @@ export class TripSharedExpensesComponent implements OnInit {
       id = null;
     }
     this.componentService.updateSelectedId(id);
+
+    const lowerTextVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'lowerTextVisible', true);
+    this.lowerTextVisible.set(lowerTextVisible);
   }
 
   initConditions(componentId: string | null): void {

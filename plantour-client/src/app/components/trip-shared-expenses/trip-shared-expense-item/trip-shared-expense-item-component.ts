@@ -10,7 +10,7 @@ import { TripSharedExpenseDto } from '../../../services/trip-shared-expense-serv
 })
 export class TripSharedExpenseItemComponent {
   @Input() entity: TripSharedExpenseDto = {} as TripSharedExpenseDto;
-  @Input() itemMetaData: { tripCurrencyAbbreviation?: string | null } | null = null;
+  @Input() itemMetaData: { tripCurrencyAbbreviation?: string | null; lowerTextVisible?: () => boolean } | null = null;
 
   get amountText(): string {
     const amount = Number.isInteger(this.entity.amount) ? this.entity.amount.toString() : this.entity.amount.toFixed(2);

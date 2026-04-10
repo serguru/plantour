@@ -60,8 +60,14 @@ export class TripExpensesComponent implements OnInit {
 
   isAdmin = this.usersService.isAdminSignal;
   assignmentsVisible = signal<boolean>(true);
-  itemMetaData: { assignmentsVisible: WritableSignal<boolean>; tripCurrencyAbbreviation: string | null } = {
+  lowerTextVisible = signal<boolean>(true);
+  itemMetaData: {
+    assignmentsVisible: WritableSignal<boolean>;
+    lowerTextVisible: WritableSignal<boolean>;
+    tripCurrencyAbbreviation: string | null;
+  } = {
     assignmentsVisible: this.assignmentsVisible,
+    lowerTextVisible: this.lowerTextVisible,
     tripCurrencyAbbreviation: null,
   };
   summaryPanelExpanded = signal<boolean>(true);
@@ -74,6 +80,14 @@ export class TripExpensesComponent implements OnInit {
       action: () => {
         this.assignmentsVisible.set(!this.assignmentsVisible());
         this.localStorageService.setComponentKey(this.componentId, 'assignmentsVisible', this.assignmentsVisible());
+      },
+    },
+    {
+      label: `${this.lowerTextVisible() ? 'Hide' : 'Show'} Lower Text`,
+      icon: 'check',
+      action: () => {
+        this.lowerTextVisible.set(!this.lowerTextVisible());
+        this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
       },
     },
     {
@@ -178,6 +192,9 @@ export class TripExpensesComponent implements OnInit {
 
     const assignmentsVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'assignmentsVisible', true);
     this.assignmentsVisible.set(assignmentsVisible);
+
+    const lowerTextVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'lowerTextVisible', true);
+    this.lowerTextVisible.set(lowerTextVisible);
   }
 
   initConditions(componentId: string | null): void {

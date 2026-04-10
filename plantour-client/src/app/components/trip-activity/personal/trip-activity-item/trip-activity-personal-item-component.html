@@ -5,12 +5,6 @@
     [linkText]="entity.name"
   ></amazon-link>
 
-  @if (scheduleText || entity.address) {
-  <span class="ic-2-item ellipsis-text">
-    {{ scheduleText }}@if (scheduleText && entity.address) { · }{{ entity.address }}
-  </span>
-  }
-
   <div class="ic-2-item ic-2-right">
     @if (itemMetaData?.itineraryPartsVisible()) {
     <p-select
@@ -31,6 +25,11 @@
     }
   </div>
 </div>
+@if (scheduleText || entity.address) {
+<div class="smaller-text">
+  {{ scheduleText }}@if (scheduleText && entity.address) { · }{{ entity.address }}
+</div>
+}
 @if (itemMetaData?.itineraryPartsVisible()) {
 <div class="smaller-text">{{ entity.itineraryPartName ? 'Itinerary part: ' + entity.itineraryPartName : 'No itinerary part' }}</div>
 }

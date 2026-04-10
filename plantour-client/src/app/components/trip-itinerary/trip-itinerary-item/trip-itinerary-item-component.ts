@@ -10,6 +10,7 @@ import { formatDate } from '../../../helpers/utils';
 })
 export class TripItineraryItemComponent {
   @Input() entity: ItineraryPartDto = {} as ItineraryPartDto;
+  @Input() itemMetaData: { lowerTextVisible?: () => boolean } | null = null;
 
   get scheduleText(): string | null {
     if (!this.entity.startDate && !this.entity.endDate) {
@@ -21,5 +22,19 @@ export class TripItineraryItemComponent {
     }
 
     return formatDate(this.entity.startDate || this.entity.endDate || '');
+  }
+
+  get lowerText(): string {
+    const parts: string[] = [];
+
+    if (this.scheduleText) {
+      parts.push(this.scheduleText);
+    }
+
+    if (this.entity.address) {
+      parts.push(this.entity.address);
+    }
+
+    return parts.join(' · ');
   }
 }
