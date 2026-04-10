@@ -61,6 +61,10 @@ export class TripNoteEditorService {
     return this.configRequest$;
   }
 
+  resetClientState(): void {
+    this.configRequest$ = undefined;
+  }
+
   createDropboxConnectUrl(frontendOrigin: string, frontendPath: string): Observable<TripNoteEditorDropboxConnectUrl> {
     return this.http.post<TripNoteEditorDropboxConnectUrl>(`${this.apiUrl}/dropbox/connect-url`, {
       frontendOrigin,
@@ -68,8 +72,8 @@ export class TripNoteEditorService {
     });
   }
 
-  disconnectDropbox(): Observable<void> {
-    this.configRequest$ = undefined;
+  resetDropbox(): Observable<void> {
+    this.resetClientState();
     return this.http.delete<void>(`${this.apiUrl}/dropbox/connection`);
   }
 

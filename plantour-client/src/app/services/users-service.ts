@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { MessagesService } from './messages-service';
 import { getFullName } from '../helpers/utils';
 import { SocialAuthService } from './social-auth-service';
+import { TripNoteEditorService } from './trip-note-editor-service';
 
 export interface TemporaryUserResponse {
   accessToken: string;
@@ -61,6 +62,7 @@ export class UsersService {
   botProtectionService = inject(BotProtectionService);
   localStorageService = inject(LocalStorageService);
   private socialAuthService = inject(SocialAuthService);
+  private tripNoteEditorService = inject(TripNoteEditorService);
 
 
   //currentTripService = inject(CurrentTripService);
@@ -299,8 +301,14 @@ export class UsersService {
     const storedUserId = this.localStorageService.getItem('signin-userId');
     if (storedUserId && newUser.user_id && storedUserId != newUser.user_id) {
       this.localStorageService.clear();
+      this.tripNoteEditorService.resetClientState();
     }
     this.localStorageService.setItem('signin-userId', newUser.user_id);
+  }
+
+  private clearSignOutSensitiveClientState(): void {
+    this.tripNoteEditorService.resetClientState();
+    this.localStorageService.removeItem('trip-note-form-dropbox-connect-draft');
   }
 
   public applyAuthResponse(response: any): void {
@@ -402,6 +410,7 @@ export class UsersService {
   }
 
   signOut(): void {
+    this.clearSignOutSensitiveClientState();
     this.updateUser(null);
     this.writeAccessToken(null);
     this.writeRefreshToken(null);

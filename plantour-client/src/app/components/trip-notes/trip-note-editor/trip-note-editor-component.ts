@@ -37,6 +37,7 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
   private readonly messagesService = inject(MessagesService);
 
   @Input() contentJson: string | null = null;
+  @Input() openDropboxRequestId = 0;
   @Input() readOnly = false;
   @Output() contentJsonChange = new EventEmitter<string | null>();
   @Output() connectDropboxRequested = new EventEmitter<void>();
@@ -60,6 +61,7 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
   private editorInstance: any | null = null;
   private lastEmittedContentJson: string | null = null;
   private hydrationVersion = 0;
+  private lastHandledDropboxOpenRequestId = 0;
 
   ngOnInit(): void {
     this.editorHtml = getTripNoteEditorHtml(this.contentJson);
@@ -71,6 +73,7 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
 
     this.loadConfig();
     void this.hydrateEditorHtmlFromInput();
+    this.tryHandlePendingDropboxOpenRequest();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -91,6 +94,10 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
       this.init = this.buildEditorInit();
       this.emitViewState();
     }
+
+    if (changes['openDropboxRequestId']) {
+      this.tryHandlePendingDropboxOpenRequest();
+    }
   }
 
   onEditorChange(value: string): void {
@@ -101,20 +108,33 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
     this.contentJsonChange.emit(contentJson);
   }
 
-  disconnectDropbox(): void {
+  async resetDropbox(): Promise<void> {
+    const result = await this.messagesService.openOkCancel({
+      title: 'Reset Dropbox',
+      message: 'Resetting Dropbox removes Plantour\'s saved Dropbox connection for your account. Use this when you want to de-authorize Plantour access or connect a different Dropbox account. Continue?',
+      okLabel: 'Reset',
+      cancelLabel: 'Cancel',
+    });
+
+    if (result !== 'ok') {
+      return;
+    }
+
     this.tripNoteEditorService
-      .disconnectDropbox()
+      .resetDropbox()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.dropboxDialogVisible = false;
+          this.dropboxCurrentPath = '';
+          this.dropboxParentPath = null;
           this.dropboxEntries = [];
-          this.messagesService.showInfo('Dropbox disconnected');
+          this.messagesService.showInfo('Dropbox reset. Connect Dropbox again when you want to use another account.');
           this.loadConfig(true);
           this.emitViewState();
         },
         error: (error) => {
-          this.messagesService.showError(getMessageFromError(error, 'Dropbox disconnect failed'));
+          this.messagesService.showError(getMessageFromError(error, 'Dropbox reset failed'));
         },
       });
   }
@@ -139,9 +159,13 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
   }
 
   loadDropboxFolder(path?: string | null): void {
+    const requestedPath = path?.trim() ?? '';
     this.dropboxBrowserLoading = true;
+    this.dropboxCurrentPath = requestedPath;
+    this.dropboxParentPath = null;
+    this.dropboxEntries = [];
     this.tripNoteEditorService
-      .browseDropbox(path)
+      .browseDropbox(requestedPath)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (browser) => {
@@ -152,7 +176,15 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
         },
         error: (error) => {
           this.dropboxBrowserLoading = false;
-          this.messagesService.showError(getMessageFromError(error, 'Dropbox folder could not be loaded'));
+          this.dropboxParentPath = null;
+          this.dropboxEntries = [];
+          const message = getMessageFromError(error, 'Dropbox folder could not be loaded');
+          if (this.shouldReconnectDropbox(message)) {
+            this.dropboxDialogVisible = false;
+            this.emitConnectDropboxRequested();
+            return;
+          }
+          this.messagesService.showError(message);
         },
       });
   }
@@ -176,6 +208,10 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
     return this.isBrowser && this.dropboxEnabled && !this.readOnly;
   }
 
+  get canResetDropbox(): boolean {
+    return this.canManageDropbox && this.dropboxConnected;
+  }
+
   get headerButtons(): HeaderButtonConfig[] {
     return [];
   }
@@ -188,9 +224,9 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
     return [
       this.dropboxConnected
         ? {
-            label: 'Disconnect from Dropbox',
-            icon: 'times-circle',
-            action: () => this.disconnectDropbox(),
+            label: 'Reset Dropbox',
+            icon: 'refresh',
+            action: () => this.resetDropbox(),
           }
         : {
             label: 'Connect to Dropbox',
@@ -282,6 +318,8 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
           if (onLoaded) {
             await onLoaded();
           }
+
+          this.tryHandlePendingDropboxOpenRequest();
         },
         error: () => {
           this.messagesService.showError('Trip note editor configuration could not be loaded');
@@ -348,5 +386,41 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
         this.connectDropboxRequested.emit();
       });
     });
+  }
+
+  private tryHandlePendingDropboxOpenRequest(): void {
+    if (!this.isBrowser || !this.editorReady) {
+      return;
+    }
+
+    if (this.openDropboxRequestId <= this.lastHandledDropboxOpenRequestId) {
+      return;
+    }
+
+    this.lastHandledDropboxOpenRequestId = this.openDropboxRequestId;
+    this.loadConfig(true, async () => {
+      if (!this.dropboxConnected) {
+        this.messagesService.showWarning('Dropbox is not connected. Connect it again to insert images.');
+        return;
+      }
+
+      this.dropboxCurrentPath = '';
+      this.dropboxParentPath = null;
+      this.dropboxEntries = [];
+      this.dropboxDialogVisible = true;
+      this.loadDropboxFolder('');
+    });
+  }
+
+  private shouldReconnectDropbox(message: string | null | undefined): boolean {
+    if (!message) {
+      return false;
+    }
+
+    const normalized = message.trim().toLowerCase();
+    return normalized.includes('connect dropbox first')
+      || normalized.includes('connect first to browse or render private images')
+      || normalized.includes('authorization expired')
+      || normalized.includes('reconnect dropbox');
   }
 }

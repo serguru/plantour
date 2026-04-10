@@ -11,7 +11,7 @@ import { TripExpenseDto } from '../../../services/trip-expense-service';
 })
 export class TripExpenseItemComponent {
   @Input() entity: TripExpenseDto = {} as TripExpenseDto;
-  @Input() itemMetaData: { assignmentsVisible?: () => boolean } | null = null;
+  @Input() itemMetaData: { assignmentsVisible?: () => boolean; lowerTextVisible?: () => boolean } | null = null;
 
   get statusToClassMap() {
     return mapStatusToClass(this.entity.assignmentStatus || null);
@@ -26,9 +26,5 @@ export class TripExpenseItemComponent {
   get secondaryText(): string | null {
     const values = [this.entity.paymentMethod, this.entity.recipientFullName, this.entity.shared ? 'Shared payment' : null].filter(Boolean);
     return values.length > 0 ? values.join(' · ') : null;
-  }
-
-  get notesText(): string | null {
-    return this.entity.notes || null;
   }
 }

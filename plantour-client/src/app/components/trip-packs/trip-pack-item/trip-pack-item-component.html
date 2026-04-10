@@ -9,3 +9,7 @@
     [item]="entity.name | packText : entity.label"
     [linkText]="entity.name | packText : entity.label"
 ></amazon-link>
+
+@if (lowerText.length && itemMetaData?.lowerTextVisible?.()) {
+<div class="smaller-text">{{ lowerText }}</div>
+}

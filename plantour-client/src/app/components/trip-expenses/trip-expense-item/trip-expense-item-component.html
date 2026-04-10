@@ -6,12 +6,8 @@
       [linkText]="entity.name"
     ></amazon-link>
 
-    @if (secondaryText) {
+    @if (secondaryText && itemMetaData?.lowerTextVisible?.()) {
       <div class="smaller-text meta-text">{{ secondaryText }}</div>
-    }
-
-    @if (notesText) {
-      <div class="smaller-text">{{ notesText }}</div>
     }
   </div>
 

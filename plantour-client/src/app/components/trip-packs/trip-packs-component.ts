@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { TripPackageDto, TripPackageService } from '../../services/trip-package-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TripPackItemComponent } from './trip-pack-item/trip-pack-item-component';
@@ -41,8 +41,13 @@ export class TripPacksComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private tripId: string | null = null;
+  lowerTextVisible = signal<boolean>(true);
 
   selectedId = toSignal(this.componentService.selectedId$, { initialValue: null });
+
+  itemMetaData: { lowerTextVisible: () => boolean } = {
+    lowerTextVisible: this.lowerTextVisible,
+  };
 
 
   conditions: Condition[] =
@@ -68,6 +73,14 @@ export class TripPacksComponent implements OnInit {
 
   menuItems = computed<MenuConfig[]>(() => {
     return [
+      {
+        label: `${this.lowerTextVisible() ? 'Hide' : 'Show'} Lower Text`,
+        icon: 'check',
+        action: () => {
+          this.lowerTextVisible.set(!this.lowerTextVisible());
+          this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
+        }
+      },
       {
         label: 'Download Packing List PDF',
         icon: 'document',
@@ -141,6 +154,9 @@ export class TripPacksComponent implements OnInit {
       id = null;
     }
     this.componentService.updateSelectedId(id);
+
+    const lowerTextVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'lowerTextVisible', true);
+    this.lowerTextVisible.set(lowerTextVisible);
   }
 
 

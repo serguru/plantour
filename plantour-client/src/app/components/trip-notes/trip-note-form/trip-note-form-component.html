@@ -73,6 +73,7 @@
 
       <app-trip-note-editor
         [contentJson]="contentJson"
+        [openDropboxRequestId]="dropboxOpenRequestId"
         (contentJsonChange)="contentJson = $event"
         (connectDropboxRequested)="onDropboxConnectRequested()"
         (viewStateChange)="onEditorViewStateChange($event)"

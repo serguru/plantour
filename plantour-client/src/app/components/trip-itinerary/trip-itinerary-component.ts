@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { map, switchMap, tap } from 'rxjs';
@@ -32,6 +32,10 @@ export class TripItineraryComponent implements OnInit {
   readonly messagesService = inject(MessagesService);
 
   private tripId: string | null = null;
+  readonly lowerTextVisible = signal<boolean>(true);
+  readonly itemMetaData: { lowerTextVisible: () => boolean } = {
+    lowerTextVisible: this.lowerTextVisible,
+  };
 
   readonly conditions: Condition[] = [
     {
@@ -69,7 +73,16 @@ export class TripItineraryComponent implements OnInit {
     },
   ];
 
-  readonly menuItems = computed<MenuConfig[]>(() => []);
+  readonly menuItems = computed<MenuConfig[]>(() => [
+    {
+      label: `${this.lowerTextVisible() ? 'Hide' : 'Show'} Lower Text`,
+      icon: 'check',
+      action: () => {
+        this.lowerTextVisible.set(!this.lowerTextVisible());
+        this.localStorageService.setComponentKey(this.componentId, 'lowerTextVisible', this.lowerTextVisible());
+      },
+    },
+  ]);
 
   ngOnInit(): void {
     this.componentService.updateComponentId(this.componentId);
@@ -137,5 +150,8 @@ export class TripItineraryComponent implements OnInit {
     }
 
     this.componentService.updateSelectedId(id);
+
+    const lowerTextVisible = this.localStorageService.getComponentBooleanKey(this.componentId, 'lowerTextVisible', true);
+    this.lowerTextVisible.set(lowerTextVisible);
   }
 }

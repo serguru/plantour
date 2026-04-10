@@ -1,3 +1,23 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
+.container .ic-2-item:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.container .ic-2-right {
+  flex: 0 0 auto;
+  margin-left: auto;
+  white-space: nowrap;
+  align-items: center;
+}
+
 .category {
   color: var(--text-color-secondary);
 }

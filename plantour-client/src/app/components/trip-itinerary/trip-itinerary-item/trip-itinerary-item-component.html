@@ -8,12 +8,8 @@
   }
 </div>
 
-@if (scheduleText || entity.address) {
+@if (lowerText.length && itemMetaData?.lowerTextVisible?.()) {
 <div class="smaller-text">
-  {{ scheduleText }}@if (scheduleText && entity.address) { · }{{ entity.address }}
+  {{ lowerText }}
 </div>
-}
-
-@if (entity.notes) {
-<div class="smaller-text">{{ entity.notes }}</div>
 }

@@ -14,11 +14,6 @@
     <label [for]="'mark-trip-user-' + entity.id">Mark</label>
 </div>
 }
-<a
-    class="ic-2-item ic-2-right ellipsis-text"
-    [href]="'mailto:'+entity.email"
->{{entity.email}}</a>
-
 @if (showEditableAssignmentStatusText) {
 <div class="smaller-text" [class]="statusToClassMap">{{entity.sharedAssignmentStatusText}}</div>
 }

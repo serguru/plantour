@@ -34,14 +34,15 @@
         "items": [
           "Open <strong>Add</strong> or <strong>Update</strong> for the note you want to edit.",
           "Open the page menu in the note form header and choose <strong>Connect to Dropbox</strong>.",
-          "Complete the Dropbox popup authorization and return to Plantour. When the connection succeeds, the three dot menu item shows <strong>Disconnect from Dropbox</strong>.",
+          "Complete the Dropbox popup authorization and return to Plantour. When the connection succeeds, Plantour shows <strong>Reset Dropbox</strong> in the page menu.",
           "Place the editor cursor where the image should be inserted.",
           "Click the editor toolbar button <strong>Dropbox</strong>.",
           "In the <strong>Choose Dropbox image</strong> dialog, open folders as needed, use <strong>Up</strong> to go to the parent folder, and use <strong>Refresh</strong> when you need to reload the current Dropbox location.",
           "Click the image you want to insert. Plantour adds it to the editor and stores it as a private Dropbox reference.",
+          "Click <strong>Reset Dropbox</strong> when you want Plantour to forget the currently connected Dropbox account so you can de-authorize Plantour access or connect a different Dropbox account.",
           "Click <strong>Submit</strong> to save the note with the inserted image."
         ],
-        "afterHtml": "If Dropbox is already connected, the page menu changes to <strong>Disconnect from Dropbox</strong>. You can still use the regular <strong>Image</strong> toolbar button when you want to insert an image from a public <strong>http://</strong> or <strong>https://</strong> URL instead."
+        "afterHtml": "The <strong>Reset Dropbox</strong> menu item is available only when Plantour has a saved Dropbox connection in your account. Resetting Dropbox removes Plantour's saved Dropbox authorization so the next connection can use the same or a different Dropbox account. You can still use the regular <strong>Image</strong> toolbar button when you want to insert an image from a public <strong>http://</strong> or <strong>https://</strong> URL instead."
       },
       {
         "title": "Use the editor tools and adjust images",

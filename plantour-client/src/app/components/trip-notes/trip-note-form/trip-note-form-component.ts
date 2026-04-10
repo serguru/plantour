@@ -74,6 +74,7 @@ export class TripNoteFormComponent implements OnInit {
   dropboxStatusLabel = 'Disconnected';
   dropboxStatusSummary = 'Loading Dropbox configuration...';
   dropboxDisplayName: string | null = null;
+  dropboxOpenRequestId = 0;
 
   get isAddMode(): boolean {
     return this.mode === 'add';
@@ -306,7 +307,8 @@ export class TripNoteFormComponent implements OnInit {
 
     const message = this.route.snapshot.queryParamMap.get('dropboxMessage')?.trim();
     if (status === 'success') {
-      this.messagesService.showInfo(message || 'Dropbox connected');
+      this.messagesService.showInfo('Authorization successful');
+      this.dropboxOpenRequestId += 1;
     } else {
       this.messagesService.showError(message || 'Dropbox authorization failed');
     }

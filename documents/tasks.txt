@@ -1046,3 +1046,16 @@ An error occurred during a cryptographic operation. Refer to the inner exception
 I do not want to go that way and ask users for their consent. I want to find a solution to technically protect my domain from writing any cookies. For example, if the Google map cannot work without cookies then replace it with the other library. Or, if possible, turn on the "cokieless" mode. To implement this idea I need a guard which will intercept attempts to write cookies and send the error to the backend to store it in  the log, explaining what happened. For the sources of cookies which are not interceptable the guard has to monitor stored cookies, delete them and send error to the log as well. If a third party JS code writes the cookies but works normally after that cookie killed by the gurad - do not send errors to the log for that particular source, just kill cookies. 
 
 Is this idea feasible?
+
+
+I need AI to do this
+1) Open a certain website page by its url
+2) Analyze the page's content
+3) Read the webite's help section explaining that page
+4) Write a short ~30 sec video explaining, for example, how to use a form to add a product
+5) Give me a link to download that video
+
+What options do I have?
+
+
+Explore the project's code dealing with Dropbox. The app uses Dropbox to allow users authorize Plantour to access their private images and add references to those images (not images themselves!) to Plantour notes. Once a user clicks a Dropbox Some time ago it w
