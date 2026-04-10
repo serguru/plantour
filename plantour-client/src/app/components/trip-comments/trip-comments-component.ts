@@ -2,7 +2,7 @@ import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { EntitiesComponent } from '../entities/entities-component';
 import { ComponentService } from '../../services/component-service';
 import { TripItemCommentComponent } from './trip-item-comment/trip-item-comment-component';
-import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
+import { EntitiesHeader, HeaderButtonConfig, MenuConfig } from '../entities/entities-header-component/entities-header-component';
 import { Condition, DynamicQueryService } from '../../services/dynamic-query-service';
 import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { switchMap, tap } from 'rxjs';
@@ -66,6 +66,14 @@ export class TripCommentsComponent {
 
   menuItems = computed<MenuConfig[]>(() => []);
 
+  headerButtons = computed<HeaderButtonConfig[]>(() => [
+    {
+      label: 'Refresh',
+      icon: 'refresh',
+      action: () => this.reloadComments(),
+    }
+  ]);
+
   initConditions(componentId: string | null): void {
     if (!componentId) {
       throw new Error('ComponentId is null');
@@ -92,6 +100,10 @@ export class TripCommentsComponent {
 
     this.initSavedFeatures();
 
+    this.reloadComments();
+  }
+
+  private reloadComments(): void {
     this.tripCommentService.getAll(this.tripId!).pipe(
       tap(tripComments => {
         if (!tripComments) {
