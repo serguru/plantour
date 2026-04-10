@@ -80,6 +80,7 @@ public class TripNoteEditorService(
             .Append("?client_id=").Append(Uri.EscapeDataString(_settings.DropboxAppKey.Trim()))
             .Append("&response_type=code")
             .Append("&token_access_type=offline")
+            .Append("&force_reapprove=true")
             .Append("&redirect_uri=").Append(Uri.EscapeDataString(callbackUrl))
             .Append("&state=").Append(protectedState)
             .ToString();

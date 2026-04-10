@@ -108,20 +108,33 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
     this.contentJsonChange.emit(contentJson);
   }
 
-  disconnectDropbox(): void {
+  async resetDropbox(): Promise<void> {
+    const result = await this.messagesService.openOkCancel({
+      title: 'Reset Dropbox',
+      message: 'Resetting Dropbox removes Plantour\'s saved Dropbox connection for your account. Use this when you want to de-authorize Plantour access or connect a different Dropbox account. Continue?',
+      okLabel: 'Reset',
+      cancelLabel: 'Cancel',
+    });
+
+    if (result !== 'ok') {
+      return;
+    }
+
     this.tripNoteEditorService
-      .disconnectDropbox()
+      .resetDropbox()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.dropboxDialogVisible = false;
+          this.dropboxCurrentPath = '';
+          this.dropboxParentPath = null;
           this.dropboxEntries = [];
-          this.messagesService.showInfo('Dropbox disconnected');
+          this.messagesService.showInfo('Dropbox reset. Connect Dropbox again when you want to use another account.');
           this.loadConfig(true);
           this.emitViewState();
         },
         error: (error) => {
-          this.messagesService.showError(getMessageFromError(error, 'Dropbox disconnect failed'));
+          this.messagesService.showError(getMessageFromError(error, 'Dropbox reset failed'));
         },
       });
   }
@@ -146,9 +159,13 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
   }
 
   loadDropboxFolder(path?: string | null): void {
+    const requestedPath = path?.trim() ?? '';
     this.dropboxBrowserLoading = true;
+    this.dropboxCurrentPath = requestedPath;
+    this.dropboxParentPath = null;
+    this.dropboxEntries = [];
     this.tripNoteEditorService
-      .browseDropbox(path)
+      .browseDropbox(requestedPath)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (browser) => {
@@ -159,7 +176,15 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
         },
         error: (error) => {
           this.dropboxBrowserLoading = false;
-          this.messagesService.showError(getMessageFromError(error, 'Dropbox folder could not be loaded'));
+          this.dropboxParentPath = null;
+          this.dropboxEntries = [];
+          const message = getMessageFromError(error, 'Dropbox folder could not be loaded');
+          if (this.shouldReconnectDropbox(message)) {
+            this.dropboxDialogVisible = false;
+            this.emitConnectDropboxRequested();
+            return;
+          }
+          this.messagesService.showError(message);
         },
       });
   }
@@ -183,6 +208,10 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
     return this.isBrowser && this.dropboxEnabled && !this.readOnly;
   }
 
+  get canResetDropbox(): boolean {
+    return this.canManageDropbox && this.dropboxConnected;
+  }
+
   get headerButtons(): HeaderButtonConfig[] {
     return [];
   }
@@ -195,9 +224,9 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
     return [
       this.dropboxConnected
         ? {
-            label: 'Disconnect from Dropbox',
-            icon: 'times-circle',
-            action: () => this.disconnectDropbox(),
+            label: 'Reset Dropbox',
+            icon: 'refresh',
+            action: () => this.resetDropbox(),
           }
         : {
             label: 'Connect to Dropbox',
@@ -375,8 +404,23 @@ export class TripNoteEditorComponent implements OnInit, OnChanges {
         return;
       }
 
+      this.dropboxCurrentPath = '';
+      this.dropboxParentPath = null;
+      this.dropboxEntries = [];
       this.dropboxDialogVisible = true;
-      this.loadDropboxFolder(this.dropboxCurrentPath);
+      this.loadDropboxFolder('');
     });
+  }
+
+  private shouldReconnectDropbox(message: string | null | undefined): boolean {
+    if (!message) {
+      return false;
+    }
+
+    const normalized = message.trim().toLowerCase();
+    return normalized.includes('connect dropbox first')
+      || normalized.includes('connect first to browse or render private images')
+      || normalized.includes('authorization expired')
+      || normalized.includes('reconnect dropbox');
   }
 }

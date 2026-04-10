@@ -72,7 +72,7 @@ export class TripNoteEditorService {
     });
   }
 
-  disconnectDropbox(): Observable<void> {
+  resetDropbox(): Observable<void> {
     this.resetClientState();
     return this.http.delete<void>(`${this.apiUrl}/dropbox/connection`);
   }
