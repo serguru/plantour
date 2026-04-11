@@ -166,6 +166,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection();
+builder.Services.AddMemoryCache();
 builder.Services.AddHybridCache(options =>
 {
     options.MaximumPayloadBytes = 1024 * 1024;
