@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using plantour_server.Models;
-using plantour_server.Services.Interfaces;
 using PlantourApi.Middleware;
 using Serilog;
 using Serilog.Context;
@@ -14,17 +11,11 @@ using System.Net.Mime;
 public class GlobalExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<GlobalExceptionHandler> _logger;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly BrevoSettings _brevoSettings;
 
     public GlobalExceptionHandler(
-        ILogger<GlobalExceptionHandler> logger,
-        IServiceScopeFactory serviceScopeFactory,
-        IOptions<BrevoSettings> brevoSettings)
+        ILogger<GlobalExceptionHandler> logger)
     {
         _logger = logger;
-        _serviceScopeFactory = serviceScopeFactory;
-        _brevoSettings = brevoSettings.Value;
     }
 
     public async ValueTask<bool> TryHandleAsync(
@@ -101,23 +92,6 @@ public class GlobalExceptionHandler : IExceptionHandler
                 _logger.LogError("Exception Type: {ExceptionType}, Stack Trace: {StackTrace}",
                     exception.GetType().FullName, exception.StackTrace);
             }
-
-            if (statusCode != StatusCodes.Status401Unauthorized)
-            {
-                var traceId = httpContext.TraceIdentifier;
-                await TrySendExceptionEmailAsync(
-                    exception,
-                    message,
-                    statusCode,
-                    traceId,
-                    requestMethod,
-                    requestPath,
-                    requestQueryString,
-                    remoteIpAddress,
-                    userId,
-                    userRole);
-            }
-
             var response = new ApiErrorResponse
             {
                 StatusCode = statusCode,
@@ -133,53 +107,6 @@ public class GlobalExceptionHandler : IExceptionHandler
             await httpContext.Response.WriteAsJsonAsync(response, cancellationToken);
 
             return true;
-        }
-    }
-
-    private async Task TrySendExceptionEmailAsync(
-        Exception exception,
-        string? message,
-        int statusCode,
-        string traceId,
-        string requestMethod,
-        string? requestPath,
-        string? requestQueryString,
-        string remoteIpAddress,
-        string userId,
-        string userRole)
-    {
-        if (string.IsNullOrWhiteSpace(_brevoSettings.ExceptionsReceiverEmail)
-            || string.IsNullOrWhiteSpace(_brevoSettings.ExceptionsReceiverName))
-        {
-            return;
-        }
-
-        try
-        {
-            using var scope = _serviceScopeFactory.CreateScope();
-            var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-
-            await emailService.SendExceptionAlertEmailAsync(new ExceptionAlertEmailRequest(
-                _brevoSettings.ExceptionsReceiverEmail,
-                _brevoSettings.ExceptionsReceiverName,
-                statusCode,
-                traceId,
-                requestMethod,
-                requestPath,
-                requestQueryString,
-                remoteIpAddress,
-                userId,
-                userRole,
-                exception.GetType().FullName ?? exception.GetType().Name,
-                exception.Message,
-                message,
-                exception.InnerException?.GetType().FullName,
-                exception.InnerException?.Message,
-                exception.StackTrace));
-        }
-        catch (Exception emailException)
-        {
-            _logger.LogError(emailException, "Failed to send exception email notification");
         }
     }
 }

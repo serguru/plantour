@@ -526,6 +526,7 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IPaddleService, PaddleService>();
 builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
 builder.Services.AddScoped<ISchedulerService, SchedulerService>();
+builder.Services.AddHostedService<FatalExceptionNotificationService>();
 builder.Services.AddScoped<AccessCodeGenerator>();
 builder.Services.AddHttpClient<IBotProtectionService, BotProtectionService>();
 builder.Services.AddHttpClient<IExpenseCurrencyRateService, ExpenseCurrencyRateService>();
