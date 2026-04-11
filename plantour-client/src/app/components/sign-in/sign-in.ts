@@ -188,9 +188,7 @@ export class SignInComponent implements OnInit {
   }
 
   get helpUrl(): string {
-    return this.isAdmin
-      ? '/help/get-started/first-steps'
-      : '/help/workflows/invite-travelers';
+    return '/help/get-started/sign-in-or-sign-up';
   }
 
   async onSubmit(): Promise<void> {

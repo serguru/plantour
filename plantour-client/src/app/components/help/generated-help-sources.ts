@@ -5,6 +5,7 @@ import workflowsSectionManifest from './sections/workflows/section.json';
 import tripWorkflowsSectionManifest from './sections/trip-workflows/section.json';
 import sharedTripWorkflowsSectionManifest from './sections/shared-trip-workflows/section.json';
 import getStartedHowCanPlanturHelpMeSolveMyProblemsJsonQuestion from './sections/get-started/How can Plantur help me solve my problems.json';
+import getStartedHowDoISignInOrSignUpJsonQuestion from './sections/get-started/How do I Sign in or Sign up.json';
 import getStartedCanITryPlantourWithoutTheAccountCreationJsonQuestion from './sections/get-started/Can I try Plantour without the account creation.json';
 import getStartedHowDoINavigateThePagesJsonQuestion from './sections/get-started/How do I navigate the pages.json';
 import getStartedWhatAreMyFirstStepsWithPlantourJsonQuestion from './sections/get-started/What are my first steps with Plantour.json';
@@ -72,6 +73,7 @@ export const GENERATED_SECTION_MANIFEST_ENTRIES: [string, unknown][] = [
 
 export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['get-started/How can Plantur help me solve my problems.json', getStartedHowCanPlanturHelpMeSolveMyProblemsJsonQuestion],
+  ['get-started/How do I Sign in or Sign up.json', getStartedHowDoISignInOrSignUpJsonQuestion],
   ['get-started/Can I try Plantour without the account creation.json', getStartedCanITryPlantourWithoutTheAccountCreationJsonQuestion],
   ['get-started/How do I navigate the pages.json', getStartedHowDoINavigateThePagesJsonQuestion],
   ['get-started/What are my first steps with Plantour.json', getStartedWhatAreMyFirstStepsWithPlantourJsonQuestion],
