@@ -19,6 +19,7 @@
     <div class="view-content">
       <button
         class="pl-button dashboard-button"
+        [disabled]="isNavigatedComponent('dashboard')"
         (click)="onDashboardClick($event)"
       >
         <span class="pi pi-table"></span>

@@ -92,6 +92,10 @@ export class Toolbar implements OnInit {
 
   onDashboardClick($event): void {
     $event.preventDefault();
+    if (this.isNavigatedComponent('dashboard')) {
+      return;
+    }
+
     this.router.navigate(['/dashboard']);
   }
 
