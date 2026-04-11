@@ -387,7 +387,6 @@ public class UsersService(
         }
 
         string facebookAccessToken;
-// TODO: what is Facebook social login "test mode"?
         try
         {
             facebookAccessToken = _facebookOAuthTokenProtector.Unprotect(normalizedProtectedToken);
@@ -825,8 +824,6 @@ public class UsersService(
         return new SocialIdentity(payload.Email, payload.Subject, payload.GivenName, payload.FamilyName);
     }
 
-    // TODO: Immediately after prodaction launch go to Google Search Console, verify ownership of the domain, and submit your sitemap.xml. This tells the bots the "gate is open."
-
     private async Task<SocialIdentity> VerifyFacebookTokenAsync(string? facebookAccessToken)
     {
         if (string.IsNullOrWhiteSpace(_socialAuthSettings.FacebookAppId) || string.IsNullOrWhiteSpace(_socialAuthSettings.FacebookAppSecret))
@@ -1247,11 +1244,6 @@ public class UsersService(
 
             adminId = admin.Id;
         }
-// TODO: check plans explanations, include individuals
-// TODO: why Plantour is som slow in Pred Prod?
-// TODO: format weights in TripInfo
-// TODO: implement redyiness progress instead of packing progress
-// TODO: add Finished to ToDos, Items and Expenses
 
         string? temporary = data.FirstOrDefault(kv => kv.Key == "temporary").Value;
         if (string.IsNullOrWhiteSpace(temporary))

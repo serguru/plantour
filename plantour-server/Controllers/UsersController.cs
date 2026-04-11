@@ -11,8 +11,6 @@ using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Controllers;
 
-// TODO: resolve an issue with cookies: do I need to show cookies consent dialog?
-
 [ApiController]
 [Route("[controller]")]
 public class UsersController : ControllerBase
@@ -243,7 +241,6 @@ public class UsersController : ControllerBase
                 var profile = await _usersService.GetLandingAsync();
                 return Ok(profile);
         }
-// TODO: Facebook ligin does not work in propduction
         private string BuildAbsoluteUrl(string path)
         {
                 var scheme = Request.Scheme;
@@ -324,7 +321,6 @@ public class UsersController : ControllerBase
                 await _usersService.SendParticipantInvitationAsync(request.AdminParticipantId);
                 return Ok();
         }
-        // TODO: why do I need Dropbox production?
 
         [HttpGet("health-check")]
         [AllowAnonymous]

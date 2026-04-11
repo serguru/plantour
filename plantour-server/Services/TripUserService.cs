@@ -249,7 +249,6 @@ public class TripUserService(
         {
             throw new CustomException("Trip user not found or access denied");
         }
-// TODO: make the inline emails in the UI as short as possible
 
         if (entity.SharedAmount <= 0)
         {

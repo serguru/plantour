@@ -363,7 +363,7 @@ export class TripInfoComponent {
         },
         {
           label: 'Weight',
-          value: userSummary?.weightStr || '0',
+          value: this.formatWeightSummary(userSummary?.weightStr),
           hint: 'Current packed and no-pack weight summary.',
         },
       ],
@@ -516,6 +516,31 @@ export class TripInfoComponent {
     }).format(value);
 
     return `${formatted} ${currency}`;
+  }
+
+  private formatWeightSummary(value?: string | null): string {
+    if (!value) {
+      return '0';
+    }
+
+    return value
+      .split(',')
+      .map((part) => part.trim())
+      .filter((part) => part.length > 0)
+      .map((part) => {
+        const match = part.match(/^(-?\d+(?:\.\d+)?)(\s+.+)$/);
+        if (!match) {
+          return part;
+        }
+
+        const numericValue = Number(match[1]);
+        if (Number.isNaN(numericValue)) {
+          return part;
+        }
+
+        return `${this.formatInteger(numericValue)}${match[2]}`;
+      })
+      .join(', ');
   }
 
   private trimText(value?: string | null, maxLength = 180): string | null {
