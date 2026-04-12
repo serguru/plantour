@@ -1,11 +1,7 @@
 <div class="app-shell">
-  @if (showNonProductionBanner) {
-    <div class="environment-banner">{{ environmentName }} environment - test data only</div>
-  }
-
   <header class="toolbar">
     <a class="toolbar__brand" routerLink="/">
-      <span class="toolbar__mark">PT</span>
+		<img src="assets/plantour-logo.png" alt="Plantour logo" class="toolbar__logo" />
       <span>
         <strong>{{ title }}</strong>
         <small>Operations console</small>
@@ -13,18 +9,70 @@
     </a>
 
     <nav class="toolbar__nav" aria-label="Main navigation">
-	    <a routerLink="/dashboard" routerLinkActive="is-active">Dashboard</a>
+        <a
+        routerLink="/dashboard"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        title="Dashboard"
+        aria-label="Dashboard"
+      >
+        <span class="toolbar__nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M4 13h7V4H4v9Zm0 7h7v-5H4v5Zm9 0h7v-9h-7v9Zm0-16v5h7V4h-7Z" />
+          </svg>
+        </span>
+        <span class="toolbar__nav-label">Dashboard</span>
+      </a>
 
       @if (isAuthenticated()) {
-        <a routerLink="/visitor-activity" routerLinkActive="is-active">Visitors</a>
+      <a
+        routerLink="/visitor-activity"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        title="Visitors"
+        aria-label="Visitors"
+      >
+        <span class="toolbar__nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M16 11c1.66 0 2.99-1.57 2.99-3.5S17.66 4 16 4s-3 1.57-3 3.5 1.34 3.5 3 3.5Zm-8 0c1.66 0 2.99-1.57 2.99-3.5S9.66 4 8 4 5 5.57 5 7.5 6.34 11 8 11Zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.96 1.97 3.45V20h6v-3.5c0-2.33-4.67-3.5-7-3.5Z" />
+          </svg>
+        </span>
+        <span class="toolbar__nav-label">Visitors</span>
+      </a>
       }
 
       @if (!isAuthenticated()) {
-        <a routerLink="/sign-in" routerLinkActive="is-active">Sign in</a>
+      <a
+        routerLink="/sign-in"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        title="Sign in"
+        aria-label="Sign in"
+      >
+        <span class="toolbar__nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M10 17v-3H3v-4h7V7l5 5-5 5Zm9-13H9a2 2 0 0 0-2 2v3h2V6h10v12H9v-3H7v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Z" />
+          </svg>
+        </span>
+        <span class="toolbar__nav-label">Sign in</span>
+      </a>
       }
 
       @if (isAuthenticated()) {
-        <a routerLink="/sign-out" routerLinkActive="is-active">Sign out</a>
+      <a
+        routerLink="/sign-out"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        title="Sign out"
+        aria-label="Sign out"
+      >
+        <span class="toolbar__nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M14 17v-3H7v-4h7V7l5 5-5 5ZM5 4h10a2 2 0 0 1 2 2v3h-2V6H5v12h10v-3h2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
+          </svg>
+        </span>
+        <span class="toolbar__nav-label">Sign out</span>
+      </a>
       }
     </nav>
   </header>

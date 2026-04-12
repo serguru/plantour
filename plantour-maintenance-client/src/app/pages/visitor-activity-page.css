@@ -4,24 +4,19 @@
 
 .activity-layout {
   display: grid;
-  gap: 1.5rem;
+  gap: 1.25rem;
+  width: 100%;
 }
 
-.activity-toolbar,
-.grid-card {
+.activity-top-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(22rem, 1fr);
+  gap: 1rem 1.5rem;
+  width: 100%;
+  padding: 1rem;
   border: 1px solid rgba(24, 49, 38, 0.12);
-  border-radius: 1.5rem;
-  background: rgba(255, 252, 246, 0.8);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 18px 45px rgba(30, 41, 59, 0.08);
-}
-
-.activity-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding: 1.5rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .activity-period__label,
@@ -40,9 +35,10 @@ p {
 }
 
 h1 {
-  font-size: clamp(1.7rem, 3vw, 2.5rem);
-  line-height: 1.1;
-  letter-spacing: -0.05em;
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+  font-weight: 500;
 }
 
 .activity-period {
@@ -50,12 +46,22 @@ h1 {
   gap: 0.35rem;
 }
 
-.activity-period__duration {
+.activity-period__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
   color: var(--muted-foreground);
+}
+
+.activity-period__duration {
   font-weight: 700;
 }
 
-button {
+.activity-period__count {
+  font-weight: 700;
+}
+
+.primary-action {
   min-height: 3rem;
   padding: 0 1rem;
   border: 0;
@@ -67,7 +73,7 @@ button {
   cursor: pointer;
 }
 
-button:disabled {
+.primary-action:disabled {
   opacity: 0.7;
   cursor: wait;
 }
@@ -81,42 +87,128 @@ button:disabled {
   color: #b42318;
 }
 
-.grid-card {
-  padding: 1.35rem;
-}
-
-.table-wrap {
-  overflow-x: auto;
-}
-
-table {
+.results-panel {
   width: 100%;
-  border-collapse: collapse;
 }
 
-th,
-td {
-  padding: 0.95rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid rgba(24, 49, 38, 0.1);
+.results-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: end;
+  justify-content: flex-end;
 }
 
-th {
+.control-field {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.control-field--filter {
+  flex: 1 1 18rem;
+}
+
+.control-field--grouping {
+  flex: 0 1 12rem;
+}
+
+.control-label {
   color: var(--muted-foreground);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-tbody tr:hover {
-  background: rgba(241, 237, 229, 0.55);
+.control-input {
+  width: 100%;
+}
+
+.group-select {
+  min-height: 2.75rem;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid rgba(24, 49, 38, 0.14);
+  border-radius: 0.9rem;
+  background: rgba(255, 252, 246, 0.92);
+  color: inherit;
+  font: inherit;
+}
+
+.results-table {
+  width: 100%;
+}
+
+.results-table-shell {
+  overflow: hidden;
+  border: 1px solid rgba(24, 49, 38, 0.12);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.85);
+  width: 100%;
+  padding: 1rem;
+}
+
+.results-table-container {
+  width: 100%;
+}
+
+.column-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+}
+
+.column-sort__indicator {
+  color: var(--muted-foreground);
+  font-size: 0.82rem;
+}
+
+.results-row--group {
+  background: rgba(36, 77, 58, 0.04);
+}
+
+.group-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.group-toggle__chevron,
+.group-toggle__count {
+  color: var(--muted-foreground);
+  font-weight: 700;
+}
+
+.cell-placeholder {
+  display: inline-block;
+  min-height: 1rem;
+}
+
+.empty-table-row {
+  height: 6rem;
+  text-align: center;
+  color: var(--muted-foreground);
 }
 
 .empty-state {
   display: grid;
   gap: 0.4rem;
-  padding: 1rem 0.2rem 0.4rem;
+  padding: 1.25rem;
 }
 
 .empty-state p {
@@ -124,16 +216,24 @@ tbody tr:hover {
 }
 
 @media (max-width: 960px) {
-  .activity-toolbar {
-    align-items: stretch;
-    flex-direction: column;
+  .activity-top-panel {
+    grid-template-columns: 1fr;
   }
 
   h1 {
     max-width: none;
   }
 
-  button {
+  .results-controls {
+    justify-content: stretch;
+  }
+
+  .primary-action {
     width: 100%;
+  }
+
+  .control-field--filter,
+  .control-field--grouping {
+    flex-basis: 100%;
   }
 }

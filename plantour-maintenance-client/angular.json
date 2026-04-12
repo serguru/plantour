@@ -43,6 +43,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "plantour-logo.png",
+                "input": "../plantour-client/src/assets",
+                "output": "assets"
               }
             ],
             "styles": [
@@ -120,6 +125,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "plantour-logo.png",
+                "input": "../plantour-client/src/assets",
+                "output": "assets"
               }
             ],
             "styles": [

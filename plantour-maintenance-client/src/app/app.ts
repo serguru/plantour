@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
-import { environment } from '../environments/environment';
 import { isPersistableRoute, LAST_OPEN_PAGE_STORAGE_KEY } from './app-route-storage';
 import { LocalStorageService } from './services/local-storage-service';
 import { UsersService } from './services/users-service';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -21,8 +21,6 @@ export class App {
   protected readonly currentUser = this.usersService.currentUser;
   protected readonly displayName = this.usersService.displayName;
   protected readonly isAuthenticated = this.usersService.isAuthenticated;
-  protected readonly environmentName = environment.environment;
-  protected readonly showNonProductionBanner = this.environmentName !== 'production';
   protected readonly title = environment.appName;
 
   constructor() {

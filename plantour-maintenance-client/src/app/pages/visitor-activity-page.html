@@ -1,49 +1,127 @@
 <section class="activity-layout">
-  <div class="activity-toolbar">
-    <div class="activity-period">
-      <p class="activity-period__label">Selected period</p>
-      <h1>{{ periodLabel() }}</h1>
-      <p class="activity-period__duration">{{ durationLabel() }}</p>
-    </div>
-
-    <button type="button" [disabled]="isLoading()" (click)="openPeriodDialog()">
-      {{ isLoading() ? 'Loading...' : 'Edit period' }}
-    </button>
-  </div>
-
   @if (errorMessage()) {
     <p class="error-banner">{{ errorMessage() }}</p>
   }
 
-  <section class="grid-card">
-    @if (rows().length > 0) {
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Day</th>
-              <th>IP</th>
-              <th>Country</th>
-              <th>City</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of rows(); track trackByRow($index, row)) {
-              <tr>
-                <td>{{ row.day }}</td>
-                <td>{{ row.ip }}</td>
-                <td>{{ row.country || 'Unknown' }}</td>
-                <td>{{ row.city || 'Unknown' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
+  <section class="activity-top-panel">
+    <div class="activity-period">
+      <p class="activity-period__label">Selected period</p>
+      <h1>{{ periodLabel() }}</h1>
+      <p class="activity-period__meta">
+        <span class="activity-period__duration">{{ durationLabel() }}</span>
+        <span class="activity-period__count">{{ filteredCount() }} of {{ totalCount() }} rows shown</span>
+      </p>
+    </div>
+
+    <div class="results-controls">
+      <div class="control-field control-field--filter">
+        <label for="visitor-activity-filter" class="control-label">Filter rows</label>
+        <input
+          id="visitor-activity-filter"
+          hlmInput
+          type="search"
+          class="control-input"
+          placeholder="Filter by day, IP, country or city"
+          [value]="filterQuery()"
+          (input)="updateFilter($event)"
+        />
       </div>
-    } @else if (!isLoading()) {
-      <div class="empty-state">
-        <h3>No visits found</h3>
-        <p>Try widening the interval or wait for new requests to be recorded.</p>
+
+      <div class="control-field control-field--grouping">
+        <label for="visitor-activity-grouping" class="control-label">Group rows</label>
+        <select id="visitor-activity-grouping" class="group-select" [value]="groupingValue()" (change)="updateGrouping($event)">
+          <option value="none">No grouping</option>
+          <option value="day">Day</option>
+          <option value="country">Country</option>
+          <option value="city">City</option>
+        </select>
       </div>
-    }
+
+      <button type="button" class="primary-action" [disabled]="isLoading()" (click)="openPeriodDialog()">
+        {{ isLoading() ? 'Loading...' : 'Edit period' }}
+      </button>
+    </div>
+  </section>
+
+  <section class="results-panel">
+    <div class="results-table-shell">
+      @defer {
+        <div hlmTableContainer class="results-table-container">
+          <table hlmTable class="results-table">
+            <thead hlmTHead>
+              @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
+                <tr hlmTr>
+                  @for (header of headerGroup.headers; track header.id) {
+                    <th hlmTh [attr.colSpan]="header.colSpan">
+                      @if (!header.isPlaceholder) {
+                        @if (header.column.getCanSort()) {
+                          <button
+                            type="button"
+                            class="column-sort"
+                            [attr.title]="'Sort by ' + header.column.id"
+                            (click)="toggleSorting(header.column.id)"
+                          >
+                            <ng-container *flexRender="header.column.columnDef.header; props: header.getContext(); let headerText">
+                              <span [innerHTML]="headerText"></span>
+                            </ng-container>
+                            <span class="column-sort__indicator">{{ sortIndicator(header.column.id) }}</span>
+                          </button>
+                        } @else {
+                          <ng-container *flexRender="header.column.columnDef.header; props: header.getContext(); let headerText">
+                            <span [innerHTML]="headerText"></span>
+                          </ng-container>
+                        }
+                      }
+                    </th>
+                  }
+                </tr>
+              }
+            </thead>
+            <tbody hlmTBody>
+              @for (row of table.getRowModel().rows; track row.id) {
+                <tr hlmTr [attr.data-state]="row.getIsSelected() && 'selected'" [class.results-row--group]="row.getIsGrouped()">
+                  @for (cell of row.getVisibleCells(); track cell.id) {
+                    <td hlmTd>
+                      @if (cell.getIsGrouped()) {
+                        <button type="button" class="group-toggle" (click)="row.toggleExpanded()">
+                          <span class="group-toggle__chevron">{{ row.getIsExpanded() ? '−' : '+' }}</span>
+                          <ng-container *flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cellText">
+                            <span [innerHTML]="cellText"></span>
+                          </ng-container>
+                          <span class="group-toggle__count">{{ row.subRows.length }} rows</span>
+                        </button>
+                      } @else if (cell.getIsPlaceholder()) {
+                        <span class="cell-placeholder"></span>
+                      } @else {
+                        <ng-container *flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cellText">
+                          <span [innerHTML]="cellText"></span>
+                        </ng-container>
+                      }
+                    </td>
+                  }
+                </tr>
+              } @empty {
+                <tr hlmTr>
+                  <td hlmTd class="empty-table-row" [attr.colspan]="table.getVisibleLeafColumns().length">
+                    @if (isLoading()) {
+                      Loading visitor activity...
+                    } @else if (totalCount() > 0) {
+                      No results.
+                    } @else {
+                      No visits found for the selected period.
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @placeholder {
+        <div class="empty-state">
+          <h3>Loading visitor activity</h3>
+          <p>Refreshing request rows for the selected period.</p>
+        </div>
+      }
+    </div>
   </section>
 </section>
