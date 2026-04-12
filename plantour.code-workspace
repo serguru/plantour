@@ -10,7 +10,7 @@
 			"path": "documents"
 		},
 		{
-			"path": "plantour-admin"
+			"path": "plantour-superuser"
 		}
 	],
 	"settings": {},

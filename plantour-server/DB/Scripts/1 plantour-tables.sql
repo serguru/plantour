@@ -1393,4 +1393,13 @@ CREATE INDEX IF NOT EXISTS "IX_TimeTicker_Status_ExecutionTime" ON plantour."Tim
 
 CREATE INDEX IF NOT EXISTS "IX_TimeTickers_ParentId" ON plantour."TimeTickers" ("ParentId");
 
-
+create table plantour.superusers (
+    id uuid not null primary key default gen_random_uuid(),
+    email text not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    first_name text,
+    last_name text,
+    phone text,
+    notes text,
+    hashed_password text not null,
+    created_at timestamptz not null default (now() at time zone 'utc')
+);
