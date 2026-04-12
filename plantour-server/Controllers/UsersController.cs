@@ -326,7 +326,7 @@ public class UsersController : ControllerBase
         [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
-                return Ok(new { status = "OK" });
+                return Ok(new { status = "Plantour Main API OK" });
         }
 
         [HttpGet("version")]

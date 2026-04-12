@@ -1402,3 +1402,19 @@ create table plantour.superusers (
     hashed_password text not null,
     created_at timestamptz not null default (now() at time zone 'utc')
 );
+
+create or replace function plantour.hash_superuser_password(password_input text)
+returns text
+language sql
+immutable
+as $$
+    select md5(
+        'MaintenanceHashSecret_2026_4Xv8Lm2Qp7Rt1Nz5Bc9Hd3Ks6Wy0Fa4Ju8Pe1Mv5Cx9Tr2Qk'
+        || ':' ||
+        md5(
+            'MaintenanceHashSalt_2026_Jd4Lp9Qs2Vx7Hn1Bk6Tm3Wr8Cy5Fu0Pa'
+            || ':' ||
+            coalesce(password_input, '')
+        )
+    );
+$$;

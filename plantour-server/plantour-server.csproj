@@ -92,4 +92,13 @@
     <Folder Include="Repositories\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="DbModels\**\*.cs" />
+    <Compile Include="DbModels\TickerQOperationalDbContext.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\plantour-shared-db\plantour-shared-db.csproj" />
+  </ItemGroup>
+
 </Project>

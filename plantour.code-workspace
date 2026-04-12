@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "documents"
+		},
+		{
+			"path": "plantour-maintenance-server"
 		}
 	],
 	"settings": {},
@@ -28,23 +31,6 @@
 				"problemMatcher": [
 					"$tsc"
 				]
-			}
-		]
-	},
-	"launch": {
-		"version": "0.2.0",
-		"configurations": [
-			{
-						"name": "Run Plantour Admin Extension",
-				"type": "extensionHost",
-				"request": "launch",
-				"args": [
-							"--extensionDevelopmentPath=${workspaceFolder:plantour-admin}"
-				],
-				"outFiles": [
-							"${workspaceFolder:plantour-admin}/dist/**/*.js"
-				],
-						"preLaunchTask": "compile plantour-admin" 
 			}
 		]
 	}
