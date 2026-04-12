@@ -19,80 +19,94 @@ import {
   type Updater,
 } from '@tanstack/angular-table';
 import { ApiErrorResponse } from '../models/auth.models';
+import { LogRowDto } from '../models/log.models';
 import { VisitorActivityPeriod } from '../models/visitor-activity-period.models';
-import { VisitorActivityRowDto } from '../models/visitor-activity.models';
 import { HlmTable, HlmTableContainer, HlmTBody, HlmTd, HlmTh, HlmTHead, HlmTr } from '../ui/table/src/lib/hlm-table';
 import { DataTableTopPanelComponent, DataTableTopPanelGroupingOption } from '../components/data-table-top-panel/data-table-top-panel';
 import { VisitorActivityPeriodDialogComponent } from '../components/visitor-activity-period-dialog/visitor-activity-period-dialog';
-import { VisitorActivityService } from '../services/visitor-activity-service';
+import { LogsService } from '../services/logs-service';
 
 @Component({
-  selector: 'app-visitor-activity-page',
+  selector: 'app-logs-page',
   imports: [DataTableTopPanelComponent, HlmTableContainer, HlmTable, HlmTHead, HlmTBody, HlmTr, HlmTh, HlmTd, FlexRenderDirective],
-  templateUrl: './visitor-activity-page.html',
-  styleUrl: './visitor-activity-page.css',
+  templateUrl: './logs-page.html',
+  styleUrl: './logs-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class VisitorActivityPage implements OnInit {
+export class LogsPage implements OnInit {
   private readonly dialogService = inject(BrnDialogService);
-  private readonly visitorActivityService = inject(VisitorActivityService);
-  private readonly columns: ColumnDef<VisitorActivityRowDto>[] = [
+  private readonly logsService = inject(LogsService);
+  private readonly columns: ColumnDef<LogRowDto>[] = [
     {
-      id: 'day',
-      accessorKey: 'day',
-      header: 'Day',
+      id: 'timeStamp',
+      accessorKey: 'timeStamp',
+      header: 'Time',
+      cell: (context) => formatTimestamp(context.getValue<string>()),
+      enableGrouping: false,
+    },
+    {
+      id: 'level',
+      accessorFn: (row) => row.level?.trim() || 'Unknown',
+      header: 'Level',
       cell: (context) => context.getValue<string>(),
       enableGrouping: true,
     },
     {
-      id: 'ip',
-      accessorKey: 'ip',
-      header: 'IP address',
+      id: 'eventType',
+      accessorFn: (row) => row.eventType?.trim() || 'Unknown',
+      header: 'Event type',
+      cell: (context) => context.getValue<string>(),
+      enableGrouping: true,
+    },
+    {
+      id: 'subtype',
+      accessorFn: (row) => row.subtype?.trim() || 'Unknown',
+      header: 'Subtype',
+      cell: (context) => context.getValue<string>(),
+      enableGrouping: true,
+    },
+    {
+      id: 'messageTemplate',
+      accessorFn: (row) => row.messageTemplate?.trim() || '-',
+      header: 'Message',
       cell: (context) => context.getValue<string>(),
       enableGrouping: false,
     },
     {
-      accessorFn: (row) => row.country?.trim() || 'Unknown',
-      id: 'country',
-      header: 'Country',
+      id: 'exception',
+      accessorFn: (row) => toSingleLine(row.exception),
+      header: 'Exception',
       cell: (context) => context.getValue<string>(),
-      enableGrouping: true,
-    },
-    {
-      accessorFn: (row) => row.city?.trim() || 'Unknown',
-      id: 'city',
-      header: 'City',
-      cell: (context) => context.getValue<string>(),
-      enableGrouping: true,
+      enableGrouping: false,
     },
   ];
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly rows = signal<VisitorActivityRowDto[]>([]);
+  protected readonly rows = signal<LogRowDto[]>([]);
   protected readonly period = signal<VisitorActivityPeriod>(getDefaultPeriod());
   protected readonly filterQuery = signal('');
-  protected readonly sorting = signal<SortingState>([{ id: 'day', desc: true }]);
+  protected readonly sorting = signal<SortingState>([{ id: 'timeStamp', desc: true }]);
   protected readonly grouping = signal<GroupingState>([]);
   protected readonly pagination = signal<PaginationState>({ pageIndex: 0, pageSize: 20 });
   protected readonly availablePageSizes = [10, 20, 50, 100];
-  protected readonly filterId = 'visitor-activity-filter';
-  protected readonly groupingId = 'visitor-activity-grouping';
+  protected readonly filterId = 'logs-filter';
+  protected readonly groupingId = 'logs-grouping';
   protected readonly filterLabel = 'Filter rows';
   protected readonly groupingLabel = 'Group rows';
-  protected readonly filterPlaceholder = 'Filter by day, IP, country or city';
+  protected readonly filterPlaceholder = 'Filter by time, level, type, message or exception';
   protected readonly groupingOptions: readonly DataTableTopPanelGroupingOption[] = [
     { value: 'none', label: 'No grouping' },
-    { value: 'day', label: 'Day' },
-    { value: 'country', label: 'Country' },
-    { value: 'city', label: 'City' },
+    { value: 'level', label: 'Level' },
+    { value: 'eventType', label: 'Event type' },
+    { value: 'subtype', label: 'Subtype' },
   ];
   protected readonly periodLabel = computed(() => formatPeriod(this.period()));
   protected readonly durationLabel = computed(() => formatDuration(this.period()));
   protected readonly groupingValue = computed<GroupColumn>(() => {
     const currentGrouping = this.grouping()[0];
 
-    if (currentGrouping === 'day' || currentGrouping === 'country' || currentGrouping === 'city') {
+    if (currentGrouping === 'level' || currentGrouping === 'eventType' || currentGrouping === 'subtype') {
       return currentGrouping;
     }
 
@@ -107,7 +121,7 @@ export class VisitorActivityPage implements OnInit {
       grouping: this.grouping(),
       pagination: this.pagination(),
     },
-    globalFilterFn: visitorActivityGlobalFilter,
+    globalFilterFn: logsGlobalFilter,
     onGlobalFilterChange: (updater) => this.filterQuery.update((current) => applyUpdater(updater, current)),
     onSortingChange: (updater) => this.sorting.update((current) => applyUpdater(updater, current)),
     onPaginationChange: (updater) => this.pagination.update((current) => applyUpdater(updater, current)),
@@ -141,7 +155,7 @@ export class VisitorActivityPage implements OnInit {
       undefined,
       { period: this.period() },
       {
-        ariaLabel: 'Visitor activity period',
+        ariaLabel: 'Logs period',
         backdropClass: 'period-dialog-backdrop',
         panelClass: 'period-dialog-panel'
       }
@@ -223,7 +237,7 @@ export class VisitorActivityPage implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.visitorActivityService.getRows(fromUtcIso, toUtcIso).pipe(
+    this.logsService.getRows(fromUtcIso, toUtcIso).pipe(
       finalize(() => this.isLoading.set(false))
     ).subscribe({
       next: (rows) => {
@@ -233,7 +247,7 @@ export class VisitorActivityPage implements OnInit {
       error: (error: { error?: ApiErrorResponse }) => {
         this.rows.set([]);
         this.table.firstPage();
-        this.errorMessage.set(error.error?.message ?? 'Unable to load visitor activity.');
+        this.errorMessage.set(error.error?.message ?? 'Unable to load logs.');
       }
     });
   }
@@ -286,16 +300,38 @@ function toIsoValue(dateTime: DateTime): string {
   return dateTime.toISO({ suppressMilliseconds: true }) ?? '';
 }
 
-type GroupColumn = 'day' | 'country' | 'city' | 'none';
+function formatTimestamp(value: string): string {
+  const parsed = DateTime.fromISO(value, { zone: 'utc' });
 
-const visitorActivityGlobalFilter: FilterFn<VisitorActivityRowDto> = (row, _columnId, filterValue) => {
+  if (!parsed.isValid) {
+    return value;
+  }
+
+  return parsed.toLocal().toFormat('dd LLL yyyy, HH:mm:ss');
+}
+
+function toSingleLine(value: string | null | undefined): string {
+  const normalized = value?.replace(/\s+/g, ' ').trim();
+  return normalized || '-';
+}
+
+type GroupColumn = 'level' | 'eventType' | 'subtype' | 'none';
+
+const logsGlobalFilter: FilterFn<LogRowDto> = (row, _columnId, filterValue) => {
   const normalizedQuery = normalizeValue(String(filterValue ?? ''));
 
   if (!normalizedQuery) {
     return true;
   }
 
-  const haystack = [row.original.day, row.original.ip, row.original.country ?? '', row.original.city ?? '']
+  const haystack = [
+    formatTimestamp(row.original.timeStamp),
+    row.original.level ?? '',
+    row.original.eventType ?? '',
+    row.original.subtype ?? '',
+    row.original.messageTemplate ?? '',
+    row.original.exception ?? ''
+  ]
     .map(normalizeValue)
     .join(' ');
 

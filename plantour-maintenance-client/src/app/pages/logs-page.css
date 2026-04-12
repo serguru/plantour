@@ -172,32 +172,6 @@ p {
 }
 
 @media (max-width: 960px) {
-  .activity-top-panel__labels,
-  .activity-top-panel__controls {
-    grid-template-columns: 1fr;
-  }
-
-  .activity-top-panel__labels {
-    gap: 0.5rem;
-  }
-
-  h1 {
-    max-width: none;
-  }
-
-  .activity-period-control {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .results-controls {
-    justify-content: stretch;
-  }
-
-  .primary-action {
-    width: 100%;
-  }
-
   .results-footer,
   .results-pager {
     justify-content: stretch;

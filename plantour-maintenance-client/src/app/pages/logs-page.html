@@ -39,13 +39,13 @@
                             (click)="toggleSorting(header.column.id)"
                           >
                             <ng-container *flexRender="header.column.columnDef.header; props: header.getContext(); let headerText">
-                              <span [innerHTML]="headerText"></span>
+                              <span>{{ headerText }}</span>
                             </ng-container>
                             <span class="column-sort__indicator">{{ sortIndicator(header.column.id) }}</span>
                           </button>
                         } @else {
                           <ng-container *flexRender="header.column.columnDef.header; props: header.getContext(); let headerText">
-                            <span [innerHTML]="headerText"></span>
+                            <span>{{ headerText }}</span>
                           </ng-container>
                         }
                       }
@@ -63,7 +63,7 @@
                         <button type="button" class="group-toggle" (click)="row.toggleExpanded()">
                           <span class="group-toggle__chevron">{{ row.getIsExpanded() ? '−' : '+' }}</span>
                           <ng-container *flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cellText">
-                            <span [innerHTML]="cellText"></span>
+                            <span>{{ cellText }}</span>
                           </ng-container>
                           <span class="group-toggle__count">{{ row.subRows.length }} rows</span>
                         </button>
@@ -71,7 +71,7 @@
                         <span class="cell-placeholder"></span>
                       } @else {
                         <ng-container *flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cellText">
-                          <span [innerHTML]="cellText"></span>
+                          <span>{{ cellText }}</span>
                         </ng-container>
                       }
                     </td>
@@ -81,11 +81,11 @@
                 <tr hlmTr>
                   <td hlmTd class="empty-table-row" [attr.colspan]="table.getVisibleLeafColumns().length">
                     @if (isLoading()) {
-                      Loading visitor activity...
+                      Loading logs...
                     } @else if (totalRowCount() > 0) {
                       No results.
                     } @else {
-                      No visits found for the selected period.
+                      No logs found for the selected period.
                     }
                   </td>
                 </tr>
@@ -95,8 +95,8 @@
         </div>
       } @placeholder {
         <div class="empty-state">
-          <h3>Loading visitor activity</h3>
-          <p>Refreshing request rows for the selected period.</p>
+          <h3>Loading logs</h3>
+          <p>Refreshing log rows for the selected period.</p>
         </div>
       }
     </div>
@@ -105,13 +105,8 @@
       <p class="results-count">{{ filteredRowCount() }} of {{ totalRowCount() }} row(s)</p>
 
       <div class="results-pager">
-        <label for="visitor-activity-page-size" class="results-pager__label">Rows per page</label>
-        <select
-          id="visitor-activity-page-size"
-          class="results-pager__select"
-          [value]="table.getState().pagination.pageSize"
-          (change)="updatePageSize($event)"
-        >
+        <label for="logs-page-size" class="results-pager__label">Rows per page</label>
+        <select id="logs-page-size" class="results-pager__select" [value]="table.getState().pagination.pageSize" (change)="updatePageSize($event)">
           @for (pageSize of availablePageSizes; track pageSize) {
             <option [value]="pageSize">{{ pageSize }}</option>
           }

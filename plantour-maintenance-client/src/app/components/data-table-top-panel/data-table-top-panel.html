@@ -1,0 +1,45 @@
+<section class="activity-top-panel">
+  <div class="activity-top-panel__labels">
+    <button
+      type="button"
+      class="activity-period-link"
+      [disabled]="isLoading()"
+      (click)="onPeriodClick()"
+    >
+      {{ isLoading() ? 'Loading period...' : 'Selected period' }}
+    </button>
+    <label [for]="filterId()" class="control-label">{{ filterLabel() }}</label>
+    <label [for]="groupingId()" class="control-label">{{ groupingLabel() }}</label>
+  </div>
+
+  <div class="activity-top-panel__controls">
+    <div class="activity-period-control">
+      <div class="activity-period-control__summary">
+        <h1>{{ periodLabel() }}</h1>
+        <p class="activity-period__meta">
+          <span class="activity-period__duration">{{ durationLabel() }}</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="control-field">
+      <input
+        [id]="filterId()"
+        hlmInput
+        type="search"
+        class="control-input"
+        [placeholder]="filterPlaceholder()"
+        [value]="filterValue()"
+        (input)="onFilterChange($event)"
+      />
+    </div>
+
+    <div class="control-field">
+      <select [id]="groupingId()" class="group-select" [value]="groupingValue()" (change)="onGroupingChange($event)">
+        @for (option of groupingOptions(); track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+  </div>
+</section>

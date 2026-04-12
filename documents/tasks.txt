@@ -1081,6 +1081,7 @@ Remove all the optional UI elements from the Landing page. Leave only the toolba
 
 
 
-Add another component Customers. Explore Paddle documentation and find out how is it possible to get the entire Plantour customers list from them. Identify their customers with Plantour users by email. Using Data table as in visits show the entire list of customers with columns: Id, email, plan / temporary, date started, last visit date, number of: trips, items, todos, expenses, travelers. Find out how to get from Paddle the customer's payments total and add it as another column. Do not request payments total individually for each customer.
+Add another component Users. Combine data from the Plantour DB with data taken from the Paddle API.
 
-Add another component Logs similar to Visits. Get data from the logs db table.
+Explore Paddle documentation and find out how is it possible to get the entire Plantour customers list from them. Identify their customers with Plantour users by email. Using Data table as in the Visits component (but no grouping by IPs) show the entire list of customers with columns: Id, email, plan / temporary, date started, last visit date, number of: trips, items, todos, expenses, travelers. Find out how to get from Paddle the customer's payments total and add it as another column. Do not request payments total individually for each customer.
+

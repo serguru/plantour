@@ -39,6 +39,22 @@
         </span>
         <span class="toolbar__nav-label">Visitors</span>
       </a>
+
+      <a
+        routerLink="/logs"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        title="Logs"
+        aria-label="Logs"
+      >
+        <span class="toolbar__nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm8 1.5V8h4.5" />
+            <path d="M8 11h8M8 15h8M8 19h5" />
+          </svg>
+        </span>
+        <span class="toolbar__nav-label">Logs</span>
+      </a>
       }
 
       @if (!isAuthenticated()) {

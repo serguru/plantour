@@ -134,9 +134,11 @@ builder.Services.AddAutoMapper(_ => { }, typeof(Program).Assembly);
 
 builder.Services.AddScoped<CurrentSuperuserAccessor>();
 builder.Services.AddScoped<ApiVisitRepository>();
+builder.Services.AddScoped<LogRepository>();
 builder.Services.AddScoped<SuperuserRepository>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ILogsService, LogsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IVisitorActivityService, VisitorActivityService>();
 builder.Services.AddHttpClient<IIpGeolocationService, IpwhoisGeolocationService>(client =>
