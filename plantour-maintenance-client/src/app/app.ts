@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { environment } from '../environments/environment';
+import { isPersistableRoute, LAST_OPEN_PAGE_STORAGE_KEY } from './app-route-storage';
+import { LocalStorageService } from './services/local-storage-service';
 import { UsersService } from './services/users-service';
 
 @Component({
@@ -10,8 +13,10 @@ import { UsersService } from './services/users-service';
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class App implements OnInit {
+export class App {
+  private readonly router = inject(Router);
   private readonly usersService = inject(UsersService);
+  private readonly localStorageService = inject(LocalStorageService);
 
   protected readonly currentUser = this.usersService.currentUser;
   protected readonly displayName = this.usersService.displayName;
@@ -20,7 +25,15 @@ export class App implements OnInit {
   protected readonly showNonProductionBanner = this.environmentName !== 'production';
   protected readonly title = environment.appName;
 
-  ngOnInit(): void {
-    this.usersService.restoreSession();
+  constructor() {
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event) => {
+      if (!isPersistableRoute(event.urlAfterRedirects)) {
+        return;
+      }
+
+      this.localStorageService.setItem(LAST_OPEN_PAGE_STORAGE_KEY, event.urlAfterRedirects);
+    });
   }
 }

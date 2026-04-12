@@ -14,6 +14,8 @@ public class BaseApiException : Exception
 
 public class NotFoundException(string message, string? code = null) : BaseApiException(message, StatusCodes.Status404NotFound, code);
 
+public class BadRequestException(string message, string? code = null) : BaseApiException(message, StatusCodes.Status400BadRequest, code);
+
 public class UnauthorizedException(string message, string? code = null) : BaseApiException(message, StatusCodes.Status401Unauthorized, code);
 
 public class CustomException(string message, string? code = null) : BaseApiException(message, StatusCodes.Status500InternalServerError, code);

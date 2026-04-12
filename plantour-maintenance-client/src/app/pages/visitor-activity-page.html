@@ -1,0 +1,49 @@
+<section class="activity-layout">
+  <div class="activity-toolbar">
+    <div class="activity-period">
+      <p class="activity-period__label">Selected period</p>
+      <h1>{{ periodLabel() }}</h1>
+      <p class="activity-period__duration">{{ durationLabel() }}</p>
+    </div>
+
+    <button type="button" [disabled]="isLoading()" (click)="openPeriodDialog()">
+      {{ isLoading() ? 'Loading...' : 'Edit period' }}
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="error-banner">{{ errorMessage() }}</p>
+  }
+
+  <section class="grid-card">
+    @if (rows().length > 0) {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>IP</th>
+              <th>Country</th>
+              <th>City</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track trackByRow($index, row)) {
+              <tr>
+                <td>{{ row.day }}</td>
+                <td>{{ row.ip }}</td>
+                <td>{{ row.country || 'Unknown' }}</td>
+                <td>{{ row.city || 'Unknown' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else if (!isLoading()) {
+      <div class="empty-state">
+        <h3>No visits found</h3>
+        <p>Try widening the interval or wait for new requests to be recorded.</p>
+      </div>
+    }
+  </section>
+</section>

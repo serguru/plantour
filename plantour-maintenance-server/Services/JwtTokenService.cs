@@ -21,12 +21,9 @@ public class JwtTokenService(IOptions<JwtSettings> jwtSettings) : IJwtTokenServi
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, superuser.Id.ToString()),
-            new(JwtRegisteredClaimNames.Sub, superuser.Id.ToString()),
-            new(ClaimTypes.Email, superuser.Email),
-            new(JwtRegisteredClaimNames.Email, superuser.Email),
-            new(ClaimTypes.Name, superuser.Name),
-            new(JwtRegisteredClaimNames.UniqueName, superuser.Name),
+            new(MaintenanceClaims.Subject, superuser.Id.ToString()),
+            new(MaintenanceClaims.Email, superuser.Email),
+            new(MaintenanceClaims.Name, superuser.Name),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 

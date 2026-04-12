@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
@@ -50,6 +51,7 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
@@ -95,13 +97,13 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings.Audience,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero,
-        NameClaimType = ClaimTypes.NameIdentifier
+        NameClaimType = JwtRegisteredClaimNames.Sub
     };
     options.Events = new JwtBearerEvents
     {
         OnTokenValidated = context =>
         {
-            var emailClaim = context.Principal?.FindFirst(ClaimTypes.Email)?.Value;
+            var emailClaim = context.Principal?.FindFirst(MaintenanceClaims.Email)?.Value;
             if (string.IsNullOrWhiteSpace(emailClaim))
             {
                 context.Fail("Email claim is missing.");
@@ -131,10 +133,17 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddAutoMapper(_ => { }, typeof(Program).Assembly);
 
 builder.Services.AddScoped<CurrentSuperuserAccessor>();
+builder.Services.AddScoped<ApiVisitRepository>();
 builder.Services.AddScoped<SuperuserRepository>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IVisitorActivityService, VisitorActivityService>();
+builder.Services.AddHttpClient<IIpGeolocationService, IpwhoisGeolocationService>(client =>
+{
+    client.BaseAddress = new Uri("https://ipwho.is/");
+    client.Timeout = TimeSpan.FromSeconds(8);
+});
 
 builder.Services.AddCors(options =>
 {

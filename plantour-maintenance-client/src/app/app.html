@@ -13,7 +13,11 @@
     </a>
 
     <nav class="toolbar__nav" aria-label="Main navigation">
-      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+	    <a routerLink="/dashboard" routerLinkActive="is-active">Dashboard</a>
+
+      @if (isAuthenticated()) {
+        <a routerLink="/visitor-activity" routerLinkActive="is-active">Visitors</a>
+      }
 
       @if (!isAuthenticated()) {
         <a routerLink="/sign-in" routerLinkActive="is-active">Sign in</a>
@@ -23,18 +27,6 @@
         <a routerLink="/sign-out" routerLinkActive="is-active">Sign out</a>
       }
     </nav>
-
-    <div class="toolbar__session">
-      @if (isAuthenticated()) {
-        <div class="toolbar__user">
-          <span class="toolbar__user-status">Authenticated</span>
-          <strong>{{ displayName() }}</strong>
-          <small>{{ currentUser()?.email }}</small>
-        </div>
-      } @else {
-        <a class="toolbar__cta" routerLink="/sign-in">Open access</a>
-      }
-    </div>
   </header>
 
   <main class="content-shell">

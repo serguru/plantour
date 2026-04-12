@@ -12,7 +12,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
     {
         var requestMethod = httpContext.Request.Method;
         var requestPath = httpContext.Request.Path.Value;
-        var userId = httpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "Anonymous";
+        var userId = httpContext.User?.FindFirst(MaintenanceClaims.Subject)?.Value ?? "Anonymous";
 
         var (statusCode, code, message, isCustom) = exception switch
         {

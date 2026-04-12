@@ -1,81 +1,49 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { Observable, tap } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
 import { ENVIRONMENT } from '../../environment.token';
-import { ApiErrorResponse, AuthResponse, SignInRequest, StoredSession } from '../models/auth.models';
+import { AccessTokenPayload, ApiErrorResponse, AuthResponse, CurrentUser, SignInRequest } from '../models/auth.models';
 import { UserDto } from '../models/user.models';
+import { LocalStorageService } from './local-storage-service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsersService {
   private readonly http = inject(HttpClient);
+  private readonly localStorageService = inject(LocalStorageService);
   private readonly router = inject(Router);
   private readonly environment = inject(ENVIRONMENT);
 
-  private readonly sessionStorageKey = 'plantour-maintenance.session';
-  private readonly hasRestoredSession = signal(false);
-  private readonly sessionSignal = signal<StoredSession | null>(this.readStoredSession());
+  private readonly accessTokenKey = 'accessToken';
+  private readonly legacySessionStorageKey = 'plantour-maintenance.session';
+  private readonly accessTokenSignal = signal<string | null>(null);
+  private readonly accessTokenPayloadSignal = signal<AccessTokenPayload | null>(null);
 
-  readonly currentUser = computed(() => this.sessionSignal()?.user ?? null);
-  readonly accessToken = computed(() => {
-    const session = this.sessionSignal();
-    if (!session || this.isExpired(session.expiresAtUtc)) {
-      return null;
-    }
-
-    return session.accessToken;
-  });
+  readonly currentUser = computed(() => this.toCurrentUser(this.accessTokenPayloadSignal()));
+  readonly accessToken = computed(() => this.accessTokenSignal());
   readonly isAuthenticated = computed(() => this.accessToken() !== null);
   readonly displayName = computed(() => this.currentUser()?.name ?? null);
 
+  constructor() {
+    const accessToken = this.getAccessTokenFromLocalStorage() ?? this.migrateLegacySession();
+    this.updateAuthState(accessToken);
+  }
+
   signIn(request: SignInRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(this.buildUrl('/auth/sign-in'), request).pipe(
-      tap((response) => this.setSession(response))
+      tap((response) => this.applyAuthResponse(response))
     );
   }
 
   signOut(redirectToSignIn = false): void {
-    this.clearSession();
+    this.clearAuthState();
 
     if (redirectToSignIn) {
       void this.router.navigate(['/sign-in']);
     }
-  }
-
-  restoreSession(): void {
-    if (this.hasRestoredSession()) {
-      return;
-    }
-
-    this.hasRestoredSession.set(true);
-
-    const session = this.sessionSignal();
-    if (!session) {
-      return;
-    }
-
-    if (this.isExpired(session.expiresAtUtc)) {
-      this.clearSession();
-      return;
-    }
-
-    this.getCurrentUser().pipe(
-      tap((user) => {
-        this.sessionSignal.update((currentSession) => currentSession ? {
-          ...currentSession,
-          user
-        } : currentSession);
-      }),
-      catchError((error) => {
-        this.clearSession();
-        return throwError(() => error);
-      })
-    ).subscribe({
-      error: () => {
-      }
-    });
   }
 
   getCurrentUser(): Observable<UserDto> {
@@ -87,76 +55,96 @@ export class UsersService {
   }
 
   handleUnauthorized(): void {
-    this.clearSession();
+    this.clearAuthState();
     void this.router.navigate(['/sign-in']);
   }
 
-  private setSession(response: AuthResponse): void {
-    const session: StoredSession = {
-      accessToken: response.accessToken,
-      expiresAtUtc: response.expiresAtUtc,
-      user: response.user
-    };
-
-    this.sessionSignal.set(session);
-    this.writeStoredSession(session);
+  private applyAuthResponse(response: AuthResponse): void {
+    this.writeAccessToken(response.accessToken);
+    this.updateAuthState(response.accessToken);
   }
 
-  private clearSession(): void {
-    this.sessionSignal.set(null);
-    this.removeStoredSession();
-  }
-
-  private readStoredSession(): StoredSession | null {
-    const storage = this.getStorage();
-    const rawValue = storage?.getItem(this.sessionStorageKey);
-    if (!rawValue) {
-      return null;
-    }
-
-    try {
-      const session = JSON.parse(rawValue) as StoredSession;
-      if (!session.accessToken || !session.expiresAtUtc || !session.user) {
-        this.removeStoredSession();
-        return null;
-      }
-
-      if (this.isExpired(session.expiresAtUtc)) {
-        this.removeStoredSession();
-        return null;
-      }
-
-      return session;
-    } catch {
-      this.removeStoredSession();
-      return null;
-    }
-  }
-
-  private writeStoredSession(session: StoredSession): void {
-    const storage = this.getStorage();
-    if (!storage) {
+  private updateAuthState(accessToken: string | null): void {
+    if (!accessToken) {
+      this.accessTokenSignal.set(null);
+      this.accessTokenPayloadSignal.set(null);
       return;
     }
 
-    storage.setItem(this.sessionStorageKey, JSON.stringify(session));
+    const payload = this.decodeAccessToken(accessToken);
+    const currentUser = payload ? this.toCurrentUser(payload) : null;
+
+    if (!payload || !currentUser || this.isExpired(payload.exp)) {
+      this.clearAuthState();
+      return;
+    }
+
+    this.accessTokenSignal.set(accessToken);
+    this.accessTokenPayloadSignal.set(payload);
   }
 
-  private removeStoredSession(): void {
-    this.getStorage()?.removeItem(this.sessionStorageKey);
+  private clearAuthState(): void {
+    this.accessTokenSignal.set(null);
+    this.accessTokenPayloadSignal.set(null);
+    this.writeAccessToken(null);
+    this.localStorageService.removeItem(this.legacySessionStorageKey);
   }
 
-  private isExpired(expiresAtUtc: string): boolean {
-    const expirationTime = new Date(expiresAtUtc).getTime();
-    return Number.isNaN(expirationTime) || expirationTime <= Date.now();
+  private getAccessTokenFromLocalStorage(): string | null {
+    return this.localStorageService.getItem(this.accessTokenKey);
   }
 
-  private getStorage(): Storage | null {
-    if (!('localStorage' in globalThis)) {
+  private writeAccessToken(accessToken: string | null): void {
+    this.localStorageService.setItem(this.accessTokenKey, accessToken);
+  }
+
+  private migrateLegacySession(): string | null {
+    const legacySession = this.localStorageService.getItemObject<{ accessToken?: string }>(this.legacySessionStorageKey);
+    this.localStorageService.removeItem(this.legacySessionStorageKey);
+
+    if (!legacySession?.accessToken) {
       return null;
     }
 
-    return globalThis.localStorage;
+    this.writeAccessToken(legacySession.accessToken);
+    return legacySession.accessToken;
+  }
+
+  private decodeAccessToken(accessToken: string): AccessTokenPayload | null {
+    try {
+      return jwtDecode<AccessTokenPayload>(accessToken);
+    } catch {
+      return null;
+    }
+  }
+
+  private toCurrentUser(payload: AccessTokenPayload | null): CurrentUser | null {
+    if (!payload) {
+      return null;
+    }
+
+    const id = payload.nameid
+      ?? payload.sub
+      ?? payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+    const email = payload.email
+      ?? payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'];
+    const name = payload.unique_name
+      ?? payload.name
+      ?? payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+
+    if (!id || !email || !name) {
+      return null;
+    }
+
+    return {
+      id,
+      email,
+      name
+    };
+  }
+
+  private isExpired(expirationUnixSeconds: number): boolean {
+    return !Number.isFinite(expirationUnixSeconds) || expirationUnixSeconds <= Math.floor(Date.now() / 1000);
   }
 
   private buildUrl(path: string): string {

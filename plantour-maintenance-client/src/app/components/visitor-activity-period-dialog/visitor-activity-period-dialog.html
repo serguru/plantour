@@ -1,0 +1,31 @@
+<form class="period-dialog" [formGroup]="periodForm" (ngSubmit)="submit()">
+  <div class="period-dialog__header">
+    <div>
+      <p class="period-dialog__eyebrow">Visits period</p>
+      <h2>Edit period</h2>
+    </div>
+
+    <button type="button" class="period-dialog__ghost" brnDialogClose>Cancel</button>
+  </div>
+
+  <div class="period-dialog__fields">
+    <label class="field">
+      <span>From</span>
+      <input type="datetime-local" formControlName="from" />
+    </label>
+
+    <label class="field">
+      <span>To</span>
+      <input type="datetime-local" formControlName="to" />
+    </label>
+  </div>
+
+  @if (periodForm.hasError('invalidRange') && (periodForm.touched || periodForm.dirty)) {
+    <p class="period-dialog__error">The end of the period must be later than or equal to the start.</p>
+  }
+
+  <div class="period-dialog__actions">
+    <button type="button" class="period-dialog__secondary" brnDialogClose>Close</button>
+    <button type="submit" class="period-dialog__primary">Apply period</button>
+  </div>
+</form>

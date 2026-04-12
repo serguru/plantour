@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using plantour_maintenance_server.Middleware;
 using plantour_maintenance_server.Models;
 
@@ -16,14 +15,14 @@ public class CurrentSuperuserAccessor(IHttpContextAccessor httpContextAccessor)
             throw new UnauthorizedException("Sign-in required.", "WRONG_TOKEN");
         }
 
-        var idValue = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        var idValue = principal.FindFirst(MaintenanceClaims.Subject)?.Value;
         if (!Guid.TryParse(idValue, out var id))
         {
             throw new UnauthorizedException("User id claim is missing.", "WRONG_TOKEN");
         }
 
-        var email = principal.FindFirstValue(ClaimTypes.Email);
-        var name = principal.FindFirstValue(ClaimTypes.Name);
+        var email = principal.FindFirst(MaintenanceClaims.Email)?.Value;
+        var name = principal.FindFirst(MaintenanceClaims.Name)?.Value;
 
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(name))
         {

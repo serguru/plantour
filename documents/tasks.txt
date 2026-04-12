@@ -1067,3 +1067,15 @@ Generate a new .Net web API application plantour-maintenance-server and put it t
 
 The password must be hashed. Generate a SQL function which will take a password as an input param and return a hashed password. Put it to DB\Scripts\1 plantour-tables.sql. Put secret and salt to appsettings.json. Generate 3 appjson files similar to plantour-server. That function must be accessible via an endpoint. All the endpoints must by default require the autorized user. No roles. The sign in endpoint must return a JWT token with the expire date set through appsettings.json similar to the existing API. No refresh tokens. 
 
+
+
+    "DefaultConnection": "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=Binary_09;SSL Mode=Disable"
+
+Add another component to the Maintenance app called "Logs".  Add Use TanStack Table Spartan component to provide sorting, filtering, grouping and pagination. 
+
+
+
+
+
+Remove all the optional UI elements from the Landing page. Leave only the toolbar at the top with menus. Store in the local storage and restore open the last open page automatically. If no page stored - open a Dashboard page (create it and leave it blank for now)
+

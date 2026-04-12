@@ -31,7 +31,7 @@
 
 .toolbar {
 	display: grid;
-	grid-template-columns: auto 1fr auto;
+	grid-template-columns: auto 1fr;
 	gap: 1rem;
 	align-items: center;
 	padding: 1rem 1.1rem;
@@ -57,9 +57,7 @@
 	display: block;
 }
 
-.toolbar__brand small,
-.toolbar__user small,
-.toolbar__user-status {
+.toolbar__brand small {
 	color: var(--muted-foreground);
 }
 
@@ -83,8 +81,7 @@
 	flex-wrap: wrap;
 }
 
-.toolbar__nav a,
-.toolbar__cta {
+.toolbar__nav a {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -98,38 +95,9 @@
 }
 
 .toolbar__nav a:hover,
-.toolbar__cta:hover,
 .toolbar__nav a.is-active {
 	background: rgba(34, 83, 58, 0.11);
 	color: var(--brand-green-strong);
-}
-
-.toolbar__cta {
-	background: var(--brand-green);
-	color: #f8f6f1;
-}
-
-.toolbar__cta:hover {
-	background: var(--brand-green-strong);
-	color: #f8f6f1;
-	transform: translateY(-1px);
-}
-
-.toolbar__session {
-	display: flex;
-	justify-content: flex-end;
-}
-
-.toolbar__user {
-	text-align: right;
-}
-
-.toolbar__user-status {
-	display: block;
-	font-size: 0.8rem;
-	font-weight: 700;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
 }
 
 .content-shell {
@@ -142,12 +110,7 @@
 		justify-items: start;
 	}
 
-	.toolbar__nav,
-	.toolbar__session {
+	.toolbar__nav {
 		justify-content: flex-start;
-	}
-
-	.toolbar__user {
-		text-align: left;
 	}
 }
