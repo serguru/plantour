@@ -1396,8 +1396,7 @@ CREATE INDEX IF NOT EXISTS "IX_TimeTickers_ParentId" ON plantour."TimeTickers" (
 create table plantour.superusers (
     id uuid not null primary key default gen_random_uuid(),
     email text not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-    first_name text,
-    last_name text,
+    name text not null unique,
     phone text,
     notes text,
     hashed_password text not null,

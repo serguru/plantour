@@ -1061,8 +1061,9 @@ What options do I have?
 Explore the project's code dealing with Dropbox. The app uses Dropbox to allow users authorize Plantour to access their private images and add references to those images (not images themselves!) to Plantour notes. Once a user clicks a Dropbox Some time ago it w
 
 
-Generate a new .Net web API application and put it to a new plantour-maintenance-server folder, add it to the plantour workspace. This API will work with the same DB that the plantour-server API works and serve for Plantour maintenance. Use the same .Net packages the plantour API uses.
+Generate a new .Net web API application plantour-maintenance-server and put it to a new plantour-maintenance-server folder. Add it to the plantour workspace. This API will work with the same DB that the plantour-server API works and serve for Plantour maintenance. Use the same .Net packages the plantour API uses.
 
-For now do nothing with plantour-superuser-client. See superusers db table. Only implement the necessary API changes like UserController, UserService,  UserRepository, dtos, mapping. Implement a user sign in endpoint. No signup endpoint, the superusers will be added to the db directly. 
+ See superusers db table. Implement the necessary API features like UserController, UserService,  UserRepository, dtos, mapping, etc. Implement a user sign in endpoint. No signup endpoint, the superusers will be added to the db directly. 
 
-The password must be hashed. Generate a SQL function which will take a password as an input param and return a hashed password. Make secret and salt hardcoded. That function must be accessible via an endpoint. All the endpoint must by default require the autorized user.
+The password must be hashed. Generate a SQL function which will take a password as an input param and return a hashed password. Put it to DB\Scripts\1 plantour-tables.sql. Put secret and salt to appsettings.json. Generate 3 appjson files similar to plantour-server. That function must be accessible via an endpoint. All the endpoints must by default require the autorized user. No roles. The sign in endpoint must return a JWT token with the expire date set through appsettings.json similar to the existing API. No refresh tokens. 
+
