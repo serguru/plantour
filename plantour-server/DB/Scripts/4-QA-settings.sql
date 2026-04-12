@@ -1,6 +1,7 @@
 insert into plantour.settings (key, value, value_type)
 values 
     ('user_entities_logging_days', '16', 'integer'),
+    ('plantour_admin_password', 'add one', 'string'),
     ('user_email_confirmation_url', 'https://qa.plantour.app/confirm-email', 'string'),
     ('temporary_user_duration_days', '14', 'integer'),
     ('email_confirmation_token_minutes', '60',  'integer'),

@@ -8,7 +8,47 @@
 		},
 		{
 			"path": "documents"
+		},
+		{
+			"path": "plantour-admin"
 		}
 	],
-	"settings": {}
+	"settings": {},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+					"label": "compile plantour-admin",        
+				"type": "shell",
+				"command": "npm",
+				"args": [
+					"run",
+					"compile"
+				],
+				"options": {
+						"cwd": "${workspaceFolder:plantour-admin}"
+				},
+				"problemMatcher": [
+					"$tsc"
+				]
+			}
+		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+						"name": "Run Plantour Admin Extension",
+				"type": "extensionHost",
+				"request": "launch",
+				"args": [
+							"--extensionDevelopmentPath=${workspaceFolder:plantour-admin}"
+				],
+				"outFiles": [
+							"${workspaceFolder:plantour-admin}/dist/**/*.js"
+				],
+						"preLaunchTask": "compile plantour-admin" 
+			}
+		]
+	}
 }
