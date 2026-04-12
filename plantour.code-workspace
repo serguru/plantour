@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "plantour-maintenance-server"
+		},
+		{
+			"path": "plantour-maintenance-client"
 		}
 	],
 	"settings": {},

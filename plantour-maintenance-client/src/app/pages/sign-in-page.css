@@ -1,0 +1,146 @@
+:host {
+  display: block;
+}
+
+.sign-in-layout {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 28rem);
+  align-items: start;
+}
+
+.sign-in-copy,
+.sign-in-card {
+  border: 1px solid rgba(24, 49, 38, 0.12);
+  border-radius: 1.5rem;
+  background: rgba(255, 252, 246, 0.8);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 18px 45px rgba(30, 41, 59, 0.08);
+}
+
+.sign-in-copy {
+  padding: 2rem;
+}
+
+.sign-in-copy h1,
+.sign-in-copy p,
+.card-heading h2,
+.field span,
+small,
+.error-banner {
+  margin: 0;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--brand-green);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sign-in-copy h1 {
+  max-width: 12ch;
+  font-size: clamp(2.2rem, 4vw, 4.2rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+
+.sign-in-copy p {
+  max-width: 34rem;
+  margin-top: 1rem;
+  color: var(--muted-foreground);
+  font-size: 1.02rem;
+  line-height: 1.7;
+}
+
+.sign-in-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.card-heading a {
+  color: var(--brand-green);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field span {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.field input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid rgba(24, 49, 38, 0.18);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--foreground);
+  font: inherit;
+}
+
+.field input:focus {
+  outline: 2px solid rgba(40, 110, 73, 0.2);
+  outline-offset: 2px;
+  border-color: rgba(40, 110, 73, 0.35);
+}
+
+small {
+  color: #b42318;
+}
+
+.error-banner {
+  padding: 0.8rem 0.95rem;
+  border: 1px solid rgba(180, 35, 24, 0.2);
+  border-radius: 0.95rem;
+  background: rgba(254, 243, 242, 0.95);
+  color: #b42318;
+}
+
+button {
+  min-height: 3rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1f5c41, #244d3a);
+  color: #f8f6f1;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(29, 78, 54, 0.2);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+@media (max-width: 900px) {
+  .sign-in-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sign-in-copy h1 {
+    max-width: none;
+  }
+}

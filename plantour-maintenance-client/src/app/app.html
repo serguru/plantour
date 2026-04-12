@@ -1,0 +1,43 @@
+<div class="app-shell">
+  @if (showNonProductionBanner) {
+    <div class="environment-banner">{{ environmentName }} environment - test data only</div>
+  }
+
+  <header class="toolbar">
+    <a class="toolbar__brand" routerLink="/">
+      <span class="toolbar__mark">PT</span>
+      <span>
+        <strong>{{ title }}</strong>
+        <small>Operations console</small>
+      </span>
+    </a>
+
+    <nav class="toolbar__nav" aria-label="Main navigation">
+      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+
+      @if (!isAuthenticated()) {
+        <a routerLink="/sign-in" routerLinkActive="is-active">Sign in</a>
+      }
+
+      @if (isAuthenticated()) {
+        <a routerLink="/sign-out" routerLinkActive="is-active">Sign out</a>
+      }
+    </nav>
+
+    <div class="toolbar__session">
+      @if (isAuthenticated()) {
+        <div class="toolbar__user">
+          <span class="toolbar__user-status">Authenticated</span>
+          <strong>{{ displayName() }}</strong>
+          <small>{{ currentUser()?.email }}</small>
+        </div>
+      } @else {
+        <a class="toolbar__cta" routerLink="/sign-in">Open access</a>
+      }
+    </div>
+  </header>
+
+  <main class="content-shell">
+    <router-outlet />
+  </main>
+</div>
