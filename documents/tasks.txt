@@ -1061,5 +1061,8 @@ What options do I have?
 Explore the project's code dealing with Dropbox. The app uses Dropbox to allow users authorize Plantour to access their private images and add references to those images (not images themselves!) to Plantour notes. Once a user clicks a Dropbox Some time ago it w
 
 
-Explore the plantour-superuser Angular web app. Like plantour-client this app will work with the plantour-server API but it will be used by the plantour superusers for maintenance. Currently "admin" and participant roles are used to manage access to the API endpoints. Pay attention: customer's "admin" and plantour "superuser" have nothing in common. Add a logic to the API allowing superusers access to any endpoints including protected by "AdminOnly" for example. This logic must be absolutly independent of the customer's admin/participant roles. CurrentUser class should know nothing on superusers. The jwt tokens  must be issued for superusers separately and consumed only by the plantour-superuser client application.
-For now do nothing with plantour-superuser client. Only implement the necessary API chnages.
+Generate a new .Net web API application and put it to a new plantour-maintenance-server folder, add it to the plantour workspace. This API will work with the same DB that the plantour-server API works and serve for Plantour maintenance. Use the same .Net packages the plantour API uses.
+
+For now do nothing with plantour-superuser-client. See superusers db table. Only implement the necessary API changes like UserController, UserService,  UserRepository, dtos, mapping. Implement a user sign in endpoint. No signup endpoint, the superusers will be added to the db directly. 
+
+The password must be hashed. Generate a SQL function which will take a password as an input param and return a hashed password. Make secret and salt hardcoded. That function must be accessible via an endpoint. All the endpoint must by default require the autorized user.
