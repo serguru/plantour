@@ -34,6 +34,8 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     EnvironmentName = rawEnvironmentName
 });
 
+builder.Logging.ClearProviders();
+
 builder.Configuration.Sources.Clear();
 builder.Configuration
     .SetBasePath(builder.Environment.ContentRootPath)

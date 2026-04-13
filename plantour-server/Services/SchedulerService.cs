@@ -153,13 +153,14 @@ public class SchedulerService(
         createdJob.UpdatedAt = DateTime.UtcNow;
         await _timeTickerRepository.UpdateAsync(createdJob);
 
-        _logger.LogInformation(
-            "Downgrade plan job scheduled. JobId: {JobId}, UserId: {UserId}, OldPlanPrice: {OldPlanPrice}, NewPlanPrice: {NewPlanPrice}, ExecutionTimeUtc: {ExecutionTimeUtc}",
-            addResult.Result.Id,
-            userId,
-            oldPlanPrice,
-            newPlanPrice,
-            executionTime);
+        // TODO LOG
+        // _logger.LogInformation(
+        //     "Downgrade plan job scheduled. JobId: {JobId}, UserId: {UserId}, OldPlanPrice: {OldPlanPrice}, NewPlanPrice: {NewPlanPrice}, ExecutionTimeUtc: {ExecutionTimeUtc}",
+        //     addResult.Result.Id,
+        //     userId,
+        //     oldPlanPrice,
+        //     newPlanPrice,
+        //     executionTime);
     }
 
 

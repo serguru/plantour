@@ -50,9 +50,10 @@ public sealed class FatalExceptionNotificationService : IHostedService, IDisposa
         var exception = args.ExceptionObject as Exception
             ?? new Exception($"Unhandled non-Exception object caused process termination: {args.ExceptionObject}");
 
-        _logger.LogCritical(
-            exception,
-            "Fatal unhandled exception is terminating the Plantour API process");
+        // TODO LOG
+        // _logger.LogCritical(
+        //     exception,
+        //     "Fatal unhandled exception is terminating the Plantour API process");
 
         if (Interlocked.Exchange(ref _notificationSent, 1) == 1)
         {
@@ -95,9 +96,10 @@ public sealed class FatalExceptionNotificationService : IHostedService, IDisposa
                 .GetAwaiter()
                 .GetResult();
         }
-        catch (Exception emailException)
+        catch (Exception)
         {
-            _logger.LogError(emailException, "Failed to send fatal exception email notification");
+            // TODO LOG
+            // _logger.LogError(emailException, "Failed to send fatal exception email notification");
         }
     }
 }

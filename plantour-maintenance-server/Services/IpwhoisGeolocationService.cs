@@ -8,14 +8,12 @@ namespace plantour_maintenance_server.Services;
 
 public sealed class IpwhoisGeolocationService(
     HttpClient httpClient,
-    IMemoryCache memoryCache,
-    ILogger<IpwhoisGeolocationService> logger) : IIpGeolocationService
+    IMemoryCache memoryCache) : IIpGeolocationService
 {
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(12);
 
     private readonly HttpClient _httpClient = httpClient;
     private readonly IMemoryCache _memoryCache = memoryCache;
-    private readonly ILogger<IpwhoisGeolocationService> _logger = logger;
 
     public async Task<IReadOnlyDictionary<string, IpGeolocationResult>> GetByIpAddressesAsync(
         IReadOnlyCollection<string> ipAddresses,
@@ -49,7 +47,8 @@ public sealed class IpwhoisGeolocationService(
             using var response = await _httpClient.GetAsync(ipAddress, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("ipwho.is lookup failed for {IpAddress} with status {StatusCode}", ipAddress, response.StatusCode);
+                // TODO LOG
+                // _logger.LogWarning("ipwho.is lookup failed for {IpAddress} with status {StatusCode}", ipAddress, response.StatusCode);
                 return Cache(cacheKey, new IpGeolocationResult());
             }
 
@@ -65,9 +64,10 @@ public sealed class IpwhoisGeolocationService(
                 City = payload.City
             });
         }
-        catch (Exception exception)
+        catch (Exception)
         {
-            _logger.LogWarning(exception, "ipwho.is lookup threw for {IpAddress}", ipAddress);
+            // TODO LOG
+            // _logger.LogWarning(exception, "ipwho.is lookup threw for {IpAddress}", ipAddress);
             return Cache(cacheKey, new IpGeolocationResult());
         }
     }

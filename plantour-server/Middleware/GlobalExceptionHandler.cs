@@ -2,111 +2,61 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using PlantourApi.Middleware;
-using Serilog;
-using Serilog.Context;
 using System.Net.Mime;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
-    private readonly ILogger<GlobalExceptionHandler> _logger;
-
-    public GlobalExceptionHandler(
-        ILogger<GlobalExceptionHandler> logger)
-    {
-        _logger = logger;
-    }
-
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
         Exception exception,
         CancellationToken cancellationToken)
     {
-        // Extract request information for contextual logging
         var requestMethod = httpContext.Request.Method;
         var requestPath = httpContext.Request.Path.Value;
-        var requestQueryString = httpContext.Request.QueryString.Value;
-        var remoteIpAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
-        var userId = httpContext.User?.FindFirst("sub")?.Value ?? httpContext.User?.FindFirst("email")?.Value ?? "Anonymous";
-        var userRole = httpContext.User?.FindFirst("role")?.Value ?? "Unknown";
+        int statusCode;
+        string code;
+        string? message = null;
 
-        // Add context information to log scope
-        using (LogContext.PushProperty("RequestMethod", requestMethod))
-        using (LogContext.PushProperty("RequestPath", requestPath))
-        using (LogContext.PushProperty("QueryString", requestQueryString))
-        using (LogContext.PushProperty("RemoteIpAddress", remoteIpAddress))
-        using (LogContext.PushProperty("UserId", userId))
-        using (LogContext.PushProperty("UserRole", userRole))
+        if (exception is BaseApiException baseApiException)
         {
-            int statusCode;
-            string code;
-            string? message = null;
-
-            if (exception is BaseApiException baseApiException)
-            {
-                statusCode = baseApiException.StatusCode;
-                code = baseApiException.Code ?? "BASE_API_EXCEPTION";
-
-                // Log business exceptions with appropriate log level
-                if (statusCode >= 500)
-                {
-                    _logger.LogError(exception,
-                        "Business exception (HTTP {StatusCode}): {ExceptionCode}. Request: {Method} {Path}. User: {UserId}",
-                        statusCode, code, requestMethod, requestPath, userId);
-                }
-                else
-                {
-                    _logger.LogWarning(exception,
-                        "Business exception (HTTP {StatusCode}): {ExceptionCode}. Request: {Method} {Path}. User: {UserId}",
-                        statusCode, code, requestMethod, requestPath, userId);
-                }
-
-            }
-            else if (exception is DbUpdateException)
-            {
-                statusCode = StatusCodes.Status500InternalServerError;
-                code = "DB_ERROR";
-                var m = ((DbUpdateException)exception).InnerException?.Data?["MessageText"]?.ToString();
-
-                if (!String.IsNullOrWhiteSpace(m))
-                {
-                    message = m;
-                }
-
-                _logger.LogError(exception,
-                    "DB exception {message} (HTTP {StatusCode}): {ExceptionCode}. Request: {Method} {Path}. User: {UserId}", message,
-                    statusCode, code, requestMethod, requestPath, userId);
-            }
-            else
-            {
-                statusCode = StatusCodes.Status500InternalServerError;
-                code = "INTERNAL_SERVER_ERROR";
-
-                // Log unhandled exceptions as errors
-                _logger.LogError(exception,
-                    "Unhandled exception: {Message}. Request: {Method} {Path}. User: {UserId} ({UserRole}) from {IpAddress}",
-                    exception.Message, requestMethod, requestPath, userId, userRole, remoteIpAddress);
-
-                // Log additional details for debugging
-                _logger.LogError("Exception Type: {ExceptionType}, Stack Trace: {StackTrace}",
-                    exception.GetType().FullName, exception.StackTrace);
-            }
-            var response = new ApiErrorResponse
-            {
-                StatusCode = statusCode,
-                Message = String.IsNullOrWhiteSpace(message) ? exception.Message : message,
-                Code = code,
-                Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}",
-                IsCustom = exception is BaseApiException || exception is DbUpdateException
-            };
-
-            httpContext.Response.StatusCode = statusCode;
-            httpContext.Response.ContentType = MediaTypeNames.Application.Json;
-
-            await httpContext.Response.WriteAsJsonAsync(response, cancellationToken);
-
-            return true;
+            statusCode = baseApiException.StatusCode;
+            code = baseApiException.Code ?? "BASE_API_EXCEPTION";
         }
+        else if (exception is DbUpdateException dbUpdateException)
+        {
+            statusCode = StatusCodes.Status500InternalServerError;
+            code = "DB_ERROR";
+            var dbMessage = dbUpdateException.InnerException?.Data?["MessageText"]?.ToString();
+
+            if (!string.IsNullOrWhiteSpace(dbMessage))
+            {
+                message = dbMessage;
+            }
+        }
+        else
+        {
+            statusCode = StatusCodes.Status500InternalServerError;
+            code = "INTERNAL_SERVER_ERROR";
+        }
+
+        // TODO LOG
+        // Log exception details here if application logging is re-enabled.
+
+        var response = new ApiErrorResponse
+        {
+            StatusCode = statusCode,
+            Message = string.IsNullOrWhiteSpace(message) ? exception.Message : message,
+            Code = code,
+            Instance = $"{requestMethod} {requestPath}",
+            IsCustom = exception is BaseApiException || exception is DbUpdateException
+        };
+
+        httpContext.Response.StatusCode = statusCode;
+        httpContext.Response.ContentType = MediaTypeNames.Application.Json;
+
+        await httpContext.Response.WriteAsJsonAsync(response, cancellationToken);
+
+        return true;
     }
 }

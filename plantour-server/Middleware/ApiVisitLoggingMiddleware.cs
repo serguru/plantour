@@ -113,9 +113,10 @@ public class ApiVisitLoggingMiddleware
 
             MarkVisitRecordedToday(memoryCache, remoteIpAddress, currentUser, visitRecordedAtUtc);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, "Failed to store api visit");
+            // TODO LOG
+            // _logger.LogError(ex, "Failed to store api visit");
         }
     }
 

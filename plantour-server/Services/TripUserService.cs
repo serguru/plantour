@@ -402,13 +402,14 @@ public class TripUserService(
                     trip.Name,
                     $"{baseUrl}/trips/{trip.Id}"));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _logger.LogWarning(
-                    ex,
-                    "Failed to send trip participant invitation email for trip {TripId} and adminParticipant {AdminParticipantId}",
-                    tripId,
-                    participant.Id);
+                // TODO LOG
+                // _logger.LogWarning(
+                //     ex,
+                //     "Failed to send trip participant invitation email for trip {TripId} and adminParticipant {AdminParticipantId}",
+                //     tripId,
+                //     participant.Id);
             }
         }
     }
@@ -451,9 +452,10 @@ public class TripUserService(
                 entity.AssignedDeadline,
                 $"{baseUrl}/trips/{entity.TripId}/trip-participants"));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogWarning(ex, "Failed to send expense assignment notification email for trip {TripId} and trip user {TripUserId}", entity.TripId, entity.Id);
+            // TODO LOG
+            // _logger.LogWarning(ex, "Failed to send expense assignment notification email for trip {TripId} and trip user {TripUserId}", entity.TripId, entity.Id);
         }
     }
 
@@ -498,9 +500,10 @@ public class TripUserService(
                 "refused",
                 $"{baseUrl}/trips/{entity.TripId}/trip-participants"));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogWarning(ex, "Failed to send admin expense rejection email for trip {TripId} and trip user {TripUserId}", entity.TripId, entity.Id);
+            // TODO LOG
+            // _logger.LogWarning(ex, "Failed to send admin expense rejection email for trip {TripId} and trip user {TripUserId}", entity.TripId, entity.Id);
         }
     }
 

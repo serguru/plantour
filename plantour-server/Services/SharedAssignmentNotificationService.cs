@@ -53,9 +53,10 @@ public class SharedAssignmentNotificationService(
                     change.DeadlineAt,
                     pageUrl));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _logger.LogWarning(ex, "Failed to send participant assignment notification email for trip {TripId}", tripId);
+                // TODO LOG
+                // _logger.LogWarning(ex, "Failed to send participant assignment notification email for trip {TripId}", tripId);
             }
         }
     }
@@ -92,9 +93,10 @@ public class SharedAssignmentNotificationService(
                 actionLabel,
                 pageUrl));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogWarning(ex, "Failed to send admin participant action notification email for trip {TripId}", tripId);
+            // TODO LOG
+            // _logger.LogWarning(ex, "Failed to send admin participant action notification email for trip {TripId}", tripId);
         }
     }
 

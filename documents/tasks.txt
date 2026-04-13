@@ -1087,4 +1087,13 @@ Identify their customers with Plantour users by email. Provide columns: Id (from
 Take into account not all Plantour users has the corresponding Paddle user.
 
 
+Logging requirements
+
+- id
+- message date
+- current user id 
+- type: info, warning, exception
+- message
+- json
+
 

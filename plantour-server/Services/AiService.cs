@@ -12,7 +12,6 @@ using plantour_server.DTOs;
 using plantour_server.Models;
 using plantour_server.Repositories;
 using plantour_server.Services.Interfaces;
-using plantour_server.Utils.Logging;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 

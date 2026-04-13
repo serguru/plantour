@@ -105,7 +105,8 @@ public class TripService(
         DateTime now = DateTime.UtcNow;
         if (dates != null && dates.Start <= now && now <= dates.End)
         {
-            _logger.LogInformation("User added a new trip id = {tripId}, name = {name}, event_type: {event_type}, subtype: {subtype}", trip.Id, trip.Name, "user_log_entities", "trip_added");
+            // TODO LOG
+            // _logger.LogInformation("User added a new trip id = {tripId}, name = {name}, event_type: {event_type}, subtype: {subtype}", trip.Id, trip.Name, "user_log_entities", "trip_added");
         }
         return tripDto;
     }
@@ -152,7 +153,8 @@ public class TripService(
 
         if (logNeeded)
         {
-            _logger.LogInformation("User deleted a trip id = {tripId}, name = {name}, event_type: {event_type}, subtype: {subtype}", trip!.Id, trip.Name, "user_log_entities", "trip_deleted");
+            // TODO LOG
+            // _logger.LogInformation("User deleted a trip id = {tripId}, name = {name}, event_type: {event_type}, subtype: {subtype}", trip!.Id, trip.Name, "user_log_entities", "trip_deleted");
         }
     }
 

@@ -4,15 +4,12 @@ using plantour_maintenance_server.Models;
 
 namespace plantour_maintenance_server.Middleware;
 
-public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
+public class GlobalExceptionHandler : IExceptionHandler
 {
-    private readonly ILogger<GlobalExceptionHandler> _logger = logger;
-
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
         var requestMethod = httpContext.Request.Method;
         var requestPath = httpContext.Request.Path.Value;
-        var userId = httpContext.User?.FindFirst(MaintenanceClaims.Subject)?.Value ?? "Anonymous";
 
         var (statusCode, code, message, isCustom) = exception switch
         {
@@ -21,14 +18,8 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             _ => (StatusCodes.Status500InternalServerError, "INTERNAL_SERVER_ERROR", exception.Message, false)
         };
 
-        if (statusCode >= 500)
-        {
-            _logger.LogError(exception, "Maintenance API exception {Code} on {Method} {Path} for {UserId}", code, requestMethod, requestPath, userId);
-        }
-        else
-        {
-            _logger.LogWarning(exception, "Maintenance API exception {Code} on {Method} {Path} for {UserId}", code, requestMethod, requestPath, userId);
-        }
+        // TODO LOG
+        // Log exception details here if application logging is re-enabled.
 
         httpContext.Response.StatusCode = statusCode;
         httpContext.Response.ContentType = "application/json";
