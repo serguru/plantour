@@ -71,6 +71,10 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 });
 
 builder.Logging.ClearProviders();
+builder.Logging.AddFilter("TickerQ", LogLevel.Warning);
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+builder.Logging.AddFilter("Npgsql", LogLevel.Warning);
 
 builder.Services.Configure<PlantourLoggerOptions>(
     builder.Configuration.GetSection(PlantourLoggerOptions.SectionName));
