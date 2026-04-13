@@ -2,6 +2,7 @@ using System.Globalization;
 using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
+using plantour_server.Logging;
 using plantour_server.Repositories;
 using plantour_server.Services.Interfaces;
 using plantour_server.Utils;
@@ -22,7 +23,7 @@ public class TripUserService(
     HttpCurrentUser httpCurrentUser,
     IEmailService emailService,
     SettingsRepository settingsRepository,
-    ILogger<TripUserService> logger) : ITripUserService
+    IPlantourLogger<TripUserService> logger) : ITripUserService
 {
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
     private readonly TripSharedExpenseRepository _tripSharedExpenseRepository = tripSharedExpenseRepository;
@@ -34,7 +35,7 @@ public class TripUserService(
     private readonly TripRepository _tripRepository = tripRepository;
     private readonly IEmailService _emailService = emailService;
     private readonly SettingsRepository _settingsRepository = settingsRepository;
-    private readonly ILogger<TripUserService> _logger = logger;
+    private readonly IPlantourLogger<TripUserService> _logger = logger;
 
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 

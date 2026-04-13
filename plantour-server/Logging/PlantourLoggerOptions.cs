@@ -12,7 +12,6 @@ public sealed class PlantourLoggerOptions
     public int BatchSize { get; set; } = 50;
     public int FlushIntervalMilliseconds { get; set; } = 2000;
     public bool ConsoleFallbackEnabled { get; set; } = true;
-    public string[] CategoryPrefixes { get; set; } = ["plantour_server", "PlantourApi"];
 }
 
 public static class PlantourLogSinks
