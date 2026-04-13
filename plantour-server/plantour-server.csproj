@@ -10,7 +10,7 @@
     <RootNamespace>plantour_server</RootNamespace>
     <UserSecretsId>6dd7d231-a09b-451f-a18c-fd0b985ecd6b</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>.</DockerfileContext>
+    <DockerfileContext>..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
