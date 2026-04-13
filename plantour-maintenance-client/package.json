@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --open --port 4204",
-    "serve:qa": "ng serve --configuration qa --port 4204",
+    "start": "ng serve --open --port 4205",
+    "serve:qa": "ng serve --configuration qa --port 4205",
     "build": "ng build",
     "build:local-iis": "ng build --configuration local-iis",
     "build:qa": "ng build --configuration qa",

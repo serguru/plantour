@@ -18,12 +18,14 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.HttpOverrides;
 using plantour_server.Utils;
+using plantour_server.Logging;
 using TickerQ.DependencyInjection;
 using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
 using plantour_server.Services.TickerQ;
 using Npgsql;
 using System.Threading.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -70,6 +72,13 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 });
 
 builder.Logging.ClearProviders();
+builder.Logging.SetMinimumLevel(LogLevel.Information);
+
+builder.Services.Configure<PlantourLoggerOptions>(
+    builder.Configuration.GetSection(PlantourLoggerOptions.SectionName));
+builder.Services.AddSingleton<PlantourLogQueue>();
+builder.Services.AddHostedService<PlantourLogWorker>();
+builder.Services.AddSingleton<ILoggerProvider, PlantourLoggerProvider>();
 
 var env = builder.Environment;
 
@@ -147,6 +156,7 @@ dataSourceBuilder.ConnectionStringBuilder.Timezone = "UTC";
 
 // 2. Build the DataSource
 var dataSource = dataSourceBuilder.Build();
+builder.Services.AddSingleton(dataSource);
 
 // Configure PostgreSQL connection
 // builder.Services.AddDbContext<PlantourContext>(options =>

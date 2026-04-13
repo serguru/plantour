@@ -39,44 +39,44 @@ export class LogsPage implements OnInit {
   private readonly logsService = inject(LogsService);
   private readonly columns: ColumnDef<LogRowDto>[] = [
     {
-      id: 'timeStamp',
-      accessorKey: 'timeStamp',
+      id: 'createdAt',
+      accessorKey: 'createdAt',
       header: 'Time',
       cell: (context) => formatTimestamp(context.getValue<string>()),
       enableGrouping: false,
     },
     {
-      id: 'level',
-      accessorFn: (row) => row.level?.trim() || 'Unknown',
-      header: 'Level',
+      id: 'severity',
+      accessorFn: (row) => formatSeverity(row.severity),
+      header: 'Severity',
       cell: (context) => context.getValue<string>(),
       enableGrouping: true,
     },
     {
-      id: 'eventType',
-      accessorFn: (row) => row.eventType?.trim() || 'Unknown',
-      header: 'Event type',
+      id: 'category',
+      accessorFn: (row) => row.category.trim() || 'Unknown',
+      header: 'Category',
       cell: (context) => context.getValue<string>(),
       enableGrouping: true,
     },
     {
-      id: 'subtype',
-      accessorFn: (row) => row.subtype?.trim() || 'Unknown',
-      header: 'Subtype',
-      cell: (context) => context.getValue<string>(),
-      enableGrouping: true,
-    },
-    {
-      id: 'messageTemplate',
-      accessorFn: (row) => row.messageTemplate?.trim() || '-',
+      id: 'message',
+      accessorFn: (row) => row.message.trim() || '-',
       header: 'Message',
       cell: (context) => context.getValue<string>(),
       enableGrouping: false,
     },
     {
-      id: 'exception',
-      accessorFn: (row) => toSingleLine(row.exception),
-      header: 'Exception',
+      id: 'userId',
+      accessorFn: (row) => row.userId?.trim() || '-',
+      header: 'User',
+      cell: (context) => context.getValue<string>(),
+      enableGrouping: false,
+    },
+    {
+      id: 'properties',
+      accessorFn: (row) => formatProperties(row.properties),
+      header: 'Properties',
       cell: (context) => context.getValue<string>(),
       enableGrouping: false,
     },
@@ -87,7 +87,7 @@ export class LogsPage implements OnInit {
   protected readonly rows = signal<LogRowDto[]>([]);
   protected readonly period = signal<VisitorActivityPeriod | null>(null);
   protected readonly filterQuery = signal('');
-  protected readonly sorting = signal<SortingState>([{ id: 'timeStamp', desc: true }]);
+  protected readonly sorting = signal<SortingState>([{ id: 'createdAt', desc: true }]);
   protected readonly grouping = signal<GroupingState>([]);
   protected readonly pagination = signal<PaginationState>({ pageIndex: 0, pageSize: 20 });
   protected readonly availablePageSizes = [10, 20, 50, 100];
@@ -95,19 +95,18 @@ export class LogsPage implements OnInit {
   protected readonly groupingId = 'logs-grouping';
   protected readonly filterLabel = 'Filter';
   protected readonly groupingLabel = 'Group';
-  protected readonly filterPlaceholder = 'Filter by time, level, type, message or exception';
+  protected readonly filterPlaceholder = 'Filter by time, severity, category, message, user or properties';
   protected readonly groupingOptions: readonly DataTableTopPanelGroupingOption[] = [
     { value: 'none', label: 'No grouping' },
-    { value: 'level', label: 'Level' },
-    { value: 'eventType', label: 'Event type' },
-    { value: 'subtype', label: 'Subtype' },
+    { value: 'severity', label: 'Severity' },
+    { value: 'category', label: 'Category' },
   ];
   protected readonly periodLabel = computed(() => formatLogsPeriod(this.period()));
   protected readonly durationLabel = computed(() => formatLogsDuration(this.period()));
   protected readonly groupingValue = computed<GroupColumn>(() => {
     const currentGrouping = this.grouping()[0];
 
-    if (currentGrouping === 'level' || currentGrouping === 'eventType' || currentGrouping === 'subtype') {
+    if (currentGrouping === 'severity' || currentGrouping === 'category') {
       return currentGrouping;
     }
 
@@ -184,8 +183,8 @@ export class LogsPage implements OnInit {
 
     this.filterQuery.set(state.filterValue);
     this.period.set(nextPeriod);
-    this.grouping.set(normalizeGrouping(state.groupingValue, ['level', 'eventType', 'subtype']));
-    this.sorting.set(normalizeSorting(state.sorting, ['timeStamp', 'level', 'eventType', 'subtype', 'messageTemplate', 'exception'], [{ id: 'timeStamp', desc: true }]));
+    this.grouping.set(normalizeGrouping(state.groupingValue, ['severity', 'category']));
+    this.sorting.set(normalizeSorting(state.sorting, ['createdAt', 'severity', 'category', 'message', 'userId', 'properties'], [{ id: 'createdAt', desc: true }]));
     this.table.firstPage();
 
     if (periodChanged) {
@@ -342,7 +341,7 @@ function toSingleLine(value: string | null | undefined): string {
   return normalized || '-';
 }
 
-type GroupColumn = 'level' | 'eventType' | 'subtype' | 'none';
+type GroupColumn = 'severity' | 'category' | 'none';
 
 const logsGlobalFilter: FilterFn<LogRowDto> = (row, _columnId, filterValue) => {
   const normalizedQuery = normalizeValue(String(filterValue ?? ''));
@@ -352,12 +351,12 @@ const logsGlobalFilter: FilterFn<LogRowDto> = (row, _columnId, filterValue) => {
   }
 
   const haystack = [
-    formatTimestamp(row.original.timeStamp),
-    row.original.level ?? '',
-    row.original.eventType ?? '',
-    row.original.subtype ?? '',
-    row.original.messageTemplate ?? '',
-    row.original.exception ?? ''
+    formatTimestamp(row.original.createdAt),
+    formatSeverity(row.original.severity),
+    row.original.category ?? '',
+    row.original.message ?? '',
+    row.original.userId ?? '',
+    formatProperties(row.original.properties)
   ]
     .map(normalizeValue)
     .join(' ');
@@ -367,6 +366,14 @@ const logsGlobalFilter: FilterFn<LogRowDto> = (row, _columnId, filterValue) => {
 
 function normalizeValue(value: string): string {
   return value.trim().toLocaleLowerCase();
+}
+
+function formatSeverity(value: string): string {
+  return value === 'i' ? 'Info' : value === 'w' ? 'Warning' : value === 'e' ? 'Error' : value;
+}
+
+function formatProperties(value: string | null | undefined): string {
+  return toSingleLine(value);
 }
 
 function applyUpdater<T>(updater: Updater<T>, currentValue: T): T {

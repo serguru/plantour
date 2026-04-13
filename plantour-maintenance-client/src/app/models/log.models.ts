@@ -1,9 +1,9 @@
 export interface LogRowDto {
-  id: number;
-  timeStamp: string;
-  level?: string | null;
-  eventType?: string | null;
-  subtype?: string | null;
-  messageTemplate?: string | null;
-  exception?: string | null;
+  id: string;
+  createdAt: string;
+  severity: string;
+  category: string;
+  message: string;
+  userId?: string | null;
+  properties: string;
 }

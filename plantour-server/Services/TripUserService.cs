@@ -104,6 +104,8 @@ public class TripUserService(
             throw new CustomException("User does not have access to this trip");
         }
 
+        _logger.LogInformation("The trip's users requested {tripId}", tripId);
+
         var entities = await _tripUserRepository.GetAllAsync(_currentUser.AdminId, tripId);
 
         var dtos = _mapper.Map<IEnumerable<TripUserDto>>(entities);
