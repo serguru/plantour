@@ -6,6 +6,7 @@
     "start": "ng serve --open --port 4204",
     "serve:qa": "ng serve --configuration qa --port 4204",
     "build": "ng build",
+    "build:local-iis": "ng build --configuration local-iis",
     "build:qa": "ng build --configuration qa",
     "build:production": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",

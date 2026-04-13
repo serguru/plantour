@@ -1,5 +1,5 @@
 export const environment = {
-  environment: 'production',
+  environment: 'local-iis',
   api: {
     baseUrl: 'http://localhost:5099'
   },

@@ -5,6 +5,8 @@
 
   <app-data-table-top-panel
     [isLoading]="isLoading()"
+    [storageKey]="topPanelStorageKey"
+    [periodState]="period()"
     [periodLabel]="periodLabel()"
     [durationLabel]="durationLabel()"
     [filterId]="filterId"
@@ -15,7 +17,9 @@
     [groupingLabel]="groupingLabel"
     [groupingValue]="groupingValue()"
     [groupingOptions]="groupingOptions"
+    [sortingState]="sorting()"
     (periodClick)="openPeriodDialog()"
+    (stateRestore)="restoreTopPanelState($event)"
     (filterChange)="updateFilter($event)"
     (groupingChange)="updateGrouping($event)"
   />

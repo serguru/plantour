@@ -1,8 +1,8 @@
 <form class="period-dialog" [formGroup]="periodForm" (ngSubmit)="submit()">
   <div class="period-dialog__header">
     <div>
-      <p class="period-dialog__eyebrow">Visits period</p>
-      <h2>Edit period</h2>
+      <p class="period-dialog__eyebrow">{{ eyebrow }}</p>
+      <h2>{{ title }}</h2>
     </div>
 
     <button type="button" class="period-dialog__ghost" brnDialogClose>Cancel</button>
@@ -25,7 +25,10 @@
   }
 
   <div class="period-dialog__actions">
+    @if (allowClear) {
+      <button type="button" class="period-dialog__secondary" (click)="clear()">Clear period</button>
+    }
     <button type="button" class="period-dialog__secondary" brnDialogClose>Close</button>
-    <button type="submit" class="period-dialog__primary">Apply period</button>
+    <button type="submit" class="period-dialog__primary">{{ applyLabel }}</button>
   </div>
 </form>

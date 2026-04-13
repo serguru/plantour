@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
@@ -152,7 +152,13 @@ export class UsersService {
   }
 
   getErrorMessage(error: unknown): string {
+    const httpError = error as HttpErrorResponse;
     const apiError = error as { error?: ApiErrorResponse };
+
+    if (httpError.status === 0 || httpError.status === 502 || httpError.status === 503 || httpError.status === 504) {
+      return 'System error: the maintenance API is unavailable. Make sure the API is running and try again.';
+    }
+
     return apiError.error?.message ?? 'The request failed. Please try again.';
   }
 }

@@ -1,5 +1,4 @@
 using plantour_maintenance_server.DTOs;
-using plantour_maintenance_server.Middleware;
 using plantour_maintenance_server.Repositories;
 using plantour_maintenance_server.Services.Interfaces;
 
@@ -13,15 +12,10 @@ public sealed class VisitorActivityService(
     private readonly IIpGeolocationService _ipGeolocationService = ipGeolocationService;
 
     public async Task<IReadOnlyList<VisitorActivityRowDto>> GetAsync(
-        DateTimeOffset from,
-        DateTimeOffset to,
+        DateTimeOffset? from = null,
+        DateTimeOffset? to = null,
         CancellationToken cancellationToken = default)
     {
-        if (from > to)
-        {
-            throw new BadRequestException("The from datetime must be earlier than or equal to the to datetime.", "INVALID_DATE_RANGE");
-        }
-
         var groupedVisits = await _apiVisitRepository.GetGroupedByDayAndIpAsync(from, to, cancellationToken);
         var ipAddresses = groupedVisits
             .Select(visit => visit.IpAddress.ToString())

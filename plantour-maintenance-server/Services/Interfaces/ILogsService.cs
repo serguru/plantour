@@ -4,5 +4,8 @@ namespace plantour_maintenance_server.Services.Interfaces;
 
 public interface ILogsService
 {
-    Task<IReadOnlyList<LogRowDto>> GetAsync(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<LogRowDto>> GetAsync(
+        DateTimeOffset? from = null,
+        DateTimeOffset? to = null,
+        CancellationToken cancellationToken = default);
 }

@@ -1,13 +1,17 @@
 <section class="activity-top-panel">
   <div class="activity-top-panel__labels">
-    <button
-      type="button"
-      class="activity-period-link"
-      [disabled]="isLoading()"
-      (click)="onPeriodClick()"
-    >
-      {{ isLoading() ? 'Loading period...' : 'Selected period' }}
-    </button>
+    @if (showPeriodSelector()) {
+      <button
+        type="button"
+        class="activity-period-link"
+        [disabled]="isLoading()"
+        (click)="onPeriodClick()"
+      >
+        {{ isLoading() ? 'Loading period...' : periodActionLabel() }}
+      </button>
+    } @else {
+      <span class="activity-period-label">{{ periodActionLabel() }}</span>
+    }
     <label [for]="filterId()" class="control-label">{{ filterLabel() }}</label>
     <label [for]="groupingId()" class="control-label">{{ groupingLabel() }}</label>
   </div>
@@ -16,9 +20,11 @@
     <div class="activity-period-control">
       <div class="activity-period-control__summary">
         <h1>{{ periodLabel() }}</h1>
-        <p class="activity-period__meta">
-          <span class="activity-period__duration">{{ durationLabel() }}</span>
-        </p>
+        @if (durationLabel()) {
+          <p class="activity-period__meta">
+            <span class="activity-period__duration">{{ durationLabel() }}</span>
+          </p>
+        }
       </div>
     </div>
 

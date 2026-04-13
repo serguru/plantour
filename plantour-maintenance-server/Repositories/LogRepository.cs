@@ -8,16 +8,22 @@ public sealed class LogRepository(PlantourContext context)
     private readonly PlantourContext _context = context;
 
     public async Task<IReadOnlyList<LogRecord>> GetAsync(
-        DateTimeOffset from,
-        DateTimeOffset to,
+        DateTimeOffset? from = null,
+        DateTimeOffset? to = null,
         CancellationToken cancellationToken = default)
     {
-        var fromUtc = from.UtcDateTime;
-        var toInclusiveUtc = to.UtcDateTime;
-
-        return await _context.Logs
+        var logsQuery = _context.Logs
             .AsNoTracking()
-            .Where(log => log.TimeStamp >= fromUtc && log.TimeStamp <= toInclusiveUtc)
+            .AsQueryable();
+
+        if (from.HasValue && to.HasValue)
+        {
+            var fromUtc = from.Value.UtcDateTime;
+            var toInclusiveUtc = to.Value.UtcDateTime;
+            logsQuery = logsQuery.Where(log => log.TimeStamp >= fromUtc && log.TimeStamp <= toInclusiveUtc);
+        }
+
+        return await logsQuery
             .OrderByDescending(log => log.TimeStamp)
             .ThenByDescending(log => log.Id)
             .Select(log => new LogRecord(

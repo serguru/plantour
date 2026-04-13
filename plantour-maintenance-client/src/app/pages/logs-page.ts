@@ -22,7 +22,7 @@ import { ApiErrorResponse } from '../models/auth.models';
 import { LogRowDto } from '../models/log.models';
 import { VisitorActivityPeriod } from '../models/visitor-activity-period.models';
 import { HlmTable, HlmTableContainer, HlmTBody, HlmTd, HlmTh, HlmTHead, HlmTr } from '../ui/table/src/lib/hlm-table';
-import { DataTableTopPanelComponent, DataTableTopPanelGroupingOption } from '../components/data-table-top-panel/data-table-top-panel';
+import { DataTableTopPanelComponent, DataTableTopPanelGroupingOption, DataTableTopPanelStoredState } from '../components/data-table-top-panel/data-table-top-panel';
 import { VisitorActivityPeriodDialogComponent } from '../components/visitor-activity-period-dialog/visitor-activity-period-dialog';
 import { LogsService } from '../services/logs-service';
 
@@ -34,6 +34,7 @@ import { LogsService } from '../services/logs-service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LogsPage implements OnInit {
+  protected readonly topPanelStorageKey = 'plantour-maintenance.top-panel.logs';
   private readonly dialogService = inject(BrnDialogService);
   private readonly logsService = inject(LogsService);
   private readonly columns: ColumnDef<LogRowDto>[] = [
@@ -84,7 +85,7 @@ export class LogsPage implements OnInit {
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly rows = signal<LogRowDto[]>([]);
-  protected readonly period = signal<VisitorActivityPeriod>(getDefaultPeriod());
+  protected readonly period = signal<VisitorActivityPeriod | null>(null);
   protected readonly filterQuery = signal('');
   protected readonly sorting = signal<SortingState>([{ id: 'timeStamp', desc: true }]);
   protected readonly grouping = signal<GroupingState>([]);
@@ -92,8 +93,8 @@ export class LogsPage implements OnInit {
   protected readonly availablePageSizes = [10, 20, 50, 100];
   protected readonly filterId = 'logs-filter';
   protected readonly groupingId = 'logs-grouping';
-  protected readonly filterLabel = 'Filter rows';
-  protected readonly groupingLabel = 'Group rows';
+  protected readonly filterLabel = 'Filter';
+  protected readonly groupingLabel = 'Group';
   protected readonly filterPlaceholder = 'Filter by time, level, type, message or exception';
   protected readonly groupingOptions: readonly DataTableTopPanelGroupingOption[] = [
     { value: 'none', label: 'No grouping' },
@@ -101,8 +102,8 @@ export class LogsPage implements OnInit {
     { value: 'eventType', label: 'Event type' },
     { value: 'subtype', label: 'Subtype' },
   ];
-  protected readonly periodLabel = computed(() => formatPeriod(this.period()));
-  protected readonly durationLabel = computed(() => formatDuration(this.period()));
+  protected readonly periodLabel = computed(() => formatLogsPeriod(this.period()));
+  protected readonly durationLabel = computed(() => formatLogsDuration(this.period()));
   protected readonly groupingValue = computed<GroupColumn>(() => {
     const currentGrouping = this.grouping()[0];
 
@@ -153,7 +154,13 @@ export class LogsPage implements OnInit {
     const dialogRef = this.dialogService.open(
       VisitorActivityPeriodDialogComponent,
       undefined,
-      { period: this.period() },
+      {
+        period: this.period(),
+        eyebrow: 'Logs period',
+        title: 'Filter logs by date',
+        applyLabel: 'Apply filter',
+        allowClear: true,
+      },
       {
         ariaLabel: 'Logs period',
         backdropClass: 'period-dialog-backdrop',
@@ -162,13 +169,28 @@ export class LogsPage implements OnInit {
     );
 
     dialogRef.closed$.subscribe((result) => {
-      if (!result) {
+      if (result === undefined) {
         return;
       }
 
       this.period.set(result);
       this.loadRows();
     });
+  }
+
+  protected restoreTopPanelState(state: DataTableTopPanelStoredState): void {
+    const nextPeriod = state.period;
+    const periodChanged = !samePeriod(this.period(), nextPeriod);
+
+    this.filterQuery.set(state.filterValue);
+    this.period.set(nextPeriod);
+    this.grouping.set(normalizeGrouping(state.groupingValue, ['level', 'eventType', 'subtype']));
+    this.sorting.set(normalizeSorting(state.sorting, ['timeStamp', 'level', 'eventType', 'subtype', 'messageTemplate', 'exception'], [{ id: 'timeStamp', desc: true }]));
+    this.table.firstPage();
+
+    if (periodChanged) {
+      this.loadRows();
+    }
   }
 
   protected updateFilter(event: Event): void {
@@ -232,12 +254,10 @@ export class LogsPage implements OnInit {
   }
 
   private loadRows(): void {
-    const { fromUtcIso, toUtcIso } = this.period();
-
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.logsService.getRows(fromUtcIso, toUtcIso).pipe(
+    this.logsService.getRows(this.period()).pipe(
       finalize(() => this.isLoading.set(false))
     ).subscribe({
       next: (rows) => {
@@ -253,24 +273,22 @@ export class LogsPage implements OnInit {
   }
 }
 
-function getDefaultPeriod(): VisitorActivityPeriod {
-  const toUtc = DateTime.utc();
-  const fromUtc = toUtc.minus({ days: 6 }).startOf('day');
+function formatLogsPeriod(period: VisitorActivityPeriod | null): string {
+  if (!period) {
+    return 'All logs';
+  }
 
-  return {
-    fromUtcIso: toIsoValue(fromUtc),
-    toUtcIso: toIsoValue(toUtc)
-  };
-}
-
-function formatPeriod(period: VisitorActivityPeriod): string {
   const from = DateTime.fromISO(period.fromUtcIso, { zone: 'utc' }).toLocal();
   const to = DateTime.fromISO(period.toUtcIso, { zone: 'utc' }).toLocal();
 
   return `${from.toFormat('dd LLL yyyy, HH:mm')} - ${to.toFormat('dd LLL yyyy, HH:mm')}`;
 }
 
-function formatDuration(period: VisitorActivityPeriod): string {
+function formatLogsDuration(period: VisitorActivityPeriod | null): string {
+  if (!period) {
+    return 'Showing logs for every available date.';
+  }
+
   const from = DateTime.fromISO(period.fromUtcIso, { zone: 'utc' });
   const to = DateTime.fromISO(period.toUtcIso, { zone: 'utc' });
   const duration = to.diff(from, ['days', 'hours', 'minutes']).shiftTo('days', 'hours', 'minutes');
@@ -296,8 +314,17 @@ function toDurationLabel(duration: Duration): string {
   return parts.join(' ');
 }
 
-function toIsoValue(dateTime: DateTime): string {
-  return dateTime.toISO({ suppressMilliseconds: true }) ?? '';
+function normalizeGrouping(value: string, allowedValues: readonly string[]): GroupingState {
+  return allowedValues.includes(value) ? [value] : [];
+}
+
+function normalizeSorting(value: SortingState, allowedColumns: readonly string[], fallback: SortingState): SortingState {
+  const normalized = value.filter((item) => allowedColumns.includes(item.id));
+  return normalized.length > 0 ? normalized : fallback;
+}
+
+function samePeriod(left: VisitorActivityPeriod | null, right: VisitorActivityPeriod | null): boolean {
+  return left?.fromUtcIso === right?.fromUtcIso && left?.toUtcIso === right?.toUtcIso;
 }
 
 function formatTimestamp(value: string): string {

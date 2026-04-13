@@ -2,13 +2,14 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { isPersistableRoute, LAST_OPEN_PAGE_STORAGE_KEY } from './app-route-storage';
+import { LoadingComponent } from './components/loading/loading-component';
 import { LocalStorageService } from './services/local-storage-service';
 import { UsersService } from './services/users-service';
 import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, LoadingComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush

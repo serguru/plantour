@@ -1080,8 +1080,11 @@ Add another component to the Maintenance app called "Logs".  Add Use TanStack Ta
 Remove all the optional UI elements from the Landing page. Leave only the toolbar at the top with menus. Store in the local storage and restore open the last open page automatically. If no page stored - open a Dashboard page (create it and leave it blank for now)
 
 
+Add to M another component Users with the UI and logic as for Visits and Logs. Combine users data from the Plantour DB with data taken from the Paddle API, see how it is done in the main API. Explore Paddle API documentation and find out how is it possible to get the entire Plantour customers list from them, including how much money they paid in total. 
 
-Add another component Users. Combine data from the Plantour DB with data taken from the Paddle API.
+Identify their customers with Plantour users by email. Provide columns: Id (from users db table), email, Full name, Admin or Participant/Admin, plan (if admin), temporary ot not, date joined, if they have an active subscription, date started the latest plan, last visit date, number of: trips, items, todos, expenses, travelers. Find out how to get from Paddle the customer's payments total and add it as a column. Do not request payments total individually for each customer, it should be done as a sinle API request.
 
-Explore Paddle documentation and find out how is it possible to get the entire Plantour customers list from them. Identify their customers with Plantour users by email. Using Data table as in the Visits component (but no grouping by IPs) show the entire list of customers with columns: Id, email, plan / temporary, date started, last visit date, number of: trips, items, todos, expenses, travelers. Find out how to get from Paddle the customer's payments total and add it as another column. Do not request payments total individually for each customer.
+Take into account not all Plantour users has the corresponding Paddle user.
+
+
 

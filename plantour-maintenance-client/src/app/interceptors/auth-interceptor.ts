@@ -1,12 +1,14 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, EMPTY, throwError } from 'rxjs';
+import { catchError, EMPTY, finalize, throwError } from 'rxjs';
+import { LoadingService } from '../services/loading-service';
 import { UsersService } from '../services/users-service';
 
 const isSignInRequest = (url: string): boolean => url.includes('/auth/sign-in');
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const usersService = inject(UsersService);
+  const loadingService = inject(LoadingService);
   const accessToken = usersService.accessToken();
 
   const authorizedRequest = accessToken && !isSignInRequest(request.url)
@@ -14,6 +16,8 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
         headers: request.headers.set('Authorization', `Bearer ${accessToken}`)
       })
     : request;
+
+  loadingService.start();
 
   return next(authorizedRequest).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -23,6 +27,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
       }
 
       return throwError(() => error);
-    })
+    }),
+    finalize(() => loadingService.stop())
   );
 };

@@ -5,8 +5,12 @@ import { BrnDialogClose, injectBrnDialogContext } from '@spartan-ng/brain/dialog
 import { VisitorActivityPeriod } from '../../models/visitor-activity-period.models';
 
 interface VisitorActivityPeriodDialogContext {
-  period: VisitorActivityPeriod;
-  close: (result?: VisitorActivityPeriod) => void;
+  period?: VisitorActivityPeriod | null;
+  close: (result?: VisitorActivityPeriod | null) => void;
+  eyebrow?: string;
+  title?: string;
+  applyLabel?: string;
+  allowClear?: boolean;
 }
 
 const LOCAL_DATE_TIME_FORMAT = "yyyy-LL-dd'T'HH:mm";
@@ -21,10 +25,14 @@ const LOCAL_DATE_TIME_FORMAT = "yyyy-LL-dd'T'HH:mm";
 export class VisitorActivityPeriodDialogComponent {
   private readonly dialogContext = injectBrnDialogContext<VisitorActivityPeriodDialogContext>();
   private readonly formBuilder = new FormBuilder();
+  protected readonly eyebrow = this.dialogContext.eyebrow ?? 'Visits period';
+  protected readonly title = this.dialogContext.title ?? 'Edit period';
+  protected readonly applyLabel = this.dialogContext.applyLabel ?? 'Apply period';
+  protected readonly allowClear = this.dialogContext.allowClear ?? false;
 
   protected readonly periodForm = this.formBuilder.nonNullable.group({
-    from: [toLocalInputValue(this.dialogContext.period.fromUtcIso), [Validators.required]],
-    to: [toLocalInputValue(this.dialogContext.period.toUtcIso), [Validators.required]]
+    from: [toLocalInputValue(this.dialogContext.period?.fromUtcIso), [Validators.required]],
+    to: [toLocalInputValue(this.dialogContext.period?.toUtcIso), [Validators.required]]
   }, { validators: [dateRangeValidator()] });
 
   protected submit(): void {
@@ -38,6 +46,10 @@ export class VisitorActivityPeriodDialogComponent {
       fromUtcIso: toUtcIsoString(from),
       toUtcIso: toUtcIsoString(to)
     });
+  }
+
+  protected clear(): void {
+    this.dialogContext.close(null);
   }
 }
 
@@ -56,7 +68,11 @@ function dateRangeValidator(): ValidatorFn {
   };
 }
 
-function toLocalInputValue(utcIso: string): string {
+function toLocalInputValue(utcIso?: string | null): string {
+  if (!utcIso) {
+    return '';
+  }
+
   return DateTime.fromISO(utcIso, { zone: 'utc' }).toLocal().toFormat(LOCAL_DATE_TIME_FORMAT);
 }
 

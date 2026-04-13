@@ -1,5 +1,4 @@
 using plantour_maintenance_server.DTOs;
-using plantour_maintenance_server.Middleware;
 using plantour_maintenance_server.Repositories;
 using plantour_maintenance_server.Services.Interfaces;
 
@@ -10,15 +9,10 @@ public sealed class LogsService(LogRepository logRepository) : ILogsService
     private readonly LogRepository _logRepository = logRepository;
 
     public async Task<IReadOnlyList<LogRowDto>> GetAsync(
-        DateTimeOffset from,
-        DateTimeOffset to,
+        DateTimeOffset? from = null,
+        DateTimeOffset? to = null,
         CancellationToken cancellationToken = default)
     {
-        if (from > to)
-        {
-            throw new BadRequestException("The from datetime must be earlier than or equal to the to datetime.", "INVALID_DATE_RANGE");
-        }
-
         var rows = await _logRepository.GetAsync(from, to, cancellationToken);
 
         return rows

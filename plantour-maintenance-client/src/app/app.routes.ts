@@ -28,6 +28,10 @@ export const routes: Routes = [
 		loadComponent: () => import('./pages/visitor-activity-page').then((module) => module.VisitorActivityPage)
 	},
 	{
+		path: 'users',
+		loadComponent: () => import('./pages/users-page').then((module) => module.UsersPage)
+	},
+	{
 		path: 'logs',
 		loadComponent: () => import('./pages/logs-page').then((module) => module.LogsPage)
 	},

@@ -41,6 +41,21 @@
       </a>
 
       <a
+        routerLink="/users"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        title="Users"
+        aria-label="Users"
+      >
+        <span class="toolbar__nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M12 12c2.76 0 5-2.24 5-5S14.76 2 12 2 7 4.24 7 7s2.24 5 5 5Zm0 2c-4.42 0-8 2.01-8 4.5V22h16v-3.5c0-2.49-3.58-4.5-8-4.5Z" />
+          </svg>
+        </span>
+        <span class="toolbar__nav-label">Users</span>
+      </a>
+
+      <a
         routerLink="/logs"
         routerLinkActive="is-active"
         [routerLinkActiveOptions]="{ exact: true }"
@@ -96,4 +111,6 @@
   <main class="content-shell">
     <router-outlet />
   </main>
+
+  <app-loading />
 </div>

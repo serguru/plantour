@@ -34,6 +34,17 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     EnvironmentName = rawEnvironmentName
 });
 
+builder.Configuration.Sources.Clear();
+builder.Configuration
+    .SetBasePath(builder.Environment.ContentRootPath)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+if (args.Length > 0)
+{
+    builder.Configuration.AddCommandLine(args);
+}
+
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders =
@@ -56,6 +67,8 @@ builder.Services.AddMemoryCache();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
     ?? throw new InvalidOperationException("JwtSettings configuration is missing.");
+
+builder.Services.Configure<PaddleSettings>(builder.Configuration.GetSection("PaddleSettings"));
 
 builder.Services.Configure<PasswordHashSettings>(builder.Configuration.GetSection("PasswordHashSettings"));
 var passwordHashSettings = builder.Configuration.GetSection("PasswordHashSettings").Get<PasswordHashSettings>()
@@ -141,6 +154,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ILogsService, LogsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IVisitorActivityService, VisitorActivityService>();
+builder.Services.AddHttpClient<IPlantourUsersService, PlantourUsersService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 builder.Services.AddHttpClient<IIpGeolocationService, IpwhoisGeolocationService>(client =>
 {
     client.BaseAddress = new Uri("https://ipwho.is/");

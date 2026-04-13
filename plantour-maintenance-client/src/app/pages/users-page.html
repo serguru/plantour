@@ -7,6 +7,7 @@
     [isLoading]="isLoading()"
     [storageKey]="topPanelStorageKey"
     [periodState]="period()"
+    [periodActionLabel]="periodActionLabel"
     [periodLabel]="periodLabel()"
     [durationLabel]="durationLabel()"
     [filterId]="filterId"
@@ -85,11 +86,11 @@
                 <tr hlmTr>
                   <td hlmTd class="empty-table-row" [attr.colspan]="table.getVisibleLeafColumns().length">
                     @if (isLoading()) {
-                      Loading logs...
-                    } @else if (totalRowCount() > 0) {
-                      No results.
+                      Loading users...
+                    } @else if (errorMessage()) {
+                      {{ errorMessage() }}
                     } @else {
-                      No logs found for the selected period.
+                      No users found.
                     }
                   </td>
                 </tr>
@@ -99,8 +100,8 @@
         </div>
       } @placeholder {
         <div class="empty-state">
-          <h3>Loading logs</h3>
-          <p>Refreshing log rows for the selected period.</p>
+          <h3>Loading users</h3>
+          <p>Refreshing Plantour users and Paddle billing data.</p>
         </div>
       }
     </div>
@@ -109,8 +110,8 @@
       <p class="results-count">{{ filteredRowCount() }} of {{ totalRowCount() }} row(s)</p>
 
       <div class="results-pager">
-        <label for="logs-page-size" class="results-pager__label">Rows per page</label>
-        <select id="logs-page-size" class="results-pager__select" [value]="table.getState().pagination.pageSize" (change)="updatePageSize($event)">
+        <label for="users-page-size" class="results-pager__label">Rows per page</label>
+        <select id="users-page-size" class="results-pager__select" [value]="table.getState().pagination.pageSize" (change)="updatePageSize($event)">
           @for (pageSize of availablePageSizes; track pageSize) {
             <option [value]="pageSize">{{ pageSize }}</option>
           }

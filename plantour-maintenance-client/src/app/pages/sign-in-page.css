@@ -4,12 +4,10 @@
 
 .sign-in-layout {
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 28rem);
-  align-items: start;
+  place-items: center;
+  min-height: calc(100vh - 11rem);
 }
 
-.sign-in-copy,
 .sign-in-card {
   border: 1px solid rgba(24, 49, 38, 0.12);
   border-radius: 1.5rem;
@@ -18,12 +16,6 @@
   box-shadow: 0 18px 45px rgba(30, 41, 59, 0.08);
 }
 
-.sign-in-copy {
-  padding: 2rem;
-}
-
-.sign-in-copy h1,
-.sign-in-copy p,
 .card-heading h2,
 .field span,
 small,
@@ -31,47 +23,17 @@ small,
   margin: 0;
 }
 
-.eyebrow {
-  margin: 0 0 0.75rem;
-  color: var(--brand-green);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.sign-in-copy h1 {
-  max-width: 12ch;
-  font-size: clamp(2.2rem, 4vw, 4.2rem);
-  line-height: 0.98;
-  letter-spacing: -0.05em;
-}
-
-.sign-in-copy p {
-  max-width: 34rem;
-  margin-top: 1rem;
-  color: var(--muted-foreground);
-  font-size: 1.02rem;
-  line-height: 1.7;
-}
-
 .sign-in-card {
   display: grid;
   gap: 1rem;
   padding: 1.5rem;
+  width: min(28rem, 100%);
 }
 
 .card-heading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.card-heading a {
-  color: var(--brand-green);
   font-weight: 700;
-  text-decoration: none;
 }
 
 .field {
@@ -137,10 +99,6 @@ button:disabled {
 
 @media (max-width: 900px) {
   .sign-in-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .sign-in-copy h1 {
-    max-width: none;
+    min-height: auto;
   }
 }

@@ -8,17 +8,23 @@ public sealed class ApiVisitRepository(PlantourContext context)
     private readonly PlantourContext _context = context;
 
     public async Task<IReadOnlyList<DailyIpVisitRecord>> GetGroupedByDayAndIpAsync(
-        DateTimeOffset from,
-        DateTimeOffset to,
+        DateTimeOffset? from = null,
+        DateTimeOffset? to = null,
         CancellationToken cancellationToken = default)
     {
-        var fromUtc = from.UtcDateTime;
-        var toInclusiveUtc = to.UtcDateTime;
-
-        var visits = await _context.ApiVisits
+        var visitsQuery = _context.ApiVisits
             .AsNoTracking()
-            .Where(visit => visit.CreatedAt >= fromUtc && visit.CreatedAt <= toInclusiveUtc)
             .Where(visit => visit.IpAddress != null)
+            .AsQueryable();
+
+        if (from.HasValue && to.HasValue)
+        {
+            var fromUtc = from.Value.UtcDateTime;
+            var toInclusiveUtc = to.Value.UtcDateTime;
+            visitsQuery = visitsQuery.Where(visit => visit.CreatedAt >= fromUtc && visit.CreatedAt <= toInclusiveUtc);
+        }
+
+        var visits = await visitsQuery
             .Select(visit => new
             {
                 visit.CreatedAt,

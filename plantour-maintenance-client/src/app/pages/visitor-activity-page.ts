@@ -22,7 +22,7 @@ import { ApiErrorResponse } from '../models/auth.models';
 import { VisitorActivityPeriod } from '../models/visitor-activity-period.models';
 import { VisitorActivityRowDto } from '../models/visitor-activity.models';
 import { HlmTable, HlmTableContainer, HlmTBody, HlmTd, HlmTh, HlmTHead, HlmTr } from '../ui/table/src/lib/hlm-table';
-import { DataTableTopPanelComponent, DataTableTopPanelGroupingOption } from '../components/data-table-top-panel/data-table-top-panel';
+import { DataTableTopPanelComponent, DataTableTopPanelGroupingOption, DataTableTopPanelStoredState } from '../components/data-table-top-panel/data-table-top-panel';
 import { VisitorActivityPeriodDialogComponent } from '../components/visitor-activity-period-dialog/visitor-activity-period-dialog';
 import { VisitorActivityService } from '../services/visitor-activity-service';
 
@@ -34,6 +34,7 @@ import { VisitorActivityService } from '../services/visitor-activity-service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VisitorActivityPage implements OnInit {
+  protected readonly topPanelStorageKey = 'plantour-maintenance.top-panel.visitor-activity';
   private readonly dialogService = inject(BrnDialogService);
   private readonly visitorActivityService = inject(VisitorActivityService);
   private readonly columns: ColumnDef<VisitorActivityRowDto>[] = [
@@ -70,7 +71,7 @@ export class VisitorActivityPage implements OnInit {
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly rows = signal<VisitorActivityRowDto[]>([]);
-  protected readonly period = signal<VisitorActivityPeriod>(getDefaultPeriod());
+  protected readonly period = signal<VisitorActivityPeriod | null>(null);
   protected readonly filterQuery = signal('');
   protected readonly sorting = signal<SortingState>([{ id: 'day', desc: true }]);
   protected readonly grouping = signal<GroupingState>([]);
@@ -78,8 +79,8 @@ export class VisitorActivityPage implements OnInit {
   protected readonly availablePageSizes = [10, 20, 50, 100];
   protected readonly filterId = 'visitor-activity-filter';
   protected readonly groupingId = 'visitor-activity-grouping';
-  protected readonly filterLabel = 'Filter rows';
-  protected readonly groupingLabel = 'Group rows';
+  protected readonly filterLabel = 'Filter';
+  protected readonly groupingLabel = 'Group';
   protected readonly filterPlaceholder = 'Filter by day, IP, country or city';
   protected readonly groupingOptions: readonly DataTableTopPanelGroupingOption[] = [
     { value: 'none', label: 'No grouping' },
@@ -87,8 +88,8 @@ export class VisitorActivityPage implements OnInit {
     { value: 'country', label: 'Country' },
     { value: 'city', label: 'City' },
   ];
-  protected readonly periodLabel = computed(() => formatPeriod(this.period()));
-  protected readonly durationLabel = computed(() => formatDuration(this.period()));
+  protected readonly periodLabel = computed(() => formatVisitorActivityPeriod(this.period()));
+  protected readonly durationLabel = computed(() => formatVisitorActivityDuration(this.period()));
   protected readonly groupingValue = computed<GroupColumn>(() => {
     const currentGrouping = this.grouping()[0];
 
@@ -139,7 +140,13 @@ export class VisitorActivityPage implements OnInit {
     const dialogRef = this.dialogService.open(
       VisitorActivityPeriodDialogComponent,
       undefined,
-      { period: this.period() },
+      {
+        period: this.period(),
+        eyebrow: 'Visits period',
+        title: 'Filter visits by date',
+        applyLabel: 'Apply filter',
+        allowClear: true,
+      },
       {
         ariaLabel: 'Visitor activity period',
         backdropClass: 'period-dialog-backdrop',
@@ -148,13 +155,28 @@ export class VisitorActivityPage implements OnInit {
     );
 
     dialogRef.closed$.subscribe((result) => {
-      if (!result) {
+      if (result === undefined) {
         return;
       }
 
       this.period.set(result);
       this.loadRows();
     });
+  }
+
+  protected restoreTopPanelState(state: DataTableTopPanelStoredState): void {
+    const nextPeriod = state.period;
+    const periodChanged = !samePeriod(this.period(), nextPeriod);
+
+    this.filterQuery.set(state.filterValue);
+    this.period.set(nextPeriod);
+    this.grouping.set(normalizeGrouping(state.groupingValue, ['day', 'country', 'city']));
+    this.sorting.set(normalizeSorting(state.sorting, ['day', 'ip', 'country', 'city'], [{ id: 'day', desc: true }]));
+    this.table.firstPage();
+
+    if (periodChanged) {
+      this.loadRows();
+    }
   }
 
   protected updateFilter(event: Event): void {
@@ -218,12 +240,10 @@ export class VisitorActivityPage implements OnInit {
   }
 
   private loadRows(): void {
-    const { fromUtcIso, toUtcIso } = this.period();
-
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.visitorActivityService.getRows(fromUtcIso, toUtcIso).pipe(
+    this.visitorActivityService.getRows(this.period()).pipe(
       finalize(() => this.isLoading.set(false))
     ).subscribe({
       next: (rows) => {
@@ -239,24 +259,22 @@ export class VisitorActivityPage implements OnInit {
   }
 }
 
-function getDefaultPeriod(): VisitorActivityPeriod {
-  const toUtc = DateTime.utc();
-  const fromUtc = toUtc.minus({ days: 6 }).startOf('day');
+function formatVisitorActivityPeriod(period: VisitorActivityPeriod | null): string {
+  if (!period) {
+    return 'All visits';
+  }
 
-  return {
-    fromUtcIso: toIsoValue(fromUtc),
-    toUtcIso: toIsoValue(toUtc)
-  };
-}
-
-function formatPeriod(period: VisitorActivityPeriod): string {
   const from = DateTime.fromISO(period.fromUtcIso, { zone: 'utc' }).toLocal();
   const to = DateTime.fromISO(period.toUtcIso, { zone: 'utc' }).toLocal();
 
   return `${from.toFormat('dd LLL yyyy, HH:mm')} - ${to.toFormat('dd LLL yyyy, HH:mm')}`;
 }
 
-function formatDuration(period: VisitorActivityPeriod): string {
+function formatVisitorActivityDuration(period: VisitorActivityPeriod | null): string {
+  if (!period) {
+    return 'Showing visitor activity for every available date.';
+  }
+
   const from = DateTime.fromISO(period.fromUtcIso, { zone: 'utc' });
   const to = DateTime.fromISO(period.toUtcIso, { zone: 'utc' });
   const duration = to.diff(from, ['days', 'hours', 'minutes']).shiftTo('days', 'hours', 'minutes');
@@ -282,8 +300,17 @@ function toDurationLabel(duration: Duration): string {
   return parts.join(' ');
 }
 
-function toIsoValue(dateTime: DateTime): string {
-  return dateTime.toISO({ suppressMilliseconds: true }) ?? '';
+function normalizeGrouping(value: string, allowedValues: readonly string[]): GroupingState {
+  return allowedValues.includes(value) ? [value] : [];
+}
+
+function normalizeSorting(value: SortingState, allowedColumns: readonly string[], fallback: SortingState): SortingState {
+  const normalized = value.filter((item) => allowedColumns.includes(item.id));
+  return normalized.length > 0 ? normalized : fallback;
+}
+
+function samePeriod(left: VisitorActivityPeriod | null, right: VisitorActivityPeriod | null): boolean {
+  return left?.fromUtcIso === right?.fromUtcIso && left?.toUtcIso === right?.toUtcIso;
 }
 
 type GroupColumn = 'day' | 'country' | 'city' | 'none';
