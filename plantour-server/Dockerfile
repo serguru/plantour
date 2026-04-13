@@ -12,10 +12,12 @@ ENV ASPNETCORE_HTTP_PORTS=10000
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["plantour-server.csproj", "."]
-RUN dotnet restore "./plantour-server.csproj"
-COPY . .
-WORKDIR "/src/."
+COPY ["plantour-server/plantour-server.csproj", "plantour-server/"]
+COPY ["plantour-shared-db/plantour-shared-db.csproj", "plantour-shared-db/"]
+RUN dotnet restore "./plantour-server/plantour-server.csproj"
+COPY plantour-server/. ./plantour-server/
+COPY plantour-shared-db/. ./plantour-shared-db/
+WORKDIR "/src/plantour-server"
 RUN dotnet build "./plantour-server.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
