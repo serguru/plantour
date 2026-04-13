@@ -7,9 +7,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="..\DbModels\**\*.cs" Link="DbModels\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Compile Remove="..\DbModels\TickerQOperationalDbContext.cs" />
+  <PropertyGroup>
+    <SharedDbModelsPath Condition="Exists('..\DbModels')">..\DbModels</SharedDbModelsPath>
+    <SharedDbModelsPath Condition="'$(SharedDbModelsPath)' == '' and Exists('..\plantour-server\DbModels')">..\plantour-server\DbModels</SharedDbModelsPath>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(SharedDbModelsPath)' != ''">
+    <Compile Include="$(SharedDbModelsPath)\**\*.cs" Link="DbModels\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Remove="$(SharedDbModelsPath)\TickerQOperationalDbContext.cs" />
   </ItemGroup>
 
   <ItemGroup>
