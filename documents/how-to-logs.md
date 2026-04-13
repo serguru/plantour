@@ -4,20 +4,20 @@ This document describes how logging works in `plantour-server`.
 
 ## Overview
 
-`plantour-server` uses a custom `ILogger` provider.
+`plantour-server` uses a dedicated Plantour logger abstraction.
 
 The flow is:
 
-1. Application code writes through `ILogger<T>`.
-2. The custom logger accepts only `Information`, `Warning`, `Error`, and `Critical` messages.
+1. Application code writes through `IPlantourLogger<T>`.
+2. The Plantour logger accepts only `Information`, `Warning`, `Error`, and `Critical` messages.
 3. Messages are placed into an in-memory bounded queue.
 4. A background worker flushes queued items asynchronously.
 5. Logs are written to the console, PostgreSQL, or both, depending on configuration.
 
 Current implementation files:
 
+- `plantour-server/Logging/IPlantourLogger.cs`
 - `plantour-server/Logging/PlantourLogger.cs`
-- `plantour-server/Logging/PlantourLoggerProvider.cs`
 - `plantour-server/Logging/PlantourLogQueue.cs`
 - `plantour-server/Logging/PlantourLogWorker.cs`
 - `plantour-server/Logging/PlantourLoggerOptions.cs`
@@ -75,16 +75,16 @@ Default environment behavior currently configured:
 - QA: `Database`
 - Production: `Database`
 
-## Category Filtering
+## Category Source
 
-The logger ignores categories outside these prefixes by default:
+The stored `category` value comes from the generic type used when injecting `IPlantourLogger<T>`.
 
-- `plantour_server`
-- `PlantourApi`
+Examples:
 
-This prevents framework noise such as `Microsoft.*` logs from filling the queue or database.
+- `IPlantourLogger<TripUserService>` -> `plantour_server.Services.TripUserService`
+- `IPlantourLogger<GlobalExceptionHandler>` -> `PlantourApi.Middleware.GlobalExceptionHandler`
 
-If a new namespace is added and its logs do not appear, update `CategoryPrefixes` in `PlantourLoggerOptions`.
+Because Plantour logging no longer plugs into the ASP.NET `ILogger` provider pipeline, framework and library code cannot write into the Plantour log sink unless Plantour explicitly injects and uses `IPlantourLogger<T>`.
 
 ## Logged Properties
 
@@ -92,10 +92,8 @@ Besides the main `message`, the logger stores extra metadata in `properties` as 
 
 Potential fields include:
 
-- `event_id`
-- `event_name`
 - `original_format`
-- structured template values from `ILogger`
+- structured template values from the Plantour message template
 - `request_path`
 - `request_method`
 - `trace_id`
@@ -107,14 +105,14 @@ If the request is authenticated, `user_id` is also resolved from `CurrentUserMid
 
 ## How To Write Logs
 
-Inject `ILogger<T>` into the service, middleware, or controller.
+Inject `IPlantourLogger<T>` into the service, middleware, or controller.
 
 Example:
 
 ```csharp
-public sealed class ExampleService(ILogger<ExampleService> logger)
+public sealed class ExampleService(IPlantourLogger<ExampleService> logger)
 {
-    private readonly ILogger<ExampleService> _logger = logger;
+  private readonly IPlantourLogger<ExampleService> _logger = logger;
 
     public void Run(Guid tripId)
     {

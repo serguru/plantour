@@ -25,7 +25,6 @@ using TickerQ.EntityFrameworkCore.DependencyInjection;
 using plantour_server.Services.TickerQ;
 using Npgsql;
 using System.Threading.RateLimiting;
-using Microsoft.Extensions.Logging;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -72,13 +71,12 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 });
 
 builder.Logging.ClearProviders();
-builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 builder.Services.Configure<PlantourLoggerOptions>(
     builder.Configuration.GetSection(PlantourLoggerOptions.SectionName));
 builder.Services.AddSingleton<PlantourLogQueue>();
 builder.Services.AddHostedService<PlantourLogWorker>();
-builder.Services.AddSingleton<ILoggerProvider, PlantourLoggerProvider>();
+builder.Services.AddSingleton(typeof(IPlantourLogger<>), typeof(PlantourLogger<>));
 
 var env = builder.Environment;
 

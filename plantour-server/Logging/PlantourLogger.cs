@@ -1,59 +1,69 @@
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PlantourApi.Models;
+using System.Text.RegularExpressions;
 
 namespace plantour_server.Logging;
 
-internal sealed class PlantourLogger(
-    string categoryName,
+public sealed class PlantourLogger<TCategory>(
     PlantourLogQueue queue,
     IHttpContextAccessor httpContextAccessor,
-    IOptionsMonitor<PlantourLoggerOptions> options) : ILogger
+    IOptionsMonitor<PlantourLoggerOptions> options) : IPlantourLogger<TCategory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly Regex TemplateTokenRegex = new(@"(?<!\{)\{(?<name>[^{}:]+)(?:[^{}]*)\}(?!\})", RegexOptions.Compiled);
 
-    private readonly string _categoryName = categoryName;
     private readonly PlantourLogQueue _queue = queue;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IOptionsMonitor<PlantourLoggerOptions> _options = options;
+    private readonly string _categoryName = typeof(TCategory).FullName ?? typeof(TCategory).Name;
 
-    public IDisposable BeginScope<TState>(TState state) where TState : notnull
+    public void LogInformation(string messageTemplate, params object?[] args)
     {
-        return NullScope.Instance;
+        Write(LogLevel.Information, null, messageTemplate, args);
     }
 
-    public bool IsEnabled(LogLevel logLevel)
+    public void LogWarning(string messageTemplate, params object?[] args)
     {
-        if (!IsSupportedLevel(logLevel))
-        {
-            return false;
-        }
-
-        var currentOptions = _options.CurrentValue;
-
-        if (!MatchesCategoryPrefix(currentOptions.CategoryPrefixes))
-        {
-            return false;
-        }
-
-        return logLevel >= ParseMinimumLevel(currentOptions.MinimumLevel);
+        Write(LogLevel.Warning, null, messageTemplate, args);
     }
 
-    public void Log<TState>(
-        LogLevel logLevel,
-        EventId eventId,
-        TState state,
-        Exception? exception,
-        Func<TState, Exception?, string> formatter)
+    public void LogWarning(Exception? exception, string messageTemplate, params object?[] args)
     {
-        if (!IsEnabled(logLevel))
+        Write(LogLevel.Warning, exception, messageTemplate, args);
+    }
+
+    public void LogError(string messageTemplate, params object?[] args)
+    {
+        Write(LogLevel.Error, null, messageTemplate, args);
+    }
+
+    public void LogError(Exception? exception, string messageTemplate, params object?[] args)
+    {
+        Write(LogLevel.Error, exception, messageTemplate, args);
+    }
+
+    public void LogCritical(string messageTemplate, params object?[] args)
+    {
+        Write(LogLevel.Critical, null, messageTemplate, args);
+    }
+
+    public void LogCritical(Exception? exception, string messageTemplate, params object?[] args)
+    {
+        Write(LogLevel.Critical, exception, messageTemplate, args);
+    }
+
+    private void Write(LogLevel logLevel, Exception? exception, string messageTemplate, params object?[] args)
+    {
+        if (!IsEnabled(logLevel) || string.IsNullOrWhiteSpace(messageTemplate))
         {
             return;
         }
 
-        var message = formatter(state, exception);
+        var (message, propertiesJson) = BuildMessageAndPropertiesJson(messageTemplate, args, exception);
         if (string.IsNullOrWhiteSpace(message))
         {
             return;
@@ -66,7 +76,7 @@ internal sealed class PlantourLogger(
             _categoryName,
             message,
             GetCurrentUserId(),
-            BuildPropertiesJson(eventId, state, exception));
+            propertiesJson);
 
         if (_queue.TryEnqueue(entry))
         {
@@ -79,18 +89,10 @@ internal sealed class PlantourLogger(
         }
     }
 
-    private bool MatchesCategoryPrefix(IEnumerable<string> categoryPrefixes)
+    private bool IsEnabled(LogLevel logLevel)
     {
-        foreach (var categoryPrefix in categoryPrefixes)
-        {
-            if (!string.IsNullOrWhiteSpace(categoryPrefix)
-                && _categoryName.StartsWith(categoryPrefix, StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return IsSupportedLevel(logLevel)
+            && logLevel >= ParseMinimumLevel(_options.CurrentValue.MinimumLevel);
     }
 
     private Guid? GetCurrentUserId()
@@ -99,27 +101,27 @@ internal sealed class PlantourLogger(
         return currentUser?.IsAuthenticated == true ? currentUser.UserId : null;
     }
 
-    private string BuildPropertiesJson<TState>(EventId eventId, TState state, Exception? exception)
+    private string BuildPropertiesJson(string messageTemplate, object?[] args, Exception? exception)
     {
-        var properties = new Dictionary<string, string?>(StringComparer.Ordinal);
-
-        if (eventId.Id != 0)
+        var properties = new Dictionary<string, string?>(StringComparer.Ordinal)
         {
-            properties["event_id"] = eventId.Id.ToString(CultureInfo.InvariantCulture);
-        }
+            ["original_format"] = messageTemplate
+        };
 
-        if (!string.IsNullOrWhiteSpace(eventId.Name))
+        var matches = TemplateTokenRegex.Matches(messageTemplate);
+        for (var index = 0; index < matches.Count; index++)
         {
-            properties["event_name"] = eventId.Name;
-        }
-
-        if (state is IEnumerable<KeyValuePair<string, object?>> pairs)
-        {
-            foreach (var pair in pairs)
+            var propertyName = matches[index].Groups["name"].Value;
+            var propertyValue = index < args.Length ? ConvertToString(args[index]) : null;
+            if (!string.IsNullOrWhiteSpace(propertyName))
             {
-                var key = pair.Key == "{OriginalFormat}" ? "original_format" : pair.Key;
-                properties[key] = ConvertToString(pair.Value);
+                properties[propertyName] = propertyValue;
             }
+        }
+
+        for (var index = matches.Count; index < args.Length; index++)
+        {
+            properties[$"arg_{index}"] = ConvertToString(args[index]);
         }
 
         var httpContext = _httpContextAccessor.HttpContext;
@@ -138,6 +140,48 @@ internal sealed class PlantourLogger(
         }
 
         return JsonSerializer.Serialize(properties, JsonOptions);
+    }
+
+    private (string Message, string PropertiesJson) BuildMessageAndPropertiesJson(string messageTemplate, object?[] args, Exception? exception)
+    {
+        return (RenderMessage(messageTemplate, args), BuildPropertiesJson(messageTemplate, args, exception));
+    }
+
+    private static string RenderMessage(string messageTemplate, object?[] args)
+    {
+        var matches = TemplateTokenRegex.Matches(messageTemplate);
+        if (matches.Count == 0)
+        {
+            return UnescapeBraces(messageTemplate);
+        }
+
+        var builder = new StringBuilder();
+        var lastIndex = 0;
+
+        for (var index = 0; index < matches.Count; index++)
+        {
+            var match = matches[index];
+            builder.Append(UnescapeBraces(messageTemplate[lastIndex..match.Index]));
+
+            if (index < args.Length)
+            {
+                builder.Append(ConvertToString(args[index]));
+            }
+            else
+            {
+                builder.Append(match.Value);
+            }
+
+            lastIndex = match.Index + match.Length;
+        }
+
+        builder.Append(UnescapeBraces(messageTemplate[lastIndex..]));
+        return builder.ToString();
+    }
+
+    private static string UnescapeBraces(string value)
+    {
+        return value.Replace("{{", "{").Replace("}}", "}");
     }
 
     private static bool IsSupportedLevel(LogLevel logLevel)
@@ -174,14 +218,5 @@ internal sealed class PlantourLogger(
             IFormattable formattable => formattable.ToString(null, CultureInfo.InvariantCulture),
             _ => value.ToString()
         };
-    }
-
-    private sealed class NullScope : IDisposable
-    {
-        public static readonly NullScope Instance = new();
-
-        public void Dispose()
-        {
-        }
     }
 }

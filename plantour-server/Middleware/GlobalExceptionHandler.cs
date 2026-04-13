@@ -2,11 +2,15 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PlantourApi.Middleware;
+using plantour_server.Logging;
 using System.Net.Mime;
 
-public class GlobalExceptionHandler : IExceptionHandler
+namespace PlantourApi.Middleware;
+
+public class GlobalExceptionHandler(IPlantourLogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
+    private readonly IPlantourLogger<GlobalExceptionHandler> _logger = logger;
+
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
         Exception exception,
@@ -40,8 +44,28 @@ public class GlobalExceptionHandler : IExceptionHandler
             code = "INTERNAL_SERVER_ERROR";
         }
 
-        // TODO LOG
-        // Log exception details here if application logging is re-enabled.
+        if (statusCode >= StatusCodes.Status500InternalServerError)
+        {
+            _logger.LogError(
+                exception,
+                "Unhandled exception for {RequestMethod} {RequestPath}. StatusCode: {StatusCode}, Code: {Code}, TraceId: {TraceId}",
+                requestMethod,
+                requestPath,
+                statusCode,
+                code,
+                httpContext.TraceIdentifier);
+        }
+        else
+        {
+            _logger.LogWarning(
+                exception,
+                "Handled exception for {RequestMethod} {RequestPath}. StatusCode: {StatusCode}, Code: {Code}, TraceId: {TraceId}",
+                requestMethod,
+                requestPath,
+                statusCode,
+                code,
+                httpContext.TraceIdentifier);
+        }
 
         var response = new ApiErrorResponse
         {
