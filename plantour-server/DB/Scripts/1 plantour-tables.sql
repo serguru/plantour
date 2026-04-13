@@ -1334,3 +1334,15 @@ as $$
         )
     );
 $$;
+
+create table plantour.logs (
+    id uuid primary key default gen_random_uuid(),
+    created_at timestamptz not null default (now() at time zone 'utc'),
+    severity text not null check (severity in ('i', 'w', 'e')),
+    category text not null,
+    message text not null,
+    user_id uuid null,
+    properties jsonb not null default '{}'::jsonb
+);
+
+create index ix_logs_created_at on plantour.logs (created_at desc);

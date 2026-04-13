@@ -47,6 +47,8 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<ItineraryPartCategory> ItineraryPartCategories { get; set; }
 
+    public virtual DbSet<Log> Logs { get; set; }
+
     public virtual DbSet<PaymentMethod> PaymentMethods { get; set; }
 
     public virtual DbSet<Plan> Plans { get; set; }
@@ -266,6 +268,15 @@ public partial class PlantourContext : DbContext
             entity.HasKey(e => e.Id).HasName("itinerary_part_categories_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+        });
+
+        modelBuilder.Entity<Log>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("logs_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Properties).HasDefaultValueSql("'{}'::jsonb");
         });
 
         modelBuilder.Entity<PaymentMethod>(entity =>
