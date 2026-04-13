@@ -507,7 +507,6 @@ builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripNoteRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.LogsRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AiTripPlanRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();

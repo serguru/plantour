@@ -1087,6 +1087,8 @@ Identify their customers with Plantour users by email. Provide columns: Id (from
 Take into account not all Plantour users has the corresponding Paddle user.
 
 
+Explore ZLog
+
 Logging requirements
 
 - id

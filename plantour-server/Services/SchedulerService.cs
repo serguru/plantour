@@ -18,7 +18,6 @@ namespace plantour_server.Services;
 public class SchedulerService(
     IOptions<JwtSettings> jwtSettings,
     RefreshTokenRepository refreshTokenRepository,
-    LogsRepository logsRepository,
     PlantourContext plantourContext,
     IMapper mapper,
     ICheckAccessService checkAccessService,
@@ -39,7 +38,6 @@ public class SchedulerService(
     private readonly IConfiguration _configuration = configuration;
     private readonly PlantourContext _plantourContext = plantourContext;
     private readonly RefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
-    private readonly LogsRepository _logsRepository = logsRepository;
     private readonly AiPromptRepository _aiPromptRepository = aiPromptRepository;
     private readonly ITimeTickerManager<TimeTickerEntity> _timeTickerManager = timeTickerManager;
     private readonly IPaddleService _paddleService = _paddleService;
@@ -55,11 +53,6 @@ public class SchedulerService(
     public async Task DeleteOldAIPromptsAsync()
     {
         await _aiPromptRepository.DeleteRangeAsync(x => x.CreatedAt < DateTime.UtcNow.AddMonths(-1));
-    }
-
-    public async Task DeleteOldErrorLogsAsync()
-    {
-        await _logsRepository.DeleteRangeAsync(x => x.TimeStamp < DateTime.UtcNow.AddDays(-7) && x.Level != null && x.Level.ToLower() == "error");
     }
 
     public async Task DeleteOldTripUserImprovementsLogAsync()
