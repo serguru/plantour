@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using plantour_server.DbModels;
@@ -10,6 +12,9 @@ namespace PlantourApi.Middleware;
 
 public class ApiVisitLoggingMiddleware
 {
+    private const string DailyVisitCacheKeyPrefix = "api-visit";
+    private const string DailyVisitLockCacheKeyPrefix = "api-visit-lock";
+
     private readonly RequestDelegate _next;
     private readonly ILogger<ApiVisitLoggingMiddleware> _logger;
 
@@ -60,7 +65,21 @@ public class ApiVisitLoggingMiddleware
             }
 
             var db = context.RequestServices.GetRequiredService<PlantourContext>();
+            var memoryCache = context.RequestServices.GetRequiredService<IMemoryCache>();
             var currentUser = context.Items["CurrentUser"] as CurrentUser;
+            var visitRecordedAtUtc = DateTime.UtcNow;
+            var remoteIpAddress = context.Connection.RemoteIpAddress;
+
+            if (await HasVisitBeenRecordedTodayAsync(
+                db,
+                memoryCache,
+                remoteIpAddress,
+                currentUser,
+                visitRecordedAtUtc,
+                context.RequestAborted))
+            {
+                return;
+            }
 
             var endpoint = context.GetEndpoint()?.DisplayName;
             var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
@@ -75,7 +94,7 @@ public class ApiVisitLoggingMiddleware
                 Endpoint = endpoint,
                 StatusCode = context.Response?.StatusCode,
                 DurationMs = (int)Math.Round(stopwatch.Elapsed.TotalMilliseconds),
-                IpAddress = context.Connection.RemoteIpAddress,
+                IpAddress = remoteIpAddress,
                 ForwardedFor = forwardedFor,
                 UserAgent = userAgent,
                 Referrer = referrer,
@@ -91,10 +110,131 @@ public class ApiVisitLoggingMiddleware
 
             db.ApiVisits.Add(visit);
             await db.SaveChangesAsync(context.RequestAborted);
+
+            MarkVisitRecordedToday(memoryCache, remoteIpAddress, currentUser, visitRecordedAtUtc);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, "Failed to store api visit");
+            // TODO LOG
+            // _logger.LogError(ex, "Failed to store api visit");
         }
+    }
+
+    private static async Task<bool> HasVisitBeenRecordedTodayAsync(
+        PlantourContext db,
+        IMemoryCache memoryCache,
+        System.Net.IPAddress? remoteIpAddress,
+        CurrentUser? currentUser,
+        DateTime utcNow,
+        CancellationToken cancellationToken)
+    {
+        var cacheKey = BuildDailyVisitCacheKey(remoteIpAddress, currentUser, utcNow);
+
+        if (cacheKey == null)
+        {
+            return false;
+        }
+
+        if (memoryCache.TryGetValue(cacheKey, out _))
+        {
+            return true;
+        }
+
+        var lockCacheKey = BuildDailyVisitLockCacheKey(cacheKey);
+        var visitLock = memoryCache.GetOrCreate(lockCacheKey, entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = GetRemainingUtcDayDuration(utcNow);
+            return new SemaphoreSlim(1, 1);
+        });
+
+        if (visitLock == null)
+        {
+            return false;
+        }
+
+        await visitLock.WaitAsync(cancellationToken);
+
+        try
+        {
+            if (memoryCache.TryGetValue(cacheKey, out _))
+            {
+                return true;
+            }
+
+            var dayStartUtc = utcNow.Date;
+            var nextDayUtc = dayStartUtc.AddDays(1);
+            var isAuthenticated = currentUser?.IsAuthenticated == true;
+            var currentUserId = currentUser?.UserId;
+
+            var visitQuery = db.ApiVisits
+                .AsNoTracking()
+                .Where(visit => visit.CreatedAt >= dayStartUtc && visit.CreatedAt < nextDayUtc)
+                .Where(visit => visit.IpAddress == remoteIpAddress);
+
+            if (isAuthenticated && currentUserId.HasValue)
+            {
+                visitQuery = visitQuery.Where(visit => visit.UserId == currentUserId.Value);
+            }
+            else
+            {
+                visitQuery = visitQuery.Where(visit => visit.UserId == null);
+            }
+
+            var visitExists = await visitQuery.AnyAsync(cancellationToken);
+
+            if (!visitExists)
+            {
+                return false;
+            }
+
+            MarkVisitRecordedToday(memoryCache, remoteIpAddress, currentUser, utcNow);
+            return true;
+        }
+        finally
+        {
+            visitLock.Release();
+        }
+    }
+
+    private static void MarkVisitRecordedToday(
+        IMemoryCache memoryCache,
+        System.Net.IPAddress? remoteIpAddress,
+        CurrentUser? currentUser,
+        DateTime utcNow)
+    {
+        var cacheKey = BuildDailyVisitCacheKey(remoteIpAddress, currentUser, utcNow);
+
+        if (cacheKey == null)
+        {
+            return;
+        }
+
+        memoryCache.Set(cacheKey, true, GetRemainingUtcDayDuration(utcNow));
+    }
+
+    private static string? BuildDailyVisitCacheKey(
+        System.Net.IPAddress? remoteIpAddress,
+        CurrentUser? currentUser,
+        DateTime utcNow)
+    {
+        if (remoteIpAddress == null)
+        {
+            return null;
+        }
+
+        var userKey = currentUser?.IsAuthenticated == true
+            ? currentUser.UserId.ToString("N")
+            : "anonymous";
+
+        return $"{DailyVisitCacheKeyPrefix}:{utcNow:yyyyMMdd}:{remoteIpAddress}:{userKey}";
+    }
+
+    private static string BuildDailyVisitLockCacheKey(string visitCacheKey)
+        => $"{DailyVisitLockCacheKeyPrefix}:{visitCacheKey}";
+
+    private static TimeSpan GetRemainingUtcDayDuration(DateTime utcNow)
+    {
+        var remaining = utcNow.Date.AddDays(1) - utcNow;
+        return remaining > TimeSpan.Zero ? remaining : TimeSpan.FromMinutes(1);
     }
 }

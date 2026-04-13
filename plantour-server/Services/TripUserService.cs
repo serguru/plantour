@@ -104,6 +104,8 @@ public class TripUserService(
             throw new CustomException("User does not have access to this trip");
         }
 
+        _logger.LogInformation("The trip's users requested {tripId}", tripId);
+
         var entities = await _tripUserRepository.GetAllAsync(_currentUser.AdminId, tripId);
 
         var dtos = _mapper.Map<IEnumerable<TripUserDto>>(entities);
@@ -249,7 +251,6 @@ public class TripUserService(
         {
             throw new CustomException("Trip user not found or access denied");
         }
-// TODO: make the inline emails in the UI as short as possible
 
         if (entity.SharedAmount <= 0)
         {
@@ -403,13 +404,14 @@ public class TripUserService(
                     trip.Name,
                     $"{baseUrl}/trips/{trip.Id}"));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _logger.LogWarning(
-                    ex,
-                    "Failed to send trip participant invitation email for trip {TripId} and adminParticipant {AdminParticipantId}",
-                    tripId,
-                    participant.Id);
+                // TODO LOG
+                // _logger.LogWarning(
+                //     ex,
+                //     "Failed to send trip participant invitation email for trip {TripId} and adminParticipant {AdminParticipantId}",
+                //     tripId,
+                //     participant.Id);
             }
         }
     }
@@ -452,9 +454,10 @@ public class TripUserService(
                 entity.AssignedDeadline,
                 $"{baseUrl}/trips/{entity.TripId}/trip-participants"));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogWarning(ex, "Failed to send expense assignment notification email for trip {TripId} and trip user {TripUserId}", entity.TripId, entity.Id);
+            // TODO LOG
+            // _logger.LogWarning(ex, "Failed to send expense assignment notification email for trip {TripId} and trip user {TripUserId}", entity.TripId, entity.Id);
         }
     }
 
@@ -499,9 +502,10 @@ public class TripUserService(
                 "refused",
                 $"{baseUrl}/trips/{entity.TripId}/trip-participants"));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogWarning(ex, "Failed to send admin expense rejection email for trip {TripId} and trip user {TripUserId}", entity.TripId, entity.Id);
+            // TODO LOG
+            // _logger.LogWarning(ex, "Failed to send admin expense rejection email for trip {TripId} and trip user {TripUserId}", entity.TripId, entity.Id);
         }
     }
 

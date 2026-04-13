@@ -16,20 +16,16 @@ using QuestPDF.Infrastructure;
 using System.Text.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Serilog;
-using Serilog.Events;
-using Serilog.Settings.Configuration;
-using Serilog.Sinks.PostgreSQL;
-using NpgsqlTypes;
 using Microsoft.AspNetCore.HttpOverrides;
-using plantour_server.Utils.Logging;
 using plantour_server.Utils;
+using plantour_server.Logging;
 using TickerQ.DependencyInjection;
 using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
 using plantour_server.Services.TickerQ;
 using Npgsql;
 using System.Threading.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -75,6 +71,15 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     EnvironmentName = rawEnvironmentName
 });
 
+builder.Logging.ClearProviders();
+builder.Logging.SetMinimumLevel(LogLevel.Information);
+
+builder.Services.Configure<PlantourLoggerOptions>(
+    builder.Configuration.GetSection(PlantourLoggerOptions.SectionName));
+builder.Services.AddSingleton<PlantourLogQueue>();
+builder.Services.AddHostedService<PlantourLogWorker>();
+builder.Services.AddSingleton<ILoggerProvider, PlantourLoggerProvider>();
+
 var env = builder.Environment;
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -96,68 +101,7 @@ if (string.IsNullOrWhiteSpace(aspNetUrls) && !string.IsNullOrWhiteSpace(renderPo
     builder.WebHost.UseUrls($"http://0.0.0.0:{renderPort}");
 }
 
-// Configure Serilog with explicit column mappings for PostgreSQL
-var columnOptions = new Dictionary<string, ColumnWriterBase>
-{
-    { "message_template", new RenderedMessageColumnWriter(NpgsqlDbType.Text) },
-    { "level", new LevelColumnWriter(true, NpgsqlDbType.Varchar) },
-    { "time_stamp", new UnspecifiedUtcTimestampColumnWriter() },
-    { "exception", new ExceptionColumnWriter(NpgsqlDbType.Text) },
-    { "log_event", new LogEventSerializedColumnWriter(NpgsqlDbType.Text) },
-    { "properties", new PropertiesColumnWriter(NpgsqlDbType.Jsonb) },
-    { "event_type", new SinglePropertyColumnWriter("event_type", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar) },
-    { "subtype", new SinglePropertyColumnWriter("subtype", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar) }
-};
-
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// Read MinimumLevel from appsettings
-var minimumLevelSection = builder.Configuration.GetSection("Serilog:MinimumLevel");
-var minimumLevelString = minimumLevelSection["Default"]
-    ?? minimumLevelSection.Value
-    ?? "Information";
-
-if (!Enum.TryParse<LogEventLevel>(minimumLevelString, true, out var minimumLevel))
-{
-    minimumLevel = LogEventLevel.Information;
-}
-
-var loggerConfiguration = new LoggerConfiguration()
-    .MinimumLevel.Is(minimumLevel)
-    .Enrich.FromLogContext()
-    .Enrich.WithEnvironmentUserName()
-    .Enrich.WithMachineName()
-    .Enrich.WithProcessId()
-    .WriteTo.PostgreSQL(
-        connectionString: connectionString,
-        tableName: "logs",
-        columnOptions: columnOptions,
-        schemaName: "plantour",
-        needAutoCreateTable: false
-    )
-    .WriteTo.Logger(consoleLogger => consoleLogger
-        .Filter.ByExcluding(logEvent =>
-            logEvent.Properties.TryGetValue("SourceContext", out var sourceContext)
-            && sourceContext is ScalarValue { Value: string sourceContextValue }
-            && sourceContextValue.Contains("TickerQ", StringComparison.Ordinal)
-        )
-        .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"));
-
-foreach (var overrideSection in minimumLevelSection.GetSection("Override").GetChildren())
-{
-    if (Enum.TryParse<LogEventLevel>(overrideSection.Value, true, out var overrideLevel))
-    {
-        loggerConfiguration.MinimumLevel.Override(overrideSection.Key, overrideLevel);
-    }
-}
-
-Serilog.Log.Logger = loggerConfiguration.CreateLogger();
-
-// try
-// {
-Serilog.Log.Information("Starting Plantour API application");
-
-builder.Host.UseSerilog();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -166,6 +110,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection();
+builder.Services.AddMemoryCache();
 builder.Services.AddHybridCache(options =>
 {
     options.MaximumPayloadBytes = 1024 * 1024;
@@ -211,6 +156,7 @@ dataSourceBuilder.ConnectionStringBuilder.Timezone = "UTC";
 
 // 2. Build the DataSource
 var dataSource = dataSourceBuilder.Build();
+builder.Services.AddSingleton(dataSource);
 
 // Configure PostgreSQL connection
 // builder.Services.AddDbContext<PlantourContext>(options =>
@@ -526,6 +472,7 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IPaddleService, PaddleService>();
 builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
 builder.Services.AddScoped<ISchedulerService, SchedulerService>();
+builder.Services.AddHostedService<FatalExceptionNotificationService>();
 builder.Services.AddScoped<AccessCodeGenerator>();
 builder.Services.AddHttpClient<IBotProtectionService, BotProtectionService>();
 builder.Services.AddHttpClient<IExpenseCurrencyRateService, ExpenseCurrencyRateService>();
@@ -570,7 +517,6 @@ builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripNoteRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.LogsRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AiTripPlanRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();

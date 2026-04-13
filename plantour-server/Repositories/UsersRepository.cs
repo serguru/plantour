@@ -31,7 +31,8 @@ public class UsersRepository(
             var adminEmail = await _settingsRepository.GetSettingByKey("admin_email") as string;
             if (string.IsNullOrWhiteSpace(adminEmail))
             {
-                _logger.LogWarning("Admin email setting is missing or empty; skipping new user notification for {UserId}", createdUser.Id);
+                // TODO LOG
+                // _logger.LogWarning("Admin email setting is missing or empty; skipping new user notification for {UserId}", createdUser.Id);
                 return createdUser;
             }
 
@@ -60,9 +61,10 @@ public class UsersRepository(
                 createdUser.ParticipantCode,
                 createdUser.PaddleSubscriptionId));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, "Failed to send admin notification for newly created user {UserId}", createdUser.Id);
+            // TODO LOG
+            // _logger.LogError(ex, "Failed to send admin notification for newly created user {UserId}", createdUser.Id);
         }
 
         return createdUser;

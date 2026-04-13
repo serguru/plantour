@@ -46,10 +46,11 @@ public class BotProtectionService : IBotProtectionService
         using var response = await _httpClient.SendAsync(request, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError(
-                "Turnstile verification request failed with status code {StatusCode} for action {Action}",
-                response.StatusCode,
-                action);
+            // TODO LOG
+            // _logger.LogError(
+            //     "Turnstile verification request failed with status code {StatusCode} for action {Action}",
+            //     response.StatusCode,
+            //     action);
 
             throw new BaseApiException(
                 "Human verification is temporarily unavailable. Please try again.",
@@ -63,12 +64,13 @@ public class BotProtectionService : IBotProtectionService
             return;
         }
 
-        _logger.LogWarning(
-            "Turnstile verification failed for action {Action}. Errors: {Errors}",
-            action,
-            verificationResult?.ErrorCodes is { Length: > 0 }
-                ? string.Join(",", verificationResult.ErrorCodes)
-                : "unknown");
+        // TODO LOG
+        // _logger.LogWarning(
+        //     "Turnstile verification failed for action {Action}. Errors: {Errors}",
+        //     action,
+        //     verificationResult?.ErrorCodes is { Length: > 0 }
+        //         ? string.Join(",", verificationResult.ErrorCodes)
+        //         : "unknown");
 
         throw new BaseApiException("Human verification failed. Please try again.", StatusCodes.Status400BadRequest, "BOT_PROTECTION_FAILED");
     }
@@ -80,7 +82,8 @@ public class BotProtectionService : IBotProtectionService
             return;
         }
 
-        _logger.LogWarning("Honeypot field {FieldName} was filled. Request rejected.", fieldName);
+        // TODO LOG
+        // _logger.LogWarning("Honeypot field {FieldName} was filled. Request rejected.", fieldName);
         throw new BaseApiException("Request rejected.", StatusCodes.Status400BadRequest, "BOT_PROTECTION_FAILED");
     }
 

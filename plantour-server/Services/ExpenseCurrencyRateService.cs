@@ -23,7 +23,8 @@ public class ExpenseCurrencyRateService(HttpClient httpClient, ILogger<ExpenseCu
             using var response = await _httpClient.GetAsync(url, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Failed to resolve exchange rate from {FromCurrency} to {ToCurrency}. Status code: {StatusCode}", from, to, response.StatusCode);
+                // TODO LOG
+                // _logger.LogWarning("Failed to resolve exchange rate from {FromCurrency} to {ToCurrency}. Status code: {StatusCode}", from, to, response.StatusCode);
                 return null;
             }
 
@@ -34,15 +35,17 @@ public class ExpenseCurrencyRateService(HttpClient httpClient, ILogger<ExpenseCu
                 !ratesElement.TryGetProperty(to, out var rateElement) ||
                 !rateElement.TryGetDecimal(out var rate))
             {
-                _logger.LogWarning("Exchange rate response did not contain a valid rate from {FromCurrency} to {ToCurrency}", from, to);
+                // TODO LOG
+                // _logger.LogWarning("Exchange rate response did not contain a valid rate from {FromCurrency} to {ToCurrency}", from, to);
                 return null;
             }
 
             return rate;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogWarning(ex, "Failed to resolve exchange rate from {FromCurrency} to {ToCurrency}", from, to);
+            // TODO LOG
+            // _logger.LogWarning(ex, "Failed to resolve exchange rate from {FromCurrency} to {ToCurrency}", from, to);
             return null;
         }
     }

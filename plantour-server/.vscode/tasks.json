@@ -19,6 +19,19 @@
 			}
 		},
 		{
+			"label": "build maintenance",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/../plantour-maintenance-server/plantour-maintenance-server.csproj",
+				"/property:GenerateFullPaths=true",
+				"/t:build",
+				"/p:Configuration=Debug"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
 			"label": "watch",
 			"command": "dotnet",
 			"type": "process",

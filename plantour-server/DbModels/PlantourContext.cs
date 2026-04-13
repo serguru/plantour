@@ -39,8 +39,6 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Currency> Currencies { get; set; }
 
-    public virtual DbSet<ErrorLog> ErrorLogs { get; set; }
-
     public virtual DbSet<Gender> Genders { get; set; }
 
     public virtual DbSet<Invitation> Invitations { get; set; }
@@ -57,11 +55,11 @@ public partial class PlantourContext : DbContext
 
     public virtual DbSet<Price> Prices { get; set; }
 
-    public virtual DbSet<RecentLog> RecentLogs { get; set; }
-
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public virtual DbSet<Setting> Settings { get; set; }
+
+    public virtual DbSet<Superuser> Superusers { get; set; }
 
     public virtual DbSet<TemperatureRange> TemperatureRanges { get; set; }
 
@@ -238,11 +236,6 @@ public partial class PlantourContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });
 
-        modelBuilder.Entity<ErrorLog>(entity =>
-        {
-            entity.ToView("error_logs", "plantour");
-        });
-
         modelBuilder.Entity<Gender>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("genders_pkey");
@@ -281,17 +274,9 @@ public partial class PlantourContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("logs_pkey");
 
-            entity.ToTable("logs", "plantour", tb => tb.HasComment("stores application log events from serilog framework"));
-
-            entity.Property(e => e.Id).HasComment("auto-incrementing primary key");
-            entity.Property(e => e.Exception).HasComment("exception details if applicable");
-            entity.Property(e => e.Level).HasComment("log level: verbose, debug, information, warning, error, fatal");
-            entity.Property(e => e.LogEvent).HasComment("complete log event as json");
-            entity.Property(e => e.MessageTemplate).HasComment("the log message template with placeholders");
-            entity.Property(e => e.Properties).HasComment("additional structured properties as json (enrichers, context data)");
-            entity.Property(e => e.TimeStamp)
-                .HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)")
-                .HasComment("timestamptz when the log event was recorded");
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Properties).HasDefaultValueSql("'{}'::jsonb");
         });
 
         modelBuilder.Entity<PaymentMethod>(entity =>
@@ -321,11 +306,6 @@ public partial class PlantourContext : DbContext
                 .HasConstraintName("prices_plan_id_fkey");
         });
 
-        modelBuilder.Entity<RecentLog>(entity =>
-        {
-            entity.ToView("recent_logs", "plantour");
-        });
-
         modelBuilder.Entity<RefreshToken>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("refresh_tokens_pkey");
@@ -342,6 +322,14 @@ public partial class PlantourContext : DbContext
 
             entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.ValueType).HasDefaultValueSql("'string'::text");
+        });
+
+        modelBuilder.Entity<Superuser>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("superusers_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
         });
 
         modelBuilder.Entity<TemperatureRange>(entity =>

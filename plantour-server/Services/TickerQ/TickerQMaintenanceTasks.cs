@@ -7,7 +7,6 @@ public class TickerQMaintenanceTasks
 {
     public const string DeleteExpiredRefreshTokensFunction = "Plantour_DeleteExpiredRefreshTokens";
     public const string DeleteOldAIPromptsFunction = "Plantour_DeleteOldAIPrompts";
-    public const string DeleteOldErrorLogsFunction = "Plantour_DeleteOldErrorLogs";
     public const string DeleteOldTripUserImprovementsLogFunction = "Plantour_DeleteOldTripUserImprovementsLog";
 
     private readonly ISchedulerService _schedulerService;
@@ -25,27 +24,23 @@ public class TickerQMaintenanceTasks
     public async Task DeleteExpiredRefreshTokensAsync(TickerFunctionContext context, CancellationToken cancellationToken)
     {
         await _schedulerService.DeleteExpiredRefreshTokensAsync();
-        _logger.LogInformation("TickerQ maintenance executed: {Function}, event_type: {event_type}, subtype: {subtype}", DeleteExpiredRefreshTokensFunction, "scheduler", "delete_expired_refresh_tokens");
+        // TODO LOG
+        // _logger.LogInformation("TickerQ maintenance executed: {Function}, event_type: {event_type}, subtype: {subtype}", DeleteExpiredRefreshTokensFunction, "scheduler", "delete_expired_refresh_tokens");
     }
 
     [TickerFunction(DeleteOldAIPromptsFunction)]
     public async Task DeleteOldAIPromptsAsync(TickerFunctionContext context, CancellationToken cancellationToken)
     {
         await _schedulerService.DeleteOldAIPromptsAsync();
-        _logger.LogInformation("TickerQ maintenance executed: {Function}", DeleteOldAIPromptsFunction);
-    }
-
-    [TickerFunction(DeleteOldErrorLogsFunction)]
-    public async Task DeleteOldErrorLogsAsync(TickerFunctionContext context, CancellationToken cancellationToken)
-    {
-        await _schedulerService.DeleteOldErrorLogsAsync();
-        _logger.LogInformation("TickerQ maintenance executed: {Function}", DeleteOldErrorLogsFunction);
+        // TODO LOG
+        // _logger.LogInformation("TickerQ maintenance executed: {Function}", DeleteOldAIPromptsFunction);
     }
 
     [TickerFunction(DeleteOldTripUserImprovementsLogFunction)]
     public async Task DeleteOldTripUserImprovementsLogAsync(TickerFunctionContext context, CancellationToken cancellationToken)
     {
         await _schedulerService.DeleteOldTripUserImprovementsLogAsync();
-        _logger.LogInformation("TickerQ maintenance executed: {Function}", DeleteOldTripUserImprovementsLogFunction);
+        // TODO LOG
+        // _logger.LogInformation("TickerQ maintenance executed: {Function}", DeleteOldTripUserImprovementsLogFunction);
     }
 }

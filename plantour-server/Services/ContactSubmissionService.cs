@@ -51,7 +51,8 @@ public class ContactSubmissionService(
             var supportEmail = await _settingsRepository.GetSettingByKey("support_email") as string;
             if (string.IsNullOrWhiteSpace(supportEmail))
             {
-                _logger.LogWarning("Support email setting is missing or empty; skipping contact submission notification for {Email}", request.Email);
+                // TODO LOG
+                // _logger.LogWarning("Support email setting is missing or empty; skipping contact submission notification for {Email}", request.Email);
             }
             else
             {
@@ -69,9 +70,10 @@ public class ContactSubmissionService(
                     referrerUrl));
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, "Failed to send support notification for contact submission {SubmissionId}", submission.Id);
+            // TODO LOG
+            // _logger.LogError(ex, "Failed to send support notification for contact submission {SubmissionId}", submission.Id);
         }
 
         return _mapper.Map<ContactSubmissionDto>(result);

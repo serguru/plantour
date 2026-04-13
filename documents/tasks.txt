@@ -1059,3 +1059,43 @@ What options do I have?
 
 
 Explore the project's code dealing with Dropbox. The app uses Dropbox to allow users authorize Plantour to access their private images and add references to those images (not images themselves!) to Plantour notes. Once a user clicks a Dropbox Some time ago it w
+
+
+Generate a new .Net web API application plantour-maintenance-server and put it to a new plantour-maintenance-server folder. Add it to the plantour workspace. This API will work with the same DB that the plantour-server API works and serve for Plantour maintenance. Use the same .Net packages the plantour API uses.
+
+ See superusers db table. Implement the necessary API features like UserController, UserService,  UserRepository, dtos, mapping, etc. Implement a user sign in endpoint. No signup endpoint, the superusers will be added to the db directly. 
+
+The password must be hashed. Generate a SQL function which will take a password as an input param and return a hashed password. Put it to DB\Scripts\1 plantour-tables.sql. Put secret and salt to appsettings.json. Generate 3 appjson files similar to plantour-server. That function must be accessible via an endpoint. All the endpoints must by default require the autorized user. No roles. The sign in endpoint must return a JWT token with the expire date set through appsettings.json similar to the existing API. No refresh tokens. 
+
+
+
+    "DefaultConnection": "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=Binary_09;SSL Mode=Disable"
+
+Add another component to the Maintenance app called "Logs".  Add Use TanStack Table Spartan component to provide sorting, filtering, grouping and pagination. 
+
+
+
+
+
+Remove all the optional UI elements from the Landing page. Leave only the toolbar at the top with menus. Store in the local storage and restore open the last open page automatically. If no page stored - open a Dashboard page (create it and leave it blank for now)
+
+
+Add to M another component Users with the UI and logic as for Visits and Logs. Combine users data from the Plantour DB with data taken from the Paddle API, see how it is done in the main API. Explore Paddle API documentation and find out how is it possible to get the entire Plantour customers list from them, including how much money they paid in total. 
+
+Identify their customers with Plantour users by email. Provide columns: Id (from users db table), email, Full name, Admin or Participant/Admin, plan (if admin), temporary ot not, date joined, if they have an active subscription, date started the latest plan, last visit date, number of: trips, items, todos, expenses, travelers. Find out how to get from Paddle the customer's payments total and add it as a column. Do not request payments total individually for each customer, it should be done as a sinle API request.
+
+Take into account not all Plantour users has the corresponding Paddle user.
+
+
+Explore ZLog
+
+Logging requirements
+
+- id
+- message date
+- current user id 
+- type: info, warning, exception
+- message
+- json
+
+

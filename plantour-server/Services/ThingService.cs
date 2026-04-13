@@ -109,7 +109,8 @@ public class ThingService(
         var logNeeded = dates != null && dates.Start <= now && now <= dates.End;
         if (logNeeded)
         {
-            _logger.LogInformation("User added an item id = {thingId}, name = {name}, event_type: {event_type}, subtype: {subtype}", entity!.Id, entity.Name, "user_log_entities", "item_added");
+            // TODO LOG
+            // _logger.LogInformation("User added an item id = {thingId}, name = {name}, event_type: {event_type}, subtype: {subtype}", entity!.Id, entity.Name, "user_log_entities", "item_added");
         }
         return _mapper.Map<ThingDto>(entity);
     }
@@ -156,7 +157,8 @@ public class ThingService(
 
         if (logNeeded)
         {
-            _logger.LogInformation("User deleted an item id = {thingId}, name = {name}, event_type: {event_type}, subtype: {subtype}", thing!.Id, thing.Name, "user_log_entities", "item_deleted");
+            // TODO LOG
+            // _logger.LogInformation("User deleted an item id = {thingId}, name = {name}, event_type: {event_type}, subtype: {subtype}", thing!.Id, thing.Name, "user_log_entities", "item_deleted");
         }
 
     }

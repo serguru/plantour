@@ -19,10 +19,11 @@
     <div class="view-content">
       <button
         class="pl-button dashboard-button"
+        [disabled]="isDashboardButtonDisabled()"
         (click)="onDashboardClick($event)"
       >
         <span class="pi pi-table"></span>
-        <span class="button-label">Dashboard</span>
+        <span class="button-label">{{ dashboardButtonLabel }}</span>
       </button>
 
       <button

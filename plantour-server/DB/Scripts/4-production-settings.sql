@@ -13,6 +13,7 @@ values
     ('send_email_user_created', 'true',  'boolean'),
     ('app_version', '2.15.7',  'string'),
     ('global_spinner_timeout_sec', '30',  'integer'),
+    ('exclude_paths_from_log', 'users/health-check;users/version;version',  'string'),
     ('plantour_app_origin', 'https://plantour.app',  'string');
 
 insert into plantour.plans (name, paddle_product_id, notes, public, 
