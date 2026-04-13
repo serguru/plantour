@@ -24,15 +24,6 @@ public class ApiVisitLoggingMiddleware
         _logger = logger;
     }
 
-    // public List<string> GetNoLogPaths()
-    // {
-    //     object? setting = GetSettingByKey("exclude_paths_from_log") ?? throw new CustomException("exclude_paths_from_log setting not found");
-    //     string s = (string)setting;
-    //     List<string> result = [.. s.Split(";")];
-    //     return result;
-    // }
-
-
     public async Task InvokeAsync(HttpContext context)
     {
         var stopwatch = Stopwatch.StartNew();

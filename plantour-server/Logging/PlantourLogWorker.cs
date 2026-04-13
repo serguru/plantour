@@ -138,7 +138,10 @@ public sealed class PlantourLogWorker(
             command.Parameters.Add(new NpgsqlParameter<Guid>("id", entry.Id));
             command.Parameters.Add(new NpgsqlParameter<DateTime>("created_at", entry.CreatedAtUtc));
             command.Parameters.Add(new NpgsqlParameter<string>("severity", entry.Severity));
-            command.Parameters.Add(new NpgsqlParameter<string>("category", entry.Category));
+            command.Parameters.Add(new NpgsqlParameter("category", NpgsqlDbType.Text)
+            {
+                Value = entry.Category ?? (object)DBNull.Value
+            });
             command.Parameters.Add(new NpgsqlParameter<string>("message", entry.Message));
             command.Parameters.Add(new NpgsqlParameter("user_id", NpgsqlDbType.Uuid)
             {
@@ -146,7 +149,7 @@ public sealed class PlantourLogWorker(
             });
             command.Parameters.Add(new NpgsqlParameter("properties", NpgsqlDbType.Jsonb)
             {
-                Value = entry.Properties
+                Value = entry.Properties ?? (object)DBNull.Value
             });
             npgsqlBatch.BatchCommands.Add(command);
         }
@@ -159,7 +162,9 @@ public sealed class PlantourLogWorker(
     {
         foreach (var entry in batch)
         {
-            var line = $"[{entry.CreatedAtUtc:O}] [{entry.Severity}] {entry.Category}: {entry.Message}";
+            var line = string.IsNullOrWhiteSpace(entry.Category)
+                ? $"[{entry.CreatedAtUtc:O}] [{entry.Severity}] {entry.Message}"
+                : $"[{entry.CreatedAtUtc:O}] [{entry.Severity}] {entry.Category}: {entry.Message}";
             if (entry.Severity == "e")
             {
                 Console.Error.WriteLine(line);

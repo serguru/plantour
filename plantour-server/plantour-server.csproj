@@ -88,6 +88,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="**\obj\**\*.cs" />
+    <Compile Remove="obj\**\*.cs" />
+    <Compile Remove="plantour-shared-db\**\*.cs" />
     <Compile Remove="DbModels\**\*.cs" />
     <Compile Include="DbModels\TickerQOperationalDbContext.cs" />
   </ItemGroup>

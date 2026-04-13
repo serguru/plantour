@@ -7,9 +7,11 @@ using System.Net.Mime;
 
 namespace PlantourApi.Middleware;
 
-public class GlobalExceptionHandler(IPlantourLogger<GlobalExceptionHandler> logger) : IExceptionHandler
+public class GlobalExceptionHandler(IPlantourLogger logger) : IExceptionHandler
 {
-    private readonly IPlantourLogger<GlobalExceptionHandler> _logger = logger;
+    private const string LoggerCategory = nameof(GlobalExceptionHandler);
+
+    private readonly IPlantourLogger _logger = logger;
 
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
@@ -48,23 +50,31 @@ public class GlobalExceptionHandler(IPlantourLogger<GlobalExceptionHandler> logg
         {
             _logger.LogError(
                 exception,
-                "Unhandled exception for {RequestMethod} {RequestPath}. StatusCode: {StatusCode}, Code: {Code}, TraceId: {TraceId}",
-                requestMethod,
-                requestPath,
-                statusCode,
-                code,
-                httpContext.TraceIdentifier);
+                $"Unhandled exception for {requestMethod} {requestPath}. StatusCode: {statusCode}, Code: {code}, TraceId: {httpContext.TraceIdentifier}",
+                LoggerCategory,
+                new
+                {
+                    request_method = requestMethod,
+                    request_path = requestPath,
+                    status_code = statusCode,
+                    code,
+                    trace_id = httpContext.TraceIdentifier
+                });
         }
         else
         {
             _logger.LogWarning(
                 exception,
-                "Handled exception for {RequestMethod} {RequestPath}. StatusCode: {StatusCode}, Code: {Code}, TraceId: {TraceId}",
-                requestMethod,
-                requestPath,
-                statusCode,
-                code,
-                httpContext.TraceIdentifier);
+                $"Handled exception for {requestMethod} {requestPath}. StatusCode: {statusCode}, Code: {code}, TraceId: {httpContext.TraceIdentifier}",
+                LoggerCategory,
+                new
+                {
+                    request_method = requestMethod,
+                    request_path = requestPath,
+                    status_code = statusCode,
+                    code,
+                    trace_id = httpContext.TraceIdentifier
+                });
         }
 
         var response = new ApiErrorResponse

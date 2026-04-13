@@ -1,70 +1,100 @@
-using System.Globalization;
-using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PlantourApi.Models;
-using System.Text.RegularExpressions;
 
 namespace plantour_server.Logging;
 
-public sealed class PlantourLogger<TCategory>(
+public sealed class PlantourLogger(
     PlantourLogQueue queue,
     IHttpContextAccessor httpContextAccessor,
-    IOptionsMonitor<PlantourLoggerOptions> options) : IPlantourLogger<TCategory>
+    IOptionsMonitor<PlantourLoggerOptions> options) : IPlantourLogger
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-    private static readonly Regex TemplateTokenRegex = new(@"(?<!\{)\{(?<name>[^{}:]+)(?:[^{}]*)\}(?!\})", RegexOptions.Compiled);
 
     private readonly PlantourLogQueue _queue = queue;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IOptionsMonitor<PlantourLoggerOptions> _options = options;
-    private readonly string _categoryName = typeof(TCategory).FullName ?? typeof(TCategory).Name;
 
-    public void LogInformation(string messageTemplate, params object?[] args)
+    public void LogInformation(string message)
     {
-        Write(LogLevel.Information, null, messageTemplate, args);
+        Write(LogLevel.Information, null, message, null, null);
     }
 
-    public void LogWarning(string messageTemplate, params object?[] args)
+    public void LogInformation(string message, string? category)
     {
-        Write(LogLevel.Warning, null, messageTemplate, args);
+        Write(LogLevel.Information, null, message, category, null);
     }
 
-    public void LogWarning(Exception? exception, string messageTemplate, params object?[] args)
+    public void LogInformation(string message, string? category, object? properties)
     {
-        Write(LogLevel.Warning, exception, messageTemplate, args);
+        Write(LogLevel.Information, null, message, category, properties);
     }
 
-    public void LogError(string messageTemplate, params object?[] args)
+    public void LogWarning(string message)
     {
-        Write(LogLevel.Error, null, messageTemplate, args);
+        Write(LogLevel.Warning, null, message, null, null);
     }
 
-    public void LogError(Exception? exception, string messageTemplate, params object?[] args)
+    public void LogWarning(string message, string? category)
     {
-        Write(LogLevel.Error, exception, messageTemplate, args);
+        Write(LogLevel.Warning, null, message, category, null);
     }
 
-    public void LogCritical(string messageTemplate, params object?[] args)
+    public void LogWarning(string message, string? category, object? properties)
     {
-        Write(LogLevel.Critical, null, messageTemplate, args);
+        Write(LogLevel.Warning, null, message, category, properties);
     }
 
-    public void LogCritical(Exception? exception, string messageTemplate, params object?[] args)
+    public void LogWarning(Exception? exception, string message)
     {
-        Write(LogLevel.Critical, exception, messageTemplate, args);
+        Write(LogLevel.Warning, exception, message, null, null);
     }
 
-    private void Write(LogLevel logLevel, Exception? exception, string messageTemplate, params object?[] args)
+    public void LogWarning(Exception? exception, string message, string? category)
     {
-        if (!IsEnabled(logLevel) || string.IsNullOrWhiteSpace(messageTemplate))
-        {
-            return;
-        }
+        Write(LogLevel.Warning, exception, message, category, null);
+    }
 
-        var (message, propertiesJson) = BuildMessageAndPropertiesJson(messageTemplate, args, exception);
-        if (string.IsNullOrWhiteSpace(message))
+    public void LogWarning(Exception? exception, string message, string? category, object? properties)
+    {
+        Write(LogLevel.Warning, exception, message, category, properties);
+    }
+
+    public void LogError(string message)
+    {
+        Write(LogLevel.Error, null, message, null, null);
+    }
+
+    public void LogError(string message, string? category)
+    {
+        Write(LogLevel.Error, null, message, category, null);
+    }
+
+    public void LogError(string message, string? category, object? properties)
+    {
+        Write(LogLevel.Error, null, message, category, properties);
+    }
+
+    public void LogError(Exception? exception, string message)
+    {
+        Write(LogLevel.Error, exception, message, null, null);
+    }
+
+    public void LogError(Exception? exception, string message, string? category)
+    {
+        Write(LogLevel.Error, exception, message, category, null);
+    }
+
+    public void LogError(Exception? exception, string message, string? category, object? properties)
+    {
+        Write(LogLevel.Error, exception, message, category, properties);
+    }
+
+    private void Write(LogLevel logLevel, Exception? exception, string message, string? category, object? properties)
+    {
+        if (!IsEnabled(logLevel) || string.IsNullOrWhiteSpace(message))
         {
             return;
         }
@@ -73,10 +103,10 @@ public sealed class PlantourLogger<TCategory>(
             Guid.NewGuid(),
             DateTime.UtcNow,
             ToSeverity(logLevel),
-            _categoryName,
+            category,
             message,
             GetCurrentUserId(),
-            propertiesJson);
+            BuildPropertiesJson(properties, exception));
 
         if (_queue.TryEnqueue(entry))
         {
@@ -101,92 +131,29 @@ public sealed class PlantourLogger<TCategory>(
         return currentUser?.IsAuthenticated == true ? currentUser.UserId : null;
     }
 
-    private string BuildPropertiesJson(string messageTemplate, object?[] args, Exception? exception)
+    private static string? BuildPropertiesJson(object? properties, Exception? exception)
     {
-        var properties = new Dictionary<string, string?>(StringComparer.Ordinal)
+        if (properties == null && exception == null)
         {
-            ["original_format"] = messageTemplate
-        };
-
-        var matches = TemplateTokenRegex.Matches(messageTemplate);
-        for (var index = 0; index < matches.Count; index++)
-        {
-            var propertyName = matches[index].Groups["name"].Value;
-            var propertyValue = index < args.Length ? ConvertToString(args[index]) : null;
-            if (!string.IsNullOrWhiteSpace(propertyName))
-            {
-                properties[propertyName] = propertyValue;
-            }
+            return null;
         }
 
-        for (var index = matches.Count; index < args.Length; index++)
+        if (exception == null)
         {
-            properties[$"arg_{index}"] = ConvertToString(args[index]);
+            return JsonSerializer.Serialize(properties, JsonOptions);
         }
 
-        var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext != null)
-        {
-            properties["request_path"] = httpContext.Request.Path.Value;
-            properties["request_method"] = httpContext.Request.Method;
-            properties["trace_id"] = httpContext.TraceIdentifier;
-        }
+        var jsonObject = JsonSerializer.SerializeToNode(properties, JsonOptions) as JsonObject ?? new JsonObject();
+        jsonObject["exception_type"] = exception.GetType().FullName;
+        jsonObject["exception_message"] = exception.Message;
+        jsonObject["stack_trace"] = exception.StackTrace;
 
-        if (exception != null)
-        {
-            properties["exception_type"] = exception.GetType().FullName;
-            properties["exception_message"] = exception.Message;
-            properties["stack_trace"] = exception.StackTrace;
-        }
-
-        return JsonSerializer.Serialize(properties, JsonOptions);
-    }
-
-    private (string Message, string PropertiesJson) BuildMessageAndPropertiesJson(string messageTemplate, object?[] args, Exception? exception)
-    {
-        return (RenderMessage(messageTemplate, args), BuildPropertiesJson(messageTemplate, args, exception));
-    }
-
-    private static string RenderMessage(string messageTemplate, object?[] args)
-    {
-        var matches = TemplateTokenRegex.Matches(messageTemplate);
-        if (matches.Count == 0)
-        {
-            return UnescapeBraces(messageTemplate);
-        }
-
-        var builder = new StringBuilder();
-        var lastIndex = 0;
-
-        for (var index = 0; index < matches.Count; index++)
-        {
-            var match = matches[index];
-            builder.Append(UnescapeBraces(messageTemplate[lastIndex..match.Index]));
-
-            if (index < args.Length)
-            {
-                builder.Append(ConvertToString(args[index]));
-            }
-            else
-            {
-                builder.Append(match.Value);
-            }
-
-            lastIndex = match.Index + match.Length;
-        }
-
-        builder.Append(UnescapeBraces(messageTemplate[lastIndex..]));
-        return builder.ToString();
-    }
-
-    private static string UnescapeBraces(string value)
-    {
-        return value.Replace("{{", "{").Replace("}}", "}");
+        return jsonObject.ToJsonString(JsonOptions);
     }
 
     private static bool IsSupportedLevel(LogLevel logLevel)
     {
-        return logLevel is LogLevel.Information or LogLevel.Warning or LogLevel.Error or LogLevel.Critical;
+        return logLevel is LogLevel.Information or LogLevel.Warning or LogLevel.Error;
     }
 
     private static LogLevel ParseMinimumLevel(string? configuredLevel)
@@ -203,20 +170,7 @@ public sealed class PlantourLogger<TCategory>(
             LogLevel.Information => "i",
             LogLevel.Warning => "w",
             LogLevel.Error => "e",
-            LogLevel.Critical => "e",
             _ => throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null)
-        };
-    }
-
-    private static string? ConvertToString(object? value)
-    {
-        return value switch
-        {
-            null => null,
-            DateTime dateTime => dateTime.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
-            DateTimeOffset dateTimeOffset => dateTimeOffset.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
-            IFormattable formattable => formattable.ToString(null, CultureInfo.InvariantCulture),
-            _ => value.ToString()
         };
     }
 }

@@ -23,7 +23,7 @@ public class TripUserService(
     HttpCurrentUser httpCurrentUser,
     IEmailService emailService,
     SettingsRepository settingsRepository,
-    IPlantourLogger<TripUserService> logger) : ITripUserService
+    IPlantourLogger logger) : ITripUserService
 {
     private readonly TripUserRepository _tripUserRepository = tripUserRepository;
     private readonly TripSharedExpenseRepository _tripSharedExpenseRepository = tripSharedExpenseRepository;
@@ -35,7 +35,7 @@ public class TripUserService(
     private readonly TripRepository _tripRepository = tripRepository;
     private readonly IEmailService _emailService = emailService;
     private readonly SettingsRepository _settingsRepository = settingsRepository;
-    private readonly IPlantourLogger<TripUserService> _logger = logger;
+    private readonly IPlantourLogger _logger = logger;
 
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
 
@@ -99,20 +99,13 @@ public class TripUserService(
     public async Task<IEnumerable<TripUserDto>> GetAllAsync(Guid tripId)
     {
         _currentUser.RaiseIfNotAuthenticated();
-
         if (!await _checkAccessService.CurrentUserHasAccessToTripAsync(tripId))
         {
             throw new CustomException("User does not have access to this trip");
         }
-
-        _logger.LogInformation("The trip's users requested {tripId}", tripId);
-
         var entities = await _tripUserRepository.GetAllAsync(_currentUser.AdminId, tripId);
-
         var dtos = _mapper.Map<IEnumerable<TripUserDto>>(entities);
-
         dtos = dtos.Select((dto, index) => PopulateTripUserStats(dto, entities.ElementAt(index)));
-
         return dtos;
     }
 
