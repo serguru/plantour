@@ -7,9 +7,9 @@
   gap: 0.75rem;
   width: 100%;
   padding: 1rem;
-  border: 1px solid rgba(24, 49, 38, 0.12);
+  border: 1px solid var(--surface-border);
   border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--panel-overlay-bg);
 }
 
 .activity-top-panel__labels,
@@ -105,9 +105,9 @@ h1 {
   min-height: 2.75rem;
   width: 100%;
   padding: 0.7rem 0.9rem;
-  border: 1px solid rgba(24, 49, 38, 0.14);
+  border: 1px solid var(--surface-border);
   border-radius: 0.9rem;
-  background: rgba(255, 252, 246, 0.92);
+  background: var(--panel-bg);
   color: inherit;
   font: inherit;
 }
@@ -118,9 +118,9 @@ h1 {
 
 .control-input:focus,
 .group-select:focus {
-  outline: 2px solid rgba(40, 110, 73, 0.2);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
-  border-color: rgba(40, 110, 73, 0.35);
+  border-color: var(--focus-border);
 }
 
 .group-select {
@@ -128,10 +128,10 @@ h1 {
   min-height: 2.75rem;
   width: 100%;
   padding: 0.7rem 2.75rem 0.7rem 0.9rem;
-  border: 1px solid rgba(24, 49, 38, 0.14);
+  border: 1px solid var(--surface-border);
   border-radius: 0.9rem;
-  background: rgba(255, 252, 246, 0.92);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23243126' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 7 5 6 5-6'/%3E%3C/svg%3E");
+  background: var(--panel-bg);
+  background-image: var(--select-chevron);
   background-position: right 0.9rem center;
   background-repeat: no-repeat;
   background-size: 1rem 1rem;

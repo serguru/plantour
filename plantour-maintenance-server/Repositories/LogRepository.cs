@@ -30,7 +30,7 @@ public sealed class LogRepository(PlantourContext context)
                 log.Id,
                 log.CreatedAt,
                 log.Severity,
-                log.Category,
+                log.Category ?? string.Empty,
                 log.Message,
                 log.UserId,
                 log.Properties))
@@ -45,4 +45,4 @@ public sealed record LogRecord(
     string Category,
     string Message,
     Guid? UserId,
-    string Properties);
+    string? Properties);

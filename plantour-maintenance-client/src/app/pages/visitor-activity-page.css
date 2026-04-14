@@ -17,10 +17,10 @@ p {
 .error-banner {
   margin: 0;
   padding: 0.8rem 0.95rem;
-  border: 1px solid rgba(180, 35, 24, 0.2);
+  border: 1px solid var(--danger-border);
   border-radius: 0.95rem;
-  background: rgba(254, 243, 242, 0.95);
-  color: #b42318;
+  background: var(--danger-bg);
+  color: var(--danger-foreground);
 }
 
 .results-panel {
@@ -62,9 +62,9 @@ p {
 .results-pager__select {
   min-height: 2.4rem;
   padding: 0.45rem 0.75rem;
-  border: 1px solid rgba(24, 49, 38, 0.14);
+  border: 1px solid var(--surface-border);
   border-radius: 0.8rem;
-  background: rgba(255, 252, 246, 0.92);
+  background: var(--panel-bg);
   color: inherit;
   font: inherit;
 }
@@ -78,9 +78,9 @@ p {
 .results-pager__button {
   min-height: 2.4rem;
   padding: 0 0.9rem;
-  border: 1px solid rgba(24, 49, 38, 0.16);
+  border: 1px solid var(--surface-border-strong);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--panel-strong-bg);
   color: inherit;
   font: inherit;
   font-weight: 700;
@@ -98,9 +98,9 @@ p {
 
 .results-table-shell {
   overflow: hidden;
-  border: 1px solid rgba(24, 49, 38, 0.12);
+  border: 1px solid var(--surface-border);
   border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--panel-strong-bg);
   width: 100%;
   padding: 1rem;
 }
@@ -128,7 +128,7 @@ p {
 }
 
 .results-row--group {
-  background: rgba(36, 77, 58, 0.04);
+  background: var(--grouped-surface);
 }
 
 .group-toggle {

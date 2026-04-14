@@ -1,7 +1,8 @@
-export const DEFAULT_AUTHENTICATED_ROUTE = '/dashboard';
+export const FIRST_AUTHENTICATED_TOOLBAR_ROUTE = '/visitor-activity';
+export const FIRST_UNAUTHENTICATED_TOOLBAR_ROUTE = '/sign-in';
 export const LAST_OPEN_PAGE_STORAGE_KEY = 'plantour-maintenance.last-open-page';
 
-const PERSISTABLE_ROUTES = new Set(['/dashboard', '/visitor-activity', '/users', '/logs']);
+const PERSISTABLE_ROUTES = new Set(['/visitor-activity', '/users', '/logs', '/settings']);
 
 export function isPersistableRoute(url: string | null | undefined): url is string {
   if (!url) {
@@ -13,7 +14,7 @@ export function isPersistableRoute(url: string | null | undefined): url is strin
 
 export function normalizeStoredRoute(url: string | null | undefined): string {
   if (!isPersistableRoute(url)) {
-    return DEFAULT_AUTHENTICATED_ROUTE;
+    return FIRST_AUTHENTICATED_TOOLBAR_ROUTE;
   }
 
   return stripQueryStringAndHash(url);

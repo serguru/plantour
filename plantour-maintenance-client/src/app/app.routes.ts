@@ -1,27 +1,32 @@
 import { Routes } from '@angular/router';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { DEFAULT_AUTHENTICATED_ROUTE, LAST_OPEN_PAGE_STORAGE_KEY, normalizeStoredRoute } from './app-route-storage';
+import {
+  FIRST_AUTHENTICATED_TOOLBAR_ROUTE,
+  FIRST_UNAUTHENTICATED_TOOLBAR_ROUTE,
+  LAST_OPEN_PAGE_STORAGE_KEY,
+  normalizeStoredRoute
+} from './app-route-storage';
 import { LocalStorageService } from './services/local-storage-service';
+import { UsersService } from './services/users-service';
 
 const redirectToLastOpenPage = () => {
-  const router = inject(Router);
   const localStorageService = inject(LocalStorageService);
+  const usersService = inject(UsersService);
   const storedRoute = localStorageService.getItem(LAST_OPEN_PAGE_STORAGE_KEY);
 
-  return router.parseUrl(normalizeStoredRoute(storedRoute ?? DEFAULT_AUTHENTICATED_ROUTE));
+  if (!usersService.isAuthenticated()) {
+		return FIRST_UNAUTHENTICATED_TOOLBAR_ROUTE;
+  }
+
+	return normalizeStoredRoute(storedRoute ?? FIRST_AUTHENTICATED_TOOLBAR_ROUTE);
 };
 
 export const routes: Routes = [
 	{
 		path: '',
 		pathMatch: 'full',
-		canActivate: [redirectToLastOpenPage],
-		loadComponent: () => import('./pages/dashboard-page').then((module) => module.DashboardPage)
-	},
-	{
-		path: 'dashboard',
-		loadComponent: () => import('./pages/dashboard-page').then((module) => module.DashboardPage)
+		redirectTo: redirectToLastOpenPage
 	},
 	{
 		path: 'visitor-activity',
@@ -34,6 +39,10 @@ export const routes: Routes = [
 	{
 		path: 'logs',
 		loadComponent: () => import('./pages/logs-page').then((module) => module.LogsPage)
+	},
+	{
+		path: 'settings',
+		loadComponent: () => import('./pages/settings-page').then((module) => module.SettingsPage)
 	},
 	{
 		path: 'sign-in',
