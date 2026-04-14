@@ -24,7 +24,7 @@ public sealed class LogsService(LogRepository logRepository) : ILogsService
                 Category = log.Category,
                 Message = log.Message,
                 UserId = log.UserId,
-                Properties = log.Properties
+                Properties = log.Properties ?? string.Empty
             })
             .ToArray();
     }

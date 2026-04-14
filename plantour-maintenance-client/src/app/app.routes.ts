@@ -36,6 +36,10 @@ export const routes: Routes = [
 		loadComponent: () => import('./pages/logs-page').then((module) => module.LogsPage)
 	},
 	{
+		path: 'settings',
+		loadComponent: () => import('./pages/settings-page').then((module) => module.SettingsPage)
+	},
+	{
 		path: 'sign-in',
 		loadComponent: () => import('./pages/sign-in-page').then((module) => module.SignInPage)
 	},

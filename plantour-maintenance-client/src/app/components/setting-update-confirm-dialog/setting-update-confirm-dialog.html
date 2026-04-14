@@ -1,0 +1,30 @@
+<section class="confirm-dialog">
+  <div class="confirm-dialog__header">
+    <div>
+      <p class="confirm-dialog__eyebrow">Confirm update</p>
+      <h2>Update {{ key }}?</h2>
+    </div>
+
+    <button type="button" class="confirm-dialog__ghost" brnDialogClose>Cancel</button>
+  </div>
+
+  <dl class="confirm-dialog__details">
+    <div>
+      <dt>Value type</dt>
+      <dd>{{ valueType }}</dd>
+    </div>
+    <div>
+      <dt>Value</dt>
+      <dd class="confirm-dialog__value">{{ value }}</dd>
+    </div>
+    <div>
+      <dt>Notes</dt>
+      <dd>{{ notes || '—' }}</dd>
+    </div>
+  </dl>
+
+  <div class="confirm-dialog__actions">
+    <button type="button" class="confirm-dialog__secondary" brnDialogClose>Back</button>
+    <button type="button" class="confirm-dialog__primary" (click)="confirm()">Confirm update</button>
+  </div>
+</section>

@@ -69,6 +69,7 @@ builder.Services.AddMemoryCache();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
     ?? throw new InvalidOperationException("JwtSettings configuration is missing.");
+var jwtKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
 builder.Services.Configure<PaddleSettings>(builder.Configuration.GetSection("PaddleSettings"));
 
@@ -84,7 +85,7 @@ if (string.IsNullOrWhiteSpace(passwordHashSettings.Secret) || string.IsNullOrWhi
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is missing.");
 
-var jwtKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
+
 
 var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
 dataSourceBuilder.ConnectionStringBuilder.Timezone = "UTC";
@@ -154,6 +155,7 @@ builder.Services.AddScoped<SuperuserRepository>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ILogsService, LogsService>();
+builder.Services.AddScoped<ISettingsService, SettingsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IVisitorActivityService, VisitorActivityService>();
 builder.Services.AddHttpClient<IPlantourUsersService, PlantourUsersService>(client =>
