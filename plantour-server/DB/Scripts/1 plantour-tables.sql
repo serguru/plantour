@@ -1350,3 +1350,4 @@ create index ix_logs_created_at on plantour.logs (created_at desc);
 insert into plantour.superusers(
 	email, name, phone, notes, hashed_password)
 	values ('admin@plantour.com', 'admin', null, null, '9803301a1675b7a1fca658178871ab46');
+    
