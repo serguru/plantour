@@ -25,7 +25,6 @@ public sealed class IpwhoisGeolocationService(
         {
             result[ipAddress] = await GetByIpAddressAsync(ipAddress, cancellationToken);
         }
-
         return result;
     }
 
@@ -47,8 +46,6 @@ public sealed class IpwhoisGeolocationService(
             using var response = await _httpClient.GetAsync(ipAddress, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
-                // TODO LOG
-                // _logger.LogWarning("ipwho.is lookup failed for {IpAddress} with status {StatusCode}", ipAddress, response.StatusCode);
                 return Cache(cacheKey, new IpGeolocationResult());
             }
 
@@ -66,8 +63,6 @@ public sealed class IpwhoisGeolocationService(
         }
         catch (Exception)
         {
-            // TODO LOG
-            // _logger.LogWarning(exception, "ipwho.is lookup threw for {IpAddress}", ipAddress);
             return Cache(cacheKey, new IpGeolocationResult());
         }
     }

@@ -9,8 +9,6 @@ namespace PlantourApi.Middleware;
 
 public class GlobalExceptionHandler(IPlantourLogger logger) : IExceptionHandler
 {
-    private const string LoggerCategory = nameof(GlobalExceptionHandler);
-
     private readonly IPlantourLogger _logger = logger;
 
     public async ValueTask<bool> TryHandleAsync(
@@ -49,31 +47,35 @@ public class GlobalExceptionHandler(IPlantourLogger logger) : IExceptionHandler
         if (statusCode >= StatusCodes.Status500InternalServerError)
         {
             _logger.LogError(
-                exception,
                 $"Unhandled exception for {requestMethod} {requestPath}. StatusCode: {statusCode}, Code: {code}, TraceId: {httpContext.TraceIdentifier}",
-                LoggerCategory,
+                "Global Exception",
                 new
                 {
                     request_method = requestMethod,
                     request_path = requestPath,
                     status_code = statusCode,
                     code,
-                    trace_id = httpContext.TraceIdentifier
+                    trace_id = httpContext.TraceIdentifier,
+                    exception_type = exception.GetType().FullName,
+                    exception_message = exception.Message,
+                    stack_trace = exception.StackTrace
                 });
         }
         else
         {
             _logger.LogWarning(
-                exception,
                 $"Handled exception for {requestMethod} {requestPath}. StatusCode: {statusCode}, Code: {code}, TraceId: {httpContext.TraceIdentifier}",
-                LoggerCategory,
+                "Global Exception",
                 new
                 {
                     request_method = requestMethod,
                     request_path = requestPath,
                     status_code = statusCode,
                     code,
-                    trace_id = httpContext.TraceIdentifier
+                    trace_id = httpContext.TraceIdentifier,
+                    exception_type = exception.GetType().FullName,
+                    exception_message = exception.Message,
+                    stack_trace = exception.StackTrace
                 });
         }
 

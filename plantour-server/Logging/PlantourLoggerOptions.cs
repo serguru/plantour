@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace plantour_server.Logging;
 
 public sealed class PlantourLoggerOptions
@@ -7,7 +5,6 @@ public sealed class PlantourLoggerOptions
     public const string SectionName = "PlantourLogging";
 
     public string Sink { get; set; } = PlantourLogSinks.Console;
-    public string MinimumLevel { get; set; } = nameof(LogLevel.Information);
     public int QueueCapacity { get; set; } = 1024;
     public int BatchSize { get; set; } = 50;
     public int FlushIntervalMilliseconds { get; set; } = 2000;

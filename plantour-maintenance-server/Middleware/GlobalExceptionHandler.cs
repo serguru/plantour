@@ -18,9 +18,6 @@ public class GlobalExceptionHandler : IExceptionHandler
             _ => (StatusCodes.Status500InternalServerError, "INTERNAL_SERVER_ERROR", exception.Message, false)
         };
 
-        // TODO LOG
-        // Log exception details here if application logging is re-enabled.
-
         httpContext.Response.StatusCode = statusCode;
         httpContext.Response.ContentType = "application/json";
 

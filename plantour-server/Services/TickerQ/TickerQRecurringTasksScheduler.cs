@@ -1,6 +1,7 @@
 using TickerQ.Utilities.Entities;
 using TickerQ.Utilities.Interfaces;
 using TickerQ.Utilities.Interfaces.Managers;
+using plantour_server.Logging;
 
 namespace plantour_server.Services.TickerQ;
 
@@ -10,12 +11,12 @@ public class TickerQRecurringTasksScheduler : IHostedService
 
     private readonly ICronTickerManager<CronTickerEntity> _cronTickerManager;
     private readonly ITickerPersistenceProvider<TimeTickerEntity, CronTickerEntity> _persistenceProvider;
-    private readonly ILogger<TickerQRecurringTasksScheduler> _logger;
+    private readonly IPlantourLogger _logger;
 
     public TickerQRecurringTasksScheduler(
         ICronTickerManager<CronTickerEntity> cronTickerManager,
         ITickerPersistenceProvider<TimeTickerEntity, CronTickerEntity> persistenceProvider,
-        ILogger<TickerQRecurringTasksScheduler> logger)
+        IPlantourLogger logger)
     {
         _cronTickerManager = cronTickerManager;
         _persistenceProvider = persistenceProvider;
@@ -56,10 +57,9 @@ public class TickerQRecurringTasksScheduler : IHostedService
 
             await Task.WhenAll(deleteTasks);
 
-            // TODO LOG
-            // _logger.LogInformation(
-            //     "TickerQ recurring task reset deleted existing cron tasks. DeletedAttemptCount: {DeletedAttemptCount}",
-            //     storedCronTickers.Length);
+            _logger.LogInformation(
+                $"The recurring task reset deleted existing cron tasks. DeletedAttemptCount: {storedCronTickers.Length}", "TickerQ"
+                );
         }
 
         foreach (var configuredTask in recurringTasks)
@@ -76,21 +76,13 @@ public class TickerQRecurringTasksScheduler : IHostedService
 
             if (addResult.IsSucceeded)
             {
-                // TODO LOG
-                // _logger.LogInformation(
-                //     "TickerQ recurring task created. Function: {Function}, Expression: {Expression}, CronTickerId: {CronTickerId}",
-                //     configuredTask.Function,
-                //     configuredTask.Expression,
-                //     addResult.Result.Id);
+                _logger.LogInformation(
+                    $"A recurring task created. Function: {configuredTask.Function}, Expression: {configuredTask.Function}, CronTickerId: {addResult.Result.Id}", "TickerQ");
                 continue;
             }
 
-            // TODO LOG
-            // _logger.LogWarning(
-            //     "Failed to create TickerQ recurring task. Function: {Function}, Expression: {Expression}, Result: {@Result}",
-            //     configuredTask.Function,
-            //     configuredTask.Expression,
-            //     addResult);
+            _logger.LogWarning(
+                $"Failed to create a recurring task. Function: {configuredTask.Function}, Expression: {configuredTask.Expression}, Result: {addResult}","TickerQ");
         }
     }
 
@@ -100,24 +92,13 @@ public class TickerQRecurringTasksScheduler : IHostedService
 
         if (deleteResult.IsSucceeded)
         {
-            // TODO LOG
-            // _logger.LogWarning(
-            //     "Deleted outdated TickerQ cron task. Reason: {Reason}, CronTickerId: {CronTickerId}, Function: {Function}, Expression: {Expression}",
-            //     reason,
-            //     ticker.Id,
-            //     ticker.Function,
-            //     ticker.Expression);
+            _logger.LogWarning(
+                $"Deleted outdated a cron task. Reason: {reason}, CronTickerId: {ticker.Id}, Function: {ticker.Function}, Expression: {ticker.Expression}", "TickerQ");
             return;
         }
 
-        // TODO LOG
-        // _logger.LogWarning(
-        //     "Failed to delete outdated TickerQ cron task. Reason: {Reason}, CronTickerId: {CronTickerId}, Function: {Function}, Expression: {Expression}, Result: {@Result}",
-        //     reason,
-        //     ticker.Id,
-        //     ticker.Function,
-        //     ticker.Expression,
-        //     deleteResult);
+        _logger.LogWarning(
+            $"Failed to delete outdated a cron task. Reason: {reason}, CronTickerId: {ticker.Id}, Function: {ticker.Function}, Expression: {ticker.Expression}, Result: {deleteResult}", "TickerQ");
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

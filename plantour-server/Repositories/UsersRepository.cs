@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using plantour_server.DbModels;
+using plantour_server.Logging;
 using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Repositories;
@@ -10,11 +10,11 @@ public class UsersRepository(
     PlantourContext context,
     SettingsRepository settingsRepository,
     IEmailService emailService,
-    ILogger<UsersRepository> logger) : GenericRepository<User>(context)
+    IPlantourLogger logger) : GenericRepository<User>(context)
 {
     private readonly SettingsRepository _settingsRepository = settingsRepository;
     private readonly IEmailService _emailService = emailService;
-    private readonly ILogger<UsersRepository> _logger = logger;
+    private readonly IPlantourLogger _logger = logger;
 
     public override async Task<User> AddAsync(User entity)
     {
@@ -31,8 +31,7 @@ public class UsersRepository(
             var adminEmail = await _settingsRepository.GetSettingByKey("admin_email") as string;
             if (string.IsNullOrWhiteSpace(adminEmail))
             {
-                // TODO LOG
-                // _logger.LogWarning("Admin email setting is missing or empty; skipping new user notification for {UserId}", createdUser.Id);
+                _logger.LogWarning("Admin email setting is missing or empty. Skipping new user notification.");
                 return createdUser;
             }
 
@@ -63,8 +62,7 @@ public class UsersRepository(
         }
         catch (Exception)
         {
-            // TODO LOG
-            // _logger.LogError(ex, "Failed to send admin notification for newly created user {UserId}", createdUser.Id);
+            _logger.LogError("Failed to send admin notification for newly created user");
         }
 
         return createdUser;

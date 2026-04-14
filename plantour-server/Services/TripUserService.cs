@@ -400,12 +400,8 @@ public class TripUserService(
             }
             catch (Exception)
             {
-                // TODO LOG
-                // _logger.LogWarning(
-                //     ex,
-                //     "Failed to send trip participant invitation email for trip {TripId} and adminParticipant {AdminParticipantId}",
-                //     tripId,
-                //     participant.Id);
+                _logger.LogWarning(
+                    $"Failed to send trip participant invitation email for trip {tripId} and adminParticipant {participant.Id}");
             }
         }
     }
@@ -450,8 +446,7 @@ public class TripUserService(
         }
         catch (Exception)
         {
-            // TODO LOG
-            // _logger.LogWarning(ex, "Failed to send expense assignment notification email for trip {TripId} and trip user {TripUserId}", entity.TripId, entity.Id);
+             _logger.LogWarning($"Failed to send expense assignment notification email for trip {entity.TripId} and trip user {entity.Id}");
         }
     }
 
@@ -498,8 +493,7 @@ public class TripUserService(
         }
         catch (Exception)
         {
-            // TODO LOG
-            // _logger.LogWarning(ex, "Failed to send admin expense rejection email for trip {TripId} and trip user {TripUserId}", entity.TripId, entity.Id);
+            _logger.LogWarning($"Failed to send admin expense rejection email for trip {entity.TripId} and trip user {entity.Id}");
         }
     }
 
