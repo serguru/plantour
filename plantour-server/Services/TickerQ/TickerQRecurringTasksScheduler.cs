@@ -93,12 +93,12 @@ public class TickerQRecurringTasksScheduler : IHostedService
         if (deleteResult.IsSucceeded)
         {
             _logger.LogWarning(
-                $"Deleted outdated a cron task. Reason: {reason}, CronTickerId: {ticker.Id}, Function: {ticker.Function}, Expression: {ticker.Expression}", "TickerQ");
+                $"Deleted an outdated cron task. Reason: {reason}, CronTickerId: {ticker.Id}, Function: {ticker.Function}, Expression: {ticker.Expression}", "TickerQ");
             return;
         }
 
         _logger.LogWarning(
-            $"Failed to delete outdated a cron task. Reason: {reason}, CronTickerId: {ticker.Id}, Function: {ticker.Function}, Expression: {ticker.Expression}, Result: {deleteResult}", "TickerQ");
+            $"Failed to delete an outdated cron task. Reason: {reason}, CronTickerId: {ticker.Id}, Function: {ticker.Function}, Expression: {ticker.Expression}, Result: {deleteResult}", "TickerQ");
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
