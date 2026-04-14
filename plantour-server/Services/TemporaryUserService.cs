@@ -14,11 +14,13 @@ using PlantourApi.Models;
 using plantour_server.Utils;
 using plantour_server.Models;
 using Microsoft.Extensions.Options;
+using plantour_server.Logging;
 
 namespace plantour_server.Services;
 
 public class TemporaryUserService : ITemporaryUserService
 {
+    private const string UserCreatedLogCategory = "User created";
     private readonly UsersRepository _usersRepository;
     private readonly ITokenService _tokenService;
     private readonly TripRepository _tripRepository;
@@ -36,6 +38,7 @@ public class TemporaryUserService : ITemporaryUserService
     private readonly IMapper _mapper;
     private readonly IAccessRulesService _accessRulesService;
     private readonly AccessTypeRepository _accessTypeRepository;
+    private readonly IPlantourLogger _logger;
 
     private readonly JwtSettings _jwtSettings;
     private readonly AccessCodeGenerator _accessCodeGenerator;
@@ -57,7 +60,8 @@ public class TemporaryUserService : ITemporaryUserService
         IMapper mapper,
         IAccessRulesService accessRulesService,
         SettingsRepository settingsRepository,
-        AccessTypeRepository accessTypeRepository)
+        AccessTypeRepository accessTypeRepository,
+        IPlantourLogger logger)
     {
         _jwtSettings = jwtSettings.Value;
         _usersRepository = usersRepository;
@@ -76,7 +80,8 @@ public class TemporaryUserService : ITemporaryUserService
         _context = context;
         _mapper = mapper;
         _accessCodeGenerator = accessCodeGenerator;
-}
+        _logger = logger;
+    }
 
     public async Task<CreateTemporaryUserResponse> CreateTemporaryUserAsync()
     {
@@ -109,6 +114,9 @@ public class TemporaryUserService : ITemporaryUserService
         };
 
         await _usersRepository.AddAsync(user);
+        _logger.LogInformation(
+            $"userId: {user.Id} email: {user.Email} first_name: {user.FirstName} last_name: {user.LastName} temporary",
+            UserCreatedLogCategory);
 
         // Populate test data for the user
         Trip activeTrip = await PopulateSampleDataAsync(user);

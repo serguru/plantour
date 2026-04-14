@@ -21,6 +21,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.Extensions;
+using plantour_server.Logging;
 
 namespace plantour_server.Services;
 
@@ -28,6 +29,7 @@ namespace plantour_server.Services;
 public class UsersService(
     IOptions<JwtSettings> jwtSettings,
     IMapper mapper,
+    IPlantourLogger logger,
     UsersRepository usersRepository,
     AdminsParticipantRepository adminsParticipantRepository,
     IAdminsParticipantService adminsParticipantService,
@@ -49,7 +51,9 @@ public class UsersService(
     IOptions<SocialAuthSettings> socialAuthSettings,
     IDataProtectionProvider dataProtectionProvider) : IUsersService
 {
+    private const string UserCreatedLogCategory = "User created";
     private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
+    private readonly IPlantourLogger _logger = logger;
     private readonly UsersRepository _usersRepository = usersRepository;
     private readonly RefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
@@ -115,6 +119,7 @@ public class UsersService(
                 AccessTypeId = await _accessTypeRepository.GetActiveId()
             };
             await _usersRepository.AddAsync(user);
+            LogUserCreated(user, "Admin");
         }
 
         EnsureActiveUser(user);
@@ -564,6 +569,7 @@ public class UsersService(
                 AccessTypeId = await _accessTypeRepository.GetActiveId()
             };
             await _usersRepository.AddAsync(user);
+            LogUserCreated(user, "Participant");
         } else if (!user.AccessType.Name.Equals("Active", StringComparison.OrdinalIgnoreCase))
         {
             throw new CustomException("Cannot sign up participant. The participant account is not active.");
@@ -929,7 +935,16 @@ public class UsersService(
             throw new CustomException("Failed to create social account");
         }
 
+        LogUserCreated(created, "Admin");
+
         return created;
+    }
+
+    private void LogUserCreated(User user, string userType)
+    {
+        _logger.LogInformation(
+            $"userId: {user.Id} email: {user.Email} first_name: {user.FirstName} last_name: {user.LastName} {userType}",
+            UserCreatedLogCategory);
     }
 
     private void EnsureUserCanSignIn(User user)
