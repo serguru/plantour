@@ -10,7 +10,8 @@ namespace plantour_server.Controllers;
 [Route("[controller]")]
 public class PaddleController : ControllerBase
 {
-    private readonly IPaddleService _service;
+    
+        private readonly IPaddleService _service;
 
     public PaddleController(IPaddleService service)
     {
