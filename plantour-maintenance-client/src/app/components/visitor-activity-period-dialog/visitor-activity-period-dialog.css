@@ -7,10 +7,10 @@
   gap: 1.25rem;
   width: min(100vw - 2rem, 42rem);
   padding: 1.5rem;
-  border: 1px solid rgba(24, 49, 38, 0.12);
+  border: 1px solid var(--surface-border);
   border-radius: 1.5rem;
-  background: rgba(255, 252, 246, 0.98);
-  box-shadow: 0 24px 60px rgba(24, 34, 29, 0.2);
+  background: var(--panel-bg);
+  box-shadow: var(--dialog-shadow);
 }
 
 .period-dialog__header,
@@ -54,24 +54,24 @@
 .field input {
   min-height: 3rem;
   padding: 0.8rem 0.95rem;
-  border: 1px solid rgba(24, 49, 38, 0.18);
+  border: 1px solid var(--surface-border-strong);
   border-radius: 0.95rem;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--panel-strong-bg);
   color: var(--foreground);
 }
 
 .field input:focus {
-  outline: 2px solid rgba(40, 110, 73, 0.2);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
-  border-color: rgba(40, 110, 73, 0.35);
+  border-color: var(--focus-border);
 }
 
 .period-dialog__error {
   padding: 0.8rem 0.95rem;
-  border: 1px solid rgba(180, 35, 24, 0.2);
+  border: 1px solid var(--danger-border);
   border-radius: 0.95rem;
-  background: rgba(254, 243, 242, 0.95);
-  color: #b42318;
+  background: var(--danger-bg);
+  color: var(--danger-foreground);
 }
 
 .period-dialog__ghost,
@@ -88,13 +88,13 @@
 
 .period-dialog__ghost,
 .period-dialog__secondary {
-  background: rgba(34, 83, 58, 0.08);
+  background: var(--active-surface);
   color: var(--foreground);
 }
 
 .period-dialog__primary {
-  background: linear-gradient(135deg, #1f5c41, #244d3a);
-  color: #f8f6f1;
+  background: var(--brand-gradient);
+  color: var(--primary-text);
 }
 
 @media (max-width: 720px) {

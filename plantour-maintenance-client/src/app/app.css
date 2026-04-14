@@ -24,9 +24,9 @@
 	padding: 1rem 1.5rem;
 	border: none;
 	border-radius: 0;
-	background: rgba(255, 252, 246, 0.92);
+	background: var(--shell-bg);
 	backdrop-filter: blur(12px);
-	box-shadow: none;
+	box-shadow: inset 0 -1px 0 var(--surface-border);
 }
 
 .toolbar__brand {
@@ -100,13 +100,47 @@
 
 .toolbar__nav a:hover,
 .toolbar__nav a.is-active {
-	background: rgba(34, 83, 58, 0.11);
+	background: var(--active-surface);
 	color: var(--brand-green-strong);
 }
 
 .toolbar__nav a.is-active {
-	background: rgba(34, 83, 58, 0.16);
-	box-shadow: inset 0 0 0 1px rgba(34, 83, 58, 0.14);
+	box-shadow: inset 0 0 0 1px var(--surface-border);
+}
+
+.toolbar__theme {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.2rem;
+	padding: 0.25rem;
+	border: 1px solid var(--surface-border);
+	border-radius: 999px;
+	background: var(--panel-overlay-bg);
+	backdrop-filter: blur(12px);
+}
+
+.toolbar__theme-option {
+	min-height: 2.25rem;
+	padding: 0 0.8rem;
+	border: 0;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--muted-foreground);
+	font: inherit;
+	font-weight: 700;
+	cursor: pointer;
+	transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.toolbar__theme-option:hover {
+	color: var(--foreground);
+	background: var(--hover-surface);
+}
+
+.toolbar__theme-option.is-active {
+	background: var(--active-surface);
+	box-shadow: inset 0 0 0 1px var(--surface-border);
+	color: var(--brand-green-strong);
 }
 
 .content-shell {

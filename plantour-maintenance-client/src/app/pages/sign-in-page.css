@@ -9,11 +9,11 @@
 }
 
 .sign-in-card {
-  border: 1px solid rgba(24, 49, 38, 0.12);
+  border: 1px solid var(--surface-border);
   border-radius: 1.5rem;
-  background: rgba(255, 252, 246, 0.8);
+  background: var(--panel-bg);
   backdrop-filter: blur(14px);
-  box-shadow: 0 18px 45px rgba(30, 41, 59, 0.08);
+  box-shadow: var(--elevation-shadow);
 }
 
 .card-heading h2,
@@ -50,37 +50,37 @@ small,
   width: 100%;
   min-height: 3rem;
   padding: 0.85rem 0.95rem;
-  border: 1px solid rgba(24, 49, 38, 0.18);
+  border: 1px solid var(--surface-border-strong);
   border-radius: 0.95rem;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--panel-strong-bg);
   color: var(--foreground);
   font: inherit;
 }
 
 .field input:focus {
-  outline: 2px solid rgba(40, 110, 73, 0.2);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
-  border-color: rgba(40, 110, 73, 0.35);
+  border-color: var(--focus-border);
 }
 
 small {
-  color: #b42318;
+  color: var(--danger-foreground);
 }
 
 .error-banner {
   padding: 0.8rem 0.95rem;
-  border: 1px solid rgba(180, 35, 24, 0.2);
+  border: 1px solid var(--danger-border);
   border-radius: 0.95rem;
-  background: rgba(254, 243, 242, 0.95);
-  color: #b42318;
+  background: var(--danger-bg);
+  color: var(--danger-foreground);
 }
 
 button {
   min-height: 3rem;
   border: 0;
   border-radius: 999px;
-  background: linear-gradient(135deg, #1f5c41, #244d3a);
-  color: #f8f6f1;
+  background: var(--brand-gradient);
+  color: var(--primary-text);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
@@ -89,7 +89,7 @@ button {
 
 button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 10px 25px rgba(29, 78, 54, 0.2);
+  box-shadow: var(--interactive-shadow);
 }
 
 button:disabled {

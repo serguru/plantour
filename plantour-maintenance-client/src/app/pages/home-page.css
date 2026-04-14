@@ -10,11 +10,11 @@
 
 .hero-copy,
 .overview-card {
-  border: 1px solid rgba(24, 49, 38, 0.12);
+  border: 1px solid var(--surface-border);
   border-radius: 1.5rem;
-  background: rgba(255, 252, 246, 0.78);
+  background: var(--panel-bg);
   backdrop-filter: blur(14px);
-  box-shadow: 0 18px 45px rgba(30, 41, 59, 0.08);
+  box-shadow: var(--elevation-shadow);
 }
 
 .hero-copy {
@@ -62,13 +62,13 @@ h1 {
   margin-top: 1.5rem;
   padding: 1rem 1.1rem;
   border-radius: 1rem;
-  border: 1px solid rgba(24, 49, 38, 0.1);
-  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--surface-border);
+  background: var(--panel-overlay-bg);
 }
 
 .status-card--success {
-  border-color: rgba(40, 110, 73, 0.22);
-  background: linear-gradient(135deg, rgba(235, 247, 239, 0.92), rgba(255, 255, 255, 0.92));
+  border-color: var(--success-border);
+  background: var(--success-gradient);
 }
 
 .status-card__label,
@@ -89,7 +89,7 @@ h1 {
 .overview-grid article {
   padding: 0.95rem 1rem;
   border-radius: 1rem;
-  background: rgba(241, 237, 229, 0.72);
+  background: var(--panel-subtle-bg);
 }
 
 .overview-grid h3 {
@@ -110,8 +110,8 @@ h1 {
   margin-top: 1.25rem;
   padding: 0.8rem 1rem;
   border-radius: 999px;
-  background: var(--brand-green);
-  color: #f8f6f1;
+  background: var(--brand-gradient);
+  color: var(--primary-text);
   font-weight: 700;
   text-decoration: none;
   transition: transform 150ms ease, box-shadow 150ms ease;
@@ -119,7 +119,7 @@ h1 {
 
 .overview-action:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 25px rgba(29, 78, 54, 0.18);
+  box-shadow: var(--interactive-shadow);
 }
 
 @media (max-width: 960px) {

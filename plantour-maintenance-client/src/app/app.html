@@ -9,7 +9,7 @@
     </a>
 
     <nav class="toolbar__nav" aria-label="Main navigation">
-        <a
+      <a
         routerLink="/dashboard"
         routerLinkActive="is-active"
         [routerLinkActiveOptions]="{ exact: true }"
@@ -120,6 +120,21 @@
         <span class="toolbar__nav-label">Sign out</span>
       </a>
       }
+
+      <div class="toolbar__theme" role="group" aria-label="Color theme">
+        @for (option of themeOptions; track option.value) {
+        <button
+          type="button"
+          class="toolbar__theme-option"
+          [class.is-active]="themePreference() === option.value"
+          [attr.aria-pressed]="themePreference() === option.value"
+          [attr.title]="'Use ' + option.label.toLowerCase() + ' theme'"
+          (click)="setTheme(option.value)"
+        >
+          {{ option.label }}
+        </button>
+        }
+      </div>
     </nav>
   </header>
 
