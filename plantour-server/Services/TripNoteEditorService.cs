@@ -17,6 +17,7 @@ namespace plantour_server.Services;
 
 public class TripNoteEditorService(
     IOptions<TripNoteEditorSettings> settings,
+    ServerSettingsService serverSettingsService,
     HttpCurrentUser httpCurrentUser,
     KeyRepository keyRepository,
     IHttpClientFactory httpClientFactory,
@@ -43,6 +44,7 @@ public class TripNoteEditorService(
     };
 
     private readonly TripNoteEditorSettings _settings = settings.Value;
+    private readonly ServerSettingsService _serverSettingsService = serverSettingsService;
     private readonly CurrentUser _currentUser = httpCurrentUser.CurrentUser;
     private readonly KeyRepository _keyRepository = keyRepository;
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
@@ -58,21 +60,21 @@ public class TripNoteEditorService(
         return new TripNoteEditorConfigDto
         {
             TinyMceApiKey = string.IsNullOrWhiteSpace(_settings.TinyMceApiKey) ? "no-api-key" : _settings.TinyMceApiKey.Trim(),
-            DropboxEnabled = HasDropboxAppSettings(),
+            DropboxEnabled = await HasDropboxAppSettingsAsync(),
             DropboxConnected = token != null,
             DropboxDisplayName = token?.DisplayName,
         };
     }
 
-    public Task<TripNoteEditorDropboxConnectUrlDto> CreateDropboxConnectUrlAsync(TripNoteEditorDropboxConnectUrlRequest request)
+    public async Task<TripNoteEditorDropboxConnectUrlDto> CreateDropboxConnectUrlAsync(TripNoteEditorDropboxConnectUrlRequest request)
     {
         _currentUser.RaiseIfNotAuthenticated();
-        EnsureDropboxConfigured();
+        await EnsureDropboxConfiguredAsync();
 
         var frontendOrigin = NormalizeFrontendOrigin(request.FrontendOrigin);
         ValidateFrontendOriginMatchesRequest(frontendOrigin);
         var frontendPath = NormalizeFrontendPath(request.FrontendPath);
-        var callbackUrl = BuildAbsoluteCallbackUrl();
+        var callbackUrl = await BuildAbsoluteCallbackUrlAsync();
         var statePayload = new DropboxStatePayload(_currentUser.UserId, _currentUser.AdminId, frontendOrigin, frontendPath, DateTimeOffset.UtcNow);
         var protectedState = Uri.EscapeDataString(_stateProtector.Protect(JsonSerializer.Serialize(statePayload)));
 
@@ -85,11 +87,11 @@ public class TripNoteEditorService(
             .Append("&state=").Append(protectedState)
             .ToString();
 
-        return Task.FromResult(new TripNoteEditorDropboxConnectUrlDto
+        return new TripNoteEditorDropboxConnectUrlDto
         {
             AuthorizationUrl = authorizationUrl,
             RedirectUri = callbackUrl,
-        });
+        };
     }
 
     public async Task<TripNoteEditorDropboxCallbackResultDto> CompleteDropboxAuthorizationAsync(string? code, string? state, string? error, string? errorDescription)
@@ -109,7 +111,7 @@ public class TripNoteEditorService(
                 return BuildCallbackResult(payload.FrontendOrigin, payload.FrontendPath, false, "Dropbox did not return an authorization code.");
             }
 
-            EnsureDropboxConfigured();
+            await EnsureDropboxConfiguredAsync();
 
             var token = await ExchangeAuthorizationCodeAsync(code.Trim());
             var account = await GetCurrentDropboxAccountAsync(token.AccessToken);
@@ -317,7 +319,7 @@ public class TripNoteEditorService(
                 ["grant_type"] = "authorization_code",
                 ["client_id"] = _settings.DropboxAppKey.Trim(),
                 ["client_secret"] = _settings.DropboxAppSecret.Trim(),
-                ["redirect_uri"] = BuildAbsoluteCallbackUrl(),
+                ["redirect_uri"] = await BuildAbsoluteCallbackUrlAsync(),
             })
         };
 
@@ -435,24 +437,26 @@ public class TripNoteEditorService(
         throw new CustomException(message);
     }
 
-    private void EnsureDropboxConfigured()
+    private async Task EnsureDropboxConfiguredAsync()
     {
-        if (!HasDropboxAppSettings())
+        if (!await HasDropboxAppSettingsAsync())
         {
             throw new CustomException("TripNoteEditorSettings are missing. Configure Dropbox app credentials in appsettings or environment variables.");
         }
     }
 
-    private bool HasDropboxAppSettings()
+    private async Task<bool> HasDropboxAppSettingsAsync()
     {
+        var redirectUri = await _serverSettingsService.GetTripNoteEditorDropboxRedirectUriAsync();
+
         return !string.IsNullOrWhiteSpace(_settings.DropboxAppKey)
             && !string.IsNullOrWhiteSpace(_settings.DropboxAppSecret)
-            && !string.IsNullOrWhiteSpace(_settings.DropboxRedirectUri);
+            && !string.IsNullOrWhiteSpace(redirectUri);
     }
 
-    private string BuildAbsoluteCallbackUrl()
+    private async Task<string> BuildAbsoluteCallbackUrlAsync()
     {
-        var configured = _settings.DropboxRedirectUri?.Trim();
+        var configured = (await _serverSettingsService.GetTripNoteEditorDropboxRedirectUriAsync()).Trim();
         if (!string.IsNullOrWhiteSpace(configured))
         {
             if (!Uri.TryCreate(configured, UriKind.Absolute, out var configuredUri)

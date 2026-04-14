@@ -1,11 +1,12 @@
 using System.Text.Json;
+using plantour_server.Logging;
 
 namespace plantour_server.Services;
 
-public class ExpenseCurrencyRateService(HttpClient httpClient, ILogger<ExpenseCurrencyRateService> logger) : IExpenseCurrencyRateService
+public class ExpenseCurrencyRateService(HttpClient httpClient, IPlantourLogger logger) : IExpenseCurrencyRateService
 {
     private readonly HttpClient _httpClient = httpClient;
-    private readonly ILogger<ExpenseCurrencyRateService> _logger = logger;
+    private readonly IPlantourLogger _logger = logger;
 
     public async Task<decimal?> TryGetRateAsync(string fromCurrencyCode, string toCurrencyCode, CancellationToken cancellationToken = default)
     {
@@ -23,7 +24,7 @@ public class ExpenseCurrencyRateService(HttpClient httpClient, ILogger<ExpenseCu
             using var response = await _httpClient.GetAsync(url, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Failed to resolve exchange rate from {FromCurrency} to {ToCurrency}. Status code: {StatusCode}", from, to, response.StatusCode);
+                _logger.LogWarning("Failed to resolve exchange rate");
                 return null;
             }
 
@@ -34,15 +35,15 @@ public class ExpenseCurrencyRateService(HttpClient httpClient, ILogger<ExpenseCu
                 !ratesElement.TryGetProperty(to, out var rateElement) ||
                 !rateElement.TryGetDecimal(out var rate))
             {
-                _logger.LogWarning("Exchange rate response did not contain a valid rate from {FromCurrency} to {ToCurrency}", from, to);
+                _logger.LogWarning("Exchange rate response did not contain a valid rate");
                 return null;
             }
 
             return rate;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogWarning(ex, "Failed to resolve exchange rate from {FromCurrency} to {ToCurrency}", from, to);
+            _logger.LogWarning("Failed to resolve exchange rate");
             return null;
         }
     }

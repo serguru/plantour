@@ -1,0 +1,143 @@
+<section class="activity-layout">
+  @if (errorMessage()) {
+    <p class="error-banner">{{ errorMessage() }}</p>
+  }
+
+  <app-data-table-top-panel
+    [isLoading]="isLoading()"
+    [storageKey]="topPanelStorageKey"
+    [periodState]="period()"
+    [periodLabel]="periodLabel()"
+    [durationLabel]="durationLabel()"
+    [filterId]="filterId"
+    [filterLabel]="filterLabel"
+    [filterPlaceholder]="filterPlaceholder"
+    [filterValue]="filterQuery()"
+    [groupingId]="groupingId"
+    [groupingLabel]="groupingLabel"
+    [groupingValue]="groupingValue()"
+    [groupingOptions]="groupingOptions"
+    [sortingState]="sorting()"
+    (periodClick)="openPeriodDialog()"
+    (stateRestore)="restoreTopPanelState($event)"
+    (filterChange)="updateFilter($event)"
+    (groupingChange)="updateGrouping($event)"
+  />
+
+  <section class="results-panel">
+    <div class="results-table-shell">
+      @defer {
+        <div hlmTableContainer class="results-table-container">
+          <table hlmTable class="results-table">
+            <thead hlmTHead>
+              @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
+                <tr hlmTr>
+                  @for (header of headerGroup.headers; track header.id) {
+                    <th hlmTh [attr.colSpan]="header.colSpan">
+                      @if (!header.isPlaceholder) {
+                        @if (header.column.getCanSort()) {
+                          <button
+                            type="button"
+                            class="column-sort"
+                            [attr.title]="'Sort by ' + header.column.id"
+                            (click)="toggleSorting(header.column.id)"
+                          >
+                            <ng-container *flexRender="header.column.columnDef.header; props: header.getContext(); let headerText">
+                              <span [innerHTML]="headerText"></span>
+                            </ng-container>
+                            <span class="column-sort__indicator">{{ sortIndicator(header.column.id) }}</span>
+                          </button>
+                        } @else {
+                          <ng-container *flexRender="header.column.columnDef.header; props: header.getContext(); let headerText">
+                            <span [innerHTML]="headerText"></span>
+                          </ng-container>
+                        }
+                      }
+                    </th>
+                  }
+                </tr>
+              }
+            </thead>
+            <tbody hlmTBody>
+              @for (row of table.getRowModel().rows; track row.id) {
+                <tr hlmTr [attr.data-state]="row.getIsSelected() && 'selected'" [class.results-row--group]="row.getIsGrouped()">
+                  @for (cell of row.getVisibleCells(); track cell.id) {
+                    <td hlmTd>
+                      @if (cell.getIsGrouped()) {
+                        <button type="button" class="group-toggle" (click)="row.toggleExpanded()">
+                          <span class="group-toggle__chevron">{{ row.getIsExpanded() ? '−' : '+' }}</span>
+                          <ng-container *flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cellText">
+                            <span [innerHTML]="cellText"></span>
+                          </ng-container>
+                          <span class="group-toggle__count">{{ row.subRows.length }} rows</span>
+                        </button>
+                      } @else if (cell.getIsPlaceholder()) {
+                        <span class="cell-placeholder"></span>
+                      } @else {
+                        <ng-container *flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cellText">
+                          <span [innerHTML]="cellText"></span>
+                        </ng-container>
+                      }
+                    </td>
+                  }
+                </tr>
+              } @empty {
+                <tr hlmTr>
+                  <td hlmTd class="empty-table-row" [attr.colspan]="table.getVisibleLeafColumns().length">
+                    @if (isLoading()) {
+                      Loading visitor activity...
+                    } @else if (totalRowCount() > 0) {
+                      No results.
+                    } @else {
+                      No visits found for the selected period.
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @placeholder {
+        <div class="empty-state">
+          <h3>Loading visitor activity</h3>
+          <p>Refreshing request rows for the selected period.</p>
+        </div>
+      }
+    </div>
+
+    <div class="results-footer">
+      <p class="results-count">{{ filteredRowCount() }} of {{ totalRowCount() }} row(s)</p>
+
+      <div class="results-pager">
+        <label for="visitor-activity-page-size" class="results-pager__label">Rows per page</label>
+        <select
+          id="visitor-activity-page-size"
+          class="results-pager__select"
+          [value]="table.getState().pagination.pageSize"
+          (change)="updatePageSize($event)"
+        >
+          @for (pageSize of availablePageSizes; track pageSize) {
+            <option [value]="pageSize">{{ pageSize }}</option>
+          }
+        </select>
+
+        <span class="results-pager__summary">Page {{ currentPageLabel() }} of {{ totalPageCount() }}</span>
+
+        <div class="results-pager__buttons">
+          <button type="button" class="results-pager__button" [disabled]="!table.getCanPreviousPage()" (click)="table.firstPage()">
+            First
+          </button>
+          <button type="button" class="results-pager__button" [disabled]="!table.getCanPreviousPage()" (click)="table.previousPage()">
+            Previous
+          </button>
+          <button type="button" class="results-pager__button" [disabled]="!table.getCanNextPage()" (click)="table.nextPage()">
+            Next
+          </button>
+          <button type="button" class="results-pager__button" [disabled]="!table.getCanNextPage()" (click)="table.lastPage()">
+            Last
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>

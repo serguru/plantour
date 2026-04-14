@@ -4,6 +4,12 @@
 			"path": "."
 		},
 		{
+			"path": "../plantour-maintenance-server"
+		},
+		{
+			"path": "../plantour-shared-db"
+		},
+		{
 			"path": "../plantour-client"
 		},
 		{

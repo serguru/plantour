@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>plantour_shared_db</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SharedDbModelsPath Condition="Exists('..\DbModels')">..\DbModels</SharedDbModelsPath>
+    <SharedDbModelsPath Condition="'$(SharedDbModelsPath)' == '' and Exists('..\plantour-server\DbModels')">..\plantour-server\DbModels</SharedDbModelsPath>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(SharedDbModelsPath)' != ''">
+    <Compile Include="$(SharedDbModelsPath)\**\*.cs" Link="DbModels\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Remove="$(SharedDbModelsPath)\TickerQOperationalDbContext.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+  </ItemGroup>
+
+</Project>

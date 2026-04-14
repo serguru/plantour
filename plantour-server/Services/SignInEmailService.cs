@@ -1,10 +1,7 @@
 using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Extensions.Options;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
-using plantour_server.Models;
 using plantour_server.Repositories;
 using plantour_server.Services.Interfaces;
 using plantour_server.Utils;
@@ -15,25 +12,22 @@ namespace plantour_server.Services;
 public class SignInEmailService : ISignInEmailService
 {
     private readonly ITimeLimitedDataProtector _protector;
-    private readonly JwtSettings _jwtSettings;
+    private readonly ServerSettingsService _serverSettingsService;
     private readonly IEmailService _emailService;
-    private readonly IConfiguration _configuration;
 
     private readonly UsersRepository _usersRepository;
     private readonly AccessTypeRepository _accessTypeRepository;
 
     public SignInEmailService(
         IDataProtectionProvider dataProtectionProvider,
-        IOptions<JwtSettings> jwtSettings,
+        ServerSettingsService serverSettingsService,
         IEmailService emailService,
         UsersRepository usersRepository,
-        AccessTypeRepository accessTypeRepository,
-        IConfiguration configuration)
+        AccessTypeRepository accessTypeRepository)
     {
         _protector = dataProtectionProvider.CreateProtector("Plantour.SignInEmail").ToTimeLimitedDataProtector();
-        _jwtSettings = jwtSettings.Value;
+        _serverSettingsService = serverSettingsService;
         _emailService = emailService;
-        _configuration = configuration;
         _usersRepository = usersRepository;
         _accessTypeRepository = accessTypeRepository;
 
@@ -77,7 +71,7 @@ public class SignInEmailService : ISignInEmailService
             throw new CustomException("Cannot send sign-in email to an empty email address");
         }
 
-        var emailSignInTokenMinutes = _jwtSettings.SignInEmailTokenMinutes;
+        var emailSignInTokenMinutes = await _serverSettingsService.GetSignInEmailTokenMinutesAsync();
         if (emailSignInTokenMinutes <= 0)
         {
             throw new CustomException("SignInEmailTokenMinutes must be greater than 0");
@@ -107,7 +101,7 @@ public class SignInEmailService : ISignInEmailService
             fullUserName = "New Plantour User";
         }
 
-        var baseUrl = _configuration["SignInEmail:BaseUrl"];
+        var baseUrl = await _serverSettingsService.GetSignInEmailBaseUrlAsync();
         if (string.IsNullOrWhiteSpace(baseUrl))
         {
             throw new CustomException("SignInEmail:BaseUrl is not configured");

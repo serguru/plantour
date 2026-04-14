@@ -5,6 +5,7 @@ import workflowsSectionManifest from './sections/workflows/section.json';
 import tripWorkflowsSectionManifest from './sections/trip-workflows/section.json';
 import sharedTripWorkflowsSectionManifest from './sections/shared-trip-workflows/section.json';
 import getStartedHowCanPlanturHelpMeSolveMyProblemsJsonQuestion from './sections/get-started/How can Plantur help me solve my problems.json';
+import getStartedHowDoISignInOrSignUpJsonQuestion from './sections/get-started/How do I Sign in or Sign up.json';
 import getStartedCanITryPlantourWithoutTheAccountCreationJsonQuestion from './sections/get-started/Can I try Plantour without the account creation.json';
 import getStartedHowDoINavigateThePagesJsonQuestion from './sections/get-started/How do I navigate the pages.json';
 import getStartedWhatAreMyFirstStepsWithPlantourJsonQuestion from './sections/get-started/What are my first steps with Plantour.json';
@@ -41,6 +42,7 @@ import tripWorkflowsHowDoIWorkWithTripBagsJsonQuestion from './sections/trip-wor
 import tripWorkflowsWhatOptionsDoIHaveToPackTheTripItemsJsonQuestion from './sections/trip-workflows/What options do I have to pack the trip items.json';
 import tripWorkflowsHowDoIManageTripExpensesJsonQuestion from './sections/trip-workflows/How do I manage trip expenses.json';
 import tripWorkflowsHowDoIKeepTravelNotesJsonQuestion from './sections/trip-workflows/How do I keep travel notes.json';
+import tripWorkflowsWhyAreMyDropboxImagesNotAccessibleInPlantourJsonQuestion from './sections/trip-workflows/Why are my Dropbox images not accessible in Plantour.json';
 import tripWorkflowsHowDoIWorkWithTripCommentsJsonQuestion from './sections/trip-workflows/How do I work with trip comments.json';
 import tripWorkflowsHowCanISeeTheTripOnTheMapJsonQuestion from './sections/trip-workflows/How can I see the trip on the map.json';
 import tripWorkflowsHowCanIPlanMyTripImprovementsJsonQuestion from './sections/trip-workflows/How can I plan my trip improvements.json';
@@ -71,6 +73,7 @@ export const GENERATED_SECTION_MANIFEST_ENTRIES: [string, unknown][] = [
 
 export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['get-started/How can Plantur help me solve my problems.json', getStartedHowCanPlanturHelpMeSolveMyProblemsJsonQuestion],
+  ['get-started/How do I Sign in or Sign up.json', getStartedHowDoISignInOrSignUpJsonQuestion],
   ['get-started/Can I try Plantour without the account creation.json', getStartedCanITryPlantourWithoutTheAccountCreationJsonQuestion],
   ['get-started/How do I navigate the pages.json', getStartedHowDoINavigateThePagesJsonQuestion],
   ['get-started/What are my first steps with Plantour.json', getStartedWhatAreMyFirstStepsWithPlantourJsonQuestion],
@@ -107,6 +110,7 @@ export const GENERATED_QUESTION_SOURCE_ENTRIES: [string, unknown][] = [
   ['trip-workflows/What options do I have to pack the trip items.json', tripWorkflowsWhatOptionsDoIHaveToPackTheTripItemsJsonQuestion],
   ['trip-workflows/How do I manage trip expenses.json', tripWorkflowsHowDoIManageTripExpensesJsonQuestion],
   ['trip-workflows/How do I keep travel notes.json', tripWorkflowsHowDoIKeepTravelNotesJsonQuestion],
+  ['trip-workflows/Why are my Dropbox images not accessible in Plantour.json', tripWorkflowsWhyAreMyDropboxImagesNotAccessibleInPlantourJsonQuestion],
   ['trip-workflows/How do I work with trip comments.json', tripWorkflowsHowDoIWorkWithTripCommentsJsonQuestion],
   ['trip-workflows/How can I see the trip on the map.json', tripWorkflowsHowCanISeeTheTripOnTheMapJsonQuestion],
   ['trip-workflows/How can I plan my trip improvements.json', tripWorkflowsHowCanIPlanMyTripImprovementsJsonQuestion],

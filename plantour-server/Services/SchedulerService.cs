@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
+using plantour_server.Logging;
 using plantour_server.Models;
 using plantour_server.Repositories;
 using plantour_server.Services.Interfaces;
@@ -18,7 +19,6 @@ namespace plantour_server.Services;
 public class SchedulerService(
     IOptions<JwtSettings> jwtSettings,
     RefreshTokenRepository refreshTokenRepository,
-    LogsRepository logsRepository,
     PlantourContext plantourContext,
     IMapper mapper,
     ICheckAccessService checkAccessService,
@@ -26,7 +26,7 @@ public class SchedulerService(
     AiPromptRepository aiPromptRepository,
     ITimeTickerManager<TimeTickerEntity> timeTickerManager,
     IPaddleService _paddleService,
-    ILogger<SchedulerService> logger,
+    IPlantourLogger logger,
     TimeTickerRepository timeTickerRepository,
     HttpCurrentUser httpCurrentUser) : ISchedulerService
 {
@@ -39,13 +39,12 @@ public class SchedulerService(
     private readonly IConfiguration _configuration = configuration;
     private readonly PlantourContext _plantourContext = plantourContext;
     private readonly RefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
-    private readonly LogsRepository _logsRepository = logsRepository;
     private readonly AiPromptRepository _aiPromptRepository = aiPromptRepository;
     private readonly ITimeTickerManager<TimeTickerEntity> _timeTickerManager = timeTickerManager;
     private readonly IPaddleService _paddleService = _paddleService;
     private readonly TimeTickerRepository _timeTickerRepository = timeTickerRepository;
 
-    private readonly ILogger<SchedulerService> _logger = logger;
+    private readonly IPlantourLogger _logger = logger;
 
     public async Task DeleteExpiredRefreshTokensAsync()
     {
@@ -55,11 +54,6 @@ public class SchedulerService(
     public async Task DeleteOldAIPromptsAsync()
     {
         await _aiPromptRepository.DeleteRangeAsync(x => x.CreatedAt < DateTime.UtcNow.AddMonths(-1));
-    }
-
-    public async Task DeleteOldErrorLogsAsync()
-    {
-        await _logsRepository.DeleteRangeAsync(x => x.TimeStamp < DateTime.UtcNow.AddDays(-7) && x.Level != null && x.Level.ToLower() == "error");
     }
 
     public async Task DeleteOldTripUserImprovementsLogAsync()
@@ -154,12 +148,7 @@ public class SchedulerService(
         await _timeTickerRepository.UpdateAsync(createdJob);
 
         _logger.LogInformation(
-            "Downgrade plan job scheduled. JobId: {JobId}, UserId: {UserId}, OldPlanPrice: {OldPlanPrice}, NewPlanPrice: {NewPlanPrice}, ExecutionTimeUtc: {ExecutionTimeUtc}",
-            addResult.Result.Id,
-            userId,
-            oldPlanPrice,
-            newPlanPrice,
-            executionTime);
+            $"Downgrade plan job scheduled. JobId: {addResult.Result.Id}, UserId: {userId}, OldPlanPrice: {oldPlanPrice}, NewPlanPrice: {newPlanPrice}, ExecutionTimeUtc: {executionTime}");
     }
 
 

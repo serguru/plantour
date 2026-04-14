@@ -12,11 +12,10 @@ import { HELP_SITEMAP_PAGES, getHelpPageUrl } from './app/components/help/help-c
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
-const RENDER_HEALTH_CHECK_PATH = '/health';
-const RENDER_HEALTH_CHECK_BODY = 'OK';
+const HEALTH_CHECK_BODY = 'OK';
 
 const app = express();
-const _allowedHosts = ['localhost', '127.0.0.1', '::1', '*.code.run', '*.plantour.app', 'plantour.app'];
+const _allowedHosts = ['localhost', '127.0.0.1', '::1', '*.plantour.app', 'plantour.app'];
 try {
   const envHostname = new URL(environment.clientUrl).hostname;
   if (envHostname) _allowedHosts.push(envHostname);
@@ -144,17 +143,14 @@ app.use((req, res, next) => {
 
   next();
 });
-
-
-// TODO: remove RENDER_HEALTH_CHECK_PATH
-// Render sends GET requests to the configured health-check path and expects a fast 2xx/3xx response.
-app.get(RENDER_HEALTH_CHECK_PATH, (_req, res) => {
+// Keep a lightweight health-check endpoint outside the Angular render pipeline.
+app.get('/health', (_req, res) => {
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store, max-age=0');
-  res.status(200).send(RENDER_HEALTH_CHECK_BODY);
+  res.status(200).send(HEALTH_CHECK_BODY);
 });
 
-app.head(RENDER_HEALTH_CHECK_PATH, (_req, res) => {
+app.head('/health', (_req, res) => {
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store, max-age=0');
   res.status(200).end();
@@ -213,17 +209,14 @@ app.get('/{*path}', (req, res, next) => {
  * Start the server
  */
 if (isMainModule(import.meta.url)) {
-  // RENDER FIX: Force port 10000 if PORT is missing
   const port = process.env['PORT'] || 10000;
   
-  // RENDER FIX: Use a variable for host
   const host = '0.0.0.0';
 
   const server = app.listen(Number(port), host, () => {
     console.log(`Node Express server listening on http://${host}:${port}`);
   });
   
-  // RENDER FIX: Increase timeouts for heavy Angular loads
   server.keepAliveTimeout = 120000;
   server.headersTimeout = 125000;
 }

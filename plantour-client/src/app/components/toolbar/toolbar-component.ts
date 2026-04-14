@@ -50,6 +50,10 @@ export class Toolbar implements OnInit {
     return this.tripTextVisible() ? 'Hide Trip' : 'Show Trip';
   }
 
+  get dashboardButtonLabel(): string {
+    return this.usersService.isAuthenticatedSignal() ? 'Dashboard' : 'Home';
+  }
+
   async signOut($event, popover): Promise<void> {
     if (this.usersService.isTemporarySignal()) {
       const result = await this.messagesService.openOkCancel({
@@ -92,11 +96,26 @@ export class Toolbar implements OnInit {
 
   onDashboardClick($event): void {
     $event.preventDefault();
-    this.router.navigate(['/dashboard']);
+    if (this.isDashboardButtonDisabled()) {
+      return;
+    }
+
+    this.router.navigate([this.usersService.isAuthenticatedSignal() ? '/dashboard' : '/']);
+  }
+
+  isDashboardButtonDisabled(): boolean {
+    return this.usersService.isAuthenticatedSignal()
+      ? this.isNavigatedComponent('dashboard')
+      : this.isLandingRouteActive();
   }
 
   isNavigatedComponent(componentId: string): boolean {
     return this.componentNavigated && this.componentNavigated.componentId === componentId;
+  }
+
+  private isLandingRouteActive(): boolean {
+    const currentPath = this.router.url.split('?')[0];
+    return currentPath === '' || currentPath === '/';
   }
 
   private navigateTo(path: string): void {

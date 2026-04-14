@@ -1,0 +1,29 @@
+{
+  "slug": "why-dropbox-images-not-accessible-in-plantour",
+  "question": "Why are my Dropbox images not accessible in Plantour?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "What Dropbox requires",
+        "listTag": "ul",
+        "items": [
+          "Dropbox's official help says outside access is granted through sharing: you either share the file with people or create a <strong>view-only link</strong>.",
+          "Dropbox also says a file can still show <strong>Only you</strong> until you share it, even when the recipient does not have a Dropbox account."
+        ]
+      },
+      {
+        "title": "What to do when Plantour shows blank Dropbox images",
+        "listTag": "ol",
+        "items": [
+          "Open Dropbox and find the image that appears blank in Plantour.",
+          "Click <strong>Share</strong> or <strong>Copy link</strong> for that file.",
+          "If Dropbox asks which kind of link to create, choose <strong>Link for viewing</strong>.",
+          "Return to Plantour, reopen <strong>Choose Dropbox image</strong>, and click <strong>Refresh</strong>.",
+          "Insert the image again after Dropbox makes it accessible."
+        ],
+        "afterHtml": "This trap is usually about Dropbox access state, not about the Plantour note editor. Plantour connects to your Dropbox account directly, but Dropbox documents that external access is enabled through sharing. If a newly uploaded image still behaves as private-only, opening Dropbox once and creating the share or view link usually resolves it."
+      }
+    ]
+  }
+}

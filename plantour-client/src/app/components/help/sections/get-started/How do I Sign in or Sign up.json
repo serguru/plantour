@@ -1,0 +1,47 @@
+{
+  "slug": "sign-in-or-sign-up",
+  "question": "How do I Sign in or Sign up?",
+  "answer": {
+    "kind": "list",
+    "sections": [
+      {
+        "title": "Choose the correct account type first",
+        "listTag": "ul",
+        "items": [
+          "Plantour supports two sign-in paths: <strong>Admin</strong> and <strong>Participant</strong>.",
+          "If you are not sure which one applies to you, open <a href='/help/features/why-admins-travelers-and-participants'>Why Admins, Travelers and Participants?</a> first. It explains what each role means and why Plantour keeps them separate."
+        ]
+      },
+      {
+        "title": "Admin sign in / sign up",
+        "listTag": "ol",
+        "beforeHtml": "Use this option when you are the <strong>Admin</strong> who owns trips and manages the account.",
+        "items": [
+          "Open <a href='/sign-in'>Sign In / Sign Up</a> from the toolbar menu.",
+          "Leave the form on <strong>Admin</strong>.",
+          "Choose one of these sign-in methods:",
+          "Click <strong>Google</strong> or <strong>Facebook</strong> to sign in immediately with that provider.",
+          "Or enter your email address and submit the form. Plantour sends you a secure sign-in link by email.",
+          "If no Admin account exists for that email yet, Plantour creates one for you during this flow.",
+          "After successful sign-in, Plantour opens your authenticated workspace and dashboard."
+        ],
+        "afterHtml": "Use the Admin path when you need to create trips, manage reusable <a href='/travelers'>Travelers</a>, add trip participants, or control shared trip planning. For the role definition, read <a href='/help/features/why-admins-travelers-and-participants'>Why Admins, Travelers and Participants?</a>."
+      },
+      {
+        "title": "Participant sign in",
+        "listTag": "ol",
+        "beforeHtml": "Use this option when you were invited into an existing trip as a <strong>Participant</strong> by an admin.",
+        "items": [
+          "The admin usually starts from their reusable <a href='/travelers'>Travelers</a> list, then adds one of those travelers to a specific trip as a participant.",
+          "When the admin invites you, Plantour sends an invitation email that includes both an <strong>access code</strong> and a direct <strong>Plantour sign-in link</strong>.",
+          "Open <a href='/sign-in/participant'>Participant Sign In</a> or switch the sign-in form to <strong>Participant</strong>.",
+          "Enter the access code from that invitation email and submit the form.",
+          "Or use the direct sign-in link from the same invitation email to enter Plantour without typing the code manually.",
+          "After successful sign-in, Plantour opens the trips where you were added as a participant.",
+          "Participant access is narrower than Admin access: you work only in trips that include you, and only with the pages available to participants."
+        ],
+        "afterHtml": "In practice, the reusable person record lives in the admin`s <a href='/travelers'>Travelers</a> dictionary, and that traveler becomes a participant only after being added to a specific trip. If you need the role breakdown, read <a href='/help/features/why-admins-travelers-and-participants'>Why Admins, Travelers and Participants?</a>."
+      }
+    ]
+  }
+}

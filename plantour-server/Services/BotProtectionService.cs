@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using plantour_server.Logging;
 using plantour_server.Models;
 using plantour_server.Services.Interfaces;
 using PlantourApi.Middleware;
@@ -11,24 +12,28 @@ namespace plantour_server.Services;
 public class BotProtectionService : IBotProtectionService
 {
     private const string VerifyEndpoint = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+    private const string LoggerCategory = nameof(BotProtectionService);
 
     private readonly HttpClient _httpClient;
-    private readonly ILogger<BotProtectionService> _logger;
+    private readonly IPlantourLogger _logger;
     private readonly TurnstileSettings _settings;
+    private readonly ServerSettingsService _serverSettingsService;
 
     public BotProtectionService(
         HttpClient httpClient,
         IOptions<TurnstileSettings> settings,
-        ILogger<BotProtectionService> logger)
+        ServerSettingsService serverSettingsService,
+        IPlantourLogger logger)
     {
         _httpClient = httpClient;
         _logger = logger;
         _settings = settings.Value;
+        _serverSettingsService = serverSettingsService;
     }
 
     public async Task EnsureHumanVerifiedAsync(string? token, string action, string? remoteIpAddress, CancellationToken cancellationToken = default)
     {
-        if (!_settings.Enabled || string.IsNullOrWhiteSpace(_settings.SecretKey))
+        if (!await _serverSettingsService.GetTurnstileEnabledAsync() || string.IsNullOrWhiteSpace(_settings.SecretKey))
         {
             return;
         }
@@ -47,9 +52,13 @@ public class BotProtectionService : IBotProtectionService
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError(
-                "Turnstile verification request failed with status code {StatusCode} for action {Action}",
-                response.StatusCode,
-                action);
+                "Turnstile verification request failed",
+                null,
+                new
+                {
+                    status_code = (int)response.StatusCode,
+                    action
+                });
 
             throw new BaseApiException(
                 "Human verification is temporarily unavailable. Please try again.",
@@ -64,13 +73,13 @@ public class BotProtectionService : IBotProtectionService
         }
 
         _logger.LogWarning(
-            "Turnstile verification failed for action {Action}. Errors: {Errors}",
-            action,
+            $"Turnstile verification failed for action {action}",
+            null,
             verificationResult?.ErrorCodes is { Length: > 0 }
                 ? string.Join(",", verificationResult.ErrorCodes)
                 : "unknown");
 
-        throw new BaseApiException("Human verification failed. Please try again.", StatusCodes.Status400BadRequest, "BOT_PROTECTION_FAILED");
+        throw new BaseApiException("Human verification failed. Please try again.", StatusCodes.Status400BadRequest, "BOT_PROTECTION");
     }
 
     public void EnsureHoneypotIsEmpty(string? value, string fieldName)
@@ -80,8 +89,8 @@ public class BotProtectionService : IBotProtectionService
             return;
         }
 
-        _logger.LogWarning("Honeypot field {FieldName} was filled. Request rejected.", fieldName);
-        throw new BaseApiException("Request rejected.", StatusCodes.Status400BadRequest, "BOT_PROTECTION_FAILED");
+        _logger.LogWarning($"Honeypot field {fieldName} was filled. Request rejected.", "Bot protection");
+        throw new BaseApiException("Request rejected.", StatusCodes.Status400BadRequest, "BOT_PROTECTION");
     }
 
     private Dictionary<string, string> BuildPayload(string token, string? remoteIpAddress)

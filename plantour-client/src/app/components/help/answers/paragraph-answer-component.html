@@ -2,21 +2,21 @@
   @for (section of sections; track $index) {
     <section class="help-list-answer__section">
       @if (section.title) {
-        <p class="help-list-answer__caption" [innerHTML]="section.title"></p>
+        <p class="help-list-answer__caption" [innerHTML]="renderHtml(section.title)"></p>
       }
 
       @if (section.beforeHtml) {
-        <div class="help-list-answer__content" [innerHTML]="section.beforeHtml"></div>
+        <div class="help-list-answer__content" [innerHTML]="renderHtml(section.beforeHtml)"></div>
       }
 
       @if (section.paragraphs?.length) {
         @for (paragraph of section.paragraphs; track paragraph) {
-          <div class="help-list-answer__content" [innerHTML]="paragraph"></div>
+          <div class="help-list-answer__content" [innerHTML]="renderHtml(paragraph)"></div>
         }
       }
 
       @if (section.afterHtml) {
-        <div class="help-list-answer__content" [innerHTML]="section.afterHtml"></div>
+        <div class="help-list-answer__content" [innerHTML]="renderHtml(section.afterHtml)"></div>
       }
     </section>
   }

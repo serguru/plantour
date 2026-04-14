@@ -533,7 +533,7 @@ export class UsersService {
 
         this.messagesService.openInfo({
           title: `Welcome to Plantour!`,
-          message: `You are now in Guest Access Mode as Robin Miles for ${response.temporaryUserAccessTokenExpirationDays} days. The app works with full features, except you are limited to ${response.itemsLimit} items and ${response.participantsLimit} participants. To get started, add items to your current trip "Weekend in Las Vegas", pack them into bags, and download a packing list. 
+          message: `You are now in Guest Access Mode as Robin Miles for ${response.temporaryUserAccessTokenExpirationDays} days. The app works with all functions, except for restrictions on the number of items, todos, travelers, and some other entities. To get started, add items to your current trip "Weekend in Las Vegas", pack them into bags, and download a packing list. 
           If you need help, please follow the link "How to take the first steps." Good luck!
           `
         });

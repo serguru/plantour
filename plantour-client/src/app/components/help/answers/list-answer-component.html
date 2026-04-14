@@ -2,31 +2,31 @@
   @for (section of sections; track $index) {
     <section class="help-list-answer__section">
       @if (section.title) {
-        <p class="help-list-answer__caption" [innerHTML]="section.title"></p>
+        <p class="help-list-answer__caption" [innerHTML]="renderHtml(section.title)"></p>
       }
 
       @if (section.beforeHtml) {
-        <div class="help-list-answer__content" [innerHTML]="section.beforeHtml"></div>
+        <div class="help-list-answer__content" [innerHTML]="renderHtml(section.beforeHtml)"></div>
       }
 
       @if (section.items?.length) {
         @if (section.listTag === 'ol') {
           <ol class="help-list-answer__list help-list-answer__list--ordered">
             @for (item of section.items; track item) {
-              <li [innerHTML]="item"></li>
+              <li [innerHTML]="renderHtml(item)"></li>
             }
           </ol>
         } @else {
           <ul class="help-list-answer__list help-list-answer__list--unordered">
             @for (item of section.items; track item) {
-              <li [innerHTML]="item"></li>
+              <li [innerHTML]="renderHtml(item)"></li>
             }
           </ul>
         }
       }
 
       @if (section.afterHtml) {
-        <div class="help-list-answer__content" [innerHTML]="section.afterHtml"></div>
+        <div class="help-list-answer__content" [innerHTML]="renderHtml(section.afterHtml)"></div>
       }
     </section>
   }
