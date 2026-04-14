@@ -1,5 +1,5 @@
-using Microsoft.Extensions.Logging;
 using plantour_server.DbModels;
+using plantour_server.Logging;
 using plantour_server.Repositories;
 using plantour_server.Services.Interfaces;
 using plantour_server.Utils;
@@ -9,11 +9,11 @@ namespace plantour_server.Services;
 public class SharedAssignmentNotificationService(
     IEmailService emailService,
     SettingsRepository settingsRepository,
-    ILogger<SharedAssignmentNotificationService> logger) : ISharedAssignmentNotificationService
+    IPlantourLogger logger) : ISharedAssignmentNotificationService
 {
     private readonly IEmailService _emailService = emailService;
     private readonly SettingsRepository _settingsRepository = settingsRepository;
-    private readonly ILogger<SharedAssignmentNotificationService> _logger = logger;
+    private readonly IPlantourLogger _logger = logger;
 
     public async Task NotifyParticipantAssignmentChangesAsync(
         User admin,
@@ -55,8 +55,7 @@ public class SharedAssignmentNotificationService(
             }
             catch (Exception)
             {
-                // TODO LOG
-                // _logger.LogWarning(ex, "Failed to send participant assignment notification email for trip {TripId}", tripId);
+                _logger.LogWarning($"Failed to send participant assignment notification email for trip {tripId}");
             }
         }
     }
@@ -95,8 +94,7 @@ public class SharedAssignmentNotificationService(
         }
         catch (Exception)
         {
-            // TODO LOG
-            // _logger.LogWarning(ex, "Failed to send admin participant action notification email for trip {TripId}", tripId);
+            _logger.LogWarning($"Failed to send admin participant action notification email for trip {tripId}");
         }
     }
 

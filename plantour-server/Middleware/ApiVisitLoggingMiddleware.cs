@@ -3,8 +3,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using plantour_server.DbModels;
+using plantour_server.Logging;
 using plantour_server.Repositories;
 using PlantourApi.Models;
 
@@ -14,24 +14,16 @@ public class ApiVisitLoggingMiddleware
 {
     private const string DailyVisitCacheKeyPrefix = "api-visit";
     private const string DailyVisitLockCacheKeyPrefix = "api-visit-lock";
+    private const string LoggerCategory = nameof(ApiVisitLoggingMiddleware);
 
     private readonly RequestDelegate _next;
-    private readonly ILogger<ApiVisitLoggingMiddleware> _logger;
+    private readonly IPlantourLogger _logger;
 
-    public ApiVisitLoggingMiddleware(RequestDelegate next, ILogger<ApiVisitLoggingMiddleware> logger)
+    public ApiVisitLoggingMiddleware(RequestDelegate next, IPlantourLogger logger)
     {
         _next = next;
         _logger = logger;
     }
-
-    // public List<string> GetNoLogPaths()
-    // {
-    //     object? setting = GetSettingByKey("exclude_paths_from_log") ?? throw new CustomException("exclude_paths_from_log setting not found");
-    //     string s = (string)setting;
-    //     List<string> result = [.. s.Split(";")];
-    //     return result;
-    // }
-
 
     public async Task InvokeAsync(HttpContext context)
     {
@@ -113,10 +105,19 @@ public class ApiVisitLoggingMiddleware
 
             MarkVisitRecordedToday(memoryCache, remoteIpAddress, currentUser, visitRecordedAtUtc);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // TODO LOG
-            // _logger.LogError(ex, "Failed to store api visit");
+            _logger.LogError(
+                "Failed to store api visit",
+                LoggerCategory,
+                new
+                {
+                    request_path = context.Request.Path.Value,
+                    trace_id = context.TraceIdentifier,
+                    exception_type = ex.GetType().FullName,
+                    exception_message = ex.Message,
+                    stack_trace = ex.StackTrace
+                });
         }
     }
 

@@ -1,9 +1,9 @@
 using plantour_server.DbModels;
 using plantour_server.DTOs;
+using plantour_server.Logging;
 using plantour_server.Repositories;
 using plantour_server.Services.Interfaces;
 using AutoMapper;
-using Microsoft.Extensions.Logging;
 
 namespace plantour_server.Services;
 
@@ -19,13 +19,13 @@ public class ContactSubmissionService(
     SettingsRepository settingsRepository,
     IEmailService emailService,
     IMapper mapper,
-    ILogger<ContactSubmissionService> logger) : IContactSubmissionService
+    IPlantourLogger logger) : IContactSubmissionService
 {
     private readonly ContactSubmissionRepository _contactRepository = contactRepository;
     private readonly SettingsRepository _settingsRepository = settingsRepository;
     private readonly IEmailService _emailService = emailService;
     private readonly IMapper _mapper = mapper;
-    private readonly ILogger<ContactSubmissionService> _logger = logger;
+    private readonly IPlantourLogger _logger = logger;
 
     public async Task<ContactSubmissionDto> SubmitContactAsync(ContactSubmissionRequest request, string? ipAddress, string? userAgent, string? referrerUrl)
     {
@@ -51,8 +51,7 @@ public class ContactSubmissionService(
             var supportEmail = await _settingsRepository.GetSettingByKey("support_email") as string;
             if (string.IsNullOrWhiteSpace(supportEmail))
             {
-                // TODO LOG
-                // _logger.LogWarning("Support email setting is missing or empty; skipping contact submission notification for {Email}", request.Email);
+                 _logger.LogWarning($"Support email setting is missing or empty; skipping contact submission notification for {request.Email}");
             }
             else
             {
@@ -72,8 +71,7 @@ public class ContactSubmissionService(
         }
         catch (Exception)
         {
-            // TODO LOG
-            // _logger.LogError(ex, "Failed to send support notification for contact submission {SubmissionId}", submission.Id);
+            _logger.LogError($"Failed to send support notification for contact submission {submission.Id}");
         }
 
         return _mapper.Map<ContactSubmissionDto>(result);

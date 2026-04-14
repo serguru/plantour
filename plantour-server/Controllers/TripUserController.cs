@@ -38,10 +38,8 @@ public class TripUserController : ControllerBase
     [AdminOrParticipant]
     public async Task<ActionResult<IEnumerable<TripUserDto>>> GetAll(Guid tripId)
     {
-        throw new Exception("Testing logs");
-//        var dtos = await _service.GetAllAsync(tripId);
         var dtos = await _service.GetAllAsync(tripId);
-        return Ok("nothing!!!");
+        return Ok(dtos);
     }
 
     [HttpGet("trip/{tripId}/user/{id}")]

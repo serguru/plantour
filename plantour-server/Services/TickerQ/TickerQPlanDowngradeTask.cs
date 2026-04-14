@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using plantour_server.DbModels;
+using plantour_server.Logging;
 using plantour_server.Services.Interfaces;
 using TickerQ.Utilities.Base;
 
@@ -12,12 +13,12 @@ public class TickerQPlanDowngradeTask
 
     private readonly IPaddleService _paddleService;
     private readonly PlantourContext _context;
-    private readonly ILogger<TickerQPlanDowngradeTask> _logger;
+    private readonly IPlantourLogger _logger;
 
     public TickerQPlanDowngradeTask(
         IPaddleService paddleService,
         PlantourContext context,
-        ILogger<TickerQPlanDowngradeTask> logger)
+        IPlantourLogger logger)
     {
         _paddleService = paddleService;
         _context = context;
@@ -42,13 +43,8 @@ public class TickerQPlanDowngradeTask
 
         await _paddleService.DowngradePlanPriceAsync(payload.UserId, payload.OldPlanPrice, payload.NewPlanPrice);
 
-        // TODO LOG
-        // _logger.LogInformation(
-        //     "TickerQ downgrade task executed. JobId: {JobId}, UserId: {UserId}, OldPlanPrice: {OldPlanPrice}, NewPlanPrice: {NewPlanPrice}",
-        //     context.Id,
-        //     payload.UserId,
-        //     payload.OldPlanPrice,
-        //     payload.NewPlanPrice);
+        _logger.LogInformation(
+            $"TickerQ downgrade task executed. JobId: {context.Id}, UserId: {payload.UserId}, OldPlanPrice: {payload.OldPlanPrice}, NewPlanPrice: {payload.NewPlanPrice}");
     }
 
     public sealed class PlanDowngradePayload

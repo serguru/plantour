@@ -80,7 +80,7 @@ builder.Services.Configure<PlantourLoggerOptions>(
     builder.Configuration.GetSection(PlantourLoggerOptions.SectionName));
 builder.Services.AddSingleton<PlantourLogQueue>();
 builder.Services.AddHostedService<PlantourLogWorker>();
-builder.Services.AddSingleton(typeof(IPlantourLogger<>), typeof(PlantourLogger<>));
+builder.Services.AddSingleton<IPlantourLogger, PlantourLogger>();
 
 var env = builder.Environment;
 

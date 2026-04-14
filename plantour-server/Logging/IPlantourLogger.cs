@@ -1,12 +1,8 @@
 namespace plantour_server.Logging;
 
-public interface IPlantourLogger<TCategory>
+public interface IPlantourLogger
 {
-    void LogInformation(string messageTemplate, params object?[] args);
-    void LogWarning(string messageTemplate, params object?[] args);
-    void LogWarning(Exception? exception, string messageTemplate, params object?[] args);
-    void LogError(string messageTemplate, params object?[] args);
-    void LogError(Exception? exception, string messageTemplate, params object?[] args);
-    void LogCritical(string messageTemplate, params object?[] args);
-    void LogCritical(Exception? exception, string messageTemplate, params object?[] args);
+    void LogInformation(string message, string? category = null, object? properties = null);
+    void LogWarning(string message, string? category = null, object? properties = null);
+    void LogError(string message, string? category = null, object? properties = null);
 }

@@ -1,6 +1,7 @@
 using System.Threading;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using plantour_server.Logging;
 using plantour_server.Models;
 using plantour_server.Services.Interfaces;
 
@@ -9,13 +10,13 @@ namespace plantour_server.Services;
 public sealed class FatalExceptionNotificationService : IHostedService, IDisposable
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly ILogger<FatalExceptionNotificationService> _logger;
+    private readonly IPlantourLogger _logger;
     private readonly BrevoSettings _brevoSettings;
     private int _notificationSent;
 
     public FatalExceptionNotificationService(
         IServiceScopeFactory serviceScopeFactory,
-        ILogger<FatalExceptionNotificationService> logger,
+        IPlantourLogger logger,
         IOptions<BrevoSettings> brevoSettings)
     {
         _serviceScopeFactory = serviceScopeFactory;
@@ -50,10 +51,8 @@ public sealed class FatalExceptionNotificationService : IHostedService, IDisposa
         var exception = args.ExceptionObject as Exception
             ?? new Exception($"Unhandled non-Exception object caused process termination: {args.ExceptionObject}");
 
-        // TODO LOG
-        // _logger.LogCritical(
-        //     exception,
-        //     "Fatal unhandled exception is terminating the Plantour API process");
+        _logger.LogError(
+            "Fatal unhandled exception is terminating the Plantour API process");
 
         if (Interlocked.Exchange(ref _notificationSent, 1) == 1)
         {
@@ -98,8 +97,7 @@ public sealed class FatalExceptionNotificationService : IHostedService, IDisposa
         }
         catch (Exception)
         {
-            // TODO LOG
-            // _logger.LogError(emailException, "Failed to send fatal exception email notification");
+            _logger.LogError("Failed to send fatal exception email notification");
         }
     }
 }

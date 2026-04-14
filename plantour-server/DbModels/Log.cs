@@ -21,7 +21,7 @@ public partial class Log
     public string Severity { get; set; } = null!;
 
     [Column("category")]
-    public string Category { get; set; } = null!;
+    public string? Category { get; set; }
 
     [Column("message")]
     public string Message { get; set; } = null!;
@@ -30,5 +30,5 @@ public partial class Log
     public Guid? UserId { get; set; }
 
     [Column("properties", TypeName = "jsonb")]
-    public string Properties { get; set; } = null!;
+    public string? Properties { get; set; }
 }

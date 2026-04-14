@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
+using plantour_server.Logging;
 using plantour_server.Models;
 using plantour_server.Repositories;
 using plantour_server.Services.Interfaces;
@@ -25,7 +26,7 @@ public class SchedulerService(
     AiPromptRepository aiPromptRepository,
     ITimeTickerManager<TimeTickerEntity> timeTickerManager,
     IPaddleService _paddleService,
-    ILogger<SchedulerService> logger,
+    IPlantourLogger logger,
     TimeTickerRepository timeTickerRepository,
     HttpCurrentUser httpCurrentUser) : ISchedulerService
 {
@@ -43,7 +44,7 @@ public class SchedulerService(
     private readonly IPaddleService _paddleService = _paddleService;
     private readonly TimeTickerRepository _timeTickerRepository = timeTickerRepository;
 
-    private readonly ILogger<SchedulerService> _logger = logger;
+    private readonly IPlantourLogger _logger = logger;
 
     public async Task DeleteExpiredRefreshTokensAsync()
     {
@@ -146,14 +147,8 @@ public class SchedulerService(
         createdJob.UpdatedAt = DateTime.UtcNow;
         await _timeTickerRepository.UpdateAsync(createdJob);
 
-        // TODO LOG
-        // _logger.LogInformation(
-        //     "Downgrade plan job scheduled. JobId: {JobId}, UserId: {UserId}, OldPlanPrice: {OldPlanPrice}, NewPlanPrice: {NewPlanPrice}, ExecutionTimeUtc: {ExecutionTimeUtc}",
-        //     addResult.Result.Id,
-        //     userId,
-        //     oldPlanPrice,
-        //     newPlanPrice,
-        //     executionTime);
+        _logger.LogInformation(
+            $"Downgrade plan job scheduled. JobId: {addResult.Result.Id}, UserId: {userId}, OldPlanPrice: {oldPlanPrice}, NewPlanPrice: {newPlanPrice}, ExecutionTimeUtc: {executionTime}");
     }
 
 
