@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Channels;
-using Microsoft.Extensions.Options;
 
 namespace plantour_server.Logging;
 
@@ -8,9 +7,9 @@ public sealed class PlantourLogQueue
 {
     private readonly Channel<PlantourLogEntry> _channel;
 
-    public PlantourLogQueue(IOptions<PlantourLoggerOptions> options)
+    public PlantourLogQueue(PlantourLoggerSettingsStore settingsStore)
     {
-        var capacity = Math.Max(128, options.Value.QueueCapacity);
+        var capacity = Math.Max(128, settingsStore.Current.QueueCapacity);
         _channel = Channel.CreateBounded<PlantourLogEntry>(new BoundedChannelOptions(capacity)
         {
             FullMode = BoundedChannelFullMode.DropOldest,

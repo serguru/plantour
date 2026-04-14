@@ -25,6 +25,7 @@ public class AiService : IAiService
 
     private readonly HttpClient _httpClient;
     private readonly GeminiSettings _settings;
+    private readonly ServerSettingsService _serverSettingsService;
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
     private readonly AiPromptRepository _aiPromptRepository;
     private readonly AiTripPlanRepository _aiTripPlanRepository;
@@ -46,6 +47,7 @@ public class AiService : IAiService
     public AiService(
         HttpClient httpClient,
         IOptions<GeminiSettings> settings,
+        ServerSettingsService serverSettingsService,
         AiPromptRepository aiPromptRepository,
         AiTripPlanRepository aiTripPlanRepository,
         AiRepository aiRepository,
@@ -64,6 +66,7 @@ public class AiService : IAiService
     {
         _httpClient = httpClient;
         _settings = settings.Value;
+        _serverSettingsService = serverSettingsService;
         _aiPromptRepository = aiPromptRepository;
         _aiTripPlanRepository = aiTripPlanRepository;
         _aiRepository = aiRepository;
@@ -78,11 +81,6 @@ public class AiService : IAiService
         _aiPromptChecksRepository = aiPromptChecksRepository;
         _context = context;
         _httpContextAccessor = httpContextAccessor;
-
-        if (!string.IsNullOrWhiteSpace(_settings.ApiBaseUrl))
-        {
-            _httpClient.BaseAddress = new Uri(_settings.ApiBaseUrl, UriKind.Absolute);
-        }
 
         if (!_httpClient.DefaultRequestHeaders.Accept.Any())
         {
@@ -108,10 +106,7 @@ public class AiService : IAiService
             return new AiAsyncStartResponseDto { RequestId = requestId, Status = "completed" };
         }
 
-        if (string.IsNullOrWhiteSpace(_settings.ApiKey))
-        {
-            throw new CustomException("Gemini API key is not configured");
-        }
+        await EnsureGeminiConfiguredAsync();
 
         await EnsureAiPromptLimitNotReachedAsync();
 
@@ -190,10 +185,7 @@ public class AiService : IAiService
             return new AiAsyncStartResponseDto { RequestId = requestId, Status = "completed" };
         }
 
-        if (string.IsNullOrWhiteSpace(_settings.ApiKey))
-        {
-            throw new CustomException("Gemini API key is not configured");
-        }
+        await EnsureGeminiConfiguredAsync();
 
         await EnsureAiPromptLimitNotReachedAsync();
 
@@ -634,10 +626,7 @@ public class AiService : IAiService
             return _mapper.Map<IEnumerable<AiItemDto>>(existingThings);
         }
 
-        if (string.IsNullOrWhiteSpace(_settings.ApiKey))
-        {
-            throw new CustomException("Gemini API key is not configured");
-        }
+        await EnsureGeminiConfiguredAsync();
 
         await EnsureAiPromptLimitNotReachedAsync();
 
@@ -665,7 +654,7 @@ public class AiService : IAiService
             }
         };
 
-        var requestUrl = $"models/{_settings.Model}:generateContent?key={_settings.ApiKey}";
+        var requestUrl = await BuildGeminiRequestUrlAsync();
 
         using var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
         {
@@ -1184,10 +1173,7 @@ public class AiService : IAiService
         var includeSharedEntities = _currentUser.IsAdmin;
         var snapshot = await BuildTripImprovementSnapshotAsync(trip, tripUser, includeSharedEntities);
 
-        if (string.IsNullOrWhiteSpace(_settings.ApiKey))
-        {
-            throw new CustomException("Gemini API key is not configured");
-        }
+        await EnsureGeminiConfiguredAsync();
 
         await EnsureAiPromptLimitNotReachedAsync();
 
@@ -1360,7 +1346,7 @@ public class AiService : IAiService
             }
         };
 
-        var requestUrl = $"models/{_settings.Model}:generateContent?key={_settings.ApiKey}";
+        var requestUrl = await BuildGeminiRequestUrlAsync();
 
         using var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
         {
@@ -1435,7 +1421,7 @@ public class AiService : IAiService
             }
         };
 
-        var requestUrl = $"models/{_settings.Model}:generateContent?key={_settings.ApiKey}";
+        var requestUrl = await BuildGeminiRequestUrlAsync();
 
         using var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
         {
@@ -1499,10 +1485,7 @@ public class AiService : IAiService
             }
         }
 
-        if (string.IsNullOrWhiteSpace(_settings.ApiKey))
-        {
-            throw new CustomException("Gemini API key is not configured");
-        }
+        await EnsureGeminiConfiguredAsync();
 
         await EnsureAiPromptLimitNotReachedAsync();
 
@@ -2429,6 +2412,45 @@ public class AiService : IAiService
     private static string NormalizeCurrencyText(string currencyText)
     {
         return CleanOptional(currencyText) ?? string.Empty;
+    }
+
+    private async Task EnsureGeminiConfiguredAsync()
+    {
+        _ = await GetGeminiRequestUrlPartsAsync();
+    }
+
+    private async Task<string> BuildGeminiRequestUrlAsync()
+    {
+        var settings = await GetGeminiRequestUrlPartsAsync();
+        return $"models/{settings.Model}:generateContent?key={settings.ApiKey}";
+    }
+
+    private async Task<(string ApiKey, string Model)> GetGeminiRequestUrlPartsAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_settings.ApiKey))
+        {
+            throw new CustomException("Gemini API key is not configured");
+        }
+
+        var runtimeSettings = await _serverSettingsService.GetGeminiRuntimeSettingsAsync();
+
+        if (string.IsNullOrWhiteSpace(runtimeSettings.ApiBaseUrl))
+        {
+            throw new CustomException("Gemini API base URL is not configured");
+        }
+
+        if (string.IsNullOrWhiteSpace(runtimeSettings.Model))
+        {
+            throw new CustomException("Gemini model is not configured");
+        }
+
+        var baseUri = new Uri(runtimeSettings.ApiBaseUrl, UriKind.Absolute);
+        if (_httpClient.BaseAddress == null || !string.Equals(_httpClient.BaseAddress.ToString(), baseUri.ToString(), StringComparison.Ordinal))
+        {
+            _httpClient.BaseAddress = baseUri;
+        }
+
+        return (_settings.ApiKey, runtimeSettings.Model);
     }
 
     private static object BuildTripActivitiesSchema()

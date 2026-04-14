@@ -27,7 +27,6 @@ namespace plantour_server.Services;
 
 
 public class UsersService(
-    IOptions<JwtSettings> jwtSettings,
     IMapper mapper,
     IPlantourLogger logger,
     UsersRepository usersRepository,
@@ -37,7 +36,6 @@ public class UsersService(
     SettingsRepository settingsRepository,
     AccessTypeRepository accessTypeRepository,
     ITokenService tokenService,
-    IConfiguration configuration,
     IWebHostEnvironment environment,
     IInvitationService invitationService,
     HttpCurrentUser httpCurrentUser,
@@ -49,6 +47,7 @@ public class UsersService(
     IPaddleService paddleService,
     ISignInEmailService signInEmailService,
     IOptions<SocialAuthSettings> socialAuthSettings,
+    ServerSettingsService serverSettingsService,
     IDataProtectionProvider dataProtectionProvider) : IUsersService
 {
     private const string UserCreatedLogCategory = "User created";
@@ -69,9 +68,8 @@ public class UsersService(
     private readonly IPaddleService _paddleService = paddleService;
     private readonly TimeTickerRepository _timeTickerRepository = timeTickerRepository;
     private readonly IMapper _mapper = mapper;
-    private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly ITokenService _tokenService = tokenService;
-    private readonly IConfiguration _configuration = configuration;
+    private readonly ServerSettingsService _serverSettingsService = serverSettingsService;
     private readonly IWebHostEnvironment _environment = environment;
     private readonly ISignInEmailService _signInEmailService = signInEmailService;
     private readonly ITimeLimitedDataProtector _googleOAuthStateProtector = dataProtectionProvider.CreateProtector("Plantour.GoogleOAuthState").ToTimeLimitedDataProtector();
@@ -1067,7 +1065,7 @@ public class UsersService(
     private string ResolveGoogleReturnUrl(string? returnUrl)
     {
         var candidate = string.IsNullOrWhiteSpace(returnUrl)
-            ? _socialAuthSettings.GoogleOAuthDefaultReturnUrl
+            ? _serverSettingsService.GetGoogleOAuthDefaultReturnUrlAsync().GetAwaiter().GetResult()
             : returnUrl;
 
         if (string.IsNullOrWhiteSpace(candidate))
@@ -1080,7 +1078,7 @@ public class UsersService(
             throw new CustomException("Google OAuth return URL is invalid");
         }
 
-        var allowedOrigins = _configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+        var allowedOrigins = _serverSettingsService.GetCorsAllowedOriginsAsync().GetAwaiter().GetResult();
         var allowedHosts = allowedOrigins
             .Select(origin =>
             {

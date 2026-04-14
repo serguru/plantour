@@ -12,17 +12,14 @@ public class BrevoEmailClient : IBrevoEmailClient
 {
     private readonly HttpClient _httpClient;
     private readonly BrevoSettings _settings;
+    private readonly ServerSettingsService _serverSettingsService;
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
 
-    public BrevoEmailClient(HttpClient httpClient, IOptions<BrevoSettings> settings)
+    public BrevoEmailClient(HttpClient httpClient, IOptions<BrevoSettings> settings, ServerSettingsService serverSettingsService)
     {
         _httpClient = httpClient;
         _settings = settings.Value;
-
-        if (!string.IsNullOrWhiteSpace(_settings.ApiBaseUrl))
-        {
-            _httpClient.BaseAddress = new Uri(_settings.ApiBaseUrl, UriKind.Absolute);
-        }
+        _serverSettingsService = serverSettingsService;
 
         if (!_httpClient.DefaultRequestHeaders.Contains("api-key") && !string.IsNullOrWhiteSpace(_settings.ApiKey))
         {
@@ -42,9 +39,16 @@ public class BrevoEmailClient : IBrevoEmailClient
         string htmlContent,
         string? textContent = null)
     {
+        var runtimeSettings = await _serverSettingsService.GetBrevoRuntimeSettingsAsync();
+
+        if (_httpClient.BaseAddress == null || !string.Equals(_httpClient.BaseAddress.ToString(), runtimeSettings.ApiBaseUrl, StringComparison.Ordinal))
+        {
+            _httpClient.BaseAddress = new Uri(runtimeSettings.ApiBaseUrl, UriKind.Absolute);
+        }
+
         if (string.IsNullOrWhiteSpace(_settings.ApiKey)
-            || string.IsNullOrWhiteSpace(_settings.SenderEmail)
-            || string.IsNullOrWhiteSpace(_settings.SenderName))
+            || string.IsNullOrWhiteSpace(runtimeSettings.SenderEmail)
+            || string.IsNullOrWhiteSpace(runtimeSettings.SenderName))
         {
             throw new CustomException("Brevo settings are not configured");
         }
@@ -53,7 +57,7 @@ public class BrevoEmailClient : IBrevoEmailClient
 
         var payload = new
         {
-            sender = new { name = _settings.SenderName, email = _settings.SenderEmail },
+            sender = new { name = runtimeSettings.SenderName, email = runtimeSettings.SenderEmail },
             to = new[] { new { email = toEmail, name = toName } },
             subject,
             htmlContent,

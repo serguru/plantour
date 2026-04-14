@@ -12,8 +12,6 @@ using plantour_server.Repositories;
 using PlantourApi.Middleware;
 using PlantourApi.Models;
 using plantour_server.Utils;
-using plantour_server.Models;
-using Microsoft.Extensions.Options;
 using plantour_server.Logging;
 
 namespace plantour_server.Services;
@@ -31,7 +29,7 @@ public class TemporaryUserService : ITemporaryUserService
     private readonly TripPackRepository _tripPackRepository;
     private readonly LookupsRepository _lookupsRepository;
 
-    private readonly SettingsRepository _settingsRepository;
+    private readonly ServerSettingsService _serverSettingsService;
 
     private readonly AdminsParticipantRepository _adminsParticipantRepository;
     private readonly PlantourContext _context;
@@ -40,12 +38,10 @@ public class TemporaryUserService : ITemporaryUserService
     private readonly AccessTypeRepository _accessTypeRepository;
     private readonly IPlantourLogger _logger;
 
-    private readonly JwtSettings _jwtSettings;
     private readonly AccessCodeGenerator _accessCodeGenerator;
 
     public TemporaryUserService(
         AccessCodeGenerator accessCodeGenerator,
-        IOptions<JwtSettings> jwtSettings,
         UsersRepository usersRepository,
         ITokenService tokenService,
         TripRepository tripRepository,
@@ -59,11 +55,10 @@ public class TemporaryUserService : ITemporaryUserService
         PlantourContext context,
         IMapper mapper,
         IAccessRulesService accessRulesService,
-        SettingsRepository settingsRepository,
+        ServerSettingsService serverSettingsService,
         AccessTypeRepository accessTypeRepository,
         IPlantourLogger logger)
     {
-        _jwtSettings = jwtSettings.Value;
         _usersRepository = usersRepository;
         _tokenService = tokenService;
         _tripRepository = tripRepository;
@@ -73,7 +68,7 @@ public class TemporaryUserService : ITemporaryUserService
         _thingRepository = thingRepository;
         _tripThingRepository = tripThingRepository;
         _accessTypeRepository = accessTypeRepository;
-        _settingsRepository = settingsRepository;
+        _serverSettingsService = serverSettingsService;
         _tripPackRepository = tripPackRepository;
         _lookupsRepository = lookupsRepository;
         _adminsParticipantRepository = adminsParticipantRepository;
@@ -132,7 +127,7 @@ public class TemporaryUserService : ITemporaryUserService
             FirstName = user.FirstName,
             LastName = user.LastName,
             CurrentTripId = activeTrip.Id,
-            TemporaryUserAccessTokenExpirationDays = (int)await _settingsRepository.GetSettingByKey("temporary_user_duration_days"),
+            TemporaryUserAccessTokenExpirationDays = await _serverSettingsService.GetJwtTemporaryUserAccessTokenExpirationDaysAsync(),
             ItemsLimit = rules.FirstOrDefault(r => r.Id == 40)?.Value ?? 0,
             ParticipantsLimit = rules.FirstOrDefault(r => r.Id == 50)?.Value ?? 0,
         };

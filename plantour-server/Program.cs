@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
@@ -75,12 +76,6 @@ builder.Logging.AddFilter("TickerQ", LogLevel.Warning);
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
 builder.Logging.AddFilter("Npgsql", LogLevel.Warning);
-
-builder.Services.Configure<PlantourLoggerOptions>(
-    builder.Configuration.GetSection(PlantourLoggerOptions.SectionName));
-builder.Services.AddSingleton<PlantourLogQueue>();
-builder.Services.AddHostedService<PlantourLogWorker>();
-builder.Services.AddSingleton<IPlantourLogger, PlantourLogger>();
 
 var env = builder.Environment;
 
@@ -166,6 +161,19 @@ builder.Services.AddSingleton(dataSource);
 
 builder.Services.AddDbContext<PlantourContext>(options =>
     options.UseNpgsql(dataSource));
+
+builder.Services.AddScoped<ServerSettingsService>();
+builder.Services.AddSingleton(sp =>
+{
+    var settingsStore = new PlantourLoggerSettingsStore(sp.GetRequiredService<IServiceScopeFactory>());
+    settingsStore.RefreshAsync().GetAwaiter().GetResult();
+    return settingsStore;
+});
+builder.Services.AddSingleton<PlantourLogQueue>();
+builder.Services.AddHostedService<PlantourLoggerSettingsRefreshService>();
+builder.Services.AddHostedService<PlantourLogWorker>();
+builder.Services.AddSingleton<IPlantourLogger, PlantourLogger>();
+builder.Services.AddSingleton<ICorsPolicyProvider, DatabaseCorsPolicyProvider>();
 
 builder.Services.AddTickerQ(options =>
 {
@@ -532,34 +540,7 @@ builder.Services.AddScoped<plantour_server.Repositories.TripActivityRepository>(
 builder.Services.AddScoped<HttpCurrentUser>();
 
 // Configure CORS for Angular client
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowOrigins", policy =>
-    {
-        if (builder.Environment.IsDevelopment())
-        {
-            // Allow all origins in development
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-        }
-        else
-        {
-            //Use configured origins in production
-            var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>();
-
-            if (allowedOrigins == null || !allowedOrigins.Any())
-            {
-                throw new CustomException("No origins allowed in a CORS policy");
-            }
-
-            policy.WithOrigins(allowedOrigins)
-                  .AllowAnyMethod()
-                  .AllowAnyHeader()
-                  .AllowCredentials();
-        }
-    });
-});
+builder.Services.AddCors();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

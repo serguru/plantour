@@ -17,6 +17,7 @@ namespace plantour_server.Services;
 public class TokenService : ITokenService
 {
     private readonly JwtSettings _jwtSettings;
+    private readonly ServerSettingsService _serverSettingsService;
 
     private readonly IAccessRulesService _accessRulesService;
 
@@ -25,29 +26,31 @@ public class TokenService : ITokenService
     private readonly UsersRepository _usersReposotory;
     
 
-    public TokenService(IOptions<JwtSettings> jwtSettings, IAccessRulesService accessRulesService, RefreshTokenRepository refreshTokenRepository, SettingsRepository settingsRepository, UsersRepository usersReposotory)
+    public TokenService(IOptions<JwtSettings> jwtSettings, IAccessRulesService accessRulesService, RefreshTokenRepository refreshTokenRepository, SettingsRepository settingsRepository, UsersRepository usersReposotory, ServerSettingsService serverSettingsService)
     {
         _jwtSettings = jwtSettings.Value;
         _accessRulesService = accessRulesService;
         _refreshTokenRepository = refreshTokenRepository;
         _settingsRepository = settingsRepository;
         _usersReposotory = usersReposotory;
+        _serverSettingsService = serverSettingsService;
     }
 
     public async Task<AccessTokenResult> CreateAccessToken(User user, UserRole role, Guid adminId)
     {
         var handler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
+        var jwtRuntimeSettings = await _serverSettingsService.GetJwtRuntimeSettingsAsync();
         DateTime expiresAtUtc = DateTime.UtcNow;
         
         bool isTemporary = user.Temporary;
         if (isTemporary)
         {
-            expiresAtUtc = expiresAtUtc.AddDays((int)await _settingsRepository.GetSettingByKey("temporary_user_duration_days"));
+            expiresAtUtc = expiresAtUtc.AddDays(jwtRuntimeSettings.TemporaryUserAccessTokenExpirationDays);
         }
         else
         {
-            expiresAtUtc = expiresAtUtc.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
+            expiresAtUtc = expiresAtUtc.AddMinutes(jwtRuntimeSettings.AccessTokenExpirationMinutes);
         }
 
         AccessProcessResult accessProcessResult = await _accessRulesService.ProcessAccessRulesAsync(user, role, adminId, isTemporary);
@@ -117,8 +120,9 @@ public class TokenService : ITokenService
 
     public async Task<RefreshToken> GenerateRefreshToken(Guid userId)
     {
+        var jwtRuntimeSettings = await _serverSettingsService.GetJwtRuntimeSettingsAsync();
         var now = DateTime.UtcNow;
-        var expiresAt = now.AddDays(_jwtSettings.RefreshTokenExpirationDays);
+        var expiresAt = now.AddDays(jwtRuntimeSettings.RefreshTokenExpirationDays);
         Guid token = Guid.NewGuid();
 
         var result = await _refreshTokenRepository.AddAsync(new RefreshToken
