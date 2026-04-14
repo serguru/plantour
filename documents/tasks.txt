@@ -1099,3 +1099,35 @@ Logging requirements
 - json
 
 
+Уважаемая администрация XXX!
+
+Прошу Вас рассмотреть возможность интеграции нашего веб приложения Плантур с вашей системой сбора платежей от клиентов. 
+
+Наше приложение это полнофункциональный помощник в путешествии. Обратите внимание, что это приложение не занимается навигацией по картам, заказов номеров в гостиницах, поиском авиа рейсов и заказом авиа билетов. Наше приложение позволяет спланировать маршрут, в том числе с помощью ИИ, подобрать и упаковать вещи, спланировать и выполнить тудус, отследить расходы в разных валютах, вести путевые заметки. Поддерживаются возможности как для одиночных путешественниоков, так и для семей и больших групп.
+
+Вы можете ознакомиться с Плантур по адресу яя . Для доступа к приложению используйте логин чч и пароль мм. В настоящее время приложение не поддерживает возможность выбора платёжного плана и выполнение платежей.
+
+Пожалуйста дайте мне знать что вы решили.
+
+С уважением,
+Автор и владелец Плантур Серге
+
+Dear  Administration!
+
+Please consider integrating our SaaS web application, Plantour, with your customer payment collection system.
+
+Our application is a fully functional travel assistant. Please note that it does not provide map navigation directions, hotel reservations, flight searches, or ticket booking. Our application allows you to plan an itinerary, including with AI assistance, select and pack your items, plan and execute a trip, track expenses in multiple currencies, and keep travel notes. Features are supported for solo travelers, families, and large groups.
+
+You can explore Plantour at https://plantour.app. Currently the public user have no access to the app because it is missing customer payments. To access the application, use the username "tester" and password "bravo".
+
+Please let me know your decision.
+
+Sincerely,
+Author and owner of Plantur, Serge
+
+
+I had a negative experience with Paddle. They approved 2 my pred production app versions and then unexpectedly rejected the production version, saying "It was flagged as a high risk". Because of that I lost a few weeks spent on the integration with them. Now I need another payments company. Suggest the best way to find one or more and what to do to start getting payments instead of re-designing the integration code one more time.
+
+
+
+Personal Productivity Tool for Itinerary Management

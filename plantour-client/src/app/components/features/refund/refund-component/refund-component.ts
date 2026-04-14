@@ -5,14 +5,14 @@ import { PopoverModule } from 'primeng/popover';
 import { SeoService } from '../../../../services/seo-service';
 
 @Component({
-  selector: 'app-terms-component',
+  selector: 'app-refund-component',
   standalone: true,
   imports: [RouterLink, PopoverModule],
-  templateUrl: './terms-component.html',
-  styleUrl: './terms-component.scss',
+  templateUrl: './refund-component.html',
+  styleUrl: './refund-component.scss',
 })
-export class TermsComponent implements OnInit {
-  componentId = 'terms';
+export class RefundComponent implements OnInit {
+  componentId = 'refund';
   appName = 'Plantour';
   lastUpdated = 'April 14, 2026';
   supportContact = 'the support channel available in the app';
@@ -21,10 +21,10 @@ export class TermsComponent implements OnInit {
   private readonly document = inject(DOCUMENT);
 
   ngOnInit(): void {
-    const canonicalUrl = this.toAbsoluteUrl('/terms');
-    const title = `Terms of Usage | ${this.appName}`;
+    const canonicalUrl = this.toAbsoluteUrl('/refund');
+    const title = `Refund Policy | ${this.appName}`;
     const description = this.trimDescription(
-      `Read ${this.appName} Terms of Usage: eligibility, accounts, trial access, billing, acceptable use, and limitations.`,
+      `${this.appName} refund policy: refund eligibility, subscription cancellation timing, and support contact details.`,
     );
 
     this.seoService.setSeo({
@@ -36,7 +36,7 @@ export class TermsComponent implements OnInit {
         canonicalUrl,
         title,
         description,
-        pageName: 'Terms of Usage',
+        pageName: 'Refund Policy',
       }),
     });
   }

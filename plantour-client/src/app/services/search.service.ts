@@ -107,7 +107,7 @@ export class SearchService {
   }
 
   private indexStaticPages(): void {
-    const termsFullText = 'terms of usage about eligibility accounts trial access paid plans billing affiliate links amazon associates refund policy user content responsibility acceptable use intellectual property privacy summary disclaimer warranties limitation liability termination changes contact';
+    const termsFullText = 'terms of usage about eligibility accounts trial access paid plans billing affiliate links amazon associates user content responsibility acceptable use intellectual property privacy summary disclaimer warranties limitation liability termination changes contact';
     const termsId = ++this.counter;
     this.items.set(termsId, {
       id: termsId, entityId: 'terms', category: 'Terms of Usage',
@@ -116,6 +116,16 @@ export class SearchService {
       route: ['/terms'], componentId: null,
     });
     this.index!.add(termsId, termsFullText);
+
+    const refundFullText = 'refund policy refunds cancellation policy subscription cancel renewal current paid term billing contact';
+    const refundId = ++this.counter;
+    this.items.set(refundId, {
+      id: refundId, entityId: 'refund', category: 'Refund Policy',
+      fullText: refundFullText,
+      displayText: 'Refund Policy',
+      route: ['/refund'], componentId: null,
+    });
+    this.index!.add(refundId, refundFullText);
 
     const privacyFullText = 'privacy policy overview information we collect how we use sharing cookies payments data retention security children changes contact gdpr personal data';
     const privacyId = ++this.counter;

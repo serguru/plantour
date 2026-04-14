@@ -96,6 +96,14 @@
         </a>
         <a
           class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('refund')"
+          (click)="featureClick($event, '/refund', popoverFeatures)"
+        >
+          <span class="pi pi-receipt"></span>
+          <span class="button-label">Refund Policy</span>
+        </a>
+        <a
+          class="pl-menu-item"
           [class.selected]="isNavigatedComponent('privacy')"
           (click)="featureClick($event, '/privacy', popoverFeatures)"
         >

@@ -15,6 +15,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server
   },
   {
+    path: 'refund',
+    renderMode: RenderMode.Server
+  },
+  {
     path: 'help',
     renderMode: RenderMode.Server
   },

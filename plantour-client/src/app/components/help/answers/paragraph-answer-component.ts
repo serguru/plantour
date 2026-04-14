@@ -22,6 +22,7 @@ export class HelpParagraphAnswerComponent {
     '/contact',
     '/privacy',
     '/terms',
+    '/refund',
     '/search',
     '/checkout'
   ];

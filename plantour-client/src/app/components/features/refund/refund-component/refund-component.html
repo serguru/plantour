@@ -1,0 +1,53 @@
+<div class="page-container">
+	<main
+		class="legal-page"
+		aria-labelledby="refund-title"
+	>
+		<header class="legal-header">
+			<h1 id="refund-title">Refund Policy</h1>
+			<button
+				class="pl-button"
+				type="button"
+				(click)="popover.toggle($event)"
+			>
+				<span class="pi pi-ellipsis-v"></span>
+			</button>
+			<p-popover
+				#popover
+				styleClass="no-arrow"
+			>
+				<a
+					class="pl-menu-item"
+					routerLink="/help/workflows/contact-plantour-administration"
+					(click)="popover.hide()"
+				>
+					<span class="pi pi-question-circle"></span>
+					<span class="button-label">Help</span>
+				</a>
+			</p-popover>
+		</header>
+
+		<section class="legal-section">
+			<h2>Refund</h2>
+			<ul>
+				<li>We offer a full refund within 14 days of purchase, provided you have not started using your account features.</li>
+				<li>Once you have created your first trip, traveler, or item, the subscription becomes non-refundable for the current paid term.</li>
+				<li>Payments for any period after the current subscription period may be refunded.</li>
+			</ul>
+		</section>
+
+		<section class="legal-section">
+			<h2>Cancellation</h2>
+			<p>
+				You may cancel a subscription so it does not renew for the next billing cycle. The cancellation takes effect after the current paid subscription term ends and cannot end the subscription earlier than the already paid period.
+			</p>
+		</section>
+
+		<section class="legal-section">
+			<h2>Contact</h2>
+			<p>
+				For refund or cancellation questions, contact us via {{ supportContact }}.
+			</p>
+		</section>
+	</main>
+</div>
