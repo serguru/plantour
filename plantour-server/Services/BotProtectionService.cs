@@ -17,20 +17,23 @@ public class BotProtectionService : IBotProtectionService
     private readonly HttpClient _httpClient;
     private readonly IPlantourLogger _logger;
     private readonly TurnstileSettings _settings;
+    private readonly ServerSettingsService _serverSettingsService;
 
     public BotProtectionService(
         HttpClient httpClient,
         IOptions<TurnstileSettings> settings,
+        ServerSettingsService serverSettingsService,
         IPlantourLogger logger)
     {
         _httpClient = httpClient;
         _logger = logger;
         _settings = settings.Value;
+        _serverSettingsService = serverSettingsService;
     }
 
     public async Task EnsureHumanVerifiedAsync(string? token, string action, string? remoteIpAddress, CancellationToken cancellationToken = default)
     {
-        if (!_settings.Enabled || string.IsNullOrWhiteSpace(_settings.SecretKey))
+        if (!await _serverSettingsService.GetTurnstileEnabledAsync() || string.IsNullOrWhiteSpace(_settings.SecretKey))
         {
             return;
         }

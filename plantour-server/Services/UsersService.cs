@@ -21,13 +21,14 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.Extensions;
+using plantour_server.Logging;
 
 namespace plantour_server.Services;
 
 
 public class UsersService(
-    IOptions<JwtSettings> jwtSettings,
     IMapper mapper,
+    IPlantourLogger logger,
     UsersRepository usersRepository,
     AdminsParticipantRepository adminsParticipantRepository,
     IAdminsParticipantService adminsParticipantService,
@@ -35,7 +36,6 @@ public class UsersService(
     SettingsRepository settingsRepository,
     AccessTypeRepository accessTypeRepository,
     ITokenService tokenService,
-    IConfiguration configuration,
     IWebHostEnvironment environment,
     IInvitationService invitationService,
     HttpCurrentUser httpCurrentUser,
@@ -47,9 +47,12 @@ public class UsersService(
     IPaddleService paddleService,
     ISignInEmailService signInEmailService,
     IOptions<SocialAuthSettings> socialAuthSettings,
+    ServerSettingsService serverSettingsService,
     IDataProtectionProvider dataProtectionProvider) : IUsersService
 {
+    private const string UserCreatedLogCategory = "User created";
     private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
+    private readonly IPlantourLogger _logger = logger;
     private readonly UsersRepository _usersRepository = usersRepository;
     private readonly RefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
@@ -65,9 +68,8 @@ public class UsersService(
     private readonly IPaddleService _paddleService = paddleService;
     private readonly TimeTickerRepository _timeTickerRepository = timeTickerRepository;
     private readonly IMapper _mapper = mapper;
-    private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly ITokenService _tokenService = tokenService;
-    private readonly IConfiguration _configuration = configuration;
+    private readonly ServerSettingsService _serverSettingsService = serverSettingsService;
     private readonly IWebHostEnvironment _environment = environment;
     private readonly ISignInEmailService _signInEmailService = signInEmailService;
     private readonly ITimeLimitedDataProtector _googleOAuthStateProtector = dataProtectionProvider.CreateProtector("Plantour.GoogleOAuthState").ToTimeLimitedDataProtector();
@@ -115,6 +117,7 @@ public class UsersService(
                 AccessTypeId = await _accessTypeRepository.GetActiveId()
             };
             await _usersRepository.AddAsync(user);
+            LogUserCreated(user, "Admin");
         }
 
         EnsureActiveUser(user);
@@ -564,6 +567,7 @@ public class UsersService(
                 AccessTypeId = await _accessTypeRepository.GetActiveId()
             };
             await _usersRepository.AddAsync(user);
+            LogUserCreated(user, "Participant");
         } else if (!user.AccessType.Name.Equals("Active", StringComparison.OrdinalIgnoreCase))
         {
             throw new CustomException("Cannot sign up participant. The participant account is not active.");
@@ -929,7 +933,16 @@ public class UsersService(
             throw new CustomException("Failed to create social account");
         }
 
+        LogUserCreated(created, "Admin");
+
         return created;
+    }
+
+    private void LogUserCreated(User user, string userType)
+    {
+        _logger.LogInformation(
+            $"userId: {user.Id} email: {user.Email} first_name: {user.FirstName} last_name: {user.LastName} {userType}",
+            UserCreatedLogCategory);
     }
 
     private void EnsureUserCanSignIn(User user)
@@ -1052,7 +1065,7 @@ public class UsersService(
     private string ResolveGoogleReturnUrl(string? returnUrl)
     {
         var candidate = string.IsNullOrWhiteSpace(returnUrl)
-            ? _socialAuthSettings.GoogleOAuthDefaultReturnUrl
+            ? _serverSettingsService.GetGoogleOAuthDefaultReturnUrlAsync().GetAwaiter().GetResult()
             : returnUrl;
 
         if (string.IsNullOrWhiteSpace(candidate))
@@ -1065,7 +1078,7 @@ public class UsersService(
             throw new CustomException("Google OAuth return URL is invalid");
         }
 
-        var allowedOrigins = _configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+        var allowedOrigins = _serverSettingsService.GetCorsAllowedOriginsAsync().GetAwaiter().GetResult();
         var allowedHosts = allowedOrigins
             .Select(origin =>
             {

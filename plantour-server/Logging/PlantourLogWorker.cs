@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Npgsql;
 using NpgsqlTypes;
 
@@ -8,7 +7,7 @@ namespace plantour_server.Logging;
 public sealed class PlantourLogWorker(
     PlantourLogQueue queue,
     NpgsqlDataSource dataSource,
-    IOptionsMonitor<PlantourLoggerOptions> options) : BackgroundService
+    PlantourLoggerSettingsStore settingsStore) : BackgroundService
 {
     private const string InsertSql = """
         insert into plantour.logs (id, created_at, severity, category, message, user_id, properties)
@@ -17,7 +16,7 @@ public sealed class PlantourLogWorker(
 
     private readonly PlantourLogQueue _queue = queue;
     private readonly NpgsqlDataSource _dataSource = dataSource;
-    private readonly IOptionsMonitor<PlantourLoggerOptions> _options = options;
+    private readonly PlantourLoggerSettingsStore _settingsStore = settingsStore;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -69,7 +68,7 @@ public sealed class PlantourLogWorker(
 
     private async Task GatherBatchAsync(List<PlantourLogEntry> batch, CancellationToken cancellationToken)
     {
-        var flushDelay = Math.Max(250, _options.CurrentValue.FlushIntervalMilliseconds);
+        var flushDelay = Math.Max(250, _settingsStore.Current.FlushIntervalMilliseconds);
         using var timerCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timerCts.CancelAfter(flushDelay);
 
@@ -95,7 +94,7 @@ public sealed class PlantourLogWorker(
             return;
         }
 
-        var sink = _options.CurrentValue.Sink;
+        var sink = _settingsStore.Current.Sink;
         var writeToConsole = IsConsoleSink(sink);
         var writeToDatabase = IsDatabaseSink(sink);
 
@@ -115,7 +114,7 @@ public sealed class PlantourLogWorker(
         }
         catch (Exception exception)
         {
-            if (_options.CurrentValue.ConsoleFallbackEnabled)
+            if (_settingsStore.Current.ConsoleFallbackEnabled)
             {
                 Console.Error.WriteLine($"[{DateTime.UtcNow:O}] [logger-worker-error] {exception}");
                 if (!writeToConsole)
@@ -177,7 +176,7 @@ public sealed class PlantourLogWorker(
 
     private int GetBatchSize()
     {
-        return Math.Max(1, _options.CurrentValue.BatchSize);
+        return Math.Max(1, _settingsStore.Current.BatchSize);
     }
 
     private static bool IsConsoleSink(string? sink)

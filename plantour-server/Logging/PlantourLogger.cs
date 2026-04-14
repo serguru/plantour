@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Microsoft.Extensions.Options;
 using PlantourApi.Models;
 
 namespace plantour_server.Logging;
@@ -7,13 +6,13 @@ namespace plantour_server.Logging;
 public sealed class PlantourLogger(
     PlantourLogQueue queue,
     IHttpContextAccessor httpContextAccessor,
-    IOptionsMonitor<PlantourLoggerOptions> options) : IPlantourLogger
+    PlantourLoggerSettingsStore settingsStore) : IPlantourLogger
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     private readonly PlantourLogQueue _queue = queue;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-    private readonly IOptionsMonitor<PlantourLoggerOptions> _options = options;
+    private readonly PlantourLoggerSettingsStore _settingsStore = settingsStore;
 
     public void LogInformation(string message, string? category = null, object? properties = null)
     {
@@ -51,7 +50,7 @@ public sealed class PlantourLogger(
             return;
         }
 
-        if (_options.CurrentValue.ConsoleFallbackEnabled)
+        if (_settingsStore.Current.ConsoleFallbackEnabled)
         {
             Console.Error.WriteLine($"[{entry.CreatedAtUtc:O}] [logger-drop] {entry.Category}: {entry.Message}");
         }

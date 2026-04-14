@@ -16,10 +16,10 @@ namespace plantour_server.Services;
 
 public class PaddleService : IPaddleService
 {
-    private readonly string _baseUrl;
     private readonly string _apiKey;
     private readonly HttpClient _httpclient;
     private readonly CurrentUser _currentUser;
+    private readonly ServerSettingsService _serverSettingsService;
 
     private readonly UsersRepository _usersRepository;
     private readonly PlanRepository _planRepository;
@@ -36,6 +36,7 @@ public class PaddleService : IPaddleService
         TimeTickerRepository timeTickerRepository,
         UserSettingsRepository userSettingsRepository,
         SettingsRepository settingsRepository,
+        ServerSettingsService serverSettingsService,
         IConfiguration configuration
     )
     {
@@ -45,22 +46,37 @@ public class PaddleService : IPaddleService
         _planRepository = planRepository;
         _userSettingsRepository = userSettingsRepository;
         _settingsRepository = settingsRepository;
+        _serverSettingsService = serverSettingsService;
 
-        _baseUrl = configuration["PaddleSettings:ApiBaseUrl"] ?? throw new CustomException("PaddleSettings:ApiBaseUrl is not configured");
         _apiKey = configuration["PaddleSettings:ApiKey"] ?? throw new CustomException("PaddleSettings:ApiKey is not configured");
 
-        if (string.IsNullOrWhiteSpace(_baseUrl) || string.IsNullOrWhiteSpace(_apiKey))
+        if (string.IsNullOrWhiteSpace(_apiKey))
         {
-            throw new CustomException("Paddle settings are missing (ApiBaseUrl or ApiKey)");
+            throw new CustomException("Paddle settings are missing (ApiKey)");
         }
 
         _httpclient = httpClient;
-        _httpclient.BaseAddress = new Uri(_baseUrl);
         _httpclient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+    }
+
+    private async Task EnsureClientConfiguredAsync()
+    {
+        var baseUrl = await _serverSettingsService.GetPaddleApiBaseUrlAsync();
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            throw new CustomException("PaddleSettings:ApiBaseUrl is not configured");
+        }
+
+        if (_httpclient.BaseAddress == null || !string.Equals(_httpclient.BaseAddress.ToString(), baseUrl, StringComparison.Ordinal))
+        {
+            _httpclient.BaseAddress = new Uri(baseUrl);
+        }
     }
 
     public async Task<string?> GetActiveCustomerIdByEmailAsync(string email)
     {
+        await EnsureClientConfiguredAsync();
+
         if (string.IsNullOrWhiteSpace(email))
         {
             throw new CustomException("Email is required");
@@ -123,6 +139,8 @@ public class PaddleService : IPaddleService
 
     public async Task<string?> GetActiveCustomerEmailByIdAsync(PaddleCustomerEmailRequest request)
     {
+        await EnsureClientConfiguredAsync();
+
         if (string.IsNullOrWhiteSpace(request.CustomerId))
         {
             throw new CustomException("CustomerId is required", nameof(request));
@@ -168,6 +186,8 @@ public class PaddleService : IPaddleService
 
     public async Task<bool> ActiveSubscriptionExists(string email)
     {
+        await EnsureClientConfiguredAsync();
+
         string? customerId = await GetActiveCustomerIdByEmailAsync(email);
         if (String.IsNullOrWhiteSpace(customerId))
         {
@@ -197,6 +217,8 @@ public class PaddleService : IPaddleService
 
     public async Task<PaddleSubscription?> GetActiveSubscriptionByEmailAsync(string email)
     {
+        await EnsureClientConfiguredAsync();
+
         string? customerId = await GetActiveCustomerIdByEmailAsync(email);
         if (String.IsNullOrWhiteSpace(customerId))
         {
@@ -306,6 +328,8 @@ public class PaddleService : IPaddleService
 
     public async Task<string?> GetActiveSubscriptionIdAsync(PaddleSubscriptionIdRequest request)
     {
+        await EnsureClientConfiguredAsync();
+
         string? customerId = await GetActiveCustomerIdByEmailAsync(request.Email);
         if (String.IsNullOrWhiteSpace(customerId))
         {
@@ -361,6 +385,8 @@ public class PaddleService : IPaddleService
 
     public async Task<PaddleSubscription?> GetActiveSubscriptionByIdAsync(string subscriptionId)
     {
+        await EnsureClientConfiguredAsync();
+
         if (string.IsNullOrWhiteSpace(subscriptionId))
         {
             throw new CustomException("SubscriptionId is required");
@@ -390,6 +416,8 @@ public class PaddleService : IPaddleService
     // userId can be participant or admin
     public async Task<PaddleSubscription?> GetActiveSubscriptionByUserIdAsync(Guid userId, UserRole role, Guid adminId)
     {
+        await EnsureClientConfiguredAsync();
+
         var user = await _usersRepository.GetActiveByIdAsync(userId);
         if (user == null)
         {
@@ -402,6 +430,8 @@ public class PaddleService : IPaddleService
 
     public async Task<PaddleSubscription?> GetActiveSubscriptionByUserAsync(User user, UserRole role, Guid adminId)
     {
+        await EnsureClientConfiguredAsync();
+
         if (user == null)
         {
             throw new CustomException("User is required");
@@ -496,6 +526,8 @@ public class PaddleService : IPaddleService
     // Called by admins only
     public async Task<PortalSessionResponse> CreateCustomerPortalSessionAsync()
     {
+        await EnsureClientConfiguredAsync();
+
         string? customerId = await GetActiveCustomerIdByEmailAsync(_currentUser.Email);
 
         if (string.IsNullOrWhiteSpace(customerId))
@@ -550,6 +582,8 @@ public class PaddleService : IPaddleService
 
     public async Task<IEnumerable<PaddleProduct>?> GetActiveProductsAsync()
     {
+        await EnsureClientConfiguredAsync();
+
         var response = await _httpclient.GetAsync("products?include=prices&status=active");
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
@@ -693,6 +727,8 @@ public class PaddleService : IPaddleService
 
     public async Task UpgradePlanPriceAsync(string oldPlanPrice, string newPlanPrice)
     {
+        await EnsureClientConfiguredAsync();
+
         if (!_currentUser.IsAdmin)
         {
             throw new CustomException("Only admins can change plan prices");
@@ -765,6 +801,8 @@ public class PaddleService : IPaddleService
 
     public async Task DowngradePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice)
     {
+        await EnsureClientConfiguredAsync();
+
         await ChangePlanPriceAsync(userId, oldPlanPrice, newPlanPrice, true);
     }
 
