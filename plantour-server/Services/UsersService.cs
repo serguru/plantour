@@ -120,7 +120,7 @@ public class UsersService(
             LogUserCreated(user, "Admin");
         }
 
-        EnsureActiveUser(user);
+        await EnsureActiveUserAsync(user);
 
         return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
     }
@@ -432,9 +432,20 @@ public class UsersService(
         await _invitationService.SendInvitationEmailByIdAsync(adminParticipantId, accessCode, r);
     }
 
-    private void EnsureActiveUser(User user)
+    private async Task EnsureActiveUserAsync(User user)
     {
-        if (user.AccessType.Name != "Active")
+        if (user.AccessType == null)
+        {
+            var accessType = await _accessTypeRepository.GetByIdAsync(user.AccessTypeId);
+            if (accessType == null)
+            {
+                throw new CustomException("The user access type is missing");
+            }
+
+            user.AccessType = accessType;
+        }
+
+        if (!string.Equals(user.AccessType?.Name, "Active", StringComparison.OrdinalIgnoreCase))
         {
             throw new CustomException("The user is not active");
         }
