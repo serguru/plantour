@@ -1131,3 +1131,22 @@ I had a negative experience with Paddle. They approved 2 my pred production app 
 
 
 Personal Productivity Tool for Itinerary Management
+
+Hello Elena, 
+
+Thank you for your email. Our SaaS web application is a productivity tool for itineraries management. It helps you plan, prepare, and execute trip itineraries for individuals, families, and groups. You can review it here: https://plantour.app. The app currently does not accept payments, so it is not available for public use. To log in, use the username "tester" and the password "bravo."
+Please note that this app has nothing to do with booking hotel rooms or flights or car rentals. It charges only for its own software features.
+
+There are 5 price options:
+Starter US$ 0 forever
+Family monthly US$ 12.99/month
+Expedition monthly US$ 44.99/month
+Family yearly US$ 119.99/year
+Expedition yearly US$ 399.99/year
+
+If you have any questions please let me know.
+
+
+productivity tool for itineraries management.
+
+https://drive.google.com/file/d/1eDSWKMA4diT2fQdl7nYbQ42_vYP0VR2m/view?usp=sharing

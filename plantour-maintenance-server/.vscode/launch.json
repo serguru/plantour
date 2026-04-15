@@ -2,6 +2,12 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "Local M deployment",
+			"type": "node-terminal",
+			"request": "launch",
+			"command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${workspaceFolder}/scripts/local-m-deployment.ps1\""
+		},
+		{
 			"name": "plantour-maintenance-server",
 			"type": "coreclr",
 			"request": "launch",
