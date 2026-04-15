@@ -106,6 +106,43 @@ function Invoke-RobocopyMirror {
     }
 }
 
+function Set-WebConfigEnvironment {
+    param(
+        [string]$WebConfigPath,
+        [string]$EnvironmentName
+    )
+
+    Assert-PathExists -Path $WebConfigPath -Description 'Published web.config'
+
+    Write-Step "Configure ASPNETCORE_ENVIRONMENT=$EnvironmentName in published web.config"
+
+    if (-not $PSCmdlet.ShouldProcess($WebConfigPath, 'Update published web.config environment variable')) {
+        return
+    }
+
+    $webConfig = [xml](Get-Content -LiteralPath $WebConfigPath)
+    $aspNetCoreNode = $webConfig.SelectSingleNode('/configuration/location/system.webServer/aspNetCore')
+    if (-not $aspNetCoreNode) {
+        throw "aspNetCore element not found in published web.config: $WebConfigPath"
+    }
+
+    $environmentVariablesNode = $aspNetCoreNode.SelectSingleNode('environmentVariables')
+    if (-not $environmentVariablesNode) {
+        $environmentVariablesNode = $webConfig.CreateElement('environmentVariables')
+        [void]$aspNetCoreNode.AppendChild($environmentVariablesNode)
+    }
+
+    $environmentVariableNode = $environmentVariablesNode.SelectSingleNode("environmentVariable[@name='ASPNETCORE_ENVIRONMENT']")
+    if (-not $environmentVariableNode) {
+        $environmentVariableNode = $webConfig.CreateElement('environmentVariable')
+        [void]$environmentVariablesNode.AppendChild($environmentVariableNode)
+    }
+
+    $environmentVariableNode.SetAttribute('name', 'ASPNETCORE_ENVIRONMENT')
+    $environmentVariableNode.SetAttribute('value', $EnvironmentName)
+    $webConfig.Save($WebConfigPath)
+}
+
 function Resolve-WebsitePhysicalPath {
     param(
         [string]$WebsiteName,
@@ -125,10 +162,45 @@ function Resolve-WebsitePhysicalPath {
     return $physicalPath
 }
 
+function Invoke-ElevatedSelf {
+    $elevatedArguments = @(
+        '-NoProfile'
+        '-ExecutionPolicy'
+        'Bypass'
+        '-File'
+        $scriptFilePath
+        '-ServerConfiguration'
+        $ServerConfiguration
+    )
+
+    if ($WhatIfPreference) {
+        $elevatedArguments += '-WhatIf'
+    }
+
+    if ($VerbosePreference -eq [System.Management.Automation.ActionPreference]::Continue) {
+        $elevatedArguments += '-Verbose'
+    }
+
+    if ($DebugPreference -eq [System.Management.Automation.ActionPreference]::Continue) {
+        $elevatedArguments += '-Debug'
+    }
+
+    Write-Step 'Request administrator approval for IIS deployment'
+
+    try {
+        $elevatedProcess = Start-Process -FilePath 'powershell.exe' -ArgumentList $elevatedArguments -Verb RunAs -WorkingDirectory $serverRoot -Wait -PassThru
+    }
+    catch {
+        throw 'Administrator approval was not granted. Local M deployment was cancelled.'
+    }
+
+    exit $elevatedProcess.ExitCode
+}
+
 $windowsIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
 $windowsPrincipal = [Security.Principal.WindowsPrincipal]::new($windowsIdentity)
 if (-not $windowsPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    throw 'Run this deployment from an elevated VS Code window or terminal. Restart VS Code as Administrator, then run Local M deployment again.'
+    Invoke-ElevatedSelf
 }
 
 Assert-CommandExists -CommandName 'npm.cmd'
@@ -175,6 +247,8 @@ try {
         )
 
     Assert-PathExists -Path $serverPublishRoot -Description 'Maintenance server publish output'
+
+    Set-WebConfigEnvironment -WebConfigPath (Join-Path $serverPublishRoot 'web.config') -EnvironmentName 'Production'
 
     $websitesStopped = $false
 

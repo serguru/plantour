@@ -155,6 +155,7 @@ builder.Services.AddScoped<SuperuserRepository>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ILogsService, LogsService>();
+builder.Services.AddScoped<IDbCheckService, DbCheckService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IVisitorActivityService, VisitorActivityService>();

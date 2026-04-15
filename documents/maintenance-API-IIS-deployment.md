@@ -108,6 +108,10 @@ Open this file:
 
 `C:\inetpub\plantour-maintenance-api\web.config`
 
+The repository now ships a source `web.config`, so `dotnet publish` emits a published IIS config that already includes `ASPNETCORE_ENVIRONMENT=Production` by default.
+
+For local M deployment, the `scripts/local-m-deployment.ps1` script rewrites the published `web.config` to `Development` automatically before copying files into IIS.
+
 Inside the `aspNetCore` element, ensure there is an `environmentVariables` section like this:
 
 ```xml
