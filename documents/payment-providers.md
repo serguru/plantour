@@ -35,3 +35,22 @@ For large businesses, did not try with them
 
 Promote digital product
 https://realize.com/
+
+
+Creem
+Registered 4000+ in queue
+
+
+Dodo Payments
+Filled their get started forms
+
+
+
+
+Gumroad 
+
+
+Payhip
+Partial the Merchant of Record, only for EU & UK Digital VAT.
+
+ThriveCart - one payment, is not MoR
