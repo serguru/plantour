@@ -1,9 +1,7 @@
-begin;
-
 insert into plantour.settings (key, value, value_type)
 values 
     ('user_entities_logging_days', '16', 'integer'),
-    ('user_email_confirmation_url', 'http://localhost:4203/confirm-email', 'string'),
+    ('user_email_confirmation_url', 'https://qa.plantour.app/confirm-email', 'string'),
     ('temporary_user_duration_days', '14', 'integer'),
     ('jwt_access_token_expiration_minutes', '30', 'integer'),
     ('jwt_refresh_token_expiration_days', '30', 'integer'),
@@ -12,20 +10,19 @@ values
     ('jwt_sign_in_email_token_minutes', '60', 'integer'),
     ('email_confirmation_token_minutes', '60',  'integer'),
     ('user_token_expiration_minutes', '1440',  'integer'),
-    ('sign_in_email_base_url', 'http://localhost:4203/signin-token', 'string'),
-    ('social_auth_google_oauth_default_return_url', 'http://localhost:4203/sign-in', 'string'),
+    ('sign_in_email_base_url', 'https://qa.plantour.app/signin-token', 'string'),
+    ('social_auth_google_oauth_default_return_url', 'https://qa.plantour.app/sign-in', 'string'),
     ('brevo_api_base_url', 'https://api.brevo.com/v3/', 'string'),
     ('brevo_sender_email', 'admin@plantour.app', 'string'),
     ('brevo_sender_name', 'Plantour', 'string'),
     ('gemini_api_base_url', 'https://generativelanguage.googleapis.com/v1beta/', 'string'),
     ('gemini_model', 'gemini-3-flash-preview', 'string'),
-    ('trip_note_editor_dropbox_redirect_uri', 'http://localhost:5217/trip-note-editor/dropbox/callback', 'string'),
+    ('trip_note_editor_dropbox_redirect_uri', 'https://qaapi.plantour.app/trip-note-editor/dropbox/callback', 'string'),
     ('cache_refresh_interval_minutes', '5', 'integer'),
-    ('payment_processor_api_base_url', 'https://api.lemonsqueezy.com/v1/', 'string'),
-    ('payment_processor_storeId', '346278', 'string'),
-    ('cors_allowed_origins', 'http://localhost:4203;http://192.168.4.34:5217;http://192.168.4.34:4203', 'string'),
-    ('turnstile_enabled', 'false', 'boolean'),
-    ('plantour_logging_sink', 'Database', 'string'),
+    ('paddle_api_base_url', 'https://sandbox-api.paddle.com/', 'string'),
+    ('cors_allowed_origins', 'https://qa.plantour.app;https://qaapi.plantour.app', 'string'),
+    ('turnstile_enabled', 'true', 'boolean'),
+    ('plantour_logging_sink', 'Both', 'string'),
     ('plantour_logging_queue_capacity', '1024', 'integer'),
     ('plantour_logging_batch_size', '50', 'integer'),
     ('plantour_logging_flush_interval_milliseconds', '2000', 'integer'),
@@ -35,13 +32,14 @@ values
     ('admin_email', 'admin@plantour.app',  'string'),
     ('support_email', 'support@plantour.app',  'string'),
     ('send_email_user_created', 'true',  'boolean'),
-    ('app_version', '0.0.0',  'string'),
+    ('app_version', '2.15.7',  'string'),
     ('exclude_paths_from_log', 'users/health-check;users/version;version',  'string'),
     ('global_spinner_timeout_sec', '30',  'integer'),
-    ('plantour_app_origin', 'http://localhost:4203',  'string');
+    ('plantour_app_origin', 'https://qa.plantour.app',  'string');
 
 
-insert into plantour.plans (name, payment_processor_product_id, notes, public, 
+
+insert into plantour.plans (name, paddle_product_id, notes, public, 
 allowed_items,  allowed_travelers,  allowed_AI_prompts,         extended_AI_allowed,
 allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activities) values
 
@@ -50,18 +48,18 @@ allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activiti
 3,              3,                  3,                          6
 ),
 
-('Family', '980467', 'Perfect for regular travelers, families and small groups', true, 
+('Family', 'pro_01khvs7gpz701mh82v0p500mcn', 'Perfect for regular travelers, families and small groups', true, 
 250,           5,                  20,                        false,
 100,           500,                20,                        100
 ),
 
-('Expedition', '980501', 'Ideal for advanced travelers, large groups and expeditions', true, 
+('Expedition', 'pro_01khvsa34wt2mg7nqac3c45jyc', 'Ideal for advanced travelers, large groups and expeditions', true, 
 2500,           50,                 100,                      true,
 1000,           5000,               50,                       1000
 );
 
 
-insert into plantour.prices (payment_processor_price_id,plan_id,name,value_cents) values
+insert into plantour.prices (paddle_price_id,plan_id,name,value_cents) values
 (
     null,
     (select id from plantour.plans where name = 'Starter'),
@@ -69,25 +67,25 @@ insert into plantour.prices (payment_processor_price_id,plan_id,name,value_cents
     0
 ),
 (
-    '1538714',
+    'pri_01khvsx5szpnfqd97c6sdv3e2w',
     (select id from plantour.plans where name = 'Family'),
     'Family Monthly',
     1299
 ),
 (
-    '1538747',
+    'pri_01khvsg62zpjhh6qbmc5sfmkm3',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Monthly',
     4499
 ),
 (
-    '1538692',
+    'pri_01khvsyg17b43cm5kf0t63zfnr',
     (select id from plantour.plans where name = 'Family'),
     'Family Yearly',
     11999
 ),
 (
-    '1538739',
+    'pri_01khvspsgmrkcggdxxtksbzy88',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Yearly',
     39999
@@ -95,6 +93,4 @@ insert into plantour.prices (payment_processor_price_id,plan_id,name,value_cents
 
 
 
-    
-    
 commit;

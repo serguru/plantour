@@ -222,8 +222,8 @@ export class PlansPanelComponent implements OnInit {
             description: plan.notes || '',
             monthlyButtonText: 'Start monthly',
             yearlyButtonText: 'Start yearly',
-            monthlyPriceUrl: `/checkout/${monthlyPriceObject.paddlePriceId}/${encodeURIComponent('Family Monthly')}`,
-            yearlyPriceUrl: `/checkout/${yearlyPriceObject.paddlePriceId}/${encodeURIComponent('Family Yearly')}`,
+            monthlyPriceUrl: `/checkout/${monthlyPriceObject.paymentProcessorPriceId}/${encodeURIComponent('Family Monthly')}`,
+            yearlyPriceUrl: `/checkout/${yearlyPriceObject.paymentProcessorPriceId}/${encodeURIComponent('Family Yearly')}`,
             features: this.featuresByPlan(plan),
             monthlyAvalable: true,
             yearlyAvalable: true
@@ -244,8 +244,8 @@ export class PlansPanelComponent implements OnInit {
             description: plan.notes || '',
             monthlyButtonText: 'Go monthly',
             yearlyButtonText: 'Go yearly',
-            monthlyPriceUrl: `/checkout/${monthlyPriceObject1.paddlePriceId}/${encodeURIComponent('Expedition Monthly')}`,
-            yearlyPriceUrl: `/checkout/${yearlyPriceObject1.paddlePriceId}/${encodeURIComponent('Expedition Yearly')}`,
+            monthlyPriceUrl: `/checkout/${monthlyPriceObject1.paymentProcessorPriceId}/${encodeURIComponent('Expedition Monthly')}`,
+            yearlyPriceUrl: `/checkout/${yearlyPriceObject1.paymentProcessorPriceId}/${encodeURIComponent('Expedition Yearly')}`,
             features: this.featuresByPlan(plan),
             monthlyAvalable: true,
             yearlyAvalable: true

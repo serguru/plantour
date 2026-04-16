@@ -756,19 +756,19 @@ public class UsersService(
 
     public async Task<LandingDto> GetLandingAsync()
     {
-        var paddleProducts = await _paymentProcessorService.GetActiveProductsAsync();
-        if (paddleProducts == null || !paddleProducts.Any())
+        var paymentProcessorProducts = await _paymentProcessorService.GetActiveProductsAsync();
+        if (paymentProcessorProducts == null || !paymentProcessorProducts.Any())
         {
-            throw new CustomException("No active Paddle products found");
+            throw new CustomException("No active payment processor products found");
         }
 
         var plans = await _planRepository.GetAll();
         plans = plans.Where(p => p.Public!.Value).ToList();
         var planDtos = _mapper.Map<List<PlanDto>>(plans);
 
-        paddleProducts.ToList().ForEach(pp =>
+        paymentProcessorProducts.ToList().ForEach(pp =>
         {
-            var plan = planDtos.FirstOrDefault(p => p.PaddleProductId == pp.Id) ?? throw new CustomException($"No plan found for Paddle product Id {pp.Id}");
+            var plan = planDtos.FirstOrDefault(p => p.PaymentProcessorProductId == pp.Id) ?? throw new CustomException($"No plan found for payment processor product Id {pp.Id}");
             _mapper.Map(pp, plan);
         });
 

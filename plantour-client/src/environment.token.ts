@@ -6,10 +6,11 @@ export interface EnvironmentConfig {
   };
   clientUrl: string;
   environment: string;
+  paymentProvider: 'paddle' | 'lemonsqueezy';
   googleClientId?: string;
   facebookAppId?: string;
   turnstileSiteKey?: string;
-  paddleKey: string;
+  paddleKey?: string;
   version: string;
   map: {
     apiKey: string;

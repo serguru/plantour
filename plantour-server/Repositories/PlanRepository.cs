@@ -20,7 +20,7 @@ public class PlanRepository : GenericRepository<Plan>
     {
         public Guid Id { get; init; }
         public Guid PlanId { get; init; }
-        public string? PaddlePriceId { get; init; }
+        public string? PaymentProcessorPriceId { get; init; }
         public required string Name { get; init; }
         public required int ValueCents { get; init; }
     }
@@ -29,7 +29,7 @@ public class PlanRepository : GenericRepository<Plan>
     {
         public Guid Id { get; init; }
         public required string Name { get; init; }
-        public string? PaddleProductId { get; init; }
+        public string? PaymentProcessorProductId { get; init; }
         public string? Notes { get; init; }
         public bool? Active { get; init; }
         public bool? Public { get; init; }
@@ -56,7 +56,7 @@ public class PlanRepository : GenericRepository<Plan>
         {
             Id = item.Id,
             Name = item.Name,
-            PaddleProductId = item.PaddleProductId,
+            PaymentProcessorProductId = item.PaymentProcessorProductId,
             Notes = item.Notes,
             Active = item.Active,
             Public = item.Public,
@@ -78,7 +78,7 @@ public class PlanRepository : GenericRepository<Plan>
             {
                 Id = priceItem.Id,
                 PlanId = priceItem.PlanId,
-                PaddlePriceId = priceItem.PaddlePriceId,
+                PaymentProcessorPriceId = priceItem.PaymentProcessorPriceId,
                 Name = priceItem.Name,
                 ValueCents = priceItem.ValueCents,
                 Plan = plan
@@ -101,7 +101,7 @@ public class PlanRepository : GenericRepository<Plan>
                 {
                     Id = p.Id,
                     Name = p.Name,
-                    PaddleProductId = p.PaddleProductId,
+                    PaymentProcessorProductId = p.PaymentProcessorProductId,
                     Notes = p.Notes,
                     Active = p.Active,
                     Public = p.Public,
@@ -118,7 +118,7 @@ public class PlanRepository : GenericRepository<Plan>
                     {
                         Id = price.Id,
                         PlanId = price.PlanId,
-                        PaddlePriceId = price.PaddlePriceId,
+                        PaymentProcessorPriceId = price.PaymentProcessorPriceId,
                         Name = price.Name,
                         ValueCents = price.ValueCents
                     }).ToList()
@@ -162,7 +162,7 @@ public class PlanRepository : GenericRepository<Plan>
         {
             Id = dbPlan.Id,
             Name = dbPlan.Name,
-            PaddleProductId = dbPlan.PaddleProductId,
+            PaymentProcessorProductId = dbPlan.PaymentProcessorProductId,
             Notes = dbPlan.Notes,
             Active = dbPlan.Active,
             Public = dbPlan.Public,
@@ -186,7 +186,7 @@ public class PlanRepository : GenericRepository<Plan>
         }
 
         var plans = await GetAllPlansSnapshotAsync();
-        var plan = plans.FirstOrDefault(x => x.Prices.Any(p => p.PaddlePriceId == priceId));
+        var plan = plans.FirstOrDefault(x => x.Prices.Any(p => p.PaymentProcessorPriceId == priceId));
 
         if (plan != null)
         {
@@ -195,7 +195,7 @@ public class PlanRepository : GenericRepository<Plan>
 
         var dbPlan = await _dbSet
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Prices.Any(p => p.PaddlePriceId == priceId));
+            .FirstOrDefaultAsync(x => x.Prices.Any(p => p.PaymentProcessorPriceId == priceId));
 
         if (dbPlan == null)
         {
@@ -234,7 +234,7 @@ public class PlanRepository : GenericRepository<Plan>
             return null;
         }
         var plans = await GetAllPlansSnapshotAsync();
-        var price = plans.SelectMany(p => p.Prices).FirstOrDefault(p => p.PaddlePriceId == priceId);
+        var price = plans.SelectMany(p => p.Prices).FirstOrDefault(p => p.PaymentProcessorPriceId == priceId);
         return price?.Name;
     }
 

@@ -4,6 +4,7 @@ export const environment = {
     baseUrl: 'https://api.plantour.app'
   },
   clientUrl: 'https://plantour.app',
+  paymentProvider: 'lemonsqueezy',
   googleClientId: '918703665460-7vpm4ecriksjt5lv6fqhkvvbmqi92h0l.apps.googleusercontent.com',
   facebookAppId: '2076632839798115',
   turnstileSiteKey: '0x4AAAAAACyoFgfZ0bvLNGPQ',

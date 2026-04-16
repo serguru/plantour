@@ -10,20 +10,22 @@ public class PlanMappingProfile : Profile
     public PlanMappingProfile()
     {
         CreateMap<Plan, PlanDto>()
+            .ForMember(dest => dest.PaymentProcessorProductId, opt => opt.MapFrom(src => src.PaymentProcessorProductId))
             .ForMember(dest => dest.Prices, opt => opt.MapFrom(src => src.Prices));
 
-        CreateMap<Price, PriceDto>();
+        CreateMap<Price, PriceDto>()
+            .ForMember(dest => dest.PaymentProcessorPriceId, opt => opt.MapFrom(src => src.PaymentProcessorPriceId));
 
         CreateMap<PaymentProcessorPrice, PriceDto>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Description))
-            .ForMember(dest => dest.PaddlePriceId, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.PaymentProcessorPriceId, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.ValueCents, opt => opt.MapFrom(src => src.UnitPriceAmount));
 
         CreateMap<PaymentProcessorProduct, PlanDto>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Description))
-            .ForMember(dest => dest.PaddleProductId, opt => opt.MapFrom(src => src.Id));
+            .ForMember(dest => dest.PaymentProcessorProductId, opt => opt.MapFrom(src => src.Id));
 
     }
 }

@@ -187,7 +187,7 @@ export class UsersService {
     const user = this._userSignal();
     if (!user) return false;
 
-    const subscriptionId = user.paddle_subscription_id?.trim();
+    const subscriptionId = user.payment_processor_subscription_id?.trim();
     return !!subscriptionId;
   });
 

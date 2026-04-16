@@ -14,6 +14,7 @@ public interface IPaymentProcessorService
     Task<PaymentProcessorSubscription?> GetActiveSubscriptionByEmailAsync(string email);
 
     Task<string?> GetActiveSubscriptionIdAsync(PaymentProcessorSubscriptionIdRequest request);
+    Task<PaymentProcessorCheckoutResponse> CreateCheckoutSessionAsync(PaymentProcessorCheckoutRequest request);
     Task<PortalSessionResponse> CreateCustomerPortalSessionAsync();
 
     Task<IEnumerable<PaymentProcessorProduct>?> GetActiveProductsAsync();

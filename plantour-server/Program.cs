@@ -479,7 +479,20 @@ builder.Services.AddScoped<ISignInEmailService, SignInEmailService>();
 builder.Services.AddScoped<ISharedAssignmentNotificationService, SharedAssignmentNotificationService>();
 builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
-builder.Services.AddScoped<IPaymentProcessorService, PaddleService>();
+builder.Services.AddHttpClient<PaddleService>();
+builder.Services.AddHttpClient<LemonSqueezyService>();
+builder.Services.AddScoped<IPaymentProcessorService>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var provider = configuration["PaymentProcessorSettings:Provider"];
+
+    if (string.Equals(provider, "Paddle", StringComparison.OrdinalIgnoreCase))
+    {
+        return sp.GetRequiredService<PaddleService>();
+    }
+
+    return sp.GetRequiredService<LemonSqueezyService>();
+});
 builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
 builder.Services.AddScoped<ISchedulerService, SchedulerService>();
 builder.Services.AddHostedService<FatalExceptionNotificationService>();

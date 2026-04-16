@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, ErrorHandler, inject, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideClientHydration } from '@angular/platform-browser';
@@ -15,6 +15,7 @@ import { httpInterceptor } from './interceptors/http-interceptor';
 import { GlobalErrorHandler } from './helpers/error-handler';
 import { ClientSettingsService } from './services/client-settings-service';
 import { CookieGuardService } from './services/cookie-guard-service';
+import { LemonSqueezyService } from './services/lemon-squeezy-service';
 import { PaddleService } from './services/paddle-service';
 import { PaymentProcessorService } from './services/payment-processor-service';
 
@@ -58,7 +59,13 @@ export const appConfig: ApplicationConfig = {
     },
     {
       provide: PaymentProcessorService,
-      useExisting: PaddleService,
+      useFactory: () => {
+        const runtimeEnvironment = inject(ENVIRONMENT);
+
+        return runtimeEnvironment.paymentProvider === 'paddle'
+          ? inject(PaddleService)
+          : inject(LemonSqueezyService);
+      },
     }
   ]
 };

@@ -27,9 +27,15 @@ export class PaddleService extends PaymentProcessorService {
   isChecking = false;
 
   private async init() {
+    const token = this.environment.paddleKey;
+
+    if (!token) {
+      throw new Error('Paddle token is not configured');
+    }
+
     const instance = await initializePaddle({
       environment: this.environment.environment === "production" ? 'production' : 'sandbox',
-      token: this.environment.paddleKey,
+      token,
       eventCallback: (event) => {
         const eventName = event?.name;
 
@@ -54,13 +60,19 @@ export class PaddleService extends PaymentProcessorService {
   }
 
   activeSubscriptionExists(email: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.environment.api.baseUrl}/paddle/active-subscription-exists`, {
+    return this.http.get<boolean>(`${this.environment.api.baseUrl}/payment-processor/active-subscription-exists`, {
+      params: { email }
+    });
+  }
+
+  customerExists(email: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.environment.api.baseUrl}/payment-processor/customer-exists`, {
       params: { email }
     });
   }
 
   createCustomerPortalSession(): Observable<{ url: string }> {
-    return this.http.post<{ url: string }>(`${this.environment.api.baseUrl}/paddle/customer-portal-session`, {});
+    return this.http.post<{ url: string }>(`${this.environment.api.baseUrl}/payment-processor/customer-portal-session`, {});
   }
 
   async closeCheckout(): Promise<void> {
@@ -72,7 +84,8 @@ export class PaddleService extends PaymentProcessorService {
     priceId: string;
     frameTarget: string;
     email?: string;
-  }): Promise<void> {
+    redirectUrl?: string;
+  }): Promise<string | undefined> {
 
     const paddle = await this.getPaddleOrThrow();
 
@@ -96,6 +109,8 @@ export class PaddleService extends PaymentProcessorService {
         allowLogout: false
       }
     });
+
+    return undefined;
   }
 
   private async getPaddleOrThrow(): Promise<Paddle> {

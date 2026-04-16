@@ -10,7 +10,7 @@ namespace plantour_server.DbModels;
 [Index("Email", Name = "users_email_key", IsUnique = true)]
 [Index("FacebookUserId", Name = "users_facebook_user_id_key", IsUnique = true)]
 [Index("GoogleSub", Name = "users_google_sub_key", IsUnique = true)]
-[Index("PaddleSubscriptionId", Name = "users_paddle_subscription_id_key", IsUnique = true)]
+[Index("PaymentProcessorSubscriptionId", Name = "users_payment_processor_subscription_id_key", IsUnique = true)]
 public partial class User
 {
     [Key]
@@ -44,8 +44,8 @@ public partial class User
     [Column("access_type_id")]
     public Guid AccessTypeId { get; set; }
 
-    [Column("paddle_subscription_id")]
-    public string? PaddleSubscriptionId { get; set; }
+    [Column("payment_processor_subscription_id")]
+    public string? PaymentProcessorSubscriptionId { get; set; }
 
     [Column("temporary")]
     public bool Temporary { get; set; }

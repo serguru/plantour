@@ -1,18 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using plantour_server.Attributes;
-using plantour_server.DTOs;
 using plantour_server.Models;
 using plantour_server.Services;
 
 namespace plantour_server.Controllers;
 
 [ApiController]
-[Route("[controller]")]
-public class PaddleController : ControllerBase
+[Route("payment-processor")]
+[Route("paddle")]
+public class PaymentProcessorController : ControllerBase
 {
     private readonly IPaymentProcessorService _service;
 
-    public PaddleController(IPaymentProcessorService service)
+    public PaymentProcessorController(IPaymentProcessorService service)
     {
         _service = service;
     }
@@ -29,11 +29,30 @@ public class PaddleController : ControllerBase
         return Ok(activeExists);
     }
 
+    [HttpGet("customer-exists")]
+    public async Task<ActionResult<bool>> CustomerExists([FromQuery] string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return BadRequest("Email is required");
+        }
+
+        var customerId = await _service.GetActiveCustomerIdByEmailAsync(email);
+        return Ok(!string.IsNullOrWhiteSpace(customerId));
+    }
+
     [HttpPost]
     public async Task<ActionResult> GetSubscriptionId([FromBody] PaymentProcessorSubscriptionIdRequest request)
     {
         var subscriptionId = await _service.GetActiveSubscriptionIdAsync(request);
         return Ok(subscriptionId);
+    }
+
+    [HttpPost("checkout-session")]
+    public async Task<ActionResult<PaymentProcessorCheckoutResponse>> CreateCheckoutSession([FromBody] PaymentProcessorCheckoutRequest request)
+    {
+        var response = await _service.CreateCheckoutSessionAsync(request);
+        return Ok(response);
     }
 
     [HttpPost("customer-portal-session")]

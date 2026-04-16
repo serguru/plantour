@@ -6,7 +6,7 @@ public class PriceDto
 {
     public Guid Id { get; set; }
 
-    public string PaddlePriceId { get; set; } = null!;
+    public string PaymentProcessorPriceId { get; set; } = null!;
 
     public string Name { get; set; } = null!;
 

@@ -1,6 +1,6 @@
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { catchError, EMPTY, firstValueFrom, tap, throwError } from 'rxjs';
@@ -8,8 +8,8 @@ import { Router } from '@angular/router';
 import { AppButton } from '../button/button-component';
 import { MessagesService } from '../../services/messages-service';
 import { UsersService } from '../../services/users-service';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { PaymentProcessorService } from '../../services/payment-processor-service';
+import { ENVIRONMENT, EnvironmentConfig } from '../../../environment.token';
 
 @Component({
   selector: 'app-checkout-component',
@@ -26,6 +26,7 @@ export class CheckoutComponent implements OnInit {
   private readonly paymentProcessorService = inject(PaymentProcessorService);
   private readonly messagesService = inject(MessagesService);
   private readonly usersService = inject(UsersService);
+  private readonly environment = inject<EnvironmentConfig>(ENVIRONMENT);
 
   readonly checkoutContainerClass = 'paddle-inline-checkout-container';
   readonly emailForm = this.fb.group({
@@ -124,11 +125,11 @@ export class CheckoutComponent implements OnInit {
     this.isLoading = true;
 
     try {
-      const hasActiveSubscription = await firstValueFrom(this.paymentProcessorService.activeSubscriptionExists(email));
+      const customerExists = await firstValueFrom(this.paymentProcessorService.customerExists(email));
 
-      if (hasActiveSubscription) {
+      if (customerExists) {
         this.isLoading = false;
-        this.errorMessage = "You already have an active plan. If you wish to change your plan, sign in, go to your profile and press 'Change plan'.";
+        this.errorMessage = "This email is already registered in the payment system. Please sign in with that email or use a different email address.";
         return;
       }
 
@@ -142,13 +143,35 @@ export class CheckoutComponent implements OnInit {
 
       this.showCheckout = true;
       this.cdr.detectChanges();
-      await this.waitForInlineContainer();
 
-      await this.paymentProcessorService.openInlineCheckout({
+      const redirectUrl = `${this.environment.clientUrl}/sign-in?email=${encodeURIComponent(email)}`;
+
+      const checkoutUrl = await this.paymentProcessorService.openInlineCheckout({
         priceId: this.priceId,
         email,
         frameTarget: this.checkoutContainerClass,
+        redirectUrl,
       });
+
+      if (checkoutUrl) {
+        this.showCheckout = false;
+
+        const dialogResult = await this.messagesService.openOkCancel({
+          title: 'Confirm email before checkout',
+          message: `You will be redirected to the secure Lemon Squeezy checkout. Do not change the email address there. Keep using ${email} so your subscription stays linked to the correct Plantour account.`,
+          okLabel: 'Continue',
+          cancelLabel: 'Cancel'
+        });
+
+        if (dialogResult !== 'ok') {
+          return;
+        }
+
+        window.location.assign(checkoutUrl);
+        return;
+      } else {
+        await this.waitForInlineContainer();
+      }
     } catch (error: unknown) {
       this.showCheckout = false;
       this.errorMessage = error instanceof Error ? error.message : 'Unable to open checkout.';
