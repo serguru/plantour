@@ -14,7 +14,7 @@ using System.Globalization;
 
 namespace plantour_server.Services;
 
-public class PaddleService : IPaddleService
+public class PaddleService : IPaymentProcessorService
 {
     private readonly string _apiKey;
     private readonly HttpClient _httpclient;
@@ -137,7 +137,7 @@ public class PaddleService : IPaddleService
         return customerId;
     }
 
-    public async Task<string?> GetActiveCustomerEmailByIdAsync(PaddleCustomerEmailRequest request)
+    public async Task<string?> GetActiveCustomerEmailByIdAsync(PaymentProcessorCustomerEmailRequest request)
     {
         await EnsureClientConfiguredAsync();
 
@@ -215,7 +215,7 @@ public class PaddleService : IPaddleService
         return list.Any();
     }
 
-    public async Task<PaddleSubscription?> GetActiveSubscriptionByEmailAsync(string email)
+    public async Task<PaymentProcessorSubscription?> GetActiveSubscriptionByEmailAsync(string email)
     {
         await EnsureClientConfiguredAsync();
 
@@ -261,7 +261,7 @@ public class PaddleService : IPaddleService
         return result;
     }
 
-    private async Task<PaddleSubscription> Json2Subscription(JsonElement json)
+    private async Task<PaymentProcessorSubscription> Json2Subscription(JsonElement json)
     {
         if (!json.TryGetProperty("id", out var idElement) ||
             !json.TryGetProperty("status", out var statusElement) ||
@@ -312,7 +312,7 @@ public class PaddleService : IPaddleService
             billingPeriodEnd = billingPeriodEndElement.GetString();
         }
 
-        return new PaddleSubscription
+        return new PaymentProcessorSubscription
         {
             Id = id,
             Status = status,
@@ -326,7 +326,7 @@ public class PaddleService : IPaddleService
         };
     }
 
-    public async Task<string?> GetActiveSubscriptionIdAsync(PaddleSubscriptionIdRequest request)
+    public async Task<string?> GetActiveSubscriptionIdAsync(PaymentProcessorSubscriptionIdRequest request)
     {
         await EnsureClientConfiguredAsync();
 
@@ -360,7 +360,7 @@ public class PaddleService : IPaddleService
             return null; // Subscription not found
         }
 
-        List<PaddleSubscription> subscriptions = new List<PaddleSubscription>();
+        List<PaymentProcessorSubscription> subscriptions = new List<PaymentProcessorSubscription>();
 
         foreach (var item in list)
         {
@@ -383,7 +383,7 @@ public class PaddleService : IPaddleService
         return notActiveSubscriptions.First().Id; // Return the most recently created not active subscription
     }
 
-    public async Task<PaddleSubscription?> GetActiveSubscriptionByIdAsync(string subscriptionId)
+    public async Task<PaymentProcessorSubscription?> GetActiveSubscriptionByIdAsync(string subscriptionId)
     {
         await EnsureClientConfiguredAsync();
 
@@ -414,7 +414,7 @@ public class PaddleService : IPaddleService
     }
 
     // userId can be participant or admin
-    public async Task<PaddleSubscription?> GetActiveSubscriptionByUserIdAsync(Guid userId, UserRole role, Guid adminId)
+    public async Task<PaymentProcessorSubscription?> GetActiveSubscriptionByUserIdAsync(Guid userId, UserRole role, Guid adminId)
     {
         await EnsureClientConfiguredAsync();
 
@@ -428,7 +428,7 @@ public class PaddleService : IPaddleService
     }
 
 
-    public async Task<PaddleSubscription?> GetActiveSubscriptionByUserAsync(User user, UserRole role, Guid adminId)
+    public async Task<PaymentProcessorSubscription?> GetActiveSubscriptionByUserAsync(User user, UserRole role, Guid adminId)
     {
         await EnsureClientConfiguredAsync();
 
@@ -437,7 +437,7 @@ public class PaddleService : IPaddleService
             throw new CustomException("User is required");
         }
 
-        PaddleSubscription? subscription = null;
+        PaymentProcessorSubscription? subscription = null;
 
         var admin = user;
 
@@ -456,7 +456,7 @@ public class PaddleService : IPaddleService
             subscription = await GetActiveSubscriptionByIdAsync(admin.PaddleSubscriptionId);
             if (subscription != null)
             {
-                var r = new PaddleCustomerEmailRequest()
+                var r = new PaymentProcessorCustomerEmailRequest()
                 {
                     CustomerId = subscription.CustomerId
                 };
@@ -535,7 +535,7 @@ public class PaddleService : IPaddleService
             throw new CustomException("Paddle customer not found for the current user");
         }
 
-        string? subscriptionId = _currentUser.PaddleSubscriptionId;
+        string? subscriptionId = _currentUser.PaymentProcessorSubscriptionId;
 
         if (string.IsNullOrWhiteSpace(subscriptionId))
         {
@@ -580,7 +580,7 @@ public class PaddleService : IPaddleService
         };
     }
 
-    public async Task<IEnumerable<PaddleProduct>?> GetActiveProductsAsync()
+    public async Task<IEnumerable<PaymentProcessorProduct>?> GetActiveProductsAsync()
     {
         await EnsureClientConfiguredAsync();
 
@@ -611,7 +611,7 @@ public class PaddleService : IPaddleService
             return null;
         }
 
-        var products = new List<PaddleProduct>();
+        var products = new List<PaymentProcessorProduct>();
 
         foreach (var productElement in list)
         {
@@ -639,7 +639,7 @@ public class PaddleService : IPaddleService
                 throw new CustomException("Paddle product properties cannot be empty");
             }
 
-            var prices = new List<PaddlePrice>();
+            var prices = new List<PaymentProcessorPrice>();
 
             foreach (var priceElement in pricesElement.EnumerateArray())
             {
@@ -701,7 +701,7 @@ public class PaddleService : IPaddleService
                     throw new CustomException("Paddle price properties cannot be empty");
                 }
 
-                prices.Add(new PaddlePrice
+                prices.Add(new PaymentProcessorPrice
                 {
                     Id = priceId,
                     ProductId = priceProductId,
@@ -714,7 +714,7 @@ public class PaddleService : IPaddleService
                 });
             }
 
-            products.Add(new PaddleProduct
+            products.Add(new PaymentProcessorProduct
             {
                 Id = productId,
                 Name = productName,
@@ -761,7 +761,7 @@ public class PaddleService : IPaddleService
             }
         }
 
-        PaddleSubscription? subscription = await GetActiveSubscriptionByEmailAsync(user.Email);
+        PaymentProcessorSubscription? subscription = await GetActiveSubscriptionByEmailAsync(user.Email);
 
         if (subscription == null)
         {

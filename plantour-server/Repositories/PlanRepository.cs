@@ -221,6 +221,11 @@ public class PlanRepository : GenericRepository<Plan>
         };
     }
 
+    public Task<Plan?> GetByPaymentProcessorPriceIdAsync(string priceId)
+    {
+        return GetByPriceIdAsync(priceId);
+    }
+
 
     public async Task<string?> GetPriceNameByPriceIdAsync(string priceId)
     {
@@ -231,6 +236,11 @@ public class PlanRepository : GenericRepository<Plan>
         var plans = await GetAllPlansSnapshotAsync();
         var price = plans.SelectMany(p => p.Prices).FirstOrDefault(p => p.PaddlePriceId == priceId);
         return price?.Name;
-    }   
+    }
+
+    public Task<string?> GetPaymentProcessorPriceNameByIdAsync(string priceId)
+    {
+        return GetPriceNameByPriceIdAsync(priceId);
+    }
 
 }

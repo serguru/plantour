@@ -3,11 +3,12 @@ import { initializePaddle, Paddle } from '@paddle/paddle-js';
 import { ENVIRONMENT, EnvironmentConfig } from '../../environment.token';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { PaymentProcessorService } from './payment-processor-service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PaddleService {
+export class PaddleService extends PaymentProcessorService {
   paddle = signal<Paddle | undefined>(undefined);
   private readonly paddleInitPromise: Promise<void>;
   private readonly defaultFrameStyle = 'width: 100%; min-width: 312px; background-color: transparent; border: none;';
@@ -18,6 +19,7 @@ export class PaddleService {
     @Inject(ENVIRONMENT) private environment: EnvironmentConfig
 
   ) {
+    super();
     this.paddleInitPromise = this.init();
   }
 

@@ -1,7 +1,6 @@
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { PaddleService } from '../../services/paddle-service';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { catchError, EMPTY, firstValueFrom, tap, throwError } from 'rxjs';
@@ -10,6 +9,7 @@ import { AppButton } from '../button/button-component';
 import { MessagesService } from '../../services/messages-service';
 import { UsersService } from '../../services/users-service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { PaymentProcessorService } from '../../services/payment-processor-service';
 
 @Component({
   selector: 'app-checkout-component',
@@ -23,7 +23,7 @@ export class CheckoutComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly paddleService = inject(PaddleService);
+  private readonly paymentProcessorService = inject(PaymentProcessorService);
   private readonly messagesService = inject(MessagesService);
   private readonly usersService = inject(UsersService);
 
@@ -46,8 +46,8 @@ export class CheckoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.paddleService.setCheckoutEventHandler((eventName: string) => {
-      void this.onPaddleEvent(eventName);
+    this.paymentProcessorService.setCheckoutEventHandler((eventName: string) => {
+      void this.onCheckoutEvent(eventName);
     });
 
     // This should never happen because the route is protected, but just in case
@@ -72,7 +72,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    this.paddleService.setCheckoutEventHandler(undefined);
+    this.paymentProcessorService.setCheckoutEventHandler(undefined);
   }
 
   async onProceed(): Promise<void> {
@@ -124,7 +124,7 @@ export class CheckoutComponent implements OnInit {
     this.isLoading = true;
 
     try {
-      const hasActiveSubscription = await firstValueFrom(this.paddleService.activeSubscriptionExists(email));
+      const hasActiveSubscription = await firstValueFrom(this.paymentProcessorService.activeSubscriptionExists(email));
 
       if (hasActiveSubscription) {
         this.isLoading = false;
@@ -144,7 +144,7 @@ export class CheckoutComponent implements OnInit {
       this.cdr.detectChanges();
       await this.waitForInlineContainer();
 
-      await this.paddleService.openInlineCheckout({
+      await this.paymentProcessorService.openInlineCheckout({
         priceId: this.priceId,
         email,
         frameTarget: this.checkoutContainerClass,
@@ -170,13 +170,13 @@ export class CheckoutComponent implements OnInit {
     this.isHandlingCheckoutResult = false;
 
     try {
-      await this.paddleService.closeCheckout();
+      await this.paymentProcessorService.closeCheckout();
     } catch {
       // ignore close errors and still return to first screen
     }
   }
 
-  private async onPaddleEvent(eventName: string): Promise<void> {
+  private async onCheckoutEvent(eventName: string): Promise<void> {
     if (this.isHandlingCheckoutResult) {
       return;
     }

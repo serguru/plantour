@@ -44,7 +44,7 @@ public class UsersService(
     IAccessRulesService accessRulesService,
     RefreshTokenRepository refreshTokenRepository,
     TimeTickerRepository timeTickerRepository,
-    IPaddleService paddleService,
+    IPaymentProcessorService paymentProcessorService,
     ISignInEmailService signInEmailService,
     IOptions<SocialAuthSettings> socialAuthSettings,
     ServerSettingsService serverSettingsService,
@@ -65,7 +65,7 @@ public class UsersService(
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly SocialAuthSettings _socialAuthSettings = socialAuthSettings.Value;
     private readonly IAccessRulesService _accessRulesService = accessRulesService;
-    private readonly IPaddleService _paddleService = paddleService;
+    private readonly IPaymentProcessorService _paymentProcessorService = paymentProcessorService;
     private readonly TimeTickerRepository _timeTickerRepository = timeTickerRepository;
     private readonly IMapper _mapper = mapper;
     private readonly ITokenService _tokenService = tokenService;
@@ -756,7 +756,7 @@ public class UsersService(
 
     public async Task<LandingDto> GetLandingAsync()
     {
-        var paddleProducts = await _paddleService.GetActiveProductsAsync();
+        var paddleProducts = await _paymentProcessorService.GetActiveProductsAsync();
         if (paddleProducts == null || !paddleProducts.Any())
         {
             throw new CustomException("No active Paddle products found");

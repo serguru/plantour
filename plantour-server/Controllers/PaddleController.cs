@@ -10,10 +10,9 @@ namespace plantour_server.Controllers;
 [Route("[controller]")]
 public class PaddleController : ControllerBase
 {
-    
-        private readonly IPaddleService _service;
+    private readonly IPaymentProcessorService _service;
 
-    public PaddleController(IPaddleService service)
+    public PaddleController(IPaymentProcessorService service)
     {
         _service = service;
     }
@@ -31,7 +30,7 @@ public class PaddleController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult> GetSubscriptionId([FromBody] PaddleSubscriptionIdRequest request)
+    public async Task<ActionResult> GetSubscriptionId([FromBody] PaymentProcessorSubscriptionIdRequest request)
     {
         var subscriptionId = await _service.GetActiveSubscriptionIdAsync(request);
         return Ok(subscriptionId);

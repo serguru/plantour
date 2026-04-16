@@ -14,15 +14,15 @@ namespace plantour_server.Services;
 
 public class AccessRulesService : IAccessRulesService
 {
-    private readonly IPaddleService _paddleService;
+    private readonly IPaymentProcessorService _paymentProcessorService;
     private readonly PlanRepository _planRepository;
 
     public AccessRulesService(
-        IPaddleService paddleService,
+        IPaymentProcessorService paymentProcessorService,
         PlanRepository planRepository
     )
     {
-        _paddleService = paddleService;
+        _paymentProcessorService = paymentProcessorService;
         _planRepository = planRepository;
     }
 
@@ -62,14 +62,14 @@ public class AccessRulesService : IAccessRulesService
 
         return result;
     }
-    private async Task<AccessRules> ProcessUser(PaddleSubscription? subscription, UserRole role)
+    private async Task<AccessRules> ProcessUser(PaymentProcessorSubscription? subscription, UserRole role)
     {
         var a = new AccessRules();
         var isAdmin = role == UserRole.Admin;
         Plan? plan;
         if (subscription != null)
         {
-            plan = await _planRepository.GetByPriceIdAsync(subscription.PriceId) ?? throw new CustomException($"Plan not found for PriceId: {subscription.PriceId}");
+            plan = await _planRepository.GetByPaymentProcessorPriceIdAsync(subscription.PriceId) ?? throw new CustomException($"Plan not found for PriceId: {subscription.PriceId}");
         } else
         {
             // If no subscription found, treat the user as if they are on the free Starter plan
@@ -105,7 +105,7 @@ public class AccessRulesService : IAccessRulesService
             return await ProcessTemporaryUser(user);
         }
         // In this call the user can be updated, saved to the DB and the updated instance is returned
-        var subscription = await _paddleService.GetActiveSubscriptionByUserAsync(user, role, adminId);
+        var subscription = await _paymentProcessorService.GetActiveSubscriptionByUserAsync(user, role, adminId);
 
         //var priceName = subscription == null ? user.PriceEnum!.Name : subscription.PriceName;
         var billingPeriodStart = subscription?.BillingPeriodStart;

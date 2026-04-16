@@ -22,8 +22,10 @@ public static class PlantourClaims
     public const string Subject = JwtRegisteredClaimNames.Sub;
     public const string Issuer = JwtRegisteredClaimNames.Iss;
     public const string Audience = JwtRegisteredClaimNames.Aud;
-    public const string PaddleSubscriptionId = "paddle_subscription_id";
-    public const string PaddleCustomerId = "paddle_customer_id";
+    public const string PaymentProcessorSubscriptionId = "paddle_subscription_id";
+    public const string PaymentProcessorCustomerId = "paddle_customer_id";
+    public const string PaddleSubscriptionId = PaymentProcessorSubscriptionId;
+    public const string PaddleCustomerId = PaymentProcessorCustomerId;
     public const string Temporary = "temporary";
     
 }

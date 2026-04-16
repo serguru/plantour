@@ -479,7 +479,7 @@ builder.Services.AddScoped<ISignInEmailService, SignInEmailService>();
 builder.Services.AddScoped<ISharedAssignmentNotificationService, SharedAssignmentNotificationService>();
 builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
-builder.Services.AddScoped<IPaddleService, PaddleService>();
+builder.Services.AddScoped<IPaymentProcessorService, PaddleService>();
 builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
 builder.Services.AddScoped<ISchedulerService, SchedulerService>();
 builder.Services.AddHostedService<FatalExceptionNotificationService>();

@@ -15,6 +15,8 @@ import { httpInterceptor } from './interceptors/http-interceptor';
 import { GlobalErrorHandler } from './helpers/error-handler';
 import { ClientSettingsService } from './services/client-settings-service';
 import { CookieGuardService } from './services/cookie-guard-service';
+import { PaddleService } from './services/paddle-service';
+import { PaymentProcessorService } from './services/payment-processor-service';
 
 
 export const appConfig: ApplicationConfig = {
@@ -53,6 +55,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: ErrorHandler,
       useClass: GlobalErrorHandler,
+    },
+    {
+      provide: PaymentProcessorService,
+      useExisting: PaddleService,
     }
   ]
 };

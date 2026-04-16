@@ -25,7 +25,7 @@ public class SchedulerService(
     IConfiguration configuration,
     AiPromptRepository aiPromptRepository,
     ITimeTickerManager<TimeTickerEntity> timeTickerManager,
-    IPaddleService _paddleService,
+    IPaymentProcessorService paymentProcessorService,
     IPlantourLogger logger,
     TimeTickerRepository timeTickerRepository,
     HttpCurrentUser httpCurrentUser) : ISchedulerService
@@ -41,7 +41,7 @@ public class SchedulerService(
     private readonly RefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly AiPromptRepository _aiPromptRepository = aiPromptRepository;
     private readonly ITimeTickerManager<TimeTickerEntity> _timeTickerManager = timeTickerManager;
-    private readonly IPaddleService _paddleService = _paddleService;
+    private readonly IPaymentProcessorService _paymentProcessorService = paymentProcessorService;
     private readonly TimeTickerRepository _timeTickerRepository = timeTickerRepository;
 
     private readonly IPlantourLogger _logger = logger;
@@ -70,7 +70,7 @@ public class SchedulerService(
         _currentUser.RaiseIfNotAdmin();
         var userId = _currentUser.UserId;
         // If it is less than 12 hours left to the next billing period - run
-        var subscription = await _paddleService.GetActiveSubscriptionByUserIdAsync(userId, UserRole.Admin, userId);
+        var subscription = await _paymentProcessorService.GetActiveSubscriptionByUserIdAsync(userId, UserRole.Admin, userId);
 
         if (subscription == null)
         {
@@ -103,7 +103,7 @@ public class SchedulerService(
 
         if (nextBillingDateTime - utcNow <= TimeSpan.FromHours(12))
         {
-            await _paddleService.DowngradePlanPriceAsync(userId, oldPlanPrice, newPlanPrice);
+            await _paymentProcessorService.DowngradePlanPriceAsync(userId, oldPlanPrice, newPlanPrice);
             return;
         }
 
