@@ -107,7 +107,7 @@ export class SignInComponent implements OnInit {
 
       const checkoutStatus = queryParams.get('checkout');
       if (checkoutStatus === 'success') {
-        this.successMessage = 'Subscription created successfully. Sign in with the same email address you used during checkout.';
+        this.messagesService.showInfo('Subscription created successfully. Sign in with the same email address you used during checkout.')
         shouldCleanOAuthQueryParams = true;
       }
 
