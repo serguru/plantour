@@ -58,7 +58,7 @@ public class UsersRepository(
                 createdUser.GoogleSub,
                 createdUser.FacebookUserId,
                 createdUser.ParticipantCode,
-                createdUser.PaddleSubscriptionId));
+                createdUser.PaymentProcessorSubscriptionId));
         }
         catch (Exception)
         {

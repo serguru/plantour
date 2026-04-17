@@ -76,7 +76,7 @@ public class CurrentUserMiddleware
         var temporary = context.User.FindFirst(PlantourClaims.Temporary)?.Value;
         currentUser.Temporary = temporary == "true";
 
-        currentUser.PaddleSubscriptionId = context.User.FindFirst(PlantourClaims.PaddleSubscriptionId)?.Value;
+        currentUser.PaymentProcessorSubscriptionId = context.User.FindFirst(PlantourClaims.PaymentProcessorSubscriptionId)?.Value;
 
         currentUser.BillingPeriodStart = context.User.FindFirst(PlantourClaims.BillingPeriodStart)?.Value;
 

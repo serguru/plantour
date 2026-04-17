@@ -20,7 +20,8 @@ values
     ('gemini_model', 'gemini-3-flash-preview', 'string'),
     ('trip_note_editor_dropbox_redirect_uri', 'https://api.plantour.app/trip-note-editor/dropbox/callback', 'string'),
     ('cache_refresh_interval_minutes', '5', 'integer'),
-    ('paddle_api_base_url', 'https://api.paddle.com/', 'string'),
+    ('payment_processor_api_base_url', 'https://api.paddle.com/', 'string'),
+    ('payment_processor_storeId', 'replace_with_live_store_id', 'string'),
     ('cors_allowed_origins', 'https://api.plantour.app;https://plantour.app', 'string'),
     ('turnstile_enabled', 'true', 'boolean'),
     ('plantour_logging_sink', 'Both', 'string'),
@@ -38,7 +39,7 @@ values
     ('exclude_paths_from_log', 'users/health-check;users/version;version',  'string'),
     ('plantour_app_origin', 'https://plantour.app',  'string');
 
-insert into plantour.plans (name, paddle_product_id, notes, public, 
+insert into plantour.plans (name, payment_processor_product_id, notes, public, 
 allowed_items,  allowed_travelers,  allowed_AI_prompts,         extended_AI_allowed,
 allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activities) values
 
@@ -58,7 +59,7 @@ allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activiti
 );
 
 
-insert into plantour.prices (paddle_price_id,plan_id,name,value_cents) values
+insert into plantour.prices (payment_processor_price_id,plan_id,name,value_cents) values
 (
     null,
     (select id from plantour.plans where name = 'Starter'),

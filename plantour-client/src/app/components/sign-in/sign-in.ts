@@ -105,6 +105,12 @@ export class SignInComponent implements OnInit {
         this.adminForm.patchValue({ email: email });
       }
 
+      const checkoutStatus = queryParams.get('checkout');
+      if (checkoutStatus === 'success') {
+        this.successMessage = 'Subscription created successfully. Sign in with the same email address you used during checkout.';
+        shouldCleanOAuthQueryParams = true;
+      }
+
       const googleOAuthError = queryParams.get('googleOAuthError');
       if (googleOAuthError) {
         this.errorMessage = googleOAuthError;
@@ -130,6 +136,7 @@ export class SignInComponent implements OnInit {
       }
 
       if (shouldCleanOAuthQueryParams) {
+        queryParams.delete('checkout');
         queryParams.delete('googleOAuthError');
         queryParams.delete('facebookOAuthError');
         queryParams.delete('googleOAuthToken');

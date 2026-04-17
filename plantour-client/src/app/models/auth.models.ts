@@ -21,7 +21,7 @@ export interface AccessToken {
   access_rules?: AccessRule[] | null;
   role: 'Admin' | 'Participant';
   plan_period: string;
-  paddle_subscription_id?: string;
+  payment_processor_subscription_id?: string;
   billing_period_start?: string;
   billing_period_end?: string;
   temporary: string;

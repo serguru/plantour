@@ -19,7 +19,7 @@ public class CurrentUser
     public DateTime CreatedAt { get; set; }
     //public Guid AccessTypeId { get; set; }
     //public string? AccessTypeName { get; set; }
-    public string? PaddleSubscriptionId { get; set; }
+    public string? PaymentProcessorSubscriptionId { get; set; }
     public string? BillingPeriodStart { get; set; }
     public string? BillingPeriodEnd { get; set; }
 
