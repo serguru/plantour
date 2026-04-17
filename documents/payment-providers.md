@@ -3,6 +3,7 @@
 FastSpring
     Filled forms, asked to review Plantour
     Case #01791211 submitted on April 14, 2026
+    refused, required 6 months payment history
 
 
 Lemon Squeezy
