@@ -11,25 +11,23 @@ using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Controllers;
 
-// TODO: resolve an issue with cookies: do I need to show cookies consent dialog?
-
 [ApiController]
 [Route("[controller]")]
 public class UsersController : ControllerBase
 {
         private readonly IUsersService _usersService;
         private readonly ITemporaryUserService _temporaryUserService;
-        private readonly IPaddleService _paddleService;
+        private readonly IPaymentProcessorService _paymentProcessorService;
         private readonly IContactSubmissionService _contactSubmissionService;
         private readonly ISchedulerService _schedulerService;
         private readonly IBotProtectionService _botProtectionService;
         private readonly IWebHostEnvironment _environment;
 
-        public UsersController(IUsersService usersService, ITemporaryUserService temporaryUserService, IPaddleService paddleService, IContactSubmissionService contactSubmissionService, ISchedulerService schedulerService, IBotProtectionService botProtectionService, IWebHostEnvironment environment)
+        public UsersController(IUsersService usersService, ITemporaryUserService temporaryUserService, IPaymentProcessorService paymentProcessorService, IContactSubmissionService contactSubmissionService, ISchedulerService schedulerService, IBotProtectionService botProtectionService, IWebHostEnvironment environment)
         {
                 _usersService = usersService;
                 _temporaryUserService = temporaryUserService;
-                _paddleService = paddleService;
+                _paymentProcessorService = paymentProcessorService;
                 _contactSubmissionService = contactSubmissionService;
                 _schedulerService = schedulerService;
                 _botProtectionService = botProtectionService;
@@ -243,7 +241,6 @@ public class UsersController : ControllerBase
                 var profile = await _usersService.GetLandingAsync();
                 return Ok(profile);
         }
-// TODO: Facebook ligin does not work in propduction
         private string BuildAbsoluteUrl(string path)
         {
                 var scheme = Request.Scheme;
@@ -283,7 +280,7 @@ public class UsersController : ControllerBase
         [AdminOnly]
         public async Task<IActionResult> UpgradePlanPrice([FromBody] UpdatePlanPriceRequest request)
         {
-                await _paddleService.UpgradePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
+                await _paymentProcessorService.UpgradePlanPriceAsync(request.OldPlanPrice, request.NewPlanPrice);
                 return Ok();
         }
 
@@ -324,13 +321,12 @@ public class UsersController : ControllerBase
                 await _usersService.SendParticipantInvitationAsync(request.AdminParticipantId);
                 return Ok();
         }
-        // TODO: why do I need Dropbox production?
 
         [HttpGet("health-check")]
         [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
-                return Ok(new { status = "OK" });
+                return Ok(new { status = "Plantour Main API OK" });
         }
 
         [HttpGet("version")]

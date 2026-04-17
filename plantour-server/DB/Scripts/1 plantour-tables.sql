@@ -297,7 +297,7 @@ insert into transaction_types (name) values
 create table plantour.plans (
     id uuid primary key default gen_random_uuid(),
     name text not null unique,
-    paddle_product_id text null unique,
+    payment_processor_product_id text null unique,
     notes text,
     active boolean default true,
     public boolean,
@@ -315,7 +315,7 @@ create table plantour.plans (
     created_at timestamptz not null default (now() at time zone 'utc')
 );
 
--- insert into plantour.plans (name, paddle_product_id, notes, public, 
+-- insert into plantour.plans (name, payment_processor_product_id, notes, public, 
 -- allowed_items,  allowed_travelers,  allowed_AI_prompts,         extended_AI_allowed,
 -- allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activities) values
 
@@ -337,12 +337,12 @@ create table plantour.plans (
 create table plantour.prices (
     id uuid primary key default gen_random_uuid(),
     plan_id uuid not null references plans(id),
-    paddle_price_id text null unique,
+    payment_processor_price_id text null unique,
     name text not null unique,
     value_cents int not null check(value_cents >= 0)
 );
 
--- insert into plantour.prices (paddle_price_id,plan_id,name,value_cents) values
+-- insert into plantour.prices (payment_processor_price_id,plan_id,name,value_cents) values
 -- (
 --     null,
 --     (select id from plantour.plans where name = 'Starter'),
@@ -389,7 +389,7 @@ create table users (
     notes text,
     created_at timestamptz not null default (now() at time zone 'utc'),
     access_type_id uuid not null references access_types(id),
-    paddle_subscription_id text unique,
+    payment_processor_subscription_id text unique,
     temporary bool not null default false,
     participant_code text null,
     currency_id uuid null references currencies(id) on delete set null
@@ -1162,90 +1162,6 @@ create table plantour.ai_trip_plans (
 );
 create unique index idx_ai_trip_plans_question on plantour.ai_trip_plans(user_id, question);
 
--- serilog postgresql logging tables
--- this script creates the necessary tables for storing serilog logs in postgresql
-
--- main logs table
-create table plantour.logs (
-    id serial primary key,
-    message_template text,
-    level text,
-    time_stamp timestamptz not null default (now() at time zone 'utc'),
-    exception text,
-    log_event text,
-    properties jsonb,
-    event_type text,
-    subtype text
-);
-
--- create indexes for better query performance
-create index if not exists idx_logs_timestamp 
-    on plantour.logs(time_stamp desc);
-
-create index if not exists idx_logs_level 
-    on plantour.logs(level);
-
-create index if not exists idx_logs_message_template 
-    on plantour.logs(message_template);
-
--- add comments to tables for documentation
-comment on table plantour.logs 
-    is 'stores application log events from serilog framework';
-
-comment on column plantour.logs.id 
-    is 'auto-incrementing primary key';
-
-comment on column plantour.logs.message_template 
-    is 'the log message template with placeholders';
-
-comment on column plantour.logs.level 
-    is 'log level: verbose, debug, information, warning, error, fatal';
-
-comment on column plantour.logs.time_stamp 
-    is 'timestamptz when the log event was recorded';
-
-comment on column plantour.logs.exception 
-    is 'exception details if applicable';
-
-comment on column plantour.logs.log_event 
-    is 'complete log event as json';
-
-comment on column plantour.logs.properties 
-    is 'additional structured properties as json (enrichers, context data)';
-
--- create a view for easier log querying
-create or replace view plantour.recent_logs as
-select 
-    id,
-    time_stamp,
-    level,
-    message_template,
-    exception,
-    properties
-from plantour.logs
-order by time_stamp desc
-limit 1000;
-
-comment on view plantour.recent_logs 
-    is 'view of the 1000 most recent log entries';
-
--- create a view for error logs
-create or replace view plantour.error_logs as
-select 
-    id,
-    time_stamp,
-    level,
-    message_template,
-    exception,
-    properties
-from plantour.logs
-where level in ('Error', 'Fatal')
-order by time_stamp desc
-limit 500;
-
-comment on view plantour.error_logs 
-    is 'view of the 500 most recent error/fatal logs';
-
 create table if not exists plantour.api_visits (
     id uuid primary key default gen_random_uuid(),
     created_at timestamptz not null default (now() at time zone 'utc'),
@@ -1393,4 +1309,45 @@ CREATE INDEX IF NOT EXISTS "IX_TimeTicker_Status_ExecutionTime" ON plantour."Tim
 
 CREATE INDEX IF NOT EXISTS "IX_TimeTickers_ParentId" ON plantour."TimeTickers" ("ParentId");
 
+create table plantour.superusers (
+    id uuid not null primary key default gen_random_uuid(),
+    email text not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    name text not null unique,
+    phone text,
+    notes text,
+    hashed_password text not null,
+    created_at timestamptz not null default (now() at time zone 'utc')
+);
 
+create or replace function plantour.hash_superuser_password(password_input text)
+returns text
+language sql
+immutable
+as $$
+    select md5(
+        'MaintenanceHashSecret_2026_4Xv8Lm2Qp7Rt1Nz5Bc9Hd3Ks6Wy0Fa4Ju8Pe1Mv5Cx9Tr2Qk'
+        || ':' ||
+        md5(
+            'MaintenanceHashSalt_2026_Jd4Lp9Qs2Vx7Hn1Bk6Tm3Wr8Cy5Fu0Pa'
+            || ':' ||
+            coalesce(password_input, '')
+        )
+    );
+$$;
+
+create table plantour.logs (
+    id uuid primary key default gen_random_uuid(),
+    created_at timestamptz not null default (now() at time zone 'utc'),
+    severity text not null check (severity in ('i', 'w', 'e')),
+    category text null,
+    message text not null,
+    user_id uuid null,
+    properties jsonb null
+);
+
+create index ix_logs_created_at on plantour.logs (created_at desc);
+
+insert into plantour.superusers(
+	email, name, phone, notes, hashed_password)
+	values ('admin@plantour.app', 'admin', null, null, '9803301a1675b7a1fca658178871ab46');
+    

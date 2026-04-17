@@ -1,0 +1,133 @@
+:host {
+  display: block;
+}
+
+.hero-panel {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1.4fr) minmax(18rem, 0.9fr);
+}
+
+.hero-copy,
+.overview-card {
+  border: 1px solid var(--surface-border);
+  border-radius: 1.5rem;
+  background: var(--panel-bg);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--elevation-shadow);
+}
+
+.hero-copy {
+  padding: 2rem;
+}
+
+.overview-card {
+  padding: 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--brand-green);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  max-width: 12ch;
+  font-size: clamp(2.4rem, 5vw, 4.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.lede {
+  max-width: 42rem;
+  margin-top: 1rem;
+  color: var(--muted-foreground);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.status-card {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--surface-border);
+  background: var(--panel-overlay-bg);
+}
+
+.status-card--success {
+  border-color: var(--success-border);
+  background: var(--success-gradient);
+}
+
+.status-card__label,
+.overview-grid span {
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.overview-grid {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+}
+
+.overview-grid article {
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  background: var(--panel-subtle-bg);
+}
+
+.overview-grid h3 {
+  margin-top: 0.35rem;
+  font-size: 1rem;
+}
+
+.overview-grid p {
+  margin-top: 0.35rem;
+  color: var(--muted-foreground);
+  line-height: 1.55;
+}
+
+.overview-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.25rem;
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  background: var(--brand-gradient);
+  color: var(--primary-text);
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.overview-action:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--interactive-shadow);
+}
+
+@media (max-width: 960px) {
+  .hero-panel {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    max-width: none;
+  }
+}

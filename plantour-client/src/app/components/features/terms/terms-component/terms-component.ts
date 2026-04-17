@@ -14,7 +14,7 @@ import { SeoService } from '../../../../services/seo-service';
 export class TermsComponent implements OnInit {
   componentId = 'terms';
   appName = 'Plantour';
-  lastUpdated = 'March 16, 2026';
+  lastUpdated = 'April 14, 2026';
   supportContact = 'the support channel available in the app';
 
   private readonly seoService = inject(SeoService);

@@ -4,8 +4,6 @@ using plantour_server.Models;
 using PlantourApi.Models;
 using plantour_server.Repositories;
 using plantour_server.Services;
-using Microsoft.Extensions.Logging;
-using Serilog.Context;
 using System.Text.Json;
 using plantour_server.Utils;
 
@@ -14,12 +12,10 @@ namespace PlantourApi.Middleware;
 public class CurrentUserMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<CurrentUserMiddleware> _logger;
 
-    public CurrentUserMiddleware(RequestDelegate next, ILogger<CurrentUserMiddleware> logger)
+    public CurrentUserMiddleware(RequestDelegate next)
     {
         _next = next;
-        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -80,7 +76,7 @@ public class CurrentUserMiddleware
         var temporary = context.User.FindFirst(PlantourClaims.Temporary)?.Value;
         currentUser.Temporary = temporary == "true";
 
-        currentUser.PaddleSubscriptionId = context.User.FindFirst(PlantourClaims.PaddleSubscriptionId)?.Value;
+        currentUser.PaymentProcessorSubscriptionId = context.User.FindFirst(PlantourClaims.PaymentProcessorSubscriptionId)?.Value;
 
         currentUser.BillingPeriodStart = context.User.FindFirst(PlantourClaims.BillingPeriodStart)?.Value;
 
@@ -92,15 +88,7 @@ public class CurrentUserMiddleware
             ? JsonSerializer.Deserialize<List<AccessRule>>(context.User.FindFirst(PlantourClaims.AccessRules)?.Value ?? string.Empty) ?? new List<AccessRule>()
             : new List<AccessRule>();
 
-        // Add user context to Serilog
-        using (LogContext.PushProperty("UserId", currentUser.UserId))
-        using (LogContext.PushProperty("UserEmail", currentUser.Email))
-        using (LogContext.PushProperty("UserRole", currentUser.Role))
-        {
-            // Continue with the request
-            context.Items["CurrentUser"] = currentUser;
-            await _next(context);
-        }
-
+        context.Items["CurrentUser"] = currentUser;
+        await _next(context);
     }
 }

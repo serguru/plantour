@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.EntityFrameworkCore;
@@ -16,14 +17,9 @@ using QuestPDF.Infrastructure;
 using System.Text.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Serilog;
-using Serilog.Events;
-using Serilog.Settings.Configuration;
-using Serilog.Sinks.PostgreSQL;
-using NpgsqlTypes;
 using Microsoft.AspNetCore.HttpOverrides;
-using plantour_server.Utils.Logging;
 using plantour_server.Utils;
+using plantour_server.Logging;
 using TickerQ.DependencyInjection;
 using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
@@ -75,6 +71,12 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     EnvironmentName = rawEnvironmentName
 });
 
+builder.Logging.ClearProviders();
+builder.Logging.AddFilter("TickerQ", LogLevel.Warning);
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+builder.Logging.AddFilter("Npgsql", LogLevel.Warning);
+
 var env = builder.Environment;
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -96,68 +98,7 @@ if (string.IsNullOrWhiteSpace(aspNetUrls) && !string.IsNullOrWhiteSpace(renderPo
     builder.WebHost.UseUrls($"http://0.0.0.0:{renderPort}");
 }
 
-// Configure Serilog with explicit column mappings for PostgreSQL
-var columnOptions = new Dictionary<string, ColumnWriterBase>
-{
-    { "message_template", new RenderedMessageColumnWriter(NpgsqlDbType.Text) },
-    { "level", new LevelColumnWriter(true, NpgsqlDbType.Varchar) },
-    { "time_stamp", new UnspecifiedUtcTimestampColumnWriter() },
-    { "exception", new ExceptionColumnWriter(NpgsqlDbType.Text) },
-    { "log_event", new LogEventSerializedColumnWriter(NpgsqlDbType.Text) },
-    { "properties", new PropertiesColumnWriter(NpgsqlDbType.Jsonb) },
-    { "event_type", new SinglePropertyColumnWriter("event_type", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar) },
-    { "subtype", new SinglePropertyColumnWriter("subtype", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar) }
-};
-
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// Read MinimumLevel from appsettings
-var minimumLevelSection = builder.Configuration.GetSection("Serilog:MinimumLevel");
-var minimumLevelString = minimumLevelSection["Default"]
-    ?? minimumLevelSection.Value
-    ?? "Information";
-
-if (!Enum.TryParse<LogEventLevel>(minimumLevelString, true, out var minimumLevel))
-{
-    minimumLevel = LogEventLevel.Information;
-}
-
-var loggerConfiguration = new LoggerConfiguration()
-    .MinimumLevel.Is(minimumLevel)
-    .Enrich.FromLogContext()
-    .Enrich.WithEnvironmentUserName()
-    .Enrich.WithMachineName()
-    .Enrich.WithProcessId()
-    .WriteTo.PostgreSQL(
-        connectionString: connectionString,
-        tableName: "logs",
-        columnOptions: columnOptions,
-        schemaName: "plantour",
-        needAutoCreateTable: false
-    )
-    .WriteTo.Logger(consoleLogger => consoleLogger
-        .Filter.ByExcluding(logEvent =>
-            logEvent.Properties.TryGetValue("SourceContext", out var sourceContext)
-            && sourceContext is ScalarValue { Value: string sourceContextValue }
-            && sourceContextValue.Contains("TickerQ", StringComparison.Ordinal)
-        )
-        .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"));
-
-foreach (var overrideSection in minimumLevelSection.GetSection("Override").GetChildren())
-{
-    if (Enum.TryParse<LogEventLevel>(overrideSection.Value, true, out var overrideLevel))
-    {
-        loggerConfiguration.MinimumLevel.Override(overrideSection.Key, overrideLevel);
-    }
-}
-
-Serilog.Log.Logger = loggerConfiguration.CreateLogger();
-
-// try
-// {
-Serilog.Log.Information("Starting Plantour API application");
-
-builder.Host.UseSerilog();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -166,6 +107,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection();
+builder.Services.AddMemoryCache();
 builder.Services.AddHybridCache(options =>
 {
     options.MaximumPayloadBytes = 1024 * 1024;
@@ -211,6 +153,7 @@ dataSourceBuilder.ConnectionStringBuilder.Timezone = "UTC";
 
 // 2. Build the DataSource
 var dataSource = dataSourceBuilder.Build();
+builder.Services.AddSingleton(dataSource);
 
 // Configure PostgreSQL connection
 // builder.Services.AddDbContext<PlantourContext>(options =>
@@ -218,6 +161,19 @@ var dataSource = dataSourceBuilder.Build();
 
 builder.Services.AddDbContext<PlantourContext>(options =>
     options.UseNpgsql(dataSource));
+
+builder.Services.AddScoped<ServerSettingsService>();
+builder.Services.AddSingleton(sp =>
+{
+    var settingsStore = new PlantourLoggerSettingsStore(sp.GetRequiredService<IServiceScopeFactory>());
+    settingsStore.RefreshAsync().GetAwaiter().GetResult();
+    return settingsStore;
+});
+builder.Services.AddSingleton<PlantourLogQueue>();
+builder.Services.AddHostedService<PlantourLoggerSettingsRefreshService>();
+builder.Services.AddHostedService<PlantourLogWorker>();
+builder.Services.AddSingleton<IPlantourLogger, PlantourLogger>();
+builder.Services.AddSingleton<ICorsPolicyProvider, DatabaseCorsPolicyProvider>();
 
 builder.Services.AddTickerQ(options =>
 {
@@ -523,9 +479,29 @@ builder.Services.AddScoped<ISignInEmailService, SignInEmailService>();
 builder.Services.AddScoped<ISharedAssignmentNotificationService, SharedAssignmentNotificationService>();
 builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
-builder.Services.AddScoped<IPaddleService, PaddleService>();
+builder.Services.AddHttpClient<PaddleService>();
+builder.Services.AddHttpClient<LemonSqueezyService>();
+builder.Services.AddHttpClient<StripeService>();
+builder.Services.AddScoped<IPaymentProcessorService>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var provider = configuration["PaymentProcessorSettings:Provider"];
+
+    if (string.Equals(provider, "Paddle", StringComparison.OrdinalIgnoreCase))
+    {
+        return sp.GetRequiredService<PaddleService>();
+    }
+
+    if (string.Equals(provider, "Stripe", StringComparison.OrdinalIgnoreCase))
+    {
+        return sp.GetRequiredService<StripeService>();
+    }
+
+    return sp.GetRequiredService<LemonSqueezyService>();
+});
 builder.Services.AddScoped<IAccessRulesService, AccessRulesService>();
 builder.Services.AddScoped<ISchedulerService, SchedulerService>();
+builder.Services.AddHostedService<FatalExceptionNotificationService>();
 builder.Services.AddScoped<AccessCodeGenerator>();
 builder.Services.AddHttpClient<IBotProtectionService, BotProtectionService>();
 builder.Services.AddHttpClient<IExpenseCurrencyRateService, ExpenseCurrencyRateService>();
@@ -570,7 +546,6 @@ builder.Services.AddScoped<plantour_server.Repositories.TemplateRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripCommentRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripNoteRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.ContactSubmissionRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.LogsRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AiPromptRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AiTripPlanRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AiRepository>();
@@ -584,34 +559,7 @@ builder.Services.AddScoped<plantour_server.Repositories.TripActivityRepository>(
 builder.Services.AddScoped<HttpCurrentUser>();
 
 // Configure CORS for Angular client
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowOrigins", policy =>
-    {
-        if (builder.Environment.IsDevelopment())
-        {
-            // Allow all origins in development
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-        }
-        else
-        {
-            //Use configured origins in production
-            var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>();
-
-            if (allowedOrigins == null || !allowedOrigins.Any())
-            {
-                throw new CustomException("No origins allowed in a CORS policy");
-            }
-
-            policy.WithOrigins(allowedOrigins)
-                  .AllowAnyMethod()
-                  .AllowAnyHeader()
-                  .AllowCredentials();
-        }
-    });
-});
+builder.Services.AddCors();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

@@ -1,3 +1,5 @@
 <Solution>
   <Project Path="plantour-server.csproj" />
+  <Project Path="..\plantour-maintenance-server\plantour-maintenance-server.csproj" />
+  <Project Path="..\plantour-shared-db\plantour-shared-db.csproj" />
 </Solution>

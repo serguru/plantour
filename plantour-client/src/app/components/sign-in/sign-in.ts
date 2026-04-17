@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { PopoverModule } from 'primeng/popover';
 import { catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 import { UsersService } from '../../services/users-service';
@@ -24,6 +25,7 @@ import { SeoService } from '../../services/seo-service';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
+    PopoverModule,
     RadioButton,
     FormsModule,
     RouterLink,
@@ -103,6 +105,12 @@ export class SignInComponent implements OnInit {
         this.adminForm.patchValue({ email: email });
       }
 
+      const checkoutStatus = queryParams.get('checkout');
+      if (checkoutStatus === 'success') {
+        this.messagesService.showInfo('Subscription created successfully. Sign in with the same email address you used during checkout.')
+        shouldCleanOAuthQueryParams = true;
+      }
+
       const googleOAuthError = queryParams.get('googleOAuthError');
       if (googleOAuthError) {
         this.errorMessage = googleOAuthError;
@@ -128,6 +136,7 @@ export class SignInComponent implements OnInit {
       }
 
       if (shouldCleanOAuthQueryParams) {
+        queryParams.delete('checkout');
         queryParams.delete('googleOAuthError');
         queryParams.delete('facebookOAuthError');
         queryParams.delete('googleOAuthToken');
@@ -186,9 +195,7 @@ export class SignInComponent implements OnInit {
   }
 
   get helpUrl(): string {
-    return this.isAdmin
-      ? '/help/get-started/first-steps'
-      : '/help/workflows/invite-travelers';
+    return '/help/get-started/sign-in-or-sign-up';
   }
 
   async onSubmit(): Promise<void> {

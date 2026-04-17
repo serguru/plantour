@@ -1059,3 +1059,135 @@ What options do I have?
 
 
 Explore the project's code dealing with Dropbox. The app uses Dropbox to allow users authorize Plantour to access their private images and add references to those images (not images themselves!) to Plantour notes. Once a user clicks a Dropbox Some time ago it w
+
+
+Generate a new .Net web API application plantour-maintenance-server and put it to a new plantour-maintenance-server folder. Add it to the plantour workspace. This API will work with the same DB that the plantour-server API works and serve for Plantour maintenance. Use the same .Net packages the plantour API uses.
+
+ See superusers db table. Implement the necessary API features like UserController, UserService,  UserRepository, dtos, mapping, etc. Implement a user sign in endpoint. No signup endpoint, the superusers will be added to the db directly. 
+
+The password must be hashed. Generate a SQL function which will take a password as an input param and return a hashed password. Put it to DB\Scripts\1 plantour-tables.sql. Put secret and salt to appsettings.json. Generate 3 appjson files similar to plantour-server. That function must be accessible via an endpoint. All the endpoints must by default require the autorized user. No roles. The sign in endpoint must return a JWT token with the expire date set through appsettings.json similar to the existing API. No refresh tokens. 
+
+
+
+    "DefaultConnection": "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=Binary_09;SSL Mode=Disable"
+
+Add another component to the Maintenance app called "Logs".  Add Use TanStack Table Spartan component to provide sorting, filtering, grouping and pagination. 
+
+
+
+
+
+Remove all the optional UI elements from the Landing page. Leave only the toolbar at the top with menus. Store in the local storage and restore open the last open page automatically. If no page stored - open a Dashboard page (create it and leave it blank for now)
+
+
+Add to M another component Users with the UI and logic as for Visits and Logs. Combine users data from the Plantour DB with data taken from the Paddle API, see how it is done in the main API. Explore Paddle API documentation and find out how is it possible to get the entire Plantour customers list from them, including how much money they paid in total. 
+
+Identify their customers with Plantour users by email. Provide columns: Id (from users db table), email, Full name, Admin or Participant/Admin, plan (if admin), temporary ot not, date joined, if they have an active subscription, date started the latest plan, last visit date, number of: trips, items, todos, expenses, travelers. Find out how to get from Paddle the customer's payments total and add it as a column. Do not request payments total individually for each customer, it should be done as a sinle API request.
+
+Take into account not all Plantour users has the corresponding Paddle user.
+
+
+Explore ZLog
+
+Logging requirements
+
+- id
+- message date
+- current user id 
+- type: info, warning, exception
+- message
+- json
+
+
+Уважаемая администрация XXX!
+
+Прошу Вас рассмотреть возможность интеграции нашего веб приложения Плантур с вашей системой сбора платежей от клиентов. 
+
+Наше приложение это полнофункциональный помощник в путешествии. Обратите внимание, что это приложение не занимается навигацией по картам, заказов номеров в гостиницах, поиском авиа рейсов и заказом авиа билетов. Наше приложение позволяет спланировать маршрут, в том числе с помощью ИИ, подобрать и упаковать вещи, спланировать и выполнить тудус, отследить расходы в разных валютах, вести путевые заметки. Поддерживаются возможности как для одиночных путешественниоков, так и для семей и больших групп.
+
+Вы можете ознакомиться с Плантур по адресу яя . Для доступа к приложению используйте логин чч и пароль мм. В настоящее время приложение не поддерживает возможность выбора платёжного плана и выполнение платежей.
+
+Пожалуйста дайте мне знать что вы решили.
+
+С уважением,
+Автор и владелец Плантур Серге
+
+Dear  Administration!
+
+Please consider integrating our SaaS web application, Plantour, with your customer payment collection system.
+
+Our application is a fully functional travel assistant. Please note that it does not provide map navigation directions, hotel reservations, flight searches, or ticket booking. Our application allows you to plan an itinerary, including with AI assistance, select and pack your items, plan and execute a trip, track expenses in multiple currencies, and keep travel notes. Features are supported for solo travelers, families, and large groups.
+
+You can explore Plantour at https://plantour.app. Currently the public user have no access to the app because it is missing customer payments. To access the application, use the username "tester" and password "bravo".
+
+Please let me know your decision.
+
+Sincerely,
+Author and owner of Plantur, Serge
+
+
+I had a negative experience with Paddle. They approved 2 my pred production app versions and then unexpectedly rejected the production version, saying "It was flagged as a high risk". Because of that I lost a few weeks spent on the integration with them. Now I need another payments company. Suggest the best way to find one or more and what to do to start getting payments instead of re-designing the integration code one more time.
+
+
+
+Personal Productivity Tool for Itinerary Management
+
+Hello Elena, 
+
+Thank you for your email. Our SaaS web application is a productivity tool for itineraries management. It helps you plan, prepare, and execute trip itineraries for individuals, families, and groups. You can review it here: https://plantour.app. The app currently does not accept payments, so it is not available for public use. To log in, use the username "tester" and the password "bravo."
+Please note that this app has nothing to do with booking hotel rooms or flights or car rentals. It charges only for its own software features.
+
+There are 5 price options:
+Starter US$ 0 forever
+Family monthly US$ 12.99/month
+Expedition monthly US$ 44.99/month
+Family yearly US$ 119.99/year
+Expedition yearly US$ 399.99/year
+
+If you have any questions please let me know.
+
+
+productivity tool for itineraries management.
+
+https://drive.google.com/file/d/1eDSWKMA4diT2fQdl7nYbQ42_vYP0VR2m/view?usp=sharing
+
+
+Read C:\Projects\plantour\documents\lemon-squeezy\ls-creators-guide-2024.pdf. Explore the official Lemon Squeezy integration documentation including their API. Implement IPaymentProcessorService with LemonSqueezyService. If it is not possible to implement an existing IPaymentProcessorService method find and implement a way how to reach the same result following the  Lemon Squeezy way.
+Explain what I should do on my side: opend a LS sandbox, add keys, add products, etc.
+
+LS test mode API key
+
+eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5NGQ1OWNlZi1kYmI4LTRlYTUtYjE3OC1kMjU0MGZjZDY5MTkiLCJqdGkiOiI0NWE1NDAxN2RjZjM2MGE0Zjc4OWFhMThlYjA3OGQ1NjBhNjg1OWI3MzBhOTE2NjU4N2VjNWM0MDQxMGJmM2UyOGM4NjE1MGFiNjFmYTliMSIsImlhdCI6MTc3NjM1ODE4Mi4wNDAzNzIsIm5iZiI6MTc3NjM1ODE4Mi4wNDAzNzQsImV4cCI6MTc5MTkzNjAwMC4wMjk5NjIsInN1YiI6IjY5MDUyNzgiLCJzY29wZXMiOltdfQ.em7ffiVX5-eRuSkDh42HO5CVmeo0-seFJWNOyYbVUZ3cl52B_dUbpp6g6JSZdbYDWQaqz7ECjcRI48CBPCjfKioc3A1UoRFTBqYz8tDNenHn-gJXSZkqBmyGTOsbgnU2dxO7Hd-gtxN0ny0OOYZBRPQ5xFqm6YJag6wl288AQTrOrS2lxnAJ694ozmQ6ASiGHKjfKYeDfDHAW11qkJypFWNxMT0hsHSlak_5-jgGi-LPy9SRwKW-PhhUxMg0eekDEEcblcfiZwyFJZARpG4DbLg6R-9VdIfnrYNfMONAVSTOXnu8WFNRunE4y6zcd6m9P2_baYGzM-dOaKYQcRcmsMDhHRFTliPqpuUjACV_yLPESlHaN4nrsl2IuF7cFaSIYBZyIFn9TnbBcxUB8W1XydVRf01_GAbwhPie_SF0MUln2XY5IC7r31kb-bXSDUyFsvukn_y2UKZ6NaC_T0xyCru7bANJpy25riFs75akz8prGf6yJGciyt582lvggtMINjpz-boDTnl19IOBsjaZNaO7lv7bnlRv53KNVd3u_LZbeSgEg-Ah6l6tWIgOF9SM-yHEh4YntOFyTAx-1u0hIJRBKbpgTdOoXEIr90xyu6-7opyG3vD1G8P6WphWzpgfTnidtsyXdB4_eaXTQ0z2CJAI99qJK2RCUklmq8Ccz0I
+
+
+1. I've changed:
+
+1) moved LS StoreId from appsettings to settings db table:
+    ('payment_processor_storeId', '346278', 'string')
+
+2) moved LS ApiBaseUrl from appsettings to settings db table:
+    ('payment_processor_api_base_url', 'https://api.lemonsqueezy.com/v1/', 'string')
+
+3) removed paddle related row from settings db table, instead use payment_processor_api_base_url for paddle 
+
+4) in plantour.plans replaced paddle_product_id with payment_processor_product_id
+
+5) in plantour.prices replaced paddle_price_id with payment_processor_price_id
+
+6) in users replaced paddle_subscription_id with payment_processor_subscription_id
+
+Make the necessary corresponding changes in code.
+
+2. There is a bug in your code. When you have a LS product and search for a corresponding Plantour plan use plan.payment_processor_product_id instead of plan.id
+
+
+    
+
+            // Wrong code!!!
+        //////////////////////////
+        var currentPeriodStart = GetUnixTimestamp(subscriptionJson, "current_period_start");
+        var currentPeriodEnd = GetUnixTimestamp(subscriptionJson, "current_period_end");
+        //////////////////////////
+        /// 
+        // use items.data[0].current_period_start
+        // use items.data[0].current_period_end

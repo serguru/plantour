@@ -16,18 +16,18 @@ using PlantourApi.Models;
 using plantour_server.Repositories;
 using PlantourApi.Middleware;
 using plantour_server.Services.Interfaces;
-using plantour_server.Services.TickerQ;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.Extensions;
+using plantour_server.Logging;
 
 namespace plantour_server.Services;
 
 
 public class UsersService(
-    IOptions<JwtSettings> jwtSettings,
     IMapper mapper,
+    IPlantourLogger logger,
     UsersRepository usersRepository,
     AdminsParticipantRepository adminsParticipantRepository,
     IAdminsParticipantService adminsParticipantService,
@@ -35,7 +35,6 @@ public class UsersService(
     SettingsRepository settingsRepository,
     AccessTypeRepository accessTypeRepository,
     ITokenService tokenService,
-    IConfiguration configuration,
     IWebHostEnvironment environment,
     IInvitationService invitationService,
     HttpCurrentUser httpCurrentUser,
@@ -43,13 +42,15 @@ public class UsersService(
     IHttpClientFactory httpClientFactory,
     IAccessRulesService accessRulesService,
     RefreshTokenRepository refreshTokenRepository,
-    TimeTickerRepository timeTickerRepository,
-    IPaddleService paddleService,
+    IPaymentProcessorService paymentProcessorService,
     ISignInEmailService signInEmailService,
     IOptions<SocialAuthSettings> socialAuthSettings,
+    ServerSettingsService serverSettingsService,
     IDataProtectionProvider dataProtectionProvider) : IUsersService
 {
+    private const string UserCreatedLogCategory = "User created";
     private readonly AccessCodeGenerator _accessCodeGenerator = accessCodeGenerator;
+    private readonly IPlantourLogger _logger = logger;
     private readonly UsersRepository _usersRepository = usersRepository;
     private readonly RefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly AdminsParticipantRepository _adminsParticipantRepository = adminsParticipantRepository;
@@ -62,12 +63,10 @@ public class UsersService(
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly SocialAuthSettings _socialAuthSettings = socialAuthSettings.Value;
     private readonly IAccessRulesService _accessRulesService = accessRulesService;
-    private readonly IPaddleService _paddleService = paddleService;
-    private readonly TimeTickerRepository _timeTickerRepository = timeTickerRepository;
+    private readonly IPaymentProcessorService _paymentProcessorService = paymentProcessorService;
     private readonly IMapper _mapper = mapper;
-    private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly ITokenService _tokenService = tokenService;
-    private readonly IConfiguration _configuration = configuration;
+    private readonly ServerSettingsService _serverSettingsService = serverSettingsService;
     private readonly IWebHostEnvironment _environment = environment;
     private readonly ISignInEmailService _signInEmailService = signInEmailService;
     private readonly ITimeLimitedDataProtector _googleOAuthStateProtector = dataProtectionProvider.CreateProtector("Plantour.GoogleOAuthState").ToTimeLimitedDataProtector();
@@ -115,9 +114,10 @@ public class UsersService(
                 AccessTypeId = await _accessTypeRepository.GetActiveId()
             };
             await _usersRepository.AddAsync(user);
+            LogUserCreated(user, "Admin");
         }
 
-        EnsureActiveUser(user);
+        await EnsureActiveUserAsync(user);
 
         return await CreateAuthResponseAsync(user, UserRole.Admin, user.Id, "Welcome to Plantour");
     }
@@ -387,7 +387,6 @@ public class UsersService(
         }
 
         string facebookAccessToken;
-// TODO: what is Facebook social login "test mode"?
         try
         {
             facebookAccessToken = _facebookOAuthTokenProtector.Unprotect(normalizedProtectedToken);
@@ -430,9 +429,20 @@ public class UsersService(
         await _invitationService.SendInvitationEmailByIdAsync(adminParticipantId, accessCode, r);
     }
 
-    private void EnsureActiveUser(User user)
+    private async Task EnsureActiveUserAsync(User user)
     {
-        if (user.AccessType.Name != "Active")
+        if (user.AccessType == null)
+        {
+            var accessType = await _accessTypeRepository.GetByIdAsync(user.AccessTypeId);
+            if (accessType == null)
+            {
+                throw new CustomException("The user access type is missing");
+            }
+
+            user.AccessType = accessType;
+        }
+
+        if (!string.Equals(user.AccessType?.Name, "Active", StringComparison.OrdinalIgnoreCase))
         {
             throw new CustomException("The user is not active");
         }
@@ -565,6 +575,7 @@ public class UsersService(
                 AccessTypeId = await _accessTypeRepository.GetActiveId()
             };
             await _usersRepository.AddAsync(user);
+            LogUserCreated(user, "Participant");
         } else if (!user.AccessType.Name.Equals("Active", StringComparison.OrdinalIgnoreCase))
         {
             throw new CustomException("Cannot sign up participant. The participant account is not active.");
@@ -742,19 +753,19 @@ public class UsersService(
 
     public async Task<LandingDto> GetLandingAsync()
     {
-        var paddleProducts = await _paddleService.GetActiveProductsAsync();
-        if (paddleProducts == null || !paddleProducts.Any())
+        var paymentProcessorProducts = await _paymentProcessorService.GetActiveProductsAsync();
+        if (paymentProcessorProducts == null || !paymentProcessorProducts.Any())
         {
-            throw new CustomException("No active Paddle products found");
+            throw new CustomException("No active payment processor products found");
         }
 
         var plans = await _planRepository.GetAll();
         plans = plans.Where(p => p.Public!.Value).ToList();
         var planDtos = _mapper.Map<List<PlanDto>>(plans);
 
-        paddleProducts.ToList().ForEach(pp =>
+        paymentProcessorProducts.ToList().ForEach(pp =>
         {
-            var plan = planDtos.FirstOrDefault(p => p.PaddleProductId == pp.Id) ?? throw new CustomException($"No plan found for Paddle product Id {pp.Id}");
+            var plan = planDtos.FirstOrDefault(p => p.PaymentProcessorProductId == pp.Id) ?? throw new CustomException($"No plan found for payment processor product Id {pp.Id}");
             _mapper.Map(pp, plan);
         });
 
@@ -824,8 +835,6 @@ public class UsersService(
 
         return new SocialIdentity(payload.Email, payload.Subject, payload.GivenName, payload.FamilyName);
     }
-
-    // TODO: Immediately after prodaction launch go to Google Search Console, verify ownership of the domain, and submit your sitemap.xml. This tells the bots the "gate is open."
 
     private async Task<SocialIdentity> VerifyFacebookTokenAsync(string? facebookAccessToken)
     {
@@ -932,7 +941,16 @@ public class UsersService(
             throw new CustomException("Failed to create social account");
         }
 
+        LogUserCreated(created, "Admin");
+
         return created;
+    }
+
+    private void LogUserCreated(User user, string userType)
+    {
+        _logger.LogInformation(
+            $"userId: {user.Id} email: {user.Email} first_name: {user.FirstName} last_name: {user.LastName} {userType}",
+            UserCreatedLogCategory);
     }
 
     private void EnsureUserCanSignIn(User user)
@@ -1055,7 +1073,7 @@ public class UsersService(
     private string ResolveGoogleReturnUrl(string? returnUrl)
     {
         var candidate = string.IsNullOrWhiteSpace(returnUrl)
-            ? _socialAuthSettings.GoogleOAuthDefaultReturnUrl
+            ? _serverSettingsService.GetGoogleOAuthDefaultReturnUrlAsync().GetAwaiter().GetResult()
             : returnUrl;
 
         if (string.IsNullOrWhiteSpace(candidate))
@@ -1068,7 +1086,7 @@ public class UsersService(
             throw new CustomException("Google OAuth return URL is invalid");
         }
 
-        var allowedOrigins = _configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+        var allowedOrigins = _serverSettingsService.GetCorsAllowedOriginsAsync().GetAwaiter().GetResult();
         var allowedHosts = allowedOrigins
             .Select(origin =>
             {
@@ -1247,11 +1265,6 @@ public class UsersService(
 
             adminId = admin.Id;
         }
-// TODO: check plans explanations, include individuals
-// TODO: why Plantour is som slow in Pred Prod?
-// TODO: format weights in TripInfo
-// TODO: implement redyiness progress instead of packing progress
-// TODO: add Finished to ToDos, Items and Expenses
 
         string? temporary = data.FirstOrDefault(kv => kv.Key == "temporary").Value;
         if (string.IsNullOrWhiteSpace(temporary))
@@ -1303,61 +1316,14 @@ public class UsersService(
     public async Task<ScheduledPlanDowngradeInfoDto> GetScheduledPlanDowngradeInfoAsync()
     {
         _currentUser.RaiseIfNotAdmin();
-
-        var initIdentifier = _currentUser.UserId.ToString();
-
-        var job = await _timeTickerRepository.GetLatestActiveByFunctionAndIdentifierAsync(
-            TickerQPlanDowngradeTask.FunctionName,
-            initIdentifier);
-
-        if (job == null)
-        {
-            return new ScheduledPlanDowngradeInfoDto
-            {
-                HasScheduledDowngrade = false
-            };
-        }
-
-        if (job.ExecutionTime == null)
-        {
-            throw new CustomException("Scheduled job has no execution time");
-        }
-
-        string? oldPlanPrice = null;
-        string? newPlanPrice = null;
-
-        if (job.Request is { Length: > 0 })
-        {
-            var payload = JsonSerializer.Deserialize<TickerQPlanDowngradeTask.PlanDowngradePayload>(job.Request);
-            oldPlanPrice = payload?.OldPlanPrice;
-            newPlanPrice = payload?.NewPlanPrice;
-        }
-
-
-        string ct = DateTime.SpecifyKind(job.CreatedAt, DateTimeKind.Utc).ToString("o");
-        string et = DateTime.SpecifyKind(job.ExecutionTime.Value, DateTimeKind.Utc).ToString("o");
-
-        return new ScheduledPlanDowngradeInfoDto
-        {
-            HasScheduledDowngrade = true,
-            JobId = job.Id,
-            CreatedAt = ct,
-            ExecutionTime = et,
-            OldPlanPrice = oldPlanPrice,
-            NewPlanPrice = newPlanPrice
-        };
+        return await _paymentProcessorService.GetScheduledPlanDowngradeInfoAsync(_currentUser.UserId);
     }
 
 
     public async Task<bool> CancelScheduledPlanDowngradeAsync()
     {
         _currentUser.RaiseIfNotAdmin();
-
-        var initIdentifier = _currentUser.UserId.ToString();
-
-        return await _timeTickerRepository.CancelLatestActiveByFunctionAndIdentifierAsync(
-            TickerQPlanDowngradeTask.FunctionName,
-            initIdentifier);
+        return await _paymentProcessorService.CancelScheduledPlanDowngradeAsync(_currentUser.UserId);
     }
     public async Task<bool> IsUserTemporary(string email)
     {

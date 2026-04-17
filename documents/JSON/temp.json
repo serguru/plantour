@@ -1,0 +1,49 @@
+{
+  "JwtSettings": {
+    "AccessTokenExpirationMinutes": 30,
+    "RefreshTokenExpirationDays": 30,
+    "TemporaryUserAccessTokenExpirationDays": 14,
+    "TemporaryUserAccessDays": 14,
+    "SignInEmailTokenMinutes": 60
+  },
+  "SignInEmail": {
+    "BaseUrl": "https://qa.plantour.app/signin-token"
+  },
+  "SocialAuthSettings": {
+    "GoogleOAuthDefaultReturnUrl": "https://qa.plantour.app/sign-in",
+  },
+  "BrevoSettings": {
+    "ApiBaseUrl": "https://api.brevo.com/v3/",
+    "SenderEmail": "admin@plantour.app",
+    "SenderName": "Plantour"
+  },
+  "GeminiSettings": {
+    "ApiBaseUrl": "https://generativelanguage.googleapis.com/v1beta/",
+    "Model": "gemini-3-flash-preview"
+  },
+  "TripNoteEditorSettings": {
+    "DropboxRedirectUri": "https://qaapi.plantour.app/trip-note-editor/dropbox/callback"
+  },
+  "CacheSettings": {
+    "RefreshIntervalMinutes": 5
+  },
+  "PaddleSettings": {
+    "ApiBaseUrl": "https://sandbox-api.paddle.com/",
+  },
+  "CorsSettings": {
+    "AllowedOrigins": [
+      "https://qa.plantour.app",
+      "https://qaapi.plantour.app"
+    ]
+  },
+  "TurnstileSettings": {
+    "Enabled": true
+  },
+  "PlantourLogging": {
+    "Sink": "Both",
+    "QueueCapacity": 1024,
+    "BatchSize": 50,
+    "FlushIntervalMilliseconds": 2000,
+    "ConsoleFallbackEnabled": true
+  }
+}

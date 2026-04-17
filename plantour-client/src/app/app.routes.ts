@@ -584,6 +584,12 @@ export const routes: Routes = [
     data: { componentId: 'terms' }
   },
   {
+    path: 'refund',
+    loadComponent: () => import('./components/features/refund/refund-component/refund-component').then(m => m.RefundComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'refund' }
+  },
+  {
     path: 'templates',
     canActivate: [adminOrParticipantGuard],
     loadComponent: () => import('./components/templates/templates-component').then(m => m.TemplatesComponent),

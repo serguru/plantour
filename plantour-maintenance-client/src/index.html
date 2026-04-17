@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plantour Maintenance</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    (function () {
+      var storageKey = 'plantour-maintenance-theme';
+      var root = document.documentElement;
+
+      try {
+        var storedPreference = window.localStorage.getItem(storageKey);
+        var resolvedTheme = storedPreference === 'light' || storedPreference === 'dark'
+          ? storedPreference
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+        root.classList.toggle('dark', resolvedTheme === 'dark');
+        root.style.colorScheme = resolvedTheme;
+      } catch {
+        root.classList.toggle('dark', window.matchMedia('(prefers-color-scheme: dark)').matches);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

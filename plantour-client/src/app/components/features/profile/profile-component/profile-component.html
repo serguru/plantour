@@ -186,6 +186,7 @@
         </div>
         }
 
+        
         @if(isAdmin()) {
         <div class="form-actions">
             <app-button
@@ -194,6 +195,7 @@
                 [loading]="isUpdatingProfile()"
                 (click)="onChoosePlanClick()"
             />
+
             @if(!isTemporary()) {
             <app-button
                 [label]="'Manage Billing'"

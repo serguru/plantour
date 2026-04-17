@@ -1,6 +1,7 @@
 using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
+using plantour_server.Logging;
 using plantour_server.Models;
 using plantour_server.Repositories;
 using PlantourApi.Middleware;
@@ -12,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace plantour_server.Services;
 
 public class TripService(
-    ILogger<TripService> logger,
+    IPlantourLogger logger,
     TripRepository tripRepository,
     AdminsParticipantRepository adminsParticipantRepository,
     IAdminsParticipantService adminsParticipantService,
@@ -23,7 +24,7 @@ public class TripService(
     UserSettingsRepository userSettingsRepository,
     HttpCurrentUser httpCurrentUser) : ITripService
 {
-    private readonly ILogger<TripService> _logger = logger;
+    private readonly IPlantourLogger _logger = logger;
     private readonly TripRepository _tripRepository = tripRepository;
     private readonly ICheckAccessService _checkAccessService = checkAccessService;
     private readonly IMapper _mapper = mapper;
@@ -105,7 +106,7 @@ public class TripService(
         DateTime now = DateTime.UtcNow;
         if (dates != null && dates.Start <= now && now <= dates.End)
         {
-            _logger.LogInformation("User added a new trip id = {tripId}, name = {name}, event_type: {event_type}, subtype: {subtype}", trip.Id, trip.Name, "user_log_entities", "trip_added");
+            _logger.LogInformation($"User added a new trip id = {trip.Id}, name = {trip.Name}", "Returns protection");
         }
         return tripDto;
     }
@@ -152,7 +153,7 @@ public class TripService(
 
         if (logNeeded)
         {
-            _logger.LogInformation("User deleted a trip id = {tripId}, name = {name}, event_type: {event_type}, subtype: {subtype}", trip!.Id, trip.Name, "user_log_entities", "trip_deleted");
+            _logger.LogInformation($"User deleted a trip id = {trip!.Id}, name = {trip.Name}", "trip_deleted", "Returns protection");
         }
     }
 

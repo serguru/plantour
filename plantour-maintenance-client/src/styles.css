@@ -1,0 +1,233 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Sora:wght@600;700&display=swap');
+@import 'tailwindcss';
+@import '@spartan-ng/brain/hlm-tailwind-preset.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+	color-scheme: light;
+	--radius: 1rem;
+	--font-sans: 'Manrope', sans-serif;
+	--font-display: 'Sora', sans-serif;
+	--background: oklch(0.985 0.001 106.423);
+	--foreground: oklch(0.216 0.006 56.043);
+	--card: oklch(1 0 0);
+	--card-foreground: oklch(0.216 0.006 56.043);
+	--popover: oklch(1 0 0);
+	--popover-foreground: oklch(0.216 0.006 56.043);
+	--primary: oklch(0.216 0.006 56.043);
+	--primary-foreground: oklch(0.985 0.001 106.423);
+	--secondary: oklch(0.97 0.001 106.424);
+	--secondary-foreground: oklch(0.216 0.006 56.043);
+	--muted: oklch(0.97 0.001 106.424);
+	--muted-foreground: oklch(0.553 0.013 58.071);
+	--accent: oklch(0.97 0.001 106.424);
+	--accent-foreground: oklch(0.216 0.006 56.043);
+	--destructive: oklch(0.577 0.245 27.325);
+	--border: oklch(0.923 0.003 48.717);
+	--input: oklch(0.923 0.003 48.717);
+	--ring: oklch(0.709 0.01 56.259);
+	--sidebar: oklch(0.985 0.001 106.423);
+	--sidebar-foreground: oklch(0.147 0.004 49.25);
+	--sidebar-primary: oklch(0.216 0.006 56.043);
+	--sidebar-primary-foreground: oklch(0.985 0.001 106.423);
+	--sidebar-accent: oklch(0.97 0.001 106.424);
+	--sidebar-accent-foreground: oklch(0.216 0.006 56.043);
+	--sidebar-border: oklch(0.923 0.003 48.717);
+	--sidebar-ring: oklch(0.709 0.01 56.259);
+	--brand-green: #285f44;
+	--brand-green-strong: #1f4f38;
+	--brand-sand: #fff7ea;
+	--page-accent-a: rgba(102, 165, 123, 0.2);
+	--page-accent-b: rgba(193, 138, 84, 0.18);
+	--page-gradient-start: #f8f3e8;
+	--page-gradient-mid: #f4efe5;
+	--page-gradient-end: #efe6d8;
+	--grid-line: rgba(24, 49, 38, 0.04);
+	--shell-bg: rgba(255, 252, 246, 0.92);
+	--panel-bg: rgba(255, 252, 246, 0.8);
+	--panel-strong-bg: rgba(255, 255, 255, 0.92);
+	--panel-subtle-bg: rgba(241, 237, 229, 0.72);
+	--panel-overlay-bg: rgba(255, 255, 255, 0.72);
+	--surface-border: rgba(24, 49, 38, 0.12);
+	--surface-border-strong: rgba(24, 49, 38, 0.18);
+	--focus-ring: rgba(40, 110, 73, 0.2);
+	--focus-border: rgba(40, 110, 73, 0.35);
+	--hover-surface: rgba(31, 92, 65, 0.05);
+	--active-surface: rgba(34, 83, 58, 0.11);
+	--grouped-surface: rgba(36, 77, 58, 0.04);
+	--success-bg: rgba(236, 253, 243, 0.95);
+	--success-border: rgba(34, 83, 58, 0.18);
+	--success-foreground: #166534;
+	--success-gradient: linear-gradient(135deg, rgba(235, 247, 239, 0.92), rgba(255, 255, 255, 0.92));
+	--danger-bg: rgba(254, 243, 242, 0.95);
+	--danger-border: rgba(180, 35, 24, 0.2);
+	--danger-foreground: #b42318;
+	--brand-gradient: linear-gradient(135deg, #1f5c41, #244d3a);
+	--primary-text: #f8f6f1;
+	--scrim: rgba(18, 24, 20, 0.38);
+	--dialog-shadow: 0 24px 60px rgba(24, 34, 29, 0.2);
+	--elevation-shadow: 0 18px 45px rgba(30, 41, 59, 0.08);
+	--interactive-shadow: 0 10px 25px rgba(29, 78, 54, 0.18);
+	--select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23243126' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 7 5 6 5-6'/%3E%3C/svg%3E");
+}
+
+.dark {
+	color-scheme: dark;
+	--background: oklch(0.147 0.004 49.25);
+	--foreground: oklch(0.93 0.003 106.423);
+	--card: oklch(0.216 0.006 56.043);
+	--card-foreground: oklch(0.93 0.003 106.423);
+	--popover: oklch(0.216 0.006 56.043);
+	--popover-foreground: oklch(0.93 0.003 106.423);
+	--primary: oklch(0.923 0.003 48.717);
+	--primary-foreground: oklch(0.216 0.006 56.043);
+	--secondary: oklch(0.268 0.007 34.298);
+	--secondary-foreground: oklch(0.93 0.003 106.423);
+	--muted: oklch(0.268 0.007 34.298);
+	--muted-foreground: oklch(0.709 0.01 56.259);
+	--accent: oklch(0.268 0.007 34.298);
+	--accent-foreground: oklch(0.93 0.003 106.423);
+	--destructive: oklch(0.704 0.191 22.216);
+	--border: oklch(1 0 0 / 10%);
+	--input: oklch(1 0 0 / 15%);
+	--ring: oklch(0.553 0.013 58.071);
+	--sidebar: oklch(0.216 0.006 56.043);
+	--sidebar-foreground: oklch(0.93 0.003 106.423);
+	--sidebar-primary: oklch(0.93 0.003 106.423);
+	--sidebar-primary-foreground: oklch(0.216 0.006 56.043);
+	--sidebar-accent: oklch(0.268 0.007 34.298);
+	--sidebar-accent-foreground: oklch(0.93 0.003 106.423);
+	--sidebar-border: oklch(1 0 0 / 10%);
+	--sidebar-ring: oklch(0.553 0.013 58.071);
+	--brand-green: #7dc9a0;
+	--brand-green-strong: #dff7ea;
+	--brand-sand: #f0ebe3;
+	--page-accent-a: rgba(61, 138, 99, 0.22);
+	--page-accent-b: rgba(161, 109, 63, 0.16);
+	--page-gradient-start: #0c100e;
+	--page-gradient-mid: #121815;
+	--page-gradient-end: #0a0e0c;
+	--grid-line: rgba(255, 255, 255, 0.035);
+	--shell-bg: rgba(18, 23, 20, 0.9);
+	--panel-bg: rgba(24, 31, 27, 0.78);
+	--panel-strong-bg: rgba(18, 23, 20, 0.92);
+	--panel-subtle-bg: rgba(33, 41, 37, 0.92);
+	--panel-overlay-bg: rgba(20, 26, 23, 0.78);
+	--surface-border: rgba(255, 255, 255, 0.08);
+	--surface-border-strong: rgba(255, 255, 255, 0.14);
+	--focus-ring: rgba(125, 201, 160, 0.2);
+	--focus-border: rgba(125, 201, 160, 0.36);
+	--hover-surface: rgba(125, 201, 160, 0.08);
+	--active-surface: rgba(125, 201, 160, 0.12);
+	--grouped-surface: rgba(125, 201, 160, 0.05);
+	--success-bg: rgba(18, 54, 37, 0.95);
+	--success-border: rgba(73, 149, 108, 0.28);
+	--success-foreground: #9fe2ba;
+	--success-gradient: linear-gradient(135deg, rgba(24, 63, 45, 0.95), rgba(18, 23, 20, 0.95));
+	--danger-bg: rgba(74, 24, 24, 0.95);
+	--danger-border: rgba(229, 101, 101, 0.24);
+	--danger-foreground: #f4b2ad;
+	--brand-gradient: linear-gradient(135deg, #3d8a63, #244d3a);
+	--primary-text: #f8f6f1;
+	--scrim: rgba(3, 6, 5, 0.62);
+	--dialog-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+	--elevation-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+	--interactive-shadow: 0 10px 25px rgba(0, 0, 0, 0.32);
+	--select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23f5f4ef' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 7 5 6 5-6'/%3E%3C/svg%3E");
+}
+
+@theme inline {
+	--font-sans: var(--font-sans);
+	--font-display: var(--font-display);
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	min-height: 100%;
+}
+
+body {
+	margin: 0;
+	color: var(--foreground);
+	font-family: var(--font-sans);
+	background:
+		radial-gradient(circle at top left, var(--page-accent-a), transparent 30%),
+		radial-gradient(circle at top right, var(--page-accent-b), transparent 24%),
+		linear-gradient(180deg, var(--page-gradient-start) 0%, var(--page-gradient-mid) 50%, var(--page-gradient-end) 100%);
+}
+
+body::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	background-image:
+		linear-gradient(var(--grid-line) 1px, transparent 1px),
+		linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+	background-size: 48px 48px;
+	mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.28), transparent 78%);
+}
+
+h1,
+h2,
+h3 {
+	font-family: var(--font-display);
+	font-weight: 700;
+}
+
+button,
+input,
+textarea,
+select {
+	font: inherit;
+}
+
+.period-dialog-backdrop {
+	background: var(--scrim);
+	backdrop-filter: blur(8px);
+}
+
+.period-dialog-panel {
+	max-width: calc(100vw - 2rem) !important;
+}
+
+.period-dialog-panel .cdk-dialog-container {
+	padding: 0;
+	background: transparent;
+	box-shadow: none;
+}

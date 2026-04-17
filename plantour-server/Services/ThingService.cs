@@ -1,6 +1,7 @@
 using AutoMapper;
 using plantour_server.DbModels;
 using plantour_server.DTOs;
+using plantour_server.Logging;
 using plantour_server.Models;
 using plantour_server.Repositories;
 using PlantourApi.Middleware;
@@ -9,7 +10,7 @@ using PlantourApi.Models;
 namespace plantour_server.Services;
 
 public class ThingService(
-    ILogger<TripService> logger,
+    IPlantourLogger logger,
     ThingRepository thingRepository,
     ThingCategoryRepository thingCategoryRepository,
     IMapper mapper,
@@ -20,7 +21,7 @@ public class ThingService(
     UserSettingsRepository userSettingsRepository,
     HttpCurrentUser httpCurrentUser) : IThingService
 {
-    private readonly ILogger<TripService> _logger = logger;
+    private readonly IPlantourLogger _logger = logger;
     private readonly ThingRepository _thingRepository = thingRepository;
     private readonly ThingCategoryRepository _thingCategoryRepository = thingCategoryRepository;
     private readonly IMapper _mapper = mapper;
@@ -109,7 +110,7 @@ public class ThingService(
         var logNeeded = dates != null && dates.Start <= now && now <= dates.End;
         if (logNeeded)
         {
-            _logger.LogInformation("User added an item id = {thingId}, name = {name}, event_type: {event_type}, subtype: {subtype}", entity!.Id, entity.Name, "user_log_entities", "item_added");
+            _logger.LogInformation($"User added an item id = {entity!.Id}, name = {entity.Name}", "Returns protection");
         }
         return _mapper.Map<ThingDto>(entity);
     }
@@ -156,7 +157,7 @@ public class ThingService(
 
         if (logNeeded)
         {
-            _logger.LogInformation("User deleted an item id = {thingId}, name = {name}, event_type: {event_type}, subtype: {subtype}", thing!.Id, thing.Name, "user_log_entities", "item_deleted");
+            _logger.LogInformation($"User deleted an item id = {thing!.Id}, name = {thing.Name}", "Returns protection");
         }
 
     }

@@ -19,10 +19,11 @@
     <div class="view-content">
       <button
         class="pl-button dashboard-button"
+        [disabled]="isDashboardButtonDisabled()"
         (click)="onDashboardClick($event)"
       >
         <span class="pi pi-table"></span>
-        <span class="button-label">Dashboard</span>
+        <span class="button-label">{{ dashboardButtonLabel }}</span>
       </button>
 
       <button
@@ -92,6 +93,14 @@
         >
           <span class="pi pi-file"></span>
           <span class="button-label">Terms of Usage</span>
+        </a>
+        <a
+          class="pl-menu-item"
+          [class.selected]="isNavigatedComponent('refund')"
+          (click)="featureClick($event, '/refund', popoverFeatures)"
+        >
+          <span class="pi pi-receipt"></span>
+          <span class="button-label">Refund Policy</span>
         </a>
         <a
           class="pl-menu-item"

@@ -8,7 +8,33 @@
 		},
 		{
 			"path": "documents"
+		},
+		{
+			"path": "plantour-maintenance-server"
+		},
+		{
+			"path": "plantour-maintenance-client"
 		}
 	],
-	"settings": {}
+	"settings": {},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+					"label": "compile plantour-admin",        
+				"type": "shell",
+				"command": "npm",
+				"args": [
+					"run",
+					"compile"
+				],
+				"options": {
+						"cwd": "${workspaceFolder:plantour-admin}"
+				},
+				"problemMatcher": [
+					"$tsc"
+				]
+			}
+		]
+	}
 }

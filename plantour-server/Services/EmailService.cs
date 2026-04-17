@@ -173,9 +173,9 @@ public class EmailService(IBrevoEmailClient brevoEmailClient) : IEmailService
             facts.Add(new EmailFact("Participant code", request.ParticipantCode));
         }
 
-        if (!string.IsNullOrWhiteSpace(request.PaddleSubscriptionId))
+        if (!string.IsNullOrWhiteSpace(request.PaymentProcessorSubscriptionId))
         {
-            facts.Add(new EmailFact("Paddle subscription", request.PaddleSubscriptionId));
+            facts.Add(new EmailFact("Subscription", request.PaymentProcessorSubscriptionId));
         }
 
         if (!string.IsNullOrWhiteSpace(request.GoogleSub))

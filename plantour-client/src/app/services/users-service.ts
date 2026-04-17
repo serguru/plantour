@@ -46,6 +46,7 @@ export interface TokenRequestDto {
 
 export interface ScheduledPlanDowngradeInfoDto {
   hasScheduledDowngrade: boolean;
+  currentBillingPeriodEnd?: string | null;
   jobId?: string | null;
   createdAt?: string | null;
   executionTime?: string | null;
@@ -187,7 +188,7 @@ export class UsersService {
     const user = this._userSignal();
     if (!user) return false;
 
-    const subscriptionId = user.paddle_subscription_id?.trim();
+    const subscriptionId = user.payment_processor_subscription_id?.trim();
     return !!subscriptionId;
   });
 
@@ -466,6 +467,10 @@ export class UsersService {
     return this.http.get<ScheduledPlanDowngradeInfoDto>(`${this.apiUrl}/users/downgrade-plan-price/scheduled`);
   }
 
+  getCurrentBillingPeriodEnd(): Observable<{ billingPeriodEnd?: string | null }> {
+    return this.http.get<{ billingPeriodEnd?: string | null }>(`${this.apiUrl}/payment-processor/current-billing-period-end`);
+  }
+
   cancelScheduledDowngrade(): Observable<{ cancelled: boolean }> {
     return this.http.delete<{ cancelled: boolean }>(`${this.apiUrl}/users/downgrade-plan-price/scheduled`);
   }
@@ -533,7 +538,7 @@ export class UsersService {
 
         this.messagesService.openInfo({
           title: `Welcome to Plantour!`,
-          message: `You are now in Guest Access Mode as Robin Miles for ${response.temporaryUserAccessTokenExpirationDays} days. The app works with full features, except you are limited to ${response.itemsLimit} items and ${response.participantsLimit} participants. To get started, add items to your current trip "Weekend in Las Vegas", pack them into bags, and download a packing list. 
+          message: `You are now in Guest Access Mode as Robin Miles for ${response.temporaryUserAccessTokenExpirationDays} days. The app works with all functions, except for restrictions on the number of items, todos, travelers, and some other entities. To get started, add items to your current trip "Weekend in Las Vegas", pack them into bags, and download a packing list. 
           If you need help, please follow the link "How to take the first steps." Good luck!
           `
         });

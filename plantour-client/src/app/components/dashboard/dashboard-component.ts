@@ -362,6 +362,13 @@ export class DashboardComponent {
             route: '/terms'
           },
           {
+            id: 'refund',
+            title: 'Refund Policy',
+            description: 'Review refunds and subscription cancellation timing.',
+            icon: 'pi pi-receipt',
+            route: '/refund'
+          },
+          {
             id: 'privacy',
             title: 'Privacy Policy',
             description: 'See how Plantour handles your data.',

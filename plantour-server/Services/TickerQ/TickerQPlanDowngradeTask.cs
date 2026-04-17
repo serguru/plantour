@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using plantour_server.DbModels;
+using plantour_server.Logging;
 using plantour_server.Services.Interfaces;
 using TickerQ.Utilities.Base;
 
@@ -10,16 +11,16 @@ public class TickerQPlanDowngradeTask
 {
     public const string FunctionName = "Plantour_PlanDowngrade";
 
-    private readonly IPaddleService _paddleService;
+    private readonly IPaymentProcessorService _paymentProcessorService;
     private readonly PlantourContext _context;
-    private readonly ILogger<TickerQPlanDowngradeTask> _logger;
+    private readonly IPlantourLogger _logger;
 
     public TickerQPlanDowngradeTask(
-        IPaddleService paddleService,
+        IPaymentProcessorService paymentProcessorService,
         PlantourContext context,
-        ILogger<TickerQPlanDowngradeTask> logger)
+        IPlantourLogger logger)
     {
-        _paddleService = paddleService;
+        _paymentProcessorService = paymentProcessorService;
         _context = context;
         _logger = logger;
     }
@@ -40,14 +41,10 @@ public class TickerQPlanDowngradeTask
         var payload = JsonSerializer.Deserialize<PlanDowngradePayload>(ticker.Request)
             ?? throw new InvalidOperationException("TickerQ downgrade payload is invalid.");
 
-        await _paddleService.DowngradePlanPriceAsync(payload.UserId, payload.OldPlanPrice, payload.NewPlanPrice);
+        await _paymentProcessorService.DowngradePlanPriceAsync(payload.UserId, payload.OldPlanPrice, payload.NewPlanPrice);
 
         _logger.LogInformation(
-            "TickerQ downgrade task executed. JobId: {JobId}, UserId: {UserId}, OldPlanPrice: {OldPlanPrice}, NewPlanPrice: {NewPlanPrice}",
-            context.Id,
-            payload.UserId,
-            payload.OldPlanPrice,
-            payload.NewPlanPrice);
+            $"TickerQ downgrade task executed. JobId: {context.Id}, UserId: {payload.UserId}, OldPlanPrice: {payload.OldPlanPrice}, NewPlanPrice: {payload.NewPlanPrice}");
     }
 
     public sealed class PlanDowngradePayload

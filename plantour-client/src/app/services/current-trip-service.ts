@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { effect, inject, Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, combineLatest, distinctUntilChanged, Observable, of, switchMap } from 'rxjs';
 import { UsersService } from './users-service';
 import { TripService } from './trip-service';
@@ -11,10 +11,24 @@ import { LocalStorageService } from './local-storage-service';
 export class CurrentTripService {
     private readonly currentTripStorageComponentId = 'trips';
     private readonly currentTripStorageKey = 'selectedId';
+    private readonly currentTripVisibleStorageKey = 'toolbar-showTripText';
 
     usersService = inject(UsersService);
     tripService = inject(TripService);
     localStorageService = inject(LocalStorageService);
+
+    constructor() {
+        effect(() => {
+            if (!this.usersService.isAuthenticatedSignal()) {
+                return;
+            }
+
+            const storedVisibility = this.getStoredCurrentTripVisibility();
+            if (storedVisibility === null) {
+                this.updateCurrentTripVisible(true);
+            }
+        });
+    }
 
     private currentTripIdSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(
         this.localStorageService.getComponentKey(this.currentTripStorageComponentId, this.currentTripStorageKey)
@@ -48,12 +62,17 @@ export class CurrentTripService {
     currentTripDtoSignal = toSignal(this.currentTripDto$);
     currentTripIdSignal = toSignal(this.currentTripId$);
 
-    private currentTripVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this.localStorageService.getItem('toolbar-showTripText'));
+    private currentTripVisibleSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this.getStoredCurrentTripVisibility() ?? false);
     currentTripVisible$: Observable<boolean> = this.currentTripVisibleSubject.asObservable();
 
     public updateCurrentTripVisible(visible: boolean): void {
         this.currentTripVisibleSubject.next(visible);
-        this.localStorageService.setItem('toolbar-showTripText', visible);
+        this.localStorageService.setItem(this.currentTripVisibleStorageKey, visible);
+    }
+
+    private getStoredCurrentTripVisibility(): boolean | null {
+        const value = this.localStorageService.getItem(this.currentTripVisibleStorageKey);
+        return typeof value === 'boolean' ? value : null;
     }
 
 }

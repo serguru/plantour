@@ -8,7 +8,7 @@ namespace plantour_server.DbModels;
 
 [Table("plans", Schema = "plantour")]
 [Index("Name", Name = "plans_name_key", IsUnique = true)]
-[Index("PaddleProductId", Name = "plans_paddle_product_id_key", IsUnique = true)]
+[Index("PaymentProcessorProductId", Name = "plans_payment_processor_product_id_key", IsUnique = true)]
 public partial class Plan
 {
     [Key]
@@ -18,8 +18,8 @@ public partial class Plan
     [Column("name")]
     public string Name { get; set; } = null!;
 
-    [Column("paddle_product_id")]
-    public string? PaddleProductId { get; set; }
+    [Column("payment_processor_product_id")]
+    public string? PaymentProcessorProductId { get; set; }
 
     [Column("notes")]
     public string? Notes { get; set; }

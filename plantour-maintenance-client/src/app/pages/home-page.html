@@ -1,0 +1,51 @@
+<section class="hero-panel">
+  <div class="hero-copy">
+    <p class="eyebrow">Maintenance workspace</p>
+    <h1>Operational tools without the starter-template noise.</h1>
+    <p class="lede">
+      This shell is ready for future admin pages. The toolbar stays consistent across the app,
+      and authentication is already wired to the maintenance API.
+    </p>
+
+    @if (isAuthenticated()) {
+      <div class="status-card status-card--success">
+        <span class="status-card__label">Signed in</span>
+        <strong>{{ currentUser()?.name }}</strong>
+        <span>{{ currentUser()?.email }}</span>
+      </div>
+    } @else {
+      <div class="status-card">
+        <span class="status-card__label">Session inactive</span>
+        <strong>Use the toolbar to sign in.</strong>
+        <span>The app will attach your bearer token automatically after login.</span>
+      </div>
+    }
+  </div>
+
+  <div class="overview-card">
+    <div>
+      <p class="eyebrow">Next pages</p>
+      <h2>Navigation scaffold</h2>
+    </div>
+
+    <div class="overview-grid">
+      <article>
+        <span>01</span>
+        <h3>Users</h3>
+        <p>Ready to list maintenance accounts with the existing UsersService.</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>Access</h3>
+        <p>JWT session handling is centralized and available for future guards.</p>
+      </article>
+      <article>
+        <span>03</span>
+        <h3>Operations</h3>
+        <p>Toolbar-level navigation is in place, so feature routes can be added incrementally.</p>
+      </article>
+    </div>
+
+    <a class="overview-action" routerLink="/sign-in">Open sign-in</a>
+  </div>
+</section>
