@@ -14,11 +14,15 @@ public interface IPaymentProcessorService
     Task<PaymentProcessorSubscription?> GetActiveSubscriptionByEmailAsync(string email);
 
     Task<string?> GetActiveSubscriptionIdAsync(PaymentProcessorSubscriptionIdRequest request);
+    Task<PaymentProcessorCheckoutResponse> CreateCheckoutSessionAsync(PaymentProcessorCheckoutRequest request);
     Task<PortalSessionResponse> CreateCustomerPortalSessionAsync();
 
     Task<IEnumerable<PaymentProcessorProduct>?> GetActiveProductsAsync();
     Task UpgradePlanPriceAsync(string oldPlanPrice, string newPlanPrice);
     Task DowngradePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice);
+    Task ScheduleDowngradePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice);
+    Task<ScheduledPlanDowngradeInfoDto> GetScheduledPlanDowngradeInfoAsync(Guid userId);
+    Task<bool> CancelScheduledPlanDowngradeAsync(Guid userId);
     Task<string?> GetActiveCustomerIdByEmailAsync(string email);
     Task<string?> GetActiveCustomerEmailByIdAsync(PaymentProcessorCustomerEmailRequest request);
 }

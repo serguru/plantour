@@ -61,10 +61,10 @@ public class PaddleService : IPaymentProcessorService
 
     private async Task EnsureClientConfiguredAsync()
     {
-        var baseUrl = await _serverSettingsService.GetPaddleApiBaseUrlAsync();
+        var baseUrl = await _serverSettingsService.GetPaymentProcessorApiBaseUrlAsync();
         if (string.IsNullOrWhiteSpace(baseUrl))
         {
-            throw new CustomException("PaddleSettings:ApiBaseUrl is not configured");
+            throw new CustomException("payment processor api base URL is not configured");
         }
 
         if (_httpclient.BaseAddress == null || !string.Equals(_httpclient.BaseAddress.ToString(), baseUrl, StringComparison.Ordinal))
@@ -383,6 +383,11 @@ public class PaddleService : IPaymentProcessorService
         return notActiveSubscriptions.First().Id; // Return the most recently created not active subscription
     }
 
+    public Task<PaymentProcessorCheckoutResponse> CreateCheckoutSessionAsync(PaymentProcessorCheckoutRequest request)
+    {
+        throw new CustomException("Server-generated checkout sessions are not supported by the Paddle integration.");
+    }
+
     public async Task<PaymentProcessorSubscription?> GetActiveSubscriptionByIdAsync(string subscriptionId)
     {
         await EnsureClientConfiguredAsync();
@@ -451,9 +456,9 @@ public class PaddleService : IPaymentProcessorService
         }
 
         bool emailStepNeeded = true;
-        if (!string.IsNullOrWhiteSpace(admin.PaddleSubscriptionId))
+        if (!string.IsNullOrWhiteSpace(admin.PaymentProcessorSubscriptionId))
         {
-            subscription = await GetActiveSubscriptionByIdAsync(admin.PaddleSubscriptionId);
+            subscription = await GetActiveSubscriptionByIdAsync(admin.PaymentProcessorSubscriptionId);
             if (subscription != null)
             {
                 var r = new PaymentProcessorCustomerEmailRequest()
@@ -477,18 +482,18 @@ public class PaddleService : IPaymentProcessorService
 
         if (subscription == null)
         {
-            if (!string.IsNullOrWhiteSpace(admin.PaddleSubscriptionId))
+            if (!string.IsNullOrWhiteSpace(admin.PaymentProcessorSubscriptionId))
             {
-                admin.PaddleSubscriptionId = null;
+                admin.PaymentProcessorSubscriptionId = null;
                 //admin.PriceEnumId = (int)PlanPrice.Starter;
                 await _usersRepository.UpdateAsync(admin);
             }
             return null;
         }
 
-        if (admin.PaddleSubscriptionId != subscription!.Id)
+        if (admin.PaymentProcessorSubscriptionId != subscription!.Id)
         {
-            admin.PaddleSubscriptionId = subscription!.Id;
+            admin.PaymentProcessorSubscriptionId = subscription!.Id;
             //admin.PriceEnumId = null;
             await _usersRepository.UpdateAsync(admin);
         }
@@ -736,6 +741,11 @@ public class PaddleService : IPaymentProcessorService
         await ChangePlanPriceAsync(_currentUser.AdminId, oldPlanPrice, newPlanPrice, false);
     }
 
+    public async Task ScheduleDowngradePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice)
+    {
+        await DowngradePlanPriceAsync(userId, oldPlanPrice, newPlanPrice);
+    }
+
     private async Task ChangePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice, bool isDowngrade)
     {
         var user = await _usersRepository.GetActiveByIdAsync(userId) ?? throw new CustomException("User not found");
@@ -804,6 +814,23 @@ public class PaddleService : IPaymentProcessorService
         await EnsureClientConfiguredAsync();
 
         await ChangePlanPriceAsync(userId, oldPlanPrice, newPlanPrice, true);
+    }
+
+    public async Task<ScheduledPlanDowngradeInfoDto> GetScheduledPlanDowngradeInfoAsync(Guid userId)
+    {
+        var subscription = await GetActiveSubscriptionByUserIdAsync(userId, UserRole.Admin, userId);
+
+        return new ScheduledPlanDowngradeInfoDto
+        {
+            HasScheduledDowngrade = false,
+            CurrentBillingPeriodEnd = subscription?.BillingPeriodEnd
+        };
+    }
+
+    public Task<bool> CancelScheduledPlanDowngradeAsync(Guid userId)
+    {
+        _ = userId;
+        return Task.FromResult(false);
     }
 
 }

@@ -225,9 +225,9 @@ export class ProfileComponent implements OnInit {
     }
 
     const targetPlan = info.newPlanPrice || 'selected plan';
-    const executionDate = info.executionTime ? new Date(info.executionTime).toLocaleString() : 'scheduled time';
+    const executionDate = info.executionTime ? new Date(info.executionTime).toLocaleString() : 'the end of the current billing period';
 
-    return `To ${targetPlan} at ${executionDate}`;
+    return `To ${targetPlan} at the end of the billing period (${executionDate})`;
   }
 
   // onConnectGoogle(): void {

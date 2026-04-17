@@ -297,7 +297,7 @@ insert into transaction_types (name) values
 create table plantour.plans (
     id uuid primary key default gen_random_uuid(),
     name text not null unique,
-    paddle_product_id text null unique,
+    payment_processor_product_id text null unique,
     notes text,
     active boolean default true,
     public boolean,
@@ -315,7 +315,7 @@ create table plantour.plans (
     created_at timestamptz not null default (now() at time zone 'utc')
 );
 
--- insert into plantour.plans (name, paddle_product_id, notes, public, 
+-- insert into plantour.plans (name, payment_processor_product_id, notes, public, 
 -- allowed_items,  allowed_travelers,  allowed_AI_prompts,         extended_AI_allowed,
 -- allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activities) values
 
@@ -337,12 +337,12 @@ create table plantour.plans (
 create table plantour.prices (
     id uuid primary key default gen_random_uuid(),
     plan_id uuid not null references plans(id),
-    paddle_price_id text null unique,
+    payment_processor_price_id text null unique,
     name text not null unique,
     value_cents int not null check(value_cents >= 0)
 );
 
--- insert into plantour.prices (paddle_price_id,plan_id,name,value_cents) values
+-- insert into plantour.prices (payment_processor_price_id,plan_id,name,value_cents) values
 -- (
 --     null,
 --     (select id from plantour.plans where name = 'Starter'),
@@ -389,7 +389,7 @@ create table users (
     notes text,
     created_at timestamptz not null default (now() at time zone 'utc'),
     access_type_id uuid not null references access_types(id),
-    paddle_subscription_id text unique,
+    payment_processor_subscription_id text unique,
     temporary bool not null default false,
     participant_code text null,
     currency_id uuid null references currencies(id) on delete set null
