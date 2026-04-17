@@ -22,7 +22,7 @@ values
     ('trip_note_editor_dropbox_redirect_uri', 'http://localhost:5217/trip-note-editor/dropbox/callback', 'string'),
     ('cache_refresh_interval_minutes', '5', 'integer'),
     ('payment_processor_api_base_url', 'https://api.stripe.com/v1/', 'string'),
-    ('payment_processor_storeId', '346278', 'string'),
+    ('payment_processor_storeId', '', 'string'),
     ('cors_allowed_origins', 'http://localhost:4203;http://192.168.4.34:5217;http://192.168.4.34:4203', 'string'),
     ('turnstile_enabled', 'false', 'boolean'),
     ('plantour_logging_sink', 'Database', 'string'),

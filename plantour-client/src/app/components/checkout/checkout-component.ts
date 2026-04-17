@@ -156,16 +156,16 @@ export class CheckoutComponent implements OnInit {
       if (checkoutUrl) {
         this.showCheckout = false;
 
-        const dialogResult = await this.messagesService.openOkCancel({
-          title: 'Confirm email before checkout',
-          message: `You will be redirected to the secure checkout. Do not change the email address there. Keep using ${email} so your subscription stays linked to the correct Plantour account.`,
-          okLabel: 'Continue',
-          cancelLabel: 'Cancel'
-        });
+        // const dialogResult = await this.messagesService.openOkCancel({
+        //   title: 'Confirm email before checkout',
+        //   message: `You will be redirected to the secure checkout. Do not change the email address there. Keep using ${email} so your subscription stays linked to the correct Plantour account.`,
+        //   okLabel: 'Continue',
+        //   cancelLabel: 'Cancel'
+        // });
 
-        if (dialogResult !== 'ok') {
-          return;
-        }
+        // if (dialogResult !== 'ok') {
+        //   return;
+        // }
 
         window.location.assign(checkoutUrl);
         return;
