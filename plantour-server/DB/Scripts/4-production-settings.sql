@@ -20,7 +20,7 @@ values
     ('gemini_model', 'gemini-3-flash-preview', 'string'),
     ('trip_note_editor_dropbox_redirect_uri', 'https://api.plantour.app/trip-note-editor/dropbox/callback', 'string'),
     ('cache_refresh_interval_minutes', '5', 'integer'),
-    ('payment_processor_api_base_url', 'https://api.stripe.com/v1/', 'string'),
+    ('payment_processor_api_base_url', 'https://api.stripe.com', 'string'),
     ('payment_processor_storeId', '', 'string'),
     ('cors_allowed_origins', 'https://api.plantour.app;https://plantour.app', 'string'),
     ('turnstile_enabled', 'true', 'boolean'),
@@ -48,35 +48,16 @@ allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activiti
 3,              3,                  3,                          6
 ),
 
-('Family', 'pro_01knt1j27bva8fws4dnj1vjdz0', 'Perfect for regular travelers, families and small groups', true, 
+('Family', 'prod_ULNIguoGZvuNPV', 'Perfect for regular travelers, families and small groups', true, 
 250,           5,                  20,                        false,
 100,           500,                20,                        100
 ),
 
-('Expedition', 'pro_01knt195pq0ng14qp6a4q9f7x0', 'Ideal for advanced travelers, large groups and expeditions', true, 
+('Expedition', 'prod_ULhZUf7GZeaOTJ', 'Ideal for advanced travelers, large groups and expeditions', true, 
 2500,           50,                 100,                      true,
 1000,           5000,               50,                       1000
 );
 
-
-insert into plantour.plans (name, payment_processor_product_id, notes, public, 
-allowed_items,  allowed_travelers,  allowed_AI_prompts,         extended_AI_allowed,
-allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activities) values
-
-('Starter', null, 'Suitable for short and easy trips alone or in pairs', true, 
-10,             2,                  5,                          false, 
-3,              3,                  3,                          6
-),
-
-('Family', 'prod_ULiO08LwHgy75x', 'Perfect for regular travelers, families and small groups', true, 
-250,           5,                  20,                        false,
-100,           500,                20,                        100
-),
-
-('Expedition', 'prod_ULiQYAzcDOPFYz', 'Ideal for advanced travelers, large groups and expeditions', true, 
-2500,           50,                 100,                      true,
-1000,           5000,               50,                       1000
-);
 
 
 insert into plantour.prices (payment_processor_price_id,plan_id,name,value_cents) values
@@ -87,25 +68,25 @@ insert into plantour.prices (payment_processor_price_id,plan_id,name,value_cents
     0
 ),
 (
-    'price_1TN0xsI2UMZqfzy8etfK5nJL',
+    'price_1TMgYCIg8eDk4N019oYy6dNQ',
     (select id from plantour.plans where name = 'Family'),
     'Family Monthly',
     1299
 ),
 (
-    'price_1TN0zzI2UMZqfzy8491IVApy',
+    'price_1TN0AdIg8eDk4N01B7yFHj1v',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Monthly',
     4499
 ),
 (
-    'price_1TN0zCI2UMZqfzy8ngNKuuux',
+    'price_1TN096Ig8eDk4N01jpGh58OD',
     (select id from plantour.plans where name = 'Family'),
     'Family Yearly',
     11999
 ),
 (
-    'price_1TN10oI2UMZqfzy8mdsq4wyW',
+    'price_1TN0BPIg8eDk4N01xANBw6iq',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Yearly',
     39999
