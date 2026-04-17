@@ -46,6 +46,7 @@ export interface TokenRequestDto {
 
 export interface ScheduledPlanDowngradeInfoDto {
   hasScheduledDowngrade: boolean;
+  currentBillingPeriodEnd?: string | null;
   jobId?: string | null;
   createdAt?: string | null;
   executionTime?: string | null;
@@ -464,6 +465,10 @@ export class UsersService {
 
   getScheduledDowngrade(): Observable<ScheduledPlanDowngradeInfoDto> {
     return this.http.get<ScheduledPlanDowngradeInfoDto>(`${this.apiUrl}/users/downgrade-plan-price/scheduled`);
+  }
+
+  getCurrentBillingPeriodEnd(): Observable<{ billingPeriodEnd?: string | null }> {
+    return this.http.get<{ billingPeriodEnd?: string | null }>(`${this.apiUrl}/payment-processor/current-billing-period-end`);
   }
 
   cancelScheduledDowngrade(): Observable<{ cancelled: boolean }> {

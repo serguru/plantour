@@ -741,6 +741,11 @@ public class PaddleService : IPaymentProcessorService
         await ChangePlanPriceAsync(_currentUser.AdminId, oldPlanPrice, newPlanPrice, false);
     }
 
+    public async Task ScheduleDowngradePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice)
+    {
+        await DowngradePlanPriceAsync(userId, oldPlanPrice, newPlanPrice);
+    }
+
     private async Task ChangePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice, bool isDowngrade)
     {
         var user = await _usersRepository.GetActiveByIdAsync(userId) ?? throw new CustomException("User not found");
@@ -809,6 +814,23 @@ public class PaddleService : IPaymentProcessorService
         await EnsureClientConfiguredAsync();
 
         await ChangePlanPriceAsync(userId, oldPlanPrice, newPlanPrice, true);
+    }
+
+    public async Task<ScheduledPlanDowngradeInfoDto> GetScheduledPlanDowngradeInfoAsync(Guid userId)
+    {
+        var subscription = await GetActiveSubscriptionByUserIdAsync(userId, UserRole.Admin, userId);
+
+        return new ScheduledPlanDowngradeInfoDto
+        {
+            HasScheduledDowngrade = false,
+            CurrentBillingPeriodEnd = subscription?.BillingPeriodEnd
+        };
+    }
+
+    public Task<bool> CancelScheduledPlanDowngradeAsync(Guid userId)
+    {
+        _ = userId;
+        return Task.FromResult(false);
     }
 
 }

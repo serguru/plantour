@@ -1182,3 +1182,12 @@ Make the necessary corresponding changes in code.
 
 
     
+
+            // Wrong code!!!
+        //////////////////////////
+        var currentPeriodStart = GetUnixTimestamp(subscriptionJson, "current_period_start");
+        var currentPeriodEnd = GetUnixTimestamp(subscriptionJson, "current_period_end");
+        //////////////////////////
+        /// 
+        // use items.data[0].current_period_start
+        // use items.data[0].current_period_end

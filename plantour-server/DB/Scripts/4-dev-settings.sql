@@ -21,7 +21,7 @@ values
     ('gemini_model', 'gemini-3-flash-preview', 'string'),
     ('trip_note_editor_dropbox_redirect_uri', 'http://localhost:5217/trip-note-editor/dropbox/callback', 'string'),
     ('cache_refresh_interval_minutes', '5', 'integer'),
-    ('payment_processor_api_base_url', 'https://api.lemonsqueezy.com/v1/', 'string'),
+    ('payment_processor_api_base_url', 'https://api.stripe.com/v1/', 'string'),
     ('payment_processor_storeId', '346278', 'string'),
     ('cors_allowed_origins', 'http://localhost:4203;http://192.168.4.34:5217;http://192.168.4.34:4203', 'string'),
     ('turnstile_enabled', 'false', 'boolean'),
@@ -50,12 +50,12 @@ allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activiti
 3,              3,                  3,                          6
 ),
 
-('Family', '980467', 'Perfect for regular travelers, families and small groups', true, 
+('Family', 'prod_ULiO08LwHgy75x', 'Perfect for regular travelers, families and small groups', true, 
 250,           5,                  20,                        false,
 100,           500,                20,                        100
 ),
 
-('Expedition', '980501', 'Ideal for advanced travelers, large groups and expeditions', true, 
+('Expedition', 'prod_ULiQYAzcDOPFYz', 'Ideal for advanced travelers, large groups and expeditions', true, 
 2500,           50,                 100,                      true,
 1000,           5000,               50,                       1000
 );
@@ -69,25 +69,25 @@ insert into plantour.prices (payment_processor_price_id,plan_id,name,value_cents
     0
 ),
 (
-    '1538714',
+    'price_1TN0xsI2UMZqfzy8etfK5nJL',
     (select id from plantour.plans where name = 'Family'),
     'Family Monthly',
     1299
 ),
 (
-    '1538747',
+    'price_1TN0zzI2UMZqfzy8491IVApy',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Monthly',
     4499
 ),
 (
-    '1538692',
+    'price_1TN0zCI2UMZqfzy8ngNKuuux',
     (select id from plantour.plans where name = 'Family'),
     'Family Yearly',
     11999
 ),
 (
-    '1538739',
+    'price_1TN10oI2UMZqfzy8mdsq4wyW',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Yearly',
     39999

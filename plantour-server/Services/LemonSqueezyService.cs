@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Web;
 using plantour_server.DbModels;
+using plantour_server.DTOs;
 using plantour_server.Models;
 using plantour_server.Repositories;
 using plantour_server.Utils;
@@ -525,6 +526,28 @@ public class LemonSqueezyService : IPaymentProcessorService
     {
         await EnsureClientConfiguredAsync();
         await ChangePlanPriceAsync(userId, oldPlanPrice, newPlanPrice, true);
+    }
+
+    public async Task ScheduleDowngradePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice)
+    {
+        await DowngradePlanPriceAsync(userId, oldPlanPrice, newPlanPrice);
+    }
+
+    public async Task<ScheduledPlanDowngradeInfoDto> GetScheduledPlanDowngradeInfoAsync(Guid userId)
+    {
+        var subscription = await GetActiveSubscriptionByUserIdAsync(userId, UserRole.Admin, userId);
+
+        return new ScheduledPlanDowngradeInfoDto
+        {
+            HasScheduledDowngrade = false,
+            CurrentBillingPeriodEnd = subscription?.BillingPeriodEnd
+        };
+    }
+
+    public Task<bool> CancelScheduledPlanDowngradeAsync(Guid userId)
+    {
+        _ = userId;
+        return Task.FromResult(false);
     }
 
     private async Task ChangePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice, bool isDowngrade)

@@ -6,7 +6,7 @@ export interface EnvironmentConfig {
   };
   clientUrl: string;
   environment: string;
-  paymentProvider: 'paddle' | 'lemonsqueezy';
+  paymentProvider: 'paddle' | 'lemonsqueezy' | 'stripe';
   googleClientId?: string;
   facebookAppId?: string;
   turnstileSiteKey?: string;

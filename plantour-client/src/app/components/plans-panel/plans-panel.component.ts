@@ -4,7 +4,7 @@ import { LandingDto, LandingService, PlanDto } from '../../services/landing-serv
 import { UsersService } from '../../services/users-service';
 import { MessagesService } from '../../services/messages-service';
 import { Router } from '@angular/router';
-import { switchMap } from 'rxjs';
+import { firstValueFrom, switchMap } from 'rxjs';
 
 interface PlanFeature {
   label: string;
@@ -78,80 +78,101 @@ export class PlansPanelComponent implements OnInit {
   async onPlanButtonClick(event: Event, planPrice: string, isDowngrade: boolean): Promise<void> {
     event.preventDefault();
 
-    const currentName = this.currentPlanPeriod;
-    const newName = planPrice;
+    try {
+      const currentName = this.currentPlanPeriod;
+      const newName = planPrice;
 
-    let message = "";
-    let title = "";
-    this.messagesService.focusOkButton = !isDowngrade;
+      let message = "";
+      let title = "";
+      const billingPeriodEnd = await this.ensureBillingPeriodEndAsync();
+      let confirmedBillingPeriodEnd: Date | null = null;
+      this.messagesService.focusOkButton = !isDowngrade;
 
-    let endDate: Date | null = null;
-
-    if (isDowngrade) {
-      // Local Date object 
-      const nextPaymentDate = this.usersService.userBillingPeriodEndSignal();
-      if (!nextPaymentDate) {
-        throw new Error("Cannot get billing period end date");
-      }
-      const nowDate = new Date();
-     
-      if (nextPaymentDate <= nowDate) {
-        throw new Error("Your next billing period has already ended");
-      }
-      
-      // is now within payment date - 1 and payment date?
-      const nextPaymentDate1 = new Date(nextPaymentDate);
-      nextPaymentDate1.setHours(nextPaymentDate1.getHours() - 1);
-      if (nowDate >= nextPaymentDate1 && nowDate <= nextPaymentDate) {
-        throw new Error("Cannot downgrade if the next payment within 1 hour from now");
-      }
-
-      const nextPaymentDate12 = new Date(nextPaymentDate);
-      nextPaymentDate12.setHours(nextPaymentDate12.getHours() - 12);
-      let immediately = false;
-      if (nowDate >= nextPaymentDate12 && nowDate < nextPaymentDate1) {
-        immediately = true;
-      }
-
-      if (immediately) {
-        message = `You are downgrading from ${currentName} to ${newName}. The new plan will be in effect immediately. Are you sure you want to proceed?`;
-      } else {
-        message = `You are downgrading from ${currentName} to ${newName}. The new plan will be in effect 12 hours before your next billing cycle at ${nextPaymentDate12!.toLocaleString()}  Are you sure you want to proceed?`;
-      }
-      title = `Downgrade to ${newName}`;
-    } else {
-      message = `You are upgrading from ${currentName} to ${newName}. The new plan will be in effect immediately. Click Yes to proceed.`;
-      title = `Upgrade to ${newName}`;
-    }
-
-    const result = await this.messagesService.openOkCancel({
-      title: title,
-      message: message,
-      okLabel: 'Yes',
-      cancelLabel: 'Cancel'
-    });
-
-    if (result !== 'ok') {
-      return;
-    }
-
-    if (isDowngrade) {
-      this.usersService.downgradePlanPrice(currentName, newName).subscribe(() => {
-        this.messagesService.showInfo(`Your plan will be downgraded at the end of the current billing cycle${endDate ? ' before ' + endDate : ''}`);
-
-      });
-      return;
-    }
-
-    this.usersService.upgradePlanPrice(currentName, newName).pipe(
-      switchMap(_ => this.usersService.refreshTokens()
-      )
-    ).subscribe(
-        () => {
-          this.router.navigate(['profile']);
-          this.messagesService.showInfo("Your plan has been upgraded");
+      if (isDowngrade) {
+        if (!billingPeriodEnd) {
+          throw new Error('Cannot get billing period end date');
         }
-      );
+
+        confirmedBillingPeriodEnd = billingPeriodEnd;
+
+        message = `You are downgrading from ${currentName} to ${newName}. The downgrade will happen on ${confirmedBillingPeriodEnd.toLocaleString()} in your local time. Your current plan will stay active until then, and the new plan will start after that. Are you sure you want to proceed?`;
+
+        title = `Downgrade to ${newName}`;
+      } else {
+        message = `You are upgrading from ${currentName} to ${newName}. The new plan will be in effect immediately. Click Yes to proceed.`;
+        title = `Upgrade to ${newName}`;
+      }
+
+      const result = await this.messagesService.openOkCancel({
+        title,
+        message,
+        okLabel: 'Yes',
+        cancelLabel: 'Cancel'
+      });
+
+      if (result !== 'ok') {
+        return;
+      }
+
+      if (isDowngrade) {
+        await firstValueFrom(this.usersService.downgradePlanPrice(currentName, newName).pipe(
+          switchMap(() => this.usersService.refreshTokens())
+        ));
+
+        this.messagesService.showInfo(`Your downgrade is scheduled. Your current plan remains active until ${confirmedBillingPeriodEnd!.toLocaleString()}.`);
+
+        this.router.navigate(['profile']);
+        return;
+      }
+
+      this.usersService.upgradePlanPrice(currentName, newName).pipe(
+        switchMap(_ => this.usersService.refreshTokens()
+        )
+      ).subscribe(
+          () => {
+            this.router.navigate(['profile']);
+            this.messagesService.showInfo("Your plan has been upgraded");
+          }
+        );
+    } catch (error: any) {
+      const detail = error?.error?.message || error?.message || 'Failed to change the plan.';
+      this.messagesService.showError('Plan change failed', detail);
+    }
+  }
+
+  private async ensureBillingPeriodEndAsync(): Promise<Date | null> {
+    const currentValue = this.usersService.userBillingPeriodEndSignal();
+    if (currentValue) {
+      return currentValue;
+    }
+
+    if (!this.usersService.refreshToken) {
+      return this.getBillingPeriodEndFallbackAsync();
+    }
+
+    try {
+      await firstValueFrom(this.usersService.refreshTokens());
+    } catch {
+      return this.getBillingPeriodEndFallbackAsync();
+    }
+
+    return this.usersService.userBillingPeriodEndSignal() ?? await this.getBillingPeriodEndFallbackAsync();
+  }
+
+  private async getBillingPeriodEndFallbackAsync(): Promise<Date | null> {
+    try {
+      const currentBillingPeriod = await firstValueFrom(this.usersService.getCurrentBillingPeriodEnd());
+      const currentValue = currentBillingPeriod.billingPeriodEnd;
+      if (currentValue) {
+        return new Date(currentValue);
+      }
+
+      const info = await firstValueFrom(this.usersService.getScheduledDowngrade());
+      const value = info.currentBillingPeriodEnd;
+      return value ? new Date(value) : null;
+    } catch {
+      return null;
+    }
   }
 
   isCurrentPlanPrice(planPrice: string): boolean {

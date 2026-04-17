@@ -481,6 +481,7 @@ builder.Services.AddScoped<IContactSubmissionService, ContactSubmissionService>(
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddHttpClient<PaddleService>();
 builder.Services.AddHttpClient<LemonSqueezyService>();
+builder.Services.AddHttpClient<StripeService>();
 builder.Services.AddScoped<IPaymentProcessorService>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
@@ -489,6 +490,11 @@ builder.Services.AddScoped<IPaymentProcessorService>(sp =>
     if (string.Equals(provider, "Paddle", StringComparison.OrdinalIgnoreCase))
     {
         return sp.GetRequiredService<PaddleService>();
+    }
+
+    if (string.Equals(provider, "Stripe", StringComparison.OrdinalIgnoreCase))
+    {
+        return sp.GetRequiredService<StripeService>();
     }
 
     return sp.GetRequiredService<LemonSqueezyService>();

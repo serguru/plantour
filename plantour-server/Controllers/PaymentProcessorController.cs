@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using plantour_server.Attributes;
 using plantour_server.Models;
 using plantour_server.Services;
+using PlantourApi.Middleware;
+using PlantourApi.Models;
 
 namespace plantour_server.Controllers;
 
@@ -11,10 +13,12 @@ namespace plantour_server.Controllers;
 public class PaymentProcessorController : ControllerBase
 {
     private readonly IPaymentProcessorService _service;
+    private readonly CurrentUser _currentUser;
 
-    public PaymentProcessorController(IPaymentProcessorService service)
+    public PaymentProcessorController(IPaymentProcessorService service, HttpCurrentUser httpCurrentUser)
     {
         _service = service;
+        _currentUser = httpCurrentUser.CurrentUser;
     }
 
     [HttpGet("active-subscription-exists")]
@@ -61,5 +65,13 @@ public class PaymentProcessorController : ControllerBase
     {
         var response = await _service.CreateCustomerPortalSessionAsync();
         return Ok(response);
+    }
+
+    [HttpGet("current-billing-period-end")]
+    [AdminOnly]
+    public async Task<ActionResult<object>> GetCurrentBillingPeriodEnd()
+    {
+        var subscription = await _service.GetActiveSubscriptionByUserIdAsync(_currentUser.UserId, UserRole.Admin, _currentUser.UserId);
+        return Ok(new { billingPeriodEnd = subscription?.BillingPeriodEnd });
     }
 }
