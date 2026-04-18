@@ -7,11 +7,11 @@ public sealed class PlantourUserRowDto
     public string? FullName { get; init; }
     public required string Role { get; init; }
     public string? Plan { get; init; }
-    public string? PaddleCustomerId { get; init; }
-    public string? PaddleCustomerStatus { get; init; }
-    public string? PaddleSubscriptionId { get; init; }
-    public string? PaddleSubscriptionStatus { get; init; }
-    public string? PaddlePriceId { get; init; }
+    public string? StripeCustomerId { get; init; }
+    public string? StripeCustomerStatus { get; init; }
+    public string? StripeSubscriptionId { get; init; }
+    public string? StripeSubscriptionStatus { get; init; }
+    public string? StripePriceId { get; init; }
     public bool Temporary { get; init; }
     public DateTime DateJoined { get; init; }
     public bool HasActiveSubscription { get; init; }

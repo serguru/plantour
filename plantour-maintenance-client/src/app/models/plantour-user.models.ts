@@ -4,11 +4,11 @@ export interface PlantourUserRowDto {
   fullName?: string | null;
   role: string;
   plan?: string | null;
-  paddleCustomerId?: string | null;
-  paddleCustomerStatus?: string | null;
-  paddleSubscriptionId?: string | null;
-  paddleSubscriptionStatus?: string | null;
-  paddlePriceId?: string | null;
+  stripeCustomerId?: string | null;
+  stripeCustomerStatus?: string | null;
+  stripeSubscriptionId?: string | null;
+  stripeSubscriptionStatus?: string | null;
+  stripePriceId?: string | null;
   temporary: boolean;
   dateJoined: string;
   hasActiveSubscription: boolean;

@@ -70,42 +70,42 @@ export class UsersPage implements OnInit {
     {
       id: 'plan',
       accessorFn: (row) => row.plan?.trim() || '—',
-      header: 'Paddle plan',
+      header: 'Stripe plan',
       cell: (context) => context.getValue<string>(),
       enableGrouping: true,
     },
     {
-      id: 'paddleCustomerId',
-      accessorFn: (row) => row.paddleCustomerId?.trim() || '—',
-      header: 'Paddle customer',
+      id: 'stripeCustomerId',
+      accessorFn: (row) => row.stripeCustomerId?.trim() || '—',
+      header: 'Stripe customer',
       cell: (context) => context.getValue<string>(),
       enableGrouping: false,
     },
     {
-      id: 'paddleCustomerStatus',
-      accessorFn: (row) => row.paddleCustomerStatus?.trim() || '—',
+      id: 'stripeCustomerStatus',
+      accessorFn: (row) => row.stripeCustomerStatus?.trim() || '—',
       header: 'Customer status',
       cell: (context) => context.getValue<string>(),
       enableGrouping: true,
     },
     {
-      id: 'paddleSubscriptionId',
-      accessorFn: (row) => row.paddleSubscriptionId?.trim() || '—',
-      header: 'Paddle subscription',
+      id: 'stripeSubscriptionId',
+      accessorFn: (row) => row.stripeSubscriptionId?.trim() || '—',
+      header: 'Stripe subscription',
       cell: (context) => context.getValue<string>(),
       enableGrouping: false,
     },
     {
-      id: 'paddleSubscriptionStatus',
-      accessorFn: (row) => row.paddleSubscriptionStatus?.trim() || '—',
+      id: 'stripeSubscriptionStatus',
+      accessorFn: (row) => row.stripeSubscriptionStatus?.trim() || '—',
       header: 'Subscription status',
       cell: (context) => context.getValue<string>(),
       enableGrouping: true,
     },
     {
-      id: 'paddlePriceId',
-      accessorFn: (row) => row.paddlePriceId?.trim() || '—',
-      header: 'Paddle price',
+      id: 'stripePriceId',
+      accessorFn: (row) => row.stripePriceId?.trim() || '—',
+      header: 'Stripe price',
       cell: (context) => context.getValue<string>(),
       enableGrouping: true,
     },
@@ -201,7 +201,7 @@ export class UsersPage implements OnInit {
   protected readonly groupingId = 'users-grouping';
   protected readonly filterLabel = 'Filter';
   protected readonly groupingLabel = 'Group';
-  protected readonly filterPlaceholder = 'Filter by email, role, Paddle ids, plan, totals or counts';
+  protected readonly filterPlaceholder = 'Filter by email, role, Stripe ids, plan, totals or counts';
   protected readonly periodActionLabel = 'Created period';
   protected readonly periodLabel = computed(() => formatUsersPeriod(this.period()));
   protected readonly durationLabel = computed(() => formatUsersDuration(this.period()));
@@ -293,7 +293,7 @@ export class UsersPage implements OnInit {
     this.filterQuery.set(state.filterValue);
     this.period.set(nextPeriod);
     this.grouping.set(normalizeGrouping(state.groupingValue, ['role', 'plan', 'temporary', 'hasActiveSubscription']));
-    this.sorting.set(normalizeSorting(state.sorting, ['id', 'email', 'fullName', 'role', 'plan', 'paddleCustomerId', 'paddleCustomerStatus', 'paddleSubscriptionId', 'paddleSubscriptionStatus', 'paddlePriceId', 'temporary', 'dateJoined', 'hasActiveSubscription', 'latestPlanStartedAt', 'lastVisitAt', 'tripsCount', 'itemsCount', 'todosCount', 'expensesCount', 'travelersCount', 'paymentsTotal'], [{ id: 'dateJoined', desc: true }]));
+    this.sorting.set(normalizeSorting(state.sorting, ['id', 'email', 'fullName', 'role', 'plan', 'stripeCustomerId', 'stripeCustomerStatus', 'stripeSubscriptionId', 'stripeSubscriptionStatus', 'stripePriceId', 'temporary', 'dateJoined', 'hasActiveSubscription', 'latestPlanStartedAt', 'lastVisitAt', 'tripsCount', 'itemsCount', 'todosCount', 'expensesCount', 'travelersCount', 'paymentsTotal'], [{ id: 'dateJoined', desc: true }]));
     this.table.firstPage();
 
     if (periodChanged) {
@@ -418,11 +418,11 @@ const usersGlobalFilter: FilterFn<PlantourUserRowDto> = (row, _columnId, filterV
     row.original.fullName ?? '',
     row.original.role,
     row.original.plan ?? '',
-    row.original.paddleCustomerId ?? '',
-    row.original.paddleCustomerStatus ?? '',
-    row.original.paddleSubscriptionId ?? '',
-    row.original.paddleSubscriptionStatus ?? '',
-    row.original.paddlePriceId ?? '',
+    row.original.stripeCustomerId ?? '',
+    row.original.stripeCustomerStatus ?? '',
+    row.original.stripeSubscriptionId ?? '',
+    row.original.stripeSubscriptionStatus ?? '',
+    row.original.stripePriceId ?? '',
     booleanLabel(row.original.temporary),
     formatTimestamp(row.original.dateJoined),
     booleanLabel(row.original.hasActiveSubscription),
@@ -472,10 +472,10 @@ function formatUsersPeriod(period: VisitorActivityPeriod | null): string {
 
 function formatUsersDuration(period: VisitorActivityPeriod | null): string {
   if (!period) {
-    return 'Showing every user regardless of created_at. Payments total is still aggregated from Paddle transaction list calls.';
+    return 'Showing every user regardless of created_at. Payments total is aggregated from paid Stripe invoices.';
   }
 
-  return `Created within ${formatDuration(period)}. Payments total is aggregated from Paddle transaction list calls.`;
+  return `Created within ${formatDuration(period)}. Payments total is aggregated from paid Stripe invoices.`;
 }
 
 function formatPeriod(period: VisitorActivityPeriod): string {

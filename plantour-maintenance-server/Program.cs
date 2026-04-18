@@ -71,7 +71,7 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSetting
     ?? throw new InvalidOperationException("JwtSettings configuration is missing.");
 var jwtKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
-builder.Services.Configure<PaddleSettings>(builder.Configuration.GetSection("PaddleSettings"));
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("StripeSettings"));
 
 builder.Services.Configure<PasswordHashSettings>(builder.Configuration.GetSection("PasswordHashSettings"));
 var passwordHashSettings = builder.Configuration.GetSection("PasswordHashSettings").Get<PasswordHashSettings>()
