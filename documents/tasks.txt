@@ -1195,3 +1195,24 @@ Make the necessary corresponding changes in code.
 
 
 https://plantour.app/templates
+
+
+Brainstorm some possible names for a SaaS web app for freelancers working alone or in teams. It allows you to describe, plan, prepare, assign tasks, track expenses, execute work, calculate labor costs, and print invoices. Give me a list of names after checking  if they already used, do not offer a name if it is used. Come up with minimum 3 of them
+
+
+WorkDock
+
+Operancy
+Solancy
+
+I am going to build and offer on the market a new SaaS app. This app is for freelancers working alone or in teams. It allows you to describe, plan, prepare, assign tasks, track expenses, execute work, calculate labor costs, and print invoices.
+
+
+deep seeck API key
+https://platform.deepseek.com/api_keys
+sk-7f2b79bba5c94cb1b1e80aaafcec7a2f
+
+
+
+Explore the DB structure. Add a point to Maintenance (M) UsersController.cs taking a userId as an input parameter and returning JSON object with all the user's data based on DB foreign keys. Add a new tab in M client allowing to select a user from the select control, send a request to the M API and get the JSON back. The tab should show that json as well as store it as json file.
+

@@ -3,6 +3,6 @@ export const environment = {
   api: {
     baseUrl: 'http://localhost:5238'
   },
-  clientUrl: 'http://localhost:4204',
+  clientUrl: 'http://localhost:4205',
   appName: 'Plantour Maintenance'
 };

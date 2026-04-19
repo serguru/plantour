@@ -62,7 +62,13 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.MaxDepth = 32;
+    });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache();
 
@@ -175,9 +181,18 @@ builder.Services.AddCors(options =>
     {
         if (builder.Environment.IsDevelopment())
         {
-            policy.AllowAnyOrigin()
+            // In development, allow specific localhost origins with credentials
+            policy.WithOrigins(
+                "http://localhost:4204",
+                "http://localhost:4205",
+                "http://localhost:4200",
+                "http://127.0.0.1:4204",
+                "http://127.0.0.1:4205",
+                "http://127.0.0.1:4200"
+            )
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
             return;
         }
 

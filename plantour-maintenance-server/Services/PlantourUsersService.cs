@@ -219,6 +219,116 @@ public sealed class PlantourUsersService(
         }
     }
 
+    public async Task<ComprehensiveUserDto> GetComprehensiveDataAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _context.Users
+            .AsNoTracking()
+            .Include(u => u.AccessType)
+            .Include(u => u.Currency)
+            .Include(u => u.UserSettings)
+            .Include(u => u.UserKeys)
+            .Include(u => u.UserThings)
+            .Include(u => u.UserTodos)
+            .Include(u => u.UserPackages)
+            .Include(u => u.AdminsParticipantAdmins)
+            .Include(u => u.AdminsParticipantParticipants)
+            .Include(u => u.AiPrompts)
+            .Include(u => u.AiTripPlans)
+            .Include(u => u.RefreshTokens)
+            .Include(u => u.Trips)
+            .Include(u => u.AiPromptCheck)
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+        if (user == null)
+        {
+            throw new NotFoundException("User not found.", "USER_NOT_FOUND");
+        }
+
+        // Load indirect relationships
+        var tripUsers = await _context.TripUsers
+            .AsNoTracking()
+            .Include(tu => tu.AdminParticipant)
+            .Include(tu => tu.TripUserThings)
+            .Include(tu => tu.TripUserTodos)
+            .Include(tu => tu.TripUserExpenseTripUsers)
+            .Include(tu => tu.TripUserPackages)
+            .Where(tu => tu.AdminParticipant.ParticipantId == userId || tu.AdminParticipant.AdminId == userId)
+            .ToListAsync(cancellationToken);
+
+        var apiVisits = await _context.ApiVisits
+            .AsNoTracking()
+            .Where(av => av.UserId == userId)
+            .ToListAsync(cancellationToken);
+
+        // ContactSubmissions don't have UserId, skip them
+        var contactSubmissions = Array.Empty<object>();
+
+        // Extract collections for the DTO
+        var tripUserThings = tripUsers.SelectMany(tu => tu.TripUserThings).ToList();
+        var tripUserTodos = tripUsers.SelectMany(tu => tu.TripUserTodos).ToList();
+        var tripUserExpenses = tripUsers.SelectMany(tu => tu.TripUserExpenseTripUsers).ToList();
+        var tripUserPackages = tripUsers.SelectMany(tu => tu.TripUserPackages).ToList();
+
+        // Helper function to convert entities to serializable objects
+        object[] ToObjectArray<T>(IEnumerable<T>? collection) where T : class
+        {
+            if (collection == null)
+                return Array.Empty<object>();
+            
+            return collection
+                .Select(item => (object)item)
+                .ToArray();
+        }
+
+        return new ComprehensiveUserDto
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Phone = user.Phone,
+            GoogleSub = user.GoogleSub,
+            FacebookUserId = user.FacebookUserId,
+            Notes = user.Notes,
+            CreatedAt = user.CreatedAt,
+            Temporary = user.Temporary,
+            ParticipantCode = user.ParticipantCode,
+            PaymentProcessorSubscriptionId = user.PaymentProcessorSubscriptionId,
+            AccessTypeId = user.AccessTypeId,
+            CurrencyId = user.CurrencyId,
+            
+            // Convert collections to object arrays for JSON serialization
+            UserSettings = ToObjectArray(user.UserSettings),
+            UserKeys = ToObjectArray(user.UserKeys),
+            UserThings = ToObjectArray(user.UserThings),
+            UserTodos = ToObjectArray(user.UserTodos),
+            UserPackages = ToObjectArray(user.UserPackages),
+            AdminsParticipantAdmins = ToObjectArray(user.AdminsParticipantAdmins),
+            AdminsParticipantParticipants = ToObjectArray(user.AdminsParticipantParticipants),
+            AiPrompts = ToObjectArray(user.AiPrompts),
+            AiTripPlans = ToObjectArray(user.AiTripPlans),
+            RefreshTokens = ToObjectArray(user.RefreshTokens),
+            Trips = ToObjectArray(user.Trips),
+            
+            TripUsers = ToObjectArray(tripUsers),
+            TripUserThings = ToObjectArray(tripUserThings),
+            TripUserTodos = ToObjectArray(tripUserTodos),
+            TripUserExpenses = ToObjectArray(tripUserExpenses),
+            TripUserPackages = ToObjectArray(tripUserPackages),
+            
+            ApiVisits = ToObjectArray(apiVisits),
+            ContactSubmissions = contactSubmissions,
+            
+            TotalTripsCount = (user.Trips?.Count ?? 0) + (tripUsers?.Select(tu => tu.TripId).Distinct().Count() ?? 0),
+            TotalThingsCount = (user.UserThings?.Count ?? 0) + (tripUserThings?.Count ?? 0),
+            TotalTodosCount = (user.UserTodos?.Count ?? 0) + (tripUserTodos?.Count ?? 0),
+            TotalExpensesCount = tripUserExpenses?.Count ?? 0,
+            TotalPackagesCount = (user.UserPackages?.Count ?? 0) + (tripUserPackages?.Count ?? 0)
+        };
+    }
+
     private async Task<StripeSnapshot> GetStripeSnapshotAsync(
         IReadOnlyList<string> normalizedEmails,
         IReadOnlyList<string> linkedSubscriptionIds,

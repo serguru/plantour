@@ -8,4 +8,8 @@ public interface IPlantourUsersService
         DateTimeOffset? from = null,
         DateTimeOffset? to = null,
         CancellationToken cancellationToken = default);
+
+    Task<ComprehensiveUserDto> GetComprehensiveDataAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
 }

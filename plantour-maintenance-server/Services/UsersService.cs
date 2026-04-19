@@ -45,3 +45,5 @@ public class UsersService(
         return _mapper.Map<UserDto>(user);
     }
 }
+
+// TODO: make sure the app logs user's adds and deletes

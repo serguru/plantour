@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { JsonPipe } from '@angular/common';
 import { BrnDialogService } from '@spartan-ng/brain/dialog';
 import { DateTime, Duration } from 'luxon';
 import { finalize } from 'rxjs';
+import { ComprehensiveUserDto } from '../models/comprehensive-user.models';
 import {
   type ColumnDef,
   createAngularTable,
@@ -28,7 +30,7 @@ import { HlmTable, HlmTableContainer, HlmTBody, HlmTd, HlmTh, HlmTHead, HlmTr } 
 
 @Component({
   selector: 'app-users-page',
-  imports: [DataTableTopPanelComponent, HlmTableContainer, HlmTable, HlmTHead, HlmTBody, HlmTr, HlmTh, HlmTd, FlexRenderDirective],
+  imports: [DataTableTopPanelComponent, HlmTableContainer, HlmTable, HlmTHead, HlmTBody, HlmTr, HlmTh, HlmTd, FlexRenderDirective, JsonPipe],
   templateUrl: './users-page.html',
   styleUrl: './users-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -196,6 +198,13 @@ export class UsersPage implements OnInit {
   protected readonly sorting = signal<SortingState>([{ id: 'dateJoined', desc: true }]);
   protected readonly grouping = signal<GroupingState>([]);
   protected readonly pagination = signal<PaginationState>({ pageIndex: 0, pageSize: 20 });
+  
+  // Right panel signals
+  protected readonly showRightPanel = signal(false);
+  protected readonly selectedUserId = signal<string | null>(null);
+  protected readonly comprehensiveData = signal<ComprehensiveUserDto | null>(null);
+  protected readonly isLoadingComprehensiveData = signal(false);
+  protected readonly comprehensiveDataError = signal<string | null>(null);
   protected readonly availablePageSizes = [10, 20, 50, 100];
   protected readonly filterId = 'users-filter';
   protected readonly groupingId = 'users-grouping';
@@ -359,6 +368,70 @@ export class UsersPage implements OnInit {
     }
 
     return '↕';
+  }
+
+  protected toggleRightPanel(): void {
+    const newState = !this.showRightPanel();
+    this.showRightPanel.set(newState);
+    
+    if (newState && this.selectedUserId()) {
+      this.loadComprehensiveData();
+    } else {
+      this.comprehensiveData.set(null);
+      this.comprehensiveDataError.set(null);
+    }
+  }
+
+  protected selectUser(userId: string): void {
+    this.selectedUserId.set(userId);
+    
+    if (this.showRightPanel()) {
+      this.loadComprehensiveData();
+    }
+  }
+
+  protected loadComprehensiveData(): void {
+    const userId = this.selectedUserId();
+    if (!userId) {
+      return;
+    }
+
+    this.isLoadingComprehensiveData.set(true);
+    this.comprehensiveDataError.set(null);
+
+    console.log('Loading comprehensive data for user:', userId);
+    
+    this.plantourUsersService.getComprehensiveData(userId).pipe(
+      finalize(() => this.isLoadingComprehensiveData.set(false))
+    ).subscribe({
+      next: (data) => {
+        console.log('Comprehensive data loaded successfully:', data);
+        this.comprehensiveData.set(data);
+      },
+      error: (error: unknown) => {
+        console.error('Error loading comprehensive data:', error);
+        this.comprehensiveData.set(null);
+        this.comprehensiveDataError.set(this.usersService.getErrorMessage(error));
+      }
+    });
+  }
+
+  protected downloadJson(): void {
+    const data = this.comprehensiveData();
+    if (!data) {
+      return;
+    }
+
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `user-${data.id}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   private loadRows(): void {

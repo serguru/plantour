@@ -72,4 +72,14 @@ public class UsersController(IUsersService usersService, IPlantourUsersService p
         var user = await _usersService.GetByIdAsync(id, cancellationToken);
         return Ok(user);
     }
+
+    [HttpGet("{id:guid}/comprehensive")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ComprehensiveUserDto>> GetComprehensiveData(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var userData = await _plantourUsersService.GetComprehensiveDataAsync(id, cancellationToken);
+        return Ok(userData);
+    }
 }
