@@ -153,12 +153,37 @@ export class UsersService {
 
   getErrorMessage(error: unknown): string {
     const httpError = error as HttpErrorResponse;
-    const apiError = error as { error?: ApiErrorResponse };
+
+    // Log detailed error for debugging
+    console.error('HTTP Error details:', {
+      status: httpError.status,
+      statusText: httpError.statusText,
+      url: httpError.url,
+      error: httpError.error,
+      message: httpError.message,
+      name: httpError.name
+    });
 
     if (httpError.status === 0 || httpError.status === 502 || httpError.status === 503 || httpError.status === 504) {
       return 'System error: the maintenance API is unavailable. Make sure the API is running and try again.';
     }
 
-    return apiError.error?.message ?? 'The request failed. Please try again.';
+    // Try to extract message from ApiErrorResponse
+    if (httpError.error && typeof httpError.error === 'object') {
+      const apiError = httpError.error as any;
+      if (apiError.message && typeof apiError.message === 'string') {
+        return apiError.message;
+      }
+      
+      // If no message property, try to stringify the error for debugging
+      try {
+        return JSON.stringify(httpError.error);
+      } catch {
+        // Ignore
+      }
+    }
+
+    // Fallback to status text or generic message
+    return httpError.statusText || `The request failed with status ${httpError.status}. Please try again.`;
   }
 }

@@ -759,6 +759,8 @@ public class UsersService(
             throw new CustomException("No active payment processor products found");
         }
 
+        // TODO: Open a sample trip must be a link and not a button
+
         var plans = await _planRepository.GetAll();
         plans = plans.Where(p => p.Public!.Value).ToList();
         var planDtos = _mapper.Map<List<PlanDto>>(plans);
