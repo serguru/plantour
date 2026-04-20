@@ -10,7 +10,7 @@ import { MessagesService } from '../../../../services/messages-service';
 import { AppButton } from '../../../button/button-component';
 import { SocialAuthService } from '../../../../services/social-auth-service';
 import { ENVIRONMENT, EnvironmentConfig } from '../../../../../environment.token';
-import { PaddleService } from '../../../../services/paddle-service';
+import { PaymentProcessorService } from '../../../../services/payment-processor-service';
 import { firstValueFrom } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
 
@@ -51,7 +51,7 @@ export class ProfileComponent implements OnInit {
   public usersService = inject(UsersService);
   private messagesService = inject(MessagesService);
   private socialAuthService = inject(SocialAuthService);
-  private paddleService = inject(PaddleService);
+  private paymentProcessorService = inject(PaymentProcessorService);
   private fb = inject(FormBuilder);
 
   router = inject(Router);
@@ -225,9 +225,9 @@ export class ProfileComponent implements OnInit {
     }
 
     const targetPlan = info.newPlanPrice || 'selected plan';
-    const executionDate = info.executionTime ? new Date(info.executionTime).toLocaleString() : 'scheduled time';
+    const executionDate = info.executionTime ? new Date(info.executionTime).toLocaleString() : 'the end of the current billing period';
 
-    return `To ${targetPlan} at ${executionDate}`;
+    return `To ${targetPlan} at the end of the billing period (${executionDate})`;
   }
 
   // onConnectGoogle(): void {
@@ -354,7 +354,7 @@ export class ProfileComponent implements OnInit {
     this.isOpeningPortal.set(true);
 
     try {
-      const response = await firstValueFrom(this.paddleService.createCustomerPortalSession());
+      const response = await firstValueFrom(this.paymentProcessorService.createCustomerPortalSession());
 
       if (!response?.url) {
         this.messagesService.showError('Billing', 'Could not create customer portal session. Please try again.');

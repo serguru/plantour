@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { JsonPipe } from '@angular/common';
 import { BrnDialogService } from '@spartan-ng/brain/dialog';
 import { DateTime, Duration } from 'luxon';
 import { finalize } from 'rxjs';
@@ -28,7 +29,7 @@ import { HlmTable, HlmTableContainer, HlmTBody, HlmTd, HlmTh, HlmTHead, HlmTr } 
 
 @Component({
   selector: 'app-users-page',
-  imports: [DataTableTopPanelComponent, HlmTableContainer, HlmTable, HlmTHead, HlmTBody, HlmTr, HlmTh, HlmTd, FlexRenderDirective],
+  imports: [DataTableTopPanelComponent, HlmTableContainer, HlmTable, HlmTHead, HlmTBody, HlmTr, HlmTh, HlmTd, FlexRenderDirective, JsonPipe],
   templateUrl: './users-page.html',
   styleUrl: './users-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -70,42 +71,42 @@ export class UsersPage implements OnInit {
     {
       id: 'plan',
       accessorFn: (row) => row.plan?.trim() || '—',
-      header: 'Paddle plan',
+      header: 'Stripe plan',
       cell: (context) => context.getValue<string>(),
       enableGrouping: true,
     },
     {
-      id: 'paddleCustomerId',
-      accessorFn: (row) => row.paddleCustomerId?.trim() || '—',
-      header: 'Paddle customer',
+      id: 'stripeCustomerId',
+      accessorFn: (row) => row.stripeCustomerId?.trim() || '—',
+      header: 'Stripe customer',
       cell: (context) => context.getValue<string>(),
       enableGrouping: false,
     },
     {
-      id: 'paddleCustomerStatus',
-      accessorFn: (row) => row.paddleCustomerStatus?.trim() || '—',
+      id: 'stripeCustomerStatus',
+      accessorFn: (row) => row.stripeCustomerStatus?.trim() || '—',
       header: 'Customer status',
       cell: (context) => context.getValue<string>(),
       enableGrouping: true,
     },
     {
-      id: 'paddleSubscriptionId',
-      accessorFn: (row) => row.paddleSubscriptionId?.trim() || '—',
-      header: 'Paddle subscription',
+      id: 'stripeSubscriptionId',
+      accessorFn: (row) => row.stripeSubscriptionId?.trim() || '—',
+      header: 'Stripe subscription',
       cell: (context) => context.getValue<string>(),
       enableGrouping: false,
     },
     {
-      id: 'paddleSubscriptionStatus',
-      accessorFn: (row) => row.paddleSubscriptionStatus?.trim() || '—',
+      id: 'stripeSubscriptionStatus',
+      accessorFn: (row) => row.stripeSubscriptionStatus?.trim() || '—',
       header: 'Subscription status',
       cell: (context) => context.getValue<string>(),
       enableGrouping: true,
     },
     {
-      id: 'paddlePriceId',
-      accessorFn: (row) => row.paddlePriceId?.trim() || '—',
-      header: 'Paddle price',
+      id: 'stripePriceId',
+      accessorFn: (row) => row.stripePriceId?.trim() || '—',
+      header: 'Stripe price',
       cell: (context) => context.getValue<string>(),
       enableGrouping: true,
     },
@@ -196,12 +197,39 @@ export class UsersPage implements OnInit {
   protected readonly sorting = signal<SortingState>([{ id: 'dateJoined', desc: true }]);
   protected readonly grouping = signal<GroupingState>([]);
   protected readonly pagination = signal<PaginationState>({ pageIndex: 0, pageSize: 20 });
+  
+  // Right panel signals
+  protected readonly showRightPanel = signal(false);
+  protected readonly selectedUserId = signal<string | null>(null);
+  protected readonly comprehensiveData = signal<string | null>(null);
+  protected readonly isLoadingComprehensiveData = signal(false);
+  protected readonly comprehensiveDataError = signal<string | null>(null);
   protected readonly availablePageSizes = [10, 20, 50, 100];
+
+  // Computed signal to parse JSON data
+  protected readonly parsedComprehensiveData = computed(() => {
+    const jsonString = this.comprehensiveData();
+    if (!jsonString) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(jsonString);
+    } catch {
+      return null;
+    }
+  });
+
+  // Computed signal to get user ID from parsed data
+  protected readonly comprehensiveDataUserId = computed(() => {
+    const parsedData = this.parsedComprehensiveData();
+    return parsedData?.id || 'Unknown';
+  });
   protected readonly filterId = 'users-filter';
   protected readonly groupingId = 'users-grouping';
   protected readonly filterLabel = 'Filter';
   protected readonly groupingLabel = 'Group';
-  protected readonly filterPlaceholder = 'Filter by email, role, Paddle ids, plan, totals or counts';
+  protected readonly filterPlaceholder = 'Filter by email, role, Stripe ids, plan, totals or counts';
   protected readonly periodActionLabel = 'Created period';
   protected readonly periodLabel = computed(() => formatUsersPeriod(this.period()));
   protected readonly durationLabel = computed(() => formatUsersDuration(this.period()));
@@ -293,7 +321,7 @@ export class UsersPage implements OnInit {
     this.filterQuery.set(state.filterValue);
     this.period.set(nextPeriod);
     this.grouping.set(normalizeGrouping(state.groupingValue, ['role', 'plan', 'temporary', 'hasActiveSubscription']));
-    this.sorting.set(normalizeSorting(state.sorting, ['id', 'email', 'fullName', 'role', 'plan', 'paddleCustomerId', 'paddleCustomerStatus', 'paddleSubscriptionId', 'paddleSubscriptionStatus', 'paddlePriceId', 'temporary', 'dateJoined', 'hasActiveSubscription', 'latestPlanStartedAt', 'lastVisitAt', 'tripsCount', 'itemsCount', 'todosCount', 'expensesCount', 'travelersCount', 'paymentsTotal'], [{ id: 'dateJoined', desc: true }]));
+    this.sorting.set(normalizeSorting(state.sorting, ['id', 'email', 'fullName', 'role', 'plan', 'stripeCustomerId', 'stripeCustomerStatus', 'stripeSubscriptionId', 'stripeSubscriptionStatus', 'stripePriceId', 'temporary', 'dateJoined', 'hasActiveSubscription', 'latestPlanStartedAt', 'lastVisitAt', 'tripsCount', 'itemsCount', 'todosCount', 'expensesCount', 'travelersCount', 'paymentsTotal'], [{ id: 'dateJoined', desc: true }]));
     this.table.firstPage();
 
     if (periodChanged) {
@@ -361,6 +389,109 @@ export class UsersPage implements OnInit {
     return '↕';
   }
 
+  protected toggleRightPanel(): void {
+    const newState = !this.showRightPanel();
+    this.showRightPanel.set(newState);
+    
+    if (newState && this.selectedUserId()) {
+      this.loadComprehensiveData();
+    } else {
+      this.comprehensiveData.set(null);
+      this.comprehensiveDataError.set(null);
+    }
+  }
+
+  protected selectUser(userId: string): void {
+    this.selectedUserId.set(userId);
+    
+    if (this.showRightPanel()) {
+      this.loadComprehensiveData();
+    }
+  }
+
+  protected loadComprehensiveData(): void {
+    const userId = this.selectedUserId();
+    if (!userId) {
+      return;
+    }
+
+    this.isLoadingComprehensiveData.set(true);
+    this.comprehensiveDataError.set(null);
+
+    console.log('Loading comprehensive data for user:', userId);
+    
+    this.plantourUsersService.getComprehensiveData(userId).pipe(
+      finalize(() => this.isLoadingComprehensiveData.set(false))
+    ).subscribe({
+      next: (data) => {
+        console.log('Comprehensive data loaded successfully:', data);
+        this.comprehensiveData.set(data);
+      },
+      error: (error: unknown) => {
+        console.error('Error loading comprehensive data:', error);
+        this.comprehensiveData.set(null);
+        this.comprehensiveDataError.set(this.usersService.getErrorMessage(error));
+      }
+    });
+  }
+
+  protected downloadJson(): void {
+    const jsonString = this.comprehensiveData();
+    if (!jsonString) {
+      return;
+    }
+
+    // Parse the JSON to get the user ID for the filename
+    let userId = 'unknown';
+    try {
+      const data = JSON.parse(jsonString);
+      userId = data.id || 'unknown';
+    } catch {
+      // If parsing fails, use default filename
+    }
+
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `user-${userId}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  protected copyJsonToClipboard(): void {
+    const jsonString = this.comprehensiveData();
+    if (!jsonString) {
+      return;
+    }
+
+    // Use the Clipboard API
+    navigator.clipboard.writeText(jsonString).then(
+      () => {
+        // Show a temporary success message (could be enhanced with a toast notification)
+        console.log('JSON copied to clipboard');
+        // Optionally, you could add a visual feedback here
+      },
+      (err) => {
+        console.error('Failed to copy JSON: ', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = jsonString;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          console.log('JSON copied to clipboard using fallback');
+        } catch (err) {
+          console.error('Fallback copy failed: ', err);
+        }
+        document.body.removeChild(textArea);
+      }
+    );
+  }
+
   private loadRows(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
@@ -418,11 +549,11 @@ const usersGlobalFilter: FilterFn<PlantourUserRowDto> = (row, _columnId, filterV
     row.original.fullName ?? '',
     row.original.role,
     row.original.plan ?? '',
-    row.original.paddleCustomerId ?? '',
-    row.original.paddleCustomerStatus ?? '',
-    row.original.paddleSubscriptionId ?? '',
-    row.original.paddleSubscriptionStatus ?? '',
-    row.original.paddlePriceId ?? '',
+    row.original.stripeCustomerId ?? '',
+    row.original.stripeCustomerStatus ?? '',
+    row.original.stripeSubscriptionId ?? '',
+    row.original.stripeSubscriptionStatus ?? '',
+    row.original.stripePriceId ?? '',
     booleanLabel(row.original.temporary),
     formatTimestamp(row.original.dateJoined),
     booleanLabel(row.original.hasActiveSubscription),
@@ -472,10 +603,10 @@ function formatUsersPeriod(period: VisitorActivityPeriod | null): string {
 
 function formatUsersDuration(period: VisitorActivityPeriod | null): string {
   if (!period) {
-    return 'Showing every user regardless of created_at. Payments total is still aggregated from Paddle transaction list calls.';
+    return 'Showing every user regardless of created_at. Payments total is aggregated from paid Stripe invoices.';
   }
 
-  return `Created within ${formatDuration(period)}. Payments total is aggregated from Paddle transaction list calls.`;
+  return `Created within ${formatDuration(period)}. Payments total is aggregated from paid Stripe invoices.`;
 }
 
 function formatPeriod(period: VisitorActivityPeriod): string {

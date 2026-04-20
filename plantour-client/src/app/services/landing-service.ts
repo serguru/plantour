@@ -8,7 +8,7 @@ export interface PriceDto
 {
     id: string;
     planId: string;
-    paddlePriceId: string;
+  paymentProcessorPriceId: string;
     name: string;
     planPriceIndex: PlanPrice;
     valueCents: number;

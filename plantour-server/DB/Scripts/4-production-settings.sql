@@ -20,7 +20,8 @@ values
     ('gemini_model', 'gemini-3-flash-preview', 'string'),
     ('trip_note_editor_dropbox_redirect_uri', 'https://api.plantour.app/trip-note-editor/dropbox/callback', 'string'),
     ('cache_refresh_interval_minutes', '5', 'integer'),
-    ('paddle_api_base_url', 'https://api.paddle.com/', 'string'),
+    ('payment_processor_api_base_url', 'https://api.stripe.com', 'string'),
+    ('payment_processor_storeId', '', 'string'),
     ('cors_allowed_origins', 'https://api.plantour.app;https://plantour.app', 'string'),
     ('turnstile_enabled', 'true', 'boolean'),
     ('plantour_logging_sink', 'Both', 'string'),
@@ -38,7 +39,7 @@ values
     ('exclude_paths_from_log', 'users/health-check;users/version;version',  'string'),
     ('plantour_app_origin', 'https://plantour.app',  'string');
 
-insert into plantour.plans (name, paddle_product_id, notes, public, 
+insert into plantour.plans (name, payment_processor_product_id, notes, public, 
 allowed_items,  allowed_travelers,  allowed_AI_prompts,         extended_AI_allowed,
 allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activities) values
 
@@ -47,18 +48,19 @@ allowed_todos,  allowed_expenses,   allowed_itinerary_parts,    allowed_activiti
 3,              3,                  3,                          6
 ),
 
-('Family', 'pro_01knt1j27bva8fws4dnj1vjdz0', 'Perfect for regular travelers, families and small groups', true, 
+('Family', 'prod_ULNIguoGZvuNPV', 'Perfect for regular travelers, families and small groups', true, 
 250,           5,                  20,                        false,
 100,           500,                20,                        100
 ),
 
-('Expedition', 'pro_01knt195pq0ng14qp6a4q9f7x0', 'Ideal for advanced travelers, large groups and expeditions', true, 
+('Expedition', 'prod_ULhZUf7GZeaOTJ', 'Ideal for advanced travelers, large groups and expeditions', true, 
 2500,           50,                 100,                      true,
 1000,           5000,               50,                       1000
 );
 
 
-insert into plantour.prices (paddle_price_id,plan_id,name,value_cents) values
+
+insert into plantour.prices (payment_processor_price_id,plan_id,name,value_cents) values
 (
     null,
     (select id from plantour.plans where name = 'Starter'),
@@ -66,30 +68,28 @@ insert into plantour.prices (paddle_price_id,plan_id,name,value_cents) values
     0
 ),
 (
-    'pri_01knt1pdmcqqq4p0rg1ghprxbs',
+    'price_1TMgYCIg8eDk4N019oYy6dNQ',
     (select id from plantour.plans where name = 'Family'),
     'Family Monthly',
     1299
 ),
 (
-    'pri_01knt1fx1rz3wyqgeg2x232ecx',
+    'price_1TN0AdIg8eDk4N01B7yFHj1v',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Monthly',
     4499
 ),
 (
-    'pri_01knt1n4qn4nd6cb20cr3hhsnr',
+    'price_1TN096Ig8eDk4N01jpGh58OD',
     (select id from plantour.plans where name = 'Family'),
     'Family Yearly',
     11999
 ),
 (
-    'pri_01knt1dgwepd90w5jgxm8xn3tg',
+    'price_1TN0BPIg8eDk4N01xANBw6iq',
     (select id from plantour.plans where name = 'Expedition'),
     'Expedition Yearly',
     39999
 );
-
-
 
 commit;

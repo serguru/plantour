@@ -61,7 +61,7 @@ public record UserCreatedNotificationEmailRequest(
     string? GoogleSub,
     string? FacebookUserId,
     string? ParticipantCode,
-    string? PaddleSubscriptionId);
+    string? PaymentProcessorSubscriptionId);
 
 public record TripParticipantInvitationEmailRequest(
     string RecipientEmail,

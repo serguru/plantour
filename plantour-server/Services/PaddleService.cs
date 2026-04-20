@@ -14,7 +14,7 @@ using System.Globalization;
 
 namespace plantour_server.Services;
 
-public class PaddleService : IPaddleService
+public class PaddleService : IPaymentProcessorService
 {
     private readonly string _apiKey;
     private readonly HttpClient _httpclient;
@@ -61,10 +61,10 @@ public class PaddleService : IPaddleService
 
     private async Task EnsureClientConfiguredAsync()
     {
-        var baseUrl = await _serverSettingsService.GetPaddleApiBaseUrlAsync();
+        var baseUrl = await _serverSettingsService.GetPaymentProcessorApiBaseUrlAsync();
         if (string.IsNullOrWhiteSpace(baseUrl))
         {
-            throw new CustomException("PaddleSettings:ApiBaseUrl is not configured");
+            throw new CustomException("payment processor api base URL is not configured");
         }
 
         if (_httpclient.BaseAddress == null || !string.Equals(_httpclient.BaseAddress.ToString(), baseUrl, StringComparison.Ordinal))
@@ -137,7 +137,7 @@ public class PaddleService : IPaddleService
         return customerId;
     }
 
-    public async Task<string?> GetActiveCustomerEmailByIdAsync(PaddleCustomerEmailRequest request)
+    public async Task<string?> GetActiveCustomerEmailByIdAsync(PaymentProcessorCustomerEmailRequest request)
     {
         await EnsureClientConfiguredAsync();
 
@@ -215,7 +215,7 @@ public class PaddleService : IPaddleService
         return list.Any();
     }
 
-    public async Task<PaddleSubscription?> GetActiveSubscriptionByEmailAsync(string email)
+    public async Task<PaymentProcessorSubscription?> GetActiveSubscriptionByEmailAsync(string email)
     {
         await EnsureClientConfiguredAsync();
 
@@ -261,7 +261,7 @@ public class PaddleService : IPaddleService
         return result;
     }
 
-    private async Task<PaddleSubscription> Json2Subscription(JsonElement json)
+    private async Task<PaymentProcessorSubscription> Json2Subscription(JsonElement json)
     {
         if (!json.TryGetProperty("id", out var idElement) ||
             !json.TryGetProperty("status", out var statusElement) ||
@@ -312,7 +312,7 @@ public class PaddleService : IPaddleService
             billingPeriodEnd = billingPeriodEndElement.GetString();
         }
 
-        return new PaddleSubscription
+        return new PaymentProcessorSubscription
         {
             Id = id,
             Status = status,
@@ -326,7 +326,7 @@ public class PaddleService : IPaddleService
         };
     }
 
-    public async Task<string?> GetActiveSubscriptionIdAsync(PaddleSubscriptionIdRequest request)
+    public async Task<string?> GetActiveSubscriptionIdAsync(PaymentProcessorSubscriptionIdRequest request)
     {
         await EnsureClientConfiguredAsync();
 
@@ -360,7 +360,7 @@ public class PaddleService : IPaddleService
             return null; // Subscription not found
         }
 
-        List<PaddleSubscription> subscriptions = new List<PaddleSubscription>();
+        List<PaymentProcessorSubscription> subscriptions = new List<PaymentProcessorSubscription>();
 
         foreach (var item in list)
         {
@@ -383,7 +383,12 @@ public class PaddleService : IPaddleService
         return notActiveSubscriptions.First().Id; // Return the most recently created not active subscription
     }
 
-    public async Task<PaddleSubscription?> GetActiveSubscriptionByIdAsync(string subscriptionId)
+    public Task<PaymentProcessorCheckoutResponse> CreateCheckoutSessionAsync(PaymentProcessorCheckoutRequest request)
+    {
+        throw new CustomException("Server-generated checkout sessions are not supported by the Paddle integration.");
+    }
+
+    public async Task<PaymentProcessorSubscription?> GetActiveSubscriptionByIdAsync(string subscriptionId)
     {
         await EnsureClientConfiguredAsync();
 
@@ -414,7 +419,7 @@ public class PaddleService : IPaddleService
     }
 
     // userId can be participant or admin
-    public async Task<PaddleSubscription?> GetActiveSubscriptionByUserIdAsync(Guid userId, UserRole role, Guid adminId)
+    public async Task<PaymentProcessorSubscription?> GetActiveSubscriptionByUserIdAsync(Guid userId, UserRole role, Guid adminId)
     {
         await EnsureClientConfiguredAsync();
 
@@ -428,7 +433,7 @@ public class PaddleService : IPaddleService
     }
 
 
-    public async Task<PaddleSubscription?> GetActiveSubscriptionByUserAsync(User user, UserRole role, Guid adminId)
+    public async Task<PaymentProcessorSubscription?> GetActiveSubscriptionByUserAsync(User user, UserRole role, Guid adminId)
     {
         await EnsureClientConfiguredAsync();
 
@@ -437,7 +442,7 @@ public class PaddleService : IPaddleService
             throw new CustomException("User is required");
         }
 
-        PaddleSubscription? subscription = null;
+        PaymentProcessorSubscription? subscription = null;
 
         var admin = user;
 
@@ -451,12 +456,12 @@ public class PaddleService : IPaddleService
         }
 
         bool emailStepNeeded = true;
-        if (!string.IsNullOrWhiteSpace(admin.PaddleSubscriptionId))
+        if (!string.IsNullOrWhiteSpace(admin.PaymentProcessorSubscriptionId))
         {
-            subscription = await GetActiveSubscriptionByIdAsync(admin.PaddleSubscriptionId);
+            subscription = await GetActiveSubscriptionByIdAsync(admin.PaymentProcessorSubscriptionId);
             if (subscription != null)
             {
-                var r = new PaddleCustomerEmailRequest()
+                var r = new PaymentProcessorCustomerEmailRequest()
                 {
                     CustomerId = subscription.CustomerId
                 };
@@ -477,18 +482,18 @@ public class PaddleService : IPaddleService
 
         if (subscription == null)
         {
-            if (!string.IsNullOrWhiteSpace(admin.PaddleSubscriptionId))
+            if (!string.IsNullOrWhiteSpace(admin.PaymentProcessorSubscriptionId))
             {
-                admin.PaddleSubscriptionId = null;
+                admin.PaymentProcessorSubscriptionId = null;
                 //admin.PriceEnumId = (int)PlanPrice.Starter;
                 await _usersRepository.UpdateAsync(admin);
             }
             return null;
         }
 
-        if (admin.PaddleSubscriptionId != subscription!.Id)
+        if (admin.PaymentProcessorSubscriptionId != subscription!.Id)
         {
-            admin.PaddleSubscriptionId = subscription!.Id;
+            admin.PaymentProcessorSubscriptionId = subscription!.Id;
             //admin.PriceEnumId = null;
             await _usersRepository.UpdateAsync(admin);
         }
@@ -535,7 +540,7 @@ public class PaddleService : IPaddleService
             throw new CustomException("Paddle customer not found for the current user");
         }
 
-        string? subscriptionId = _currentUser.PaddleSubscriptionId;
+        string? subscriptionId = _currentUser.PaymentProcessorSubscriptionId;
 
         if (string.IsNullOrWhiteSpace(subscriptionId))
         {
@@ -580,7 +585,7 @@ public class PaddleService : IPaddleService
         };
     }
 
-    public async Task<IEnumerable<PaddleProduct>?> GetActiveProductsAsync()
+    public async Task<IEnumerable<PaymentProcessorProduct>?> GetActiveProductsAsync()
     {
         await EnsureClientConfiguredAsync();
 
@@ -611,7 +616,7 @@ public class PaddleService : IPaddleService
             return null;
         }
 
-        var products = new List<PaddleProduct>();
+        var products = new List<PaymentProcessorProduct>();
 
         foreach (var productElement in list)
         {
@@ -639,7 +644,7 @@ public class PaddleService : IPaddleService
                 throw new CustomException("Paddle product properties cannot be empty");
             }
 
-            var prices = new List<PaddlePrice>();
+            var prices = new List<PaymentProcessorPrice>();
 
             foreach (var priceElement in pricesElement.EnumerateArray())
             {
@@ -701,7 +706,7 @@ public class PaddleService : IPaddleService
                     throw new CustomException("Paddle price properties cannot be empty");
                 }
 
-                prices.Add(new PaddlePrice
+                prices.Add(new PaymentProcessorPrice
                 {
                     Id = priceId,
                     ProductId = priceProductId,
@@ -714,7 +719,7 @@ public class PaddleService : IPaddleService
                 });
             }
 
-            products.Add(new PaddleProduct
+            products.Add(new PaymentProcessorProduct
             {
                 Id = productId,
                 Name = productName,
@@ -734,6 +739,11 @@ public class PaddleService : IPaddleService
             throw new CustomException("Only admins can change plan prices");
         }
         await ChangePlanPriceAsync(_currentUser.AdminId, oldPlanPrice, newPlanPrice, false);
+    }
+
+    public async Task ScheduleDowngradePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice)
+    {
+        await DowngradePlanPriceAsync(userId, oldPlanPrice, newPlanPrice);
     }
 
     private async Task ChangePlanPriceAsync(Guid userId, string oldPlanPrice, string newPlanPrice, bool isDowngrade)
@@ -761,7 +771,7 @@ public class PaddleService : IPaddleService
             }
         }
 
-        PaddleSubscription? subscription = await GetActiveSubscriptionByEmailAsync(user.Email);
+        PaymentProcessorSubscription? subscription = await GetActiveSubscriptionByEmailAsync(user.Email);
 
         if (subscription == null)
         {
@@ -804,6 +814,23 @@ public class PaddleService : IPaddleService
         await EnsureClientConfiguredAsync();
 
         await ChangePlanPriceAsync(userId, oldPlanPrice, newPlanPrice, true);
+    }
+
+    public async Task<ScheduledPlanDowngradeInfoDto> GetScheduledPlanDowngradeInfoAsync(Guid userId)
+    {
+        var subscription = await GetActiveSubscriptionByUserIdAsync(userId, UserRole.Admin, userId);
+
+        return new ScheduledPlanDowngradeInfoDto
+        {
+            HasScheduledDowngrade = false,
+            CurrentBillingPeriodEnd = subscription?.BillingPeriodEnd
+        };
+    }
+
+    public Task<bool> CancelScheduledPlanDowngradeAsync(Guid userId)
+    {
+        _ = userId;
+        return Task.FromResult(false);
     }
 
 }

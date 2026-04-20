@@ -1,0 +1,116 @@
+<div class="json-viewer">
+  <!-- Controls toolbar -->
+  <div class="json-viewer-toolbar">
+    <div class="toolbar-left">
+      <button type="button" class="btn-expand-all" (click)="expandAll()" [disabled]="isAllExpanded()">
+        <span class="btn-icon">↕</span>
+        Expand All
+      </button>
+      <button type="button" class="btn-collapse-all" (click)="collapseAll()" [disabled]="!isAllExpanded()">
+        <span class="btn-icon">↕</span>
+        Collapse All
+      </button>
+    </div>
+    
+    <div class="toolbar-right">
+      <div class="search-container">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search in JSON..."
+          [value]="searchInput()"
+          (input)="onSearchChange($event)"
+        />
+        @if (searchInput()) {
+          <span class="search-clear" (click)="searchInput.set('')">×</span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary panel -->
+  @if (hasSummary()) {
+    <div class="json-summary">
+      <h4 class="summary-title">Summary</h4>
+      <div class="summary-items">
+        @for (item of summaryEntries(); track item.key) {
+          <div class="summary-item">
+            <span class="summary-key">{{ item.key }}:</span>
+            <span class="summary-value">{{ item.value }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- JSON tree -->
+  <div class="json-tree">
+    @if (isProcessing()) {
+      <div class="json-loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Processing JSON data...</div>
+      </div>
+    } @else if (!jsonData) {
+      <div class="json-empty">
+        No JSON data to display
+      </div>
+    } @else if (nodes().length === 0) {
+      <div class="json-error">
+        Invalid JSON data
+      </div>
+    } @else {
+      <div class="tree-container">
+        @for (node of nodes(); track node.path) {
+          <ng-container *ngTemplateOutlet="nodeTemplate; context: { $implicit: node }"></ng-container>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<ng-template #nodeTemplate let-node>
+  <div class="tree-node" [class]="getNodeClass(node)">
+    <div class="node-content" (click)="toggleNode(node)">
+      <!-- Indentation -->
+      <span class="node-indent">
+        @for (i of [].constructor(node.depth); track i) {
+          <span class="indent-level"></span>
+        }
+      </span>
+      
+      <!-- Expand/collapse toggle -->
+      @if (node.type === 'object' || node.type === 'array') {
+        <span class="node-toggle">
+          {{ node.expanded ? '▼' : '▶' }}
+        </span>
+      } @else {
+        <span class="node-toggle-placeholder"></span>
+      }
+      
+      <!-- Key -->
+      <span class="node-key" [class.search-match]="node.searchMatch">
+        {{ node.key }}:
+      </span>
+      
+      <!-- Value or type indicator -->
+      @if (node.type === 'object' || node.type === 'array') {
+        <span class="node-type" [class.search-match]="node.searchMatch">
+          {{ getTypeLabel(node) }}
+        </span>
+      } @else {
+        <span class="node-value" [class.search-match]="node.searchMatch">
+          {{ getValueDisplay(node) }}
+        </span>
+      }
+    </div>
+    
+    <!-- Children (if expanded) -->
+    @if ((node.type === 'object' || node.type === 'array') && node.expanded && node.children) {
+      <div class="node-children">
+        @for (child of node.children; track child.path) {
+          <ng-container *ngTemplateOutlet="nodeTemplate; context: { $implicit: child }"></ng-container>
+        }
+      </div>
+    }
+  </div>
+</ng-template>

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
@@ -18,18 +19,16 @@ public sealed class PlantourUsersService(
     PlantourContext context,
     HttpClient httpClient,
     IMemoryCache memoryCache,
-    IOptions<PaddleSettings> paddleSettingsOptions) : IPlantourUsersService
+    IOptions<StripeSettings> stripeSettingsOptions) : IPlantourUsersService
 {
-    private const int PaddleCustomersBatchSize = 100;
-    private const int PaddleSubscriptionsBatchSize = 200;
-    private const int PaddleTransactionsBatchSize = 30;
-    private static readonly TimeSpan PaddleSnapshotCacheDuration = TimeSpan.FromMinutes(10);
-    private static readonly TimeSpan PaddleSnapshotRequestTimeout = TimeSpan.FromSeconds(12);
+    private const int StripePageSize = 100;
+    private static readonly TimeSpan StripeSnapshotCacheDuration = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan StripeSnapshotRequestTimeout = TimeSpan.FromSeconds(12);
 
     private readonly PlantourContext _context = context;
     private readonly HttpClient _httpClient = httpClient;
     private readonly IMemoryCache _memoryCache = memoryCache;
-    private readonly PaddleSettings _paddleSettings = paddleSettingsOptions.Value;
+    private readonly StripeSettings _stripeSettings = stripeSettingsOptions.Value;
 
     public async Task<IReadOnlyList<PlantourUserRowDto>> GetAllAsync(
         DateTimeOffset? from = null,
@@ -57,6 +56,7 @@ public sealed class PlantourUsersService(
                 user.FirstName,
                 user.LastName,
                 user.AccessType.Name,
+                user.PaymentProcessorSubscriptionId,
                 user.Temporary,
                 user.CreatedAt,
                 user.AdminsParticipantParticipants.Count()))
@@ -135,19 +135,39 @@ public sealed class PlantourUsersService(
             .OrderBy(email => email, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        var paddleSnapshot = await GetPaddleSnapshotAsync(normalizedEmails, cancellationToken);
+        var linkedSubscriptionIds = users
+            .Select(user => user.PaymentProcessorSubscriptionId?.Trim())
+            .Where(subscriptionId => !string.IsNullOrWhiteSpace(subscriptionId))
+            .Cast<string>()
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(subscriptionId => subscriptionId, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        var stripeSnapshot = await GetStripeSnapshotAsync(normalizedEmails, linkedSubscriptionIds, cancellationToken);
 
         return users.Select(user =>
         {
-            paddleSnapshot.CustomersByEmail.TryGetValue(NormalizeEmail(user.Email), out var paddleCustomer);
-
             CustomerSubscriptionSummary? subscriptionSummary = null;
             PaymentSummary? paymentSummary = null;
+            StripeCustomerRecord? stripeCustomer = null;
 
-            if (paddleCustomer != null)
+            if (!string.IsNullOrWhiteSpace(user.PaymentProcessorSubscriptionId) &&
+                stripeSnapshot.SubscriptionsBySubscriptionId.TryGetValue(user.PaymentProcessorSubscriptionId, out var linkedSubscription))
             {
-                paddleSnapshot.SubscriptionsByCustomerId.TryGetValue(paddleCustomer.Id, out subscriptionSummary);
-                paddleSnapshot.PaymentsByCustomerId.TryGetValue(paddleCustomer.Id, out paymentSummary);
+                stripeSnapshot.CustomersById.TryGetValue(linkedSubscription.CustomerId, out stripeCustomer);
+                stripeSnapshot.SubscriptionsByCustomerId.TryGetValue(linkedSubscription.CustomerId, out subscriptionSummary);
+                stripeSnapshot.PaymentsByCustomerId.TryGetValue(linkedSubscription.CustomerId, out paymentSummary);
+            }
+
+            if (stripeCustomer == null)
+            {
+                stripeSnapshot.CustomersByEmail.TryGetValue(NormalizeEmail(user.Email), out stripeCustomer);
+
+                if (stripeCustomer != null)
+                {
+                    stripeSnapshot.SubscriptionsByCustomerId.TryGetValue(stripeCustomer.Id, out subscriptionSummary);
+                    stripeSnapshot.PaymentsByCustomerId.TryGetValue(stripeCustomer.Id, out paymentSummary);
+                }
             }
 
             return new PlantourUserRowDto
@@ -157,11 +177,11 @@ public sealed class PlantourUsersService(
                 FullName = BuildFullName(user.FirstName, user.LastName),
                 Role = BuildRole(user.AccessTypeName, user.ParticipantAdminLinks),
                 Plan = subscriptionSummary?.DisplayPlanName,
-                PaddleCustomerId = paddleCustomer?.Id,
-                PaddleCustomerStatus = paddleCustomer?.Status,
-                PaddleSubscriptionId = subscriptionSummary?.SubscriptionId,
-                PaddleSubscriptionStatus = subscriptionSummary?.SubscriptionStatus,
-                PaddlePriceId = subscriptionSummary?.PriceId,
+                StripeCustomerId = stripeCustomer?.Id,
+                StripeCustomerStatus = stripeCustomer?.Status,
+                StripeSubscriptionId = subscriptionSummary?.SubscriptionId,
+                StripeSubscriptionStatus = subscriptionSummary?.SubscriptionStatus,
+                StripePriceId = subscriptionSummary?.PriceId,
                 Temporary = user.Temporary,
                 DateJoined = user.DateJoined,
                 HasActiveSubscription = subscriptionSummary?.HasActiveSubscription ?? false,
@@ -199,99 +219,320 @@ public sealed class PlantourUsersService(
         }
     }
 
-    private async Task<PaddleSnapshot> GetPaddleSnapshotAsync(IReadOnlyList<string> normalizedEmails, CancellationToken cancellationToken)
+    public async Task<ComprehensiveUserDto> GetComprehensiveDataAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
     {
-        if (normalizedEmails.Count == 0)
+        var user = await _context.Users
+            .AsNoTracking()
+            .Include(u => u.AccessType)
+            .Include(u => u.Currency)
+            .Include(u => u.UserSettings)
+            .Include(u => u.UserKeys)
+            .Include(u => u.UserThings)
+            .Include(u => u.UserTodos)
+            .Include(u => u.UserPackages)
+            .Include(u => u.AdminsParticipantAdmins)
+            .Include(u => u.AdminsParticipantParticipants)
+            .Include(u => u.AiPrompts)
+            .Include(u => u.Trips)
+            .Include(u => u.AiPromptCheck)
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+        if (user == null)
         {
-            return PaddleSnapshot.Empty;
+            throw new NotFoundException("User not found.", "USER_NOT_FOUND");
         }
 
-        var cacheKey = BuildPaddleSnapshotCacheKey(normalizedEmails);
+        // Load indirect relationships with limits to prevent huge responses
+        var tripUsers = await _context.TripUsers
+            .AsNoTracking()
+            .Include(tu => tu.AdminParticipant)
+            .Include(tu => tu.TripUserThings)
+            .Include(tu => tu.TripUserTodos)
+            .Include(tu => tu.TripUserExpenseTripUsers)
+            .Include(tu => tu.TripUserPackages)
+            .Where(tu => tu.AdminParticipant.ParticipantId == userId || tu.AdminParticipant.AdminId == userId)
+            .Take(50) // Limit to 50 trip users
+            .ToListAsync(cancellationToken);
 
-        if (_memoryCache.TryGetValue<PaddleSnapshot>(cacheKey, out var cachedSnapshot) && cachedSnapshot != null)
+        var apiVisits = await _context.ApiVisits
+            .AsNoTracking()
+            .Where(av => av.UserId == userId)
+            .OrderByDescending(av => av.CreatedAt) // Get most recent first
+            .Take(100) // Limit to 100 most recent API visits
+            .Select(av => new
+            {
+                av.Id,
+                av.CreatedAt,
+                av.Method,
+                av.Path,
+                av.QueryString,
+                av.Endpoint,
+                av.StatusCode,
+                av.DurationMs,
+                IpAddress = av.IpAddress != null ? av.IpAddress.ToString() : null,
+                av.ForwardedFor,
+                av.UserAgent,
+                av.Referrer,
+                av.Host,
+                av.Scheme,
+                av.Protocol,
+                av.RequestId,
+                av.UserId
+            })
+            .ToListAsync(cancellationToken);
+
+        // Load logs for the user
+        var logs = await _context.Logs
+            .AsNoTracking()
+            .Where(l => l.UserId == userId)
+            .OrderByDescending(l => l.CreatedAt) // Get most recent first
+            .Take(100) // Limit to 100 most recent logs
+            .Select(l => new
+            {
+                l.Id,
+                l.CreatedAt,
+                l.Severity,
+                l.Category,
+                l.Message,
+                l.UserId,
+                l.Properties
+            })
+            .ToListAsync(cancellationToken);
+
+        // ContactSubmissions don't have UserId, skip them
+        var contactSubmissions = Array.Empty<object>();
+
+        // Extract collections for the DTO
+        var tripUserThings = tripUsers.SelectMany(tu => tu.TripUserThings).ToList();
+        var tripUserTodos = tripUsers.SelectMany(tu => tu.TripUserTodos).ToList();
+        var tripUserExpenses = tripUsers.SelectMany(tu => tu.TripUserExpenseTripUsers).ToList();
+        var tripUserPackages = tripUsers.SelectMany(tu => tu.TripUserPackages).ToList();
+
+        // Helper function to convert entities to serializable objects with limits
+        object[] ToObjectArray<T>(IEnumerable<T>? collection, int? maxItems = null) where T : class
+        {
+            if (collection == null)
+                return Array.Empty<object>();
+            
+            var items = collection as IList<T> ?? collection.ToList();
+            
+            if (maxItems.HasValue && items.Count > maxItems.Value)
+            {
+                items = items.Take(maxItems.Value).ToList();
+            }
+            
+            return items
+                .Select(item => (object)item)
+                .ToArray();
+        }
+
+        return new ComprehensiveUserDto
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Phone = user.Phone,
+            GoogleSub = user.GoogleSub,
+            FacebookUserId = user.FacebookUserId,
+            Notes = user.Notes,
+            CreatedAt = user.CreatedAt,
+            Temporary = user.Temporary,
+            ParticipantCode = user.ParticipantCode,
+            PaymentProcessorSubscriptionId = user.PaymentProcessorSubscriptionId,
+            AccessTypeId = user.AccessTypeId,
+            CurrencyId = user.CurrencyId,
+            
+            // Convert collections to object arrays for JSON serialization with limits
+            UserSettings = ToObjectArray(user.UserSettings, 50),
+            UserKeys = ToObjectArray(user.UserKeys, 50),
+            UserThings = ToObjectArray(user.UserThings, 100),
+            UserTodos = ToObjectArray(user.UserTodos, 100),
+            UserPackages = ToObjectArray(user.UserPackages, 50),
+            AdminsParticipantAdmins = ToObjectArray(user.AdminsParticipantAdmins, 50),
+            AdminsParticipantParticipants = ToObjectArray(user.AdminsParticipantParticipants, 50),
+            AiPrompts = ToObjectArray(user.AiPrompts, 50),
+            Trips = ToObjectArray(user.Trips, 50),
+            
+            TripUsers = ToObjectArray(tripUsers, 50),
+            TripUserThings = ToObjectArray(tripUserThings, 100),
+            TripUserTodos = ToObjectArray(tripUserTodos, 100),
+            TripUserExpenses = ToObjectArray(tripUserExpenses, 100),
+            TripUserPackages = ToObjectArray(tripUserPackages, 50),
+            
+            ApiVisits = ToObjectArray(apiVisits, 100),
+            ContactSubmissions = contactSubmissions,
+            Logs = ToObjectArray(logs, 100),
+            
+            TotalTripsCount = (user.Trips?.Count ?? 0) + (tripUsers?.Select(tu => tu.TripId).Distinct().Count() ?? 0),
+            TotalThingsCount = (user.UserThings?.Count ?? 0) + (tripUserThings?.Count ?? 0),
+            TotalTodosCount = (user.UserTodos?.Count ?? 0) + (tripUserTodos?.Count ?? 0),
+            TotalExpensesCount = tripUserExpenses?.Count ?? 0,
+            TotalPackagesCount = (user.UserPackages?.Count ?? 0) + (tripUserPackages?.Count ?? 0)
+        };
+    }
+
+    private async Task<StripeSnapshot> GetStripeSnapshotAsync(
+        IReadOnlyList<string> normalizedEmails,
+        IReadOnlyList<string> linkedSubscriptionIds,
+        CancellationToken cancellationToken)
+    {
+        if (normalizedEmails.Count == 0 && linkedSubscriptionIds.Count == 0)
+        {
+            return StripeSnapshot.Empty;
+        }
+
+        var cacheKey = BuildStripeSnapshotCacheKey(normalizedEmails, linkedSubscriptionIds);
+
+        if (_memoryCache.TryGetValue<StripeSnapshot>(cacheKey, out var cachedSnapshot) && cachedSnapshot != null)
         {
             return cachedSnapshot;
         }
 
         using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeoutCts.CancelAfter(PaddleSnapshotRequestTimeout);
+        timeoutCts.CancelAfter(StripeSnapshotRequestTimeout);
 
         try
         {
-            var customersByEmail = await GetCustomersByEmailAsync(normalizedEmails, timeoutCts.Token);
-            var customerIds = customersByEmail.Values
+            var customersByEmailGroup = await GetCustomersByEmailAsync(normalizedEmails, timeoutCts.Token);
+            var subscriptionsBySubscriptionId = await GetSubscriptionsByIdAsync(linkedSubscriptionIds, timeoutCts.Token);
+            var customerIds = customersByEmailGroup.Values
+                .SelectMany(group => group)
                 .Select(customer => customer.Id)
+                .Concat(subscriptionsBySubscriptionId.Values.Select(subscription => subscription.CustomerId))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToArray();
 
             var subscriptionsByCustomerId = await GetSubscriptionsByCustomerIdAsync(customerIds, timeoutCts.Token);
             var paymentsByCustomerId = await GetPaymentsByCustomerIdAsync(customerIds, timeoutCts.Token);
+            var customersById = await GetCustomersByIdAsync(customersByEmailGroup, customerIds, timeoutCts.Token);
+            var customersByEmail = customersByEmailGroup.ToDictionary(
+                item => item.Key,
+                item => SelectPreferredCustomer(item.Value, subscriptionsByCustomerId),
+                StringComparer.OrdinalIgnoreCase);
 
-            var snapshot = new PaddleSnapshot(customersByEmail, subscriptionsByCustomerId, paymentsByCustomerId);
-            _memoryCache.Set(cacheKey, snapshot, PaddleSnapshotCacheDuration);
+            var snapshot = new StripeSnapshot(customersByEmail, customersById, subscriptionsByCustomerId, subscriptionsBySubscriptionId, paymentsByCustomerId);
+            _memoryCache.Set(cacheKey, snapshot, StripeSnapshotCacheDuration);
             return snapshot;
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            return PaddleSnapshot.Empty;
+            throw new CustomException("Stripe request timed out while loading maintenance users.", "STRIPE_REQUEST_TIMEOUT");
         }
         catch (Exception)
         {
-            return PaddleSnapshot.Empty;
+            throw;
         }
     }
 
-    private async Task<Dictionary<string, PaddleCustomerRecord>> GetCustomersByEmailAsync(
-        IReadOnlyList<string> normalizedEmails,
+    private async Task<Dictionary<string, StripeCustomerRecord>> GetCustomersByIdAsync(
+        IReadOnlyDictionary<string, List<StripeCustomerRecord>> customersByEmailGroup,
+        IReadOnlyList<string> customerIds,
         CancellationToken cancellationToken)
     {
-        var result = new Dictionary<string, PaddleCustomerRecord>(StringComparer.OrdinalIgnoreCase);
+        var result = customersByEmailGroup.Values
+            .SelectMany(group => group)
+            .GroupBy(customer => customer.Id, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.OrderByDescending(customer => customer.CreatedAt).First(), StringComparer.OrdinalIgnoreCase);
 
-        foreach (var emailBatch in Batch(normalizedEmails, PaddleCustomersBatchSize))
+        foreach (var customerId in customerIds)
         {
-            var emailFilter = string.Join(",", emailBatch.Select(Uri.EscapeDataString));
-            var customers = await GetAllPaddleEntitiesAsync(
-                $"customers?status=active,archived&per_page=200&order_by=id[ASC]&email={emailFilter}",
-                cancellationToken);
-
-            foreach (var customer in customers)
+            if (result.ContainsKey(customerId))
             {
-                if (!TryGetString(customer, "email", out var email) || string.IsNullOrWhiteSpace(email))
-                {
-                    continue;
-                }
-
-                if (!TryGetString(customer, "id", out var id) || string.IsNullOrWhiteSpace(id))
-                {
-                    continue;
-                }
-
-                var normalizedEmail = NormalizeEmail(email);
-                var createdAt = TryGetDateTime(customer, "created_at");
-                var status = TryGetString(customer, "status", out var statusValue) ? statusValue : null;
-                var nextRecord = new PaddleCustomerRecord(id, normalizedEmail, status, createdAt ?? DateTime.MinValue);
-
-                if (!result.TryGetValue(normalizedEmail, out var currentRecord) || Prefer(nextRecord, currentRecord))
-                {
-                    result[normalizedEmail] = nextRecord;
-                }
+                continue;
             }
+
+            var customer = await GetStripeObjectAsync($"customers/{Uri.EscapeDataString(customerId)}", cancellationToken);
+            if (customer == null)
+            {
+                continue;
+            }
+
+            result[customerId] = new StripeCustomerRecord(
+                customerId,
+                TryGetString(customer.Value, "email", out var email) ? NormalizeEmail(email) : string.Empty,
+                "active",
+                TryGetUnixDateTime(customer.Value, "created") ?? DateTime.MinValue);
         }
 
         return result;
+    }
 
-        static bool Prefer(PaddleCustomerRecord candidate, PaddleCustomerRecord existing)
+    private async Task<Dictionary<string, SubscriptionRecord>> GetSubscriptionsByIdAsync(
+        IReadOnlyList<string> subscriptionIds,
+        CancellationToken cancellationToken)
+    {
+        var result = new Dictionary<string, SubscriptionRecord>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var subscriptionId in subscriptionIds)
         {
-            var candidateActive = string.Equals(candidate.Status, "active", StringComparison.OrdinalIgnoreCase);
-            var existingActive = string.Equals(existing.Status, "active", StringComparison.OrdinalIgnoreCase);
-
-            if (candidateActive != existingActive)
+            var subscription = await GetStripeObjectAsync($"subscriptions/{Uri.EscapeDataString(subscriptionId)}", cancellationToken);
+            if (subscription == null)
             {
-                return candidateActive;
+                continue;
             }
 
-            return candidate.CreatedAt > existing.CreatedAt;
+            if (!TryGetObjectId(subscription.Value, "customer", out var customerId) || string.IsNullOrWhiteSpace(customerId))
+            {
+                continue;
+            }
+
+            var status = TryGetString(subscription.Value, "status", out var statusValue) ? statusValue : null;
+            var startedAt = TryGetUnixDateTime(subscription.Value, "start_date");
+            var createdAt = TryGetUnixDateTime(subscription.Value, "created");
+            var billingPeriodEnd = TryGetSubscriptionCurrentPeriodEnd(subscription.Value);
+            var priceId = TryGetFirstSubscriptionPriceId(subscription.Value);
+
+            result[subscriptionId] = new SubscriptionRecord(subscriptionId, customerId, status, startedAt, createdAt, billingPeriodEnd, priceId);
         }
+
+        return result;
+    }
+
+    private async Task<Dictionary<string, List<StripeCustomerRecord>>> GetCustomersByEmailAsync(
+        IReadOnlyList<string> normalizedEmails,
+        CancellationToken cancellationToken)
+    {
+        var emailSet = normalizedEmails.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var result = new Dictionary<string, List<StripeCustomerRecord>>(StringComparer.OrdinalIgnoreCase);
+        var customers = await GetAllStripeEntitiesAsync($"customers?limit={StripePageSize}", cancellationToken);
+
+        foreach (var customer in customers)
+        {
+            if (!TryGetString(customer, "email", out var email) || string.IsNullOrWhiteSpace(email))
+            {
+                continue;
+            }
+
+            var normalizedEmail = NormalizeEmail(email);
+            if (!emailSet.Contains(normalizedEmail))
+            {
+                continue;
+            }
+
+            if (!TryGetString(customer, "id", out var id) || string.IsNullOrWhiteSpace(id))
+            {
+                continue;
+            }
+
+            var nextRecord = new StripeCustomerRecord(
+                id,
+                normalizedEmail,
+                "active",
+                TryGetUnixDateTime(customer, "created") ?? DateTime.MinValue);
+
+            if (!result.TryGetValue(normalizedEmail, out var existingRecords))
+            {
+                existingRecords = [];
+                result[normalizedEmail] = existingRecords;
+            }
+
+            existingRecords.Add(nextRecord);
+        }
+
+        return result;
     }
 
     private async Task<Dictionary<string, CustomerSubscriptionSummary>> GetSubscriptionsByCustomerIdAsync(
@@ -303,46 +544,44 @@ public sealed class PlantourUsersService(
             return new Dictionary<string, CustomerSubscriptionSummary>(StringComparer.OrdinalIgnoreCase);
         }
 
+        var customerIdSet = customerIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
         var grouped = new Dictionary<string, List<SubscriptionRecord>>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var customerBatch in Batch(customerIds, PaddleSubscriptionsBatchSize))
+        var subscriptions = await GetAllStripeEntitiesAsync($"subscriptions?status=all&limit={StripePageSize}", cancellationToken);
+
+        foreach (var subscription in subscriptions)
         {
-            var customerFilter = string.Join(",", customerBatch.Select(Uri.EscapeDataString));
-            var subscriptions = await GetAllPaddleEntitiesAsync(
-                $"subscriptions?per_page=200&order_by=id[ASC]&customer_id={customerFilter}",
-                cancellationToken);
-
-            foreach (var subscription in subscriptions)
+            if (!TryGetObjectId(subscription, "customer", out var customerId) ||
+                string.IsNullOrWhiteSpace(customerId) ||
+                !customerIdSet.Contains(customerId))
             {
-                if (!TryGetString(subscription, "id", out var subscriptionId) || string.IsNullOrWhiteSpace(subscriptionId))
-                {
-                    continue;
-                }
-
-                if (!TryGetString(subscription, "customer_id", out var customerId) || string.IsNullOrWhiteSpace(customerId))
-                {
-                    continue;
-                }
-
-                var status = TryGetString(subscription, "status", out var statusValue) ? statusValue : null;
-                var startedAt = TryGetDateTime(subscription, "started_at");
-                var createdAt = TryGetDateTime(subscription, "created_at");
-                var priceId = TryGetFirstSubscriptionPriceId(subscription);
-
-                if (!grouped.TryGetValue(customerId, out var customerSubscriptions))
-                {
-                    customerSubscriptions = [];
-                    grouped[customerId] = customerSubscriptions;
-                }
-
-                customerSubscriptions.Add(new SubscriptionRecord(subscriptionId, customerId, status, startedAt, createdAt, priceId));
+                continue;
             }
+
+            if (!TryGetString(subscription, "id", out var subscriptionId) || string.IsNullOrWhiteSpace(subscriptionId))
+            {
+                continue;
+            }
+
+            var status = TryGetString(subscription, "status", out var statusValue) ? statusValue : null;
+            var startedAt = TryGetUnixDateTime(subscription, "start_date");
+            var createdAt = TryGetUnixDateTime(subscription, "created");
+            var billingPeriodEnd = TryGetSubscriptionCurrentPeriodEnd(subscription);
+            var priceId = TryGetFirstSubscriptionPriceId(subscription);
+
+            if (!grouped.TryGetValue(customerId, out var customerSubscriptions))
+            {
+                customerSubscriptions = [];
+                grouped[customerId] = customerSubscriptions;
+            }
+
+            customerSubscriptions.Add(new SubscriptionRecord(subscriptionId, customerId, status, startedAt, createdAt, billingPeriodEnd, priceId));
         }
 
         var planNamesByPriceId = await _context.Prices
             .AsNoTracking()
-            .Where(price => price.PaddlePriceId != null)
-            .Select(price => new PlanPriceRecord(price.PaddlePriceId!, price.Plan.Name))
+            .Where(price => price.PaymentProcessorPriceId != null)
+            .Select(price => new PlanPriceRecord(price.PaymentProcessorPriceId!, price.Plan.Name))
             .ToDictionaryAsync(item => item.PriceId, item => item.PlanName, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
         return grouped.ToDictionary(
@@ -361,10 +600,10 @@ public sealed class PlantourUsersService(
         }
 
         var ordered = subscriptions
-            .OrderByDescending(item => item.StartedAt ?? item.CreatedAt ?? DateTime.MinValue)
+            .OrderByDescending(item => GetSortDate(item.BillingPeriodEnd, item.StartedAt, item.CreatedAt))
             .ToList();
 
-        var activeSubscription = ordered.FirstOrDefault(item => string.Equals(item.Status, "active", StringComparison.OrdinalIgnoreCase));
+        var activeSubscription = ordered.FirstOrDefault(item => IsAccessibleSubscription(item.Status, item.BillingPeriodEnd));
         var latestSubscription = ordered[0];
         var planSource = activeSubscription ?? latestSubscription;
 
@@ -376,7 +615,7 @@ public sealed class PlantourUsersService(
 
         return new CustomerSubscriptionSummary(
             activeSubscription != null,
-            latestSubscription.StartedAt,
+            latestSubscription.StartedAt ?? latestSubscription.CreatedAt,
             planName,
             planSource.Id,
             planSource.Status,
@@ -392,52 +631,37 @@ public sealed class PlantourUsersService(
             return new Dictionary<string, PaymentSummary>(StringComparer.OrdinalIgnoreCase);
         }
 
+        var customerIdSet = customerIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
         var totalsByCustomerId = new Dictionary<string, Dictionary<string, decimal>>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var customerBatch in Batch(customerIds, PaddleTransactionsBatchSize))
+        var invoices = await GetAllStripeEntitiesAsync($"invoices?status=paid&limit={StripePageSize}", cancellationToken);
+
+        foreach (var invoice in invoices)
         {
-            var customerFilter = string.Join(",", customerBatch.Select(Uri.EscapeDataString));
-            var transactions = await GetAllPaddleEntitiesAsync(
-                $"transactions?status=completed,billed&per_page=30&customer_id={customerFilter}",
-                cancellationToken);
-
-            foreach (var transaction in transactions)
+            if (!TryGetObjectId(invoice, "customer", out var customerId) ||
+                string.IsNullOrWhiteSpace(customerId) ||
+                !customerIdSet.Contains(customerId))
             {
-                if (!TryGetString(transaction, "customer_id", out var customerId) || string.IsNullOrWhiteSpace(customerId))
-                {
-                    continue;
-                }
-
-                var currencyCode = TryGetString(transaction, "currency_code", out var code) && !string.IsNullOrWhiteSpace(code)
-                    ? code.ToUpperInvariant()
-                    : "UNKNOWN";
-
-                if (!transaction.TryGetProperty("payments", out var paymentsElement) || paymentsElement.ValueKind != JsonValueKind.Array)
-                {
-                    continue;
-                }
-
-                foreach (var payment in paymentsElement.EnumerateArray())
-                {
-                    if (!TryGetString(payment, "status", out var paymentStatus) || !string.Equals(paymentStatus, "captured", StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
-
-                    if (!TryGetString(payment, "amount", out var amountValue) || !decimal.TryParse(amountValue, NumberStyles.Number, CultureInfo.InvariantCulture, out var minorUnits))
-                    {
-                        continue;
-                    }
-
-                    if (!totalsByCustomerId.TryGetValue(customerId, out var currencyTotals))
-                    {
-                        currencyTotals = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
-                        totalsByCustomerId[customerId] = currencyTotals;
-                    }
-
-                    currencyTotals[currencyCode] = currencyTotals.GetValueOrDefault(currencyCode) + minorUnits;
-                }
+                continue;
             }
+
+            var currencyCode = TryGetString(invoice, "currency", out var code) && !string.IsNullOrWhiteSpace(code)
+                ? code.ToUpperInvariant()
+                : "UNKNOWN";
+            var paidMinorUnits = TryGetDecimal(invoice, "amount_paid");
+
+            if (!paidMinorUnits.HasValue || paidMinorUnits.Value <= 0)
+            {
+                continue;
+            }
+
+            if (!totalsByCustomerId.TryGetValue(customerId, out var currencyTotals))
+            {
+                currencyTotals = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+                totalsByCustomerId[customerId] = currencyTotals;
+            }
+
+            currencyTotals[currencyCode] = currencyTotals.GetValueOrDefault(currencyCode) + paidMinorUnits.Value;
         }
 
         return totalsByCustomerId.ToDictionary(
@@ -446,28 +670,41 @@ public sealed class PlantourUsersService(
             StringComparer.OrdinalIgnoreCase);
     }
 
-    private async Task<List<JsonElement>> GetAllPaddleEntitiesAsync(string path, CancellationToken cancellationToken)
+    private async Task<List<JsonElement>> GetAllStripeEntitiesAsync(string path, CancellationToken cancellationToken)
     {
-        EnsurePaddleConfigured();
+        EnsureStripeConfigured();
 
         if (_httpClient.BaseAddress == null)
         {
-            _httpClient.BaseAddress = new Uri(_paddleSettings.ApiBaseUrl!, UriKind.Absolute);
+            _httpClient.BaseAddress = new Uri(_stripeSettings.ApiBaseUrl!, UriKind.Absolute);
         }
 
         var result = new List<JsonElement>();
-        string? nextPath = path;
+        string? nextStartingAfter = null;
 
-        while (!string.IsNullOrWhiteSpace(nextPath))
+        while (true)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, nextPath);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _paddleSettings.ApiKey);
+            var requestPath = path;
+            if (!string.IsNullOrWhiteSpace(nextStartingAfter))
+            {
+                requestPath += requestPath.Contains('?', StringComparison.Ordinal) ? "&" : "?";
+                requestPath += $"starting_after={Uri.EscapeDataString(nextStartingAfter)}";
+            }
 
-            using var response = await SendPaddleRequestWithRetryAsync(request, cancellationToken);
+            using var request = new HttpRequestMessage(HttpMethod.Get, requestPath);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _stripeSettings.ApiKey);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            using var response = await SendStripeRequestWithRetryAsync(request, cancellationToken);
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return result;
+            }
+
             if (!response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync(cancellationToken);
-                throw new CustomException($"Paddle request failed with {(int)response.StatusCode}: {body}", "PADDLE_REQUEST_FAILED");
+                throw new CustomException($"Stripe request failed with {(int)response.StatusCode}: {body}", "STRIPE_REQUEST_FAILED");
             }
 
             await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
@@ -475,21 +712,55 @@ public sealed class PlantourUsersService(
 
             if (!document.RootElement.TryGetProperty("data", out var dataElement) || dataElement.ValueKind != JsonValueKind.Array)
             {
-                throw new CustomException("Paddle response does not contain an array data property.", "PADDLE_INVALID_RESPONSE");
+                throw new CustomException("Stripe response does not contain an array data property.", "STRIPE_INVALID_RESPONSE");
             }
 
-            foreach (var item in dataElement.EnumerateArray())
+            var page = dataElement.EnumerateArray().Select(item => item.Clone()).ToList();
+            result.AddRange(page);
+
+            var hasMore = document.RootElement.TryGetProperty("has_more", out var hasMoreElement) &&
+                hasMoreElement.ValueKind == JsonValueKind.True;
+
+            if (!hasMore || page.Count == 0)
             {
-                result.Add(item.Clone());
+                return result;
             }
 
-            nextPath = TryGetNextPage(document.RootElement);
+            nextStartingAfter = GetRequiredString(page[^1], "id", "Stripe list item does not contain id");
         }
-
-        return result;
     }
 
-    private async Task<HttpResponseMessage> SendPaddleRequestWithRetryAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    private async Task<JsonElement?> GetStripeObjectAsync(string path, CancellationToken cancellationToken)
+    {
+        EnsureStripeConfigured();
+
+        if (_httpClient.BaseAddress == null)
+        {
+            _httpClient.BaseAddress = new Uri(_stripeSettings.ApiBaseUrl!, UriKind.Absolute);
+        }
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, path);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _stripeSettings.ApiKey);
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        using var response = await SendStripeRequestWithRetryAsync(request, cancellationToken);
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new CustomException($"Stripe request failed with {(int)response.StatusCode}: {body}", "STRIPE_REQUEST_FAILED");
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
+        return document.RootElement.Clone();
+    }
+
+    private async Task<HttpResponseMessage> SendStripeRequestWithRetryAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var response = await _httpClient.SendAsync(CloneRequest(request), cancellationToken);
 
@@ -518,34 +789,12 @@ public sealed class PlantourUsersService(
         return await _httpClient.SendAsync(CloneRequest(request), cancellationToken);
     }
 
-    private void EnsurePaddleConfigured()
+    private void EnsureStripeConfigured()
     {
-        if (string.IsNullOrWhiteSpace(_paddleSettings.ApiBaseUrl) || string.IsNullOrWhiteSpace(_paddleSettings.ApiKey))
+        if (string.IsNullOrWhiteSpace(_stripeSettings.ApiBaseUrl) || string.IsNullOrWhiteSpace(_stripeSettings.ApiKey))
         {
-            throw new CustomException("PaddleSettings ApiBaseUrl and ApiKey must both be configured for maintenance users.", "PADDLE_SETTINGS_MISSING");
+            throw new CustomException("StripeSettings ApiBaseUrl and ApiKey must both be configured for maintenance users.", "STRIPE_SETTINGS_MISSING");
         }
-    }
-
-    private static string? TryGetNextPage(JsonElement root)
-    {
-        if (!root.TryGetProperty("meta", out var metaElement) ||
-            !metaElement.TryGetProperty("pagination", out var paginationElement))
-        {
-            return null;
-        }
-
-        var hasMore = paginationElement.TryGetProperty("has_more", out var hasMoreElement) &&
-            hasMoreElement.ValueKind == JsonValueKind.True;
-
-        if (!hasMore ||
-            !paginationElement.TryGetProperty("next", out var nextElement) ||
-            nextElement.ValueKind == JsonValueKind.Null)
-        {
-            return null;
-        }
-
-        var next = nextElement.GetString();
-        return string.IsNullOrWhiteSpace(next) ? null : next;
     }
 
     private static string BuildFullName(string? firstName, string? lastName)
@@ -559,26 +808,13 @@ public sealed class PlantourUsersService(
         return email.Trim().ToLowerInvariant();
     }
 
-    private static string BuildPaddleSnapshotCacheKey(IReadOnlyList<string> normalizedEmails)
+    private static string BuildStripeSnapshotCacheKey(
+        IReadOnlyList<string> normalizedEmails,
+        IReadOnlyList<string> linkedSubscriptionIds)
     {
-        var payload = string.Join("\n", normalizedEmails);
+        var payload = string.Join("\n", normalizedEmails) + "\n---\n" + string.Join("\n", linkedSubscriptionIds);
         var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(payload)));
-        return $"plantour-maintenance:paddle-users:{hash}";
-    }
-
-    private static IEnumerable<T[]> Batch<T>(IReadOnlyList<T> source, int size)
-    {
-        for (var index = 0; index < source.Count; index += size)
-        {
-            var length = Math.Min(size, source.Count - index);
-            var batch = new T[length];
-            for (var offset = 0; offset < length; offset++)
-            {
-                batch[offset] = source[index + offset];
-            }
-
-            yield return batch;
-        }
+        return $"plantour-maintenance:stripe-users:{hash}";
     }
 
     private static HttpRequestMessage CloneRequest(HttpRequestMessage request)
@@ -595,14 +831,26 @@ public sealed class PlantourUsersService(
 
     private static string? TryGetFirstSubscriptionPriceId(JsonElement subscription)
     {
-        if (!subscription.TryGetProperty("items", out var itemsElement) || itemsElement.ValueKind != JsonValueKind.Array)
+        if (!subscription.TryGetProperty("items", out var itemsElement) ||
+            !itemsElement.TryGetProperty("data", out var itemsDataElement) ||
+            itemsDataElement.ValueKind != JsonValueKind.Array)
         {
             return null;
         }
 
-        foreach (var item in itemsElement.EnumerateArray())
+        foreach (var item in itemsDataElement.EnumerateArray())
         {
-            if (item.TryGetProperty("price", out var priceElement) &&
+            if (!item.TryGetProperty("price", out var priceElement))
+            {
+                continue;
+            }
+
+            if (priceElement.ValueKind == JsonValueKind.String)
+            {
+                return priceElement.GetString();
+            }
+
+            if (priceElement.ValueKind == JsonValueKind.Object &&
                 priceElement.TryGetProperty("id", out var priceIdElement) &&
                 priceIdElement.ValueKind == JsonValueKind.String)
             {
@@ -611,6 +859,27 @@ public sealed class PlantourUsersService(
         }
 
         return null;
+    }
+
+    private static DateTime? TryGetSubscriptionCurrentPeriodEnd(JsonElement subscription)
+    {
+        if (!subscription.TryGetProperty("items", out var itemsElement) ||
+            !itemsElement.TryGetProperty("data", out var itemsDataElement) ||
+            itemsDataElement.ValueKind != JsonValueKind.Array)
+        {
+            return TryGetUnixDateTime(subscription, "current_period_end");
+        }
+
+        foreach (var item in itemsDataElement.EnumerateArray())
+        {
+            var periodEnd = TryGetUnixDateTime(item, "current_period_end");
+            if (periodEnd.HasValue)
+            {
+                return periodEnd;
+            }
+        }
+
+        return TryGetUnixDateTime(subscription, "current_period_end");
     }
 
     private static bool TryGetString(JsonElement element, string propertyName, out string value)
@@ -629,16 +898,89 @@ public sealed class PlantourUsersService(
         return false;
     }
 
-    private static DateTime? TryGetDateTime(JsonElement element, string propertyName)
+    private static string GetRequiredString(JsonElement element, string propertyName, string errorMessage)
     {
-        if (!TryGetString(element, propertyName, out var raw))
+        if (TryGetString(element, propertyName, out var value))
+        {
+            return value;
+        }
+
+        throw new CustomException(errorMessage, "STRIPE_INVALID_RESPONSE");
+    }
+
+    private static bool TryGetObjectId(JsonElement element, string propertyName, out string value)
+    {
+        if (element.TryGetProperty(propertyName, out var property))
+        {
+            if (property.ValueKind == JsonValueKind.String)
+            {
+                var stringValue = property.GetString();
+                if (!string.IsNullOrWhiteSpace(stringValue))
+                {
+                    value = stringValue;
+                    return true;
+                }
+            }
+
+            if (property.ValueKind == JsonValueKind.Object &&
+                property.TryGetProperty("id", out var idElement) &&
+                idElement.ValueKind == JsonValueKind.String)
+            {
+                var objectId = idElement.GetString();
+                if (!string.IsNullOrWhiteSpace(objectId))
+                {
+                    value = objectId;
+                    return true;
+                }
+            }
+        }
+
+        value = string.Empty;
+        return false;
+    }
+
+    private static DateTime? TryGetUnixDateTime(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out var property))
         {
             return null;
         }
 
-        return DateTime.TryParse(raw, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var value)
-            ? value
+        long? unixTimestamp = null;
+
+        if (property.ValueKind == JsonValueKind.Number && property.TryGetInt64(out var numberValue))
+        {
+            unixTimestamp = numberValue;
+        }
+        else if (property.ValueKind == JsonValueKind.String && long.TryParse(property.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var stringValue))
+        {
+            unixTimestamp = stringValue;
+        }
+
+        return unixTimestamp.HasValue
+            ? DateTimeOffset.FromUnixTimeSeconds(unixTimestamp.Value).UtcDateTime
             : null;
+    }
+
+    private static decimal? TryGetDecimal(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out var property))
+        {
+            return null;
+        }
+
+        if (property.ValueKind == JsonValueKind.Number && property.TryGetDecimal(out var decimalValue))
+        {
+            return decimalValue;
+        }
+
+        if (property.ValueKind == JsonValueKind.String &&
+            decimal.TryParse(property.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var parsed))
+        {
+            return parsed;
+        }
+
+        return null;
     }
 
     private static string FormatCurrencyTotals(IReadOnlyDictionary<string, decimal> currencyTotals)
@@ -656,6 +998,7 @@ public sealed class PlantourUsersService(
         string? FirstName,
         string? LastName,
         string AccessTypeName,
+        string? PaymentProcessorSubscriptionId,
         bool Temporary,
         DateTime DateJoined,
         int ParticipantAdminLinks);
@@ -668,9 +1011,49 @@ public sealed class PlantourUsersService(
 
     private sealed record PlanPriceRecord(string PriceId, string PlanName);
 
-    private sealed record PaddleCustomerRecord(string Id, string Email, string? Status, DateTime CreatedAt);
+    private static StripeCustomerRecord SelectPreferredCustomer(
+        IReadOnlyList<StripeCustomerRecord> customers,
+        IReadOnlyDictionary<string, CustomerSubscriptionSummary> subscriptionsByCustomerId)
+    {
+        return customers
+            .OrderByDescending(customer => subscriptionsByCustomerId.TryGetValue(customer.Id, out var summary) && summary.HasActiveSubscription)
+            .ThenByDescending(customer => subscriptionsByCustomerId.TryGetValue(customer.Id, out var summary) ? summary.LatestPlanStartedAt ?? DateTime.MinValue : DateTime.MinValue)
+            .ThenByDescending(customer => customer.CreatedAt)
+            .First();
+    }
 
-    private sealed record SubscriptionRecord(string Id, string CustomerId, string? Status, DateTime? StartedAt, DateTime? CreatedAt, string? PriceId);
+    private static bool IsAccessibleSubscription(string? status, DateTime? billingPeriodEnd)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return false;
+        }
+
+        if (status.Equals("active", StringComparison.OrdinalIgnoreCase) ||
+            status.Equals("trialing", StringComparison.OrdinalIgnoreCase) ||
+            status.Equals("past_due", StringComparison.OrdinalIgnoreCase) ||
+            status.Equals("unpaid", StringComparison.OrdinalIgnoreCase) ||
+            status.Equals("paused", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (!status.Equals("canceled", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return !billingPeriodEnd.HasValue || billingPeriodEnd.Value >= DateTime.UtcNow;
+    }
+
+    private static DateTime GetSortDate(DateTime? billingPeriodEnd, DateTime? startedAt, DateTime? createdAt)
+    {
+        return billingPeriodEnd ?? startedAt ?? createdAt ?? DateTime.MinValue;
+    }
+
+    private sealed record StripeCustomerRecord(string Id, string Email, string? Status, DateTime CreatedAt);
+
+    private sealed record SubscriptionRecord(string Id, string CustomerId, string? Status, DateTime? StartedAt, DateTime? CreatedAt, DateTime? BillingPeriodEnd, string? PriceId);
 
     private sealed record CustomerSubscriptionSummary(
         bool HasActiveSubscription,
@@ -682,14 +1065,18 @@ public sealed class PlantourUsersService(
 
     private sealed record PaymentSummary(string DisplayTotal);
 
-    private sealed record PaddleSnapshot(
-        IReadOnlyDictionary<string, PaddleCustomerRecord> CustomersByEmail,
+    private sealed record StripeSnapshot(
+        IReadOnlyDictionary<string, StripeCustomerRecord> CustomersByEmail,
+        IReadOnlyDictionary<string, StripeCustomerRecord> CustomersById,
         IReadOnlyDictionary<string, CustomerSubscriptionSummary> SubscriptionsByCustomerId,
+        IReadOnlyDictionary<string, SubscriptionRecord> SubscriptionsBySubscriptionId,
         IReadOnlyDictionary<string, PaymentSummary> PaymentsByCustomerId)
     {
-        public static PaddleSnapshot Empty { get; } = new(
-            new Dictionary<string, PaddleCustomerRecord>(StringComparer.OrdinalIgnoreCase),
+        public static StripeSnapshot Empty { get; } = new(
+            new Dictionary<string, StripeCustomerRecord>(StringComparer.OrdinalIgnoreCase),
+            new Dictionary<string, StripeCustomerRecord>(StringComparer.OrdinalIgnoreCase),
             new Dictionary<string, CustomerSubscriptionSummary>(StringComparer.OrdinalIgnoreCase),
+            new Dictionary<string, SubscriptionRecord>(StringComparer.OrdinalIgnoreCase),
             new Dictionary<string, PaymentSummary>(StringComparer.OrdinalIgnoreCase));
     }
 }

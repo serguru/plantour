@@ -11,16 +11,16 @@ public class TickerQPlanDowngradeTask
 {
     public const string FunctionName = "Plantour_PlanDowngrade";
 
-    private readonly IPaddleService _paddleService;
+    private readonly IPaymentProcessorService _paymentProcessorService;
     private readonly PlantourContext _context;
     private readonly IPlantourLogger _logger;
 
     public TickerQPlanDowngradeTask(
-        IPaddleService paddleService,
+        IPaymentProcessorService paymentProcessorService,
         PlantourContext context,
         IPlantourLogger logger)
     {
-        _paddleService = paddleService;
+        _paymentProcessorService = paymentProcessorService;
         _context = context;
         _logger = logger;
     }
@@ -41,7 +41,7 @@ public class TickerQPlanDowngradeTask
         var payload = JsonSerializer.Deserialize<PlanDowngradePayload>(ticker.Request)
             ?? throw new InvalidOperationException("TickerQ downgrade payload is invalid.");
 
-        await _paddleService.DowngradePlanPriceAsync(payload.UserId, payload.OldPlanPrice, payload.NewPlanPrice);
+        await _paymentProcessorService.DowngradePlanPriceAsync(payload.UserId, payload.OldPlanPrice, payload.NewPlanPrice);
 
         _logger.LogInformation(
             $"TickerQ downgrade task executed. JobId: {context.Id}, UserId: {payload.UserId}, OldPlanPrice: {payload.OldPlanPrice}, NewPlanPrice: {payload.NewPlanPrice}");

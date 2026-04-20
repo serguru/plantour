@@ -603,21 +603,19 @@ export const routes: Routes = [
     resolve: {cleanup: CleanupResolver},
     data: { componentId: 'templates-ai' }
   },
-  // TODO NOT IMPLEMENTED
-  // {
-  //   path: 'checkout/:priceId/:priceName',
-  //   loadComponent: () => import('./components/checkout/checkout-component').then(m => m.CheckoutComponent),
-  //   resolve: {cleanup: CleanupResolver},
-  //   data: { componentId: 'checkout' }
-  // },
-  // TODO NOT IMPLEMENTED
-  // {
-  //   path: 'plans',
-  //   canActivate: [adminOnlyGuard],
-  //   loadComponent: () => import('./components/plans/plans-component').then(m => m.PlansComponent),
-  //   resolve: {cleanup: CleanupResolver},
-  //   data: { componentId: 'plans' }
-  // },
+  {
+    path: 'checkout/:priceId/:priceName',
+    loadComponent: () => import('./components/checkout/checkout-component').then(m => m.CheckoutComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'checkout' }
+  },
+  {
+    path: 'plans',
+    canActivate: [adminOnlyGuard],
+    loadComponent: () => import('./components/plans/plans-component').then(m => m.PlansComponent),
+    resolve: {cleanup: CleanupResolver},
+    data: { componentId: 'plans' }
+  },
   {
     path: 'search',
     loadComponent: () => import('./components/search/search-component').then(m => m.SearchComponent),

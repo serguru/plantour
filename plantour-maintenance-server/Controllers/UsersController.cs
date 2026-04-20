@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using plantour_maintenance_server.DTOs;
 using plantour_maintenance_server.Middleware;
 using plantour_maintenance_server.Services.Interfaces;
+using System.Net;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace plantour_maintenance_server.Controllers;
 
@@ -71,5 +74,51 @@ public class UsersController(IUsersService usersService, IPlantourUsersService p
     {
         var user = await _usersService.GetByIdAsync(id, cancellationToken);
         return Ok(user);
+    }
+
+    [HttpGet("{id:guid}/comprehensive")]
+    [AllowAnonymous]
+    public async Task<ActionResult<string>> GetComprehensiveData(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var userData = await _plantourUsersService.GetComprehensiveDataAsync(id, cancellationToken);
+
+        // Serialize the data to JSON on the server to avoid serialization issues
+        var jsonOptions = new JsonSerializerOptions
+        {
+            ReferenceHandler = ReferenceHandler.IgnoreCycles,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            MaxDepth = 32,
+            WriteIndented = true,
+            Converters = { new IPAddressConverter() }
+        };
+
+        var json = JsonSerializer.Serialize(userData, jsonOptions);
+
+        return Ok(json);
+    }
+
+    private class IPAddressConverter : JsonConverter<IPAddress>
+    {
+        public override IPAddress? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var ipString = reader.GetString();
+            return ipString != null ? IPAddress.Parse(ipString) : null;
+        }
+
+        public override void Write(Utf8JsonWriter writer, IPAddress value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value?.ToString());
+        }
+
+        public override bool CanConvert(Type typeToConvert)
+        {
+            // Handle both IPAddress and nullable IPAddress
+            return typeToConvert == typeof(IPAddress) ||
+                   (typeToConvert.IsGenericType &&
+                    typeToConvert.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                    typeToConvert.GetGenericArguments()[0] == typeof(IPAddress));
+        }
     }
 }

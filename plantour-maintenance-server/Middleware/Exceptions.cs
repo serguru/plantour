@@ -18,4 +18,6 @@ public class BadRequestException(string message, string? code = null) : BaseApiE
 
 public class UnauthorizedException(string message, string? code = null) : BaseApiException(message, StatusCodes.Status401Unauthorized, code);
 
+public class ServiceUnavailableException(string message, string? code = null) : BaseApiException(message, StatusCodes.Status503ServiceUnavailable, code);
+
 public class CustomException(string message, string? code = null) : BaseApiException(message, StatusCodes.Status500InternalServerError, code);

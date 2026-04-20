@@ -1,0 +1,12 @@
+Generate a script "Local M deployment" 
+
+I can run from the VS terminal from any current path. 
+
+That script should:
+0) be runable from VS by clicking a menu item like currently I start M api 
+1) build plantour-maintenance-client 
+2) replace C:\inetpub\plantour-maintenance-client content with that build result
+3) build plantour-maintenance-saerver 
+4) replace C:\inetpub\plantour-maintenance-server content with that build result
+5) restart PlantourMaintenanceClient website in IIS
+6) restart PlantourMaintenanceApi website in IIS

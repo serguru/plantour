@@ -16,7 +16,6 @@ using PlantourApi.Models;
 using plantour_server.Repositories;
 using PlantourApi.Middleware;
 using plantour_server.Services.Interfaces;
-using plantour_server.Services.TickerQ;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.DataProtection;
@@ -43,8 +42,7 @@ public class UsersService(
     IHttpClientFactory httpClientFactory,
     IAccessRulesService accessRulesService,
     RefreshTokenRepository refreshTokenRepository,
-    TimeTickerRepository timeTickerRepository,
-    IPaddleService paddleService,
+    IPaymentProcessorService paymentProcessorService,
     ISignInEmailService signInEmailService,
     IOptions<SocialAuthSettings> socialAuthSettings,
     ServerSettingsService serverSettingsService,
@@ -65,8 +63,7 @@ public class UsersService(
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly SocialAuthSettings _socialAuthSettings = socialAuthSettings.Value;
     private readonly IAccessRulesService _accessRulesService = accessRulesService;
-    private readonly IPaddleService _paddleService = paddleService;
-    private readonly TimeTickerRepository _timeTickerRepository = timeTickerRepository;
+    private readonly IPaymentProcessorService _paymentProcessorService = paymentProcessorService;
     private readonly IMapper _mapper = mapper;
     private readonly ITokenService _tokenService = tokenService;
     private readonly ServerSettingsService _serverSettingsService = serverSettingsService;
@@ -756,19 +753,21 @@ public class UsersService(
 
     public async Task<LandingDto> GetLandingAsync()
     {
-        var paddleProducts = await _paddleService.GetActiveProductsAsync();
-        if (paddleProducts == null || !paddleProducts.Any())
+        var paymentProcessorProducts = await _paymentProcessorService.GetActiveProductsAsync();
+        if (paymentProcessorProducts == null || !paymentProcessorProducts.Any())
         {
-            throw new CustomException("No active Paddle products found");
+            throw new CustomException("No active payment processor products found");
         }
+
+        // TODO: Open a sample trip must be a link and not a button
 
         var plans = await _planRepository.GetAll();
         plans = plans.Where(p => p.Public!.Value).ToList();
         var planDtos = _mapper.Map<List<PlanDto>>(plans);
 
-        paddleProducts.ToList().ForEach(pp =>
+        paymentProcessorProducts.ToList().ForEach(pp =>
         {
-            var plan = planDtos.FirstOrDefault(p => p.PaddleProductId == pp.Id) ?? throw new CustomException($"No plan found for Paddle product Id {pp.Id}");
+            var plan = planDtos.FirstOrDefault(p => p.PaymentProcessorProductId == pp.Id) ?? throw new CustomException($"No plan found for payment processor product Id {pp.Id}");
             _mapper.Map(pp, plan);
         });
 
@@ -1319,61 +1318,14 @@ public class UsersService(
     public async Task<ScheduledPlanDowngradeInfoDto> GetScheduledPlanDowngradeInfoAsync()
     {
         _currentUser.RaiseIfNotAdmin();
-
-        var initIdentifier = _currentUser.UserId.ToString();
-
-        var job = await _timeTickerRepository.GetLatestActiveByFunctionAndIdentifierAsync(
-            TickerQPlanDowngradeTask.FunctionName,
-            initIdentifier);
-
-        if (job == null)
-        {
-            return new ScheduledPlanDowngradeInfoDto
-            {
-                HasScheduledDowngrade = false
-            };
-        }
-
-        if (job.ExecutionTime == null)
-        {
-            throw new CustomException("Scheduled job has no execution time");
-        }
-
-        string? oldPlanPrice = null;
-        string? newPlanPrice = null;
-
-        if (job.Request is { Length: > 0 })
-        {
-            var payload = JsonSerializer.Deserialize<TickerQPlanDowngradeTask.PlanDowngradePayload>(job.Request);
-            oldPlanPrice = payload?.OldPlanPrice;
-            newPlanPrice = payload?.NewPlanPrice;
-        }
-
-
-        string ct = DateTime.SpecifyKind(job.CreatedAt, DateTimeKind.Utc).ToString("o");
-        string et = DateTime.SpecifyKind(job.ExecutionTime.Value, DateTimeKind.Utc).ToString("o");
-
-        return new ScheduledPlanDowngradeInfoDto
-        {
-            HasScheduledDowngrade = true,
-            JobId = job.Id,
-            CreatedAt = ct,
-            ExecutionTime = et,
-            OldPlanPrice = oldPlanPrice,
-            NewPlanPrice = newPlanPrice
-        };
+        return await _paymentProcessorService.GetScheduledPlanDowngradeInfoAsync(_currentUser.UserId);
     }
 
 
     public async Task<bool> CancelScheduledPlanDowngradeAsync()
     {
         _currentUser.RaiseIfNotAdmin();
-
-        var initIdentifier = _currentUser.UserId.ToString();
-
-        return await _timeTickerRepository.CancelLatestActiveByFunctionAndIdentifierAsync(
-            TickerQPlanDowngradeTask.FunctionName,
-            initIdentifier);
+        return await _paymentProcessorService.CancelScheduledPlanDowngradeAsync(_currentUser.UserId);
     }
     public async Task<bool> IsUserTemporary(string email)
     {

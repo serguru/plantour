@@ -20,7 +20,8 @@ public static class ServerSettingKeys
     public const string GeminiModel = "gemini_model";
     public const string TripNoteEditorDropboxRedirectUri = "trip_note_editor_dropbox_redirect_uri";
     public const string CacheRefreshIntervalMinutes = "cache_refresh_interval_minutes";
-    public const string PaddleApiBaseUrl = "paddle_api_base_url";
+    public const string PaymentProcessorApiBaseUrl = "payment_processor_api_base_url";
+    public const string PaymentProcessorStoreId = "payment_processor_storeId";
     public const string CorsAllowedOrigins = "cors_allowed_origins";
     public const string TurnstileEnabled = "turnstile_enabled";
     public const string PlantourLoggingSink = "plantour_logging_sink";
@@ -89,9 +90,14 @@ public sealed class ServerSettingsService(SettingsRepository settingsRepository)
         return Math.Max(1, await GetRequiredIntAsync(ServerSettingKeys.CacheRefreshIntervalMinutes));
     }
 
-    public async Task<string> GetPaddleApiBaseUrlAsync()
+    public async Task<string> GetPaymentProcessorApiBaseUrlAsync()
     {
-        return await GetRequiredStringAsync(ServerSettingKeys.PaddleApiBaseUrl);
+        return await GetRequiredStringAsync(ServerSettingKeys.PaymentProcessorApiBaseUrl);
+    }
+
+    public async Task<string> GetPaymentProcessorStoreIdAsync()
+    {
+        return await GetRequiredStringAsync(ServerSettingKeys.PaymentProcessorStoreId);
     }
 
     public async Task<string[]> GetCorsAllowedOriginsAsync()
