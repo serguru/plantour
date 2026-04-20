@@ -25,8 +25,9 @@
     (groupingChange)="updateGrouping($event)"
   />
 
-  <section class="results-panel">
-    <div class="results-table-shell">
+  <div class="main-content-container">
+    <section class="results-panel">
+      <div class="results-table-shell">
       @defer {
         <div hlmTableContainer class="results-table-container">
           <table hlmTable class="results-table">
@@ -147,14 +148,7 @@
   </section>
 
   @if (showRightPanel()) {
-    <div class="right-panel-overlay" (click)="toggleRightPanel()"></div>
     <aside class="right-panel">
-      <div class="right-panel-header">
-        <h2 class="right-panel-title">User Data Explorer</h2>
-        <button type="button" class="right-panel-close" (click)="toggleRightPanel()" aria-label="Close panel">
-          &times;
-        </button>
-      </div>
 
       <div class="right-panel-content">
         @if (!selectedUserId()) {
@@ -174,18 +168,25 @@
         } @else if (comprehensiveData()) {
           <div class="right-panel-data">
             <div class="right-panel-actions">
+              <button type="button" class="copy-button" (click)="copyJsonToClipboard()" title="Copy JSON to clipboard">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                Copy
+              </button>
               <button type="button" class="download-button" (click)="downloadJson()">
                 Download JSON
               </button>
-              <span class="user-id">User ID: {{ comprehensiveData()!.id }}</span>
             </div>
             
-            <div class="json-viewer">
-              <pre>{{ comprehensiveData() | json }}</pre>
+            <div class="json-display-container">
+              <pre class="json-display">{{ parsedComprehensiveData() | json }}</pre>
             </div>
           </div>
         }
       </div>
     </aside>
   }
+  </div>
 </section>

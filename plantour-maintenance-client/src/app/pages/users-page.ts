@@ -3,7 +3,6 @@ import { JsonPipe } from '@angular/common';
 import { BrnDialogService } from '@spartan-ng/brain/dialog';
 import { DateTime, Duration } from 'luxon';
 import { finalize } from 'rxjs';
-import { ComprehensiveUserDto } from '../models/comprehensive-user.models';
 import {
   type ColumnDef,
   createAngularTable,
@@ -202,10 +201,30 @@ export class UsersPage implements OnInit {
   // Right panel signals
   protected readonly showRightPanel = signal(false);
   protected readonly selectedUserId = signal<string | null>(null);
-  protected readonly comprehensiveData = signal<ComprehensiveUserDto | null>(null);
+  protected readonly comprehensiveData = signal<string | null>(null);
   protected readonly isLoadingComprehensiveData = signal(false);
   protected readonly comprehensiveDataError = signal<string | null>(null);
   protected readonly availablePageSizes = [10, 20, 50, 100];
+
+  // Computed signal to parse JSON data
+  protected readonly parsedComprehensiveData = computed(() => {
+    const jsonString = this.comprehensiveData();
+    if (!jsonString) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(jsonString);
+    } catch {
+      return null;
+    }
+  });
+
+  // Computed signal to get user ID from parsed data
+  protected readonly comprehensiveDataUserId = computed(() => {
+    const parsedData = this.parsedComprehensiveData();
+    return parsedData?.id || 'Unknown';
+  });
   protected readonly filterId = 'users-filter';
   protected readonly groupingId = 'users-grouping';
   protected readonly filterLabel = 'Filter';
@@ -417,21 +436,60 @@ export class UsersPage implements OnInit {
   }
 
   protected downloadJson(): void {
-    const data = this.comprehensiveData();
-    if (!data) {
+    const jsonString = this.comprehensiveData();
+    if (!jsonString) {
       return;
     }
 
-    const jsonString = JSON.stringify(data, null, 2);
+    // Parse the JSON to get the user ID for the filename
+    let userId = 'unknown';
+    try {
+      const data = JSON.parse(jsonString);
+      userId = data.id || 'unknown';
+    } catch {
+      // If parsing fails, use default filename
+    }
+
     const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `user-${data.id}-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `user-${userId}-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  protected copyJsonToClipboard(): void {
+    const jsonString = this.comprehensiveData();
+    if (!jsonString) {
+      return;
+    }
+
+    // Use the Clipboard API
+    navigator.clipboard.writeText(jsonString).then(
+      () => {
+        // Show a temporary success message (could be enhanced with a toast notification)
+        console.log('JSON copied to clipboard');
+        // Optionally, you could add a visual feedback here
+      },
+      (err) => {
+        console.error('Failed to copy JSON: ', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = jsonString;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          console.log('JSON copied to clipboard using fallback');
+        } catch (err) {
+          console.error('Fallback copy failed: ', err);
+        }
+        document.body.removeChild(textArea);
+      }
+    );
   }
 
   private loadRows(): void {

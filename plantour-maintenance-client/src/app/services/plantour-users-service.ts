@@ -25,9 +25,10 @@ export class PlantourUsersService {
     return this.http.get<PlantourUserRowDto[]>(`${this.environment.api.baseUrl}/users/plantour`, { params });
   }
 
-  getComprehensiveData(userId: string): Observable<ComprehensiveUserDto> {
-    return this.http.get<ComprehensiveUserDto>(
-      `${this.environment.api.baseUrl}/users/${userId}/comprehensive`
+  getComprehensiveData(userId: string): Observable<string> {
+    return this.http.get(
+      `${this.environment.api.baseUrl}/users/${userId}/comprehensive`,
+      { responseType: 'text' }
     );
   }
 }

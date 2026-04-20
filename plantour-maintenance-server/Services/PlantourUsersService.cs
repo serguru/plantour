@@ -235,8 +235,6 @@ public sealed class PlantourUsersService(
             .Include(u => u.AdminsParticipantAdmins)
             .Include(u => u.AdminsParticipantParticipants)
             .Include(u => u.AiPrompts)
-            .Include(u => u.AiTripPlans)
-            .Include(u => u.RefreshTokens)
             .Include(u => u.Trips)
             .Include(u => u.AiPromptCheck)
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
@@ -246,7 +244,7 @@ public sealed class PlantourUsersService(
             throw new NotFoundException("User not found.", "USER_NOT_FOUND");
         }
 
-        // Load indirect relationships
+        // Load indirect relationships with limits to prevent huge responses
         var tripUsers = await _context.TripUsers
             .AsNoTracking()
             .Include(tu => tu.AdminParticipant)
@@ -255,11 +253,52 @@ public sealed class PlantourUsersService(
             .Include(tu => tu.TripUserExpenseTripUsers)
             .Include(tu => tu.TripUserPackages)
             .Where(tu => tu.AdminParticipant.ParticipantId == userId || tu.AdminParticipant.AdminId == userId)
+            .Take(50) // Limit to 50 trip users
             .ToListAsync(cancellationToken);
 
         var apiVisits = await _context.ApiVisits
             .AsNoTracking()
             .Where(av => av.UserId == userId)
+            .OrderByDescending(av => av.CreatedAt) // Get most recent first
+            .Take(100) // Limit to 100 most recent API visits
+            .Select(av => new
+            {
+                av.Id,
+                av.CreatedAt,
+                av.Method,
+                av.Path,
+                av.QueryString,
+                av.Endpoint,
+                av.StatusCode,
+                av.DurationMs,
+                IpAddress = av.IpAddress != null ? av.IpAddress.ToString() : null,
+                av.ForwardedFor,
+                av.UserAgent,
+                av.Referrer,
+                av.Host,
+                av.Scheme,
+                av.Protocol,
+                av.RequestId,
+                av.UserId
+            })
+            .ToListAsync(cancellationToken);
+
+        // Load logs for the user
+        var logs = await _context.Logs
+            .AsNoTracking()
+            .Where(l => l.UserId == userId)
+            .OrderByDescending(l => l.CreatedAt) // Get most recent first
+            .Take(100) // Limit to 100 most recent logs
+            .Select(l => new
+            {
+                l.Id,
+                l.CreatedAt,
+                l.Severity,
+                l.Category,
+                l.Message,
+                l.UserId,
+                l.Properties
+            })
             .ToListAsync(cancellationToken);
 
         // ContactSubmissions don't have UserId, skip them
@@ -271,13 +310,20 @@ public sealed class PlantourUsersService(
         var tripUserExpenses = tripUsers.SelectMany(tu => tu.TripUserExpenseTripUsers).ToList();
         var tripUserPackages = tripUsers.SelectMany(tu => tu.TripUserPackages).ToList();
 
-        // Helper function to convert entities to serializable objects
-        object[] ToObjectArray<T>(IEnumerable<T>? collection) where T : class
+        // Helper function to convert entities to serializable objects with limits
+        object[] ToObjectArray<T>(IEnumerable<T>? collection, int? maxItems = null) where T : class
         {
             if (collection == null)
                 return Array.Empty<object>();
             
-            return collection
+            var items = collection as IList<T> ?? collection.ToList();
+            
+            if (maxItems.HasValue && items.Count > maxItems.Value)
+            {
+                items = items.Take(maxItems.Value).ToList();
+            }
+            
+            return items
                 .Select(item => (object)item)
                 .ToArray();
         }
@@ -299,27 +345,26 @@ public sealed class PlantourUsersService(
             AccessTypeId = user.AccessTypeId,
             CurrencyId = user.CurrencyId,
             
-            // Convert collections to object arrays for JSON serialization
-            UserSettings = ToObjectArray(user.UserSettings),
-            UserKeys = ToObjectArray(user.UserKeys),
-            UserThings = ToObjectArray(user.UserThings),
-            UserTodos = ToObjectArray(user.UserTodos),
-            UserPackages = ToObjectArray(user.UserPackages),
-            AdminsParticipantAdmins = ToObjectArray(user.AdminsParticipantAdmins),
-            AdminsParticipantParticipants = ToObjectArray(user.AdminsParticipantParticipants),
-            AiPrompts = ToObjectArray(user.AiPrompts),
-            AiTripPlans = ToObjectArray(user.AiTripPlans),
-            RefreshTokens = ToObjectArray(user.RefreshTokens),
-            Trips = ToObjectArray(user.Trips),
+            // Convert collections to object arrays for JSON serialization with limits
+            UserSettings = ToObjectArray(user.UserSettings, 50),
+            UserKeys = ToObjectArray(user.UserKeys, 50),
+            UserThings = ToObjectArray(user.UserThings, 100),
+            UserTodos = ToObjectArray(user.UserTodos, 100),
+            UserPackages = ToObjectArray(user.UserPackages, 50),
+            AdminsParticipantAdmins = ToObjectArray(user.AdminsParticipantAdmins, 50),
+            AdminsParticipantParticipants = ToObjectArray(user.AdminsParticipantParticipants, 50),
+            AiPrompts = ToObjectArray(user.AiPrompts, 50),
+            Trips = ToObjectArray(user.Trips, 50),
             
-            TripUsers = ToObjectArray(tripUsers),
-            TripUserThings = ToObjectArray(tripUserThings),
-            TripUserTodos = ToObjectArray(tripUserTodos),
-            TripUserExpenses = ToObjectArray(tripUserExpenses),
-            TripUserPackages = ToObjectArray(tripUserPackages),
+            TripUsers = ToObjectArray(tripUsers, 50),
+            TripUserThings = ToObjectArray(tripUserThings, 100),
+            TripUserTodos = ToObjectArray(tripUserTodos, 100),
+            TripUserExpenses = ToObjectArray(tripUserExpenses, 100),
+            TripUserPackages = ToObjectArray(tripUserPackages, 50),
             
-            ApiVisits = ToObjectArray(apiVisits),
+            ApiVisits = ToObjectArray(apiVisits, 100),
             ContactSubmissions = contactSubmissions,
+            Logs = ToObjectArray(logs, 100),
             
             TotalTripsCount = (user.Trips?.Count ?? 0) + (tripUsers?.Select(tu => tu.TripId).Distinct().Count() ?? 0),
             TotalThingsCount = (user.UserThings?.Count ?? 0) + (tripUserThings?.Count ?? 0),

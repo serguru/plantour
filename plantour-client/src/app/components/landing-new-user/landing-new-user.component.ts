@@ -30,7 +30,7 @@ export class LandingNewUserComponent implements OnInit {
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly request = inject(REQUEST, { optional: true });
-  showLandingContent = signal(false);
+//  showLandingContent = signal(false);
 
   subSlogan = 'Plantour is your mobile-first travel assistant for planning trips, coordinating people, packing smart, and keeping the whole journey in one place.';
 
@@ -143,7 +143,7 @@ export class LandingNewUserComponent implements OnInit {
       },
     });
 
-    this.showLandingContent.set(true);
+    //this.showLandingContent.set(true);
     this.appService.setRootLandingReady(true);
   }
 

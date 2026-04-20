@@ -26,8 +26,6 @@ public sealed class ComprehensiveUserDto
     public object[] AdminsParticipantAdmins { get; init; } = [];
     public object[] AdminsParticipantParticipants { get; init; } = [];
     public object[] AiPrompts { get; init; } = [];
-    public object[] AiTripPlans { get; init; } = [];
-    public object[] RefreshTokens { get; init; } = [];
     public object[] Trips { get; init; } = [];
     
     // Indirect relationships
@@ -40,6 +38,7 @@ public sealed class ComprehensiveUserDto
     // Other relationships
     public object[] ApiVisits { get; init; } = [];
     public object[] ContactSubmissions { get; init; } = [];
+    public object[] Logs { get; init; } = [];
     
     // Counts for quick reference
     public int TotalTripsCount { get; init; }

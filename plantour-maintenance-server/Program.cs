@@ -179,33 +179,39 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigins", policy =>
     {
-        if (builder.Environment.IsDevelopment())
-        {
-            // In development, allow specific localhost origins with credentials
-            policy.WithOrigins(
-                "http://localhost:4204",
-                "http://localhost:4205",
-                "http://localhost:4200",
-                "http://127.0.0.1:4204",
-                "http://127.0.0.1:4205",
-                "http://127.0.0.1:4200"
-            )
+
+            policy.AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-            return;
-        }
+                .AllowAnyMethod();
 
-        var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>();
-        if (allowedOrigins == null || allowedOrigins.Length == 0)
-        {
-            throw new InvalidOperationException("CorsSettings:AllowedOrigins must contain at least one origin outside Development.");
-        }
 
-        policy.WithOrigins(allowedOrigins)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+        // if (builder.Environment.IsDevelopment())
+        // {
+        //     // In development, allow specific localhost origins with credentials
+        //     policy.WithOrigins(
+        //         "http://localhost:4204",
+        //         "http://localhost:4205",
+        //         "http://localhost:4200",
+        //         "http://127.0.0.1:4204",
+        //         "http://127.0.0.1:4205",
+        //         "http://127.0.0.1:4200"
+        //     )
+        //         .AllowAnyHeader()
+        //         .AllowAnyMethod()
+        //         .AllowCredentials();
+        //     return;
+        // }
+
+        // var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>();
+        // if (allowedOrigins == null || allowedOrigins.Length == 0)
+        // {
+        //     throw new InvalidOperationException("CorsSettings:AllowedOrigins must contain at least one origin outside Development.");
+        // }
+
+        // policy.WithOrigins(allowedOrigins)
+        //     .AllowAnyHeader()
+        //     .AllowAnyMethod()
+        //     .AllowCredentials();
     });
 });
 
