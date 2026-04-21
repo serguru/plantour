@@ -6,6 +6,7 @@ using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Repositories;
 
+// TODO: check help instuctions, make sure they correspond to reallity
 public class UsersRepository(
     PlantourContext context,
     SettingsRepository settingsRepository,

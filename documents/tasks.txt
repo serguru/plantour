@@ -1216,3 +1216,8 @@ sk-7f2b79bba5c94cb1b1e80aaafcec7a2f
 
 Explore the DB structure. Add a point to Maintenance (M) UsersController.cs taking a userId as an input parameter and returning JSON object with all the user's data based on DB foreign keys. Add a new tab in M client allowing to select a user from the select control, send a request to the M API and get the JSON back. The tab should show that json as well as store it as json file.
 
+
+
+Explore https://plantour.app. Make sure you understand what is this SaaS web app for. Suggest a comprehensive list of ideas, free and paid, how is it possible to attract to this app as many customers as possible.
+
+Navigate to this page https://plantour.app/help/get-started/sign-in-or-sign-up. Read the text. Transform it to ~60 seconds long text to be read aloud and used as a soundtrack for the Plantour intro video.
