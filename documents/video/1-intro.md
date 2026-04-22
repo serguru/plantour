@@ -1,5 +1,5 @@
 Hello and welcome to Plantur.
-This short video explains how Plantur can help you plan, prepare, and experience a stress-free trip.
+This video explains how Plantour can help you plan, prepare, and experience a stress-free trip.
 
 Thinking about a trip shouldn't feel like a second job. When your itinerary is buried in chat threads, your packing list is scattered across notes, and your group is asking the same questions over and over, you need one source of truth.
 

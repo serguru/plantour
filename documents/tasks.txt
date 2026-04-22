@@ -1220,6 +1220,6 @@ Explore the DB structure. Add a point to Maintenance (M) UsersController.cs taki
 
 Explore https://plantour.app. Make sure you understand what is this SaaS web app for. Suggest a comprehensive list of ideas, free and paid, how is it possible to attract to this app as many customers as possible.
 
-Navigate to this page https://plantour.app/help/get-started/sign-in-or-sign-up. Read the text. Transform it to ~60 seconds long text to be read aloud and used as a soundtrack for the Plantour intro video.
+Navigate to this page https://plantour.app/help/get-started/navigate-pages. Read the text. Transform it to ~60 seconds long text to be read aloud and used as a soundtrack for the Plantour educational video.
 
 Explore the Help questions and answers (Q&A). There are obsolete Q&A. For example, the question "What are my first steps with Plantour" has this sentence in the answer "Click the "Trip" button with the "compass" icon on the toolbar". And now that button does not exist anymore. There is a link in Dashboard -> Trip -> Trips instead. For some other commands there are both: menu in the sandvich toolbar button and a link in dashboard. Your task is to scan Help and find and fix inconsistencies like this.

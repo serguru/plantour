@@ -6,16 +6,11 @@
     "sections": [
       {
         "listTag": "ul",
-        "beforeHtml": "You have different options depending on which plan you choose and whether you want to save temporary test data. If you are a public user go to the <a href=\"/\">main page<a> and choose a plan.",
+        "beforeHtml": "You have different options depending on which plan you choose and whether you want to save temporary test data. If you are not signed in go to the <a href=\"/\">main page<a> and choose a plan.",
         "items": [
-          "To start with a regular paid plan (recommended), go to your <a href='/profile'>profile</a> and click \"Change plan\" button. Select a plan, and click the corresponding button. Your test data will be saved.",
+          "To switch to a paid plan (recommended) and keep your test data, go to your <a href='/profile'>profile</a> and click \"Change plan\" button. Choose a plan, and click \"Upgrade to Monthly\" or \"Upgrade to Yearly\".  The \"Secure checkout\" form appears. Enter your actual email and click \"Proceed\". You will be redirected to a payments processing page. Fill up the form and click \"Subscribe\". After successful payment and subscription creation you will be redirected back to Plantour Sign In page. Sign in with your email.",
 
-          "To start with a paid plan from scratch, sign out and click the \"Dashboard\" button on the toolbar. This will open the main page. Scroll down, select a paid plan, and click the corresponding button.",
-
-          "If you wish to keep your test data navigate to your profile and enter your real email.",
-
-          "If you wish to start a new regular free account from scratch sign out from your temporary account, go to sign in and enter your real email or sign in with Google or Facebook."
-
+          "If you wish to switch to a free plan and keep your test data go to your profile and enter your real email instead of currenly used Robin.Miles.XXXYYY@plantour.app, then click \"Sign in / Sign up\" button."
         ]
       }
     ]

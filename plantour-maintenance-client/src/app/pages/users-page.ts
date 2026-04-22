@@ -1,3 +1,5 @@
+// TODO: Why if sign in with bob.green@example.com it shows "Hello Robin Miles, we've sent you an email with a link that will be valid for 60 minutes. Please open the email and follow the link to sign in to Plantour."
+// TODO: add reset to AI prompts
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { BrnDialogService } from '@spartan-ng/brain/dialog';
