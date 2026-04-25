@@ -5,10 +5,20 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/aarru8HPqRQ",
+          "caption": "Plantour How Do I Add Edit Delete Entities",
+          "description": "This video explains how you can add, edit and delete entities",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/aarru8HPqRQ/mq1.webp?sqp=CKDNtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEYgVyhlMA8=&rs=AOn4CLAmKjXgS_Ro1VeLzGQB69nJcwu46w",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "listTag": "ol",
         "beforeHtml": "To add a new entity",
         "items": [
-          "Open the entities list. For example, to open a list of items click on the toolbar \"Dictionaries'\" button with \"copy\" icon and select \"Items\".",
+          "Open the entities list. For example, to open a list of items click on the toolbar \"Dashboard\" button, expand \"Dictionary\" section and click \"Items\" link.",
           "Click the Add button with the \"+\" icon",
           "The form appears",
           "Fill the form's fields",

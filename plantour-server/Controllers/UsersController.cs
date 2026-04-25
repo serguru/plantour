@@ -10,7 +10,6 @@ using plantour_server.Services;
 using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Controllers;
-
 [ApiController]
 [Route("[controller]")]
 public class UsersController : ControllerBase

@@ -5,13 +5,23 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/D2QPVjsoQi8",
+          "caption": "Plantour Trip Shared Items",
+          "description": "This video explains how to work with trip shared items",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/D2QPVjsoQi8/mq1.webp?sqp=CNzrtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVihlMA8=&rs=AOn4CLBnoMifxiJk5_GpXXByljgh33L9Jw",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Add a shared item",
         "listTag": "ol",
         "beforeHtml": "Use this when the item belongs to the whole trip and should later be assigned to one participant.",
         "items": [
-          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Click the Dashboard toolbar button, expand the Trip section and click on the Trips link",
           "Select the trip you want to work in.",
-          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Shared items</strong>.",
+          "Open the Trip section again and select <strong>Shared items</strong>.",
           "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Trip Shared Item</strong> form opens.",
           "Enter the shared item name. You can also fill category, notes, units, and value.",
           "Click <strong>Submit</strong>.",

@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/B8XKsR7G118",
+          "caption": "Plantour Admin Item Assignment Failure",
+          "description": "This video explains what an admin can do after a participant has accepted a shared item but failed with failure",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/B8XKsR7G118/mq1.webp?sqp=CLTwtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVihlMA8=&rs=AOn4CLAuCy8quSDlrCAvwarZR2D6iVqIfA",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "listTag": "ol",
         "beforeHtml": "Plantour does not expose a special one-click recovery action for a failed shared item. Instead, the admin handles failure by reviewing the failed shared item and then taking a normal management action.",
         "items": [

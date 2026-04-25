@@ -5,19 +5,28 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/o2sI63C3nzc",
+          "caption": "Plantour Temporary User First Steps",
+          "description": "This video explains how a temporary user can take their first steps in Plantour",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/o2sI63C3nzc/mq1.webp?sqp=CMTBtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCggZShlMA8=&rs=AOn4CLBggIshpcqiPu3RPTVVBFITYHNZ3w",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Temporary users follow (regular users see after) these steps:",
         "listTag": "ol",
         "items": [
-          "Click the \"Trip\" button with the \"compass\" icon on the toolbar.",
-          "Select the \"Trips\" menu item. A list of trips open.",
+          "Click the \"Dashboard\" button with the \"table\" icon on the toolbar.",
+          "Expand the \"Trip\" section and click \"Trips\". A list of trips opens.",
           "This list will contain two trips: \"Weekend in Las Vegas\" and \"Week in Europe\". Select \"Weekend in Las Vegas\". It should be highlighted.",
-          "Click the \"Trip\", then select \"Items\". The \"Trip Items\" page open.",
+          "Navigate to Trip Items via the Dashboard: expand the \"Trip personal\" section and click \"Items\". The \"Trip Items\" page opens.",
           "This list contains pre filled for the \"Weekend in Las Vegas\" trip items",
           "Click \"Phone charger\"",
           "Make sure the drop-down list with bags is visible on the right. If not, click the three-dot button in the page header and select \"Show Bags.\" A drop-down list with bags will appear.",
           "Click the drop-down menu of bags and select \"Backpack.\" Your \"Phone Charger\" is now packed into the \"Backpack.\"",
-          "Download a packing list for \"Backpack\". To do this click on the toolbar \"Trip\" button with the \"compass\" icon.",
-          "Select the \"Bags\" menu item. A list of trip bags open.",
+          "Download a packing list for \"Backpack\". To do this, open the Dashboard, expand the \"Trip personal\" section, and click \"Bags\". A list of trip bags opens.",
           "Click on \"Backpack\". It should be highlighted.",
           "Download a packing list as a PDF file. To do this click the three-dot button in the page header and select \"Download packing list PDF\". Confirm download.",
           "Print out the downloaded packing list and put it in the \"Backpack\".",
@@ -25,22 +34,31 @@
         ]
       },
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/9sR-grX6eSo",
+          "caption": "Plantour Regular User First Steps",
+          "description": "This video explains how a regular user can take their first steps in Plantour",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/9sR-grX6eSo/mq1.webp?sqp=CMTBtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCggZShlMA8=&rs=AOn4CLDHAiiTAY_8eZ-xkAI8223TkxvvYA",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Regular users follow these steps:",
         "listTag": "ol",
         "items": [
-          "Click the \"Trip\" button with the \"compass\" icon on the toolbar",
-          "Select the \"Trips\" menu item. A list of trips open.",
+          "Click the \"Dashboard\" button with the \"table\" icon on the toolbar.",
+          "Expand the \"Trip\" section and click \"Trips\". A list of trips opens.",
           "Create a new trip. To do this, click the \"Add\" button with the plus icon. The \"Add Trip\" form will open. Enter the trip name \"Las Vegas Weekend\" and the dates. Click \"Submit.\" You will return to the trip list. Your new trip will be highlighted. If not, click it. It should be highlighted.",
-          "Click the \"Trip\" button with the \"compass\" icon on the toolbar, then select \"Items\". The \"Trip Items\" page open.",
+          "Navigate to Trip Items via the Dashboard: expand the \"Trip personal\" section and click \"Items\". The \"Trip Items\" page opens.",
           "Create a new trip item. To do this, click the \"Add\" button with the plus icon. The \"Add Trip Item\" form will open. Enter the trip item name \"Phone charger\". Click \"Submit.\" You will return to the trip items list. Make sure the \"Phone charger\" is in the list",
-          "Now you will need a bag to pack your \"Phone charger\" into. To create one click the \"Trip\" button with the \"compass\" icon on the toolbar, then select \"Bags\". A list of trip bags open.",
+          "Now you will need a bag to pack your \"Phone charger\" into. To create one, open the Dashboard, expand the \"Trip personal\" section, and click \"Bags\". A list of trip bags opens.",
           "Click the \"Add\" button with the plus icon. The \"Add Trip Bag\" form will open. Enter the bag name \"Backpack\". Click \"Submit.\" You will return to the trip bags list. Make sure the \"Backpack\" is in the list",
-          "Move to the trip items list. To do this click the \"Trip\" button with the \"compass\" icon on the toolbar, then select \"Items\". The \"Trip Items\" page open.",
+          "Move to the trip items list. To do this, open the Dashboard, expand the \"Trip personal\" section, and click \"Items\". The \"Trip Items\" page opens.",
           "Click \"Phone charger\"",
           "Make sure the drop-down list with bags is visible on the right. If not, click the three-dot button in the page header and select \"Show Bags.\" A drop-down list with bags will appear.",
           "Click the drop-down menu of bags and select \"Backpack.\" Your \"Phone Charger\" is now packed into the \"Backpack.\"",
-          "Download a packing list for \"Backpack\". To do this click on the toolbar \"Trip\" button with the \"compass\" icon.",
-          "Select the \"Bags\" menu item. A list of trip bags open.",
+          "Download a packing list for \"Backpack\". To do this, open the Dashboard, expand the \"Trip personal\" section, and click \"Bags\". A list of trip bags opens.",
           "Click on \"Backpack\". It has to be highlighted.",
           "Download a packing list as a PDF file. To do this click the three-dot button in the page header and select \"Download packing list PDF\". Confirm download.",
           "Print out the downloaded packing list and put it in the \"Backpack\".",

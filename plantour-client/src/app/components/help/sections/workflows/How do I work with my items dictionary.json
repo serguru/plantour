@@ -9,7 +9,7 @@
         "listTag": "ol",
         "beforeHtml": "Use this when you already know the exact item you want to save in your <a href='/items'>Items</a> dictionary.",
         "items": [
-          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Items</strong>.",
+          "Open the Dashboard, expand the <strong>Dictionary</strong> section, and click <strong>Items</strong>.",
           "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Item</strong> form opens.",
           "Enter the item name. Add category, notes, units, and value if you want to keep extra details in the dictionary.",
           "Click <strong>Submit</strong>.",
@@ -23,7 +23,7 @@
         "listTag": "ol",
         "beforeHtml": "Use this when you want to start from ready-made packing ideas grouped by template, activity, temperature range, age, or category.",
         "items": [
-          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Template items</strong>.",
+          "Open the Dashboard, expand the <strong>Dictionary</strong> section, and click <strong>Template items</strong>.",
           "Open the actions bar in the page header and choose the target option.",
           "Set the target to <strong>Items Dictionary</strong>.",
           "Narrow the list to the template items you want. For example, filter by Template, Activity, Temperature Range, Age, Category, or Name.",
@@ -39,7 +39,7 @@
         "listTag": "ol",
         "beforeHtml": "Use this when you want Plantour to generate item suggestions from your trip description and then save the useful ones into your dictionary.",
         "items": [
-          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>AI prompts</strong>.",
+          "Open the Dashboard, expand the <strong>Dictionary</strong> section, and click <strong>AI prompts</strong>.",
           "Click in the prompt box. Type your own request or choose one of the recent prompts from the dropdown list.",
           "Describe the trip clearly, such as destination, weather, activities, trip length, or traveler age.",
           "Click <strong>Ask AI</strong>.",

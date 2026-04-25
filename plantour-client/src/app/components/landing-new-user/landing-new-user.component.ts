@@ -4,6 +4,7 @@ import { AppService } from '../../services/app-service';
 import { PlansPanelComponent } from '../plans-panel/plans-panel.component';
 import { SeoService } from '../../services/seo-service';
 import { UsersService } from '../../services/users-service';
+import { YoutubeComponent } from '../youtube/youtube-component';
 
 interface LandingFeature {
   eyebrow: string;
@@ -17,7 +18,7 @@ interface LandingFeature {
 @Component({
   selector: 'app-landing-new-user',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, YoutubeComponent],
   templateUrl: './landing-new-user.component.html',
   styleUrl: './landing-new-user.component.scss'
 })

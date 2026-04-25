@@ -6,12 +6,23 @@ export type HelpPageKind = 'home' | 'section' | 'answer' | 'search';
 export type HelpListTag = 'ul' | 'ol';
 export type HelpAnswerComponentKey = 'get-started-guest-access' | 'workflows-plan-offers';
 
+export interface HelpYoutubeLink {
+  url: string;
+  caption: string;
+  description?: string;
+  thumbnailUrl?: string;
+  uploadDate?: string;
+  linkClass?: string;
+  showIcon?: boolean;
+}
+
 export interface HelpAnswerListSection {
   title?: string;
   beforeHtml?: string;
   listTag?: HelpListTag;
   items?: string[];
   afterHtml?: string;
+  youtubeLink?: HelpYoutubeLink;
 }
 
 export interface HelpAnswerParagraphSection {
@@ -19,6 +30,7 @@ export interface HelpAnswerParagraphSection {
   beforeHtml?: string;
   paragraphs?: string[];
   afterHtml?: string;
+  youtubeLink?: HelpYoutubeLink;
 }
 
 export type HelpAnswerSource =
@@ -193,14 +205,26 @@ export function getHelpAnswerPlainText(answer: HelpAnswerSource): string {
 
   if (answer.kind === 'list') {
     return answer.sections
-      .flatMap((section) => [section.title ?? '', section.beforeHtml ?? '', ...(section.items ?? []), section.afterHtml ?? ''])
+      .flatMap((section) => {
+        const parts: string[] = [section.title ?? '', section.beforeHtml ?? '', ...(section.items ?? []), section.afterHtml ?? ''];
+        if (section.youtubeLink) {
+          parts.push(section.youtubeLink.caption, section.youtubeLink.description ?? '');
+        }
+        return parts;
+      })
       .map((value) => stripHelpHtml(value))
       .filter((value) => value.length > 0)
       .join(' ');
   }
 
   return answer.sections
-    .flatMap((section) => [section.title ?? '', section.beforeHtml ?? '', ...(section.paragraphs ?? []), section.afterHtml ?? ''])
+    .flatMap((section) => {
+      const parts: string[] = [section.title ?? '', section.beforeHtml ?? '', ...(section.paragraphs ?? []), section.afterHtml ?? ''];
+      if (section.youtubeLink) {
+        parts.push(section.youtubeLink.caption, section.youtubeLink.description ?? '');
+      }
+      return parts;
+    })
     .map((value) => stripHelpHtml(value))
     .filter((value) => value.length > 0)
     .join(' ');

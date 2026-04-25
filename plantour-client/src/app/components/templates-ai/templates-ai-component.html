@@ -11,6 +11,7 @@
             class="prompt-select"
             [options]="prompts || []"
             [(ngModel)]="selectedPrompt"
+            (valueChange)="onPromptValueChange($event)"
         >
         </app-dropdown>
         <app-button

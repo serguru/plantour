@@ -5,11 +5,21 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/hKfmXhAEuvI",
+          "caption": "Plantour How To Invite Travelers",
+          "description": "This video explains how to invite travelers",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/hKfmXhAEuvI/mq1.webp?sqp=CKTUtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCggZChlMA8=&rs=AOn4CLD0cnsgXWLA5vXxe7KV19UwvH6sfQ",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "If the traveler is new to your account",
         "listTag": "ol",
         "beforeHtml": "Use this flow when the person is not yet in your reusable <a href='/travelers'>Travelers</a> list.",
         "items": [
-          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Travelers</strong>.",
+          "Open the Dashboard, expand the <strong>Dictionary</strong> section, and click <strong>Travelers</strong>.",
           "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Traveler</strong> form opens.",
           "Enter the traveler email address. Add first name, last name, phone, and notes if you want to keep that information in your traveler dictionary.",
           "Click <strong>Submit</strong>.",
@@ -32,13 +42,23 @@
         ]
       },
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/QcmF29c6vIE",
+          "caption": "Plantour How To Invite Trip Participant",
+          "description": "This video explains how to invite your trip participants",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/QcmF29c6vIE/mq1.webp?sqp=CKTUtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEQgVShlMA8=&rs=AOn4CLDi57wlWIlDRslf3NYTViEgsTGq7w",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Add the invited traveler to a specific trip",
         "listTag": "ol",
         "beforeHtml": "Being in <a href='/travelers'>Travelers</a> makes the person reusable. To let that person work in one specific trip, add them as a participant in that trip.",
         "items": [
-          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Open the Dashboard, expand the <strong>Trip</strong> section, and click <strong>Trips</strong>.",
           "Select the trip that the traveler should join.",
-          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Participants</strong>.",
+          "Return to the Dashboard, expand the <strong>Trip</strong> section again, and click <strong>Participants</strong>.",
           "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Trip User</strong> form opens.",
           "In the traveler field, select the person from your traveler dictionary. Plantour fills the read-only contact fields from that saved traveler.",
           "Optionally enter trip-specific notes or participant preparation fields.",

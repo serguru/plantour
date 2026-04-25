@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/_AD-SrOBwSA",
+          "caption": "Plantour AI Improve Trip Plan",
+          "description": "This video explains how to use Plantour's AI to improve an existing trip",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/_AD-SrOBwSA/mq1.webp?sqp=CPjRtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCcgZChlMA8=&rs=AOn4CLBAmGn-0i-xrtdXJVp5A8oqA_qDdQ",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "listTag": "ol",
         "beforeHtml": "Plantour AI can review an existing trip and suggest a better way to organize it. <a href='/sign-in'>Sign in</a>, make sure you have a <a href='/help/trip-workflows/current-trip-set-unset-show-hide'>current trip</a> selected, and open <a href='/help/trip-workflows/plan-trip-improvements'>Trip improvements</a>.",
         "items": [

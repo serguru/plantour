@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/hHM_Tf1z5Zs",
+          "caption": " Plantour How Participant Can React On Item Assignments",
+          "description": "This video explains how a participant can react on shared item assignments",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/hHM_Tf1z5Zs/mq1.webp?sqp=CIjutM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVihlMA8=&rs=AOn4CLAiH6uoKb7iBWs2wY2czSqcIXj8mw",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "listTag": "ol",
         "beforeHtml": "A participant reacts on assigned shared items directly in the <strong>Shared items</strong> list. The reaction controls only appear when the current participant is the assigned person for that row.",
         "items": [

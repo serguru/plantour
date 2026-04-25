@@ -5,12 +5,22 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/M1kg8QvzTCU",
+          "caption": "Plantor How To Work With Trip Participants",
+          "description": "This video explains how to work with trip participants",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/M1kg8QvzTCU/mq1.webp?sqp=CNTdtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEYgVyhlMA8=&rs=AOn4CLAumH5g64PU3j560w7_TP4OEj-N1A",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Open trip participants for the selected trip",
         "listTag": "ol",
         "items": [
-          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Click the Dashboard toolbar button, expand the Trip section and click on the Trips link",
           "Select the trip you want to work in.",
-          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Participants</strong>.",
+          "Open the Trip section again and select <strong>Participants</strong>.",
           "Plantour opens the <strong>Trip participants</strong> page for that trip and shows the shared-expenses overview at the top of the page."
         ],
         "afterHtml": "If the wrong trip opens, change the selected trip first and then return to <strong>Participants</strong>."
