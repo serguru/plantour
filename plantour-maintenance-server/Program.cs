@@ -62,7 +62,13 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.MaxDepth = 32;
+    });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache();
 
@@ -71,7 +77,7 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSetting
     ?? throw new InvalidOperationException("JwtSettings configuration is missing.");
 var jwtKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
-builder.Services.Configure<PaddleSettings>(builder.Configuration.GetSection("PaddleSettings"));
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("StripeSettings"));
 
 builder.Services.Configure<PasswordHashSettings>(builder.Configuration.GetSection("PasswordHashSettings"));
 var passwordHashSettings = builder.Configuration.GetSection("PasswordHashSettings").Get<PasswordHashSettings>()
@@ -173,24 +179,39 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigins", policy =>
     {
-        if (builder.Environment.IsDevelopment())
-        {
+
             policy.AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod();
-            return;
-        }
 
-        var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>();
-        if (allowedOrigins == null || allowedOrigins.Length == 0)
-        {
-            throw new InvalidOperationException("CorsSettings:AllowedOrigins must contain at least one origin outside Development.");
-        }
 
-        policy.WithOrigins(allowedOrigins)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+        // if (builder.Environment.IsDevelopment())
+        // {
+        //     // In development, allow specific localhost origins with credentials
+        //     policy.WithOrigins(
+        //         "http://localhost:4204",
+        //         "http://localhost:4205",
+        //         "http://localhost:4200",
+        //         "http://127.0.0.1:4204",
+        //         "http://127.0.0.1:4205",
+        //         "http://127.0.0.1:4200"
+        //     )
+        //         .AllowAnyHeader()
+        //         .AllowAnyMethod()
+        //         .AllowCredentials();
+        //     return;
+        // }
+
+        // var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>();
+        // if (allowedOrigins == null || allowedOrigins.Length == 0)
+        // {
+        //     throw new InvalidOperationException("CorsSettings:AllowedOrigins must contain at least one origin outside Development.");
+        // }
+
+        // policy.WithOrigins(allowedOrigins)
+        //     .AllowAnyHeader()
+        //     .AllowAnyMethod()
+        //     .AllowCredentials();
     });
 });
 

@@ -9,7 +9,7 @@
         "listTag": "ol",
         "beforeHtml": "Use this when you want to save a reusable task in your <a href='/todos'>Todos</a> dictionary.",
         "items": [
-          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Todos</strong>.",
+          "Open the Dashboard, expand the <strong>Dictionary</strong> section, and click <strong>Todos</strong>.",
           "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Todo</strong> form opens.",
           "Enter the todo name. Add category and notes if you want to keep extra details in the dictionary.",
           "Click <strong>Submit</strong>.",
@@ -23,7 +23,7 @@
         "listTag": "ol",
         "beforeHtml": "Use this when you want to change the saved name, category, or notes of a todo in your <a href='/todos'>Todos</a> dictionary.",
         "items": [
-          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Todos</strong>.",
+          "Open the Dashboard, expand the <strong>Dictionary</strong> section, and click <strong>Todos</strong>.",
           "Select the todo you want to change so it is highlighted.",
           "Click the <strong>Update</strong> button with the pencil icon. The <strong>Edit Todo</strong> form opens.",
           "Change the fields you want to update.",
@@ -37,7 +37,7 @@
         "listTag": "ol",
         "beforeHtml": "Use this when you no longer want a todo to stay in your reusable dictionary.",
         "items": [
-          "Open the toolbar <strong>Dictionary</strong> menu and select <strong>Todos</strong>.",
+          "Open the Dashboard, expand the <strong>Dictionary</strong> section, and click <strong>Todos</strong>.",
           "Select the todo you want to remove so it is highlighted.",
           "Click the <strong>Delete</strong> button with the trash icon.",
           "Confirm the deletion.",

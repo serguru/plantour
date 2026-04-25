@@ -4,6 +4,7 @@ import { AppService } from '../../services/app-service';
 import { PlansPanelComponent } from '../plans-panel/plans-panel.component';
 import { SeoService } from '../../services/seo-service';
 import { UsersService } from '../../services/users-service';
+import { YoutubeComponent } from '../youtube/youtube-component';
 
 interface LandingFeature {
   eyebrow: string;
@@ -17,7 +18,7 @@ interface LandingFeature {
 @Component({
   selector: 'app-landing-new-user',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, YoutubeComponent],
   templateUrl: './landing-new-user.component.html',
   styleUrl: './landing-new-user.component.scss'
 })
@@ -30,7 +31,7 @@ export class LandingNewUserComponent implements OnInit {
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly request = inject(REQUEST, { optional: true });
-  showLandingContent = signal(false);
+//  showLandingContent = signal(false);
 
   subSlogan = 'Plantour is your mobile-first travel assistant for planning trips, coordinating people, packing smart, and keeping the whole journey in one place.';
 
@@ -143,7 +144,7 @@ export class LandingNewUserComponent implements OnInit {
       },
     });
 
-    this.showLandingContent.set(true);
+    //this.showLandingContent.set(true);
     this.appService.setRootLandingReady(true);
   }
 

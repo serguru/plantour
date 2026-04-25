@@ -1,11 +1,12 @@
 
 import { Component, inject } from '@angular/core';
 import { UsersService } from '../../../../services/users-service';
+import { YoutubeComponent } from '../../../youtube/youtube-component';
 
 @Component({
   selector: 'app-help-get-started-guest-access-answer',
   standalone: true,
-  imports: [],
+  imports: [YoutubeComponent],
   templateUrl: './help-get-started-guest-access-answer.component.html',
   styleUrl: '../../help-component.scss'
 })

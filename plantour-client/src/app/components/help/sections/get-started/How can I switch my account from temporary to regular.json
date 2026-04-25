@@ -5,17 +5,32 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/cQHR7WsEydk",
+          "caption": "Plantour Switch Account Temporary User Save Data",
+          "description": "This video explains how to convert a temporary account to a regular account to save testing data",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/cQHR7WsEydk/mq1.webp?sqp=CPDDtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVShlMA8=&rs=AOn4CLDcJwr0OIyEIDIBCjGszquaoeRiAw",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
+        "youtubeLink": {
+          "url": "https://youtu.be/D71OJemijGo",
+          "caption": "Plantour Switch Account Temporary User No Data Save",
+          "description": "This video explains how to convert a temporary account to a regular account without saving test data",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/D71OJemijGo/mq3.webp?sqp=CJzGtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVihlMA8=&rs=AOn4CLDZf0P2Spz-ln5vNdjm9uBZsPjL5g",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "listTag": "ul",
-        "beforeHtml": "You have different options depending on which plan you choose and whether you want to save temporary test data. If you are a public user go to the <a href=\"/\">main page<a> and choose a plan.",
+        "beforeHtml": "You have different options depending on which plan you choose and whether you want to save temporary test data. If you are not signed in go to the <a href=\"/\">main page<a> and choose a plan.",
         "items": [
-          "To start with a regular paid plan (recommended), go to your <a href='/profile'>profile</a> and click \"Change plan\" button. Select a plan, and click the corresponding button. Your test data will be saved.",
+          "To switch to a paid plan (recommended) and keep your test data, go to your <a href='/profile'>profile</a> and click \"Change plan\" button. Choose a plan, and click \"Upgrade to Monthly\" or \"Upgrade to Yearly\".  The \"Secure checkout\" form appears. Enter your actual email and click \"Proceed\". You will be redirected to a payments processing page. Fill up the form and click \"Subscribe\". After successful payment and subscription creation you will be redirected back to Plantour Sign In page. Sign in with your email.",
 
-          "To start with a paid plan from scratch, sign out and click the \"Dashboard\" button on the toolbar. This will open the main page. Scroll down, select a paid plan, and click the corresponding button.",
-
-          "If you wish to keep your test data navigate to your profile and enter your real email.",
-
-          "If you wish to start a new regular free account from scratch sign out from your temporary account, go to sign in and enter your real email or sign in with Google or Facebook."
-
+          "If you wish to switch to a free plan and keep your test data go to your profile and enter your real email instead of currenly used Robin.Miles.XXXYYY@plantour.app, then click \"Sign in / Sign up\" button."
         ]
       }
     ]

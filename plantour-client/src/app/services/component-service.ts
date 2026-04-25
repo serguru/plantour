@@ -83,7 +83,7 @@ export class ComponentService {
     if (!entities || !this.selectedIdSignal()) {
       return;
     }
-    const idExists = entities.find(x => x?.id === !this.selectedIdSignal());
+    const idExists = entities.find(x => x?.id === this.selectedIdSignal());
     if (idExists) {
       return;
     }

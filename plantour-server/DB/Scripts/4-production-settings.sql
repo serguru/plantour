@@ -34,7 +34,7 @@ values
     ('admin_email', 'admin@plantour.app',  'string'),
     ('support_email', 'support@plantour.app',  'string'),
     ('send_email_user_created', 'true',  'boolean'),
-    ('app_version', '2.15.7',  'string'),
+    ('app_version', '2.16.4',  'string'),
     ('global_spinner_timeout_sec', '30',  'integer'),
     ('exclude_paths_from_log', 'users/health-check;users/version;version',  'string'),
     ('plantour_app_origin', 'https://plantour.app',  'string');

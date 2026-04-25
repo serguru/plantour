@@ -8,9 +8,9 @@
         "title": "Add, update, or delete personal trip todos",
         "listTag": "ol",
         "items": [
-          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Click the Dashboard toolbar button, expand the Trip section and click on the Trips link",
           "Select the trip you want to work in.",
-          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Todos</strong>.",
+          "Open the Trip section again and select <strong>Todos</strong>.",
           "Use <strong>Add</strong> to create a trip todo, <strong>Update</strong> to edit the selected todo, or <strong>Delete</strong> to remove the selected todo."
         ],
         "afterHtml": "These are trip-specific todos. They belong to the selected trip, not to your reusable <a href='/todos'>Todos</a> dictionary."

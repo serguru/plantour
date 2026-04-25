@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT } from '../../environment.token';
+import { ComprehensiveUserDto } from '../models/comprehensive-user.models';
 import { PlantourUserRowDto } from '../models/plantour-user.models';
 import { VisitorActivityPeriod } from '../models/visitor-activity-period.models';
 
@@ -22,5 +23,12 @@ export class PlantourUsersService {
     }
 
     return this.http.get<PlantourUserRowDto[]>(`${this.environment.api.baseUrl}/users/plantour`, { params });
+  }
+
+  getComprehensiveData(userId: string): Observable<string> {
+    return this.http.get(
+      `${this.environment.api.baseUrl}/users/${userId}/comprehensive`,
+      { responseType: 'text' }
+    );
   }
 }

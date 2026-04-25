@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/FOul_sFcoLU",
+          "caption": "Plantour Assign Shared Expenses",
+          "description": "This video explains how an admin assigns shared expenses",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/FOul_sFcoLU/mq1.webp?sqp=CLj3tM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVihlMA8=&rs=AOn4CLAlrCi1vmeJminPLCheIXGdacDV1w",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Assign shared responsibility through trip participants",
         "listTag": "ol",
         "beforeHtml": "Shared expenses are no longer assigned from individual expense rows. Admins assign shared responsibility by setting each participant`s shared amount and optional deadline.",

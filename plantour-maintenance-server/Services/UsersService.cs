@@ -45,3 +45,6 @@ public class UsersService(
         return _mapper.Map<UserDto>(user);
     }
 }
+
+// TODO: cleanup tokens
+// TODO: Amazon links on the public tempates

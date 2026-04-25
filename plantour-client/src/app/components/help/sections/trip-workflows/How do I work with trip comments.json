@@ -5,12 +5,22 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/V_KSsDi8r7k",
+          "caption": "Plantour Trip Comments",
+          "description": "This video explains how trip participants can exchange with trip related comments",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/V_KSsDi8r7k/mq1.webp?sqp=CLDptM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVihlMA8=&rs=AOn4CLBLEC4Qgm-68g-chNpeXeGSQIqJyA",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Open the trip conversation",
         "listTag": "ol",
         "items": [
-          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Click the Dashboard toolbar button, expand the Trip section and click on the Trips link",
           "Select the trip you want to discuss.",
-          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Comments</strong>."
+          "Open the Trip section again and select <strong>Comments</strong>."
         ]
       },
       {

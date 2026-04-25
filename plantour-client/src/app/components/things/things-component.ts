@@ -80,7 +80,7 @@ export class ThingsComponent {
         filterText: '',
         comparisonType: 'contains',
         isSelected: true,
-        icon: 'shopping-bag'
+        icon: 'filter'
       }
     ];
 

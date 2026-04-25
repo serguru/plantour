@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/4wE328XwtuQ",
+          "caption": "Plantour How To Assign Shared Items",
+          "description": "This video explains how an admin assigns shared items to trip participants",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/4wE328XwtuQ/mq1.webp?sqp=CNzrtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVihlMA8=&rs=AOn4CLBRo7e9Z3O-q5ACBwqMc_Cp5M9t0w",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Assign or reassign one shared item from its row",
         "listTag": "ol",
         "beforeHtml": "Use this when you want to pick one participant directly on one shared item row.",
