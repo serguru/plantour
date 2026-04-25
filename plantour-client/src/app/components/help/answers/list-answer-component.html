@@ -25,6 +25,20 @@
         }
       }
 
+      @if (section.youtubeLink; as link) {
+        <div class="help-list-answer__content">
+          <app-youtube
+            [url]="link.url"
+            [caption]="link.caption"
+            [description]="link.description"
+            [thumbnailUrl]="link.thumbnailUrl"
+            [uploadDate]="link.uploadDate"
+            [linkClass]="link.linkClass"
+            [showIcon]="link.showIcon ?? true"
+          ></app-youtube>
+        </div>
+      }
+
       @if (section.afterHtml) {
         <div class="help-list-answer__content" [innerHTML]="renderHtml(section.afterHtml)"></div>
       }

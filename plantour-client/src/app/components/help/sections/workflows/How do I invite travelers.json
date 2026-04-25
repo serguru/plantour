@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/hKfmXhAEuvI",
+          "caption": "Plantour How To Invite Travelers",
+          "description": "This video explains how to invite travelers",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/hKfmXhAEuvI/mq1.webp?sqp=CKTUtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCggZChlMA8=&rs=AOn4CLD0cnsgXWLA5vXxe7KV19UwvH6sfQ",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "If the traveler is new to your account",
         "listTag": "ol",
         "beforeHtml": "Use this flow when the person is not yet in your reusable <a href='/travelers'>Travelers</a> list.",
@@ -30,6 +40,16 @@
           "Open the page menu and choose <strong>Send Invitation...</strong>.",
           "Confirm the dialog. Plantour sends the invitation email again to that traveler."
         ]
+      },
+      {
+        "youtubeLink": {
+          "url": "https://youtu.be/QcmF29c6vIE",
+          "caption": "Plantour How To Invite Trip Participant",
+          "description": "This video explains how to invite your trip participants",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/QcmF29c6vIE/mq1.webp?sqp=CKTUtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEQgVShlMA8=&rs=AOn4CLDi57wlWIlDRslf3NYTViEgsTGq7w",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
       },
       {
         "title": "Add the invited traveler to a specific trip",

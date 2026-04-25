@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/CGzoaBsKdUI",
+          "caption": "Plantour Trip Bags",
+          "description": "This video explains how to work with trip bags",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/CGzoaBsKdUI/mq3.webp?sqp=CNjktM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCggZChlMA8=&rs=AOn4CLBMIfT6Dr9drSQFTdW-2bSsY7W97w",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Add a trip bag",
         "listTag": "ol",
         "beforeHtml": "Use this when you want to create a bag that belongs only to the currently selected trip.",

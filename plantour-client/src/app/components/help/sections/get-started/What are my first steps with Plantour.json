@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/o2sI63C3nzc",
+          "caption": "Plantour Temporary User First Steps",
+          "description": "This video explains how a temporary user can take their first steps in Plantour",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/o2sI63C3nzc/mq1.webp?sqp=CMTBtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCggZShlMA8=&rs=AOn4CLBggIshpcqiPu3RPTVVBFITYHNZ3w",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Temporary users follow (regular users see after) these steps:",
         "listTag": "ol",
         "items": [
@@ -22,6 +32,16 @@
           "Print out the downloaded packing list and put it in the \"Backpack\".",
           "Use the printed packing list when traveling."
         ]
+      },
+      {
+        "youtubeLink": {
+          "url": "https://youtu.be/9sR-grX6eSo",
+          "caption": "Plantour Regular User First Steps",
+          "description": "This video explains how a regular user can take their first steps in Plantour",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/9sR-grX6eSo/mq1.webp?sqp=CMTBtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCggZShlMA8=&rs=AOn4CLDHAiiTAY_8eZ-xkAI8223TkxvvYA",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
       },
       {
         "title": "Regular users follow these steps:",

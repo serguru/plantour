@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/ogMRM3C1yNs",
+          "caption": "Plantour Shared Expenses",
+          "description": "This video explains how an admin can add, update and delete shared expenses",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/ogMRM3C1yNs/mq1.webp?sqp=CIz1tM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCcgZChlMA8=&rs=AOn4CLC1d3er5OqZ5C7cXb7zOlUAU1L_AQ",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Add a shared expense",
         "listTag": "ol",
         "beforeHtml": "Use this when the cost belongs to the group and should appear in the trip-level shared-expenses list.",

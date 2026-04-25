@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/52GU5hDkmHU",
+          "caption": "Plantour Why Current Trip",
+          "description": "This video explains why is current trip and how to set/unset and show/hide it",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/52GU5hDkmHU/mq1.webp?sqp=CNTdtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEYgVyhlMA8=&rs=AOn4CLBnjqL6X93S56-QYJUnGO8yuO4lNg",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Why Plantour uses the current trip",
         "listTag": "ul",
         "beforeHtml": "The current trip is Plantour's active trip context. It lets the application know which trip should be used when you open trip-specific pages such as <strong>Participants</strong>, <strong>Items</strong>, <strong>Todos</strong>, <strong>Bags</strong>, <strong>Shared items</strong>, <strong>Shared todos</strong>, and <strong>Comments</strong>.",

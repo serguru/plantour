@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/45neAJhiUBg",
+          "caption": "Plantour Trip Map",
+          "description": "This video explains how to view your trip itinerary on a map",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/45neAJhiUBg/mq1.webp?sqp=CLDptM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCcgZChlMA8=&rs=AOn4CLAoLWZ14Jkns3ln0n1sPqHmaQT2cw",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Open the map for the current trip",
         "listTag": "ol",
         "items": [

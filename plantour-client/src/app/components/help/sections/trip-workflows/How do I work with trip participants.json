@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/M1kg8QvzTCU",
+          "caption": "Plantor How To Work With Trip Participants",
+          "description": "This video explains how to work with trip participants",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/M1kg8QvzTCU/mq1.webp?sqp=CNTdtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEYgVyhlMA8=&rs=AOn4CLAumH5g64PU3j560w7_TP4OEj-N1A",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Open trip participants for the selected trip",
         "listTag": "ol",
         "items": [

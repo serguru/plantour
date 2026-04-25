@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/hIo4oKDnLeQ",
+          "caption": "Plantour Admin Assign Todo",
+          "description": "This video explains how an admin assigns shared todos",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/hIo4oKDnLeQ/mq1.webp?sqp=CODytM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVShlMA8=&rs=AOn4CLDskQB6wrHE95YQCsZY0zwXNoc4sw",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Assign or reassign one shared todo from its row",
         "listTag": "ol",
         "beforeHtml": "Use this when you want to pick one participant directly on one shared todo row.",

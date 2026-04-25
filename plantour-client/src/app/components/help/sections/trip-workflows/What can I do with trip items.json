@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/CXeC8MLUXYk",
+          "caption": "Plantour How To Add Trip Items Directly",
+          "description": "This video explains how to work with personal trip items directly",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/CXeC8MLUXYk/mq1.webp?sqp=CKzitM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCggZChlMA8=&rs=AOn4CLBQnAbFMMPvClDArMf9GnZeIEr3oA",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Add trip items directly",
         "listTag": "ol",
         "beforeHtml": "Use this when you want to create a personal item directly inside one trip without going through a dictionary page first.",
@@ -18,6 +28,16 @@
           "Plantour saves the item in that trip and returns you to the <strong>Trip Items</strong> list."
         ],
         "afterHtml": "This creates a trip-specific item. It belongs to that trip, not to your reusable dictionary."
+      },
+      {
+        "youtubeLink": {
+          "url": "https://youtu.be/-zYupnvxgEs",
+          "caption": "Plantour Add Multiple Trip Items From Dictionary",
+          "description": "This video explains how to add multiple items to a trip from the dictionary at once",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/-zYupnvxgEs/mq1.webp?sqp=CKzitM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEYgVyhlMA8=&rs=AOn4CLCvWLs3-CmvAH72AcRCxWk18EQ9cw",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
       },
       {
         "title": "Copy items from your Items dictionary into a trip",
@@ -45,6 +65,16 @@
           "To copy one visible template item, click the add button on that row. To copy many visible template items at once, use the page-level plus button.",
           "Plantour copies the selected template items into that trip`s <strong>Trip Items</strong> list."
         ]
+      },
+      {
+        "youtubeLink": {
+          "url": "https://youtu.be/Lnqp43g8q98",
+          "caption": "Plantour AI Item Prompts",
+          "description": "This video shows you how to use Plantur's AI to create a travel packing list tailored to your needs",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/Lnqp43g8q98/mq1.webp?sqp=CNjktM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVihlMA8=&rs=AOn4CLBk895PMWzlx0er9le_6aeti5_qZA",
+          "uploadDate": "2026-04-26",
+          "showIcon": true
+        }
       },
       {
         "title": "Copy AI recommendations into a trip",

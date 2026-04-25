@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/a8GySUssiYw",
+          "caption": "Plantour Dashboard",
+          "description": "This video explains how to navigate through Plantour pages",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/a8GySUssiYw/mq1.webp?sqp=CJi_tM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEYgVihlMA8=&rs=AOn4CLACTrN0PHCYGROjAF9fffmMzbx8aw",
+          "uploadDate": "2026-04-20",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Use the toolbar as the main navigation",
         "listTag": "ul",
         "items": [
