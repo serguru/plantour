@@ -1,7 +1,4 @@
-// TODO: Why if sign in with bob.green@example.com it shows "Hello Robin Miles, we've sent you an email with a link that will be valid for 60 minutes. Please open the email and follow the link to sign in to Plantour."
 // TODO: add reset to AI prompts
-// TODO: the latest added or updated entity must be shown and highlighted
-// TODO: action bar is not working for shared expenses
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { BrnDialogService } from '@spartan-ng/brain/dialog';

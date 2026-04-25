@@ -10,8 +10,6 @@ using plantour_server.Services;
 using plantour_server.Services.Interfaces;
 
 namespace plantour_server.Controllers;
-// TODO: in dic items the trip name is not stored when removed
-// TODO: return back from form to list must higloght an entity
 [ApiController]
 [Route("[controller]")]
 public class UsersController : ControllerBase
