@@ -8,7 +8,7 @@ export const environment = {
   googleClientId: '918703665460-7vpm4ecriksjt5lv6fqhkvvbmqi92h0l.apps.googleusercontent.com',
   facebookAppId: '2076632839798115',
   turnstileSiteKey: '0x4AAAAAACyoFgfZ0bvLNGPQ',
-  version: '2.15.7',
+  version: '2.16.4',
   paddleKey: "",
   map: {
     apiKey: 'AIzaSyBhYxg_0ULXq6ypIGXrl8wGWc0VyO68pPI',
