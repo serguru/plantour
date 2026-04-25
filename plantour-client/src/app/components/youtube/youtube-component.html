@@ -1,0 +1,12 @@
+<a
+  [class]="'youtube-link' + (linkClass ? ' ' + linkClass : '')"
+  [href]="url"
+  target="_blank"
+  rel="noopener noreferrer"
+  [attr.aria-label]="'Watch: ' + caption"
+>
+  @if (showIcon) {
+    <span class="youtube-icon" [innerHtml]="youtubeIcon"></span>
+  }
+  <span class="youtube-caption">{{ caption }}</span>
+</a>

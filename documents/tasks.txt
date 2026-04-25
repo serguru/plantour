@@ -1238,7 +1238,7 @@ roxanne.elise@mailinator.com
 
 When a user fills the form for example src\app\components\trip-things\trip-thing-form\trip-thing-form-component.ts and clicks Submit the corresponding entities list opens for example src\app\components\trip-things\trip-things-component.ts. The thing processed in the form must be found and highlighted in the things list. This feature was warking some time ago and then stopped working throughout the entire project. Find out why is that. If you 100% sure you found the reason - fix it. If not - do no code changes and let me know.
 
-Generate a new standalone component YoutubeComponent with ts, html and scss files in plantour-client project. This component must serve as an anchor link to Youtube videos, opens a separate tab/page. It accepts 2 inputs: url and caption. Explore the Internet and Learn how to use "SEO Secret Sauce: VideoObject Schema" to make this link SEO friendly. Add VideoObject Schema to the link. Add a Youtube icon.
+Generate a new standalone component YoutubeComponent with ts, html and scss files in plantour-client project. This component will serve as an anchor link <a> to Youtube videos, opens a separate tab/page. It accepts 2 inputs: url and caption. If it is necessary add more inputs. Explore the Internet and Learn how to use "SEO Secret Sauce: VideoObject Schema" to make this link SEO friendly. Add VideoObject Schema to the link. Add a Youtube icon.
 
 
 
