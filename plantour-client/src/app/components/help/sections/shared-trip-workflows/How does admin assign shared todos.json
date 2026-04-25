@@ -23,7 +23,6 @@
         "items": [
           "Open the actions bar in the page header.",
           "Choose the <strong>Trip participant</strong> target and select the participant you want.",
-          "Set the deadline-days field if you want Plantour to calculate an assignment deadline for the shared todos you are about to assign.",
           "Filter the list first if you want to limit which shared todos are currently shown.",
           "Click the page-level plus button to assign all currently shown not-targeted shared todos to that participant.",
           "Click the page-level minus button to unassign the currently shown targeted shared todos from that participant."

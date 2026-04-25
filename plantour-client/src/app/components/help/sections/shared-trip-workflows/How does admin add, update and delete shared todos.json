@@ -9,9 +9,9 @@
         "listTag": "ol",
         "beforeHtml": "Use this when the task belongs to the whole trip and should later be assigned to one participant.",
         "items": [
-          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Click the Dashboard toolbar button, expand the Trip section and click on the Trips link",
           "Select the trip you want to work in.",
-          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Shared todos</strong>.",
+          "Open the Trip section again and select <strong>Shared todos</strong>.",
           "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Trip Shared Todo</strong> form opens.",
           "Enter the shared todo name. You can also fill category and notes.",
           "Click <strong>Submit</strong>.",

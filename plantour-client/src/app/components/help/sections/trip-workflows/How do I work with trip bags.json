@@ -9,11 +9,11 @@
         "listTag": "ol",
         "beforeHtml": "Use this when you want to create a bag that belongs only to the currently selected trip.",
         "items": [
-          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Click the Dashboard toolbar button, expand the Trip section and click on the Trips link",
           "Select the trip you want to work in.",
-          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Bags</strong>.",
+          "Open the Trip section again and select <strong>Bags</strong>.",
           "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Trip Bag</strong> form opens.",
-          "Enter the bag name. You can also fill optional fields such as label, notes, whether the bag should be included in the packing list, and bag weight with its unit.",
+          "Enter the bag name. You can also fill optional fields such as label, notes, whether a packing list is included, and bag weight with its unit.",
           "Click <strong>Submit</strong>.",
           "Plantour saves the bag in that trip and returns you to the <strong>Trip Bags</strong> list."
         ]

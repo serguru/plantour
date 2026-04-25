@@ -9,9 +9,9 @@
         "listTag": "ol",
         "beforeHtml": "Use this when you want to create a personal item directly inside one trip without going through a dictionary page first.",
         "items": [
-          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Click the Dashboard toolbar button, expand the Trip section and click on the Trips link",
           "Select the trip you want to work in.",
-          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Items</strong>.",
+          "Open the Trip section again and select <strong>Items</strong>.",
           "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Trip Item</strong> form opens.",
           "Enter the item name. Add category, notes, units, value, and an optional bag if you already know where the item should be packed.",
           "Click <strong>Submit</strong>.",

@@ -8,9 +8,9 @@
         "title": "Open trip participants for the selected trip",
         "listTag": "ol",
         "items": [
-          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Click the Dashboard toolbar button, expand the Trip section and click on the Trips link",
           "Select the trip you want to work in.",
-          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Participants</strong>.",
+          "Open the Trip section again and select <strong>Participants</strong>.",
           "Plantour opens the <strong>Trip participants</strong> page for that trip and shows the shared-expenses overview at the top of the page."
         ],
         "afterHtml": "If the wrong trip opens, change the selected trip first and then return to <strong>Participants</strong>."

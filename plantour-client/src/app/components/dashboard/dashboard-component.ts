@@ -161,7 +161,7 @@ export class DashboardComponent {
       },
       {
         id: 'trip-personal',
-        title: 'Trip personal',
+        title: 'Trip Personal',
         summary: hasTrip
           ? `Open your personal trip pages for ${trip?.name}.`
           : 'Pick a current trip first, then return here for your personal trip pages.',

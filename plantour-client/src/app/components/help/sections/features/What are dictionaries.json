@@ -12,7 +12,7 @@
           "<a href=\"/packs\">Bags</a> stores reusable bags or containers that can be added to trips.",
           "<a href=\"/todos\">Todos</a> stores reusable tasks you may need to complete for different trips."
         ],
-        "afterHtml": "You can navigate to a certain dictionary by clicking on toolbar`s \"Dictionary\" button with \"copy\" icon and then select a corresponding menu item. If you do not see that button <a href='/sign-in'>sign in</a>."
+        "afterHtml": "You can navigate to a certain dictionary by clicking on toolbar`s \"Dashboard\" button, expand \"Dictionary\" section and then select a corresponding link."
       }
     ]
   }
