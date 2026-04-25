@@ -148,6 +148,12 @@ export class TemplatesAiComponent {
     this.prompts.unshift(prompt);
   }
 
+  onPromptValueChange(value: string | null): void {
+    if (!value) {
+      this.componentService.updateEntities([]);
+    }
+  }
+
   ngOnInit(): void {
 
     this.componentService.updateComponentId(this.componentId);
