@@ -2,6 +2,7 @@ import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angula
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, switchMap, tap } from 'rxjs';
+import { EntitiesActionsComponent } from '../entities/entities-actions-component/entities-actions-component';
 import { ExpensesOverviewComponent } from '../expenses-overview/expenses-overview-component';
 import { EntitiesComponent } from '../entities/entities-component';
 import { EntitiesHeader, MenuConfig } from '../entities/entities-header-component/entities-header-component';
@@ -19,6 +20,7 @@ import { TripSharedExpenseItemComponent } from './trip-shared-expense-item/trip-
   selector: 'app-trip-shared-expenses',
   standalone: true,
   imports: [
+    EntitiesActionsComponent,
     ExpensesOverviewComponent,
     EntitiesComponent,
     EntitiesHeader,
