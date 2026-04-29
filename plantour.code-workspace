@@ -16,7 +16,9 @@
 			"path": "plantour-maintenance-client"
 		}
 	],
-	"settings": {},
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "plantour-client"
+	},
 	"tasks": {
 		"version": "2.0.0",
 		"tasks": [

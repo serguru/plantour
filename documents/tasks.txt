@@ -1242,3 +1242,6 @@ Generate a new standalone component YoutubeComponent with ts, html and scss file
 
 
 
+I am looking to rapidly expand Planyour's global footprint. While the app is technically complete, I want to tap into AppSumo’s 1.5M+ subscriber base to acquire a diverse set of power users. I’m looking for a 'cash injection' to fund further infrastructure scaling and to establish PlanTour as a household name for AI-driven travel planning.
+
+Most tools in the market are 'inspiration engines' that leave the hard work to the user. PlanTour is a 'logistics engine.' We don't just suggest a destination; we generate the day-by-day itinerary, an automated packing list tailored to that specific trip, and a coordination hub for groups. Customers choose us because we eliminate the need to jump between three different apps to actually get out the door.
