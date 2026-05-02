@@ -9,6 +9,7 @@
       </h1>
     </div>
     <p class="sub-slogan">{{ subSlogan }}</p>
+     <br>
     <app-youtube
       url="https://youtu.be/SWY8hOF0Iyk"
       caption="Plantour Intro"
@@ -19,18 +20,10 @@
       [showIcon]="true"
     ></app-youtube>
   </header>
-
-
-
-
-
-
-
   <section class="features-section">
     <h2>Six reasons travelers pick Plantour</h2>
     <p class="section-intro">
-      Plantour now covers the full travel workflow: planning, itineraries, maps, packing, collaboration, notes,
-      AI generation, and final reports in one mobile-first workspace.
+      Plantour covers the full travel workflow: planning, itineraries, items, tasks, expenses, maps, packing, collaboration, notes, AI trip generation, and final reports in one mobile-first workspace.
     </p>
     <div class="features-grid">
       @for (feature of featureList; track feature.title) {
