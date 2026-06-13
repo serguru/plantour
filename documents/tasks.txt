@@ -1242,3 +1242,51 @@ Generate a new standalone component YoutubeComponent with ts, html and scss file
 
 
 
+I am looking to rapidly expand Planyour's global footprint. While the app is technically complete, I want to tap into AppSumo’s 1.5M+ subscriber base to acquire a diverse set of power users. I’m looking for a 'cash injection' to fund further infrastructure scaling and to establish PlanTour as a household name for AI-driven travel planning.
+
+Most tools in the market are 'inspiration engines' that leave the hard work to the user. PlanTour is a 'logistics engine.' We don't just suggest a destination; we generate the day-by-day itinerary, an automated packing list tailored to that specific trip, and a coordination hub for groups. Customers choose us because we eliminate the need to jump between three different apps to actually get out the door.
+
+I am a software developer
+
+Plantour is a mobile-first travel assistant that streamlines group coordination using an AI based trip planing system. The platform is technically complete and ready for global monetization, meaning your investment goes directly into an active engine for user acquisition rather than development. I am offering a revenue-share model where you earn a direct commission from every sale, providing a clear and immediate path to ROI.
+
+When can we discuss the growth potential of this partnership?
+
+Based on your account information, I've reviewed your billing for April 2026 and found a total charge of CAD$1.16. This is slightly different from the CAD$1.30 you mentioned, which may be due to your billing cycle dates.
+
+The charges are for your usage of the Gemini API. Here is a breakdown:
+
+CAD$1.13 for "Generate_content text output token count for gemini 3 flash"
+CAD$0.02 for "Generate_content text input token count for gemini 3 flash"
+CAD$0.01 for "Generate content output token count gemini 3.1 flash lite preview text"
+These charges were incurred because there were no active credits on your account during this period.
+
+For a more detailed view, you can access your billing report here: Billing Report
+
+Hello [X]
+
+I am the founder of Plantour, a mobile-first travel assistant designed to solve the friction of group itinerary planning and coordination. The product has been launched in Appril 20206. We are interested in exploring a potential partnership with [X] to bring our platform to your community of early adopters.
+
+Plantour is built for travelers who need more than just a static itinerary. It uses AI to help users organize parts of their trip and manage tasks in a collaborative environment. Our goal is to move beyond the messy spreadsheet and provide a structured, real-time tool for groups.
+
+I’ve been following your curated launches and appreciate the focus on high-quality, stable SaaS tools. I believe Plantour fits your audience of tech-savvy entrepreneurs and frequent travelers who value efficiency and clean architecture.
+
+Are you currently accepting new applications for deals?
+
+Looking forward to hearing from you.
+
+
+
+
+
+Plantour is the travel assistant web app designed to replace messy group chats and scattered spreadsheets. From the first spark of inspiration to the final journey home, we cover the entire workflow in one clean, mobile-first minimalistic interface.
+
+Skip the hours of research. Instantly generate an itinerary tailored to your destination, then tweak it to fit your group's pace.
+
+Organize your trip into modular segments. Whether it’s a flight, a museum visit, or a dinner reservation, your timeline stays clean and manageable.
+
+Keep the group moving. Assign specific tasks—like booking the rental car or checking visa requirements—so everyone knows exactly what needs to be done.
+
+Track shared expenses as they happen to avoid "who-owes-whom" awkwardness.
+
+

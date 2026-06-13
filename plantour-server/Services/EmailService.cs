@@ -433,7 +433,9 @@ public class EmailService(IBrevoEmailClient brevoEmailClient) : IEmailService
         builder.AppendLine("</body>");
         builder.AppendLine("</html>");
 
-        return builder.ToString();
+        string result = builder.ToString();
+
+        return result;
     }
 
     private static string BuildText(EmailTemplateModel model, string? additionalText = null)

@@ -206,7 +206,7 @@ builder.Services.AddTickerQ(options =>
 });
 
 
-builder.Services.AddSingleton<TickerQRecurringTasksScheduler>();
+//builder.Services.AddSingleton<TickerQRecurringTasksScheduler>();
 
 // Configure JWT Authentication
 builder.Services.AddAuthentication(options =>
@@ -597,13 +597,13 @@ app.UseCors("AllowOrigins");
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseMiddleware<CurrentUserMiddleware>();
-app.UseMiddleware<ApiVisitLoggingMiddleware>();
+//app.UseMiddleware<ApiVisitLoggingMiddleware>();
 app.UseAuthorization();
-app.UseTickerQ();
+//app.UseTickerQ();
 
-using var cronSyncScope = app.Services.CreateScope();
-var recurringTasksScheduler = cronSyncScope.ServiceProvider.GetRequiredService<TickerQRecurringTasksScheduler>();
-await recurringTasksScheduler.StartAsync(CancellationToken.None);
+// using var cronSyncScope = app.Services.CreateScope();
+// var recurringTasksScheduler = cronSyncScope.ServiceProvider.GetRequiredService<TickerQRecurringTasksScheduler>();
+// await recurringTasksScheduler.StartAsync(CancellationToken.None);
 
 app.MapControllers();
 

@@ -31,10 +31,12 @@ export class LandingNewUserComponent implements OnInit {
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly request = inject(REQUEST, { optional: true });
-//  showLandingContent = signal(false);
+  //  showLandingContent = signal(false);
 
-  subSlogan = 'Plantour is your mobile-first travel assistant for planning trips, coordinating people, packing smart, and keeping the whole journey in one place.';
+  // subSlogan = 'Plantour is your mobile-first travel assistant for planning trips, coordinating people, packing smart, and keeping the whole journey in one place.';
 
+  subSlogan =
+    'Plantour serves as a unified digital hub that eliminates the stress of fragmented travel by consolidating scattered itineraries, group logistics, and AI-driven preparation into a single, mobile-first source of truth.';
 
   featureList: LandingFeature[] = [
     {
