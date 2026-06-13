@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/psTAS06qTow",
+          "caption": "Plantour Participant After Accepting Assignment",
+          "description": "This video explains what a participant can do after accepting the item assignment",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/psTAS06qTow/mq1.webp?sqp=CLTwtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVihlMA8=&rs=AOn4CLB7gfLUOm3ZF100SgQh4yXNeBU_3A",
+          "uploadDate": "2026-04-26T08:00:00+08:00",
+          "showIcon": true
+        }
+      },
+      {
         "listTag": "ol",
         "beforeHtml": "After acceptance, the shared item becomes part of the participant`s personal trip work. Plantour creates a corresponding row in that participant`s <strong>Trip Items</strong> list.",
         "items": [

@@ -5,6 +5,26 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/Grj_oqWt9sE",
+          "caption": "Plantour How Do I Filter And Sort",
+          "description": "Plantur supports a unified filtering and sorting method for the entire application. Let's look at how to filter and sort any entities using the example of items added to your dictionary.",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/Grj_oqWt9sE/mq1.webp?sqp=CMjItM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCcgZChlMA8=&rs=AOn4CLC_wwIwL81SrJlROdDvWNDk4n6VLA",
+          "uploadDate": "2026-04-22T08:00:00+08:00",
+          "showIcon": true
+        }
+      },
+      {
+        "youtubeLink": {
+          "url": "https://youtu.be/cNr4FRQfRGU",
+          "caption": "Plantour Group Entities Adding Or Removing",
+          "description": "This video explains how Plantour supports adding and removing groups of entities to a target list. Let's look at how to do this using the example of your dictionary items. The target list will be a list of your personal items on the Mediterranean cruise.",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/cNr4FRQfRGU/mq1.webp?sqp=CPTKtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEQgVShlMA8=&rs=AOn4CLAUn8rqvtXJ0zksW_BdWlMiTUYAmQ",
+          "uploadDate": "2026-04-22T08:00:00+08:00",
+          "showIcon": true
+        }
+      },
+      {
         "listTag": "ol",
         "beforeHtml": "Open any supported entities list such as <a href='/items'>Items</a>, <a href='/todos'>Todos</a>, <a href='/templates'>Template items</a>, <a href='/travelers'>Travelers</a>, or trip based lists. Then click the small actions button with the chevron icon in the page header to open the actions bar.",
         "items": [

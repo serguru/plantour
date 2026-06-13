@@ -5,13 +5,23 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/dCMdcLBAQTg",
+          "caption": "Plantour Admin Shared Todos",
+          "description": "This video explains how an admin can add, update and delete shared todos",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/dCMdcLBAQTg/mq1.webp?sqp=CIjutM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVihlMA8=&rs=AOn4CLCGuSUMA2jXRPUco1WcfjyZK3PwBg",
+          "uploadDate": "2026-04-26T08:00:00+08:00",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Add a shared todo",
         "listTag": "ol",
         "beforeHtml": "Use this when the task belongs to the whole trip and should later be assigned to one participant.",
         "items": [
-          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Click the Dashboard toolbar button, expand the Trip section and click on the Trips link",
           "Select the trip you want to work in.",
-          "Open the toolbar <strong>Trip</strong> menu again and select <strong>Shared todos</strong>.",
+          "Open the Trip section again and select <strong>Shared todos</strong>.",
           "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Trip Shared Todo</strong> form opens.",
           "Enter the shared todo name. You can also fill category and notes.",
           "Click <strong>Submit</strong>.",

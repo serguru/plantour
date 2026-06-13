@@ -1216,3 +1216,77 @@ sk-7f2b79bba5c94cb1b1e80aaafcec7a2f
 
 Explore the DB structure. Add a point to Maintenance (M) UsersController.cs taking a userId as an input parameter and returning JSON object with all the user's data based on DB foreign keys. Add a new tab in M client allowing to select a user from the select control, send a request to the M API and get the JSON back. The tab should show that json as well as store it as json file.
 
+
+
+Explore https://plantour.app. Make sure you understand what is this SaaS web app for. Suggest a comprehensive list of ideas, free and paid, how is it possible to attract to this app as many customers as possible.
+
+Navigate to this page https://plantour.app/help/get-started/navigate-pages. Read the text. Transform it to ~60 seconds long text to be read aloud and used as a soundtrack for the Plantour educational video.
+
+Explore the Help questions and answers (Q&A). There are obsolete Q&A. For example, the question "What are my first steps with Plantour" has this sentence in the answer "Click the "Trip" button with the "compass" icon on the toolbar". And now that button does not exist anymore. There is a link in Dashboard -> Trip -> Trips instead. For some other commands there are both: menu in the sandvich toolbar button and a link in dashboard. Your task is to scan Help and find and fix inconsistencies like this.
+
+TE98GAH4
+
+
+localhost
+jade.morena@mailinator.com
+8RH5BCJZ
+
+localhost
+roxanne.elise@mailinator.com
+6QQPHK3R
+
+
+When a user fills the form for example src\app\components\trip-things\trip-thing-form\trip-thing-form-component.ts and clicks Submit the corresponding entities list opens for example src\app\components\trip-things\trip-things-component.ts. The thing processed in the form must be found and highlighted in the things list. This feature was warking some time ago and then stopped working throughout the entire project. Find out why is that. If you 100% sure you found the reason - fix it. If not - do no code changes and let me know.
+
+Generate a new standalone component YoutubeComponent with ts, html and scss files in plantour-client project. This component will serve as an anchor link <a> to Youtube videos, opens a separate tab/page. It accepts 2 inputs: url and caption. If it is necessary add more inputs. Explore the Internet and Learn how to use "SEO Secret Sauce: VideoObject Schema" to make this link SEO friendly. Add VideoObject Schema to the link. Add a Youtube icon.
+
+
+
+I am looking to rapidly expand Planyour's global footprint. While the app is technically complete, I want to tap into AppSumo’s 1.5M+ subscriber base to acquire a diverse set of power users. I’m looking for a 'cash injection' to fund further infrastructure scaling and to establish PlanTour as a household name for AI-driven travel planning.
+
+Most tools in the market are 'inspiration engines' that leave the hard work to the user. PlanTour is a 'logistics engine.' We don't just suggest a destination; we generate the day-by-day itinerary, an automated packing list tailored to that specific trip, and a coordination hub for groups. Customers choose us because we eliminate the need to jump between three different apps to actually get out the door.
+
+I am a software developer
+
+Plantour is a mobile-first travel assistant that streamlines group coordination using an AI based trip planing system. The platform is technically complete and ready for global monetization, meaning your investment goes directly into an active engine for user acquisition rather than development. I am offering a revenue-share model where you earn a direct commission from every sale, providing a clear and immediate path to ROI.
+
+When can we discuss the growth potential of this partnership?
+
+Based on your account information, I've reviewed your billing for April 2026 and found a total charge of CAD$1.16. This is slightly different from the CAD$1.30 you mentioned, which may be due to your billing cycle dates.
+
+The charges are for your usage of the Gemini API. Here is a breakdown:
+
+CAD$1.13 for "Generate_content text output token count for gemini 3 flash"
+CAD$0.02 for "Generate_content text input token count for gemini 3 flash"
+CAD$0.01 for "Generate content output token count gemini 3.1 flash lite preview text"
+These charges were incurred because there were no active credits on your account during this period.
+
+For a more detailed view, you can access your billing report here: Billing Report
+
+Hello [X]
+
+I am the founder of Plantour, a mobile-first travel assistant designed to solve the friction of group itinerary planning and coordination. The product has been launched in Appril 20206. We are interested in exploring a potential partnership with [X] to bring our platform to your community of early adopters.
+
+Plantour is built for travelers who need more than just a static itinerary. It uses AI to help users organize parts of their trip and manage tasks in a collaborative environment. Our goal is to move beyond the messy spreadsheet and provide a structured, real-time tool for groups.
+
+I’ve been following your curated launches and appreciate the focus on high-quality, stable SaaS tools. I believe Plantour fits your audience of tech-savvy entrepreneurs and frequent travelers who value efficiency and clean architecture.
+
+Are you currently accepting new applications for deals?
+
+Looking forward to hearing from you.
+
+
+
+
+
+Plantour is the travel assistant web app designed to replace messy group chats and scattered spreadsheets. From the first spark of inspiration to the final journey home, we cover the entire workflow in one clean, mobile-first minimalistic interface.
+
+Skip the hours of research. Instantly generate an itinerary tailored to your destination, then tweak it to fit your group's pace.
+
+Organize your trip into modular segments. Whether it’s a flight, a museum visit, or a dinner reservation, your timeline stays clean and manageable.
+
+Keep the group moving. Assign specific tasks—like booking the rental car or checking visa requirements—so everyone knows exactly what needs to be done.
+
+Track shared expenses as they happen to avoid "who-owes-whom" awkwardness.
+
+

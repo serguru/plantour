@@ -2,13 +2,14 @@
 import { Component, Input, inject } from '@angular/core';
 import { HelpAnswerParagraphSection } from '../help-content';
 import { UsersService } from '../../../services/users-service';
+import { YoutubeComponent } from '../../youtube/youtube-component';
 
 @Component({
   selector: 'app-help-paragraph-answer',
   standalone: true,
-  imports: [],
+  imports: [YoutubeComponent],
   templateUrl: './paragraph-answer-component.html',
-  styleUrl: '../help-component.scss'
+  styleUrl: '../help-component.scss',
 })
 export class HelpParagraphAnswerComponent {
   @Input() sections: HelpAnswerParagraphSection[] = [];

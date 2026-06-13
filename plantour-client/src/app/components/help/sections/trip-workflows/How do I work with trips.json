@@ -5,11 +5,21 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/NObfstzo1Z8",
+          "caption": "Plantour Work With Trips",
+          "description": "This video explains how to work with trips",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/NObfstzo1Z8/mq1.webp?sqp=CNTdtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEYgVyhlMA8=&rs=AOn4CLBijAHnaabRpmmrbQyAWuMjrZaVBg",
+          "uploadDate": "2026-04-26T08:00:00+08:00",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Create a trip",
         "listTag": "ol",
         "beforeHtml": "Use this when you want to start a new trip that will later contain participants, items, todos, bags, comments, and other trip data.",
         "items": [
-          "Open the toolbar <strong>Trip</strong> menu and select <strong>Trips</strong>.",
+          "Open the Dashboard, expand the <strong>Trip</strong> section, and click <strong>Trips</strong>.",
           "Click the <strong>Add</strong> button with the plus icon. The <strong>Add Trip</strong> form opens.",
           "Enter the trip name.",
           "Choose the trip status if needed.",
@@ -25,7 +35,7 @@
         "listTag": "ol",
         "beforeHtml": "Selecting a trip is important because many pages in the <strong>Trip</strong> menu use the current trip as their working context.",
         "items": [
-          "Open <strong>Trip</strong> > <strong>Trips</strong>.",
+          "Navigate to <strong>Trips</strong> via the Dashboard.",
           "Click the trip you want to work with so it becomes highlighted.",
           "Review the trip summary text in the list row, such as dates, participants, bags, and other trip details.",
           "If needed, use filtering by Name or Trip Status and sorting by Name to narrow the list before selecting the trip.",
@@ -37,7 +47,7 @@
         "listTag": "ol",
         "beforeHtml": "Use this when you need to change the trip name, dates, notes, or status.",
         "items": [
-          "Open <strong>Trip</strong> > <strong>Trips</strong>.",
+          "Navigate to <strong>Trips</strong> via the Dashboard.",
           "Select the trip you want to change so it is highlighted.",
           "Click the <strong>Update</strong> button with the pencil icon. The <strong>Edit Trip</strong> form opens.",
           "Change the fields you want to update.",
@@ -50,7 +60,7 @@
         "listTag": "ol",
         "beforeHtml": "Use this when you want to remove a trip and its trip-specific data from your account.",
         "items": [
-          "Open <strong>Trip</strong> > <strong>Trips</strong>.",
+          "Navigate to <strong>Trips</strong> via the Dashboard.",
           "Select the trip you want to remove so it is highlighted.",
           "Click the <strong>Delete</strong> button with the trash icon.",
           "Confirm the deletion.",
@@ -63,7 +73,7 @@
         "listTag": "ol",
         "beforeHtml": "Use this when you want a document version of the trip information.",
         "items": [
-          "Open <strong>Trip</strong> > <strong>Trips</strong>.",
+          "Navigate to <strong>Trips</strong> via the Dashboard.",
           "Select the trip you want to export so it is highlighted.",
           "Open the page menu in the header.",
           "Choose <strong>Download Trip PDF</strong>.",
@@ -75,9 +85,9 @@
         "listTag": "ol",
         "beforeHtml": "Once a trip is selected, you usually continue into one of the trip-specific pages.",
         "items": [
-          "Open <strong>Trip</strong> > <strong>Trips</strong> and select the trip you want to work in.",
-          "Open the <strong>Trip</strong> menu again.",
-          "Choose the next page you want to work with, such as <strong>Participants</strong>, <strong>Items</strong>, <strong>Todos</strong>, <strong>Bags</strong>, or <strong>Comments</strong>.",
+          "Navigate to <strong>Trips</strong> via the Dashboard and select the trip you want to work in.",
+          "Return to the Dashboard, expand the <strong>Trip</strong> section again,",
+          "and choose the next page you want to work with, such as <strong>Participants</strong>, <strong>Items</strong>, <strong>Todos</strong>, <strong>Bags</strong>, or <strong>Comments</strong>.",
           "Work on that selected trip`s data there."
         ],
         "afterHtml": "This is the normal starting point for trip-specific workflows. For example, after selecting a trip you can continue with <a href='/help/trip-workflows/what-can-i-do-with-trip-items'>What can I do with trip items?</a>."

@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/2L0qQuXOwh8",
+          "caption": "Plantour Trip Activities",
+          "description": "This video explains how to work with trip activities",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/2L0qQuXOwh8/mq1.webp?sqp=CIDgtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCggZChlMA8=&rs=AOn4CLDXNY79-ou9OVmT7-WjBFDcXGwVDw",
+          "uploadDate": "2026-04-26T08:00:00+08:00",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Open personal trip activities",
         "listTag": "ol",
         "items": [

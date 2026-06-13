@@ -5,6 +5,16 @@
     "kind": "paragraph",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/viyGUKNEk5g",
+          "caption": "Plantour What Are Dictionaries",
+          "description": "This video explains what are Planotiur dictionaries and how to use them",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/viyGUKNEk5g/mq1.webp?sqp=CMzPtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCggZChlMA8=&rs=AOn4CLAMbA0QS2Lc1TwXfbD8gtCPcLV6SA",
+          "uploadDate": "2026-04-26T08:00:00+08:00",
+          "showIcon": true
+        }
+      },
+      {
         "beforeHtml": "In Plantour, the dictionary is the place where you keep a list of reusable entities that is not tied to one specific trip. It includes travelers, items, bags, and todos, so you can copy them into trips instead of creating them from scratch each time. After <a href='/sign-in'>signing in</a> you can manage these dictionaries here:",
         "paragraphs": [
           "<a href=\"/travelers\">Travelers</a> stores the people you can reuse across different trips.",
@@ -12,7 +22,7 @@
           "<a href=\"/packs\">Bags</a> stores reusable bags or containers that can be added to trips.",
           "<a href=\"/todos\">Todos</a> stores reusable tasks you may need to complete for different trips."
         ],
-        "afterHtml": "You can navigate to a certain dictionary by clicking on toolbar`s \"Dictionary\" button with \"copy\" icon and then select a corresponding menu item. If you do not see that button <a href='/sign-in'>sign in</a>."
+        "afterHtml": "You can navigate to a certain dictionary by clicking on toolbar`s \"Dashboard\" button, expand \"Dictionary\" section and then select a corresponding link."
       }
     ]
   }

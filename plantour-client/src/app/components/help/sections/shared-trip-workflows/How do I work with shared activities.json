@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/agNtmh7t1_k",
+          "caption": "Plantour Shared Activities",
+          "description": "This video explains how an admin can add, update and delete shared activities",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/agNtmh7t1_k/mq1.webp?sqp=CIz1tM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVihlMA8=&rs=AOn4CLATDlQvQxbNMYgPCSvuXrgnmOw6fg",
+          "uploadDate": "2026-04-26T08:00:00+08:00",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Open shared activities for the current trip",
         "listTag": "ol",
         "items": [

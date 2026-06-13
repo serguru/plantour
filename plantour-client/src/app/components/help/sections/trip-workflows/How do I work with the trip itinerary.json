@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/ScvEDYecg5s",
+          "caption": "Plantour Itinerary",
+          "description": "This video explains how to work with trip itinerary",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/ScvEDYecg5s/mq3.webp?sqp=CIDgtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCggZChlMA8=&rs=AOn4CLBBuugN3hHU8wrztX-IYmuOa3Lkhg",
+          "uploadDate": "2026-04-26T08:00:00+08:00",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Open the itinerary for the current trip",
         "listTag": "ol",
         "items": [

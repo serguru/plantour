@@ -46,4 +46,5 @@ public class UsersService(
     }
 }
 
-// TODO: make sure the app logs user's adds and deletes
+// TODO: cleanup tokens
+// TODO: Amazon links on the public tempates

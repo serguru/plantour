@@ -5,8 +5,18 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/Lnqp43g8q98",
+          "caption": "Plantour AI Item Prompts",
+          "description": "This video shows you how to use Plantur's AI to create a travel packing list tailored to your needs",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/Lnqp43g8q98/mq1.webp?sqp=CMzPtM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEUgVihlMA8=&rs=AOn4CLBi6Y3FwSxvH6LzNPzKnGnLF9U-MA",
+          "uploadDate": "2026-04-26T08:00:00+08:00",
+          "showIcon": true
+        }
+      },
+      {
         "listTag": "ol",
-        "beforeHtml": "To ask AI for item recommendations, <a href='/sign-in'>sign in</a>, open the toolbar`s \"Dictionary\" menu with the \"copy\" icon, and click \"AI prompts\".",
+        "beforeHtml": "To ask AI for item recommendations, <a href='/sign-in'>sign in</a>, open the Dashboard`s \"Artifisial Intelligence\" section, and click \"AI prompts\".",
         "items": [
           "Describe your trip type, dates, weather, activity, or traveler age.",
           "Click into the prompt box. You can type your own request or pick one of the recent prompts from the dropdown list.",

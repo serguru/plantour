@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/nw9WobiB0qY",
+          "caption": "Plantour Pack Options",
+          "description": "This video explains what options do you have to pack trip items",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/nw9WobiB0qY/mq1.webp?sqp=CITntM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGCkgYyhlMA8=&rs=AOn4CLDrx98ei9F5MFpT1Ydodun4rDIEDQ",
+          "uploadDate": "2026-04-26T08:00:00+08:00",
+          "showIcon": true
+        }
+      },
+      {
         "title": "Assign a bag while creating or updating one trip item",
         "listTag": "ol",
         "beforeHtml": "Use this when you already know where one item belongs.",

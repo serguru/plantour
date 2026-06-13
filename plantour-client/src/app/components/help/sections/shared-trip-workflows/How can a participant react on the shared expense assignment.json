@@ -5,6 +5,16 @@
     "kind": "list",
     "sections": [
       {
+        "youtubeLink": {
+          "url": "https://youtu.be/MbiBUIO9gPU",
+          "caption": "Plantour Participant React On Shared Expense",
+          "description": "This video explains how a participant can react on the shared expense assignment",
+          "thumbnailUrl": "https://i9.ytimg.com/vi_webp/MbiBUIO9gPU/mq1.webp?sqp=CLj3tM8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEYgVihlMA8=&rs=AOn4CLDD8DYW7L55byCCoT8fBENXRIE-Gw",
+          "uploadDate": "2026-04-26T08:00:00+08:00",
+          "showIcon": true
+        }
+      },
+      {
         "listTag": "ol",
         "beforeHtml": "A participant reviews their assigned shared amount from the <strong>Trip participants</strong> page. The control appears only on the current participant`s own row when a shared amount is assigned.",
         "items": [
