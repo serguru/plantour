@@ -28,7 +28,7 @@
         "listTag": "ul",
         "items": [
           "Clicking <strong>Dashboard</strong> sends you to the main public page, because the full dashboard is available only after sign-in.",
-          "Use the toolbar menu button with the three horizontal lines (the sandwich menu) to open public pages such as <strong>Help</strong>, <strong>Search</strong>, <strong>Contact Us</strong>, <strong>Public Templates</strong>, <strong>Terms of Usage</strong>, and <strong>Privacy Policy</strong>.",
+          "Use the toolbar menu button with the three horizontal lines (the sandwich menu) to open public pages such as <strong>Help</strong>, <strong>Search</strong>, <strong>Contact Us</strong>,  <strong>Terms of Usage</strong>, and <strong>Privacy Policy</strong>.",
           "From that same sandwich menu, click <strong>Sign In / Sign Up</strong> when you want to open your account or continue into the full Plantour dashboard."
         ]
       }

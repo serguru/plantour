@@ -27,7 +27,7 @@
           "Click a button located to the item right, to add or remove that item.",
           "Use filtering by Name or Categories and sorting by Name to see only limited item list. Use button to the right if the target dropdown to add or remove only shown in the list, i.e. filtered, items."
         ],
-        "afterHtml": "Plantour remembers recent prompts and shows them again later, so repeated requests are faster. If you only want to browse ready-made templates without signing in, use <a href='/packing-list-generator/templates'>Public Templates</a> from the toolbar`s more menu instead."
+        "afterHtml": "Plantour remembers recent prompts and shows them again later, so repeated requests are faster."
       }
     ]
   }

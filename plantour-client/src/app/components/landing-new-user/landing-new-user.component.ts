@@ -60,7 +60,7 @@ export class LandingNewUserComponent implements OnInit {
       icon: 'shopping-bag',
       title: 'Track bags, personal items, and shared gear',
       description: 'Organize bags, personal items, and shared items in one system, then use templates to fill common needs faster and keep every traveler accountable for what they carry.',
-      highlights: ['Bags with packed-state tracking', 'Personal and shared item lists', 'AI and predefined item templates'],
+      highlights: ['Bags with packed-state tracking', 'Personal and shared item lists', 'AI items'],
       tone: 'forest'
     },
     {

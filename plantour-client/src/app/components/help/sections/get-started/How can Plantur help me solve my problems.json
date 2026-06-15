@@ -42,7 +42,6 @@
         "listTag": "ul",
         "beforeHtml": "Plantour reduces setup time so you do not have to rebuild the same trip structure every time.",
         "items": [
-          "Predefined templates help you start common packing and preparation flows faster.",
           "AI item recommendations help you fill missing packing ideas for a specific trip.",
           "AI full trip generation can turn your requirements into a more complete starting plan instead of leaving you with a blank page.",
           "Mobile-first screens make it practical to keep refining the plan while you are already moving."

@@ -472,7 +472,6 @@ builder.Services.AddScoped<ITripNoteEditorService, TripNoteEditorService>();
 builder.Services.AddScoped<IDocumentsService, DocumentsService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IInvitationService, InvitationService>();
-builder.Services.AddScoped<IPublicTemplatesService, PublicTemplatesService>();
 builder.Services.AddScoped<ITemporaryUserService, TemporaryUserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ISignInEmailService, SignInEmailService>();
@@ -519,10 +518,7 @@ builder.Services.AddScoped<plantour_server.Repositories.TodoCategoryRepository>(
 builder.Services.AddScoped<plantour_server.Repositories.CommunicationTypeRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.UnitRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripStatusRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.ActivityRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.GenderRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.TemperatureRangeRepository>();
-builder.Services.AddScoped<plantour_server.Repositories.AgeRangeRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.PlanRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.AccessTypeRepository>();
 builder.Services.AddScoped<plantour_server.Repositories.TripRepository>();

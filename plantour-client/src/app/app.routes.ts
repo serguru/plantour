@@ -80,30 +80,6 @@ export const routes: Routes = [
     data: { componentId: 'signin-token' }
   },
   {
-    path: 'packing-list-generator',
-    redirectTo: 'packing-list-generator/templates',
-    pathMatch: 'full'
-  },
-  {
-    path: 'packing-list-generator/templates/:templateId',
-    loadComponent: () => import('./components/features/public-templates/public-template-detail/public-template-detail-component').then(m => m.PublicTemplateDetailComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'public-template-detail' }
-  },
-  {
-    path: 'packing-list-generator/templates',
-    loadComponent: () => import('./components/features/public-templates/public-templates-component').then(m => m.PublicTemplatesComponent),
-    resolve: { cleanup: CleanupResolver },
-    data: { componentId: 'public-templates' }
-  },
-  // {
-  //   path: 'landing-registered',
-  //   canActivate: [adminOrParticipantGuard],
-  //   loadComponent: () => import('./components/landing-registered-user/landing-registered-user.component').then(m => m.LandingRegisteredUserComponent),
-  //   resolve: { cleanup: CleanupResolver },
-  //   data: { componentId: 'landing-registered' }
-  // },
-  {
     path: 'things',
     canActivate: [adminOrParticipantGuard],
     loadComponent: () => import('./components/things/things-component').then(m => m.ThingsComponent),

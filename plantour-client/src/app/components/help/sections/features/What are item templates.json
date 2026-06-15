@@ -12,7 +12,7 @@
           "When a row is not yet in the selected target, add it by clicking the row or by using the add action. When a row is already in the selected target, click it again or use the remove action to take it out.",
           "This page is useful when you want to reuse proven packing ideas instead of typing every item manually."
         ],
-        "afterHtml": "Plantour also has a separate public templates area. Anyone can open <a href='/packing-list-generator/templates'>Public Templates</a> without signing in. You can reach it from the toolbar`s more menu by clicking \"Public Templates\"."
+        "afterHtml": ""
       }
     ]
   }
