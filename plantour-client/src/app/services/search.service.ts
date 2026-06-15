@@ -8,7 +8,6 @@ import { PackageService } from './package-service';
 import { AdminsParticipantService } from './admins-participant-service';
 import { TemplateService } from './template-service';
 import { UsersService } from './users-service';
-import { PublicTemplatesService, PublicTemplateThingDto } from './public-templates-service';
 import { HELP_SECTIONS } from '../components/help/help-content';
 
 export interface SearchItem {
@@ -39,7 +38,6 @@ export class SearchService {
   private readonly adminsParticipantService = inject(AdminsParticipantService);
   private readonly templateService = inject(TemplateService);
   private readonly usersService = inject(UsersService);
-  private readonly publicTemplatesService = inject(PublicTemplatesService);
 
   private index: Index | null = null;
   private items = new Map<number, SearchItem>();
@@ -71,7 +69,6 @@ export class SearchService {
     try {
       this.indexHelpPages();
       this.indexStaticPages();
-      await this.indexPublicTemplates();
 
       if (isAuth) {
         await this.indexAuthenticatedData();
@@ -136,44 +133,6 @@ export class SearchService {
       route: ['/privacy'], componentId: null,
     });
     this.index!.add(privacyId, privacyFullText);
-  }
-
-  private async indexPublicTemplates(): Promise<void> {
-    const things = await firstValueFrom(
-      this.publicTemplatesService.getTemplateThings()
-    ).catch(() => [] as PublicTemplateThingDto[]);
-
-    const templateMap = new Map<string, { templateName: string; activityName: string; temperatureRangeName?: string | null; ageRangeName?: string | null; thingNames: string[] }>();
-    for (const t of things) {
-      if (!templateMap.has(t.templateId)) {
-        templateMap.set(t.templateId, {
-          templateName: t.templateName,
-          activityName: t.activityName,
-          temperatureRangeName: t.temperatureRangeName,
-          ageRangeName: t.ageRangeName,
-          thingNames: [],
-        });
-      }
-      if (t.thingName) {
-        templateMap.get(t.templateId)!.thingNames.push(t.thingName);
-      }
-    }
-
-    for (const [templateId, data] of templateMap) {
-      const fullText = [data.templateName, data.activityName, data.temperatureRangeName, data.ageRangeName, ...data.thingNames]
-        .filter(Boolean).join(' ');
-      const displayText = [data.templateName, data.activityName, data.temperatureRangeName, data.ageRangeName]
-        .filter(Boolean).join(' · ');
-      const id = ++this.counter;
-      this.items.set(id, {
-        id, entityId: templateId, category: 'Public Template',
-        fullText,
-        displayText,
-        route: ['/packing-list-generator/templates', templateId],
-        componentId: null,
-      });
-      this.index!.add(id, fullText.toLowerCase());
-    }
   }
 
   private async indexAuthenticatedData(): Promise<void> {

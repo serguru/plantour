@@ -111,12 +111,6 @@ function buildSitemapEntries(baseUrl: string): SitemapEntry[] {
       changefreq: 'yearly',
       priority: 0.3,
       lastmod,
-    },
-    {
-      url: `${baseUrl}/packing-list-generator/templates`,
-      changefreq: 'weekly',
-      priority: 0.7,
-      lastmod,
     }
   ];
 

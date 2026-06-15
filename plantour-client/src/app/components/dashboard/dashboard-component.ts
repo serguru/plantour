@@ -348,13 +348,6 @@ export class DashboardComponent {
             route: '/contact'
           },
           {
-            id: 'public-templates',
-            title: 'Public Templates',
-            description: 'Browse public packing templates shared on the site.',
-            icon: 'pi pi-objects-column',
-            route: '/packing-list-generator/templates'
-          },
-          {
             id: 'terms',
             title: 'Terms of Usage',
             description: 'Read plan, billing, and usage rules.',

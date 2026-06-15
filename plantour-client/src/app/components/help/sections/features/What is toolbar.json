@@ -11,7 +11,7 @@
           "Click the Plantour logo to return to the start route.",
           "Click \"Dashboard\" to open the dashboard directly.",
           "After <a href='/sign-in'>signing in</a>, the \"Dashboard\" button opens the main dashboard where you can navigate to dictionary-related commands (Travelers, Items, Todos, Bags, Template items) and trip-related pages.",
-          "The sandwich button with the \"bars\" icon opens an additional pop-up menu. It contains general commands such as profile, help, contact, public templates, legal information, and sign-in or sign-out depending on your current account state.",
+          "The sandwich button with the \"bars\" icon opens an additional pop-up menu. It contains general commands such as profile, help, contact, legal information, and sign-in or sign-out depending on your current account state.",
           "When you are signed in, the sandwich menu also contains \"Show Trip\" or \"Hide Trip\". This control switches the current trip name line under the toolbar on or off.",
           "If the current trip name line is visible, clicking the trip name opens the trips list so you can change the selected trip."
         ]

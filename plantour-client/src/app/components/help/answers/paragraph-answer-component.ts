@@ -19,7 +19,6 @@ export class HelpParagraphAnswerComponent {
     '/help',
     '/sign-in',
     '/signin-token',
-    '/packing-list-generator/templates',
     '/contact',
     '/privacy',
     '/terms',
